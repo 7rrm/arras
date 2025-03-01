@@ -181,9 +181,6 @@ async def send_poem(event):
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
         await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
-   
-import random
-from telethon import events
 
 # متغير لتخزين حالة التفعيل
 remix_enabled = False
@@ -222,7 +219,7 @@ async def send_remix(event):
         rl = random.randint(4, 70)
         
         # رابط الملف العشوائي من القناة
-        url = f"https://t.me/https://t.me/rem77e/{rl}"
+        url = f"t.me/rem77e/{rl}"
         
         # إرسال الملف مع تعليق
         await event.client.send_file(

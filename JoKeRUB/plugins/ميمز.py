@@ -202,31 +202,20 @@ async def disable_remix(event):
 # تعريف الحدث للرد على أي شخص يكتب .ريمكس
 @l313l.on(events.NewMessage(pattern="^\.ريمكس$"))
 async def send_remix(event):
-    global remix_enabled
-    
-    # الحصول على معرف المستخدم الخاص بك
-    my_id = (await event.client.get_me()).id
-    
-    # إذا كان المرسل هو البوت نفسه (أنت)، يرد دائمًا
-    if event.sender_id == my_id:
-        pass  # يستمر في تنفيذ الكود
-    # إذا كان المرسل شخصًا آخر، يرد فقط إذا كان الريمكس مفعلًا
-    elif not remix_enabled:
-        return
-    
     try:
         # رقم عشوائي بين 2 و 101
         rl = random.randint(4, 70)
         
         # رابط الملف العشوائي من القناة
-        url = f"t.me/rem77e/{rl}"
+        url = f"https://t.me/rem77e/{rl}"
         
-        # إرسال الملف مع تعليق
+        # إرسال الملف كوسائط مع تعليق
         await event.client.send_file(
             event.chat_id,
             url,
-            caption="🎵 | تم اختيارها لك .",
-            parse_mode="html"
+            caption="᯽︙ BY : @jepthon 🤲🏻☪️",
+            parse_mode="html",
+            force_document=False  # تأكد من إرسال الملف كوسائط وليس كوثيقة
         )
         
         # حذف الأمر الأصلي (اختياري)

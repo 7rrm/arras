@@ -220,15 +220,18 @@ async def send_remix(event):
     try:
         # رقم عشوائي بين 2 و 101
         rl = random.randint(4, 70)
+        
         # رابط الملف العشوائي من القناة
         url = f"https://t.me/https://t.me/rem77e/{rl}"
+        
         # إرسال الملف مع تعليق
         await event.client.send_file(
             event.chat_id,
             url,
-            caption="- تم اختيارها لك .",
+            caption="🎵 | تم اختيارها لك .",
             parse_mode="html"
-        )  
+        )
+        
         # حذف الأمر الأصلي (اختياري)
         await event.delete()
     

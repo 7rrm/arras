@@ -182,49 +182,6 @@ async def send_poem(event):
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
         await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
 
-# متغير لتخزين حالة التفعيل
-remix_enabled = False
-
-# أمر تفعيل الريمكس
-@l313l.on(events.NewMessage(pattern="^\.تفعيل الريمكس$"))
-async def enable_remix(event):
-    global remix_enabled
-    remix_enabled = True
-    await event.reply("تم تفعيل الريمكس بنجاح! الآن البوت سيرد على أي شخص يكتب `.ريمكس`.")
-
-# أمر إلغاء تفعيل الريمكس
-@l313l.on(events.NewMessage(pattern="^\.إلغاء تفعيل الريمكس$"))
-async def disable_remix(event):
-    global remix_enabled
-    remix_enabled = False
-    await event.reply("تم إلغاء تفعيل الريمكس بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.ريمكس`.")
-
-# تعريف الحدث للرد على أي شخص يكتب .ريمكس
-@l313l.on(events.NewMessage(pattern="^\.ريمكس$"))
-async def send_remix(event):
-    try:
-        # رقم عشوائي بين 2 و 101
-        rl = random.randint(4, 70)
-        
-        # رابط الملف العشوائي من القناة
-        url = f"https://t.me/rem77e/{rl}"
-        
-        # إرسال الملف كوسائط مع تعليق
-        await event.client.send_file(
-            event.chat_id,
-            url,
-            caption="᯽︙ BY : @jepthon 🤲🏻☪️",
-            parse_mode="html",
-            force_document=False  # تأكد من إرسال الملف كوسائط وليس كوثيقة
-        )
-        
-        # حذف الأمر الأصلي (اختياري)
-        await event.delete()
-    
-    except Exception as e:
-        # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
-        await event.reply(f"حدث خطأ أثناء إرسال الريمكس: {str(e)}")
-        
 @l313l.on(admin_cmd(outgoing=True, pattern="ثيم$"))
 async def jepThe(theme):
   rl = random.randint(2,510)

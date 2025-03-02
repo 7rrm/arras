@@ -115,21 +115,32 @@ async def fetch_info(replied_user, event):
     # تحديد نوع الحساب (بريميوم أو عادي)
     account_type = "بريميوم" if premium else "عادي"
 
-    # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
-    caption = f" •⎚• مـعلومـات المسـتخـدم\n"
-    caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆\n"
-    caption += f"{JEP_EM}  الاســم    ⤎  {first_name}\n"
-    caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
-    caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
-    caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
-    caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
-    caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
-    caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
-    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء التقريبي
-    caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
-    caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
+    # الكليشة الجديدة مع إضافة الملصقات المميزة
+    caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس زدثــون </b>"
+    caption += f'<a href="emoji/5812307593032372545">❤️</a>\n'
+    caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
+    caption += f'<a href="emoji/5809662223890518926">❤️</a>'
+    caption += f"<b>─┄─┄─┄─┄⋆</b>\n"
+    caption += f"<b>{JEP_EM}الاســم    ⤎ </b> "
+    caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
+    if premium:
+        caption += f'<a href="emoji/5832422209074762334">❤️</a>'
+    caption += f"\n<b>{JEP_EM}اليـوزر    ⤎  {username}</b>"
+    caption += f"\n<b>{JEP_EM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
+    caption += f"<b>{JEP_EM}الرتبــه    ⤎ {rotbat} </b>\n"
+    if premium:
+        caption += f"<b>{JEP_EM}الحساب  ⤎  بـريميـوم</b>"
+        caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
+    caption += f"<b>{JEP_EM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+    caption += f"<b>{JEP_EM}الرسائل  ⤎</b>  {message_count} "
+    caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
+    caption += f"<b>{JEP_EM}الإنشـاء  ⤎</b>  {creation_date}  🗓\n"
+    caption += f"<b>{JEP_EM}البايـو     ⤎  {user_bio}</b>\n"
+    caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
+    caption += f'<a href="emoji/5809662223890518926">❤️</a>'
+    caption += f"<b>─┄─┄─┄─┄⋆</b>\n"
     return photo, caption
-
+    
 @l313l.ar_cmd(
     pattern="كشف(?:\s|$)([\s\S]*)",
     command=("كشف", plugin_category),

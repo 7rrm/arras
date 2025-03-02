@@ -78,23 +78,14 @@ async def fetch_info(replied_user, event):
         creation_date = creation_date.strftime("%Y-%m")  # عرض السنة والشهر فقط
     else:
         creation_date = "غير معروف"
-        #الحصول على عدد رسائل المستخدم
-    try:
-        messages = await event.client(GetHistoryRequest(
-            peer=event.chat_id,
-            user_id=user_id,
-            limit=0,
-            offset_date=None,
-            offset_id=0,
-            max_id=0,
-            min_id=0,
-            add_offset=0,
-            hash=0
-        ))
-        message_count = messages.count
-    except Exception as e:
-        LOGS.error(f"حدث خطأ أثناء الحصول على عدد الرسائل: {e}")
-        message_count = "غير معروف"
+        
+        try:
+    message_count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
+    message_count = message_count.total if hasattr(message_count, 'total') else "غير معروف"
+except Exception as e:
+    LOGS.error(f"حدث خطأ أثناء الحصول على عدد الرسائل: {e}")
+    message_count = "غير معروف"
+
     photo = await event.client.download_profile_photo(     user_id,     Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",    download_big=True  )
     first_name = (      first_name.replace("\u2060", "")
         if first_name
@@ -104,19 +95,22 @@ async def fetch_info(replied_user, event):
     user_bio = "لاتـوجـد نبـذة" if not user_bio else user_bio
     rotbat = "⌁ من مطورين السورس 𓄂𓆃 ⌁" if user_id == 5427469031 else ("⌁ العضـو 𓅫 ⌁")
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246  else rotbat
-    # الكليشة الجديدة
-    caption = "•⎚• مـعلومـات المسـتخـدم\n"
-    caption += "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆\n"
-    caption += f"{JEP_EM}  الاســم    ⤎  {full_name}\n"
+        # تحديد نوع الحساب (بريميوم أو عادي)
+    account_type = "بريميوم" if premium else "عادي"
+
+    # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
+    caption = f" •⎚• مـعلومـات المسـتخـدم\n"
+    caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆\n"
+    caption += f"{JEP_EM}  الاســم    ⤎  {first_name}\n"
     caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
     caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
     caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
-    caption += f"{JEP_EM}  الحساب  ⤎  {first_name}\n"
+    caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
     caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
-    caption += "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
+    caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption
 
 @l313l.ar_cmd(

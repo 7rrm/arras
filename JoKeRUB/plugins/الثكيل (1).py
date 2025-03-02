@@ -5,23 +5,18 @@ from JoKeRUB import l313l
 hussein_enabled = False
 aljoker_enabled = False
 JOKER_ID = {}
+
 # تعريف الأمرين: .تفكيك و .ت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
 async def break_word(event):
     # الحصول على النص من الأمر
     text = event.pattern_match.group(2)
     
-    # تفكيك النص إلى أحرف مع مسافات
-    letters_with_space = ' '.join(list(text))
+    # تفكيك النص إلى أحرف
+    letters = ' '.join(list(text))
     
-    # تفكيك النص إلى أحرف مع فواصل
-    letters_with_comma = '،'.join(list(text))
-    
-    # إرسال النص المفكوك كرسالة جديدة مع مسافات
-    await event.respond(letters_with_space)
-    
-    # إرسال النص المفكوك كرسالة جديدة مع فواصل
-    await event.respond(letters_with_comma)
+    # إرسال النص المفكوك كرسالة جديدة
+    await event.respond(letters)
     
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()

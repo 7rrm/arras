@@ -42,7 +42,7 @@ async def react(event):
     user, rank = await get_user_from_event(event, catevent, nogroup=True)
     if not user:
         return
-    if user.id == 5427469031:  # يمكنك تغيير هذا الرقم إلى أي رقم آخر (مثلًا، لمنع التفاعل مع مطور البوت)
+    if user.id == 705475246:  # يمكنك تغيير هذا الرقم إلى أي رقم آخر (مثلًا، لمنع التفاعل مع مطور البوت)
         return await edit_delete(event, "**᯽︙ لا يمكنني التفاعل مع رسائل مطوري! **")
     reply_msg = await event.get_reply_message()
     chat_id = event.chat_id

@@ -1,3 +1,4 @@
+import os  # إضافة المكتبة المطلوبة
 import requests
 from datetime import datetime
 from telethon.tl.functions.photos import GetUserPhotosRequest
@@ -86,7 +87,7 @@ async def fetch_info(replied_user, event):
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
 
     # تحديد نوع الحساب (بريميوم أو عادي)
-    account_type = "بـريمـيوم ⭐" if premium else "عــادي"
+    account_type = "بريميوم" if premium else "عادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
     caption = f" •⎚• مـعلومـات المسـتخـدم\n"
@@ -102,7 +103,7 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
     caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption
-
+    
 @l313l.ar_cmd(
     pattern="كشف(?:\s|$)([\s\S]*)",
     command=("كشف", plugin_category),

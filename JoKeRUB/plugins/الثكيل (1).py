@@ -11,11 +11,17 @@ async def break_word(event):
     # الحصول على النص من الأمر
     text = event.pattern_match.group(2)
     
-    # تفكيك النص إلى أحرف
-    letters = ' '.join(list(text))
+    # تفكيك النص إلى أحرف مع مسافات
+    letters_with_space = ' '.join(list(text))
     
-    # إرسال النص المفكوك كرسالة جديدة
-    await event.respond(letters)
+    # تفكيك النص إلى أحرف مع فواصل
+    letters_with_comma = '،'.join(list(text))
+    
+    # إرسال النص المفكوك كرسالة جديدة مع مسافات
+    await event.respond(letters_with_space)
+    
+    # إرسال النص المفكوك كرسالة جديدة مع فواصل
+    await event.respond(letters_with_comma)
     
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()

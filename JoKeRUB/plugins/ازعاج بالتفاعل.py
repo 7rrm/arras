@@ -1,24 +1,12 @@
 """
-created by @YourUsername
-Idea by @YourUsername
+تفاعل تلقائي مع رسائل المستخدم بإيموجي
+تم الإنشاء بواسطة @YourUsername
 """
 
 from ..core.managers import edit_delete, edit_or_reply
-from ..sql_helper.echo_sql import (
-    addecho,
-    get_all_echos,
-    get_echos,
-    is_echo,
-    remove_all_echos,
-    remove_echo,
-    remove_echos,
-)
-from . import (
-    l313l,
-    edit_delete,
-    get_user_from_event,
-)
-import random  # لإختيار إيموجي عشوائي
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from . import l313l, get_user_from_event
+import random
 
 plugin_category = "fun"
 
@@ -34,35 +22,19 @@ EMOJI_LIST = ["👍", "❤️", "🔥", "🎉", "😂", "😍", "🤔", "👏", 
         "usage": "{tr}تفاعل <رد>",
     },
 )
-async def react(event):
+async def enable_react(event):
     "لتفعيل التفاعل مع رسائل المستخدم"
     if event.reply_to_msg_id is None:
         return await edit_delete(event, "⌁︙يرجى الرد على الشخص الذي تـريد التفاعل مع رسائله.")
     catevent = await edit_or_reply(event, "⌁︙يتم تفعيل هذا الأمر، انتظر قليلاً...")
-    user, rank = await get_user_from_event(event, catevent, nogroup=True)
+    user, _ = await get_user_from_event(event, catevent, nogroup=True)
     if not user:
         return
     if user.id == 705475246:  # يمكنك تغيير هذا الرقم إلى أي رقم آخر (مثلًا، لمنع التفاعل مع مطور البوت)
         return await edit_delete(event, "**᯽︙ لا يمكنني التفاعل مع رسائل مطوري! **")
-    reply_msg = await event.get_reply_message()
-    chat_id = event.chat_id
-    user_id = reply_msg.sender_id
-    if event.is_private:
-        chat_name = user.first_name
-        chat_type = "Personal"
-    else:
-        chat_name = event.chat.title
-        chat_type = "Group"
-    user_name = user.first_name
-    user_username = user.username
-    if is_echo(chat_id, user_id):
-        return await edit_or_reply(event, "⌁︙تـم تفعيل التفاعل مع رسائل هذا المستخدم مسبقًا ✅")
-    try:
-        addecho(chat_id, user_id, chat_name, user_name, user_username, chat_type)
-    except Exception as e:
-        await edit_delete(catevent, f"᯽︙ خطأ:\n`{str(e)}`")
-    else:
-        await edit_or_reply(catevent, "⌁︙تـم تفعيل التفاعل مع رسائل هذا المستخدم بنجاح ✅\n⌁︙سيتم التفاعل مع جميع رسائله هنا.")
+    # تفعيل التفاعل مع المستخدم
+    addgvar(f"react_{event.chat_id}_{user.id}", "true")
+    await edit_or_reply(catevent, "⌁︙تـم تفعيل التفاعل مع رسائل هذا المستخدم بنجاح ✅\n⌁︙سيتم التفاعل مع جميع رسائله هنا.")
 
 
 @l313l.ar_cmd(
@@ -74,22 +46,16 @@ async def react(event):
         "usage": "{tr}ايقاف التفاعل <رد>",
     },
 )
-async def stop_react(event):
+async def disable_react(event):
     "لإيقاف التفاعل مع رسائل المستخدم"
     if event.reply_to_msg_id is None:
         return await edit_or_reply(event, "⌁︙يرجى الرد على الشخص الذي تـريد إيقاف التفاعل مع رسائله.")
     reply_msg = await event.get_reply_message()
     user_id = reply_msg.sender_id
     chat_id = event.chat_id
-    if is_echo(chat_id, user_id):
-        try:
-            remove_echo(chat_id, user_id)
-        except Exception as e:
-            await edit_delete(event, f"᯽︙ خطأ:\n`{str(e)}`")
-        else:
-            await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع رسائل هذا المستخدم بنجاح ✅")
-    else:
-        await edit_or_reply(event, "⌁︙لم يتم تفعيل التفاعل مع رسائل هذا المستخدم ⚠️")
+    # إيقاف التفاعل مع المستخدم
+    delgvar(f"react_{chat_id}_{user_id}")
+    await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع رسائل هذا المستخدم بنجاح ✅")
 
 
 @l313l.ar_cmd(
@@ -109,25 +75,18 @@ async def remove_react(event):
     "لإيقاف التفاعل مع جميع المستخدمين"
     input_str = event.pattern_match.group(1)
     if input_str:
-        lecho = get_all_echos()
-        if len(lecho) == 0:
-            return await edit_delete(event, "⌁︙لم يتم تفعيل التفاعل مع أي شخص بالاصل ⚠️")
-        try:
-            remove_all_echos()
-        except Exception as e:
-            await edit_delete(event, f"᯽︙ خطأ:\n`{str(e)}`", 10)
-        else:
-            await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع جميع المستخدمين بنجاح ✅")
+        # إيقاف التفاعل في جميع الدردشات
+        for var in list(gvarstatus()):
+            if var.startswith("react_"):
+                delgvar(var)
+        await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع جميع المستخدمين في جميع الدردشات بنجاح ✅")
     else:
-        lecho = get_echos(event.chat_id)
-        if len(lecho) == 0:
-            return await edit_delete(event, "⌁︙لم يتم تفعيل التفاعل مع أي شخص في هذه الدردشة ⚠️")
-        try:
-            remove_echos(event.chat_id)
-        except Exception as e:
-            await edit_delete(event, f"᯽︙ خطأ:\n`{str(e)}`", 10)
-        else:
-            await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع جميع المستخدمين في هذه الدردشة بنجاح ✅")
+        # إيقاف التفاعل في الدردشة الحالية فقط
+        chat_id = event.chat_id
+        for var in list(gvarstatus()):
+            if var.startswith(f"react_{chat_id}_"):
+                delgvar(var)
+        await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع جميع المستخدمين في هذه الدردشة بنجاح ✅")
 
 
 @l313l.ar_cmd(
@@ -147,47 +106,29 @@ async def remove_react(event):
 async def list_react(event):
     "لعرض قائمة المستخدمين الذين تم التفاعل مع رسائلهم"
     input_str = event.pattern_match.group(1)
-    private_chats = ""
     output_str = "⌁︙قائمة الأشخاص الذين تم التفاعل مع رسائلهم:\n\n"
     if input_str:
-        lsts = get_all_echos()
-        group_chats = ""
-        if len(lsts) > 0:
-            for echos in lsts:
-                if echos.chat_type == "Personal":
-                    if echos.user_username:
-                        private_chats += f"⌁︙ [{echos.user_name}](https://t.me/{echos.user_username})\n"
-                    else:
-                        private_chats += f"⌁︙ [{echos.user_name}](tg://user?id={echos.user_id})\n"
-                else:
-                    if echos.user_username:
-                        group_chats += f"⌁︙ [{echos.user_name}](https://t.me/{echos.user_username}) في الدردشة {echos.chat_name} (ID: `{echos.chat_id}`)\n"
-                    else:
-                        group_chats += f"⌁︙ [{echos.user_name}](tg://user?id={echos.user_id}) في الدردشة {echos.chat_name} (ID: `{echos.chat_id}`)\n"
-        else:
-            return await edit_or_reply(event, "⌁︙لم يتم تفعيل التفاعل مع أي شخص بالاصل ⚠️")
-        if private_chats != "":
-            output_str += "⌁︙الـدردشـات الـخاصة\n" + private_chats + "\n\n"
-        if group_chats != "":
-            output_str += "⌁︙دردشـات الـمجموعات\n" + group_chats
+        # عرض جميع المستخدمين في جميع الدردشات
+        for var in list(gvarstatus()):
+            if var.startswith("react_"):
+                _, chat_id, user_id = var.split("_")
+                output_str += f"⌁︙ المستخدم: {user_id} في الدردشة: {chat_id}\n"
     else:
-        lsts = get_echos(event.chat_id)
-        if len(lsts) <= 0:
-            return await edit_or_reply(event, "⌁︙لم يتم تفعيل التفاعل مع أي شخص في هذه الدردشة ⚠️")
-        for echos in lsts:
-            if echos.user_username:
-                private_chats += f"⌁︙ [{echos.user_name}](https://t.me/{echos.user_username})\n"
-            else:
-                private_chats += f"⌁︙ [{echos.user_name}](tg://user?id={echos.user_id})\n"
-        output_str = f"⌁︙الأشخاص الذين تم التفاعل مع رسائلهم في هذه الدردشة:\n" + private_chats
-
+        # عرض المستخدمين في الدردشة الحالية فقط
+        chat_id = event.chat_id
+        for var in list(gvarstatus()):
+            if var.startswith(f"react_{chat_id}_"):
+                _, _, user_id = var.split("_")
+                output_str += f"⌁︙ المستخدم: {user_id}\n"
     await edit_or_reply(event, output_str)
 
 
 @l313l.ar_cmd(incoming=True, edited=False)
 async def react_to_messages(event):
     "لإضافة تفاعل عشوائي على رسائل المستخدم"
-    if is_echo(event.chat_id, event.sender_id):
+    chat_id = event.chat_id
+    user_id = event.sender_id
+    if gvarstatus(f"react_{chat_id}_{user_id}") == "true":
         emoji = random.choice(EMOJI_LIST)  # اختيار إيموجي عشوائي من القائمة
         try:
             await event.react(emoji)

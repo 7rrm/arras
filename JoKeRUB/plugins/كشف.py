@@ -48,7 +48,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-
 async def fetch_info(replied_user, event):
     """Get details from the User object."""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
@@ -73,12 +72,23 @@ async def fetch_info(replied_user, event):
     verified = replied_user.verified
     premium = replied_user.premium  # التحقق من حالة الحساب (بريميوم أو عادي)
 
-    # الحصول على تاريخ إنشاء الحساب (السنة والشهر فقط)
-    creation_date = replied_user.status.created if hasattr(replied_user.status, 'created') else None
-    if creation_date:
-        creation_date = creation_date.strftime("%Y-%m")  # عرض السنة والشهر فقط
-    else:
-        creation_date = "غير معروف"
+    # الحصول على تاريخ إنشاء تقريبي باستخدام dc_id
+    creation_date = "غير معروف"
+    if hasattr(replied_user.photo, 'dc_id'):
+        dc_id = replied_user.photo.dc_id
+        # تقدير تاريخ الإنشاء بناءً على dc_id
+        if dc_id == 1:
+            creation_date = "2013-2020"  # مثال: مراكز بيانات قديمة
+        elif dc_id == 2:
+            creation_date = "2015-2021"
+        elif dc_id == 3:
+            creation_date = "2017-2022"
+        elif dc_id == 4:
+            creation_date = "2018-2023"
+        elif dc_id == 5:
+            creation_date = "2020-2024"
+        else:
+            creation_date = "غير معروف"
 
     # الحصول على عدد رسائل المستخدم في الدردشة الحالية
     try:
@@ -103,7 +113,7 @@ async def fetch_info(replied_user, event):
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
 
     # تحديد نوع الحساب (بريميوم أو عادي)
-    account_type = "بـريميـوم 🌟" if premium else "عــادي"
+    account_type = "بريميوم" if premium else "عادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
     caption = f" •⎚• مـعلومـات المسـتخـدم\n"
@@ -112,10 +122,10 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
     caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
     caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
-    caption += f"{JEP_EM}  الحساب  ⤎  {account_type}\n"  # إضافة نوع الحساب هنا
+    caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
-    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"
+    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء التقريبي
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
     caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption

@@ -1,13 +1,13 @@
 import random
 from telethon import events, functions, types
-from SHRU import Qrh9
+from JoKeRUB import l313l
 from ..Config import Config
 from ..core.managers import edit_or_reply
 
 iz3aj_active = {}
 emoje = ["😂", "🤯", "👍", "😅", "💋"]
 
-@Qrh9.ar_cmd(
+@l313l.ar_cmd(
     pattern="ازعاج (.*)",
     command=("ازعاج", "fun"),
     info={
@@ -29,7 +29,7 @@ async def start_iz3aj(event):
     iz3aj_active[user_id] = emoji or random.choice(emoje)
     await edit_or_reply(event, f"⌔∮ تم تفعيل الإزعاج بهذا الإيموجي {emoji} للشخص.")
 
-@Qrh9.ar_cmd(
+@l313l.ar_cmd(
     pattern="حذف_ازعاج",
     command=("حذف_ازعاج", "fun"),
     info={
@@ -50,7 +50,7 @@ async def stop_iz3aj(event):
     else:
         await edit_or_reply(event, "⌔∮ لا يوجد إزعاج مفعّل لهذا الشخص.")
 
-@Qrh9.on(events.NewMessage())
+@l313l.on(events.NewMessage())
 async def iz3a(event):
     user_id = event.sender_id
     if user_id in iz3aj_active:

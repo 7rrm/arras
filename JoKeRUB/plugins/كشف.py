@@ -103,7 +103,7 @@ async def fetch_info(replied_user, event):
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
 
     # تحديد نوع الحساب (بريميوم أو عادي)
-    account_type = "بريميوم" if premium else "عادي"
+    account_type = "بـريميـوم 🌟" if premium else "عــادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
     caption = f" •⎚• مـعلومـات المسـتخـدم\n"
@@ -112,7 +112,7 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
     caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
     caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
-    caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
+    caption += f"{JEP_EM}  الحساب  ⤎  {account_type}\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
     caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"

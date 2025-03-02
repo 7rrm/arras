@@ -69,6 +69,7 @@ async def fetch_info(replied_user, event):
     is_bot = replied_user.bot
     restricted = replied_user.restricted
     verified = replied_user.verified
+    premium = replied_user.premium  #الحساب اذا كان بريوم
     photo = await event.client.download_profile_photo(     user_id,     Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",    download_big=True  )
     first_name = (      first_name.replace("\u2060", "")
         if first_name
@@ -87,6 +88,7 @@ async def fetch_info(replied_user, event):
     caption += f"<b> {JEP_EM}╎الحساب ⇠ </b> "
     caption += f'<a href="tg://user?id={user_id}">{first_name}</a>'
     caption += f"\n<b> {JEP_EM}╎البايـو    ⇠ </b> {user_bio} \n"
+    caption += f"<b> {JEP_EM}╎نوع الحساب ⇠ </b> {'بريميوم' if premium else 'عادي'}\n"  # إضافة حالة الحساب
     caption += f"✛━━━━━━━━━━━━━✛"
     return photo, caption
 

@@ -6,6 +6,8 @@ from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import get_input_location
 from ..sql_helper.globals import gvarstatus
+from datetime import datetime
+from telethon.tl.functions.messages import GetHistoryRequest  # استيراد الدالة للحصول على عدد الرسائل
 
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
@@ -15,7 +17,7 @@ from ..core.managers import edit_or_reply
 from ..helpers import get_user_from_event, reply_id
 from . import spamwatch
 
-JEP_EM = Config.ID_EM or " •❃ "
+JEP_EM = Config.ID_EM or " ✦ "
 ID_EDIT = gvarstatus("ID_ET") or "ايدي"
 
 plugin_category = "utils"
@@ -70,6 +72,29 @@ async def fetch_info(replied_user, event):
     restricted = replied_user.restricted
     verified = replied_user.verified
     premium = replied_user.premium  #الحساب اذا كان بريوم
+    # الحصول على تاريخ إنشاء الحساب (السنة والشهر فقط)
+    creation_date = replied_user.status.created if hasattr(replied_user.status, 'created') else None
+    if creation_date:
+        creation_date = creation_date.strftime("%Y-%m")  # عرض السنة والشهر فقط
+    else:
+        creation_date = "غير معروف"
+        #الحصول على عدد رسائل المستخدم
+    try:
+        messages = await event.client(GetHistoryRequest(
+            peer=event.chat_id,
+            user_id=user_id,
+            limit=0,
+            offset_date=None,
+            offset_id=0,
+            max_id=0,
+            min_id=0,
+            add_offset=0,
+            hash=0
+        ))
+        message_count = messages.count
+    except Exception as e:
+        LOGS.error(f"حدث خطأ أثناء الحصول على عدد الرسائل: {e}")
+        message_count = "غير معروف"
     photo = await event.client.download_profile_photo(     user_id,     Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",    download_big=True  )
     first_name = (      first_name.replace("\u2060", "")
         if first_name
@@ -79,17 +104,19 @@ async def fetch_info(replied_user, event):
     user_bio = "لاتـوجـد نبـذة" if not user_bio else user_bio
     rotbat = "⌁ من مطورين السورس 𓄂𓆃 ⌁" if user_id == 5427469031 else ("⌁ العضـو 𓅫 ⌁")
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246  else rotbat
-    caption = "✛━━━━━━━━━━━━━✛\n"
-    caption += f"<b> {JEP_EM}╎الاسـم    ⇠ </b> {full_name}\n"
-    caption += f"<b> {JEP_EM}╎المعـرف  ⇠ </b> {username}\n"
-    caption += f"<b> {JEP_EM}╎الايـدي   ⇠ </b> <code>{user_id}</code>\n"
-    caption += f"<b> {JEP_EM}╎الرتبـــه  ⇠ {rotbat} </b>\n"
-    caption += f"<b> {JEP_EM}╎الصـور   ⇠ </b> {replied_user_profile_photos_count}\n"
-    caption += f"<b> {JEP_EM}╎الحساب ⇠ </b> "
-    caption += f'<a href="tg://user?id={user_id}">{first_name}</a>'
-    caption += f"\n<b> {JEP_EM}╎البايـو    ⇠ </b> {user_bio} \n"
-    caption += f"<b> {JEP_EM}╎نوع الحساب ⇠ </b> {'بريميوم' if premium else 'عادي'}\n"  # إضافة حالة الحساب
-    caption += f"✛━━━━━━━━━━━━━✛"
+    # الكليشة الجديدة
+    caption = "•⎚• مـعلومـات المسـتخـدم\n"
+    caption += "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆\n"
+    caption += f"{JEP_EM}  الاســم    ⤎  {full_name}\n"
+    caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
+    caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
+    caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
+    caption += f"{JEP_EM}  الحساب  ⤎  {first_name}\n"
+    caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
+    caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
+    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"
+    caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
+    caption += "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption
 
 @l313l.ar_cmd(

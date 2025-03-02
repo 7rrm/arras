@@ -1,6 +1,5 @@
-import os
+import requests
 from datetime import datetime
-from requests import get
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest
@@ -21,32 +20,21 @@ ID_EDIT = gvarstatus("ID_ET") or "ايدي"
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
-async def get_user_from_event(event):
-    if event.reply_to_msg_id:
-        previous_message = await event.get_reply_message()
-        user_object = await event.client.get_entity(previous_message.sender_id)
-    else:
-        user = event.pattern_match.group(1)
-        if user.isnumeric():
-            user = int(user)
-        if not user:
-            self_user = await event.client.get_me()
-            user = self_user.id
-        if event.message.entities:
-            probable_user_mention_entity = event.message.entities[0]
-            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                user_obj = await event.client.get_entity(user_id)
-                return user_obj
-        if isinstance(user, int) or user.startswith("@"):
-            user_obj = await event.client.get_entity(user)
-            return user_obj
-        try:
-            user_object = await event.client.get_entity(user)
-        except (TypeError, ValueError) as err:
-            await event.edit(str(err))
-            return None
-    return user_object
+async def fetch_zelzal(user_id):
+    headers = {
+        'Host': 'restore-access.indream.app',
+        'Connection': 'keep-alive',
+        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
+        'Accept': '*/*',
+        'Accept-Language': 'ar',
+        'Content-Length': '25',
+        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = '{"telegramId":' + str(user_id) + '}'
+    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
+    zelzal_date = response['data']['date']
+    return zelzal_date
 
 async def fetch_info(replied_user, event):
     """Get details from the User object."""
@@ -72,23 +60,8 @@ async def fetch_info(replied_user, event):
     verified = replied_user.verified
     premium = replied_user.premium  # التحقق من حالة الحساب (بريميوم أو عادي)
 
-    # الحصول على تاريخ إنشاء تقريبي باستخدام dc_id
-    creation_date = "غير معروف"
-    if hasattr(replied_user.photo, 'dc_id'):
-        dc_id = replied_user.photo.dc_id
-        # تقدير تاريخ الإنشاء بناءً على dc_id
-        if dc_id == 1:
-            creation_date = "2013-2020"  # مثال: مراكز بيانات قديمة
-        elif dc_id == 2:
-            creation_date = "2015-2021"
-        elif dc_id == 3:
-            creation_date = "2017-2022"
-        elif dc_id == 4:
-            creation_date = "2018-2023"
-        elif dc_id == 5:
-            creation_date = "2020-2024"
-        else:
-            creation_date = "غير معروف"
+    # الحصول على تاريخ إنشاء الحساب باستخدام API
+    creation_date = await fetch_zelzal(user_id)
 
     # الحصول على عدد رسائل المستخدم في الدردشة الحالية
     try:
@@ -113,7 +86,7 @@ async def fetch_info(replied_user, event):
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
 
     # تحديد نوع الحساب (بريميوم أو عادي)
-    account_type = "بـريـميوم ⭐" if premium else "عــادي"
+    account_type = "بـريمـيوم ⭐" if premium else "عــادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
     caption = f" •⎚• مـعلومـات المسـتخـدم\n"
@@ -122,10 +95,10 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  اليـوزر    ⤎  {username}\n"
     caption += f"{JEP_EM}  الايـدي    ⤎  <code>{user_id}</code>\n"
     caption += f"{JEP_EM}  الرتبــه    ⤎  {rotbat}\n"
-    caption += f"{JEP_EM}  الحساب  ⤎  {account_type}\n"  # إضافة نوع الحساب هنا
+    caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
-    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء التقريبي
+    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء من API
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
     caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption

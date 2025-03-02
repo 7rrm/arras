@@ -1,13 +1,11 @@
-import html
 import os
-
+from datetime import datetime
 from requests import get
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.utils import get_input_location
 from ..sql_helper.globals import gvarstatus
-from datetime import datetime
-from telethon.tl.functions.messages import GetHistoryRequest  # استيراد الدالة للحصول على عدد الرسائل
 
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
@@ -22,6 +20,7 @@ ID_EDIT = gvarstatus("ID_ET") or "ايدي"
 
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
+
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
         previous_message = await event.get_reply_message()
@@ -54,7 +53,8 @@ async def fetch_info(replied_user, event):
     """Get details from the User object."""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
     replied_user_profile_photos = await event.client(
-        GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)    )
+        GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
+    )
     replied_user_profile_photos_count = "لايـوجـد بروفـايـل"
     dc_id = "Can't get dc id"
     try:
@@ -71,31 +71,38 @@ async def fetch_info(replied_user, event):
     is_bot = replied_user.bot
     restricted = replied_user.restricted
     verified = replied_user.verified
-    premium = replied_user.premium  #الحساب اذا كان بريوم
+    premium = replied_user.premium  # التحقق من حالة الحساب (بريميوم أو عادي)
+
     # الحصول على تاريخ إنشاء الحساب (السنة والشهر فقط)
     creation_date = replied_user.status.created if hasattr(replied_user.status, 'created') else None
     if creation_date:
         creation_date = creation_date.strftime("%Y-%m")  # عرض السنة والشهر فقط
     else:
         creation_date = "غير معروف"
-        
-        try:
-    message_count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
-    message_count = message_count.total if hasattr(message_count, 'total') else "غير معروف"
-except Exception as e:
-    LOGS.error(f"حدث خطأ أثناء الحصول على عدد الرسائل: {e}")
-    message_count = "غير معروف"
 
-    photo = await event.client.download_profile_photo(     user_id,     Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",    download_big=True  )
-    first_name = (      first_name.replace("\u2060", "")
+    # الحصول على عدد رسائل المستخدم في الدردشة الحالية
+    try:
+        message_count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
+        message_count = message_count.total if hasattr(message_count, 'total') else "غير معروف"
+    except Exception as e:
+        LOGS.error(f"حدث خطأ أثناء الحصول على عدد الرسائل: {e}")
+        message_count = "غير معروف"
+
+    photo = await event.client.download_profile_photo(
+        user_id, Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg", download_big=True
+    )
+    first_name = (
+        first_name.replace("\u2060", "")
         if first_name
-        else ("هذا المستخدم ليس له اسم أول")  )
+        else ("هذا المستخدم ليس له اسم أول")
+    )
     full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لايـوجـد معـرف")
     user_bio = "لاتـوجـد نبـذة" if not user_bio else user_bio
     rotbat = "⌁ من مطورين السورس 𓄂𓆃 ⌁" if user_id == 5427469031 else ("⌁ العضـو 𓅫 ⌁")
-    rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246  else rotbat
-        # تحديد نوع الحساب (بريميوم أو عادي)
+    rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
+
+    # تحديد نوع الحساب (بريميوم أو عادي)
     account_type = "بريميوم" if premium else "عادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر

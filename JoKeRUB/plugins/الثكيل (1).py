@@ -6,22 +6,6 @@ hussein_enabled = False
 aljoker_enabled = False
 JOKER_ID = {}
 
-from telethon import events
-
-@l313l.on(events.NewMessage(pattern="/getemojioid"))
-async def get_emoji_id(event):
-    if event.is_reply:
-        replied_message = await event.get_reply_message()
-        if replied_message.media:
-            if hasattr(replied_message.media, 'document'):
-                emoji_id = replied_message.media.document.id
-                await event.reply(f"معرف الإيموجي: `{emoji_id}`")
-            else:
-                await event.reply("الرسالة لا تحتوي على إيموجي مميز.")
-        else:
-            await event.reply("الرجاء الرد على رسالة تحتوي على إيموجي مميز.")
-    else:
-        await event.reply("الرجاء الرد على رسالة تحتوي على إيموجي مميز.")
 # تعريف الأمرين: .تفكيك و .ت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
 async def break_word(event):

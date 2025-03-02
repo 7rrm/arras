@@ -71,25 +71,7 @@ async def fetch_info(replied_user, event):
     restricted = replied_user.restricted
     verified = replied_user.verified
     premium = replied_user.premium  # التحقق من حالة الحساب (بريميوم أو عادي)
-
-    # الحصول على تاريخ إنشاء تقريبي باستخدام dc_id
-    creation_date = "غير معروف"
-    if hasattr(replied_user.photo, 'dc_id'):
-        dc_id = replied_user.photo.dc_id
-        # تقدير تاريخ الإنشاء بناءً على dc_id
-        if dc_id == 1:
-            creation_date = "2013-2020"  # مثال: مراكز بيانات قديمة
-        elif dc_id == 2:
-            creation_date = "2015-2021"
-        elif dc_id == 3:
-            creation_date = "2017-2022"
-        elif dc_id == 4:
-            creation_date = "2018-2023"
-        elif dc_id == 5:
-            creation_date = "2020-2024"
-        else:
-            creation_date = "غير معروف"
-
+    
     # الحصول على عدد رسائل المستخدم في الدردشة الحالية
     try:
         message_count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
@@ -113,7 +95,7 @@ async def fetch_info(replied_user, event):
     rotbat = "⌁ مـالك الحساب 𓀫 ⌁" if user_id == (await event.client.get_me()).id and user_id != 705475246 else rotbat
 
     # تحديد نوع الحساب (بريميوم أو عادي)
-    account_type = "بريميوم" if premium else "عادي"
+    account_type = "بـريميـوم ⭐" if premium else "عــادي"
 
     # الكليشة الجديدة مع إضافة المتغير JEP_EM في بداية كل سطر
     caption = f" •⎚• مـعلومـات المسـتخـدم\n"
@@ -125,7 +107,6 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
-    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء التقريبي
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
     caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption

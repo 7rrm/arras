@@ -64,6 +64,10 @@ async def react_to_messages(event):
     if gvarstatus(f"react_{chat_id}_{user_id}") == "true":
         emoji = random.choice(EMOJI_LIST)  # اختيار إيموجي عشوائي من القائمة
         try:
-            await event.react(emoji)  # التفاعل مع الرسالة بإيموجي
+            await event.client.send_reaction(
+                entity=event.chat_id,
+                message=event.id,
+                reaction=emoji
+            )
         except Exception as e:
             print(f"᯽︙ خطأ في التفاعل مع الرسالة:\n{str(e)}")

@@ -21,22 +21,6 @@ ID_EDIT = gvarstatus("ID_ET") or "ايدي"
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
-async def fetch_zelzal(user_id):
-    headers = {
-        'Host': 'restore-access.indream.app',
-        'Connection': 'keep-alive',
-        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
-        'Accept': '*/*',
-        'Accept-Language': 'ar',
-        'Content-Length': '25',
-        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    data = '{"telegramId":' + str(user_id) + '}'
-    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
-    zelzal_date = response['data']['date']
-    return zelzal_date
-
 async def fetch_info(replied_user, event):
     """Get details from the User object."""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
@@ -99,7 +83,6 @@ async def fetch_info(replied_user, event):
     caption += f"{JEP_EM}  الحساب  ⤎  ({account_type})\n"  # إضافة نوع الحساب هنا
     caption += f"{JEP_EM}  الصـور    ⤎  {replied_user_profile_photos_count}\n"
     caption += f"{JEP_EM}  الرسائل  ⤎  {message_count}\n"  # عدد رسائل المستخدم
-    caption += f"{JEP_EM}  الإنشـاء  ⤎  {creation_date}\n"  # تاريخ الإنشاء من API
     caption += f"{JEP_EM}  البايـو     ⤎  {user_bio}\n"
     caption += f" ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
     return photo, caption

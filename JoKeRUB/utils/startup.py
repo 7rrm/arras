@@ -100,7 +100,7 @@ async def startupmessage():
                 BOTLOG_CHATID,
                 "https://t.me/i1Voices/2139",
                 caption="**‏᯽︙ بــوت الجوكر يـعـمـل بـنـجـاح ✓ \n᯽︙ أرسل `.الاوامر`لرؤية اوامر السورس \n  ᯽︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل`.هاك`**",
-                buttons=[(Button.url("سورس الجوكر", "https://t.me/jepthon"),)],
+                buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
             )
     except Exception as e:
         LOGS.error(e)
@@ -179,7 +179,7 @@ async def add_bot_to_logger_group(chat_id):
         except Exception as e:
             LOGS.error(str(e))
 #by @jepthon بس اشوفك خامطه للكود اهينك وافضحك
-JoKeRUB = {"@AljokerUserBot", "@jepthonsupport"}
+JoKeRUB = {"@aqhvv"}
 
 async def saves():
     for lMl10l in JoKeRUB:
@@ -189,7 +189,7 @@ async def saves():
             slots = [boost.slot for boost in result.my_boosts]
             aljoker_channel_id = None
             for chat in result.chats:
-                if chat.username == 'AljokerUserBot':
+                if chat.username == 'aqhvv':
                     aljoker_channel_id = chat.id
                     break
             if aljoker_channel_id and any(boost.peer.channel_id == aljoker_channel_id for boost in result.my_boosts):

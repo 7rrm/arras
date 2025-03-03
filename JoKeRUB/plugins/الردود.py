@@ -9,11 +9,31 @@ from ..sql_helper.filter_sql import (
     remove_all_filters,
     remove_filter,
 )
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from . import BOTLOG, BOTLOG_CHATID
 
 plugin_category = "utils"
-ROZTEXT = "عـذرا لا يمكـنك اضافـة رد هـنا" 
+ROZTEXT = "عـذرا لا يمكـنك اضافـة رد هـنا"
 
+# دالة للحصول على قائمة المجموعات المفعلة للترحيب
+def get_welcome_chats():
+    welcome_chats = gvarstatus("WELCOME_CHATS")
+    return set(map(int, welcome_chats.split(","))) if welcome_chats else set()
+
+# دالة لإضافة مجموعة إلى قائمة المجموعات المفعلة للترحيب
+def add_welcome_chat(chat_id):
+    welcome_chats = get_welcome_chats()
+    welcome_chats.add(chat_id)
+    addgvar("WELCOME_CHATS", ",".join(map(str, welcome_chats)))
+
+# دالة لإزالة مجموعة من قائمة المجموعات المفعلة للترحيب
+def remove_welcome_chat(chat_id):
+    welcome_chats = get_welcome_chats()
+    welcome_chats.discard(chat_id)
+    if welcome_chats:
+        addgvar("WELCOME_CHATS", ",".join(map(str, welcome_chats)))
+    else:
+        delgvar("WELCOME_CHATS")
 
 @l313l.ar_cmd(incoming=True)
 async def filter_incoming_handler(handler):  # sourcery no-metrics
@@ -84,7 +104,6 @@ async def filter_incoming_handler(handler):  # sourcery no-metrics
                     ),
                 )
 
-
 @l313l.ar_cmd(
     pattern="رد ([\s\S]*)",
     command=("رد", plugin_category),
@@ -148,6 +167,47 @@ async def add_new_filter(new_handler):
     if add_filter(str(new_handler.chat_id), keyword, string, msg_id) is True:
         return await edit_or_reply(new_handler, success.format(keyword, "Updated"))
     await edit_or_reply(new_handler, f"Error while setting filter for {keyword}")
+
+@l313l.ar_cmd(
+    pattern="تفعيل ترحيب الايدي$",
+    command=("تفعيل ترحيب الايدي", plugin_category),
+    info={
+        "header": "To enable welcome messages in the current chat.",
+        "description": "When enabled, the bot will automatically reply with a welcome message when a user sends 'ا'.",
+        "usage": "{tr}تفعيل ترحيب الايدي",
+    },
+)
+async def enable_welcome(event):
+    "To enable welcome messages in the current chat."
+    chat_id = event.chat_id
+    add_welcome_chat(chat_id)
+    await edit_or_reply(event, "**تم تفعيل الترحيب في هذه المجموعة بنجاح ✓**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل ترحيب الايدي$",
+    command=("تعطيل ترحيب الايدي", plugin_category),
+    info={
+        "header": "To disable welcome messages in the current chat.",
+        "description": "When disabled, the bot will no longer send welcome messages in this chat.",
+        "usage": "{tr}تعطيل ترحيب الايدي",
+    },
+)
+async def disable_welcome(event):
+    "To disable welcome messages in the current chat."
+    chat_id = event.chat_id
+    remove_welcome_chat(chat_id)
+    await edit_or_reply(event, "**تم تعطيل الترحيب في هذه المجموعة بنجاح ✓**")
+
+@l313l.ar_cmd(incoming=True)
+async def welcome_message(handler):
+    if handler.sender_id == handler.client.uid:
+        return
+    chat_id = handler.chat_id
+    welcome_chats = get_welcome_chats()
+    if chat_id not in welcome_chats:
+        return
+    if handler.raw_text == "ا":
+        await handler.reply("نورت")
 
 
 @l313l.ar_cmd(

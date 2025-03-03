@@ -58,7 +58,8 @@ async def disable_react(event):
     await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع رسائل هذا المستخدم بنجاح ✅")
 
 
-@l313l.ar_cmd(incoming=True, edited=False)
+# تسجيل الدالة كمعالج للأحداث الواردة
+@l313l.on(events.NewMessage(incoming=True))
 async def react_to_messages(event):
     "لإضافة تفاعل عشوائي على رسائل المستخدم"
     print(f"تم استقبال رسالة جديدة: {event.text} من user_id: {event.sender_id} في chat_id: {event.chat_id}")  # طباعة للتحقق

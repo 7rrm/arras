@@ -61,9 +61,9 @@ async def disable_react(event):
 @l313l.ar_cmd(incoming=True, edited=False)
 async def react_to_messages(event):
     "لإضافة تفاعل عشوائي على رسائل المستخدم"
+    print(f"تم استقبال رسالة جديدة: {event.text} من user_id: {event.sender_id} في chat_id: {event.chat_id}")  # طباعة للتحقق
     chat_id = event.chat_id
     user_id = event.sender_id
-    print(f"تم استقبال رسالة من user_id: {user_id} في chat_id: {chat_id}")  # طباعة للتحقق
     if gvarstatus(f"react_{chat_id}_{user_id}") == "true":
         emoji = random.choice(EMOJI_LIST)  # اختيار إيموجي عشوائي من القائمة
         try:

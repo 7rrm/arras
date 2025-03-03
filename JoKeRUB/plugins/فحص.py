@@ -47,7 +47,7 @@ async def amireallyalive(event):
     start = datetime.now()
     
     # إرسال رسالة تأكيد
-    await edit_or_reply(event, "** ᯽︙ يتم التأكد، انتظر قليلاً رجاءًا...**")
+    await edit_or_reply(event, "** ⌁︙ يتم التأكد، انتظر قليلاً رجاءًا...**")
     
     end = datetime.now()
     ms = (end - start).microseconds / 1000  # حساب البينغ

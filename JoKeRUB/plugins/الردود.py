@@ -1,4 +1,5 @@
 import re
+import random
 
 from JoKeRUB import l313l
 
@@ -14,6 +15,16 @@ from . import BOTLOG, BOTLOG_CHATID
 
 plugin_category = "utils"
 ROZTEXT = "عـذرا لا يمكـنك اضافـة رد هـنا"
+
+# قائمة كلايش الترحيب
+WELCOME_MESSAGES = [
+    "نورت المجموعة يا {mention}!",
+    "أهلاً وسهلاً بيك {mention}، نورتنا!",
+    "يا هلا بـ {mention}، حياك الله!",
+    "مرحبًا {mention}، شرفتنا!",
+    "{mention}، نورت المجموعة يا غالي!",
+    "أهلاً بـ {mention}، حياك الله بيننا!",
+]
 
 # دالة للحصول على قائمة المجموعات المفعلة للترحيب
 def get_welcome_chats():
@@ -207,7 +218,10 @@ async def welcome_message(handler):
     if chat_id not in welcome_chats:
         return
     if handler.raw_text == "ا":
-        await handler.reply("نورت")
+        a_user = await handler.get_sender()
+        mention = f"[{a_user.first_name}](tg://user?id={a_user.id})"
+        welcome_message = random.choice(WELCOME_MESSAGES).format(mention=mention)
+        await handler.reply(welcome_message)
 
 
 @l313l.ar_cmd(

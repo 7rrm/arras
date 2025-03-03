@@ -36,7 +36,7 @@ async def enable_react(event):
 
 
 @l313l.ar_cmd(
-    pattern="ايقاف التفاعل",
+    pattern="ايقاف التفاعل$",
     command=("ايقاف التفاعل", plugin_category),
     info={
         "header": "لإيقاف التفاعل مع رسائل المستخدم.",

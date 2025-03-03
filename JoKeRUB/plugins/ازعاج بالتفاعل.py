@@ -32,6 +32,7 @@ async def enable_react(event):
         return
     # تفعيل التفاعل مع المستخدم
     addgvar(f"react_{event.chat_id}_{user.id}", "true")
+    print(f"تم تفعيل التفاعل لـ user_id: {user.id} في chat_id: {event.chat_id}")  # طباعة للتحقق
     await edit_or_reply(catevent, "⌁︙تـم تفعيل التفاعل مع رسائل هذا المستخدم بنجاح ✅")
 
 
@@ -53,6 +54,7 @@ async def disable_react(event):
     chat_id = event.chat_id
     # إيقاف التفاعل مع المستخدم
     delgvar(f"react_{chat_id}_{user_id}")
+    print(f"تم إيقاف التفاعل لـ user_id: {user_id} في chat_id: {chat_id}")  # طباعة للتحقق
     await edit_or_reply(event, "⌁︙تـم إيقاف التفاعل مع رسائل هذا المستخدم بنجاح ✅")
 
 
@@ -61,9 +63,15 @@ async def react_to_messages(event):
     "لإضافة تفاعل عشوائي على رسائل المستخدم"
     chat_id = event.chat_id
     user_id = event.sender_id
+    print(f"تم استقبال رسالة من user_id: {user_id} في chat_id: {chat_id}")  # طباعة للتحقق
     if gvarstatus(f"react_{chat_id}_{user_id}") == "true":
         emoji = random.choice(EMOJI_LIST)  # اختيار إيموجي عشوائي من القائمة
         try:
-            await event.react(emoji)  # استخدام event.react بدلاً من send_reaction
+            await event.client.send_reaction(
+                entity=chat_id,
+                message=event.id,
+                reaction=emoji
+            )
+            print(f"تم إرسال التفاعل: {emoji} إلى الرسالة {event.id}")  # طباعة للتحقق
         except Exception as e:
             print(f"᯽︙ خطأ في التفاعل مع الرسالة:\n{str(e)}")

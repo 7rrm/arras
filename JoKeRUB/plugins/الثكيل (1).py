@@ -21,7 +21,6 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
-# تعريف الأمر: تفكيك_بالبوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفكيك_بالبوت (.*)'))
 async def set_break_trigger(event):
     global break_trigger
@@ -39,11 +38,11 @@ async def auto_break_word(event):
         # التحقق مما إذا كانت الكلمة مفكوكة بالفعل (تحتوي على مسافات بين الأحرف)
         if ' ' in text:
             # إذا كانت الكلمة مفكوكة، يتم إرسالها كما هي
-            await event.reply(text)
+            await event.client.send_message(event.chat_id, text)
         else:
             # إذا لم تكن مفكوكة، يتم تفكيكها
             letters = ' '.join(list(text))
-            await event.reply(letters)
+            await event.client.send_message(event.chat_id, letters)
 
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):

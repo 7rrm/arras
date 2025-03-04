@@ -63,7 +63,7 @@ async def Aljoker(event):
 @l313l.on(admin_cmd(pattern="(خط تشويش)"))
 async def btext(event):
     iskarar = gvarstatus("karar")
-    if not isramz:
+    if not iskarar:
         addgvar ("karar", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
         return

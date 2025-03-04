@@ -7,6 +7,8 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.managers import edit_delete
 from telethon import functions
 from telethon.errors.rpcerrorlist import MessageIdInvalidError
+from telethon.extensions import markdown, html
+
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def btext(event):
     isbold = gvarstatus("bold")

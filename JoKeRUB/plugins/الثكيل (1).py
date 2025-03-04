@@ -21,19 +21,24 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
-# متغيرات التخزين
-break_trigger = None
-active_chat_id = None  # لتخزين معرف الدردشة المفعلة
+# النص المحفز معين مسبقًا في الكود
+break_trigger = "↜︙فكك الكلمه الاتيه  ↫"  # النص المحفز الجديد
+
+# معرف الدردشة المفعلة
+active_chat_id = None
+
+# معرف المستخدم المسموح له بتفعيل التفكيك
+allowed_user_id = 7839319948  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # تفعيل الأمر في دردشة محددة
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفعيل تفكيك البوت$'))
 async def enable_break_bot(event):
     global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه الدردشة بنجاح ✅**")
 
 # تعطيل الأمر
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تعطيل تفكيك البوت$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تعطيل تفكيك البوت$'))
 async def disable_break_bot(event):
     global active_chat_id
     active_chat_id = None  # إلغاء تفعيل الدردشة
@@ -42,11 +47,12 @@ async def disable_break_bot(event):
 # تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_break_word(event):
-    global break_trigger, active_chat_id
+    global break_trigger, active_chat_id, allowed_user_id
     
-    # التحقق من أن الرسالة في الدردشة المفعلة
-    if active_chat_id is not None and event.chat_id == active_chat_id:
-        if 'break_trigger' in globals() and break_trigger in event.raw_text:
+    # التحقق من أن الرسالة في الدردشة المفعلة ومن المستخدم المسموح له
+    if (active_chat_id is not None and event.chat_id == active_chat_id and
+        event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
+        if break_trigger in event.raw_text:
             # الحصول على النص بعد النص المحفز
             text = event.raw_text.split(break_trigger, 1)[-1].strip()
             
@@ -59,13 +65,6 @@ async def auto_break_word(event):
                 letters = ' '.join(list(text))
                 await event.client.send_message(event.chat_id, letters)
 
-# تعريف الأمر: تفكيك_بالبوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفكيك_بالبوت (.*)'))
-async def set_break_trigger(event):
-    global break_trigger
-    break_trigger = event.pattern_match.group(1)
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز لتفكيك الكلمات إلى: {break_trigger}**")
-    
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):
     global aljoker_enabled, JOKER_ID

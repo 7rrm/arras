@@ -124,24 +124,9 @@ async def auto_reply_meanings(event):
             for smiley, meaning in smiley_meanings.items():
                 if smiley in event.raw_text:
                     # إرسال معنى السمايل
-                    await event.reply(f"معنى السمايل {smiley} هو: {meaning}")
+                    await event.reply(f"{meaning}")
                     break
-
-# تعريف الأمرين: .معنى و .م
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](معنى|م) (.*)'))
-async def get_meaning(event):
-    # الحصول على السمايل من الأمر
-    smiley = event.pattern_match.group(2)
-    
-    # البحث عن معنى السمايل في القاموس
-    meaning = smiley_meanings.get(smiley, "لم يتم العثور على معنى لهذا السمايل.")
-    
-    # إرسال المعنى كرسالة جديدة
-    await event.respond(meaning)
-    
-    # حذف الرسالة الأصلية (اختياري)
-    await event.delete()
-    
+                    
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):
     global aljoker_enabled, JOKER_ID

@@ -29,7 +29,7 @@ async def set_break_trigger(event):
     await event.edit(f"**᯽︙ تم تعيين النص المحفز لتفكيك الكلمات إلى: {break_trigger}**")
 
 # تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
-@l313l.on(events.NewMessage(incoming=True))
+@l313l.on(events.NewMessage(incoming=False))
 async def auto_break_word(event):
     global break_trigger
     if 'break_trigger' in globals() and break_trigger in event.raw_text:

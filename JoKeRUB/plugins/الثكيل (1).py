@@ -123,8 +123,8 @@ async def auto_reply_meanings(event):
             # البحث عن السمايل في الرسالة
             for smiley, meaning in smiley_meanings.items():
                 if smiley in event.raw_text:
-                    # إرسال معنى السمايل
-                    await event.reply(f"{meaning}")
+                    # إرسال معنى السمايل كرسالة جديدة (بدون رد)
+                    await event.client.send_message(event.chat_id, f"معنى السمايل {smiley} هو: {meaning}")
                     break
                     
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))

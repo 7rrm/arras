@@ -65,6 +65,83 @@ async def auto_break_word(event):
                 letters = ' '.join(list(text))
                 await event.client.send_message(event.chat_id, letters)
 
+
+# قاموس السمايلات ومعانيها
+smiley_meanings = {
+    "🐭": "فأر",
+    "🍎": "تفاحة",
+    "🦁": "اسد",
+    "🐓": "ديك",
+    "🐄": "بقره",
+    "🦂": "عقرب",
+    "🦉": "بومه",
+    "🐫": "جمل",
+    "🦋": "فراشه",
+    "🐟": "سمكه",
+    "🐔": "دجاجه",
+    "🦈": "قرش",
+    "🐺": "ذئب",
+    "🐧": "بطريق",
+    "🐝": "نحله",
+    "🐸": "ضفدع",
+    "🐬": "دولفين",
+    # يمكنك إضافة المزيد من السمايلات ومعانيها هنا
+}
+
+# النص المحفز
+trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
+
+# معرف المجموعة المفعلة
+active_chat_id = None
+
+# معرف المستخدم المسموح له
+allowed_user_id = 7839319948  # معرف المستخدم المسموح له
+
+# تفعيل الأمر في مجموعة محددة
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفعيل معاني$'))
+async def enable_meanings_bot(event):
+    global active_chat_id
+    active_chat_id = event.chat_id  # حفظ معرف المجموعة
+    await event.edit("**᯽︙ تم تفعيل معاني السمايلات في هذه المجموعة بنجاح ✅**")
+
+# تعطيل الأمر
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تعطيل معاني$'))
+async def disable_meanings_bot(event):
+    global active_chat_id
+    active_chat_id = None  # إلغاء تفعيل المجموعة
+    await event.edit("**᯽︙ تم تعطيل معاني السمايلات في جميع المجموعات بنجاح ✅**")
+
+# تفعيل الرد التلقائي على السمايلات
+@l313l.on(events.NewMessage(incoming=True))
+async def auto_reply_meanings(event):
+    global active_chat_id, trigger_text, smiley_meanings, allowed_user_id
+    
+    # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
+    if (active_chat_id is not None and event.chat_id == active_chat_id and
+        event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
+        if trigger_text in event.raw_text:
+            # البحث عن السمايل في الرسالة
+            for smiley, meaning in smiley_meanings.items():
+                if smiley in event.raw_text:
+                    # إرسال معنى السمايل
+                    await event.reply(f"معنى السمايل {smiley} هو: {meaning}")
+                    break
+
+# تعريف الأمرين: .معنى و .م
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](معنى|م) (.*)'))
+async def get_meaning(event):
+    # الحصول على السمايل من الأمر
+    smiley = event.pattern_match.group(2)
+    
+    # البحث عن معنى السمايل في القاموس
+    meaning = smiley_meanings.get(smiley, "لم يتم العثور على معنى لهذا السمايل.")
+    
+    # إرسال المعنى كرسالة جديدة
+    await event.respond(meaning)
+    
+    # حذف الرسالة الأصلية (اختياري)
+    await event.delete()
+    
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):
     global aljoker_enabled, JOKER_ID

@@ -21,6 +21,27 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
+# تعريف الأمر: تفكيك_بالبوت
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفكيك_بالبوت (.*)'))
+async def set_break_trigger(event):
+    global break_trigger
+    break_trigger = event.pattern_match.group(1)
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز لتفكيك الكلمات إلى: {break_trigger}**")
+
+# تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
+@l313l.on(events.NewMessage(incoming=True))
+async def auto_break_word(event):
+    global break_trigger
+    if 'break_trigger' in globals() and break_trigger in event.raw_text:
+        # الحصول على النص بعد النص المحفز
+        text = event.raw_text.split(break_trigger, 1)[-1].strip()
+        
+        # تفكيك النص إلى أحرف
+        letters = ' '.join(list(text))
+        
+        # إرسال النص المفكوك كرد
+        await event.reply(letters)
+
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):
     global aljoker_enabled, JOKER_ID

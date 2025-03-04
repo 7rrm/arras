@@ -31,14 +31,14 @@ active_chat_id = None
 allowed_user_id = 7839319948  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # تفعيل الأمر في دردشة محددة
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفعيل تفكيك البوت$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
 async def enable_break_bot(event):
     global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه الدردشة بنجاح ✅**")
 
 # تعطيل الأمر
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تعطيل تفكيك البوت$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تعطيل تفكيك البوت$'))
 async def disable_break_bot(event):
     global active_chat_id
     active_chat_id = None  # إلغاء تفعيل الدردشة
@@ -100,14 +100,14 @@ active_chat_id = None
 allowed_user_id = 7839319948  # معرف المستخدم المسموح له
 
 # تفعيل الأمر في مجموعة محددة
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تفعيل معاني$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))
 async def enable_meanings_bot(event):
     global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
     await event.edit("**᯽︙ تم تفعيل معاني السمايلات في هذه المجموعة بنجاح ✅**")
 
 # تعطيل الأمر
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^تعطيل معاني$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تعطيل معاني$'))
 async def disable_meanings_bot(event):
     global active_chat_id
     active_chat_id = None  # إلغاء تفعيل المجموعة

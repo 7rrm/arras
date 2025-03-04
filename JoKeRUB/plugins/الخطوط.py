@@ -104,8 +104,6 @@ async def reda(event):
                 if iskarar:
             try:
                 # إضافة العلامات ‹ و › وجعل النص غامقًا
-                chaos_message = f"‹ **{event.message.text}** ›"
-                # إرسال الرسالة بتنسيق Markdown
-                await event.edit(f"[{chaos_message}](spoiler)", parse_mode=CustomParseMode("markdown"))
+                chaos_message = f"‹ **||{event.message.text}||** ›"
             except MessageIdInvalidError:
                 pass

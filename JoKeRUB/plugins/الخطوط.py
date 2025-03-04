@@ -59,6 +59,18 @@ async def Aljoker(event):
         await edit_delete(event, "**᯽︙ تم اطفاء خط الجوكر بنجاح ✓ **")
         return
 
+@l313l.on(admin_cmd(pattern="(خط تشويش)"))
+async def btext(event):
+    iskarar = gvarstatus("karar")
+    if not isramz:
+        addgvar ("karar", "on")
+        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
+        return
+
+    if isramz:
+        delgvar("karar")
+        await edit_delete(event, "**᯽︙ تم اطفاء خط التشويش بنجاح ✓ **")
+        return
 @l313l.on(events.NewMessage(outgoing=True))
 async def reda(event):
     if event.message.text and not event.message.media and event.message.text.count(".") != 1 and event.message.text.count("@") != 1 and event.message.text.count("/") != 1:
@@ -66,6 +78,7 @@ async def reda(event):
         isramz = gvarstatus("ramz")
         istshwesh = gvarstatus("tshwesh")
         Aljoker = gvarstatus("joker")
+        iskarar = gvarstatus("karar")
         if isbold:
             try:
                 await event.edit(f"**{event.message.text}**")
@@ -84,5 +97,13 @@ async def reda(event):
         if Aljoker:
             try:
                 await event.edit(f"```{event.message.text}```")
+            except MessageIdInvalidError:
+                pass
+                if iskarar:
+            try:
+                # إضافة العلامات ‹ و › وجعل النص غامقًا
+                chaos_message = f"‹ **{event.message.text}** ›"
+                # إرسال الرسالة بتنسيق Markdown
+                await event.edit(f"[{chaos_message}](spoiler)", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass

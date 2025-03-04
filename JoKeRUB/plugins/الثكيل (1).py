@@ -29,18 +29,21 @@ async def set_break_trigger(event):
     await event.edit(f"**᯽︙ تم تعيين النص المحفز لتفكيك الكلمات إلى: {break_trigger}**")
 
 # تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
-@l313l.on(events.NewMessage(incoming=False))
+@l313l.on(events.NewMessage(incoming=True))
 async def auto_break_word(event):
     global break_trigger
     if 'break_trigger' in globals() and break_trigger in event.raw_text:
         # الحصول على النص بعد النص المحفز
         text = event.raw_text.split(break_trigger, 1)[-1].strip()
         
-        # تفكيك النص إلى أحرف
-        letters = ' '.join(list(text))
-        
-        # إرسال النص المفكوك كرد
-        await event.reply(letters)
+        # التحقق مما إذا كانت الكلمة مفكوكة بالفعل (تحتوي على مسافات بين الأحرف)
+        if ' ' in text:
+            # إذا كانت الكلمة مفكوكة، يتم إرسالها كما هي
+            await event.reply(text)
+        else:
+            # إذا لم تكن مفكوكة، يتم تفكيكها
+            letters = ' '.join(list(text))
+            await event.reply(letters)
 
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):

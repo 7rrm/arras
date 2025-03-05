@@ -21,8 +21,11 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
+from telethon import events
+import re
+
 # النص المحفز الجديد
-break_trigger = "⌔︙فكك : "
+break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
 
 # معرف الدردشة المفعلة
 active_chat_id = None
@@ -53,15 +56,14 @@ async def auto_break_word(event):
     if (active_chat_id is not None and event.chat_id == active_chat_id and
         event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
         if break_trigger in event.raw_text:
-            # استخراج النص داخل الأقواس {}
-            import re
+            # استخراج النص داخل الأقواس {} مع وجود مسافة بعد النقطتين :
             match = re.search(r'\{([^}]+)\}', event.raw_text)
             if match:
                 text = match.group(1).strip()  # الحصول على النص داخل الأقواس
                 
                 # تفكيك الكلمة
                 letters = ' '.join(list(text))
-                await event.client.send_message(event.chat_id, letters)
+                await event.reply(letters)  # إرسال الكلمة المفكوكة
             else:
                 await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
 

@@ -21,8 +21,8 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
-# النص المحفز معين مسبقًا في الكود
-break_trigger = "↜︙فكك الكلمه الاتيه  ↫"  # النص المحفز الجديد
+# النص المحفز الجديد
+break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
 
 # معرف الدردشة المفعلة
 active_chat_id = None
@@ -53,18 +53,17 @@ async def auto_break_word(event):
     if (active_chat_id is not None and event.chat_id == active_chat_id and
         event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
         if break_trigger in event.raw_text:
-            # الحصول على النص بعد النص المحفز
-            text = event.raw_text.split(break_trigger, 1)[-1].strip()
-            
-            # التحقق مما إذا كانت الكلمة مفكوكة بالفعل (تحتوي على مسافات بين الأحرف)
-            if ' ' in text:
-                # إذا كانت الكلمة مفكوكة، يتم إرسالها كما هي
-                await event.client.send_message(event.chat_id, text)
-            else:
-                # إذا لم تكن مفكوكة، يتم تفكيكها
+            # استخراج النص داخل الأقواس {}
+            import re
+            match = re.search(r'\{([^}]+)\}', event.raw_text)
+            if match:
+                text = match.group(1).strip()  # الحصول على النص داخل الأقواس
+                
+                # تفكيك الكلمة
                 letters = ' '.join(list(text))
                 await event.client.send_message(event.chat_id, letters)
-
+            else:
+                await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

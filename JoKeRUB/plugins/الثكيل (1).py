@@ -1,4 +1,5 @@
 import asyncio
+import re
 from telethon import events
 from JoKeRUB import l313l
 
@@ -20,7 +21,7 @@ async def break_word(event):
     
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
-
+    
 from telethon import events
 import re
 
@@ -31,7 +32,7 @@ break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
 active_chat_id = None
 
 # معرف المستخدم المسموح له بتفعيل التفكيك
-allowed_user_id = 7225540241  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+allowed_user_id = 7839319948  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # تفعيل الأمر في دردشة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
@@ -66,6 +67,7 @@ async def auto_break_word(event):
                 await event.reply(letters)  # إرسال الكلمة المفكوكة
             else:
                 await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
+
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

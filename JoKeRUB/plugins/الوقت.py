@@ -1,5 +1,6 @@
 import os
 from datetime import datetime as dt
+from asyncio import sleep
 
 from PIL import Image, ImageDraw, ImageFont
 from pytz import country_names as c_n
@@ -16,9 +17,23 @@ plugin_category = "utils"
 
 # JoKeRUB timezone
 
-
 FONT_FILE_TO_USE = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
+# الأوقات المميزة
+SPECIAL_TIMES = [
+    "12:00", "12:12", 
+    "1:00", "1:01", "1:11", 
+    "2:00", "2:02", "2:22", 
+    "3:00", "3:03", "3:33", 
+    "4:00", "4:04", "4:44", 
+    "5:00", "5:05", "5:55", 
+    "6:00", "6:06", 
+    "7:00", "7:07", 
+    "8:00", "8:08", 
+    "9:00", "9:09", 
+    "10:00", "10:10", 
+    "11:00", "11:11"
+]
 
 async def get_tz(con):
     """Get time zone of the given country."""
@@ -42,6 +57,26 @@ async def get_tz(con):
             return c_tz[con]
     except KeyError:
         return
+@l313l.ar_cmd(
+    pattern="تفعيل_وقتي$",
+    command=("تفعيل_وقتي", plugin_category),
+    info={
+        "header": "تفعيل إرسال الرسائل في الأوقات المميزة",
+        "usage": "{tr}تفعيل_وقتي",
+    },
+)
+async def activate_special_times(event):
+    "تفعيل إرسال الرسائل في الأوقات المميزة"
+    await edit_or_reply(event, "**تم تفعيل إرسال الرسائل في الأوقات المميزة**")
+    while True:
+        now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
+        if now[:-3] in SPECIAL_TIMES:  # إزالة AM/PM للمقارنة مع القائمة
+            # إرسال الوقت فقط مع التنسيق المطلوب
+            await event.client.send_message(
+                event.chat_id,
+                f"``` {now} ```",  # الوقت بين naw
+            )
+        await sleep(300)  # التحقق كل دقيقة
 
 
 @l313l.ar_cmd(
@@ -110,8 +145,6 @@ async def time_func(tdata):
             f"({time_zone} timezone).`",
         )
 
-#كـتابة  @lMl10l
-#تعديل وترتيب  @KiNGBrlin
 @l313l.ar_cmd(
     pattern="الوقت(?:\s|$)([\s\S]*)",
     command=("الوقت", plugin_category),

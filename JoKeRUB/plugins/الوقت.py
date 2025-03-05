@@ -56,6 +56,9 @@ SPECIAL_TIMES = [
     "11:11",  # 11:11 صباحًا أو مساءً
 ]
 
+# متغير لتحديد حالة التشغيل (تفعيل/تعطيل)
+is_active = False
+
 @l313l.ar_cmd(
     pattern="تفعيل_وقتي$",
     command=("تفعيل_وقتي", plugin_category),
@@ -66,10 +69,12 @@ SPECIAL_TIMES = [
 )
 async def activate_special_times(event):
     "تفعيل إرسال الرسائل في الأوقات المميزة"
+    global is_active
+    is_active = True  # تفعيل الأمر
     await edit_or_reply(event, "**تم تفعيل إرسال الرسائل في الأوقات المميزة**")
     last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
 
-    while True:
+    while is_active:  # التنفيذ طالما أن الأمر مفعل
         now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
@@ -77,13 +82,26 @@ async def activate_special_times(event):
             print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
             await event.client.send_message(
                 event.chat_id,
-                f"```ㅤ {now} ```",  # إرسال الوقت مع AM/PM
+                f"naw {now} naw",  # إرسال الوقت مع AM/PM
             )
             last_sent_time = now  # تحديث الوقت المميز الأخير
 
         await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
+
+@l313l.ar_cmd(
+    pattern="تعطيل_وقتي$",
+    command=("تعطيل_وقتي", plugin_category),
+    info={
+        "header": "تعطيل إرسال الرسائل في الأوقات المميزة",
+        "usage": "{tr}تعطيل_وقتي",
+    },
+)
+async def deactivate_special_times(event):
+    "تعطيل إرسال الرسائل في الأوقات المميزة"
+    global is_active
+    is_active = False  # تعطيل الأمر
+    await edit_or_reply(event, "**تم تعطيل إرسال الرسائل في الأوقات المميزة**")
         
- 
 @l313l.ar_cmd(
     pattern="توقيت(?:\s|$)([\s\S]*)(?<![0-9])(?: |$)([0-9]+)?",
     command=("توقيت", plugin_category),

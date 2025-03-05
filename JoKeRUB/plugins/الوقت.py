@@ -19,22 +19,38 @@ plugin_category = "utils"
 
 FONT_FILE_TO_USE = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
-# الأوقات المميزة
 SPECIAL_TIMES = [
-    "12:00", "12:12", 
-    "1:00", "1:01", "1:11", 
-    "2:00", "2:02", "2:22", 
-    "3:00", "3:03", "3:33", 
-    "4:00", "4:04", "4:44", 
-    "5:00", "5:05", "5:55", 
-    "6:00", "6:06", 
-    "7:00", "7:07", 
-    "8:00", "8:08", 
-    "9:00", "9:09", 
-    "10:00", "10:10", 
-    "11:00", "11:11"
+    "12:00",  # 12:00 مساءً
+    "12:12",  # 12:12 مساءً
+    "01:00",  # 1:00 صباحًا أو مساءً
+    "01:01",  # 1:01 صباحًا أو مساءً
+    "01:11",  # 1:11 صباحًا أو مساءً
+    "01:20",
+    "02:00",  # 2:00 صباحًا أو مساءً
+    "02:02",  # 2:02 صباحًا أو مساءً
+    "02:22",  # 2:22 صباحًا أو مساءً
+    "03:00",  # 3:00 صباحًا أو مساءً
+    "03:03",  # 3:03 صباحًا أو مساءً
+    "03:33",  # 3:33 صباحًا أو مساءً
+    "04:00",  # 4:00 صباحًا أو مساءً
+    "04:04",  # 4:04 صباحًا أو مساءً
+    "04:44",  # 4:44 صباحًا أو مساءً
+    "05:00",  # 5:00 صباحًا أو مساءً
+    "05:05",  # 5:05 صباحًا أو مساءً
+    "05:55",  # 5:55 صباحًا أو مساءً
+    "06:00",  # 6:00 صباحًا أو مساءً
+    "06:06",  # 6:06 صباحًا أو مساءً
+    "07:00",  # 7:00 صباحًا أو مساءً
+    "07:07",  # 7:07 صباحًا أو مساءً
+    "08:00",  # 8:00 صباحًا أو مساءً
+    "08:08",  # 8:08 صباحًا أو مساءً
+    "09:00",  # 9:00 صباحًا أو مساءً
+    "09:09",  # 9:09 صباحًا أو مساءً
+    "10:00",  # 10:00 صباحًا أو مساءً
+    "10:10",  # 10:10 صباحًا أو مساءً
+    "11:00",  # 11:00 صباحًا أو مساءً
+    "11:11",  # 11:11 صباحًا أو مساءً
 ]
-
 async def get_tz(con):
     """Get time zone of the given country."""
     if "(Uk)" in con:
@@ -57,7 +73,7 @@ async def get_tz(con):
             return c_tz[con]
     except KeyError:
         return
-        
+
 @l313l.ar_cmd(
     pattern="تفعيل_وقتي$",
     command=("تفعيل_وقتي", plugin_category),
@@ -72,10 +88,10 @@ async def activate_special_times(event):
     last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
 
     while True:
-        now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
+        now = dt.now().strftime("%I:%M")  # الحصول على الوقت الحالي بتنسيق 12 ساعة
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
-        if now[:-3] in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
+        if now in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
             print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
             await event.client.send_message(
                 event.chat_id,
@@ -83,24 +99,7 @@ async def activate_special_times(event):
             )
             last_sent_time = now  # تحديث الوقت المميز الأخير
 
-        # حساب الوقت المتبقي حتى الوصول إلى الوقت المميز التالي
-        next_time = None
-        for time in SPECIAL_TIMES:
-            if time > now[:-3]:  # البحث عن الوقت المميز التالي
-                next_time = time
-                break
-
-        if next_time:
-            # حساب الفرق بين الوقت الحالي والوقت المميز التالي
-            current_time = dt.strptime(now, "%I:%M %p")
-            next_time = dt.strptime(next_time + " " + ("AM" if "AM" in now else "PM"), "%I:%M %p")
-            if next_time <= current_time:
-                next_time = dt.strptime(next_time.strftime("%I:%M %p"), "%I:%M %p").replace(day=current_time.day + 1)  # إذا كان الوقت المميز في اليوم التالي
-
-            time_diff = (next_time - current_time).total_seconds()
-            await sleep(time_diff)  # الانتظار حتى الوصول إلى الوقت المميز التالي
-        else:
-            await sleep(60)  # إذا لم يتم العثور على وقت مميز تالي، انتظر 60 ثانية
+        await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
 
 
 @l313l.ar_cmd(

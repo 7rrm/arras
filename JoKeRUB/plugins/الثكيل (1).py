@@ -22,7 +22,7 @@ async def break_word(event):
     await event.delete()
 
 # النص المحفز الجديد
-break_trigger = "⌔︙فكك : " #النص المحفز
+break_trigger = "⌔︙فكك : "
 
 # معرف الدردشة المفعلة
 active_chat_id = None

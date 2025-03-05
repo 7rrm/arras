@@ -70,6 +70,10 @@ is_active = False
 async def activate_special_times(event):
     "تفعيل إرسال الرسائل في الأوقات المميزة"
     global is_active
+    if is_active:
+        await edit_or_reply(event, "**الأمر مفعل بالفعل!**")
+        return
+
     is_active = True  # تفعيل الأمر
     await edit_or_reply(event, "**تم تفعيل إرسال الرسائل في الأوقات المميزة**")
     last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
@@ -78,13 +82,14 @@ async def activate_special_times(event):
         now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
-        if now[:-3] in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
-            print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
-            await event.client.send_message(
-                event.chat_id,
-                f"naw {now} naw",  # إرسال الوقت مع AM/PM
-            )
-            last_sent_time = now  # تحديث الوقت المميز الأخير
+        if now[:-3] in SPECIAL_TIMES:  # التحقق من الوقت المميز
+            if now != last_sent_time:  # تجنب التكرار
+                print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
+                await event.client.send_message(
+                    event.chat_id,
+                    f"naw {now} naw",  # إرسال الوقت مع AM/PM
+                )
+                last_sent_time = now  # تحديث الوقت المميز الأخير
 
         await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
 
@@ -99,9 +104,14 @@ async def activate_special_times(event):
 async def deactivate_special_times(event):
     "تعطيل إرسال الرسائل في الأوقات المميزة"
     global is_active
+    if not is_active:
+        await edit_or_reply(event, "**الأمر معطل بالفعل!**")
+        return
+
     is_active = False  # تعطيل الأمر
     await edit_or_reply(event, "**تم تعطيل إرسال الرسائل في الأوقات المميزة**")
-        
+
+
 @l313l.ar_cmd(
     pattern="توقيت(?:\s|$)([\s\S]*)(?<![0-9])(?: |$)([0-9]+)?",
     command=("توقيت", plugin_category),

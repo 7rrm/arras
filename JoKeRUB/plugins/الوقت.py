@@ -76,7 +76,7 @@ async def activate_special_times(event):
                 event.chat_id,
                 f"``` {now} ```",  # الوقت بين naw
             )
-        await sleep(300)  # التحقق كل دقيقة
+        await sleep(60)  # التحقق كل دقيقة
 
 
 @l313l.ar_cmd(

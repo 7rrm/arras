@@ -24,8 +24,8 @@ SPECIAL_TIMES = [
     "12:12",  # 12:12 مساءً
     "01:00",  # 1:00 صباحًا أو مساءً
     "01:01",  # 1:01 صباحًا أو مساءً
-    "01:11",  # 1:11 صباحًا أو مساءً
-    "01:20",
+    "01:11",  # 1:11 صباحًا أو مساء
+    "01:25",
     "02:00",  # 2:00 صباحًا أو مساءً
     "02:02",  # 2:02 صباحًا أو مساءً
     "02:22",  # 2:22 صباحًا أو مساءً
@@ -88,18 +88,35 @@ async def activate_special_times(event):
     last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
 
     while True:
-        now = dt.now().strftime("%I:%M")  # الحصول على الوقت الحالي بتنسيق 12 ساعة
+        now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
-        if now in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
+        if now[:-3] in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
             print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
             await event.client.send_message(
                 event.chat_id,
-                f"``` {now} ```",  # إرسال الوقت مع AM/PM
+                f"naw {now} naw",  # إرسال الوقت مع AM/PM
             )
             last_sent_time = now  # تحديث الوقت المميز الأخير
 
-        await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
+        # حساب الوقت المتبقي حتى الوصول إلى الوقت المميز التالي
+        next_time = None
+        for time in SPECIAL_TIMES:
+            if time > now[:-3]:  # البحث عن الوقت المميز التالي
+                next_time = time
+                break
+
+        if next_time:
+            # حساب الفرق بين الوقت الحالي والوقت المميز التالي
+            current_time = dt.strptime(now, "%I:%M %p")
+            next_time = dt.strptime(next_time + " " + ("AM" if "AM" in now else "PM"), "%I:%M %p")
+            if next_time <= current_time:
+                next_time = dt.strptime(next_time.strftime("%I:%M %p"), "%I:%M %p").replace(day=current_time.day + 1)  # إذا كان الوقت المميز في اليوم التالي
+
+            time_diff = (next_time - current_time).total_seconds()
+            await sleep(time_diff)  # الانتظار حتى الوصول إلى الوقت المميز التالي
+        else:
+            await sleep(60)  # إذا لم يتم العثور على وقت مميز تالي، انتظر 60 ثانية
 
 
 @l313l.ar_cmd(

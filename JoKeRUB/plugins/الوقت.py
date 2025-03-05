@@ -68,15 +68,18 @@ async def get_tz(con):
 async def activate_special_times(event):
     "تفعيل إرسال الرسائل في الأوقات المميزة"
     await edit_or_reply(event, "**تم تفعيل إرسال الرسائل في الأوقات المميزة**")
+    last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
     while True:
         now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
-        if now[:-3] in SPECIAL_TIMES:  # إزالة AM/PM للمقارنة مع القائمة
-            # إرسال الوقت فقط مع التنسيق المطلوب
+        print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
+        if now[:-3] in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
+            print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
             await event.client.send_message(
                 event.chat_id,
-                f"``` {now} ```",  # الوقت بين naw
+                f"naw {now} naw",  # إرسال الوقت مع AM/PM
             )
-        await sleep(20)  # التحقق كل دقيقة
+            last_sent_time = now  # تحديث الوقت المميز الأخير
+        await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
 
 
 @l313l.ar_cmd(

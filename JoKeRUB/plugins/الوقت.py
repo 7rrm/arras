@@ -20,6 +20,9 @@ plugin_category = "utils"
 
 FONT_FILE_TO_USE = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
+from datetime import datetime as dt
+from asyncio import sleep
+
 # قائمة الأوقات المميزة
 SPECIAL_TIMES = [
     "12:00",  # 12:00 مساءً
@@ -53,9 +56,6 @@ SPECIAL_TIMES = [
     "11:11",  # 11:11 صباحًا أو مساءً
 ]
 
-from datetime import datetime as dt
-from asyncio import sleep
-
 @l313l.ar_cmd(
     pattern="تفعيل_وقتي$",
     command=("تفعيل_وقتي", plugin_category),
@@ -70,14 +70,14 @@ async def activate_special_times(event):
     last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
 
     while True:
-        now = dt.now().strftime("%I:%M")  # الحصول على الوقت الحالي بتنسيق 12 ساعة
+        now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
-        if now in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
+        if now[:-3] in SPECIAL_TIMES and now != last_sent_time:  # التحقق من الوقت المميز وتجنب التكرار
             print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
             await event.client.send_message(
                 event.chat_id,
-                f"naw {now} naw",  # إرسال الوقت مع AM/PM
+                f"```ㅤ {now} ```",  # إرسال الوقت مع AM/PM
             )
             last_sent_time = now  # تحديث الوقت المميز الأخير
 

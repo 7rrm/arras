@@ -80,6 +80,13 @@ async def activate_special_times(event):
 
     while is_active:  # التنفيذ طالما أن الأمر مفعل
         now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
+        
+        # تغيير تنسيق AM/PM إلى ᴀᴍ/ᴘᴍ
+        if "AM" in now:
+            now = now.replace("AM", "ᴀᴍ")
+        elif "PM" in now:
+            now = now.replace("PM", "ᴘᴍ")
+
         print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
 
         if now[:-3] in SPECIAL_TIMES:  # التحقق من الوقت المميز
@@ -87,7 +94,7 @@ async def activate_special_times(event):
                 print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
                 await event.client.send_message(
                     event.chat_id,
-                    f"naw {now} naw",  # إرسال الوقت مع AM/PM
+                    f"```ㅤ {now} ```",  # إرسال الوقت مع ᴀᴍ/ᴘᴍ
                 )
                 last_sent_time = now  # تحديث الوقت المميز الأخير
 
@@ -110,6 +117,7 @@ async def deactivate_special_times(event):
 
     is_active = False  # تعطيل الأمر
     await edit_or_reply(event, "**تم تعطيل إرسال الرسائل في الأوقات المميزة**")
+    
 
 
 @l313l.ar_cmd(

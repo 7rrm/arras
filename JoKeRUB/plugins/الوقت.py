@@ -57,6 +57,7 @@ async def get_tz(con):
             return c_tz[con]
     except KeyError:
         return
+        
 @l313l.ar_cmd(
     pattern="تفعيل_وقتي$",
     command=("تفعيل_وقتي", plugin_category),

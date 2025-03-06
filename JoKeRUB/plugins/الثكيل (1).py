@@ -22,7 +22,51 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
     
+from telethon import events
+import re
 
+# النص المحفز الجديد
+break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
+
+# معرف الدردشة المفعلة
+active_chat_id = None
+
+# معرف المستخدم المسموح له بتفعيل التفكيك
+allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+
+# تفعيل الأمر في دردشة محددة
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
+async def enable_break_bot(event):
+    global active_chat_id
+    active_chat_id = event.chat_id  # حفظ معرف الدردشة
+    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه الدردشة بنجاح ✅**")
+
+# تعطيل الأمر
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تعطيل تفكيك البوت$'))
+async def disable_break_bot(event):
+    global active_chat_id
+    active_chat_id = None  # إلغاء تفعيل الدردشة
+    await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع الدردشات بنجاح ✅**")
+
+# تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
+@l313l.on(events.NewMessage(incoming=True))
+async def auto_break_word(event):
+    global break_trigger, active_chat_id, allowed_user_id
+    
+    # التحقق من أن الرسالة في الدردشة المفعلة ومن المستخدم المسموح له
+    if (active_chat_id is not None and event.chat_id == active_chat_id and
+        event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
+        if break_trigger in event.raw_text:
+            # استخراج النص داخل الأقواس {} بعد النص المحفز
+            match = re.search(r'\{([^}]+)\}', event.raw_text)
+            if match:
+                text = match.group(1).strip()  # الحصول على النص داخل الأقواس
+                
+                # تفكيك الكلمة
+                letters = ' '.join(list(text))
+                await event.reply(letters)  # إرسال الكلمة المفكوكة
+            else:
+                await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

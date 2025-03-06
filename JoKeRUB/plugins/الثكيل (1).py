@@ -3,30 +3,45 @@ import re
 from telethon import events
 from JoKeRUB import l313l
 
-# معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
-allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+hussein_enabled = False
+aljoker_enabled = False
+JOKER_ID = {}
 
-# معرف المجموعة المفعلة
-active_chat_id = None
+# تعريف الأمرين: .تفكيك و .ت
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
+async def break_word(event):
+    # الحصول على النص من الأمر
+    text = event.pattern_match.group(2)
+    
+    # تفكيك النص إلى أحرف
+    letters = ' '.join(list(text))
+    
+    # إرسال النص المفكوك كرسالة جديدة
+    await event.respond(letters)
+    
+    # حذف الرسالة الأصلية (اختياري)
+    await event.delete()
 
+allowed_user_id = 6945878804
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك (\d+)$'))
 async def enable_break_bot(event):
-    global active_chat_id
+    global active_chat_id, allowed_user_id
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**")
+    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح للمستخدم {allowed_user_id} ✅**")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global active_chat_id
+    global active_chat_id, allowed_user_id
     active_chat_id = None  # إلغاء تفعيل المجموعة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
 # تفكيك الكلمة التي تلي النص "⌔︙فكك :"
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id,
+    allowed_user_id
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
     if active_chat_id is not None and event.chat_id == active_chat_id and event.sender_id == allowed_user_id:
@@ -39,7 +54,6 @@ async def break_word_on_trigger(event):
                 letters = ' '.join(list(word))
                 # إرسال النص المفكوك كرسالة جديدة
                 await event.respond(letters)
-                
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

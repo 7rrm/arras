@@ -1,5 +1,4 @@
 import asyncio
-import re
 from telethon import events
 from JoKeRUB import l313l
 
@@ -22,20 +21,29 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
+import asyncio
+import re
+from telethon import events
+from JoKeRUB import l313l
+
+# معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
+allowed_user_id = 6945878804  # تأكد من أن هذا الرقم صحيح
+
+# معرف المجموعة المفعلة
+active_chat_id = None
+
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك (\d+)$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))
 async def enable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    allowed_user_id = int(event.pattern_match.group(1))  # حفظ معرف المستخدم المسموح له
-    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح للمستخدم {allowed_user_id} ✅**")
+    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = None  # إلغاء تفعيل المجموعة
-    allowed_user_id = None  # إلغاء معرف المستخدم المسموح له
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
 # تفكيك الكلمة التي تلي النص "⌔︙فكك :"
@@ -54,6 +62,7 @@ async def break_word_on_trigger(event):
                 letters = ' '.join(list(word))
                 # إرسال النص المفكوك كرسالة جديدة
                 await event.respond(letters)
+
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {
@@ -86,7 +95,7 @@ trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
 active_chat_id = None
 
 # معرف المستخدم المسموح له
-allowed_user_id = None  # سيتم تعيينه عند التفاعل مع الأمر
+allowed_user_id = 6945878804  # معرف المستخدم المسموح له
 
 # تفعيل الأمر في مجموعة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))
@@ -162,3 +171,4 @@ async def Hussein(event):
     if hussein_enabled:
         await asyncio.sleep(hussein_time)
         await event.mark_read()
+        

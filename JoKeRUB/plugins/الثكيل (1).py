@@ -1,7 +1,7 @@
 import asyncio
-import re
 from telethon import events
 from JoKeRUB import l313l
+import global
 
 hussein_enabled = False
 aljoker_enabled = False
@@ -22,26 +22,34 @@ async def break_word(event):
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
 
-allowed_user_id = 6945878804
+import asyncio
+import re
+from telethon import events
+from JoKeRUB import l313l
+
+allowed_user_id = 6945878804  
+
+# معرف المجموعة المفعلة
+active_chat_id = None
+
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك (\d+)$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))
 async def enable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح للمستخدم {allowed_user_id} ✅**")
+    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = None  # إلغاء تفعيل المجموعة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
 # تفكيك الكلمة التي تلي النص "⌔︙فكك :"
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global active_chat_id,
-    allowed_user_id
+    global active_chat_id, allowed_user_id
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
     if active_chat_id is not None and event.chat_id == active_chat_id and event.sender_id == allowed_user_id:
@@ -86,7 +94,7 @@ trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
 active_chat_id = None
 
 # معرف المستخدم المسموح له
-allowed_user_id = None  # سيتم تعيينه عند التفاعل مع الأمر
+allowed_user_id = 7839319948  # معرف المستخدم المسموح له
 
 # تفعيل الأمر في مجموعة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))

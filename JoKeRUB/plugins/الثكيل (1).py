@@ -3,30 +3,11 @@ import re
 from telethon import events
 from JoKeRUB import l313l
 
-hussein_enabled = False
-aljoker_enabled = False
-JOKER_ID = {}
-
 # معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
 allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # معرف المجموعة المفعلة
 active_chat_id = None
-
-# تعريف الأمرين: .تفكيك و .ت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
-async def break_word(event):
-    # الحصول على النص من الأمر
-    text = event.pattern_match.group(2)
-    
-    # تفكيك النص إلى أحرف
-    letters = ' '.join(list(text))
-    
-    # إرسال النص المفكوك كرسالة جديدة
-    await event.respond(letters)
-    
-    # حذف الرسالة الأصلية (اختياري)
-    await event.delete()
 
 # تفعيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))

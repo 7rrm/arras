@@ -4,7 +4,7 @@ from telethon import events
 from JoKeRUB import l313l
 
 # معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
-allowed_user_id = 7225540241  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # معرف المجموعة المفعلة
 active_chat_id = None

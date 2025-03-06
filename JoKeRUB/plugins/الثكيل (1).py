@@ -27,7 +27,7 @@ from telethon import events
 from JoKeRUB import l313l
 
 # معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
-allowed_user_id = 7225540241  # تأكد من أن هذا الرقم صحيح
+allowed_user_id = 1839897340  # تأكد من أن هذا الرقم صحيح
 
 # معرف المجموعة المفعلة
 active_chat_id = None
@@ -95,7 +95,7 @@ trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
 active_chat_id = None
 
 # معرف المستخدم المسموح له في كود المعاني
-allowed_user_id_meanings = 6945878804  # تأكد من أن هذا الرقم صحيح
+allowed_user_id_meanings = 1839897340  # تأكد من أن هذا الرقم صحيح
 
 # تفعيل الأمر في مجموعة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))

@@ -7,6 +7,9 @@ hussein_enabled = False
 aljoker_enabled = False
 JOKER_ID = {}
 
+# معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
+allowed_user_id = 123456789  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+
 # تعريف الأمرين: .تفكيك و .ت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
 async def break_word(event):
@@ -23,19 +26,17 @@ async def break_word(event):
     await event.delete()
 
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك (\d+)$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))
 async def enable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    allowed_user_id = int(event.pattern_match.group(1))  # حفظ معرف المستخدم المسموح له
-    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح للمستخدم {allowed_user_id} ✅**")
+    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global active_chat_id, allowed_user_id
+    global active_chat_id
     active_chat_id = None  # إلغاء تفعيل المجموعة
-    allowed_user_id = None  # إلغاء معرف المستخدم المسموح له
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
 # تفكيك الكلمة التي تلي النص "⌔︙فكك :"

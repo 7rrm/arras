@@ -27,7 +27,7 @@ from telethon import events
 from JoKeRUB import l313l
 
 # معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
-allowed_user_id = 6945878804  # تأكد من أن هذا الرقم صحيح
+allowed_user_id = 7225540241  # تأكد من أن هذا الرقم صحيح
 
 # معرف المجموعة المفعلة
 active_chat_id = None
@@ -94,8 +94,8 @@ trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
 # معرف المجموعة المفعلة
 active_chat_id = None
 
-# معرف المستخدم المسموح له
-allowed_user_id = 6945878804  # معرف المستخدم المسموح له
+# معرف المستخدم المسموح له في كود المعاني
+allowed_user_id_meanings = 6945878804  # تأكد من أن هذا الرقم صحيح
 
 # تفعيل الأمر في مجموعة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))
@@ -114,11 +114,11 @@ async def disable_meanings_bot(event):
 # تفعيل الرد التلقائي على السمايلات
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_meanings(event):
-    global active_chat_id, trigger_text, smiley_meanings, allowed_user_id
+    global active_chat_id, trigger_text, smiley_meanings, allowed_user_id_meanings
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
     if (active_chat_id is not None and event.chat_id == active_chat_id and
-        event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
+        event.sender_id == allowed_user_id_meanings):  # التحقق من معرف المستخدم
         if trigger_text in event.raw_text:
             # البحث عن السمايل في الرسالة
             for smiley, meaning in smiley_meanings.items():

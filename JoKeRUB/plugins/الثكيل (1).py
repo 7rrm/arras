@@ -10,6 +10,9 @@ JOKER_ID = {}
 # معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
 allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
+# معرف المجموعة المفعلة
+active_chat_id = None
+
 # تعريف الأمرين: .تفكيك و .ت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
 async def break_word(event):
@@ -55,6 +58,7 @@ async def break_word_on_trigger(event):
                 letters = ' '.join(list(word))
                 # إرسال النص المفكوك كرسالة جديدة
                 await event.respond(letters)
+                
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

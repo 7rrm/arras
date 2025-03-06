@@ -32,7 +32,7 @@ break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
 active_chat_id = None
 
 # معرف المستخدم المسموح له بتفعيل التفكيك
-allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+allowed_user_id = 7839319948  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # تفعيل الأمر في دردشة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
@@ -57,7 +57,7 @@ async def auto_break_word(event):
     if (active_chat_id is not None and event.chat_id == active_chat_id and
         event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
         if break_trigger in event.raw_text:
-            # استخراج النص داخل الأقواس {} مع وجود مسافة بعد النقطتين :
+            # استخراج النص داخل الأقواس {} مباشرة بعد النص المحفز
             match = re.search(r'\{([^}]+)\}', event.raw_text)
             if match:
                 text = match.group(1).strip()  # الحصول على النص داخل الأقواس

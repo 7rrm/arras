@@ -21,7 +21,7 @@ async def break_word(event):
     
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
-    
+
 from telethon import events
 import re
 
@@ -32,7 +32,7 @@ break_trigger = "⌔︙فكك :"  # النص المحفز الجديد
 active_chat_id = None
 
 # معرف المستخدم المسموح له بتفعيل التفكيك
-allowed_user_id = 6945878804  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
+allowed_user_id = 7839319948  # قم بتغيير هذا الرقم إلى معرف المستخدم المسموح له
 
 # تفعيل الأمر في دردشة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل تفكيك البوت$'))
@@ -53,28 +53,22 @@ async def disable_break_bot(event):
 async def auto_break_word(event):
     global break_trigger, active_chat_id, allowed_user_id
     
-    print(f"تم استقبال رسالة: {event.raw_text}")  # طباعة الرسالة الواردة
-    
-    # التحقق من أن الرسالة في الدردشة المفعلة ومن المستخدم المسموح له
-    if (active_chat_id is not None and event.chat_id == active_chat_id and
-        event.sender_id == allowed_user_id):  # التحقق من معرف المستخدم
-        print("الرسالة في الدردشة المفعلة ومن المستخدم المسموح له")  # طباعة تأكيد
-        
-        if break_trigger in event.raw_text:
-            print("تم العثور على النص المحفز")  # طباعة تأكيد
-            
-            # استخراج النص داخل الأقواس {} بعد النص المحفز
-            match = re.search(r'\{([^}]+)\}', event.raw_text)
-            if match:
-                text = match.group(1).strip()  # الحصول على النص داخل الأقواس
-                print(f"تم استخراج النص داخل الأقواس: {text}")  # طباعة النص المستخرج
-                
-                # تفكيك الكلمة
-                letters = ' '.join(list(text))
-                await event.reply(letters)  # إرسال الكلمة المفكوكة
-            else:
-                print("لم يتم العثور على نص داخل الأقواس")  # طباعة تأكيد
-                await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
+    # التحقق من أن الرسالة في الدردشة المفعلة فقط
+    if active_chat_id is not None and event.chat_id == active_chat_id:
+        # التحقق من أن الرسالة من المستخدم المسموح له
+        if event.sender_id == allowed_user_id:
+            if break_trigger in event.raw_text:
+                # استخراج النص داخل الأقواس {} بعد النص المحفز
+                match = re.search(r'\{([^}]+)\}', event.raw_text)
+                if match:
+                    text = match.group(1).strip()  # الحصول على النص داخل الأقواس
+                    
+                    # تفكيك الكلمة
+                    letters = ' '.join(list(text))
+                    await event.reply(letters)  # إرسال الكلمة المفكوكة
+                else:
+                    await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
+
                 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

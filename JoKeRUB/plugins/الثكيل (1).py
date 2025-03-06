@@ -48,11 +48,13 @@ async def disable_break_bot(event):
     active_chat_id = None  # إلغاء تفعيل الدردشة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع الدردشات بنجاح ✅**")
 
+# تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_break_word(event):
     global break_trigger, active_chat_id, allowed_user_id
     
-    print(f"تم استقبال رسالة: {event.raw_text}")  # طباعة الرسالة الواردة
+    # طباعة الرسالة الواردة للتأكد من استقبالها
+    print(f"تم استقبال رسالة: {event.raw_text}")
     
     # التحقق من أن الرسالة في الدردشة المفعلة فقط
     if active_chat_id is not None and event.chat_id == active_chat_id:
@@ -62,6 +64,7 @@ async def auto_break_word(event):
         if event.sender_id == allowed_user_id:
             print("الرسالة من المستخدم المسموح له")  # طباعة تأكيد
             
+            # التحقق من وجود النص المحفز في الرسالة
             if break_trigger in event.raw_text:
                 print("تم العثور على النص المحفز")  # طباعة تأكيد
                 
@@ -77,6 +80,14 @@ async def auto_break_word(event):
                 else:
                     print("لم يتم العثور على نص داخل الأقواس")  # طباعة تأكيد
                     await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
+            else:
+                print("لم يتم العثور على النص المحفز في الرسالة")  # طباعة تأكيد
+        else:
+            print("الرسالة ليست من المستخدم المسموح له")  # طباعة تأكيد
+    else:
+        print("الرسالة ليست في الدردشة المفعلة")  # طباعة تأكيد
+
+
 
                 
 # قاموس السمايلات ومعانيها

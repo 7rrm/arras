@@ -48,26 +48,36 @@ async def disable_break_bot(event):
     active_chat_id = None  # إلغاء تفعيل الدردشة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع الدردشات بنجاح ✅**")
 
-# تفعيل تفكيك الكلمات عند تلقي الرسالة المحفزة
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_break_word(event):
     global break_trigger, active_chat_id, allowed_user_id
     
+    print(f"تم استقبال رسالة: {event.raw_text}")  # طباعة الرسالة الواردة
+    
     # التحقق من أن الرسالة في الدردشة المفعلة فقط
     if active_chat_id is not None and event.chat_id == active_chat_id:
+        print("الرسالة في الدردشة المفعلة")  # طباعة تأكيد
+        
         # التحقق من أن الرسالة من المستخدم المسموح له
         if event.sender_id == allowed_user_id:
+            print("الرسالة من المستخدم المسموح له")  # طباعة تأكيد
+            
             if break_trigger in event.raw_text:
+                print("تم العثور على النص المحفز")  # طباعة تأكيد
+                
                 # استخراج النص داخل الأقواس {} بعد النص المحفز
                 match = re.search(r'\{([^}]+)\}', event.raw_text)
                 if match:
                     text = match.group(1).strip()  # الحصول على النص داخل الأقواس
+                    print(f"تم استخراج النص داخل الأقواس: {text}")  # طباعة النص المستخرج
                     
                     # تفكيك الكلمة
                     letters = ' '.join(list(text))
                     await event.reply(letters)  # إرسال الكلمة المفكوكة
                 else:
+                    print("لم يتم العثور على نص داخل الأقواس")  # طباعة تأكيد
                     await event.reply("**᯽︙ لم يتم العثور على كلمة داخل الأقواس {}**")
+    
 
                 
 # قاموس السمايلات ومعانيها

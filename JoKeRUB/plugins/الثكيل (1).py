@@ -21,7 +21,40 @@ async def break_word(event):
     
     # حذف الرسالة الأصلية (اختياري)
     await event.delete()
-        
+
+# تفعيل تفكيك البوت
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك (\d+)$'))
+async def enable_break_bot(event):
+    global active_chat_id, allowed_user_id
+    active_chat_id = event.chat_id  # حفظ معرف المجموعة
+    allowed_user_id = int(event.pattern_match.group(1))  # حفظ معرف المستخدم المسموح له
+    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح للمستخدم {allowed_user_id} ✅**")
+
+# تعطيل تفكيك البوت
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
+async def disable_break_bot(event):
+    global active_chat_id, allowed_user_id
+    active_chat_id = None  # إلغاء تفعيل المجموعة
+    allowed_user_id = None  # إلغاء معرف المستخدم المسموح له
+    await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
+
+# تفكيك الكلمة التي تلي النص "⌔︙فكك :"
+@l313l.on(events.NewMessage(incoming=True))
+async def break_word_on_trigger(event):
+    global active_chat_id, allowed_user_id
+    
+    # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
+    if active_chat_id is not None and event.chat_id == active_chat_id and event.sender_id == allowed_user_id:
+        if "⌔︙فكك :" in event.raw_text:
+            # استخراج النص داخل الأقواس
+            match = re.search(r'\{([^}]+)\}', event.raw_text)
+            if match:
+                word = match.group(1)
+                # تفكيك النص إلى أحرف
+                letters = ' '.join(list(word))
+                # إرسال النص المفكوك كرسالة جديدة
+                await event.respond(letters)
+
 # قاموس السمايلات ومعانيها
 smiley_meanings = {
     "🐭": "فأر",
@@ -53,7 +86,7 @@ trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
 active_chat_id = None
 
 # معرف المستخدم المسموح له
-allowed_user_id = 7839319948  # معرف المستخدم المسموح له
+allowed_user_id = None  # سيتم تعيينه عند التفاعل مع الأمر
 
 # تفعيل الأمر في مجموعة محددة
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))

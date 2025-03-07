@@ -78,7 +78,7 @@ async def reply_to_admin_welcome(event):
         return
     
     # التحقق من أن الرسالة مرسلة من البوت الإداري
-    if event.sender_id == ADMIN_BOT_ID:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
+    if event.sender_id == 6613752407:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
         # التحقق من أن الرسالة تحتوي على كليشة ترحيب
         if any(welcome_message in event.message.text for welcome_message in ADMIN_WELCOME_MESSAGES):
             # استخراج منشن الشخص المنضم من رسالة البوت

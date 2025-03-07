@@ -218,6 +218,7 @@ async def del_welcome(event):
 
 from telethon import events
 import random
+import re
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
@@ -248,24 +249,18 @@ async def handle_new_message(event):
     if event.sender_id != 6613752407:
         return
 
-    # تحقق من أن الرسالة تحتوي على منشن للعضو الجديد
-    if (
-        "⌔︙شـنيعـسـݪ وُدخــݪ ݪݪڪࢪووب 🍇💞." in event.text
-        or "⌔︙شَـهٛـݪډَخِـوࢦ ۽َݪـطيـفـہَ ؟ 🦋💞˛" in event.text
-        or "⌔︙شههݪ دخۄݪݪ ٲݪفخمم ہٰ  🔥؟؟" in event.text 
-        or "⌔︙شـنيعـسـݪ وُدخــݪ ݪݪڪࢪووب 🍇💞." in event.text 
-        or "⌔︙هَــْـِْـْْـِلاّ ؏ـُمࢪيِ نــْـِْورت ڪـَروبنه☆🦋💞" in event.text# أضف الكليشات الأخرى هنا
-    ):
-        # استخراج اليوزر من الرسالة
-        username = None
-        if "@" in event.text:
-            username = event.text.split("@")[1].split()[0]
-        
-        if username:
-            # اختيار كليشة ترحيب عشوائية من القائمة
-            welcome_message = random.choice(welcome_messages).format(username)
-            # قم بالرد على الرسالة بترحيب من حسابك
-            await event.reply(welcome_message)
+    # تحقق من أن الرسالة تحتوي على كليشة البوت
+    if "⌔︙شـنيعـسـݪ وُدخــݪ ݪݪڪࢪووب 🍇💞." in event.text:
+        # استخراج اليوزر من النص باستخدام regex
+        mention_pattern = r"\[.*?\]\((.*?)\)"
+        matches = re.findall(mention_pattern, event.text)
+        if matches:
+            username = matches[0]  # اليوزر الأول الذي يتم العثور عليه
+            if username:
+                # اختيار كليشة ترحيب عشوائية من القائمة
+                welcome_message = random.choice(welcome_messages).format(username)
+                # قم بالرد على الرسالة بترحيب من حسابك
+                await event.reply(welcome_message)
 
 # أمر التفعيل
 @l313l.ar_cmd(

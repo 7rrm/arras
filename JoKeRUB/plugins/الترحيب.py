@@ -20,6 +20,76 @@ from . import BOTLOG_CHATID
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
+# قائمة بكليشات الترحيب التي يرسلها البوت الإداري
+ADMIN_WELCOME_MESSAGES = [
+    "︙عـمࢪي جمـاࢦك نـوࢪنـا ❤️‍🔥🎗️ .",
+    "⌔︙هَــْـِْـْْـِلاّ ؏ـُمࢪيِ نــْـِْورت ڪـَروبنه☆🦋💞",
+    "⌔︙شَـهٛـݪډَخِـوࢦ ۽َݪـطيـفـہَ ؟ 🦋💞˛",
+    "⌔︙هہ‌‏لآ عمـريـ טּـورت ڪروبنهہ‌",
+    "⌔︙- اطلق من يدخل نورتنا يحبيبي ❤️‍🔥",
+    "⌔︙شههݪ دخۄݪݪݪ ٲݪفخمم ہٰ  🔥؟؟",
+    "⌔︙- ههَلݪأ ۅللهۂ بـ ڪݛوبنهه. 🍭❤️",
+    "⌔︙هَِـلا يڪَِـمـࢪ نورِت كـروب 💞🦋 .",
+]
+
+# أمر التفعيل
+@l313l.ar_cmd(
+    pattern="تفعيل الترحيب",
+    command=("تفعيل الترحيب", plugin_category),
+    info={
+        "header": "لتشغيل ميزة الرد على ترحيب البوت الإداري.",
+        "description": "عند التفعيل، سيقوم حسابك بالرد على رسائل ترحيب البوت الإداري برسالة ترحيب أخرى.",
+        "usage": "{tr}تفعيل الترحيب الخاص",
+    },
+)
+async def enable_custom_welcome(event):
+    "لتشغيل ميزة الرد على ترحيب البوت الإداري."
+    if gvarstatus("custom_welcome") is not None:
+        return await edit_delete(event, "**᯽︙ الميزة مفعلة بالفعل!**")
+    addgvar("custom_welcome", "true")
+    await edit_delete(event, "**᯽︙ تم تفعيل الترحيب الخاص بنجاح ✓**")
+
+# أمر التعطيل
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب ",
+    command=("تعطيل الترحيب", plugin_category),
+    info={
+        "header": "لإيقاف ميزة الرد على ترحيب البوت الإداري.",
+        "description": "عند التعطيل، لن يقوم حسابك بالرد على رسائل ترحيب البوت الإداري.",
+        "usage": "{tr}تعطيل الترحيب الخاص",
+    },
+)
+async def disable_custom_welcome(event):
+    "لإيقاف ميزة الرد على ترحيب البوت الإداري."
+    if gvarstatus("custom_welcome") is None:
+        return await edit_delete(event, "**᯽︙ الميزة معطلة بالفعل!**")
+    delgvar("custom_welcome")
+    await edit_delete(event, "**᯽︙ تم تعطيل الترحيب الخاص بنجاح ✓**")
+
+# الاستماع لرسائل البوت الإداري
+@l313l.on(events.NewMessage)
+async def reply_to_admin_welcome(event):
+    # التحقق من أن الميزة مفعلة
+    if gvarstatus("custom_welcome") is None:
+        return
+    
+    # التحقق من أن الرسالة مرسلة من البوت الإداري
+    if event.sender_id == ADMIN_BOT_ID:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
+        # التحقق من أن الرسالة تحتوي على كليشة ترحيب
+        if any(welcome_message in event.message.text for welcome_message in ADMIN_WELCOME_MESSAGES):
+            # استخراج منشن الشخص المنضم من رسالة البوت
+            mention = None
+            if "tg://user?id=" in event.message.text:
+                user_id = event.message.text.split("tg://user?id=")[1].split(")")[0]
+                mention = f'<a href="tg://user?id={user_id}">المستخدم</a>'
+            
+            # إذا تم العثور على منشن، قم بالرد برسالة ترحيب أخرى
+            if mention:
+                await event.reply(
+                    f"نورت {mention}",
+                    parse_mode="html",
+                )
+                
 @l313l.on(events.ChatAction)
 async def _(event):
     cws = get_current_welcome_settings(event.chat_id)

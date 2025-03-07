@@ -232,12 +232,13 @@ welcome_messages = [
     "حياك الله {}! 🌷",
 ]
 
-# معرف المجموعة المحددة (استبدل بـ chat_id الخاص بالمجموعة)
-TARGET_CHAT_ID = -1001234567890  # استبدل بقيمة chat_id الفعلية
-
 # تفعيل أو تعطيل الميزة
 async def is_feature_enabled():
     return gvarstatus("welcome_feature") == "true"
+
+# الحصول على chat_id الخاص بالمجموعة
+async def get_target_chat_id():
+    return int(gvarstatus("target_chat_id")) if gvarstatus("target_chat_id") else None
 
 @l313l.on(events.NewMessage(incoming=True))
 async def handle_welcome_message(event):
@@ -245,8 +246,13 @@ async def handle_welcome_message(event):
     if not await is_feature_enabled():
         return
 
+    # الحصول على chat_id الخاص بالمجموعة
+    target_chat_id = await get_target_chat_id()
+    if not target_chat_id:
+        return
+
     # التأكد من أن الرسالة في المجموعة المحددة
-    if event.chat_id != TARGET_CHAT_ID:
+    if event.chat_id != target_chat_id:
         return
 
     # التأكد من أن الرسالة مرسلة من البوت الإداري
@@ -289,8 +295,14 @@ async def handle_welcome_message(event):
 async def enable_welcome_feature(event):
     if gvarstatus("welcome_feature") == "true":
         return await edit_or_reply(event, "**الميزة مفعلة بالفعل!**")
+    
+    # حفظ chat_id الخاص بالمجموعة
+    chat_id = event.chat_id
+    addgvar("target_chat_id", str(chat_id))
+    
+    # تفعيل الميزة
     addgvar("welcome_feature", "true")
-    await edit_or_reply(event, "**تم تفعيل ردود الترحيب التلقائية بنجاح!**")
+    await edit_or_reply(event, f"**تم تفعيل ردود الترحيب التلقائية في هذه المجموعة (chat_id: {chat_id})!**")
 
 # أمر التعطيل
 @l313l.ar_cmd(
@@ -304,5 +316,8 @@ async def enable_welcome_feature(event):
 async def disable_welcome_feature(event):
     if gvarstatus("welcome_feature") != "true":
         return await edit_or_reply(event, "**الميزة معطلة بالفعل!**")
+    
+    # تعطيل الميزة وحذف chat_id
     delgvar("welcome_feature")
+    delgvar("target_chat_id")
     await edit_or_reply(event, "**تم تعطيل ردود الترحيب التلقائية بنجاح!**")

@@ -215,3 +215,81 @@ async def del_welcome(event):
             event, "__From now on previous welcome message will not be deleted .__"
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
+
+from telethon import events
+import random
+from JoKeRUB import l313l
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+# قائمة الكليشات التي سيختار منها حسابك للرد
+welcome_messages = [
+    "نورت @{}! 🎉",
+    "أهلاً وسهلاً بك @{}! 🌟",
+    "مرحبًا @{}! نورت المجموعة! 🚀",
+    "شرفتنا @{}! 😊",
+    "حياك الله @{}! 🌷",
+]
+
+# تفعيل أو تعطيل الميزة
+async def is_feature_enabled():
+    return gvarstatus("welcome_feature") == "true"
+
+@l313l.on(events.NewMessage(incoming=True))
+async def handle_new_message(event):
+    # التحقق من تفعيل الميزة
+    if not await is_feature_enabled():
+        return
+
+    # التأكد من أن الرسالة مرسلة من البوت
+    if event.sender_id == (await event.client.get_me()).id:
+        return
+
+    # التحقق من أن الرسالة مرسلة من الحساب المحدد (6613752407)
+    if event.sender_id != 6613752407:
+        return
+
+    # تحقق من أن الرسالة تحتوي على منشن للعضو الجديد
+    if (
+        "⌔︙شـنيعـسـݪ وُدخــݪ ݪݪڪࢪووب 🍇💞." in event.text
+        or "كليشة أخرى" in event.text  # أضف الكليشات الأخرى هنا
+    ):
+        # استخراج اليوزر من الرسالة
+        username = None
+        if "@" in event.text:
+            username = event.text.split("@")[1].split()[0]
+        
+        if username:
+            # اختيار كليشة ترحيب عشوائية من القائمة
+            welcome_message = random.choice(welcome_messages).format(username)
+            # قم بالرد على الرسالة بترحيب من حسابك
+            await event.reply(welcome_message)
+
+# أمر التفعيل
+@l313l.ar_cmd(
+    pattern="تفعيل الترحيب$",
+    command=("تفعيل الترحيب", plugin_category),
+    info={
+        "header": "لتفعيل ردود الترحيب التلقائية من حسابك.",
+        "usage": "{tr}تفعيل الترحيب",
+    },
+)
+async def enable_welcome_feature(event):
+    if gvarstatus("welcome_feature") == "true":
+        return await edit_or_reply(event, "**الميزة مفعلة بالفعل!**")
+    addgvar("welcome_feature", "true")
+    await edit_or_reply(event, "**تم تفعيل ردود الترحيب التلقائية بنجاح!**")
+
+# أمر التعطيل
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب$",
+    command=("تعطيل الترحيب", plugin_category),
+    info={
+        "header": "لتعطيل ردود الترحيب التلقائية من حسابك.",
+        "usage": "{tr}تعطيل الترحيب",
+    },
+)
+async def disable_welcome_feature(event):
+    if gvarstatus("welcome_feature") != "true":
+        return await edit_or_reply(event, "**الميزة معطلة بالفعل!**")
+    delgvar("welcome_feature")
+    await edit_or_reply(event, "**تم تعطيل ردود الترحيب التلقائية بنجاح!**")

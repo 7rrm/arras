@@ -273,12 +273,14 @@ async def handle_welcome_message(event):
 
     # التحقق من أن الرسالة تحتوي على إحدى كليشات الترحيب
     if any(text in event.text for text in welcome_texts):
-        # استخراج اليوزر من الرسالة باستخدام regex
-        mention_pattern = r"\[.*?\]\(tg://user\?id=(\d+)\)"
+        # استخراج المعرف (username) من الرسالة باستخدام regex
+        mention_pattern = r"\[.*?\]\(tg://user\?id=\d+\)|@(\w+)"
         matches = re.findall(mention_pattern, event.text)
         if matches:
-            user_id = matches[0]  # الـ user_id الذي يتم العثور عليه
-            mention = f"[⁦](tg://user?id={user_id})"  # إنشاء منشن باستخدام الـ user_id
+            username = matches[0]  # المعرف الذي يتم العثور عليه
+            if username.startswith("@"):
+                username = username[1:]  # إزالة @ إذا كانت موجودة
+            mention = f"@{username}"  # إنشاء منشن باستخدام المعرف
             welcome_message = random.choice(welcome_messages).format(mention)
             # إرسال رسالة الترحيب من حسابك
             await event.reply(welcome_message, parse_mode="markdown")

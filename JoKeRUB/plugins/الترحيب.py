@@ -236,31 +236,39 @@ async def is_feature_enabled():
     return gvarstatus("welcome_feature") == "true"
 
 @l313l.on(events.NewMessage(incoming=True))
-async def handle_new_message(event):
+async def handle_welcome_message(event):
     # التحقق من تفعيل الميزة
     if not await is_feature_enabled():
         return
 
-    # التأكد من أن الرسالة مرسلة من البوت
-    if event.sender_id == (await event.client.get_me()).id:
+    # التأكد من أن الرسالة مرسلة من البوت الإداري
+    if event.sender_id != 6613752407:  # استبدل بـ ID البوت الإداري
         return
 
-    # التحقق من أن الرسالة مرسلة من الحساب المحدد (6613752407)
-    if event.sender_id != 6613752407:
-        return
+    # تحقق من أن الرسالة تحتوي على كليشة الترحيب
+    welcome_texts = [
+        "⌔︙عـمࢪي جمـاࢦك نـوࢪنـا ❤️‍🔥🎗️ .",
+        "⌔︙هَــْـِْـْْـِلاّ ؏ـُمࢪيِ نــْـِْورت ڪـَروبنه☆🦋💞",
+        "⌔︙شَـهٛـݪډَخِـوࢦ ۽َݪـطيـفـہَ ؟ 🦋💞˛",
+        "⌔︙هہ‌‏لآ عمـريـ טּـورت ڪروبنهہ‌",
+        "⌔︙- اطلق من يدخل نورتنا يحبيبي ❤️‍🔥",
+        "⌔︙شههݪ دخۄݪݪ ٲݪفخمم ہٰ  🔥؟؟",
+        "⌔︙- ههَلݪأ ۅللهۂ بـ ڪݛوبنهه. 🍭❤️",
+        "⌔︙هَِـلا يڪَِـمـࢪ نورِت كـروب 💞🦋 .",
+    ]
 
-    # تحقق من أن الرسالة تحتوي على كليشة البوت
-    if "⌔︙شـنيعـسـݪ وُدخــݪ ݪݪڪࢪووب 🍇💞." in event.text:
-        # استخراج اليوزر من النص باستخدام regex
-        mention_pattern = r"\[.*?\]\((.*?)\)"
+    # التحقق من أن الرسالة تحتوي على إحدى كليشات الترحيب
+    if any(text in event.text for text in welcome_texts):
+        # استخراج اليوزر من الرسالة باستخدام regex
+        mention_pattern = r"\[.*?\]\(tg://user\?id=\d+\)|@(\w+)"
         matches = re.findall(mention_pattern, event.text)
         if matches:
             username = matches[0]  # اليوزر الأول الذي يتم العثور عليه
-            if username:
-                # اختيار كليشة ترحيب عشوائية من القائمة
-                welcome_message = random.choice(welcome_messages).format(username)
-                # قم بالرد على الرسالة بترحيب من حسابك
-                await event.reply(welcome_message)
+            if username.startswith("@"):
+                username = username[1:]  # إزالة @ إذا كانت موجودة
+            welcome_message = random.choice(welcome_messages).format(f"@{username}")
+            # إرسال رسالة الترحيب من حسابك
+            await event.reply(welcome_message)
 
 # أمر التفعيل
 @l313l.ar_cmd(

@@ -4,6 +4,7 @@
 from telethon import events
 from telethon.utils import get_display_name
 import datetime
+import random
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
 

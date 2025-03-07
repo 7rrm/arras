@@ -216,6 +216,7 @@ async def del_welcome(event):
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
+
 from telethon import events
 import random
 import re
@@ -224,12 +225,15 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # قائمة الكليشات التي سيختار منها حسابك للرد
 welcome_messages = [
-    "نورت @{}! 🎉",
-    "أهلاً وسهلاً بك @{}! 🌟",
-    "مرحبًا @{}! نورت المجموعة! 🚀",
-    "شرفتنا @{}! 😊",
-    "حياك الله @{}! 🌷",
+    "نورت {}! 🎉",
+    "أهلاً وسهلاً بك {}! 🌟",
+    "مرحبًا {}! نورت المجموعة! 🚀",
+    "شرفتنا {}! 😊",
+    "حياك الله {}! 🌷",
 ]
+
+# معرف المجموعة المحددة (استبدل بـ chat_id الخاص بالمجموعة)
+TARGET_CHAT_ID = -1001234567890  # استبدل بقيمة chat_id الفعلية
 
 # تفعيل أو تعطيل الميزة
 async def is_feature_enabled():
@@ -239,6 +243,10 @@ async def is_feature_enabled():
 async def handle_welcome_message(event):
     # التحقق من تفعيل الميزة
     if not await is_feature_enabled():
+        return
+
+    # التأكد من أن الرسالة في المجموعة المحددة
+    if event.chat_id != TARGET_CHAT_ID:
         return
 
     # التأكد من أن الرسالة مرسلة من البوت الإداري
@@ -260,15 +268,14 @@ async def handle_welcome_message(event):
     # التحقق من أن الرسالة تحتوي على إحدى كليشات الترحيب
     if any(text in event.text for text in welcome_texts):
         # استخراج اليوزر من الرسالة باستخدام regex
-        mention_pattern = r"\[.*?\]\(tg://user\?id=\d+\)|@(\w+)"
+        mention_pattern = r"\[.*?\]\(tg://user\?id=(\d+)\)"
         matches = re.findall(mention_pattern, event.text)
         if matches:
-            username = matches[0]  # اليوزر الأول الذي يتم العثور عليه
-            if username.startswith("@"):
-                username = username[1:]  # إزالة @ إذا كانت موجودة
-            welcome_message = random.choice(welcome_messages).format(f"@{username}")
+            user_id = matches[0]  # الـ user_id الذي يتم العثور عليه
+            mention = f"[⁦](tg://user?id={user_id})"  # إنشاء منشن باستخدام الـ user_id
+            welcome_message = random.choice(welcome_messages).format(mention)
             # إرسال رسالة الترحيب من حسابك
-            await event.reply(welcome_message)
+            await event.reply(welcome_message, parse_mode="markdown")
 
 # أمر التفعيل
 @l313l.ar_cmd(

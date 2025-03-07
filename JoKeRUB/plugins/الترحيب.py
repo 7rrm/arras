@@ -34,47 +34,51 @@ ADMIN_WELCOME_MESSAGES = [
 
 # أمر التفعيل
 @l313l.ar_cmd(
-    pattern="تفعيل الترحيب",
-    command=("تفعيل الترحيب", plugin_category),
+    pattern="تفعيل الترحيب الخاص$",
+    command=("تفعيل الترحيب الخاص", plugin_category),
     info={
-        "header": "لتشغيل ميزة الرد على ترحيب البوت الإداري.",
-        "description": "عند التفعيل، سيقوم حسابك بالرد على رسائل ترحيب البوت الإداري برسالة ترحيب أخرى.",
+        "header": "لتشغيل ميزة الرد على ترحيب البوت الإداري في هذه الدردشة.",
+        "description": "عند التفعيل، سيقوم حسابك بالرد على رسائل ترحيب البوت الإداري برسالة ترحيب أخرى في هذه الدردشة فقط.",
         "usage": "{tr}تفعيل الترحيب الخاص",
     },
 )
 async def enable_custom_welcome(event):
-    "لتشغيل ميزة الرد على ترحيب البوت الإداري."
-    if gvarstatus("custom_welcome") is not None:
-        return await edit_delete(event, "**᯽︙ الميزة مفعلة بالفعل!**")
-    addgvar("custom_welcome", "true")
-    await edit_delete(event, "**᯽︙ تم تفعيل الترحيب الخاص بنجاح ✓**")
+    "لتشغيل ميزة الرد على ترحيب البوت الإداري في هذه الدردشة."
+    chat_id = event.chat_id
+    if gvarstatus(f"custom_welcome_{chat_id}") is not None:
+        return await edit_delete(event, "**᯽︙ الميزة مفعلة بالفعل في هذه الدردشة!**")
+    addgvar(f"custom_welcome_{chat_id}", "true")
+    await edit_delete(event, "**᯽︙ تم تفعيل الترحيب الخاص في هذه الدردشة بنجاح ✓**")
 
 # أمر التعطيل
 @l313l.ar_cmd(
-    pattern="تعطيل الترحيب ",
-    command=("تعطيل الترحيب", plugin_category),
+    pattern="تعطيل الترحيب الخاص$",
+    command=("تعطيل الترحيب الخاص", plugin_category),
     info={
-        "header": "لإيقاف ميزة الرد على ترحيب البوت الإداري.",
-        "description": "عند التعطيل، لن يقوم حسابك بالرد على رسائل ترحيب البوت الإداري.",
+        "header": "لإيقاف ميزة الرد على ترحيب البوت الإداري في هذه الدردشة.",
+        "description": "عند التعطيل، لن يقوم حسابك بالرد على رسائل ترحيب البوت الإداري في هذه الدردشة.",
         "usage": "{tr}تعطيل الترحيب الخاص",
     },
 )
 async def disable_custom_welcome(event):
-    "لإيقاف ميزة الرد على ترحيب البوت الإداري."
-    if gvarstatus("custom_welcome") is None:
-        return await edit_delete(event, "**᯽︙ الميزة معطلة بالفعل!**")
-    delgvar("custom_welcome")
-    await edit_delete(event, "**᯽︙ تم تعطيل الترحيب الخاص بنجاح ✓**")
+    "لإيقاف ميزة الرد على ترحيب البوت الإداري في هذه الدردشة."
+    chat_id = event.chat_id
+    if gvarstatus(f"custom_welcome_{chat_id}") is None:
+        return await edit_delete(event, "**᯽︙ الميزة معطلة بالفعل في هذه الدردشة!**")
+    delgvar(f"custom_welcome_{chat_id}")
+    await edit_delete(event, "**᯽︙ تم تعطيل الترحيب الخاص في هذه الدردشة بنجاح ✓**")
 
 # الاستماع لرسائل البوت الإداري
 @l313l.on(events.NewMessage)
 async def reply_to_admin_welcome(event):
-    # التحقق من أن الميزة مفعلة
-    if gvarstatus("custom_welcome") is None:
+    chat_id = event.chat_id
+    
+    # التحقق من أن الميزة مفعلة في هذه الدردشة
+    if gvarstatus(f"custom_welcome_{chat_id}") is None:
         return
     
     # التحقق من أن الرسالة مرسلة من البوت الإداري
-    if event.sender_id == ADMIN_BOT_ID:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
+    if event.sender_id == 6613752407:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
         # التحقق من أن الرسالة تحتوي على كليشة ترحيب
         if any(welcome_message in event.message.text for welcome_message in ADMIN_WELCOME_MESSAGES):
             # استخراج منشن الشخص المنضم من رسالة البوت
@@ -287,110 +291,4 @@ async def del_welcome(event):
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
 
-    from telethon import events
-import random
-import re
-from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-
-# قائمة الكليشات التي سيختار منها حسابك للرد
-welcome_messages = [
-    "⌔︙عـمࢪي جمـاࢦك نـوࢪنـا ❤️‍🔥🎗️ .",
-    "⌔︙هَــْـِْـْْـِلاّ ؏ـُمࢪيِ نــْـِْورت ڪـَروبنه☆🦋💞",
-    "⌔︙شَـهٛـݪډَخِـوࢦ ۽َݪـطيـفـہَ ؟ 🦋💞˛",
-    "⌔︙هہ‌‏لآ عمـريـ טּـورت ڪروبنهہ‌",
-    "⌔︙- اطلق من يدخل نورتنا يحبيبي ❤️‍🔥",
-    "⌔︙شههݪ دخۄݪݪ ٲݪفخمم ہٰ  🔥؟؟",
-    "⌔︙- ههَلݪأ ۅللهۂ بـ ڪݛوبنهه. 🍭❤️",
-    "⌔︙هَِـلا يڪَِـمـࢪ نورِت كـروب 💞🦋 .",
-]
-
-# تفعيل أو تعطيل الميزة
-async def is_feature_enabled():
-    return gvarstatus("welcome_feature") == "true"
-
-# الحصول على chat_id الخاص بالمجموعة
-async def get_target_chat_id():
-    return int(gvarstatus("target_chat_id")) if gvarstatus("target_chat_id") else None
-
-@l313l.on(events.NewMessage(incoming=True))
-async def handle_welcome_message(event):
-    # التحقق من تفعيل الميزة
-    if not await is_feature_enabled():
-        return
-
-    # الحصول على chat_id الخاص بالمجموعة
-    target_chat_id = await get_target_chat_id()
-    if not target_chat_id:
-        return
-
-    # التأكد من أن الرسالة في المجموعة المحددة
-    if event.chat_id != target_chat_id:
-        return
-
-    # التأكد من أن الرسالة مرسلة من البوت الإداري
-    if event.sender_id != 6613752407:  # استبدل بـ ID البوت الإداري
-        return
-
-    # تحقق من أن الرسالة تحتوي على كليشة الترحيب
-    welcome_texts = [
-        "⌔︙عـمࢪي جمـاࢦك نـوࢪنـا ❤️‍🔥🎗️ .",
-        "⌔︙هَــْـِْـْْـِلاّ ؏ـُمࢪيِ نــْـِْورت ڪـَروبنه☆🦋💞",
-        "⌔︙شَـهٛـݪډَخِـوࢦ ۽َݪـطيـفـہَ ؟ 🦋💞˛",
-        "⌔︙هہ‌‏لآ عمـريـ טּـورت ڪروبنهہ‌",
-        "⌔︙- اطلق من يدخل نورتنا يحبيبي ❤️‍🔥",
-        "⌔︙شههݪ دخۄݪݪ ٲݪفخمم ہٰ  🔥؟؟",
-        "⌔︙- ههَلݪأ ۅللهۂ بـ ڪݛوبنهه. 🍭❤️",
-        "⌔︙هَِـلا يڪَِـمـࢪ نورِت كـروب 💞🦋 .",
-    ]
-
-    # التحقق من أن الرسالة تحتوي على إحدى كليشات الترحيب
-    if any(text in event.text for text in welcome_texts):
-        # استخراج user_id من الرسالة باستخدام regex
-        mention_pattern = r"\[.*?\]\(tg://user\?id=(\d+)\)"
-        matches = re.findall(mention_pattern, event.text)
-        if matches:
-            user_id = matches[0]  # الـ user_id الذي يتم العثور عليه
-            mention = f"[⁦](tg://user?id={user_id})"  # إنشاء منشن باستخدام الـ user_id
-            welcome_message = random.choice(welcome_messages).format(mention)
-            # إرسال رسالة الترحيب من حسابك
-            await event.reply(welcome_message, parse_mode="markdown")
-
-# أمر التفعيل
-@l313l.ar_cmd(
-    pattern="تفعيل الترحيب$",
-    command=("تفعيل الترحيب", plugin_category),
-    info={
-        "header": "لتفعيل ردود الترحيب التلقائية من حسابك.",
-        "usage": "{tr}تفعيل الترحيب",
-    },
-)
-async def enable_welcome_feature(event):
-    if gvarstatus("welcome_feature") == "true":
-        return await edit_or_reply(event, "**الميزة مفعلة بالفعل!**")
     
-    # حفظ chat_id الخاص بالمجموعة
-    chat_id = event.chat_id
-    addgvar("target_chat_id", str(chat_id))
-    
-    # تفعيل الميزة
-    addgvar("welcome_feature", "true")
-    await edit_or_reply(event, f"**تم تفعيل ردود الترحيب التلقائية في هذه المجموعة (chat_id: {chat_id})!**")
-
-# أمر التعطيل
-@l313l.ar_cmd(
-    pattern="تعطيل الترحيب$",
-    command=("تعطيل الترحيب", plugin_category),
-    info={
-        "header": "لتعطيل ردود الترحيب التلقائية من حسابك.",
-        "usage": "{tr}تعطيل الترحيب",
-    },
-)
-async def disable_welcome_feature(event):
-    if gvarstatus("welcome_feature") != "true":
-        return await edit_or_reply(event, "**الميزة معطلة بالفعل!**")
-    
-    # تعطيل الميزة وحذف chat_id
-    delgvar("welcome_feature")
-    delgvar("target_chat_id")
-    await edit_or_reply(event, "**تم تعطيل ردود الترحيب التلقائية بنجاح!**")

@@ -78,21 +78,23 @@ async def reply_to_admin_welcome(event):
         return
     
     # التحقق من أن الرسالة مرسلة من البوت الإداري
-    if event.sender_id == 6613752407:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
+    if event.sender_id == ADMIN_BOT_ID:  # استبدل ADMIN_BOT_ID بمعرف البوت الإداري
         # التحقق من أن الرسالة تحتوي على كليشة ترحيب
         if any(welcome_message in event.message.text for welcome_message in ADMIN_WELCOME_MESSAGES):
             # استخراج منشن الشخص المنضم من رسالة البوت
             mention = None
             if "tg://user?id=" in event.message.text:
                 user_id = event.message.text.split("tg://user?id=")[1].split(")")[0]
-                mention = f'<a href="tg://user?id={user_id}">المستخدم</a>'
+                user = await event.client.get_entity(int(user_id))
+                mention = f"[{user.first_name}](tg://user?id={user.id})"
             
             # إذا تم العثور على منشن، قم بالرد برسالة ترحيب أخرى
             if mention:
                 await event.reply(
                     f"نورت {mention}",
-                    parse_mode="html",
+                    parse_mode="markdown",
                 )
+                
                 
 @l313l.on(events.ChatAction)
 async def _(event):

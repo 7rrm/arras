@@ -32,6 +32,17 @@ ADMIN_WELCOME_MESSAGES = [
     "⌔︙هَِـلا يڪَِـمـࢪ نورِت كـروب 💞🦋 .",
 ]
 
+# قائمة بكليشات الترحيب التي يرسلها حسابك
+CUSTOM_WELCOME_MESSAGES = [
+    "نورت {mention}",
+    "مرحبا {mention}",
+    "يهلا {mention}",
+    "نورت كروبنا {mention}",
+    "أهلا وسهلا {mention}",
+    "حياك الله {mention}",
+    "تشرفت بوجودك {mention}",
+]
+
 # أمر التفعيل
 @l313l.ar_cmd(
     pattern="تفعيل الترحيب الخاص$",
@@ -90,10 +101,13 @@ async def reply_to_admin_welcome(event):
             
             # إذا تم العثور على منشن، قم بالرد برسالة ترحيب أخرى
             if mention:
+                # اختيار كليشة ترحيب عشوائية
+                welcome_message = random.choice(CUSTOM_WELCOME_MESSAGES).format(mention=mention)
                 await event.reply(
-                    f"نورت {mention}",
+                    welcome_message,
                     parse_mode="markdown",
                 )
+                
                 
                 
 @l313l.on(events.ChatAction)

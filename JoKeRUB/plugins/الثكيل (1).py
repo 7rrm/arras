@@ -89,7 +89,7 @@ smiley_meanings = {
 }
 
 # النص المحفز
-trigger_text = "↜︙ما معنى هذا السمايل ؟ ↫"
+trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "
 
 # معرف المجموعة المفعلة
 active_chat_id = None

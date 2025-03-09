@@ -140,9 +140,6 @@ async def monitor_user(event):
         try:
             sender = await event.get_sender()
             if str(sender.id) == target or sender.username == target:
-                # تحويل الرسالة إلى مجموعة المراقبة
-                await event.client.forward_messages(chat_id, event.message)
-
                 # إعداد الرسالة المخصصة
                 group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
                 message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"

@@ -143,7 +143,7 @@ from telethon import events
 poem_enabled = False
 
 # معرف المستخدم الخاص بك
-my_id = YOUR_USER_ID  # استبدل YOUR_USER_ID بمعرفك الفعلي
+my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
 
 # أمر تفعيل الشعر
 @l313l.on(events.NewMessage(pattern="^\.تفعيل شعر$"))

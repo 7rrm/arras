@@ -143,10 +143,10 @@ from telethon import events
 poem_enabled = False
 
 # معرف المستخدم الخاص بك
-my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+my_id = YOUR_USER_ID  # استبدل YOUR_USER_ID بمعرفك الفعلي
 
 # أمر تفعيل الشعر
-@l313l.on(events.NewMessage(pattern="^\.تفعيل الشعر$"))
+@l313l.on(events.NewMessage(pattern="^\.تفعيل شعر$"))
 async def enable_poem(event):
     global poem_enabled
     
@@ -184,7 +184,7 @@ async def send_poem(event):
         return
     
     try:
-        # رقم عشوائي بين 2 و 101
+        # رقم عشوائي بين 4 و67
         rl = random.randint(4, 67)
         
         # رابط الملف العشوائي من القناة
@@ -199,13 +199,12 @@ async def send_poem(event):
         )
         
         # حذف الأمر الأصلي (اختياري)
-        await event.delete()
+        
     
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
-        await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")                      
-
-
+        await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
+                      
 @l313l.on(admin_cmd(outgoing=True, pattern="ثيم$"))
 async def jepThe(theme):
   rl = random.randint(2,510)

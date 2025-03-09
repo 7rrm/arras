@@ -159,7 +159,7 @@ async def enable_poem(event):
         return
 
 # أمر إلغاء تفعيل الشعر
-@l313l.on(events.NewMessage(pattern="^\.إلغاء تفعيل الشعر$"))
+@l313l.on(events.NewMessage(pattern="^\.ايقاف شعر$"))
 async def disable_poem(event):
     global poem_enabled
     

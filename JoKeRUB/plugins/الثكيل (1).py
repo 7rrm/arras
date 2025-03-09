@@ -29,7 +29,7 @@ from JoKeRUB import l313l
 flags_enabled = False
 active_chat_id = None
 reply_delay = 0
-flags_allowed_user_id = 7629128677  # معرف الشخص المسموح له
+bot_id = 7629128677  # معرف البوت الذي يرسل النص المحفز (قم بتغييره إلى معرف البوت الفعلي)
 
 # قاموس الأعلام والبلدان
 flags_dict = {
@@ -58,32 +58,26 @@ flags_dict = {
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام (\d+)$'))
 async def enable_flags(event):
     global flags_enabled, active_chat_id, reply_delay
-    if event.sender_id == flags_allowed_user_id:  # التحقق من أن المرسل هو الشخص المسموح له
-        reply_delay = int(event.pattern_match.group(1))
-        active_chat_id = event.chat_id  # حفظ معرف الدردشة
-        flags_enabled = True
-        await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**")
-    else:
-        await event.edit("**᯽︙ ليس لديك صلاحية لتفعيل هذه الميزة.**")
+    reply_delay = int(event.pattern_match.group(1))
+    active_chat_id = event.chat_id  # حفظ معرف الدردشة
+    flags_enabled = True
+    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**")
 
 # تعطيل ميزة الأعلام
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
 async def disable_flags(event):
     global flags_enabled, active_chat_id
-    if event.sender_id == flags_allowed_user_id:  # التحقق من أن المرسل هو الشخص المسموح له
-        flags_enabled = False
-        active_chat_id = None
-        await event.edit("**᯽︙ تم تعطيل ميزة الأعلام بنجاح ✅**")
-    else:
-        await event.edit("**᯽︙ ليس لديك صلاحية لتعطيل هذه الميزة.**")
+    flags_enabled = False
+    active_chat_id = None
+    await event.edit("**᯽︙ تم تعطيل ميزة الأعلام بنجاح ✅**")
 
 # الرد التلقائي على الأعلام
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_flags(event):
-    global flags_enabled, active_chat_id, reply_delay, flags_dict, flags_allowed_user_id
+    global flags_enabled, active_chat_id, reply_delay, flags_dict, bot_id
     
-    # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن الشخص المسموح له
-    if flags_enabled and event.chat_id == active_chat_id and event.sender_id == flags_allowed_user_id:
+    # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن البوت
+    if flags_enabled and event.chat_id == active_chat_id and event.sender_id == bot_id:
         if "↜︙لأي دوله هذا العلم ؟ ↫" in event.raw_text:
             for flag, country in flags_dict.items():
                 if flag in event.raw_text:

@@ -136,34 +136,45 @@ async def send_song(event):
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
         await event.reply(f"حدث خطأ أثناء إرسال الغناء: {str(e)}")
 
-                          
 import random
 from telethon import events
 
 # متغير لتخزين حالة التفعيل
 poem_enabled = False
 
+# معرف المستخدم الخاص بك
+my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+
 # أمر تفعيل الشعر
 @l313l.on(events.NewMessage(pattern="^\.تفعيل الشعر$"))
 async def enable_poem(event):
     global poem_enabled
-    poem_enabled = True
-    await event.reply("تم تفعيل الشعر بنجاح! الآن البوت سيرد على أي شخص يكتب `.شعر`.")
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        poem_enabled = True
+        await event.reply("تم تفعيل الشعر بنجاح! الآن البوت سيرد على أي شخص يكتب `.شعر`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
+    else:
+        return
 
 # أمر إلغاء تفعيل الشعر
 @l313l.on(events.NewMessage(pattern="^\.إلغاء تفعيل الشعر$"))
 async def disable_poem(event):
     global poem_enabled
-    poem_enabled = False
-    await event.reply("تم إلغاء تفعيل الشعر بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.شعر`.")
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        poem_enabled = False
+        await event.reply("تم إلغاء تفعيل الشعر بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.شعر`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
+    else:
+        return
 
 # تعريف الحدث للرد على أي شخص يكتب .شعر
 @l313l.on(events.NewMessage(pattern="^\.شعر$"))
 async def send_poem(event):
     global poem_enabled
-    
-    # الحصول على معرف المستخدم الخاص بك
-    my_id = (await event.client.get_me()).id
     
     # إذا كان المرسل هو البوت نفسه (أنت)، يرد دائمًا
     if event.sender_id == my_id:
@@ -192,7 +203,8 @@ async def send_poem(event):
     
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
-        await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
+        await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")                      
+
 
 @l313l.on(admin_cmd(outgoing=True, pattern="ثيم$"))
 async def jepThe(theme):

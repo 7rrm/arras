@@ -85,11 +85,12 @@ async def enable_song(event):
     if event.sender_id == my_id:
         song_enabled = True
         await event.reply("تم تفعيل غنيلي بنجاح! الآن البوت سيرد على أي شخص يكتب `.غنيلي`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
     else:
-        await event.reply("عذرًا، هذا الأمر متاح فقط للمطور.")
+        return
 
 # أمر إلغاء تفعيل غنيلي
-@l313l.on(events.NewMessage(pattern="^\.إلغاء تفعيل غنيلي$"))
+@l313l.on(events.NewMessage(pattern="^\.ايقاف غنيلي$"))
 async def disable_song(event):
     global song_enabled
     
@@ -97,8 +98,9 @@ async def disable_song(event):
     if event.sender_id == my_id:
         song_enabled = False
         await event.reply("تم إلغاء تفعيل غنيلي بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.غنيلي`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
     else:
-        await event.reply("عذرًا، هذا الأمر متاح فقط للمطور.")
+        return
 
 # تعريف الحدث للرد على أي شخص يكتب .غنيلي
 @l313l.on(events.NewMessage(pattern="^\.غنيلي$"))
@@ -133,6 +135,7 @@ async def send_song(event):
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
         await event.reply(f"حدث خطأ أثناء إرسال الغناء: {str(e)}")
+
                           
 import random
 from telethon import events

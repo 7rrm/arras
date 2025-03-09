@@ -67,34 +67,43 @@ async def _(event):
     except TimeoutError:
         return await event.edit("***حدث خطا ما حاول مجددا**")
         
-#السلام على الحسين وعلى الارواح التي حلت بفنائك ولعن الله قاتليك
 import random
 from telethon import events
 
 # متغير لتخزين حالة التفعيل
 song_enabled = False
 
+# معرف المستخدم الخاص بك
+my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+
 # أمر تفعيل غنيلي
 @l313l.on(events.NewMessage(pattern="^\.تفعيل غنيلي$"))
 async def enable_song(event):
     global song_enabled
-    song_enabled = True
-    await event.reply("تم تفعيل غنيلي بنجاح! الآن البوت سيرد على أي شخص يكتب `.غنيلي`.")
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        song_enabled = True
+        await event.reply("تم تفعيل غنيلي بنجاح! الآن البوت سيرد على أي شخص يكتب `.غنيلي`.")
+    else:
+        await event.reply("عذرًا، هذا الأمر متاح فقط للمطور.")
 
 # أمر إلغاء تفعيل غنيلي
 @l313l.on(events.NewMessage(pattern="^\.إلغاء تفعيل غنيلي$"))
 async def disable_song(event):
     global song_enabled
-    song_enabled = False
-    await event.reply("تم إلغاء تفعيل غنيلي بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.غنيلي`.")
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        song_enabled = False
+        await event.reply("تم إلغاء تفعيل غنيلي بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.غنيلي`.")
+    else:
+        await event.reply("عذرًا، هذا الأمر متاح فقط للمطور.")
 
 # تعريف الحدث للرد على أي شخص يكتب .غنيلي
 @l313l.on(events.NewMessage(pattern="^\.غنيلي$"))
 async def send_song(event):
     global song_enabled
-    
-    # الحصول على معرف المستخدم الخاص بك
-    my_id = (await event.client.get_me()).id
     
     # إذا كان المرسل هو البوت نفسه (أنت)، يرد دائمًا
     if event.sender_id == my_id:

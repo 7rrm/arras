@@ -111,8 +111,12 @@ async def log_tagged_messages(event):
             parse_mode="html",
             link_preview=False,
         )
+
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
+
+# قائمة لتخزين المستخدمين تحت المراقبة
+monitored_users = []
 
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
@@ -121,42 +125,45 @@ async def monitor_user(event):
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
-    # إنشاء مجموعة جديدة للمراقبة
-    try:
-        result = await event.client(CreateChannelRequest(
-            title=f"كروب المراقبة - {target}",
-            about="مجموعة لمراقبة الرسائل التي يرسلها المستخدم في المجموعات المشتركة.",
-            megagroup=True
-        ))
-        chat_id = result.chats[0].id
-        invite_link = await event.client(ExportChatInviteRequest(chat_id))
-        await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link.link})**")
-    except Exception as e:
-        return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
-
-    # بدء مراقبة الرسائل
-    @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
-    async def monitor_messages(event):
-        try:
-            sender = await event.get_sender()
-            if str(sender.id) == target or sender.username == target:
-                # إعداد الرسالة المخصصة
-                group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
-                message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
-                message_text = (
-                   "#المراقبه\n\n"
-                    f"↜︙الكــروب : {group_title}\n\n"
-                    f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
-                    f"↜︙الرســالـه : {event.message.message}\n\n"
-                    f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
-                )
-
-                # إرسال الرسالة المخصصة إلى مجموعة المراقبة
-                await event.client.send_message(chat_id, message_text, parse_mode="markdown")
-        except Exception as e:
-            print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
-
+    # إضافة المستخدم إلى قائمة المراقبة
+    monitored_users.append(target)
     await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
+
+@l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
+async def unmonitor_user(event):
+    # الحصول على المستخدم أو الـ ID المطلوب إيقاف مراقبته
+    target = event.pattern_match.group(1)
+    if not target:
+        return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID لإيقاف المراقبة**")
+
+    # إزالة المستخدم من قائمة المراقبة
+    if target in monitored_users:
+        monitored_users.remove(target)
+        await event.edit(f"**⌔┊تم إيقاف مراقبة المستخدم {target}.**")
+    else:
+        await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
+
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
+async def monitor_messages(event):
+    try:
+        sender = await event.get_sender()
+        # التحقق من أن المستخدم تحت المراقبة
+        if str(sender.id) in monitored_users or sender.username in monitored_users:
+            # إعداد الكليشة (الرسالة المخصصة)
+            group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
+            message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
+            message_text = (
+                "#المراقبه\n\n"
+                f"↜︙الكــروب : {group_title}\n\n"
+                f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
+                f"↜︙الرســالـه : {event.message.message}\n\n"
+                f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
+            )
+
+            # إرسال الكليشة إلى مجموعة المراقبة
+            await event.client.send_message(chat_id, message_text, parse_mode="markdown")
+    except Exception as e:
+        print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
 
 @l313l.ar_cmd(
     pattern="خزن(?:\s|$)([\s\S]*)",

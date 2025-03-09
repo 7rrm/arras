@@ -190,16 +190,17 @@ async def send_poem(event):
         # رابط الملف العشوائي من القناة
         url = f"https://t.me/Lx1x2/{rl}"
         
-        # إرسال الملف مع تعليق
+        # إرسال الملف كرد على رسالة المستخدم
         await event.client.send_file(
             event.chat_id,
             url,
             caption="- تم اختيارها لك .",
+            reply_to=event.id,  # الرد على رسالة المستخدم
             parse_mode="html"
         )
         
         # حذف الأمر الأصلي (اختياري)
-        
+
     
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك

@@ -111,23 +111,45 @@ async def log_tagged_messages(event):
             parse_mode="html",
             link_preview=False,
         )
-
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
 
 # قائمة لتخزين المستخدمين تحت المراقبة
 monitored_users = []
 
+# متغير لتخزين معرف مجموعة المراقبة
+monitoring_group_id = None
+
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
+    global monitoring_group_id  # استخدام المتغير العام
+
     # الحصول على المستخدم أو الـ ID المطلوب مراقبته
     target = event.pattern_match.group(1)
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
+    # إنشاء مجموعة جديدة للمراقبة (إذا لم يتم إنشاؤها مسبقًا)
+    if monitoring_group_id is None:
+        try:
+            result = await event.client(CreateChannelRequest(
+                title=f"كروب المراقبة - {target}",
+                about="مجموعة لمراقبة الرسائل التي يرسلها المستخدم في المجموعات المشتركة.",
+                megagroup=True
+            ))
+            monitoring_group_id = result.chats[0].id
+            invite_link = await event.client(ExportChatInviteRequest(monitoring_group_id))
+            await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link.link})**")
+        except Exception as e:
+            print(f"حدث خطأ أثناء إنشاء المجموعة: {str(e)}")  # Debugging
+            return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
+
     # إضافة المستخدم إلى قائمة المراقبة
-    monitored_users.append(target)
-    await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
+    if target not in monitored_users:
+        monitored_users.append(target)
+        await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
+    else:
+        await event.edit(f"**⌔┊المستخدم {target} تحت المراقبة بالفعل.**")
 
 @l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
 async def unmonitor_user(event):
@@ -161,7 +183,7 @@ async def monitor_messages(event):
             )
 
             # إرسال الكليشة إلى مجموعة المراقبة
-            await event.client.send_message(chat_id, message_text, parse_mode="markdown")
+            await event.client.send_message(monitoring_group_id, message_text, parse_mode="markdown")
     except Exception as e:
         print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
 

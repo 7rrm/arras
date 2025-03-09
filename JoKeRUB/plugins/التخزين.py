@@ -147,11 +147,11 @@ async def monitor_user(event):
                 group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
                 message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
                 message_text = (
-                    "#المراقبه\n\n"
-                    f"⌔┊الكــروب : ٭ {group_title}\n"
-                    f"⌔┊المـرسـل : ٭ {_format.mentionuser(sender.first_name, sender.id)}\n"
-                    f"⌔┊الرســالـه : {event.message.message}\n"
-                    f"⌔┊رابـط الرسـاله : [اضغط هنا]({message_link})"
+                   "#المراقبه\n\n"
+                    f"↜︙الكــروب : {group_title}\n\n"
+                    f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
+                    f"↜︙الرســالـه : {event.message.message}\n\n"
+                    f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
                 )
 
                 # إرسال الرسالة المخصصة إلى مجموعة المراقبة

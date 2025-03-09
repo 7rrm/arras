@@ -137,26 +137,29 @@ async def monitor_user(event):
     # بدء مراقبة الرسائل
     @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
     async def monitor_messages(event):
-        sender = await event.get_sender()
-        if sender.id == target or sender.username == target:
-            # تحويل الرسالة إلى مجموعة المراقبة
-            await event.client.forward_messages(chat_id, event.message)
+        try:
+            sender = await event.get_sender()
+            if str(sender.id) == target or sender.username == target:
+                # تحويل الرسالة إلى مجموعة المراقبة
+                await event.client.forward_messages(chat_id, event.message)
 
-            # إعداد الرسالة المخصصة
-            group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
-            message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
-            message_text = (
-                "#المراقبه\n\n"
-                f"⌔┊الكــروب : ٭ {group_title}\n"
-                f"⌔┊المـرسـل : ٭ {_format.mentionuser(sender.first_name, sender.id)}\n"
-                f"⌔┊الرســالـه : {event.message.message}\n"
-                f"⌔┊رابـط الرسـاله : [اضغط هنا]({message_link})"
-            )
+                # إعداد الرسالة المخصصة
+                group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
+                message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
+                message_text = (
+                    "#المراقبه\n\n"
+                    f"⌔┊الكــروب : ٭ {group_title}\n"
+                    f"⌔┊المـرسـل : ٭ {_format.mentionuser(sender.first_name, sender.id)}\n"
+                    f"⌔┊الرســالـه : {event.message.message}\n"
+                    f"⌔┊رابـط الرسـاله : [اضغط هنا]({message_link})"
+                )
 
-            # إرسال الرسالة المخصصة إلى مجموعة المراقبة
-            await event.client.send_message(chat_id, message_text, parse_mode="markdown")
+                # إرسال الرسالة المخصصة إلى مجموعة المراقبة
+                await event.client.send_message(chat_id, message_text, parse_mode="markdown")
+        except Exception as e:
+            print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
 
-    await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في المجموعات المشتركة.**")
+    await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
 
 @l313l.ar_cmd(
     pattern="خزن(?:\s|$)([\s\S]*)",

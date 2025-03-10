@@ -41,39 +41,55 @@ from telethon.tl.types import InputStickerSetID
 # دالة لاستخراج معلومات الملصق
 async def get_sticker_info(event):
     if not event.is_reply:
-        await event.edit("**⚠️│ يجب الرد على ملصق لاستخراج المعلومات.**")
+        await event.edit("**⚠️│ يجب الرد على ملصق أو رمز تعبيري مميز لاستخراج المعلومات.**")
         return None
 
     reply_message = await event.get_reply_message()
-    if not reply_message.sticker:
-        await event.edit("**⚠️│ يجب الرد على ملصق فقط.**")
+    if not reply_message.sticker and not reply_message.document:
+        await event.edit("**⚠️│ يجب الرد على ملصق أو رمز تعبيري مميز فقط.**")
         return None
 
-    sticker = reply_message.sticker
-    if isinstance(sticker, types.Document):
-        # استخراج معلومات الملصق
-        sticker_id = sticker.id
-        sticker_access_hash = sticker.access_hash
-        sticker_mime_type = sticker.mime_type
+    if reply_message.sticker:
+        sticker = reply_message.sticker
+        if isinstance(sticker, types.Document):
+            # استخراج معلومات الملصق
+            sticker_id = sticker.id
+            sticker_access_hash = sticker.access_hash
+            sticker_mime_type = sticker.mime_type
 
-        # تحديد نوع الملصق
-        if sticker_mime_type == "application/x-tgsticker":
-            sticker_type = "ملصق متحرك (TGS)"
-        elif sticker_mime_type == "video/webm":
-            sticker_type = "ملصق فيديو (WEBM)"
+            # تحديد نوع الملصق
+            if sticker_mime_type == "application/x-tgsticker":
+                sticker_type = "ملصق متحرك (TGS)"
+            elif sticker_mime_type == "video/webm":
+                sticker_type = "ملصق فيديو (WEBM)"
+            else:
+                sticker_type = "ملصق عادي"
+
+            await event.edit(
+                f"**✅│ تم استخراج معلومات الملصق بنجاح:**\n\n"
+                f"**- الـ ID:** `{sticker_id}`\n"
+                f"**- النوع:** `{sticker_type}`\n"
+                f"**- MIME Type:** `{sticker_mime_type}`"
+            )
+            return sticker_id, sticker_type
         else:
-            sticker_type = "ملصق عادي"
+            await event.edit("**⚠️│ هذا النوع من الملصقات غير مدعوم.**")
+            return None
 
-        await event.edit(
-            f"**✅│ تم استخراج معلومات الملصق بنجاح:**\n\n"
-            f"**- الـ ID:** `{sticker_id}`\n"
-            f"**- النوع:** `{sticker_type}`\n"
-            f"**- MIME Type:** `{sticker_mime_type}`"
-        )
-        return sticker_id, sticker_type
-    else:
-        await event.edit("**⚠️│ هذا النوع من الملصقات غير مدعوم.**")
-        return None
+    elif reply_message.document:
+        # محاولة التعامل مع الرموز التعبيرية المميزة
+        document = reply_message.document
+        if document.mime_type == "application/x-tgsticker":
+            sticker_id = document.id
+            await event.edit(
+                f"**✅│ تم استخراج معلومات الرمز التعبيري المميز بنجاح:**\n\n"
+                f"**- الـ ID:** `{sticker_id}`\n"
+                f"**- النوع:** `رمز تعبيري مميز`"
+            )
+            return sticker_id, "رمز تعبيري مميز"
+        else:
+            await event.edit("**⚠️│ هذا النوع من الملفات غير مدعوم.**")
+            return None
 
 # دالة لإرسال الملصق مع القائمة
 async def send_sticker_with_commands(event, sticker_id):
@@ -115,7 +131,7 @@ async def send_sticker_with_commands(event, sticker_id):
     )
 
 # أمر لاستخراج معلومات الملصق
-@l313l.ar_cmd(pattern="معلومات_الملصق$")
+@l313l.ar_cmd(pattern="معلومات_الملص$")
 async def extract_sticker_info(event):
     sticker_info = await get_sticker_info(event)
     if sticker_info:

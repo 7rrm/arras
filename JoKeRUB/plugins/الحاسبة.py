@@ -16,8 +16,11 @@ lst.append([Button.inline("=", data="calc=")])
 
 @l313l.on(admin_cmd(pattern="حاسبة(?:\s|$)([\s\S]*)"))
 async def icalc(e):
-    if e.client._bot:
+    # التحقق مما إذا كان العميل يعمل كبوت
+    if hasattr(e.client, 'bot_token') and e.client.bot_token:
         return await e.reply("**الحـاسبة العـلمية لسـورس الجوكر\n @jepthon**", buttons=lst)
+    
+    # إذا لم يكن بوت، قم بتنفيذ الاستعلام المضمن
     results = await e.client.inline_query(Config.TG_BOT_USERNAME, "calc")
     await results[0].click(e.chat_id, silent=True, hide_via=True)
     await e.delete()

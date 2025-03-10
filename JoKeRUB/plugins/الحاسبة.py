@@ -31,7 +31,7 @@ async def inlinecalc(event):
     query = event.text
     string = query.lower()
     if (query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS) and string == "calc":
-        calc = event.builder.article("Calc", text="**الحـاسبة العـلمية لسـورس الجوكر\n @jepthon**", buttons=lst)
+        calc = event.builder.article("Calc", text="****الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=lst)
         await event.answer([calc])
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"calc(.*)")))

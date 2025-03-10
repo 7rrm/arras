@@ -38,10 +38,10 @@ from telethon import events, types
 from telethon.tl.functions.messages import GetStickerSetRequest
 from telethon.tl.types import InputStickerSetID
 
-# دالة لاستخراج sticker_id
-async def get_sticker_id(event):
+# دالة لاستخراج معلومات الملصق
+async def get_sticker_info(event):
     if not event.is_reply:
-        await event.edit("**⚠️│ يجب الرد على ملصق لاستخراج الـ sticker_id.**")
+        await event.edit("**⚠️│ يجب الرد على ملصق لاستخراج المعلومات.**")
         return None
 
     reply_message = await event.get_reply_message()
@@ -51,9 +51,26 @@ async def get_sticker_id(event):
 
     sticker = reply_message.sticker
     if isinstance(sticker, types.Document):
+        # استخراج معلومات الملصق
         sticker_id = sticker.id
-        await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
-        return sticker_id
+        sticker_access_hash = sticker.access_hash
+        sticker_mime_type = sticker.mime_type
+
+        # تحديد نوع الملصق
+        if sticker_mime_type == "application/x-tgsticker":
+            sticker_type = "ملصق متحرك (TGS)"
+        elif sticker_mime_type == "video/webm":
+            sticker_type = "ملصق فيديو (WEBM)"
+        else:
+            sticker_type = "ملصق عادي"
+
+        await event.edit(
+            f"**✅│ تم استخراج معلومات الملصق بنجاح:**\n\n"
+            f"**- الـ ID:** `{sticker_id}`\n"
+            f"**- النوع:** `{sticker_type}`\n"
+            f"**- MIME Type:** `{sticker_mime_type}`"
+        )
+        return sticker_id, sticker_type
     else:
         await event.edit("**⚠️│ هذا النوع من الملصقات غير مدعوم.**")
         return None
@@ -97,19 +114,23 @@ async def send_sticker_with_commands(event, sticker_id):
         f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     )
 
-# أمر لاستخراج sticker_id
-@l313l.ar_cmd(pattern="استخراج_ايدي_الملصق$")
-async def extract_sticker_id(event):
-    sticker_id = await get_sticker_id(event)
-    if sticker_id:
-        await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
+# أمر لاستخراج معلومات الملصق
+@l313l.ar_cmd(pattern="معلومات_الملصق$")
+async def extract_sticker_info(event):
+    sticker_info = await get_sticker_info(event)
+    if sticker_info:
+        sticker_id, sticker_type = sticker_info
+        await event.edit(f"**✅│ تم استخراج معلومات الملصق بنجاح:**\n\n"
+                         f"**- الـ ID:** `{sticker_id}`\n"
+                         f"**- النوع:** `{sticker_type}`")
 
 # أمر لإرسال الملصق مع القائمة
 @l313l.ar_cmd(pattern="الإوامر(?:\s|$)([\s\S]*)")
 async def send_commands_with_sticker(event):
     if not event.text[0].isalpha() and event.text[0] not in ("/", "#", "@", "!"):
-        sticker_id = await get_sticker_id(event)  # استخراج sticker_id
-        if sticker_id:
+        sticker_info = await get_sticker_info(event)  # استخراج معلومات الملصق
+        if sticker_info:
+            sticker_id, _ = sticker_info
             await send_sticker_with_commands(event, sticker_id)  # إرسال الملصق مع القائمة
 
 commands = {

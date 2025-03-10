@@ -2,13 +2,15 @@
 # PLUGIN FOR JoKeRUB
 # @jepthon
 
-from telethon import events
+from telethon import events,types
 import random
 from ..Config import Config
 from JoKeRUB.utils import admin_cmd
 from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 from ..sql_helper.globals import gvarstatus
+from telethon.tl.types import InputStickerSetID
+from telethon.tl.functions.messages import GetStickerSetRequest
 
 plugin_category = "extra"
 
@@ -33,44 +35,77 @@ rehu = [
     "عن الامام علي (عليه السلام) قال : لسانك حصانك، إن صنته صانك",
 ]
 
+# دالة لاستخراج sticker_id
+async def get_sticker_id(event):
+    if not event.is_reply:
+        await event.edit("**⚠️│ يجب الرد على ملصق لاستخراج الـ sticker_id.**")
+        return None
+
+    reply_message = await event.get_reply_message()
+    if not reply_message.sticker:
+        await event.edit("**⚠️│ يجب الرد على ملصق فقط.**")
+        return None
+
+    sticker = reply_message.sticker
+    sticker_set = await event.client(GetStickerSetRequest(InputStickerSetID(sticker.set.id, sticker.set.access_hash)))
+    sticker_id = sticker.id
+
+    await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
+    return sticker_id
+
+# دالة لإرسال الملصق مع القائمة
+async def send_sticker_with_commands(event, sticker_id):
+    lMl10l = random.choice(rehu)
+    await event.respond(file=sticker_id)  # إرسال الملصق
+    await event.edit(
+        f"**🎴┊ قائمة أوامر الجوكر 🎴**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f"**⚙️ الأقسام الرئيسية:**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f"**• `.م1`  ⦙  أوامر الإدارة 🛠️**\n"
+        f"**• `.م2`  ⦙  أوامر المجموعة 👥**\n"
+        f"**• `.م3`  ⦙  أوامر الترحيب والردود 🎉**\n"
+        f"**• `.م4`  ⦙  حماية الخاص والتلكراف 🔒**\n"
+        f"**• `.م5`  ⦙  أوامر المنشن والانتحال 📢**\n"
+        f"**• `.م6`  ⦙  أوامر التحميل والترجمة 📥**\n"
+        f"**• `.م7`  ⦙  أوامر المنع والقفل 🚫**\n"
+        f"**• `.م8`  ⦙  أوامر التنظيف والتكرار 🧹**\n"
+        f"**• `.م9`  ⦙  أوامر التخصيص والفارات 🎨**\n"
+        f"**• `.م10` ⦙  أوامر الوقتي والتشغيل ⏰**\n"
+        f"**• `.م11` ⦙  أوامر الكشف والروابط 🔍**\n"
+        f"**• `.م12` ⦙  أوامر المساعدة والإذاعة 📣**\n"
+        f"**• `.م13` ⦙  أوامر الإرسال والأذكار 📨**\n"
+        f"**• `.م14` ⦙  أوامر الملصقات وكوكل 🖼️**\n"
+        f"**• `.م15` ⦙  أوامر التسلية والميمز 🎭**\n"
+        f"**• `.م16` ⦙  أوامر الصيغ والجهات 🔄**\n"
+        f"**• `.م17` ⦙  أوامر التمبلر والزغرفة ✨**\n"
+        f"**• `.م18` ⦙  أوامر الحساب والترفيه 🎮**\n"
+        f"**• `.م19` ⦙  أوامر الميوزك والتشغيل 🎵**\n"
+        f"**• `.م20` ⦙  أوامر بصمات الميمز 🎬**\n"
+        f"**• `.م21` ⦙  أوامر تجميع النقاط وبوت وعد 💰**\n"
+        f"**• `.م22` ⦙  أوامر الذاتية للبصمات والصور 📸**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f"**📜┊ حكمة اليوم:**\n"
+        f"**{lMl10l}**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f"**⚡┊ المطور: @jepthon**\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    )
+
+# أمر لاستخراج sticker_id
+@l313l.ar_cmd(pattern="استخراج_ايدي_الملصق$")
+async def extract_sticker_id(event):
+    sticker_id = await get_sticker_id(event)
+    if sticker_id:
+        await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
+
+# أمر لإرسال الملصق مع القائمة
 @l313l.ar_cmd(pattern="الإوامر(?:\s|$)([\s\S]*)")
-async def _(event):
+async def send_commands_with_sticker(event):
     if not event.text[0].isalpha() and event.text[0] not in ("/", "#", "@", "!"):
-        lMl10l = random.choice(rehu)
-        await event.edit(
-            f"**🎴┊ قائـمة الاوامـر 🎴**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**⚙️ الأقسام الرئيسية:**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**• `.م1`  ⦙  أوامر الإدارة 🛠️**\n"
-            f"**• `.م2`  ⦙  أوامر المجموعة 👥**\n"
-            f"**• `.م3`  ⦙  أوامر الترحيب والردود 🎉**\n"
-            f"**• `.م4`  ⦙  حماية الخاص والتلكراف 🔒**\n"
-            f"**• `.م5`  ⦙  أوامر المنشن والانتحال 📢**\n"
-            f"**• `.م6`  ⦙  أوامر التحميل والترجمة 📥**\n"
-            f"**• `.م7`  ⦙  أوامر المنع والقفل 🚫**\n"
-            f"**• `.م8`  ⦙  أوامر التنظيف والتكرار 🧹**\n"
-            f"**• `.م9`  ⦙  أوامر التخصيص والفارات 🎨**\n"
-            f"**• `.م10` ⦙  أوامر الوقتي والتشغيل ⏰**\n"
-            f"**• `.م11` ⦙  أوامر الكشف والروابط 🔍**\n"
-            f"**• `.م12` ⦙  أوامر المساعدة والإذاعة 📣**\n"
-            f"**• `.م13` ⦙  أوامر الإرسال والأذكار 📨**\n"
-            f"**• `.م14` ⦙  أوامر الملصقات وكوكل 🖼️**\n"
-            f"**• `.م15` ⦙  أوامر التسلية والميمز 🎭**\n"
-            f"**• `.م16` ⦙  أوامر الصيغ والجهات 🔄**\n"
-            f"**• `.م17` ⦙  أوامر التمبلر والزغرفة ✨**\n"
-            f"**• `.م18` ⦙  أوامر الحساب والترفيه 🎮**\n"
-            f"**• `.م19` ⦙  أوامر الميوزك والتشغيل 🎵**\n"
-            f"**• `.م20` ⦙  أوامر بصمات الميمز 🎬**\n"
-            f"**• `.م21` ⦙  أوامر تجميع النقاط وبوت وعد 💰**\n"
-            f"**• `.م22` ⦙  أوامر الذاتية للبصمات والصور 📸**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**📜┊ حكمة اليوم:**\n"
-            f"**{lMl10l}**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**⚡┊ المطور: @Lx5x5**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-        )
+        sticker_id = await get_sticker_id(event)  # استخراج sticker_id
+        if sticker_id:
+            await send_sticker_with_commands(event, sticker_id)  # إرسال الملصق مع القائمه
 
 commands = {
     "م1": "** قائمة اوامر الادمن لسورس الجوكر **:\n ★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n ᯽︙ اختر احدى هذه القوائم\n\n- ( `.اوامر الحظر` )\n- ( `.اوامر الكتم` )\n- ( `.اوامر التثبيت` )\n- ( `.اوامر الاشراف` )\n★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n⌔︙CH : @jepthon",

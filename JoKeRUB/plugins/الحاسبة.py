@@ -18,7 +18,7 @@ lst.append([Button.inline("=", data="calc=")])
 async def icalc(e):
     # التحقق مما إذا كان العميل يعمل كبوت
     if hasattr(e.client, 'bot_token') and e.client.bot_token:
-        return await e.reply("**الحـاسبة العـلمية لسـورس الجوكر\n @jepthon**", buttons=lst)
+        return await e.reply("**الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=lst)
     
     # إذا لم يكن بوت، قم بتنفيذ الاستعلام المضمن
     results = await e.client.inline_query(Config.TG_BOT_USERNAME, "calc")
@@ -43,7 +43,7 @@ async def _(e):
     if x == "AC":
         if CALC.get(user):
             CALC.pop(user)
-        await e.edit("**الحـاسبة العـلمية لسـورس الجوكر\n @jepthon**", buttons=[Button.inline("افتح مره اخرى", data="recalc")])
+        await e.edit("***الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=[Button.inline("افتح مره اخرى", data="recalc")])
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)

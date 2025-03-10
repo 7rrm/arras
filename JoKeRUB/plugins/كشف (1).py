@@ -1,4 +1,5 @@
 import os
+import html
 from datetime import datetime
 from requests import get
 from telethon.tl.functions.photos import GetUserPhotosRequest

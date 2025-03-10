@@ -2,8 +2,6 @@
 created by @lMl10l
 Idea by @jepthon
 """
-
-
 from ..core.managers import edit_delete, edit_or_reply
 from ..sql_helper.echo_sql import (
     addecho,
@@ -62,13 +60,12 @@ async def echo_with_reaction(event):
         await edit_or_reply(catevent, "⌁︙تـم تفعـيل امـر التقليد مع الرياكشن علـى هذا الشـخص\n ⌁︙سـيتم إضافة ردة فعل لجميع رسائلـه هـنا")
 
 @l313l.ar_cmd(incoming=True, edited=False)
-async def samereply(event):
-    if is_echo(event.chat_id, event.sender_id) and (
-        event.message.text or event.message.sticker
-    ):
-        await event.reply(event.message)
+async def react_to_messages(event):
+    if is_echo(event.chat_id, event.sender_id):
         # Add reaction to the message
         await event.react("👍")  # يمكنك تغيير "👍" إلى أي إيموجي آخر تريده
+
+
 
 @l313l.ar_cmd(
     pattern="تقليد$",

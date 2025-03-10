@@ -133,8 +133,8 @@ async def monitor_user(event):
     if monitoring_group_id is None:
         try:
             result = await event.client(CreateChannelRequest(
-                title=f"كروب المراقبة - {target}",
-                about="مجموعة لمراقبة الرسائل التي يرسلها المستخدم في المجموعات المشتركة.",
+                title="كروب المراقبة",
+                about="مجموعة لمراقبة الرسائل التي يرسلها المستخدمون في المجموعات المشتركة.",
                 megagroup=True
             ))
             monitoring_group_id = result.chats[0].id
@@ -175,7 +175,7 @@ async def monitor_messages(event):
             group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
             message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
             message_text = (
-                "#المراقبه\n\n"
+                "#المـراقبـه\n\n"
                 f"↜︙الكــروب : {group_title}\n\n"
                 f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
                 f"↜︙الرســالـه : {event.message.message}\n\n"

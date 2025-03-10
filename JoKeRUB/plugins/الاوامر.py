@@ -37,7 +37,7 @@ rehu = [
     "عن الامام علي (عليه السلام) قال : لا غنى كالعقل، ولا فقر كالجهل، ولا ميراث كالأدب",
     "عن الامام علي (عليه السلام) قال : لسانك حصانك، إن صنته صانك",
 ]
-@l313l.ar_cmd(pattern="الاوامر(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="الإوامر(?:\s|$)([\s\S]*)")
 async def _(event):
      if not event.text[0].isalpha() and event.text[0] not in ("/", "#", "@", "!"):
         lMl10l = random.choice(rehu)

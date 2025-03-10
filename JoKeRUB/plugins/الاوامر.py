@@ -34,6 +34,9 @@ rehu = [
     "عن الامام علي (عليه السلام) قال : لا غنى كالعقل، ولا فقر كالجهل، ولا ميراث كالأدب",
     "عن الامام علي (عليه السلام) قال : لسانك حصانك، إن صنته صانك",
 ]
+from telethon import events, types
+from telethon.tl.functions.messages import GetStickerSetRequest
+from telethon.tl.types import InputStickerSetID
 
 # دالة لاستخراج sticker_id
 async def get_sticker_id(event):
@@ -47,11 +50,13 @@ async def get_sticker_id(event):
         return None
 
     sticker = reply_message.sticker
-    sticker_set = await event.client(GetStickerSetRequest(InputStickerSetID(sticker.set.id, sticker.set.access_hash)))
-    sticker_id = sticker.id
-
-    await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
-    return sticker_id
+    if isinstance(sticker, types.Document):
+        sticker_id = sticker.id
+        await event.edit(f"**✅│ تم استخراج الـ sticker_id بنجاح:**\n\n`{sticker_id}`")
+        return sticker_id
+    else:
+        await event.edit("**⚠️│ هذا النوع من الملصقات غير مدعوم.**")
+        return None
 
 # دالة لإرسال الملصق مع القائمة
 async def send_sticker_with_commands(event, sticker_id):
@@ -79,11 +84,11 @@ async def send_sticker_with_commands(event, sticker_id):
         f"**• `.م15` ⦙  أوامر التسلية والميمز 🎭**\n"
         f"**• `.م16` ⦙  أوامر الصيغ والجهات 🔄**\n"
         f"**• `.م17` ⦙  أوامر التمبلر والزغرفة ✨**\n"
-        f"**• `.م18` ⦙  أوامر الحساب والترفيه 🎮**\n"
-        f"**• `.م19` ⦙  أوامر الميوزك والتشغيل 🎵**\n"
-        f"**• `.م20` ⦙  أوامر بصمات الميمز 🎬**\n"
-        f"**• `.م21` ⦙  أوامر تجميع النقاط وبوت وعد 💰**\n"
-        f"**• `.م22` ⦙  أوامر الذاتية للبصمات والصور 📸**\n"
+        f"**• `.م18`  ⦙  أوامر الحساب والترفيه 🎮**\n"
+        f"**• `.م19`  ⦙  أوامر الميوزك والتشغيل 🎵**\n"
+        f"**• `.م20`  ⦙  أوامر بصمات الميمز 🎬**\n"
+        f"**• `.م21`  ⦙  أوامر تجميع النقاط وبوت وعد 💰**\n"
+        f"**• `.م22`  ⦙  أوامر الذاتية للبصمات والصور 📸**\n"
         f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
         f"**📜┊ حكمة اليوم:**\n"
         f"**{lMl10l}**\n"
@@ -105,7 +110,7 @@ async def send_commands_with_sticker(event):
     if not event.text[0].isalpha() and event.text[0] not in ("/", "#", "@", "!"):
         sticker_id = await get_sticker_id(event)  # استخراج sticker_id
         if sticker_id:
-            await send_sticker_with_commands(event, sticker_id)  # إرسال الملصق مع القائمه
+            await send_sticker_with_commands(event, sticker_id)  # إرسال الملصق مع القائمة
 
 commands = {
     "م1": "** قائمة اوامر الادمن لسورس الجوكر **:\n ★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n ᯽︙ اختر احدى هذه القوائم\n\n- ( `.اوامر الحظر` )\n- ( `.اوامر الكتم` )\n- ( `.اوامر التثبيت` )\n- ( `.اوامر الاشراف` )\n★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n⌔︙CH : @jepthon",

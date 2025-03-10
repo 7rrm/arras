@@ -22,6 +22,53 @@ from . import (
 
 plugin_category = "fun"
 
+@l313l.ar_cmd(
+    pattern="تقليد_بالرياكشن$",
+    command=("تقليد_بالرياكشن", plugin_category),
+    info={
+        "header": "To add reactions to all messages sent by the user.",
+        "description": "Reply to user with this cmd so from then his every text and sticker messages will be reacted with a specific reaction.",
+        "usage": "{tr}تقليد_بالرياكشن <reply>",
+    },
+)
+async def echo_with_reaction(event):
+    "To add reactions to the user messages"
+    if event.reply_to_msg_id is None:
+        return await edit_delete(event, "⌁︙يرجى الرد على الشخص الذي تـريد إضافة ردة فعل لرسائله.")
+    catevent = await edit_or_reply(event, "⌁︙يتم تفعيل هذا الامر انتظر قليلا ")
+    user, rank = await get_user_from_event(event, catevent, nogroup=True)
+    if not user:
+        return
+    if user.id == 5427469031:
+        return await edit_delete(event, "**᯽︙ لا يمڪنني تقليد مطـوري لك فاشل **")
+    reply_msg = await event.get_reply_message()
+    chat_id = event.chat_id
+    user_id = reply_msg.sender_id
+    if event.is_private:
+        chat_name = user.first_name
+        chat_type = "Personal"
+    else:
+        chat_name = event.chat.title
+        chat_type = "Group"
+    user_name = user.first_name
+    user_username = user.username
+    if is_echo(chat_id, user_id):
+        return await edit_or_reply(event, "⌁︙تـم تفـعيل التـقليد مع الرياكشن على الشخص بنجاح ✅ ")
+    try:
+        addecho(chat_id, user_id, chat_name, user_name, user_username, chat_type)
+    except Exception as e:
+        await edit_delete(catevent, f"᯽︙ Error:\n`{str(e)}`")
+    else:
+        await edit_or_reply(catevent, "⌁︙تـم تفعـيل امـر التقليد مع الرياكشن علـى هذا الشـخص\n ⌁︙سـيتم إضافة ردة فعل لجميع رسائلـه هـنا")
+
+@l313l.ar_cmd(incoming=True, edited=False)
+async def samereply(event):
+    if is_echo(event.chat_id, event.sender_id) and (
+        event.message.text or event.message.sticker
+    ):
+        await event.reply(event.message)
+        # Add reaction to the message
+        await event.react("👍")  # يمكنك تغيير "👍" إلى أي إيموجي آخر تريده
 
 @l313l.ar_cmd(
     pattern="تقليد$",

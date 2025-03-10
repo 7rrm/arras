@@ -1,14 +1,13 @@
 import re
-
 from telethon import Button, events
 from telethon.events import CallbackQuery
-
 from l313l.razan.resources.assistant import *
 from l313l.razan.resources.mybot import *
 from JoKeRUB import l313l
 from ..core import check_owner
 from ..Config import Config
 
+# الصورة الرئيسية للقائمة
 JEP_IC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 ROE = "**♰ هـذه هي قائمة اوامـر السـورس  ♰**"
 
@@ -43,10 +42,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [
                     Button.inline("التكرار والتنظيف 🚮", data="krrznd"),
                     Button.inline("الترفيـه ✨", data="rfhrz"),
-                ],
-                [
-                    Button.inline("التكرار والتنظيف 💫", data="iiers"),
-                    Button.inline("الملصقات وصور 🏙️", data="jrzst"),
                 ],
                 [
                     Button.inline("الأكستـرا ⚡", data="iiers"),
@@ -87,32 +82,34 @@ async def repo(event):
     await event.delete()
 
 
+# تعريف الأزرار والأوامر
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"l313l0")))
 @check_owner
 async def _(event):
     buttons = [
-    [
-      Button.inline("التالي", data="jrzst"),
-      Button.inline("القائمة الرئيسية", data="ROE"),]]
+        [Button.inline("التالي", data="jrzst")],
+        [Button.inline("القائمة الرئيسية", data="ROE")],
+    ]
     await event.edit(ROZADM, buttons=buttons)
+
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"jrzst")))
 @check_owner
 async def _(event):
-    butze = [
-    [
-     Button.inline("التالي", data="tslrzj"),
-     Button.inline("رجوع", data="l313l0")]]
-    await event.edit(GRTSTI, buttons=butze)
+    buttons = [
+        [Button.inline("التالي", data="tslrzj")],
+        [Button.inline("رجوع", data="l313l0")],
+    ]
+    await event.edit(GRTSTI, buttons=buttons)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"tslrzj")))
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="krrznd"),
-     Button.inline("رجوع", data="jrzst")]]
+        [Button.inline("التالي", data="krrznd")],
+        [Button.inline("رجوع", data="jrzst")],
+    ]
     await event.edit(JMAN, buttons=buttons)
 
 
@@ -120,9 +117,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-      Button.inline("التالي", data="rozbot"),
-      Button.inline("رجوع", data="tslrzj")]]
+        [Button.inline("التالي", data="rozbot")],
+        [Button.inline("رجوع", data="tslrzj")],
+    ]
     await event.edit(TKPRZ, buttons=buttons)
 
 
@@ -130,9 +127,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="Jmrz"),
-     Button.inline("رجوع", data="krrznd")]]
+        [Button.inline("التالي", data="Jmrz")],
+        [Button.inline("رجوع", data="krrznd")],
+    ]
     await event.edit(ROZBOT, buttons=buttons)
 
 
@@ -140,9 +137,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="r7brz"),
-     Button.inline("رجوع", data="rozbot")]]
+        [Button.inline("التالي", data="r7brz")],
+        [Button.inline("رجوع", data="rozbot")],
+    ]
     await event.edit(JROZT, buttons=buttons)
 
 
@@ -150,9 +147,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="sejrz"),
-     Button.inline("رجوع", data="Jmrz")]]
+        [Button.inline("التالي", data="sejrz")],
+        [Button.inline("رجوع", data="Jmrz")],
+    ]
     await event.edit(JMTRD, buttons=buttons)
 
 
@@ -160,9 +157,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="gro"),
-     Button.inline("رجوع", data="r7brz")]]
+        [Button.inline("التالي", data="gro")],
+        [Button.inline("رجوع", data="r7brz")],
+    ]
     await event.edit(ROZSEG, buttons=buttons)
 
 
@@ -170,19 +167,19 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="grrz"),
-     Button.inline("رجوع", data="sejrz")]]
-    await event.edit(JMGR1,buttons=buttons)
+        [Button.inline("التالي", data="grrz")],
+        [Button.inline("رجوع", data="sejrz")],
+    ]
+    await event.edit(JMGR1, buttons=buttons)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"grrz")))
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="iiers"),
-     Button.inline("رجوع", data="gro")]]
+        [Button.inline("التالي", data="iiers")],
+        [Button.inline("رجوع", data="gro")],
+    ]
     await event.edit(ROZPRV, buttons=buttons)
 
 
@@ -190,9 +187,9 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="rfhrz"),
-     Button.inline("رجوع", data="grrz")]]
+        [Button.inline("التالي", data="rfhrz")],
+        [Button.inline("رجوع", data="grrz")],
+    ]
     await event.edit(HERP, buttons=buttons)
 
 
@@ -200,14 +197,14 @@ async def _(event):
 @check_owner
 async def _(event):
     buttons = [
-    [
-     Button.inline("التالي", data="uscuxrz"),
-     Button.inline("رجوع", data="iiers")]]
+        [Button.inline("التالي", data="uscuxrz")],
+        [Button.inline("رجوع", data="iiers")],
+    ]
     await event.edit(T7SHIZ, buttons=buttons)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"uscuxrz")))
 @check_owner
 async def _(event):
-    buttons = [[Button.inline("رجوع", data="l313l0"),]]
+    buttons = [[Button.inline("رجوع", data="l313l0")]]
     await event.edit(CLORN, buttons=buttons)

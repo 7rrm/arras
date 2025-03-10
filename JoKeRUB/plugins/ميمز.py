@@ -205,7 +205,75 @@ async def send_poem(event):
     except Exception as e:
         # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
         await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
-                      
+
+import random
+from telethon import events
+
+# متغير لتخزين حالة التفعيل
+remix_enabled = False
+
+# معرف المستخدم الخاص بك
+my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+
+# أمر تفعيل الريمكس
+@l313l.on(events.NewMessage(pattern="^\.تفعيل ريمكس$"))
+async def enable_remix(event):
+    global remix_enabled
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        remix_enabled = True
+        await event.reply("تم تفعيل الريمكس بنجاح! الآن البوت سيرد على أي شخص يكتب `.ريمكس`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
+    else:
+        return
+
+# أمر إلغاء تفعيل الريمكس
+@l313l.on(events.NewMessage(pattern="^\.ايقاف ريمكس$"))
+async def disable_remix(event):
+    global remix_enabled
+    
+    # التحقق من أن المرسل هو أنت
+    if event.sender_id == my_id:
+        remix_enabled = False
+        await event.reply("تم إلغاء تفعيل الريمكس بنجاح! الآن البوت لن يرد على الآخرين عند كتابة `.ريمكس`.")
+    # إذا كان المرسل شخصًا آخر، لا يتم الرد بأي شيء
+    else:
+        return
+
+# تعريف الحدث للرد على أي شخص يكتب .ريمكس
+@l313l.on(events.NewMessage(pattern="^\.ريمكس$"))
+async def send_remix(event):
+    global remix_enabled
+    
+    # إذا كان المرسل هو البوت نفسه (أنت)، يرد دائمًا
+    if event.sender_id == my_id:
+        pass  # يستمر في تنفيذ الكود
+    # إذا كان المرسل شخصًا آخر، يرد فقط إذا كان الريمكس مفعلًا
+    elif not remix_enabled:
+        return
+    
+    try:
+        # رقم عشوائي بين 4 و70
+        rl = random.randint(4, 70)
+        
+        # رابط الملف العشوائي من القناة
+        url = f"https://t.me/rem77e/{rl}"
+        
+        # إرسال الملف الصوتي كرد على رسالة المستخدم
+        await event.client.send_file(
+            event.chat_id,
+            url,
+            caption="- تم اختيار هذا الريمكس لك .",
+            reply_to=event.id,  # الرد على رسالة المستخدم
+            parse_mode="html"
+        )
+        
+        # حذف الأمر الأصلي (اختياري)
+    except Exception as e:
+        # في حالة حدوث خطأ، إرسال رسالة تفيد بذلك
+        await event.reply(f"حدث خطأ أثناء إرسال الريمكس: {str(e)}")
+        
 @l313l.on(admin_cmd(outgoing=True, pattern="ثيم$"))
 async def jepThe(theme):
   rl = random.randint(2,510)

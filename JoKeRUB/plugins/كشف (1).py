@@ -208,23 +208,15 @@ async def who(event):
         await cat.edit(caption, parse_mode="html")
 #كـتابة  @lMl10l
 #تعديل وترتيب  @lMl10l
-@l313l.ar_cmd(
-    pattern="رابط الحساب(?:\s|$)([\s\S]*)",
-    command=("رابط الحساب", plugin_category),
-    info={
-        "header": "Generates a link to the user's PM .",
-        "usage": "{tr}link <username/userid/reply>",
-    },
-)
-async def permalink(mention):
-    """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
-    if not user:
-        return
-    if custom:
-        return await edit_or_reply(mention, f"[{custom}](tg://user?id={user.id})")
-    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
-    await edit_or_reply(mention, f"⌔︙[{tag}](tg://user?id={user.id})")
+@l313l.ar_cmd(pattern="حساب(?: |$)(.*)")
+async def openacc(event):
+    acc = event.pattern_match.group(1)
+    if not acc:
+        return await edit_or_reply(event, "**- ارسـل الامـر والايـدي فقـط**")
+    zzz = await edit_or_reply(event, "**⎉╎جـارِ صنـع رابـط دخـول لـ الحسـاب ▬▭ ...**")
+    caption=f"**- رابـط صاحب الايدي ( {acc} )** :\n**- الرابـط ينفتـح عبـر تطبيـق تيليكرام بلاس فقـط**\n\n[اضـغـط هـنـا](tg://openmessage?user_id={acc})"
+    await edit_or_reply(event, caption)
+    
 
 @l313l.ar_cmd(
     pattern="(الايدي|id)(?:\s|$)([\s\S]*)",

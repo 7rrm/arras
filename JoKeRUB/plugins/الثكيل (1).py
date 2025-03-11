@@ -29,7 +29,7 @@ from JoKeRUB import l313l
 flags_enabled = False
 active_chat_id = None
 flags_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-flags_trigger_text = "↜︙لأي دوله هذا العلم ؟ ↫"  # النص المحفز الافتراضي للأعلام
+flags_trigger_text = "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫"  # النص المحفز الافتراضي
 
 # قاموس الأعلام والبلدان
 flags_dict = {
@@ -67,16 +67,12 @@ flags_dict = {
 }
 
 # تفعيل ميزة الأعلام
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام(?: (\d+))?(?: (\d+(?:,\d+)*))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام(?: (\d+(?:,\d+)*))?$'))
 async def enable_flags(event):
     global flags_enabled, active_chat_id, flags_allowed_user_ids
-    delay = event.pattern_match.group(1)  # الحصول على التأخير إذا تم إدخاله
-    ids_input = event.pattern_match.group(2)  # الحصول على المعارف إذا تم إدخالها
+    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
 
-    # تعيين التأخير (إذا لم يتم إدخال تأخير، يتم استخدام القيمة الافتراضية 0)
-    reply_delay = int(delay) if delay else 0
-
-    # إضافة المعارف إلى المجموعة
+    # إضافة المعرفات إلى المجموعة
     if ids_input:
         flags_allowed_user_ids.update(map(int, ids_input.split(',')))
     else:
@@ -86,7 +82,7 @@ async def enable_flags(event):
 
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     flags_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**\n"
+    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح ✅**\n"
                      f"**المعرفات المسموحة:** {', '.join(map(str, flags_allowed_user_ids))}")
 
 # تعطيل ميزة الأعلام
@@ -112,12 +108,19 @@ async def auto_reply_flags(event):
     
     # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن المعرف المسموح
     if flags_enabled and event.chat_id == active_chat_id and event.sender_id in flags_allowed_user_ids:
-        if flags_trigger_text in event.raw_text:  # استخدام النص المحفز المخصص
-            for flag, country in flags_dict.items():
-                if flag in event.raw_text:
-                    await asyncio.sleep(reply_delay)
-                    await event.reply(country)
-                    break
+        if flags_trigger_text in event.raw_text:
+            # البحث عن العلم داخل الأقواس (إذا وجد)
+            flag_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
+            if flag_with_brackets:
+                flag = flag_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
+            else:
+                # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
+                flag = event.raw_text.split(flags_trigger_text)[-1].strip()
+            
+            # البحث عن العلم في القاموس
+            if flag in flags_dict:
+                country = flags_dict[flag]
+                await event.reply(country)
 
 import asyncio
 import re

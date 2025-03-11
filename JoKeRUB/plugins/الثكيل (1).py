@@ -72,7 +72,7 @@ async def enable_flags(event):
     delay = event.pattern_match.group(1)  # الحصول على التأخير إذا تم إدخاله
     ids_input = event.pattern_match.group(2)  # الحصول على المعارف إذا تم إدخالها
 
-    # تعيين التأخير
+    # تعيين التأخير (إذا لم يتم إدخال تأخير، يتم استخدام القيمة الافتراضية 0)
     reply_delay = int(delay) if delay else 0
 
     # إضافة المعارف إلى المجموعة

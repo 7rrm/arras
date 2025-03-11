@@ -25,11 +25,11 @@ import asyncio
 from telethon import events
 from JoKeRUB import l313l
 
-# تعريف المتغيرات العامة
 flags_enabled = False
 active_chat_id = None
-reply_delay = 0
-bot_id = 6613752407  # معرف البوت الذي يرسل النص المحفز (قم بتغييره إلى معرف البوت الفعلي)
+reply_delay = 0  # التأخير الافتراضي
+allowed_ids = set()  # مجموعة لتخزين المعارف المسموح لهم
+trigger_text = "↜︙لأي دوله هذا العلم ؟ ↫"  # النص المحفز الافتراضي
 
 # قاموس الأعلام والبلدان
 flags_dict = {
@@ -65,33 +65,51 @@ flags_dict = {
     "🇦🇹": "النمسا",
     "🇯🇵": "اليابان",
 }
-
 # تفعيل ميزة الأعلام
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام(?: (\d+))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل ايدي اعلام(?: (\d+))?(?: (\d+(?:,\d+)*))?$'))
 async def enable_flags(event):
-    global flags_enabled, active_chat_id, reply_delay
-    delay = event.pattern_match.group(1)  # الحصول على العدد إذا تم إدخاله
-    reply_delay = int(delay) if delay else 0  # إذا لم يتم إدخال عدد، يكون التأخير 0
+    global flags_enabled, active_chat_id, reply_delay, allowed_ids
+    delay = event.pattern_match.group(1)  # الحصول على التأخير إذا تم إدخاله
+    ids_input = event.pattern_match.group(2)  # الحصول على المعارف إذا تم إدخالها
+
+    # تعيين التأخير
+    reply_delay = int(delay) if delay else 0
+
+    # إضافة المعارف إلى المجموعة
+    if ids_input:
+        allowed_ids.update(map(int, ids_input.split(',')))
+    else:
+        allowed_ids.add(event.sender_id)  # إذا لم يتم إدخال معرفات، يتم تفعيل الميزة للمستخدم الحالي
+
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     flags_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**")
-    
+    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**\n"
+                     f"**المعرفات المسموحة:** {', '.join(map(str, allowed_ids))}")
+
 # تعطيل ميزة الأعلام
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل ايدي اعلام$'))
 async def disable_flags(event):
-    global flags_enabled, active_chat_id
+    global flags_enabled, active_chat_id, allowed_ids
     flags_enabled = False
     active_chat_id = None
+    allowed_ids.clear()  # مسح جميع المعارف المسموحة
     await event.edit("**᯽︙ تم تعطيل ميزة الأعلام بنجاح ✅**")
+
+# تفعيل نص مخصص
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص اعلام (.*)$'))
+async def set_trigger_text(event):
+    global trigger_text
+    trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{trigger_text}`")
 
 # الرد التلقائي على الأعلام
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_flags(event):
-    global flags_enabled, active_chat_id, reply_delay, flags_dict, bot_id
+    global flags_enabled, active_chat_id, reply_delay, flags_dict, allowed_ids, trigger_text
     
-    # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن البوت
-    if flags_enabled and event.chat_id == active_chat_id and event.sender_id == bot_id:
-        if "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫" in event.raw_text:
+    # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن المعرف المسموح
+    if flags_enabled and event.chat_id == active_chat_id and event.sender_id in allowed_ids:
+        if trigger_text in event.raw_text:  # استخدام النص المحفز المخصص
             for flag, country in flags_dict.items():
                 if flag in event.raw_text:
                     await asyncio.sleep(reply_delay)

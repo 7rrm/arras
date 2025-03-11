@@ -127,18 +127,18 @@ from JoKeRUB import l313l
 # تعريف المتغيرات العامة
 break_enabled = False
 active_chat_id = None
-allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
+break_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
 break_trigger_text = "⌔︙فكك :"  # النص المحفز الافتراضي للتفكيك
 
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?: (\d+(?:,\d+)*))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل ايدي تفكيك(?: (\d+(?:,\d+)*))?$'))
 async def enable_break_bot(event):
-    global break_enabled, active_chat_id, allowed_user_ids
+    global break_enabled, active_chat_id, break_allowed_user_ids
     ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
 
     # إضافة المعرفات إلى المجموعة
     if ids_input:
-        allowed_user_ids.update(map(int, ids_input.split(',')))
+        break_allowed_user_ids.update(map(int, ids_input.split(',')))
     else:
         # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
         await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
@@ -147,18 +147,18 @@ async def enable_break_bot(event):
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
     break_enabled = True
     await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**\n"
-                     f"**المعرفات المسموحة:** {', '.join(map(str, allowed_user_ids))}")
+                     f"**المعرفات المسموحة:** {', '.join(map(str, break_allowed_user_ids))}")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global break_enabled, active_chat_id, allowed_user_ids
+    global break_enabled, active_chat_id, break_allowed_user_ids
     active_chat_id = None  # إلغاء تفعيل المجموعة
     break_enabled = False
-    allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
+    break_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
-#تفعيل نص تفكيك
+# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
 async def set_break_trigger_text(event):
     global break_trigger_text
@@ -168,18 +168,18 @@ async def set_break_trigger_text(event):
 # تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global break_enabled, active_chat_id, allowed_user_ids, trigger_text
+    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
-    if break_enabled and event.chat_id == active_chat_id and event.sender_id in allowed_user_ids:
-        if trigger_text in event.raw_text:
+    if break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids:
+        if break_trigger_text in event.raw_text:
             # البحث عن النص داخل الأقواس (إذا وجد)
             match_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
             if match_with_brackets:
                 word = match_with_brackets.group(1)
             else:
                 # إذا لم يكن هناك أقواس، يتم تفكيك النص الذي يلي النص المحفز مباشرة
-                word = event.raw_text.split(trigger_text)[-1].strip()
+                word = event.raw_text.split(break_trigger_text)[-1].strip()
             
             # تفكيك النص إلى أحرف
             letters = ' '.join(list(word))

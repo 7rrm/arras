@@ -25,6 +25,7 @@ import asyncio
 from telethon import events
 from JoKeRUB import l313l
 
+# تعريف المتغيرات العامة
 flags_enabled = False
 active_chat_id = None
 reply_delay = 0  # التأخير الافتراضي
@@ -79,7 +80,9 @@ async def enable_flags(event):
     if ids_input:
         allowed_ids.update(map(int, ids_input.split(',')))
     else:
-        allowed_ids.add(event.sender_id)  # إذا لم يتم إدخال معرفات، يتم تفعيل الميزة للمستخدم الحالي
+        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
+        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+        return
 
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     flags_enabled = True
@@ -115,7 +118,7 @@ async def auto_reply_flags(event):
                     await asyncio.sleep(reply_delay)
                     await event.reply(country)
                     break
-
+                    
 import asyncio
 import re
 from telethon import events

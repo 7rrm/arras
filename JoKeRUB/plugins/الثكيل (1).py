@@ -30,7 +30,7 @@ flags_enabled = False
 active_chat_id = None
 reply_delay = 0  # التأخير الافتراضي
 allowed_ids = set()  # مجموعة لتخزين المعارف المسموح لهم
-trigger_text = "↜︙لأي دوله هذا العلم ؟ ↫"  # النص المحفز الافتراضي
+flags_trigger_text = "↜︙لأي دوله هذا العلم ؟ ↫"  # النص المحفز الافتراضي للأعلام
 
 # قاموس الأعلام والبلدان
 flags_dict = {
@@ -100,10 +100,10 @@ async def disable_flags(event):
 
 # تفعيل نص مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص اعلام (.*)$'))
-async def set_trigger_text(event):
-    global trigger_text
-    trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{trigger_text}`")
+async def set_flags_trigger_text(event):
+    global flags_trigger_text
+    flags_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{flags_trigger_text}`")
 
 # الرد التلقائي على الأعلام
 @l313l.on(events.NewMessage(incoming=True))
@@ -128,7 +128,7 @@ from JoKeRUB import l313l
 break_enabled = False
 active_chat_id = None
 allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-trigger_text = "⌔︙فكك :"  # النص المحفز الافتراضي
+break_trigger_text = "⌔︙فكك :"  # النص المحفز الافتراضي للتفكيك
 
 # تفعيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?: (\d+(?:,\d+)*))?$'))
@@ -158,12 +158,12 @@ async def disable_break_bot(event):
     allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
-# تفعيل نص تفكيك
+#تفعيل نص تفكيك
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
 async def set_break_trigger_text(event):
-    global trigger_text
-    trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{trigger_text}`")
+    global break_trigger_text
+    break_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{break_trigger_text}`")
 
 # تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
@@ -185,6 +185,16 @@ async def break_word_on_trigger(event):
             letters = ' '.join(list(word))
             # إرسال النص المفكوك كرسالة جديدة
             await event.respond(letters)
+
+import asyncio
+from telethon import events
+from JoKeRUB import l313l
+
+# تعريف المتغيرات العامة
+meanings_enabled = False
+active_chat_id = None
+meanings_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
+meanings_trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "  # النص المحفز الافتراضي للمعاني
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {
@@ -210,37 +220,48 @@ smiley_meanings = {
     # يمكنك إضافة المزيد من السمايلات ومعانيها هنا
 }
 
-# النص المحفز
-trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "
-
-# معرف المجموعة المفعلة
-active_chat_id = None
-
-# معرف المستخدم المسموح له في كود المعاني
-allowed_user_id_meanings = 1839897340  # تأكد من أن هذا الرقم صحيح
-
-# تفعيل الأمر في مجموعة محددة
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تفعيل معاني$'))
+# تفعيل ميزة المعاني
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل معاني(?: (\d+(?:,\d+)*))?$'))
 async def enable_meanings_bot(event):
-    global active_chat_id
-    active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    await event.edit("**᯽︙ تم تفعيل معاني السمايلات في هذه المجموعة بنجاح ✅**")
+    global meanings_enabled, active_chat_id, meanings_allowed_user_ids
+    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
 
-# تعطيل الأمر
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^.تعطيل معاني$'))
+    # إضافة المعرفات إلى المجموعة
+    if ids_input:
+        meanings_allowed_user_ids.update(map(int, ids_input.split(',')))
+    else:
+        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
+        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+        return
+
+    active_chat_id = event.chat_id  # حفظ معرف المجموعة
+    meanings_enabled = True
+    await event.edit(f"**᯽︙ تم تفعيل معاني السمايلات في هذه المجموعة بنجاح ✅**\n"
+                     f"**المعرفات المسموحة:** {', '.join(map(str, meanings_allowed_user_ids))}")
+
+# تعطيل ميزة المعاني
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل معاني$'))
 async def disable_meanings_bot(event):
-    global active_chat_id
+    global meanings_enabled, active_chat_id, meanings_allowed_user_ids
     active_chat_id = None  # إلغاء تفعيل المجموعة
+    meanings_enabled = False
+    meanings_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
     await event.edit("**᯽︙ تم تعطيل معاني السمايلات في جميع المجموعات بنجاح ✅**")
 
-# تفعيل الرد التلقائي على السمايلات
+# تفعيل نص محفز مخصص
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص معاني (.*)$'))
+async def set_meanings_trigger_text(event):
+    global meanings_trigger_text
+    meanings_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{meanings_trigger_text}`")
+
+# الرد التلقائي على السمايلات
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_meanings(event):
-    global active_chat_id, trigger_text, smiley_meanings, allowed_user_id_meanings
+    global meanings_enabled, active_chat_id, meanings_allowed_user_ids, trigger_text, smiley_meanings
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
-    if (active_chat_id is not None and event.chat_id == active_chat_id and
-        event.sender_id == allowed_user_id_meanings):  # التحقق من معرف المستخدم
+    if meanings_enabled and event.chat_id == active_chat_id and event.sender_id in meanings_allowed_user_ids:
         if trigger_text in event.raw_text:
             # البحث عن السمايل في الرسالة
             for smiley, meaning in smiley_meanings.items():

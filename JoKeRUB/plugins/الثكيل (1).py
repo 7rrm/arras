@@ -118,40 +118,61 @@ async def auto_reply_flags(event):
                     await asyncio.sleep(reply_delay)
                     await event.reply(country)
                     break
-                    
+
 import asyncio
 import re
 from telethon import events
 from JoKeRUB import l313l
 
-# معرف المستخدم المسموح له (يتم تعيينه يدويًا في الكود)
-allowed_user_id = 1839897340  # تأكد من أن هذا الرقم صحيح
-
-# معرف المجموعة المفعلة
+# تعريف المتغيرات العامة
+break_enabled = False
 active_chat_id = None
+allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
+trigger_text = "⌔︙فكك :"  # النص المحفز الافتراضي
 
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل ايدي تفكيك(?: (\d+(?:,\d+)*))?$'))
 async def enable_break_bot(event):
-    global active_chat_id
+    global break_enabled, active_chat_id, allowed_user_ids
+    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
+
+    # إضافة المعرفات إلى المجموعة
+    if ids_input:
+        allowed_user_ids.update(map(int, ids_input.split(',')))
+    else:
+        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
+        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+        return
+
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    await event.edit("**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**")
+    break_enabled = True
+    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**\n"
+                     f"**المعرفات المسموحة:** {', '.join(map(str, allowed_user_ids))}")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global active_chat_id
+    global break_enabled, active_chat_id, allowed_user_ids
     active_chat_id = None  # إلغاء تفعيل المجموعة
+    break_enabled = False
+    allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
     await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
 
-# تفكيك الكلمة التي تلي النص "⌔︙فكك :"
+# تفعيل نص تفكيك
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
+async def set_break_trigger_text(event):
+    global trigger_text
+    trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{trigger_text}`")
+
+# تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global active_chat_id, allowed_user_id
+    global break_enabled, active_chat_id, allowed_user_ids, trigger_text
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
-    if active_chat_id is not None and event.chat_id == active_chat_id and event.sender_id == allowed_user_id:
-        if "⌔︙فكك :" in event.raw_text:
+    if break_enabled and event.chat_id == active_chat_id and event.sender_id in allowed_user_ids:
+        if trigger_text in event.raw_text:
             # استخراج النص داخل الأقواس
             match = re.search(r'\{([^}]+)\}', event.raw_text)
             if match:
@@ -160,6 +181,9 @@ async def break_word_on_trigger(event):
                 letters = ' '.join(list(word))
                 # إرسال النص المفكوك كرسالة جديدة
                 await event.respond(letters)
+
+# باقي الكود الحالي...
+
 
 
 # قاموس السمايلات ومعانيها

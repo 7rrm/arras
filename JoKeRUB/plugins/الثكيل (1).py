@@ -91,7 +91,7 @@ async def auto_reply_flags(event):
     
     # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن البوت
     if flags_enabled and event.chat_id == active_chat_id and event.sender_id == bot_id:
-        if "↜︙لأي دوله هذا العلم ؟ ↫" in event.raw_text:
+        if "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫" in event.raw_text:
             for flag, country in flags_dict.items():
                 if flag in event.raw_text:
                     await asyncio.sleep(reply_delay)

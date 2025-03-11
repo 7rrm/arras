@@ -67,14 +67,15 @@ flags_dict = {
 }
 
 # تفعيل ميزة الأعلام
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام (\d+)$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام(?: (\d+))?$'))
 async def enable_flags(event):
     global flags_enabled, active_chat_id, reply_delay
-    reply_delay = int(event.pattern_match.group(1))
+    delay = event.pattern_match.group(1)  # الحصول على العدد إذا تم إدخاله
+    reply_delay = int(delay) if delay else 0  # إذا لم يتم إدخال عدد، يكون التأخير 0
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     flags_enabled = True
     await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح مع تأخير {reply_delay} ثانية ✅**")
-
+    
 # تعطيل ميزة الأعلام
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
 async def disable_flags(event):

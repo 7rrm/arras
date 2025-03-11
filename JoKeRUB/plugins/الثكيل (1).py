@@ -206,7 +206,7 @@ smiley_meanings = {
     "🦂": "عقرب",
     "🦉": "بومه",
     "🐫": "جمل",
-    "🦋": "فراشه",
+    "🦋": "ف��اشه",
     "🐟": "سمكه",
     "🐔": "دجاجه",
     "🦈": "قرش",
@@ -221,7 +221,7 @@ smiley_meanings = {
 }
 
 # تفعيل ميزة المعاني
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل معاني(?: (\d+(?:,\d+)*))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل ايدي معاني(?: (\d+(?:,\d+)*))?$'))
 async def enable_meanings_bot(event):
     global meanings_enabled, active_chat_id, meanings_allowed_user_ids
     ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
@@ -258,17 +258,18 @@ async def set_meanings_trigger_text(event):
 # الرد التلقائي على السمايلات
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_meanings(event):
-    global meanings_enabled, active_chat_id, meanings_allowed_user_ids, trigger_text, smiley_meanings
+    global meanings_enabled, active_chat_id, meanings_allowed_user_ids, meanings_trigger_text, smiley_meanings
     
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
     if meanings_enabled and event.chat_id == active_chat_id and event.sender_id in meanings_allowed_user_ids:
-        if trigger_text in event.raw_text:
+        if meanings_trigger_text in event.raw_text:
             # البحث عن السمايل في الرسالة
             for smiley, meaning in smiley_meanings.items():
                 if smiley in event.raw_text:
                     # إرسال معنى السمايل كرسالة جديدة (بدون رد)
                     await event.client.send_message(event.chat_id, f"{meaning}")
                     break
+
                     
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):

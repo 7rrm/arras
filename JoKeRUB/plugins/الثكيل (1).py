@@ -26,6 +26,61 @@ from telethon import events
 from JoKeRUB import l313l
 
 # تعريف المتغيرات العامة
+articles_enabled = False
+articles_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
+articles_trigger_text = "⌔︙اكتبها بدون فواصل"  # النص المحفز الافتراضي
+
+# تفعيل ميزة المقالات مع معرفات المستخدمين
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل مقالات(?: (\d+(?:,\d+)*))?$'))
+async def enable_articles(event):
+    global articles_enabled, articles_allowed_user_ids
+    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
+
+    # إضافة المعرفات إلى المجموعة
+    if ids_input:
+        articles_allowed_user_ids.update(map(int, ids_input.split(',')))
+    else:
+        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
+        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+        return
+
+    articles_enabled = True
+    await event.edit(f"**᯽︙ تم تفعيل ميزة المقالات بنجاح ✅**\n"
+                     f"**المعرفات المسموحة:** {', '.join(map(str, articles_allowed_user_ids))}")
+
+# تعطيل ميزة المقالات
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
+async def disable_articles(event):
+    global articles_enabled, articles_allowed_user_ids
+    articles_enabled = False
+    articles_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
+    await event.edit("**᯽︙ تم تعطيل ميزة المقالات بنجاح ✅**")
+
+# تفعيل نص محفز مخصص
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص مقالات (.*)$'))
+async def set_articles_trigger_text(event):
+    global articles_trigger_text
+    articles_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{articles_trigger_text}`")
+
+# الرد التلقائي على الرسائل
+@l313l.on(events.NewMessage(incoming=True))
+async def auto_reply_articles(event):
+    global articles_enabled, articles_allowed_user_ids, articles_trigger_text
+    
+    # التحقق من أن الميزة مفعلة وأن الرسالة من أحد المستخدمين المسموح لهم
+    if articles_enabled and event.sender_id in articles_allowed_user_ids:
+        if articles_trigger_text in event.raw_text:
+            # استبدال الفواصل بمسافات
+            cleaned_text = event.raw_text.replace("*", " ").replace("/", " ")
+            # الرد على الرسالة
+            await event.reply(cleaned_text)
+
+import asyncio
+from telethon import events
+from JoKeRUB import l313l
+
+# تعريف المتغيرات العامة
 flags_enabled = False
 active_chat_id = None
 flags_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم

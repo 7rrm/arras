@@ -13,14 +13,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await bot.get_me()
         if query.startswith("السورس") and event.query.user_id == bot.uid:
-            buttons = [[Button.url("1- شرح التنصيب", "https://youtu.be/ATAgbLGzr7w"), Button.url("2- استخراج ايبيات", "https://my.telegram.org/"),],[Button.url("3- ستخراج تيرمكس", "https://replit.com/@lMl10l/CodeMusic?lite=1&outputonly=1"), Button.url("4- بوت فاذر", "http://t.me/BotFather"),],[Button.url("5- رابط التنصيب", "https://heroku.com/deploy?template=https://github.com/HuReiq/lMl10l"),],[Button.url("المطـور 👨🏼‍💻", "https://t.me/lx5x5"),]]
+            buttons = [
+                [Button.url("المطـور 👨🏼‍💻", "https://t.me/lx5x5")],
+                [Button.url("قنـاة الـمطور 📢", "https://t.me/aqhvv")]
+            ]
             if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(ROZ_PIC, text=ROZ, buttons=buttons, link_preview=False)
             elif ROZ_PIC:
-                result = builder.document(ROZ_PIC,title="JoKeRUB",text=ROZ,buttons=buttons,link_preview=False)
+                result = builder.document(ROZ_PIC, title="JoKeRUB", text=ROZ, buttons=buttons, link_preview=False)
             else:
-                result = builder.article(title="JoKeRUB",text=ROZ,buttons=buttons,link_preview=False)
+                result = builder.article(title="JoKeRUB", text=ROZ, buttons=buttons, link_preview=False)
             await event.answer([result] if result else None)
+
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):
     if event.fwd_from:
@@ -31,5 +35,3 @@ async def repo(event):
     response = await bot.inline_query(TG_BOT, "السورس")
     await response[0].click(event.chat_id)
     await event.delete()
-
-# edit by ~ @lMl10l

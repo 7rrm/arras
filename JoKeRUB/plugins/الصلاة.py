@@ -1,50 +1,57 @@
-#ترجمه فريق الجوكر على التيلكرام
 import json
-
 import requests
-#ترجمه فريق الجوكر على التيلكرام
 from ..sql_helper.globals import gvarstatus
 from . import l313l, edit_delete, edit_or_reply
 
 plugin_category = "extra"
 
-#ترجمه فريق الجوكر على التيلكرام
 @l313l.ar_cmd(
     pattern="صلاة(?: |$)(.*)",
     command=("صلاة", plugin_category),
     info={
-        "header": "Shows you the Islamic prayer times of the given city name.",
-        "note": "you can set default city by using {tr}setcity command.",
-        "usage": "{tr}صلاه <المحافظه>",
-        "examples": "{tr}صلاه baghdad ",
+        "header": "يعرض أوقات الصلاة والإفطار والإمساك لمدينة معينة.",
+        "note": "يمكنك تعيين المدينة الافتراضية باستخدام الأمر {tr}setcity.",
+        "usage": "{tr}صلاة <المدينة>",
+        "examples": "{tr}صلاة Baghdad",
     },
 )
-async def get_adzan(adzan):
-    LOKASI = adzan.pattern_match.group(1)
-    url = f"https://api.pray.zone/v2/times/today.json?city={LOKASI}"
-    request = requests.get(url)
-    if request.status_code != 200:
-        await edit_delete(
-            adzan, f"** لم يـتم العثور على معلومات لـهذه المدينه {LOKASI}**\n يرجى كتابة اسم محافظتك وباللغه الانكليزي ", 5
-        ) #ترجمه فريق الجوكر على التيلكرام
-        return
-    result = json.loads(request.text)
-    l313lresult = f"<b>اوقـات صـلاه المـسلمين 👳‍♂️ </b>\
-            \n\n<b>المـدينة     : </b><i>{result['results']['location']['city']}</i>\
-            \n<b>الـدولة  : </b><i>{result['results']['location']['country']}</i>\
-            \n<b>التـاريخ     : </b><i>{result['results']['datetime'][0]['date']['gregorian']}</i>\
-            \n<b>الهـجري    : </b><i>{result['results']['datetime'][0]['date']['hijri']}</i>\
-            \n\n<b>الامـساك    : </b><i>{result['results']['datetime'][0]['times']['Imsak']}</i>\
-            \n<b>شـروق الشمس  : </b><i>{result['results']['datetime'][0]['times']['Sunrise']}</i>\
-            \n<b>الـفجر     : </b><i>{result['results']['datetime'][0]['times']['Fajr']}</i>\
-            \n<b>الضـهر    : </b><i>{result['results']['datetime'][0]['times']['Dhuhr']}</i>\
-            \n<b>العـصر      : </b><i>{result['results']['datetime'][0]['times']['Asr']}</i>\
-            \n<b>غـروب الشمس   : </b><i>{result['results']['datetime'][0]['times']['Sunset']}</i>\
-            \n<b>المـغرب  : </b><i>{result['results']['datetime'][0]['times']['Maghrib']}</i>\
-            \n<b>العشـاء     : </b><i>{result['results']['datetime'][0]['times']['Isha']}</i>\
-            \n<b>منتـصف الليل : </b><i>{result['results']['datetime'][0]['times']['Midnight']}</i>\
-    "
-    await edit_or_reply(adzan, l313lresult, "html")
+async def get_prayer_times(event):
+    # جلب المدينة من الأمر
+    city = event.pattern_match.group(1)
+    if not city:
+        city = gvarstatus("DEFCITY") or "Karbala"  # المدينة الافتراضية
 
-# Copyright (C) 2021 JoKeRUB TEAM
-# FILES WRITTEN BY  @lMl10l
+    # إعداد طلب API
+    url = "http://api.aladhan.com/v1/timingsByCity"
+    params = {
+        "city": city,
+        "country": "IQ",  # يمكن تغيير الدولة حسب الحاجة
+        "method": 2,  # طريقة الحساب (يمكن تغييرها حسب المذهب)
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        if response.status_code != 200:
+            await edit_delete(event, f"**حدث خطأ أثناء جلب البيانات لمدينة {city}**", 5)
+            return
+
+        result = response.json()
+        timings = result["data"]["timings"]
+        date = result["data"]["date"]["gregorian"]
+
+        # عرض النتائج
+        output = (
+            f"<b>اوقات الصلاة في {city}</b>\n\n"
+            f"<b>التاريخ:</b> <i>{date['date']}</i>\n"
+            f"<b>الفجر:</b> <i>{timings['Fajr']}</i>\n"
+            f"<b>الشروق:</b> <i>{timings['Sunrise']}</i>\n"
+            f"<b>الظهر:</b> <i>{timings['Dhuhr']}</i>\n"
+            f"<b>العصر:</b> <i>{timings['Asr']}</i>\n"
+            f"<b>المغرب:</b> <i>{timings['Maghrib']}</i>\n"
+            f"<b>العشاء:</b> <i>{timings['Isha']}</i>\n"
+            f"<b>الإمساك:</b> <i>{timings['Imsak']}</i>\n"
+        )
+        await edit_or_reply(event, output, parse_mode="html")
+
+    except Exception as e:
+        await edit_delete(event, f"**حدث خطأ: {str(e)}**", 5)

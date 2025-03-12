@@ -71,10 +71,14 @@ async def auto_reply_articles(event):
     # التحقق من أن الميزة مفعلة وأن الرسالة من أحد المستخدمين المسموح لهم
     if articles_enabled and event.sender_id in articles_allowed_user_ids:
         if articles_trigger_text in event.raw_text:
+            # استخراج النص الذي يحتوي على الفواصل
+            text_with_symbols = event.raw_text.split(articles_trigger_text)[0].strip()
             # استبدال الفواصل بمسافات
-            cleaned_text = event.raw_text.replace("*", " ").replace("/", " ")
+            cleaned_text = text_with_symbols.replace("*", " ").replace("/", " ")
             # الرد على الرسالة
             await event.reply(cleaned_text)
+
+# باقي الكود الحالي...
 
 import asyncio
 from telethon import events

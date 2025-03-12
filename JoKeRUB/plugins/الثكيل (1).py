@@ -29,6 +29,7 @@ from JoKeRUB import l313l
 articles_enabled = False
 articles_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
 articles_trigger_text = "⌔︙اكتبها بدون فواصل"  # النص المحفز الافتراضي
+reply_delay = 2  # تأخير الرد بـ 2 ثانية
 
 # تفعيل ميزة المقالات مع معرفات المستخدمين
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل مقالات(?: (\d+(?:,\d+)*))?$'))
@@ -66,7 +67,7 @@ async def set_articles_trigger_text(event):
 # الرد التلقائي على الرسائل
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_articles(event):
-    global articles_enabled, articles_allowed_user_ids, articles_trigger_text
+    global articles_enabled, articles_allowed_user_ids, articles_trigger_text, reply_delay
     
     # التحقق من أن الميزة مفعلة وأن الرسالة من أحد المستخدمين المسموح لهم
     if articles_enabled and event.sender_id in articles_allowed_user_ids:
@@ -75,6 +76,8 @@ async def auto_reply_articles(event):
             text_with_symbols = event.raw_text.split(articles_trigger_text)[0].strip()
             # استبدال الفواصل بمسافات
             cleaned_text = text_with_symbols.replace("*", " ").replace("/", " ")
+            # تأخير الرد بـ 2 ثانية
+            await asyncio.sleep(reply_delay)
             # الرد على الرسالة
             await event.reply(cleaned_text)
 

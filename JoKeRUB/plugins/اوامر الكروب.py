@@ -907,8 +907,8 @@ async def handle_winner(event):
                 await l313l.send_message(event.chat_id, f'الف مبرووووك 🎉 الاعب ( {sender_first_name} ) فاز! \n اصبحت نقاطة: {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
 joker = [
     "تلعب وخوش تلعب 👏🏻",
-    "لك عاش يابطل استمر 💪🏻",
-    "على كيفك ركزززز انتَ كدها 🤨",
+    "لكَ عاش يابطل أستمر 💪🏻",
+    "على كيفك ركزززز أنتَ كدها 🤨",
     "لك وعلي ذيييب 😍",
 ]
 correct_answer = None
@@ -996,7 +996,7 @@ async def handle_incoming_message(event):
         }
     if group_game_status[chat_id]['is_game_started2'] and not group_game_status[chat_id]['joker_player']:
         group_game_status[chat_id]['joker_player'] = event.sender_id
-        await event.reply(f"**تم تسجيلك في المسابقة روح لحسين بظهرك\n{format_board(game_board, numbers_board)}**")
+        await event.reply(f"**تم تسجيلك في المسابقة ، 💬 أرسل طك <رقم> لفتح يد، أو جيب <رقم> لمحاولة كشف المحبس!\n{format_board(game_board, numbers_board)}**")
 
 def format_board(game_board, numbers_board):
     formatted_board = ""

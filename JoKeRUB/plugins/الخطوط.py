@@ -12,7 +12,7 @@ from telethon.errors.rpcerrorlist import MessageIdInvalidError
 async def btext(event):
     isbold = gvarstatus("bold")
     if not isbold:
-        addgvar ("bold", "on")
+        addgvar("bold", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الغامق بنجاح ✓**")
         return
 
@@ -25,7 +25,7 @@ async def btext(event):
 async def btext(event):
     istshwesh = gvarstatus("tshwesh")
     if not istshwesh:
-        addgvar ("tshwesh", "on")
+        addgvar("tshwesh", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط المشطوب بنجاح ✓**")
         return
 
@@ -38,7 +38,7 @@ async def btext(event):
 async def btext(event):
     isramz = gvarstatus("ramz")
     if not isramz:
-        addgvar ("ramz", "on")
+        addgvar("ramz", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الرمز بنجاح ✓**")
         return
 
@@ -51,13 +51,26 @@ async def btext(event):
 async def Aljoker(event):
     Aljoker = gvarstatus("joker")
     if not Aljoker:
-        addgvar ("joker", "on")
+        addgvar("joker", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الجوكر بنجاح ✓**")
         return
 
     if Aljoker:
         delgvar("joker")
         await edit_delete(event, "**᯽︙ تم اطفاء خط الجوكر بنجاح ✓ **")
+        return
+
+@l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش)"))
+async def btext(event):
+    isspoiler = gvarstatus("spoiler")
+    if not isspoiler:
+        addgvar("spoiler", "on")
+        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
+        return
+
+    if isspoiler:
+        delgvar("spoiler")
+        await edit_delete(event, "**᯽︙ تم اطفاء خط التشويش بنجاح ✓ **")
         return
 
 @l313l.on(events.NewMessage(outgoing=True))
@@ -67,6 +80,7 @@ async def reda(event):
         isramz = gvarstatus("ramz")
         istshwesh = gvarstatus("tshwesh")
         Aljoker = gvarstatus("joker")
+        isspoiler = gvarstatus("spoiler")
         if isbold:
             try:
                 await event.edit(f"**{event.message.text}**")
@@ -87,4 +101,8 @@ async def reda(event):
                 await event.edit(f"```{event.message.text}```")
             except MessageIdInvalidError:
                 pass
-                
+        if isspoiler:
+            try:
+                await event.edit(f"||{event.message.text}||")
+            except MessageIdInvalidError:
+                pass

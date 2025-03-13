@@ -15,7 +15,7 @@ Aljoker_Asbo3 = {
     'Sunday': 'الأحد'
 }
 
-@l313l.on(admin_cmd(pattern="(جلب الصورة|جلب الصوره|ذاتيه|ذاتية)"))
+@l313l.on(admin_cmd(pattern="(جلب الصوره|ذاتيه|ذاتية|احح)"))
 async def dato(event):
     if not event.is_reply:
         return await event.edit("..")

@@ -120,65 +120,6 @@ async def random_hadith(event):
     hadith = random.choice(hadiths)
     await edit_or_reply(event, hadith)
     
-    #بوكهن ميخالف لان حتى هاي متدبرها وحدك
-@l313l.ar_cmd(
-    pattern="المارد$",
-    command=("المارد", plugin_category),
-    info={
-        "header": "امر المارد السحري الازرك.",
-        "description": "مكتبة المارد الازرق ا .",
-        "usage": "{tr}المارد",
-    },
-)
-async def akinator_game(event):
-    aki = akinator.Akinator()
-
-    # البدء بسؤال أولي من Akinator
-    q = aki.start_game()
-
-    async with l313l.conversation(event.chat_id) as conv:
-        question_msg = await edit_or_reply(event,
-            f"{q}\n\n"
-            "اجب ب:\n"
-            "`y` = نعم\n"
-            "`n` = لا\n"
-            "`idk` = لا اعلم\n"
-            "`p` = من الممكن\n"
-            "`c` = انهاء اللعبة\n"
-            "`b` = رجوع"
-        )
-        while aki.progression <= 80:
-            response = await conv.wait_event(events.NewMessage(from_users=event.sender_id))
-            a = response.text
-            await response.delete()
-            if a.lower() == "c":
-                await question_msg.edit("لقد ألغيت اللعبة.")
-                return
-            elif a.lower() == "b":
-                try:
-                    q = aki.back()
-                except akinator.CantGoBackAnyFurther:
-                    pass
-            else:
-                q = aki.answer(a)
-            await question_msg.edit(
-                f"{q}\n\n"
-                "اجب ب:\n"
-                "`y` = نعم\n"
-                "`n` = لا\n"
-                "`idk` = لا اعلم\n"
-                "`p` = من الممكن\n"
-                "`c` = انهاء اللعبة\n"
-                "`b` = رجوع"
-            )
-        aki.win()
-
-        correct = await edit_or_reply(event, f"هل هو [{aki.first_guess['name']}]({aki.first_guess['absolute_picture_path']}) ({aki.first_guess['description']})؟ هل كنت محقًا؟")
-        response = await conv.wait_event(events.NewMessage(from_users=event.sender_id))
-        if response.text.lower() in ["yes", "y", "نعم", "أجل"]:
-            await correct.reply("ياي\n")
-        else:
-            await correct.reply("أوف\n")
 
 @l313l.on(events.NewMessage(pattern='.سباق'))
 async def emoji_race(event):

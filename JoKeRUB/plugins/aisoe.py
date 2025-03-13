@@ -1,8 +1,8 @@
 from instaloader import Instaloader, Profile
-from SHRU import Qrh9
+from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 
-@Qrh9.ar_cmd(
+@l313l.ar_cmd(
     pattern="كشانستا(?: |$)(.*)",
     command=("كشانستا", "tools"),
     info={

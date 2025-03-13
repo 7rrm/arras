@@ -163,67 +163,6 @@ async def rock_paper_scissors(event):
 
     await edit_or_reply(event, f"اختيارك: {user_choice}\nاختيار الساحر: {bot_choice}\nنتيجة اللعبة: {result}")
 
-
-
-
-@l313l.on(events.NewMessage(pattern='.سيارات'))
-async def car_race(event):
-    racers = []
-    Kk = None
-    await edit_or_reply(event, "التسجيل بدأ ارسل 1 للانضمام")
-
-    async with l313l.conversation(event.chat_id) as conv:
-        while len(racers) < 5:
-            response = await conv.wait_event(events.NewMessage(incoming=True, pattern="1"))
-            if response.sender_id not in [r[0] for r in racers]:
-                racer_entity = await l313l.get_entity(response.sender_id)
-                racers.append((response.sender_id, racer_entity.username or racer_entity.first_name))
-                Kk = await response.reply("تم التسجيل بنجاح")
-
-    track = ["🏎️" for _ in range(5)]
-    await Kk.edit(
-        "السباق يبدأ الآن!\n" +
-        "\n".join([f"{i+1}- {track[i]} [{racers[i][1]}](https://t.me/{racers[i][1]})" for i in range(5)])
-    )
-
-    for _ in range(10):
-        await asyncio.sleep(1)
-        moving_car = random.randint(0, 4)
-        track[moving_car] = "-" + track[moving_car]
-        await Kk.edit(
-            "السباق يبدأ الآن!\n" + "\n".join([f"{i+1}- {track[i]} [{racers[i][1]}](https://t.me/{racers[i][1]})" for i in range(5)])
-        )
-
-    winner = racers[moving_car]
-    await Kk.edit(
-        f"🎉 مبروك [{winner[1]}](https://t.me/{winner[1]})! لقد فزت بالسباق!"
-    )
-    
-#بالحظ
-@l313l.ar_cmd(
-    pattern="تحدي$",
-    command=("تحدي", plugin_category),
-    info={
-        "header": "Challenge another user to a duel.",
-        "description": "Randomly selects a Wi between the challenger and the opponent.",
-        "usage": "{tr}تحدي",
-    },
-)
-async def challenge(event):
-    if not event.reply_to_msg_id:
-        await edit_or_reply(event, "يرجى الرد على رسالة المستخدم الذي تريد تحديه.")
-        return
-
-    reply_message = await event.get_reply_message()
-    opponent = reply_message.sender_id
-    challenger = event.sender_id
-
-    Wi = random.choice([challenger, opponent])
-    Wi_entity = await l313l.get_entity(Wi)
-
-    await edit_or_reply(event, f"🎊 تهانينا [{Wi_entity.first_name}](tg://user?id={Wi})! لقد فزت في التحدي!")
-    
-
 @l313l.ar_cmd(
     pattern="المليون$",
     command=("المليون", plugin_category),

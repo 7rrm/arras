@@ -33,31 +33,41 @@ async def dato(event):
     )
     await event.delete()
 #By @jepthon For You 🌹
-@l313l.on(admin_cmd(pattern="(الذاتية تشغيل|ذاتية تشغيل)"))
-async def reda(event):
-    if gvarstatus ("savepicforme"):
-        return await edit_delete(event, "**᯽︙حفظ الذاتيات مفعل وليس بحاجة للتفعيل مجدداً **")
+from telethon import events
+import os
+
+# تفعيل الميزة تلقائيًا عند بدء التشغيل
+addgvar("savepicforme", "reda")  # تم تفعيل الميزة تلقائيًا
+
+# أمر تفعيل الذاتية يدويًا
+@l313l.on(events.NewMessage(pattern="(تفعيل الذاتية|تفعيل ذاتية)"))
+async def enable_auto_save(event):
+    if gvarstatus("savepicforme"):
+        await event.reply("**᯽︙حفظ الذاتيات مفعل وليس بحاجة للتفعيل مجدداً **")
     else:
         addgvar("savepicforme", "reda")
-        await edit_delete(event, "**᯽︙تم تفعيل ميزة حفظ الذاتيات بنجاح ✓**")
- 
-@l313l.on(admin_cmd(pattern="(الذاتية تعطيل|ذاتية تعطيل)"))
-async def Reda_Is_Here(event):
-    if gvarstatus ("savepicforme"):
-        delgvar("savepicforme")
-        return await edit_delete(event, "**᯽︙تم تعطيل حفظت الذاتيات بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙انت لم تفعل حفظ الذاتيات لتعطيلها!**")
+        await event.reply("**᯽︙تم تفعيل ميزة حفظ الذاتيات بنجاح ✓**")
 
+# أمر تعطيل الذاتية يدويًا
+@l313l.on(events.NewMessage(pattern="(تعطيل الذاتية|تعطيل ذاتية)"))
+async def disable_auto_save(event):
+    if gvarstatus("savepicforme"):
+        delgvar("savepicforme")
+        await event.reply("**᯽︙تم تعطيل حفظ الذاتيات بنجاح ✓**")
+    else:
+        await event.reply("**᯽︙حفظ الذاتيات معطل بالفعل!**")
+
+# دالة للتحقق من وجود ميديا غير مقروءة
 def joker_unread_media(message):
     return message.media_unread and (message.photo or message.video)
 
+# دالة لحفظ الذاتية وإرسالها
 async def Hussein(event, caption):
     media = await event.download_media()
     sender = await event.get_sender()
     sender_id = event.sender_id
     lMl10l_date = event.date.strftime("%Y-%m-%d")
-    lMl10l_day = Aljoker_Asbo3[event.date.strftime("%A")]
+    lMl10l_day = event.date.strftime("%A")  # يمكنك استبدالها بقائمة أيام إذا لزم الأمر
     await bot.send_file(
         "me",
         media,
@@ -66,9 +76,10 @@ async def Hussein(event, caption):
     )
     os.remove(media)
 
+# دالة للتعامل مع الرسائل الواردة
 @l313l.on(events.NewMessage(func=lambda e: e.is_private and joker_unread_media(e) and e.sender_id != bot.uid))
 async def Reda(event):
-    if gvarstatus("savepicforme"):
+    if gvarstatus("savepicforme"):  # إذا كانت الميزة مفعلة
         caption = """**
            ♡  غير مبري الذمة اذا استعملته للأبتزاز  ♡
 ♡ تم حفظ الذاتية بنجاح ✓

@@ -8,11 +8,7 @@ from telethon import events
 plugin_category = "fun"
 #str 122939#المليون
 
-    
-import random
-from telethon import events
-
-# قائمة الأسئلة
+    #تكدر تضيف بعد وره ال plus
 A_qq = [
     {"aW": "ما هو الحيوان الذي يمتلك أكبر عدد من الأسنان؟", "choices": ["التمساح", "القرش", "الفيل"], "Wa": "القرش"},
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'Au'؟", "choices": ["الذهب", "الفضة", "النحاس"], "Wa": "الذهب"},
@@ -61,17 +57,6 @@ qq = [
     {"aW": "كم عدد الكواكب في نظامنا الشمسي؟", "choices": ["8", "9", "10"], "Wa": "8"},
 ]
 
-import random
-from telethon import events
-
-# قاموس لتخزين الرصيد لكل مستخدم
-user_balances = {}
-
-# قاموس لتخزين حالة المشاركة لكل مستخدم
-user_participation = {}
-
-# ID المطور
-DEVELOPER_ID = 5427469031
 
 @l313l.ar_cmd(
     pattern="المليون$",
@@ -83,125 +68,21 @@ DEVELOPER_ID = 5427469031
     },
 )
 async def million(event):
-    user_id = event.sender_id
+    Bq = qq + A_qq
+    aW = random.choice(Bq)
+    choices = aW["choices"][:]
+    random.shuffle(choices)
+    choices_text = "\n".join([f"{i+1}. {choice}" for i, choice in enumerate(choices)])
+    await edit_or_reply(event, f"{aW['aW']}\n\n{choices_text}\n\nاكتب رقم الإجابة الصحيحة:")
 
-    # إذا كان المستخدم هو المطور
-    if user_id == DEVELOPER_ID:
-        await edit_or_reply(
-            event,
-            "مرحبًا بالجميع! 🎉\n"
-            "للمشاركة في لعبة المليون، أرسل `.اشارك`.\n"
-            "بعد المشاركة، يمكنك إرسال `.المليون` للبدء."
-        )
-        return
-
-    # إذا كان المستخدم مشاركًا
-    if user_id in user_participation:
-        # التحقق من وجود الرصيد
-        if user_id not in user_balances:
-            user_balances[user_id] = 0
-
-        # اختيار سؤال عشوائي
-        Bq = qq + A_qq  # تأكد من وجود qq و A_qq في الكود الأصلي
-        aW = random.choice(Bq)
-        choices = aW["choices"][:]
-        random.shuffle(choices)
-        choices_text = "\n".join([f"{i+1}. {choice}" for i, choice in enumerate(choices)])
-        await edit_or_reply(event, f"{aW['aW']}\n\n{choices_text}\n\nاكتب رقم الإجابة الصحيحة:")
-
-        async with l313l.conversation(event.chat_id) as conv:
-            response = await conv.wait_event(events.NewMessage(pattern=r'^[1-3]$', from_users=event.sender_id))
-            Wa_index = int(response.text) - 1
-            if choices[Wa_index] == aW["Wa"]:
-                user_balances[user_id] += 200
-                await response.reply(f"🎉 صحيح! إجابتك صحيحة.\nتم إضافة 200$ إلى رصيدك.\nرصيدك الكلي: {user_balances[user_id]}$")
-
-                # التحقق إذا وصل الرصيد إلى 600$
-                if user_balances[user_id] >= 600:
-                    await response.reply(
-                        "الآن أصبح رصيدك 600$.\n"
-                        "هل تريد الانسحاب أم الاستمرار؟\n"
-                        "ارسل (`.انسحب`) للانسحاب\n"
-                        "ارسل (`.استمر`) للاستمرار"
-                    )
-            else:
-                await response.reply(f"❌ خطأ! الإجابة الصحيحة هي: {aW['Wa']}")
-    else:
-        await edit_or_reply(event, "يجب عليك المشاركة أولاً بإرسال `.اشارك`.")
-
-@l313l.ar_cmd(
-    pattern="اشارك$",
-    command=("اشارك", plugin_category),
-    info={
-        "header": "Join the game.",
-        "description": "للاشتراك في اللعبة",
-        "usage": "{tr}اشارك",
-    },
-)
-async def join(event):
-    user_id = event.sender_id
-
-    # تسجيل المستخدم في اللعبة
-    if user_id not in user_participation:
-        user_participation[user_id] = True
-        user_balances[user_id] = 0
-        await edit_or_reply(event, "تمت مشاركتك في اللعبة. يمكنك الآن إرسال `.المليون` للبدء.")
-    else:
-        await edit_or_reply(event, "أنت بالفعل مشارك في اللعبة.")
-
-@l313l.ar_cmd(
-    pattern="رصيدي$",
-    command=("رصيدي", plugin_category),
-    info={
-        "header": "Check your balance.",
-        "description": "لعرض رصيدك الحالي",
-        "usage": "{tr}رصيدي",
-    },
-)
-async def balance(event):
-    user_id = event.sender_id
-    if user_id in user_balances:
-        await edit_or_reply(event, f"رصيدك الحالي: {user_balances[user_id]}$")
-    else:
-        await edit_or_reply(event, "رصيدك الحالي: 0$")
-
-@l313l.ar_cmd(
-    pattern="انسحب$",
-    command=("انسحب", plugin_category),
-    info={
-        "header": "Withdraw from the game.",
-        "description": "للانسحاب من اللعبة",
-        "usage": "{tr}انسحب",
-    },
-)
-async def withdraw(event):
-    user_id = event.sender_id
-    if user_id in user_balances:
-        if user_balances[user_id] >= 600:
-            await edit_or_reply(event, f"تم الانسحاب. رصيدك النهائي: {user_balances[user_id]}$")
-            user_balances[user_id] = 0
-            user_participation.pop(user_id, None)
+    async with l313l.conversation(event.chat_id) as conv:
+        response = await conv.wait_event(events.NewMessage(pattern=r'^[1-3]$', from_users=event.sender_id))
+        Wa_index = int(response.text) - 1
+        if choices[Wa_index] == aW["Wa"]:
+            await response.reply("🎉 صحيح! إجابتك صحيحة.")
         else:
-            await edit_or_reply(event, "لا يمكنك الانسحاب إلا إذا كان رصيدك 600$ أو أكثر.")
-    else:
-        await edit_or_reply(event, "لم تشارك في اللعبة بعد.")
+            await response.reply(f"❌ خطأ! الإجابة الصحيحة هي: {aW['Wa']}")
 
-@l313l.ar_cmd(
-    pattern="استمر$",
-    command=("استمر", plugin_category),
-    info={
-        "header": "Continue the game.",
-        "description": "للاستمرار في اللعبة",
-        "usage": "{tr}استمر",
-    },
-)
-async def continue_game(event):
-    user_id = event.sender_id
-    if user_id in user_balances and user_balances[user_id] >= 600:
-        await edit_or_reply(event, "ستستمر اللعبة. يمكنك إرسال `.المليون` للبدء.")
-    else:
-        await edit_or_reply(event, "لا يمكنك الاستمرار إلا إذا كان رصيدك 600$ أو أكثر.")
-    
 Io = [
     "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ - البقرة 153",
     "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ - النحل 127",

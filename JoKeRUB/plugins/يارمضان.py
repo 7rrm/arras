@@ -61,8 +61,17 @@ qq = [
     {"aW": "كم عدد الكواكب في نظامنا الشمسي؟", "choices": ["8", "9", "10"], "Wa": "8"},
 ]
 
+import random
+from telethon import events
+
 # قاموس لتخزين الرصيد لكل مستخدم
 user_balances = {}
+
+# قاموس لتخزين حالة المشاركة لكل مستخدم
+user_participation = {}
+
+# ID المطور
+DEVELOPER_ID = 5427469031
 
 @l313l.ar_cmd(
     pattern="المليون$",
@@ -75,10 +84,18 @@ user_balances = {}
 )
 async def million(event):
     user_id = event.sender_id
+
+    # التحقق من مشاركة المستخدم
+    if user_id not in user_participation:
+        await edit_or_reply(event, "يجب عليك المشاركة أولاً بإرسال `.اشارك`.")
+        return
+
+    # التحقق من وجود الرصيد
     if user_id not in user_balances:
         user_balances[user_id] = 0
 
-    Bq = qq + A_qq
+    # اختيار سؤال عشوائي
+    Bq = qq + A_qq  # تأكد من وجود qq و A_qq في الكود الأصلي
     aW = random.choice(Bq)
     choices = aW["choices"][:]
     random.shuffle(choices)
@@ -91,8 +108,32 @@ async def million(event):
         if choices[Wa_index] == aW["Wa"]:
             user_balances[user_id] += 200
             await response.reply(f"🎉 صحيح! إجابتك صحيحة.\nتم إضافة 200$ إلى رصيدك.\nرصيدك الكلي: {user_balances[user_id]}$")
+
+            # التحقق إذا وصل الرصيد إلى 600$
+            if user_balances[user_id] >= 600:
+                await response.reply(
+                    "الآن أصبح رصيدك 600$.\n"
+                    "هل تريد الانسحاب أم الاستمرار؟\n"
+                    "ارسل (`.انسحب`) للانسحاب\n"
+                    "ارسل (`.استمر`) للاستمرار"
+                )
         else:
             await response.reply(f"❌ خطأ! الإجابة الصحيحة هي: {aW['Wa']}")
+
+@l313l.ar_cmd(
+    pattern="اشارك$",
+    command=("اشارك", plugin_category),
+    info={
+        "header": "Join the game.",
+        "description": "للاشتراك في اللعبة",
+        "usage": "{tr}اشارك",
+    },
+)
+async def join(event):
+    user_id = event.sender_id
+    user_participation[user_id] = True
+    user_balances[user_id] = 0
+    await edit_or_reply(event, "تمت مشاركتك في اللعبة. يمكنك الآن إرسال `.المليون` للبدء.")
 
 @l313l.ar_cmd(
     pattern="رصيدي$",
@@ -111,21 +152,6 @@ async def balance(event):
         await edit_or_reply(event, "رصيدك الحالي: 0$")
 
 @l313l.ar_cmd(
-    pattern="اشترك$",
-    command=("اشترك", plugin_category),
-    info={
-        "header": "Join the game.",
-        "description": "للاشتراك في اللعبة",
-        "usage": "{tr}اشترك",
-    },
-)
-async def join(event):
-    user_id = event.sender_id
-    if user_id not in user_balances:
-        user_balances[user_id] = 0
-    await edit_or_reply(event, "تم اشتراكك في اللعبة. اكتب `.المليون` للبدء.")
-
-@l313l.ar_cmd(
     pattern="انسحب$",
     command=("انسحب", plugin_category),
     info={
@@ -140,26 +166,50 @@ async def withdraw(event):
         if user_balances[user_id] >= 600:
             await edit_or_reply(event, f"تم الانسحاب. رصيدك النهائي: {user_balances[user_id]}$")
             user_balances[user_id] = 0
+            user_participation.pop(user_id, None)
         else:
             await edit_or_reply(event, "لا يمكنك الانسحاب إلا إذا كان رصيدك 600$ أو أكثر.")
     else:
         await edit_or_reply(event, "لم تشارك في اللعبة بعد.")
 
 @l313l.ar_cmd(
-    pattern="نعم$",
-    command=("نعم", plugin_category),
+    pattern="استمر$",
+    command=("استمر", plugin_category),
     info={
         "header": "Continue the game.",
         "description": "للاستمرار في اللعبة",
-        "usage": "{tr}نعم",
+        "usage": "{tr}استمر",
     },
 )
 async def continue_game(event):
     user_id = event.sender_id
     if user_id in user_balances and user_balances[user_id] >= 600:
-        await edit_or_reply(event, "ستستمر اللعبة. اكتب `.المليون` للبدء.")
+        await edit_or_reply(event, "ستستمر اللعبة. يمكنك إرسال `.المليون` للبدء.")
     else:
         await edit_or_reply(event, "لا يمكنك الاستمرار إلا إذا كان رصيدك 600$ أو أكثر.")
+
+@l313l.ar_cmd(
+    pattern="انهاء$",
+    command=("انهاء", plugin_category),
+    info={
+        "header": "End the game for a user.",
+        "description": "لإنهاء اللعبة للمستخدم الحالي (للمطور فقط)",
+        "usage": "{tr}انهاء",
+    },
+)
+async def end_game(event):
+    user_id = event.sender_id
+    if user_id == DEVELOPER_ID:
+        target_user_id = event.chat_id
+        if target_user_id in user_balances:
+            user_balances.pop(target_user_id, None)
+            user_participation.pop(target_user_id, None)
+            await edit_or_reply(event, "تم إنهاء اللعبة للمستخدم الحالي.")
+        else:
+            await edit_or_reply(event, "المستخدم الحالي ليس مشاركًا في اللعبة.")
+    else:
+        await edit_or_reply(event, "هذا الأمر متاح للمطور فقط.")
+
 
 Io = [
     "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ - البقرة 153",

@@ -91,44 +91,6 @@ hadiths = [
 "أَفْضَلُ الْعِبَادَةِ انْتِظَارُ الْفَرَجِ - الكافي",
 "الْجَنَّةُ تَحْتَ أَقْدَامِ الْأُمَّهَاتِ - الكافي",
 ]
-prayer_times = {
-    "الفجر": "04:55",
-    "الظهر": "12:13",
-    "العصر": "15:36",
-    "المغرب (الفطور)": "18:09",
-    "العشاء": "19:27"
-}
-
-@l313l.ar_cmd(
-    pattern="كم باقي$",
-    command=("كم باقي", plugin_category),
-    info={
-        "header": "الوقت المتبقي للصلاة او الافطار",
-        "description": "يعرض الوقت الحالي والوقت المتبقي للصلاة التالية.",
-        "usage": "{tr}كم باقي",
-    },
-)
-async def countdown_next_prayer(event):
-    """عد تنازلي للصلاة."""
-    now = datetime.now()
-    current_time_str = now.strftime("%H:%M")
-    remaining_time = None
-    next_prayer = None
-    for prayer, time_str in prayer_times.items():
-        prayer_time = datetime.strptime(time_str, "%H:%M").replace(year=now.year, month=now.month, day=now.day)
-        if prayer_time > now:
-            remaining_time = prayer_time - now
-            next_prayer = prayer
-            break
-    if remaining_time and next_prayer:
-        message = (f"الوقت الحالي: {current_time_str}\nالوقت المتبقي لأذان {next_prayer}: {remaining_time.seconds // 3600} ساعة و {(remaining_time.seconds % 3600) // 60} دقيقة متبقية")
-    else:
-        message = "لا يوجد صلوات متبقية اليوم."
-    await edit_or_reply(event, message)
-
-
-
-
 
 @l313l.ar_cmd(
     pattern="آية$",
@@ -158,10 +120,7 @@ async def random_hadith(event):
     hadith = random.choice(hadiths)
     await edit_or_reply(event, hadith)
     
-
     #بوكهن ميخالف لان حتى هاي متدبرها وحدك
-
-
 @l313l.ar_cmd(
     pattern="المارد$",
     command=("المارد", plugin_category),
@@ -173,6 +132,9 @@ async def random_hadith(event):
 )
 async def akinator_game(event):
     aki = akinator.Akinator()
+
+    # البدء بسؤال أولي من Akinator
+    q = aki.start_game()
 
     async with l313l.conversation(event.chat_id) as conv:
         question_msg = await edit_or_reply(event,

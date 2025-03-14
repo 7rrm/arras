@@ -331,11 +331,13 @@ async def Hussein(event):
                 await event.reply(file=url)
 
 
-
 from telethon import events
 from . import l313l
 
 plugin_category = "fun"
+
+# متغير لتحديد ما إذا كان يجب إيقاف الإرسال
+stop_sending = False
 
 @l313l.ar_cmd(
     pattern="قلبي يحدثني$",
@@ -347,6 +349,9 @@ plugin_category = "fun"
 )
 async def _(event):
     "إرسال كلمات الأغنية مع تأخير بين كل رسالة"
+    global stop_sending
+    stop_sending = False
+
     animation_interval = 7  # تأخير 7 ثواني بين كل رسالة
     animation_chars = [
         "قَلبي يُحدّثُني بأنّكَ مُتلِفي",
@@ -377,11 +382,26 @@ async def _(event):
         "كلفي بكمْ خلقٌ بغيرِ تكلُّفِ",
     ]
 
-    # بدء إرسال كلمات الأغنية مباشرة
-    for index, line in enumerate(animation_chars):
-        if index == 0:
-            await event.respond(line)
-        else:
-            await event.reply(line)
+    previous_message = event
+
+    for line in animation_chars:
+        if stop_sending:
+            break
+        reply = await previous_message.reply(line)
+        previous_message = reply
         await asyncio.sleep(animation_interval)
-        
+
+@l313l.ar_cmd(
+    pattern="توقف$",
+    command=("توقف", plugin_category),
+    info={
+        "header": "إيقاف إرسال كلمات الأغنية",
+        "usage": "{tr}توقف",
+    },
+)
+async def stop(event):
+    "إيقاف إرسال كلمات الأغنية"
+    global stop_sending
+    stop_sending = True
+    await event.reply("تم إيقاف إرسال كلمات الأغنية.")
+    

@@ -243,18 +243,17 @@ async def break_word_on_trigger(event):
     # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
     if break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids:
         if break_trigger_text in event.raw_text:
-            # البحث عن النص داخل الأقواس (إذا وجد)
-            match_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
+            # البحث عن النص داخل الأقواس {} أو () (إذا وجد)
+            match_with_brackets = re.search(r'[{(]([^})]+)[})]', event.raw_text)
             if match_with_brackets:
-                word = match_with_brackets.group(1)
-            else:
-                # إذا لم يكن هناك أقواس، يتم تفكيك النص الذي يلي النص المحفز مباشرة
-                word = event.raw_text.split(break_trigger_text)[-1].strip()
-            
-            # تفكيك النص إلى أحرف
-            letters = ' '.join(list(word))
-            # إرسال النص المفكوك كرسالة جديدة
-            await event.respond(letters)
+                word = match_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
+                # إزالة النقطة من النهاية إذا وجدت
+                if word.endswith('.'):
+                    word = word[:-1]
+                # تفكيك النص إلى أحرف
+                letters = ' '.join(list(word))
+                # إرسال النص المفكوك كرسالة جديدة
+                await event.respond(letters)
 
 import asyncio
 from telethon import events

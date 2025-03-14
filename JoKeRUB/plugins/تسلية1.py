@@ -331,6 +331,7 @@ async def Hussein(event):
                 await event.reply(file=url)
 
 
+
 from telethon import events
 from . import l313l
 
@@ -352,7 +353,7 @@ async def _(event):
     global stop_sending
     stop_sending = False
 
-    animation_interval = 15  # تأخير 7 ثواني بين كل رسالة
+    animation_interval = 22  # تأخير 7 ثواني بين كل رسالة
     animation_chars = [
         "قَلبي يُحدّثُني بأنّكَ مُتلِفي",
         "روحي فداكَ عرفتَ أمْ لمْ تعرفِ",
@@ -382,9 +383,16 @@ async def _(event):
         "كلفي بكمْ خلقٌ بغيرِ تكلُّفِ",
     ]
 
-    previous_message = event
+    # حذف رسالة الأمر
+    await event.delete()
 
-    for line in animation_chars:
+    # الرد على الرسالة التي قمت بالرد عليها بالأمر
+    previous_message = await event.get_reply_message()
+    if previous_message:
+        reply = await previous_message.reply(animation_chars[0])
+        previous_message = reply
+
+    for line in animation_chars[1:]:
         if stop_sending:
             break
         reply = await previous_message.reply(line)

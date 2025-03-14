@@ -352,7 +352,7 @@ async def _(event):
     global stop_sending
     stop_sending = False
 
-    animation_interval = 7  # تأخير 7 ثواني بين كل رسالة
+    animation_interval = 15  # تأخير 7 ثواني بين كل رسالة
     animation_chars = [
         "قَلبي يُحدّثُني بأنّكَ مُتلِفي",
         "روحي فداكَ عرفتَ أمْ لمْ تعرفِ",

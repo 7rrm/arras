@@ -9,7 +9,7 @@ import lottie
 import requests
 import spamwatch as spam_watch
 from validators.url import url
-from .lyrics import *
+
 from .. import *
 from ..Config import Config
 from ..core.logger import logging

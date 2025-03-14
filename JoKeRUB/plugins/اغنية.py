@@ -32,7 +32,6 @@ LOGS = logging.getLogger(__name__)
 SONG_SEARCH_STRING = "<code>يجؤة الانتظار قليلا يتم البحث على المطلوب</code>"
 SONG_NOT_FOUND = "<code>عذرا لا يمكنني ايجاد اي اغنيه مثل هذه</code>"
 SONG_SENDING_STRING = "<code>جارِ الارسال انتظر قليلا...</code>"
-LYRICS_NOT_FOUND = "<code>عذرا لا يمكنني ايجاد كلمات الاغنيه</code>"  # تأكد من وجود هذا السطر
 # =========================================================== #
 #                                                             #
 # =========================================================== #
@@ -48,32 +47,7 @@ def get_cookies_file():
         
     return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
-async def get_lyrics(song_name):
-    try:
-        # البحث عن كلمات الأغنية
-        search_url = f"https://lyricstranslate.com/ar/search/site/{urllib.parse.quote(song_name)}"
-        response = requests.get(search_url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # الحصول على رابط أول نتيجة بحث
-        result = soup.find('div', class_='search-results').find('a')
-        if not result:
-            return None
-        
-        lyrics_url = result['href']
-        lyrics_response = requests.get(lyrics_url)
-        lyrics_soup = BeautifulSoup(lyrics_response.text, 'html.parser')
-        
-        # استخراج الكلمات
-        lyrics_div = lyrics_soup.find('div', class_='ltf')
-        if not lyrics_div:
-            return None
-        
-        lyrics = lyrics_div.get_text(separator="\n")
-        return lyrics.split("\n")
-    except Exception as e:
-        LOGS.error(f"Error fetching lyrics: {e}")
-        return None
+LYRICS_NOT_FOUND = "عذرًا، لا يمكنني العثور على كلمات الأغنية. يرجى التأكد من اسم الأغنية أو المحاولة لاحقًا."
 
 @l313l.ar_cmd(
     pattern="كلمات(?:\\s|$)([\\s\\S]*)",
@@ -101,6 +75,7 @@ async def lyrics(event):
     
     lyrics_lines = await get_lyrics(query)
     if not lyrics_lines:
+        LOGS.error(f"لم يتم العثور على كلمات للأغنية: {query}")
         return await catevent.edit(LYRICS_NOT_FOUND)
     
     await catevent.edit("**⌔∮ جارِ إرسال كلمات الأغنية...**")

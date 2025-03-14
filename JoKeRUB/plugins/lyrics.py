@@ -61,6 +61,6 @@ async def send_lyrics(event):
                 line,
                 reply_to=reply_to_id  # الرد على الرسالة الأصلية
             )
-            await asyncio.sleep(2)
+            await asyncio.sleep(7)
     except Exception as e:
         await event.reply(f"**حدث خطأ:** {str(e)}")

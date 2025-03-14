@@ -32,10 +32,10 @@ LOGS = logging.getLogger(__name__)
 SONG_SEARCH_STRING = "<code>يجؤة الانتظار قليلا يتم البحث على المطلوب</code>"
 SONG_NOT_FOUND = "<code>عذرا لا يمكنني ايجاد اي اغنيه مثل هذه</code>"
 SONG_SENDING_STRING = "<code>جارِ الارسال انتظر قليلا...</code>"
+LYRICS_NOT_FOUND = "<code>عذرا لا يمكنني ايجاد كلمات الاغنيه</code>"  # تأكد من وجود هذا السطر
 # =========================================================== #
 #                                                             #
 # =========================================================== #
-
 # دالة للحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = os.path.join(os.getcwd(), "karar")  # المسار إلى مجلد zion

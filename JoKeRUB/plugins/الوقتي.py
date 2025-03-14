@@ -91,7 +91,7 @@ async def digitalpicloop():
         DIGITALPICSTART = gvarstatus("digitalpic") == "true"
 
 async def digitalgrouppicloop():
-    "2KjZiNin2LPYt9ipINiz2YjYsdizINis2YrYqNir2YjZhiAo2KfYsNinINin2LPYqtio2K/ZhNiq2Ycg2LHYp9itINiq2KvYqNiqINmB2LTZhNmDKSDZhdi5INiq2K3Zitin2KrZiiDYp9iu2YjZg9mFINix2LbYpyBAcmQwcjA="
+    "2KjZiNin2LPYt9ipINiz2YjYsdizINis2YrYqNir2YjZhi Ao2KfYsNinINin2LPYqtio2K/ZhNiq2Ycg2LHYp9itINiq2KvYqNiqINmB2LTZhNmDKSDZhdi5INiq2K3Zitin2KrZiiDYp9iu2YjZg9mFINix2LbYpyBAcmQwcjA="
 
     dgp = gvarstatus("digitalgrouppic")
     colorco = gvarstatus("digitalgrouppiccolor") or Config.DIGITAL_PIC_COLOR
@@ -230,7 +230,7 @@ async def autolastname_loop():
         AUTOLASTNAMESTART = gvarstatus("autolastname") == "true"
 
 
-@l313l.on(admin_cmd(pattern=f"{phow8t}(?:\s|$)([\s\S]*)"))
+@l313l.on(admin_cmd(pattern=f"{phow8t}$"))
 async def _(event):
     "To set random colour pic with time to profile pic"
     downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
@@ -243,7 +243,7 @@ async def _(event):
     await edit_delete(event, "**تم تفـعيل الصـورة الـوقتية بنجـاح ✓**")
     await digitalpicloop()
 
-@l313l.on(admin_cmd(pattern="كروب وقتي"))
+@l313l.on(admin_cmd(pattern="كروب وقتي$"))
 async def _(event):
     ison = get_auto_g()
     if event.is_group or event.is_channel:
@@ -256,7 +256,7 @@ async def _(event):
     else:
         return await edit_delete(event, "**يمكنك استعمال الاسم الوقتي في الكروب او في القناة فقط**")
 
-@l313l.on(admin_cmd(pattern="كروب صورة وقتي"))
+@l313l.on(admin_cmd(pattern="كروب صورة وقتي$"))
 async def _(event):
     ison = gvarstatus("digitalgrouppic")
     if event.is_group or event.is_channel:
@@ -269,7 +269,7 @@ async def _(event):
     else:
         return await edit_delete(event, "**يمكنك استعمال الصورة الوقتية في كروب او قناة**")
 
-@l313l.on(admin_cmd(pattern=f"{namew8t}(?:\s|$)([\s\S]*)"))
+@l313l.on(admin_cmd(pattern="اسم وقتي$"))
 async def _(event):
     "To set your display name along with time"
     if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
@@ -279,17 +279,7 @@ async def _(event):
     await autoname_loop()
 
 
-@l313l.on(admin_cmd(pattern=f"{biow8t}(?:\s|$)([\s\S]*)"))
-async def _(event):
-    "To update your bio along with time"
-    if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
-        return await edit_delete(event, "**الـبايو الـوقتي شغـال بالأصـل 🧸♥**")
-    addgvar("autobio", True)
-    await edit_delete(event, "**تم تفـعيل البـايو الـوقتي بنجـاح ✓**")
-    await autobio_loop()
-
-
-@l313l.on(admin_cmd(pattern="اسم وقتي 2(?:\s|$)([\s\S]*)"))
+@l313l.on(admin_cmd(pattern="اسم وقتي 2$"))
 async def _(event):
     "To set your last name along with time"
     if gvarstatus("autolastname") is not None and gvarstatus("autolastname") == "true":
@@ -299,7 +289,19 @@ async def _(event):
     await autolastname_loop()
 
 
-@l313l.on(admin_cmd(pattern="انهاء اسم وقتي 2"))
+@l313l.on(admin_cmd(pattern="انهاء اسم وقتي$"))
+async def _(event):
+    "To stop the display name time function"
+    if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
+        delgvar("autoname")
+        await event.client(
+            functions.account.UpdateProfileRequest(first_name=DEFAULTUSER)
+        )
+        return await edit_delete(event, "**تم ايقاف الاسم الوقتي بنـجاح ✓ **")
+    return await edit_delete(event, "**لم يتم تفعيل الاسم الوقتي بالأصل 🧸♥**")
+
+
+@l313l.on(admin_cmd(pattern="انهاء اسم وقتي 2$"))
 async def _(event):
     "To stop the last name time function"
     if gvarstatus("autolastname") is not None and gvarstatus("autolastname") == "true":

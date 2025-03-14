@@ -5,6 +5,8 @@ import io
 import urllib.parse
 import os
 import random
+import requests
+from bs4 import BeautifulSoup
 from pathlib import Path
 from yt_dlp import YoutubeDL
 from ShazamAPI import Shazam
@@ -45,6 +47,68 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt cookies files found in 'karar' folder")
         
     return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
+
+async def get_lyrics(song_name):
+    try:
+        # البحث عن كلمات الأغنية
+        search_url = f"https://lyricstranslate.com/ar/search/site/{urllib.parse.quote(song_name)}"
+        response = requests.get(search_url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        
+        # الحصول على رابط أول نتيجة بحث
+        result = soup.find('div', class_='search-results').find('a')
+        if not result:
+            return None
+        
+        lyrics_url = result['href']
+        lyrics_response = requests.get(lyrics_url)
+        lyrics_soup = BeautifulSoup(lyrics_response.text, 'html.parser')
+        
+        # استخراج الكلمات
+        lyrics_div = lyrics_soup.find('div', class_='ltf')
+        if not lyrics_div:
+            return None
+        
+        lyrics = lyrics_div.get_text(separator="\n")
+        return lyrics.split("\n")
+    except Exception as e:
+        LOGS.error(f"Error fetching lyrics: {e}")
+        return None
+
+@l313l.ar_cmd(
+    pattern="كلمات(?:\\s|$)([\\s\\S]*)",
+    command=("كلمات", plugin_category),
+    info={
+        "header": "To get lyrics of a song.",
+        "description": "Fetches lyrics of the specified song from LyricsTranslate.",
+        "usage": "{tr}كلمات <song name>",
+        "examples": "{tr}كلمات حمزة المحمداوي أول مرة",
+    },
+)
+async def lyrics(event):
+    "To fetch and send lyrics of a song"
+    reply_to_id = await reply_id(event)
+    reply = await event.get_reply_message()
+    
+    if event.pattern_match.group(1):
+        query = event.pattern_match.group(1)
+    elif reply and reply.message:
+        query = reply.message
+    else:
+        return await edit_or_reply(event, "⌔∮ يرجى الرد على ما تريد البحث عنه")
+    
+    catevent = await edit_or_reply(event, "⌔∮ جاري البحث عن كلمات الأغنية انتظر قليلاً")
+    
+    lyrics_lines = await get_lyrics(query)
+    if not lyrics_lines:
+        return await catevent.edit(LYRICS_NOT_FOUND)
+    
+    await catevent.edit("**⌔∮ جارِ إرسال كلمات الأغنية...**")
+    for line in lyrics_lines:
+        if line.strip():  # تجاهل الأسطر الفارغة
+            await event.client.send_message(event.chat_id, line, reply_to=reply_to_id)
+    
+    await catevent.delete()
 
 @l313l.ar_cmd(
     pattern="بحث(320)?(?:\s|$)([\s\S]*)",

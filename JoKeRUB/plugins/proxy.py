@@ -1,4 +1,4 @@
-import requests
+
 from bs4 import BeautifulSoup
 import time
 import os
@@ -46,16 +46,22 @@ def get_ping(proxy_url):
 )
 async def fetch_random_proxy(event):
     try:
-        await event.edit("**✎┊‌جارٍ جلب بروكسي عشوائي ...**")
+        await event.edit("**✎┊‌جارٍ جلب بروكسي بأقل بنك ...**")
         proxies = fetch_proxies()
         if proxies:
-            proxy = proxies[0]
-            ping = get_ping(proxy)
+            best_proxy = None
+            best_ping = float('inf')
+            
+            for proxy in proxies:
+                ping = get_ping(proxy)
+                if ping is not None and ping < best_ping:
+                    best_ping = ping
+                    best_proxy = proxy
 
-            if ping is not None:
-                await event.respond(f"**✎┊‌ تم الحصول على بروكسي:**\n{proxy}\n**البنك:** {ping} ms")
+            if best_proxy:
+                await event.respond(f"**✎┊‌ تم الحصول على بروكسي بأقل بنك:**\n{best_proxy}\n**البنك:** {best_ping} ms")
             else:
-                await event.respond("**✎┊‌ عذرًا، لم أتمكن من حساب البنك للبروكسي.**")
+                await event.respond("**✎┊‌ عذرًا، لم أتمكن من حساب البنك لأي بروكسي.**")
         else:
             await event.respond("**✎┊‌ عذرًا، لم يتم العثور على بروكسيات في الوقت الحالي.**")
     except Exception as e:

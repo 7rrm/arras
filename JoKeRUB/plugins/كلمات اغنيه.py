@@ -1,6 +1,8 @@
 import asyncio
 from telethon import events
 from .. import l313l
+from ..core.managers import edit_or_reply
+from ..helpers.utils import reply_id
 
 # كلمات أغنية "قلبي يحدثني"
 lyrics = [

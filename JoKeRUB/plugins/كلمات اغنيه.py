@@ -45,14 +45,23 @@ lyrics = [
 )
 async def send_lyrics(event):
     "إرسال كلمات أغنية 'قلبي يحدثني' سطرًا بسطر"
-    reply_to_id = await reply_id(event)
-    catevent = await edit_or_reply(event, "**⌔∮ جارِ إرسال كلمات الأغنية...**")
-    
-    # حذف الرسالة الأولية
-    await asyncio.sleep(2)  # انتظار ثانيتين قبل الحذف
-    await catevent.delete()
-    
-    # إرسال كل سطر مع تأخير
-    for line in lyrics:
-        await event.client.send_message(event.chat_id, line, reply_to=reply_to_id)
-        await asyncio.sleep(3)  # تأخير لمدة ثانيتين بين كل سطر
+    try:
+        # طباعة رسالة تأكيد بدء التنفيذ
+        print("تم استدعاء الأمر '.قلبي يحدثني'")
+        
+        reply_to_id = await reply_id(event)
+        catevent = await edit_or_reply(event, "**⌔∮ جارِ إرسال كلمات الأغنية...**")
+        
+        # حذف الرسالة الأولية بعد ثانيتين
+        await asyncio.sleep(2)
+        await catevent.delete()
+        
+        # إرسال كل سطر مع تأخير
+        for line in lyrics:
+            await event.client.send_message(event.chat_id, line, reply_to=reply_to_id)
+            await asyncio.sleep(2)  # تأخير لمدة ثانيتين بين كل سطر
+        
+        print("تم إرسال كلمات الأغنية بنجاح")
+    except Exception as e:
+        print(f"حدث خطأ: {e}")
+        await event.reply(f"حدث خطأ: {e}")

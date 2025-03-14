@@ -46,24 +46,18 @@ def get_ping(proxy_url):
 )
 async def fetch_random_proxy(event):
     try:
-        await event.edit("**✎┊‌جارٍ جلب بروكسي بأقل بنك ...**")
+        await event.edit("**✎┊‌جارٍ جلب بروكسي عشوائي ...**")
         proxies = fetch_proxies()
         if proxies:
-            best_proxy = None
-            best_ping = float('inf')
-            
-            for proxy in proxies:
-                ping = get_ping(proxy)
-                if ping is not None and ping < best_ping:
-                    best_ping = ping
-                    best_proxy = proxy
+            proxy = proxies[0]
+            ping = get_ping(proxy)
 
-            if best_proxy:
-                await event.respond(f"**✎┊‌ تم الحصول على بروكسي بأقل بنك:**\n{best_proxy}\n**البنك:** {best_ping} ms")
+            if ping is not None:
+                await event.respond(f"**✎┊‌ تم الحصول على بروكسي:**\n{proxy}\n**البنك:** {ping} ms")
             else:
-                await event.respond("**✎┊‌ عذرًا، لم أتمكن من حساب البنك لأي بروكسي.**")
+                await event.respond("**✎┊‌ عذرًا، لم أتمكن من حساب البنك للبروكسي.**")
         else:
             await event.respond("**✎┊‌ عذرًا، لم يتم العثور على بروكسيات في الوقت الحالي.**")
     except Exception as e:
         await event.respond(f"**✎┊‌ حدث خطأ أثناء جلب البروكسي:**\n{e}")
-        
+

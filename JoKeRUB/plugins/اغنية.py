@@ -49,6 +49,32 @@ def get_cookies_file():
 
 LYRICS_NOT_FOUND = "عذرًا، لا يمكنني العثور على كلمات الأغنية. يرجى التأكد من اسم الأغنية أو المحاولة لاحقًا."
 
+async def get_lyrics(song_name):
+       try:
+           # البحث عن كلمات الأغنية
+           search_url = f"https://lyricstranslate.com/ar/search/site/{urllib.parse.quote(song_name)}"
+           response = requests.get(search_url)
+           soup = BeautifulSoup(response.text, 'html.parser')
+           
+           # الحصول على رابط أول نتيجة بحث
+           result = soup.find('div', class_='search-results').find('a')
+           if not result:
+               return None
+           
+           lyrics_url = result['href']
+           lyrics_response = requests.get(lyrics_url)
+           lyrics_soup = BeautifulSoup(lyrics_response.text, 'html.parser')
+           
+           # استخراج الكلمات
+           lyrics_div = lyrics_soup.find('div', class_='ltf')
+           if not lyrics_div:
+               return None
+           
+           lyrics = lyrics_div.get_text(separator="\n")
+           return lyrics.split("\n")
+       except Exception as e:
+           LOGS.error(f"Error fetching lyrics: {e}")
+           return None
 @l313l.ar_cmd(
     pattern="كلمات(?:\\s|$)([\\s\\S]*)",
     command=("كلمات", plugin_category),

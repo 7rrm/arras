@@ -331,10 +331,11 @@ async def Hussein(event):
                 await event.reply(file=url)
 
 
-import asyncio
+
 from telethon import events
-from . import ALIVE_NAME, l313l, edit_or_reply
-from ..helpers.utils import reply_id
+from . import l313l
+
+plugin_category = "fun"
 
 @l313l.ar_cmd(
     pattern="قلبي يحدثني$",
@@ -375,9 +376,12 @@ async def _(event):
         "لا تحسبوني في الهوى متصنِّعاً",
         "كلفي بكمْ خلقٌ بغيرِ تكلُّفِ",
     ]
-    
-    event = await edit_or_reply(event, "جارٍ إرسال كلمات الأغنية...")
-    
-    for line in animation_chars:
-        await event.reply(line)
+
+    # بدء إرسال كلمات الأغنية مباشرة
+    for index, line in enumerate(animation_chars):
+        if index == 0:
+            await event.respond(line)
+        else:
+            await event.reply(line)
         await asyncio.sleep(animation_interval)
+        

@@ -165,7 +165,6 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
     
-
 from telethon import events
 import random
 from datetime import datetime
@@ -203,11 +202,8 @@ async def choose_option(event):
     player1_id = event.sender_id
     player1_choice = user_choice
 
-    # حذف رسالة اختيار اللاعب الأول
-    await event.delete()
-
-    # إعلام اللاعب بتم اختياره (برسالة خاصة)
-    await l313l.send_message(player1_id, "⌁︙تم استلام اختيارك بنجاح! انتظر اللاعب الآخر.")
+    # إخفاء اختيار اللاعب باستخدام ****
+    await event.edit(f"⌁︙تم اختيارك: ****\n\n⌁︙انتظر اللاعب الآخر.")
 
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:
@@ -227,6 +223,9 @@ async def choose_option(event):
             return
 
         player2_id = response.sender_id
+
+        # إخفاء اختيار اللاعب الثاني باستخدام ****
+        await response.edit(f"⌁︙تم اختيارك: ****\n\n⌁︙انتظر النتيجة.")
 
     # الحصول على معلومات اللاعبين
     player1 = await l313l.get_entity(player1_id)

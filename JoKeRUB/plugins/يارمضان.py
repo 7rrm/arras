@@ -165,7 +165,7 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
-from telethon import events
+
 import random
 from datetime import datetime
 
@@ -198,15 +198,15 @@ async def choose_option(event):
         await event.edit("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
         return
 
-    # تخزين اختيار اللاعب الأول (أنت)
+    # تخزين اختيار اللاعب الأول
     player1_id = event.sender_id
     player1_choice = user_choice
 
-    # حذف رسالة اختيار اللاعب الأول (أنت)
+    # حذف رسالة اللاعب الأول
     await event.delete()
 
-    # إعلام اللاعب الأول (أنت) بتم اختياره (برسالة خاصة)
-    await l313l.send_message(player1_id, "تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
+    # إعلام اللاعب بتم اختياره وإخفاء الاختيار
+    await event.respond(f"تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
 
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:
@@ -227,6 +227,9 @@ async def choose_option(event):
 
         player2_id = response.sender_id
 
+        # حذف رسالة اللاعب الثاني
+        await response.delete()
+
     # الحصول على معلومات اللاعبين
     player1 = await l313l.get_entity(player1_id)
     player2 = await l313l.get_entity(player2_id)
@@ -240,7 +243,8 @@ async def choose_option(event):
         result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
     # إرسال النتيجة مع المنشن
-    await event.reply(f"النتيجة:\n"
-                      f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                      f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
-                      f"{result}", parse_mode="md")
+    await event.respond(f"النتيجة:\n"
+                        f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                        f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
+                        f"{result}", parse_mode="md")
+    

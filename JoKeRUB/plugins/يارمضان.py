@@ -166,17 +166,19 @@ async def emoji_race(event):
 
 
 
+
+
 # قاموس الخيارات والقواعد
 choices = {
-    "حجرة": "ورقة",
-    "ورقة": "مقص",
-    "مقص": "حجرة"
+    "حجرة": "مقص",
+    "ورقة": "حجرة",
+    "مقص": "ورقة"
 }
 
 # تخزين اختيارات اللاعبين
 game_state = {}
 
-YOUR_ID = 5427469031 # استبدل هذا بمعرف المستخدم الخاص بك
+YOUR_ID = 5427469031  # استبدل هذا بمعرف المستخدم الخاص بك
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
@@ -243,9 +245,9 @@ async def choose_option(event):
             result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
         # إرسال النتيجة مع المنشن
-        await event.respond(f"**النتيجة:**\n"
-                            f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                            f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
+        await event.respond(f"النتيجة:\n"
+                            f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                            f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
                             f"{result}", parse_mode="md")
 
         # إعادة تعيين حالة اللعبة

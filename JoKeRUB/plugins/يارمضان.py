@@ -202,8 +202,11 @@ async def choose_option(event):
     player1_id = event.sender_id
     player1_choice = user_choice
 
-    # إعلام اللاعب بتم اختياره
-    await event.edit(f"تم اختيارك: {player1_choice}\n\nانتظر اللاعب الآخر.")
+    # حذف رسالة اختيار اللاعب الأول
+    await event.delete()
+
+    # إعلام اللاعب بتم اختياره (برسالة خاصة)
+    await l313l.send_message(player1_id, "تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
 
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:

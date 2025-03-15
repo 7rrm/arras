@@ -176,7 +176,7 @@ choices = {
 # تخزين اختيارات اللاعبين
 game_state = {}
 
-YOUR_ID = 123456789  # استبدل هذا بمعرف المستخدم الخاص بك
+YOUR_ID = 5427469031 # استبدل هذا بمعرف المستخدم الخاص بك
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
@@ -199,7 +199,7 @@ async def choose_option(event):
 
     # إذا كان الشخص الآخر يحاول البدء أولاً، تجاهل
     if len(game_state[chat_id]) == 0 and player_id != YOUR_ID:
-        await event.respond("يرجى الانتظار حتى يبدأ اللاعب الأول بالاختيار.")
+        await event.respond("يرجى الانتظار حتى يبدأ المطور اولا .\n السبب : ليس لدي صلاحيه مسح الرسائل\nاذا بدأت انت اول سيقوم الاشخاص بروية اختيارك .")
         return
 
     # استخراج اختيار اللاعب

@@ -225,16 +225,20 @@ async def choose_option(event):
 
         player2_id = response.sender_id
 
+    # الحصول على معلومات اللاعبين
+    player1 = await l313l.get_entity(player1_id)
+    player2 = await l313l.get_entity(player2_id)
+
     # تحديد الفائز
     if player1_choice == player2_choice:
         result = "تعادل! 🤝"
     elif choices[player1_choice] == player2_choice:
-        result = f"اللاعب {player1_id} فاز! 🎉🏆"
+        result = f"[{player1.first_name}](tg://user?id={player1.id}) فاز! 🎉🏆"
     else:
-        result = f"اللاعب {player2_id} فاز! 🎉🏆"
+        result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
-    # إرسال النتيجة
+    # إرسال النتيجة مع المنشن
     await event.reply(f"النتيجة:\n"
-                      f"اللاعب {player1_id}: {player1_choice}\n"
-                      f"اللاعب {player2_id}: {player2_choice}\n"
-                      f"{result}")
+                      f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                      f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
+                      f"{result}", parse_mode="md")

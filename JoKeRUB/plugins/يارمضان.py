@@ -241,4 +241,4 @@ async def choose_option(event):
     await event.reply(f"**⌔︙النتيجة:**\n\n"
                       f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
                       f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
-                      f"**{result}", parse_mode="md"**)
+                      f"{result}", parse_mode="md")

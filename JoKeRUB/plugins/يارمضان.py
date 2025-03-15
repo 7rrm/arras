@@ -3,7 +3,6 @@ from ..core.managers import edit_or_reply
 from datetime import datetime
 import random
 import asyncio
-import akinator
 from telethon import events
 plugin_category = "fun"
 #str 122939#المليون
@@ -166,15 +165,15 @@ async def emoji_race(event):
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
 
-import random
-from datetime import datetime
-
 # قاموس الخيارات والقواعد
 choices = {
     "حجرة": "ورقة",
     "ورقة": "مقص",
     "مقص": "حجرة"
 }
+
+# تخزين اختيارات اللاعبين
+game_state = {}
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
@@ -183,9 +182,13 @@ async def start_game(event):
                      "كل لاعب يجب أن يرسل اختياره (حجرة، ورقة، مقص) باستخدام الأمر:\n"
                      ".اختر <الاختيار>\n\n"
                      "مثال: .اختر حجرة")
+    # إعادة تعيين حالة اللعبة
+    game_state[event.chat_id] = {}
 
 @l313l.on(events.NewMessage(pattern='.اختر'))
 async def choose_option(event):
+    chat_id = event.chat_id
+
     # استخراج اختيار اللاعب
     try:
         user_choice = event.text.split()[-1]
@@ -198,53 +201,40 @@ async def choose_option(event):
         await event.edit("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
         return
 
-    # تخزين اختيار اللاعب الأول
-    player1_id = event.sender_id
-    player1_choice = user_choice
+    # تخزين اختيار اللاعب
+    player_id = event.sender_id
+    if chat_id not in game_state:
+        game_state[chat_id] = {}
+        
+    game_state[chat_id][player_id] = user_choice
 
-    # حذف رسالة اللاعب الأول
-    await event.delete()
-
-    # إعلام اللاعب بتم اختياره وإخفاء الاختيار
     await event.respond(f"تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
 
-    # انتظار اختيار اللاعب الثاني
-    async with l313l.conversation(event.chat_id) as conv:
-        await conv.send_message("اللاعب الثاني، يرجى إرسال اختيارك باستخدام الأمر: .اختر <الاختيار>")
-        response = await conv.wait_event(events.NewMessage(incoming=True, pattern='.اختر'))
+    # إذا كان كلا اللاعبين قد اختاروا
+    if len(game_state[chat_id]) == 2:
+        # استخراج اللاعبين واختياراتهم
+        players = list(game_state[chat_id].keys())
+        player1_id, player2_id = players
+        player1_choice = game_state[chat_id][player1_id]
+        player2_choice = game_state[chat_id][player2_id]
 
-        # استخراج اختيار اللاعب الثاني
-        try:
-            player2_choice = response.text.split()[-1]
-        except IndexError:
-            await response.reply("يرجى إدخال اختيارك باستخدام الأمر: .اختر <الاختيار>")
-            return
+        player1 = await l313l.get_entity(player1_id)
+        player2 = await l313l.get_entity(player2_id)
 
-        # التحقق من صحة اختيار اللاعب الثاني
-        if player2_choice not in choices:
-            await response.reply("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
-            return
+        # تحديد الفائز
+        if player1_choice == player2_choice:
+            result = "تعادل! 🤝"
+        elif choices[player1_choice] == player2_choice:
+            result = f"[{player1.first_name}](tg://user?id={player1.id}) فاز! 🎉🏆"
+        else:
+            result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
-        player2_id = response.sender_id
+        # إرسال النتيجة مع المنشن
+        await event.respond(f"النتيجة:\n"
+                            f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                            f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
+                            f"{result}", parse_mode="md")
 
-        # حذف رسالة اللاعب الثاني
-        await response.delete()
-
-    # الحصول على معلومات اللاعبين
-    player1 = await l313l.get_entity(player1_id)
-    player2 = await l313l.get_entity(player2_id)
-
-    # تحديد الفائز
-    if player1_choice == player2_choice:
-        result = "تعادل! 🤝"
-    elif choices[player1_choice] == player2_choice:
-        result = f"[{player1.first_name}](tg://user?id={player1.id}) فاز! 🎉🏆"
-    else:
-        result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
-
-    # إرسال النتيجة مع المنشن
-    await event.respond(f"النتيجة:\n"
-                        f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                        f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
-                        f"{result}", parse_mode="md")
-    
+        # إعادة تعيين حالة اللعبة
+        game_state[chat_id] = {}
+        

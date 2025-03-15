@@ -180,10 +180,10 @@ choices = {
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
     # بدء اللعبة وإرشادات اللعب
-    await event.edit("مرحباً! هذه لعبة الحجرة والورقة والمقص.\n\n"
-                     "كل لاعب يجب أن يرسل اختياره (حجرة، ورقة، مقص) باستخدام الأمر:\n"
-                     ".اختر <الاختيار>\n\n"
-                     "مثال: .اختر حجرة")
+    await event.edit("⌁︙مرحباً! هذه لعبة الحجرة والورقة والمقص.\n\n"
+                     "⌁︙كل لاعب يجب أن يرسل اختياره (حجرة، ورقة، مقص) باستخدام الأمر:\n"
+                     "⌁︙.اختر <الاختيار>\n\n"
+                     "⌁︙مثال: `.اختر حجرة`")
 
 @l313l.on(events.NewMessage(pattern='.اختر'))
 async def choose_option(event):
@@ -191,12 +191,12 @@ async def choose_option(event):
     try:
         user_choice = event.text.split()[-1]
     except IndexError:
-        await event.edit("يرجى إدخال اختيارك باستخدام الأمر: .اختر <الاختيار>")
+        await event.edit("⌁︙يرجى إدخال اختيارك باستخدام الأمر: `.اختر <الاختيار>`")
         return
 
     # التحقق من صحة الاختيار
     if user_choice not in choices:
-        await event.edit("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
+        await event.edit("⌁︙يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
         return
 
     # تخزين اختيار اللاعب الأول
@@ -204,23 +204,23 @@ async def choose_option(event):
     player1_choice = user_choice
 
     # إعلام اللاعب بتم اختياره
-    await event.edit(f"تم اختيارك: {player1_choice}\n\nانتظر اللاعب الآخر.")
+    await event.edit(f"⌁︙تم اختيارك: {player1_choice}\n\n⌁︙انتظر اللاعب الآخر.")
 
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:
-        await conv.send_message("اللاعب الثاني، يرجى إرسال اختيارك باستخدام الأمر: .اختر <الاختيار>")
+        await conv.send_message("⌁︙اللاعب الثاني، يرجى إرسال اختيارك باستخدام الأمر: `.اختر <الاختيار>`")
         response = await conv.wait_event(events.NewMessage(incoming=True, pattern='.اختر'))
 
         # استخراج اختيار اللاعب الثاني
         try:
             player2_choice = response.text.split()[-1]
         except IndexError:
-            await response.reply("يرجى إدخال اختيارك باستخدام الأمر: .اختر <الاختيار>")
+            await response.reply("⌁︙يرجى إدخال اختيارك باستخدام الأمر: `.اختر <الاختيار>`")
             return
 
         # التحقق من صحة اختيار اللاعب الثاني
         if player2_choice not in choices:
-            await response.reply("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
+            await response.reply("⌁︙يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
             return
 
         player2_id = response.sender_id
@@ -231,14 +231,14 @@ async def choose_option(event):
 
     # تحديد الفائز
     if player1_choice == player2_choice:
-        result = "تعادل! 🤝"
+        result = "⌁︙تعادل! 🤝"
     elif choices[player1_choice] == player2_choice:
-        result = f"[{player1.first_name}](tg://user?id={player1.id}) فاز! 🎉🏆"
+        result = f"⌁︙[{player1.first_name}](tg://user?id={player1.id}) فاز! 🎉🏆"
     else:
-        result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
+        result = f"⌁︙[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
     # إرسال النتيجة مع المنشن
-    await event.reply(f"النتيجة:\n"
-                      f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                      f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
-                      f"{result}", parse_mode="md")
+    await event.reply(f"**⌔︙النتيجة:**\n\n"
+                      f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                      f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
+                      f"**{result}", parse_mode="md"**)

@@ -166,8 +166,6 @@ async def emoji_race(event):
 
 
 
-
-
 # قاموس الخيارات والقواعد
 choices = {
     "حجرة": "ورقة",
@@ -195,8 +193,13 @@ async def choose_option(event):
     chat_id = event.chat_id
     player_id = event.sender_id
 
+    # التحقق مما إذا كانت اللعبة قيد التشغيل
+    if chat_id not in game_state:
+        await event.respond("يرجى بدء اللعبة أولاً باستخدام الأمر .اصابع.")
+        return
+
     # إذا كان الشخص الآخر يحاول البدء أولاً، تجاهل
-    if chat_id in game_state and len(game_state[chat_id]) == 0 and player_id != YOUR_ID:
+    if len(game_state[chat_id]) == 0 and player_id != YOUR_ID:
         await event.respond("يرجى الانتظار حتى يبدأ المطور .\n السبب : ليس لدي صلاحيه مسح الرسائل \nاذا بدأت انت اول سيقوم الاشخاص بروية اختيارك .")
         return
 
@@ -213,9 +216,6 @@ async def choose_option(event):
         return
 
     # تخزين اختيار اللاعب
-    if chat_id not in game_state:
-        game_state[chat_id] = {}
-        
     game_state[chat_id][player_id] = user_choice
 
     # إذا كنت اللاعب الأول، حذف الرسالة
@@ -246,7 +246,7 @@ async def choose_option(event):
         # إرسال النتيجة مع المنشن
         await event.respond(f"**النتيجة:**\n"
                             f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                            f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
+                            f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
                             f"⌁︙{result}", parse_mode="md")
 
         # إعادة تعيين حالة اللعبة

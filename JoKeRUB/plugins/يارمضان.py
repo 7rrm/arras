@@ -208,7 +208,14 @@ async def choose_option(event):
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:
         await conv.send_message("⌁︙اللاعب الثاني، يرجى إرسال اختيارك باستخدام الأمر: `.اختر <الاختيار>`")
-        response = await conv.wait_event(events.NewMessage(incoming=True, pattern='.اختر'))
+        
+        # انتظار رسالة من اللاعب الثاني
+        response = await conv.wait_event(events.NewMessage(incoming=True, from_users=event.chat_id))
+
+        # التحقق من أن الرسالة تحتوي على الأمر `.اختر`
+        if not response.text.startswith(".اختر"):
+            await response.reply("⌁︙يرجى استخدام الأمر الصحيح: `.اختر <الاختيار>`")
+            return
 
         # استخراج اختيار اللاعب الثاني
         try:

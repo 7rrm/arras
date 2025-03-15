@@ -176,7 +176,7 @@ choices = {
 # تخزين اختيارات اللاعبين
 game_state = {}
 
-YOUR_ID = 5427469031  # استبدل هذا بمعرف المستخدم الخاص بك
+YOUR_ID = 123456789  # استبدل هذا بمعرف المستخدم الخاص بك
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
@@ -195,12 +195,11 @@ async def choose_option(event):
 
     # التحقق مما إذا كانت اللعبة قيد التشغيل
     if chat_id not in game_state:
-        await event.respond("يرجى بدء اللعبة أولاً باستخدام الأمر .اصابع.")
-        return
+        return  # لا تفعل شيئاً إذا لم تكن اللعبة قيد التشغيل
 
     # إذا كان الشخص الآخر يحاول البدء أولاً، تجاهل
     if len(game_state[chat_id]) == 0 and player_id != YOUR_ID:
-        await event.respond("يرجى الانتظار حتى يبدأ المطور .\n السبب : ليس لدي صلاحيه مسح الرسائل \nاذا بدأت انت اول سيقوم الاشخاص بروية اختيارك .")
+        await event.respond("يرجى الانتظار حتى يبدأ اللاعب الأول بالاختيار.")
         return
 
     # استخراج اختيار اللاعب
@@ -244,10 +243,10 @@ async def choose_option(event):
             result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
         # إرسال النتيجة مع المنشن
-        await event.respond(f"**النتيجة:**\n"
-                            f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                            f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
-                            f"⌁︙{result}", parse_mode="md")
+        await event.respond(f"النتيجة:\n"
+                            f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                            f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
+                            f"{result}", parse_mode="md")
 
         # إعادة تعيين حالة اللعبة
         game_state[chat_id] = {}

@@ -166,25 +166,68 @@ async def emoji_race(event):
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
     
 
-@l313l.on(events.NewMessage(pattern='.اصابع'))
-async def rock_paper_scissors(event):
-    choices = {
-        "حجرة": "ورقة",
-        "ورقة": "مقص",
-        "مقص": "حجرة"
-    }
-    user_choice = event.text.split()[-1]
+from telethon import events
+import random
 
-    if user_choice not in choices:
-        await edit_or_reply(event, "يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
+# قاموس الخيارات والقواعد
+choices = {
+    "حجرة": "ورقة",
+    "ورقة": "مقص",
+    "مقص": "حجرة"
+}
+
+# قاموس لتخزين اختيارات اللاعبين
+player_choices = {}
+
+@l313l.on(events.NewMessage(pattern='.اصابع'))
+async def start_game(event):
+    # بدء اللعبة وإرشادات اللعب
+    await event.edit("مرحباً! هذه لعبة الحجرة والورقة والمقص.\n\n"
+                     "كل لاعب يجب أن يرسل اختياره (حجرة، ورقة، مقص) باستخدام الأمر:\n"
+                     ".اختر <الاختيار>\n\n"
+                     "مثال: .اختر حجرة")
+
+@l313l.on(events.NewMessage(pattern='.اختر'))
+async def choose_option(event):
+    # استخراج اختيار اللاعب
+    try:
+        user_choice = event.text.split()[-1]
+    except IndexError:
+        await event.edit("يرجى إدخال اختيارك باستخدام الأمر: .اختر <الاختيار>")
         return
 
-    bot_choice = random.choice(list(choices.keys()))
-    if user_choice == bot_choice:
-        result = "تعادل!"
-    elif choices[bot_choice] == user_choice:
-        result = "🎉 مبروك! لقد فزت."
-    else:
-        result = "😢 لقد خسرت. حاول مرة أخرى."
+    # التحقق من صحة الاختيار
+    if user_choice not in choices:
+        await event.edit("يرجى اختيار واحد من الخيارات التالية: حجرة، ورقة، أو مقص.")
+        return
 
-    await edit_or_reply(event, f"اختيارك: {user_choice}\nاختيار الساحر: {bot_choice}\nنتيجة اللعبة: {result}")
+    # تخزين اختيار اللاعب
+    player_id = event.sender_id
+    player_choices[player_id] = user_choice
+
+    # إعلام اللاعب بتم اختياره
+    await event.edit(f"تم اختيارك: {user_choice}\n\nانتظر اللاعب الآخر.")
+
+    # التحقق من وجود لاعبين
+    if len(player_choices) == 2:
+        # استخراج اختيارات اللاعبين
+        players = list(player_choices.keys())
+        player1_choice = player_choices[players[0]]
+        player2_choice = player_choices[players[1]]
+
+        # تحديد الفائز
+        if player1_choice == player2_choice:
+            result = "تعادل! 🤝"
+        elif choices[player1_choice] == player2_choice:
+            result = f"اللاعب {players[0]} فاز! 🎉🏆"
+        else:
+            result = f"اللاعب {players[1]} فاز! 🎉🏆"
+
+        # إرسال النتيجة
+        await event.reply(f"النتيجة:\n"
+                         f"اللاعب {players[0]}: {player1_choice}\n"
+                         f"اللاعب {players[1]}: {player2_choice}\n"
+                         f"{result}")
+
+        # مسح اختيارات اللاعبين للجولة التالية
+        player_choices.clear()

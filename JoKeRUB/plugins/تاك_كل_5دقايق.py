@@ -63,7 +63,7 @@ async def menall(event):
         clip = random.choice(clips)
         usrtxt = f"{clip} [{usr.first_name}](tg://user?id={usr.id})"
         await l313l.send_message(chat_id, usrtxt)
-        await asyncio.sleep(5)  # انتظار 5 دقائق
+        await asyncio.sleep(60)  # انتظار 5 دقائق
     try:
         spam_chats.remove(chat_id)
     except:

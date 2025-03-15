@@ -166,6 +166,8 @@ async def emoji_race(event):
 
 
 
+
+
 # قاموس الخيارات والقواعد
 choices = {
     "حجرة": "ورقة",
@@ -175,6 +177,8 @@ choices = {
 
 # تخزين اختيارات اللاعبين
 game_state = {}
+
+YOUR_ID = 123456789  # استبدل هذا بمعرف المستخدم الخاص بك
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):
@@ -191,9 +195,9 @@ async def choose_option(event):
     chat_id = event.chat_id
     player_id = event.sender_id
 
-    # تحقق ما إذا كنت قد بدأت اللعبة
-    if chat_id in game_state and len(game_state[chat_id]) == 0 and player_id != 5427469031:
-        await event.respond("يرجى الانتظار حتى يبدأ المطور .\n السبب : ليس لدي صلاحيه مسح الرسائل \n\n اذا بدأت انت اول سيقوم الاشخاص بروية اختيارك .")
+    # إذا كان الشخص الآخر يحاول البدء أولاً، تجاهل
+    if chat_id in game_state and len(game_state[chat_id]) == 0 and player_id != YOUR_ID:
+        await event.respond("يرجى الانتظار حتى يبدأ اللاعب الأول بالاختيار.")
         return
 
     # استخراج اختيار اللاعب

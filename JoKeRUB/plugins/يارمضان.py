@@ -178,7 +178,7 @@ choices = {
 # تخزين اختيارات اللاعبين
 game_state = {}
 
-YOUR_ID = 123456789  # استبدل هذا بمعرف المستخدم الخاص بك
+YOUR_ID = 5427469031  # استبدل هذا بمعرف المستخدم الخاص بك
 
 @l313l.on(events.NewMessage(pattern='.اصابع'))
 async def start_game(event):

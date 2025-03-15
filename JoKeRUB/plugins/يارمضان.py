@@ -164,6 +164,8 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
+
+
 # قاموس الخيارات والقواعد
 choices = {
     "حجرة": "ورقة",
@@ -187,6 +189,12 @@ async def start_game(event):
 @l313l.on(events.NewMessage(pattern='.اختر'))
 async def choose_option(event):
     chat_id = event.chat_id
+    player_id = event.sender_id
+
+    # تحقق ما إذا كنت قد بدأت اللعبة
+    if chat_id in game_state and len(game_state[chat_id]) == 0 and player_id != 5427469031:
+        await event.respond("يرجى الانتظار حتى يبدأ المطور .\n السبب : ليس لدي صلاحيه مسح الرسائل \n\n اذا بدأت انت اول سيقوم الاشخاص بروية اختيارك .")
+        return
 
     # استخراج اختيار اللاعب
     try:
@@ -201,14 +209,14 @@ async def choose_option(event):
         return
 
     # تخزين اختيار اللاعب
-    player_id = event.sender_id
     if chat_id not in game_state:
         game_state[chat_id] = {}
         
     game_state[chat_id][player_id] = user_choice
 
-    # حذف رسالة اللاعب
-    await event.delete()
+    # إذا كنت اللاعب الأول، حذف الرسالة
+    if player_id == YOUR_ID:
+        await event.delete()
 
     await event.respond(f"تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
 

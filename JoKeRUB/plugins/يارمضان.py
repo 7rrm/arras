@@ -243,9 +243,9 @@ async def choose_option(event):
             result = f"[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
         # إرسال النتيجة مع المنشن
-        await event.respond(f"النتيجة:\n"
-                            f"[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                            f"[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
+        await event.respond(f"**النتيجة:**\n"
+                            f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
+                            f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
                             f"{result}", parse_mode="md")
 
         # إعادة تعيين حالة اللعبة

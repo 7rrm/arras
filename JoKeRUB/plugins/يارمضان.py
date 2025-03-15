@@ -164,7 +164,6 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
-
 # قاموس الخيارات والقواعد
 choices = {
     "حجرة": "ورقة",
@@ -207,6 +206,9 @@ async def choose_option(event):
         game_state[chat_id] = {}
         
     game_state[chat_id][player_id] = user_choice
+
+    # حذف رسالة اللاعب
+    await event.delete()
 
     await event.respond(f"تم اختيارك: [مخفي]\n\nانتظر اللاعب الآخر.")
 

@@ -203,8 +203,11 @@ async def choose_option(event):
     player1_id = event.sender_id
     player1_choice = user_choice
 
-    # إعلام اللاعب بتم اختياره
-    await event.edit(f"⌁︙تم اختيارك: {player1_choice}\n\n⌁︙انتظر اللاعب الآخر.")
+    # حذف رسالة اختيار اللاعب الأول
+    await event.delete()
+
+    # إعلام اللاعب بتم اختياره (برسالة خاصة)
+    await l313l.send_message(player1_id, "⌁︙تم استلام اختيارك بنجاح! انتظر اللاعب الآخر.")
 
     # انتظار اختيار اللاعب الثاني
     async with l313l.conversation(event.chat_id) as conv:
@@ -237,8 +240,8 @@ async def choose_option(event):
     else:
         result = f"⌁︙[{player2.first_name}](tg://user?id={player2.id}) فاز! 🎉🏆"
 
-    # إرسال النتيجة مع المنشن
-    await event.reply(f"**⌔︙النتيجة:**\n\n"
+    # إرسال النتيجة مع المنشن واختيارات اللاعبين
+    await event.reply(f"⌁︙النتيجة:\n"
                       f"⌁︙[{player1.first_name}](tg://user?id={player1.id}): {player1_choice}\n"
-                      f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n\n"
+                      f"⌁︙[{player2.first_name}](tg://user?id={player2.id}): {player2_choice}\n"
                       f"{result}", parse_mode="md")

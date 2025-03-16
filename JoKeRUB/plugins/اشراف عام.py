@@ -183,14 +183,14 @@ async def promote_random_bots(event):
 
     await event.edit("▾∮ يتم البحث عن البوتات ورفعهم كمشرفين...")
 
-    # صلاحيات المشرف
+    # صلاحيات المشرف (مخصصة للقنوات)
     admin_rights = ChatAdminRights(
-        add_admins=True,
-        invite_users=True,
-        change_info=True,
-        ban_users=True,
-        delete_messages=True,
-        pin_messages=True
+        add_admins=True,  # إضافة مشرفين
+        invite_users=True,  # دعوة مستخدمين
+        change_info=True,  # تغيير معلومات القناة
+        ban_users=True,  # حظر مستخدمين
+        delete_messages=True,  # حذف رسائل
+        pin_messages=True  # تثبيت رسائل
     )
 
     promoted_count = 0

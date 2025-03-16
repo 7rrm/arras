@@ -1,4 +1,4 @@
-from telethon.errors.rpcerrorlist import UserIdInvalidError
+from telethon.errors.rpcerrorlist import UserIdInvalidError, UsernameInvalidError
 from telethon.tl.functions.channels import EditAdminRequest
 from telethon.tl.types import ChatAdminRights
 from telethon import events
@@ -21,31 +21,43 @@ admin_rights = ChatAdminRights(
     manage_call=True
 )
 
-# أمر رفع البوتات كمشرفين
+# أمر رفع البوتات كمشرفين في القناة
 @l313l.on(events.NewMessage(pattern=r"\.رفع بوتات"))
 async def promote_bots(event):
-    await event.edit("▾∮ جاري رفع البوتات كمشرفين...")
+    await event.edit("▾∮ جاري رفع البوتات كمشرفين في القناة...")
     
-    # إنشاء أسماء البوتات (a-z مع 'bot' في النهاية)
-    for combo in itertools.product('abcdefghijklmnopqrstuvwxyz', repeat=3):
-        username = ''.join(combo) + 'bot'
-        
-        try:
-            # محاولة رفع البوت كمشرف
-            await event.client(EditAdminRequest(
-                event.chat_id,
-                username,
-                admin_rights,
-                "Bot Admin"
-            ))
-            await asyncio.sleep(2)  # تأخير 2 ثانية بين كل عملية
-        except UserIdInvalidError:
-            pass  # تجاهل الأسماء غير الصالحة
-        except Exception:
-            pass  # تجاهل جميع الأخطاء الأخرى
+    # إنشاء أسماء البوتات (3 أو 4 أحرف مع 'bot' في النهاية)
+    for length in [3, 4]:  # 3 أحرف و4 أحرف
+        for combo in itertools.product('abcdefghijklmnopqrstuvwxyz', repeat=length):
+            username = ''.join(combo) + 'bot'
+            
+            try:
+                # التحقق من وجود البوت
+                user = await event.client.get_entity(username)
+                if user.bot:  # التأكد من أن الحساب هو بوت
+                    # محاولة رفع البوت كمشرف في القناة
+                    await event.client(EditAdminRequest(
+                        event.chat_id,
+                        user.id,
+                        admin_rights,
+                        "Bot Admin"
+                    ))
+                    await event.edit(f"▾∮ تم رفع @{username} كمشرف في القناة.")
+                    await asyncio.sleep(2)  # تأخير 2 ثانية بين كل عملية
+            except (UserIdInvalidError, UsernameInvalidError):
+                pass  # تجاهل الأسماء غير الصالحة
+            except Exception as e:
+                await event.edit(f"▾∮ خطأ غير متوقع: {str(e)}")
+                return
 
-    await event.edit("▾∮ تم الانتهاء من رفع البوتات كمشرفين.")
+    await event.edit("▾∮ تم الانتهاء من رفع البوتات كمشرفين في القناة.")
 
+# تحديث CMD_HELP
+CMD_HELP.update(
+    {
+        "اشراف عام": ".رفع بوتات\n لرفع جميع البوتات التي تنتهي أسماؤها بـ 'bot' وتبدأ بـ 3 أو 4 أحرف كمشرفين في القناة."
+    }
+)
 # أمر رفع مشرف عادي (مثل الكود الأصلي)
 @l313l.on(events.NewMessage(pattern=r"\.ارفع"))
 async def promote_user(event):

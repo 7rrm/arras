@@ -169,16 +169,18 @@ CMD_HELP.update(
     }
 )
 
-@l313l.on(admin_cmd(pattern="رفع_البوتات ?(.*)"))
-async def promote_bots(event):
+import asyncio
+import random
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights
+
+@l313l.on(admin_cmd(pattern="رفع_البوتات_العشوائي ?(.*)"))
+async def promote_random_bots(event):
     if not event.is_channel:
         await event.edit("▾∮ هذا الأمر يعمل فقط في القنوات!")
         return
 
     await event.edit("▾∮ يتم البحث عن البوتات ورفعهم كمشرفين...")
-
-    # قائمة البوتات التي تريد رفعها (يمكن تعديلها)
-    bot_usernames = ["bot1", "bot2", "bot3"]  # استبدل هذه بأسماء البوتات الفعلية
 
     # صلاحيات المشرف
     admin_rights = ChatAdminRights(
@@ -191,7 +193,15 @@ async def promote_bots(event):
     )
 
     promoted_count = 0
-    for username in bot_usernames:
+    failed_count = 0
+
+    # إنشاء قائمة بجميع اليوزرات الممكنة (4 إلى 5 أحرف عشوائية + "bot")
+    for _ in range(100):  # يمكنك تغيير العدد حسب الحاجة
+        # إنشاء جزء عشوائي من 4 إلى 5 أحرف
+        random_length = random.randint(4, 5)  # طول عشوائي بين 4 و5
+        random_chars = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(random_length))
+        username = f"{random_chars}bot"  # مثل aaaabot, abbbbot, abcccbot
+
         try:
             # الحصول على كيان البوت
             bot_entity = await event.client.get_entity(username)
@@ -199,9 +209,16 @@ async def promote_bots(event):
             # رفع البوت كمشرف
             await event.client(EditAdminRequest(event.chat_id, bot_entity, admin_rights, "Bot"))
             promoted_count += 1
-            await event.edit(f"▾∮ تم رفع البوت {username} كمشرف في القناة.")
+            await event.edit(f"▾∮ تم رفع البوت @{username} كمشرف في القناة.")
         except Exception as e:
-            await event.edit(f"▾∮ فشل في رفع البوت {username}: {str(e)}")
-            continue
+            failed_count += 1
+            await event.edit(f"▾∮ فشل في رفع البوت @{username}: {str(e)}")
+        
+        # إضافة تأخير 10 ثواني بين كل عملية
+        await asyncio.sleep(10)
 
-    await event.edit(f"▾∮ تم رفع {promoted_count} بوت كمشرفين في القناة.")
+    await event.edit(
+        f"▾∮ تم الانتهاء من العملية!\n"
+        f"▾∮ عدد البوتات التي تم رفعها: {promoted_count}\n"
+        f"▾∮ عدد البوتات التي فشل رفعها: {failed_count}"
+    )

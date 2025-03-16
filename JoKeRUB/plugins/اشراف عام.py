@@ -1,110 +1,170 @@
-from telethon.errors.rpcerrorlist import UserIdInvalidError, UsernameInvalidError
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights
-from telethon import events
-import itertools
-import asyncio
+#    جميع الحقوق محفوظة كتابة وتعديل  :   @lMl10l
+#    اخمط مع ذكر الحقوق غيرها انت مطور فاشل
+marculs=9
+from telethon.errors.rpcerrorlist import (UserIdInvalidError,
+                                            MessageTooLongError)
+from telethon.tl.functions.channels import (EditAdminRequest,
+                                              EditBannedRequest,
+                                                EditPhotoRequest)
+from telethon.tl.functions.messages import UpdatePinnedMessageRequest
+from telethon.tl.types import (ChannelParticipantsAdmins,
+                                 ChatAdminRights,
+                                   ChatBannedRights,
+                                     MessageEntityMentionName,
+                                       MessageMediaPhoto)
+from JoKeRUB.utils import admin_cmd
 from ..Config import Config
-from JoKeRUB import l313l
+from JoKeRUB import CMD_HELP, l313l
+up_admin = Config.UP_ET or "ارفع"
+down_admin = Config.DOWN_ET or "تزل"
+async def get_full_user(event):  
+    args = event.pattern_match.group(1).split(':', 1)
+    extra = None
+    if event.reply_to_msg_id and not len(args) == 2:
+        previous_message = await event.get_reply_message()
+        user_obj = await event.client.get_entity(previous_message.sender_id)
+        extra = event.pattern_match.group(1)
+    elif len(args[0]) > 0:
+        user = args[0]
+        if len(args) == 2:
+            extra = args[1]
+        if user.isnumeric():
+            user = int(user)
+        if not user:
+            await event.edit("▾∮ لا يمكنك بدون ايدي المستخدم")
+            return
+        if event.message.entities is not None:
+            probable_user_mention_entity = event.message.entities[0]
+            if isinstance(probable_user_mention_entity,
+                          MessageEntityMentionName):
+                user_id = probable_user_mention_entity.user_id
+                user_obj = await event.client.get_entity(user_id)
+                return user_obj
+        try:
+            user_obj = await event.client.get_entity(user)
+        except Exception as err:
+            return await event.edit("▾∮ هنالك خطأ يرجى تبليغنا @jepthon", str(err))           
+    return user_obj, extra
 
-# الحقوق محفوظة
-marculs = 9
+global hawk,moth
+hawk="admin"
+moth="owner"
+async def get_user_from_id(user, event):
+    if isinstance(user, str):
+        user = int(user)
+    try:
+        user_obj = await event.client.get_entity(user)
+    except (TypeError, ValueError) as err:
+        await event.edit(str(err))
+        return None
+    return user_obj
+@l313l.on(admin_cmd(pattern="{up_admin} ?(.*)"))
+async def gben(JoKeRUB):
+    dc = razan = JoKeRUB
+    i = 0
+    sender = await dc.get_sender()
+    me = await JoKeRUB.client.get_me()
+    await razan.edit("▾∮ يتم رفع المستخدم في جميع المجموعات")
+    my_mention = "[{}](tg://user?id={})".format(me.first_name, me.id)
+    f"@{me.username}" if me.username else my_mention
+    await JoKeRUB.get_chat()
+    if JoKeRUB.is_private:
+        user = JoKeRUB.chat
+        rank = JoKeRUB.pattern_match.group(1)
+    else:
+        JoKeRUB.chat.title
+    try:
+        user, rank = await get_full_user(JoKeRUB)
+    except:
+        pass
+    if me == user:
+       l313l = await razan.edit("▾∮ لا استطيع رفع نفسي 🧸🤍،")
+       return
+    try:
+        if not rank:
+            rank = "ㅤㅤ"
+    except:
+        return await razan.edit(f"**▾∮ هنالك شي خطأ**")
+    if user:
+        telchanel = [d.entity.id
+                     for d in await JoKeRUB.client.get_dialogs()
+                     if (d.is_group or d.is_channel)
+                     ]
+        rgt = ChatAdminRights(add_admins=True,
+                               invite_users=True,
+                                change_info=True,
+                                 ban_users=True,
+                                  delete_messages=True,
+                                   pin_messages=True)
+        for x in telchanel:
+          try:
+             await JoKeRUB.client(EditAdminRequest(x, user, rgt, rank))
+             i += 1
+             await razan.edit(f"**▾∮ يتم الرفع في **: `{i}` من المجموعات")
+          except:
+             pass
+    else:
+        await razan.edit(f"**▾∮ يجب عليك الرد على المستخدم اولا **")
+    return await razan.edit(
+        f"**▾∮المستخدم [{user.first_name}](tg://user?id={user.id})\n▾∮ تم رفعه في : {i} من المجموعات**"
+    )
 
-# صلاحيات المشرف (مناسبة للقنوات)
-admin_rights = ChatAdminRights(
-    add_admins=True,
-    invite_users=True,
-    change_info=True,
-    ban_users=True,
-    delete_messages=True,
-    pin_messages=True,
-    # manage_call=True  # هذه الصلاحية غير متوافقة مع القنوات
-)
+@l313l.on(admin_cmd(pattern="{down_admin} ?(.*)"))
+async def gben(JoKeRUB):
+    dc = razan = JoKeRUB
+    i = 0
+    sender = await dc.get_sender()
+    me = await JoKeRUB.client.get_me()
+    await razan.edit("**▾∮ يتم تنزيل الشخص من رتبة الاشراف في جميع الكروبات**")
+    my_mention = "[{}](tg://user?id={})".format(me.first_name, me.id)
+    f"@{me.username}" if me.username else my_mention
+    await JoKeRUB.get_chat()
+    if JoKeRUB.is_private:
+        user = JoKeRUB.chat
+        rank = JoKeRUB.pattern_match.group(1)
+    else:
+        JoKeRUB.chat.title
+    try:
+        user, rank = await get_full_user(JoKeRUB)
+    except:
+        pass
+    if me == user:
+       l313l = await razan.edit("▾∮ لا استطيع تنزيل نفسي 🧸🤍")
+       return
+    try:
+        if not rank:
+            rank = "ㅤㅤ"
+    except:
+        return await razan.edit(f"**▾∮ هنالك شي خطأ**")
+    if user:
+        telchanel = [d.entity.id
+                     for d in await JoKeRUB.client.get_dialogs()
+                     if (d.is_group or d.is_channel)
+                     ]
+        rgt = ChatAdminRights(add_admins=None,
+                               invite_users=None,
+                                change_info=None,
+                                 ban_users=None,
+                                  delete_messages=None,
+                                   pin_messages=None)
+        for x in telchanel:
+          try:
+             await JoKeRUB.client(EditAdminRequest(x, user, rgt, rank))
+             i += 1
+             await razan.edit(f"**▾∮ يتم تنزيله في **: `{i}` من المجموعات")
+          except:
+             pass
+    else:
+        await razan.edit(f"**▾∮ يجب عليك الرد على المستخدم اولا **")
+    return await razan.edit(
+        f"**▾∮المستخدم [{user.first_name}](tg://user?id={user.id})\n▾∮ تم تنزيله في : {i} من المجموعات**"
+    )
 
-# أمر رفع البوتات كمشرفين في القناة
-@l313l.on(events.NewMessage(pattern=r"\.رفع بوتات"))
-async def promote_bots(event):
-    await event.edit("▾∮ جاري رفع البوتات كمشرفين في القناة...")
-    
-    # إنشاء أسماء البوتات (3 أو 4 أحرف مع 'bot' في النهاية)
-    for length in [3, 4]:  # 3 أحرف و4 أحرف
-        for combo in itertools.product('abcdefghijklmnopqrstuvwxyz', repeat=length):
-            username = ''.join(combo) + 'bot'
-            
-            try:
-                # التحقق من وجود البوت
-                user = await event.client.get_entity(username)
-                if user.bot:  # التأكد من أن الحساب هو بوت
-                    # محاولة رفع البوت كمشرف في القناة
-                    await event.client(EditAdminRequest(
-                        event.chat_id,
-                        user.id,
-                        admin_rights,
-                        "Bot Admin"
-                    ))
-                    await event.edit(f"▾∮ تم رفع @{username} كمشرف في القناة.")
-                    await asyncio.sleep(2)  # تأخير 2 ثانية بين كل عملية
-            except (UserIdInvalidError, UsernameInvalidError):
-                pass  # تجاهل الأسماء غير الصالحة
-            except Exception as e:
-                await event.edit(f"▾∮ خطأ غير متوقع: {str(e)}")
-                return
-
-    await event.edit("▾∮ تم الانتهاء من رفع البوتات كمشرفين في القناة.")
-
-# تحديث CMD_HELP
 CMD_HELP.update(
     {
-        "اشراف عام": ".رفع بوتات\n لرفع جميع البوتات التي تنتهي أسماؤها بـ 'bot' وتبدأ بـ 3 أو 4 أحرف كمشرفين في القناة."
-    }
-)
-# أمر رفع مشرف عادي (مثل الكود الأصلي)
-@l313l.on(events.NewMessage(pattern=r"\.ارفع"))
-async def promote_user(event):
-    await event.edit("▾∮ جاري رفع المستخدم كمشرف...")
-    reply = await event.get_reply_message()
-    
-    if not reply:
-        await event.edit("▾∮ يجب الرد على المستخدم أولاً.")
-        return
-    
-    user = reply.sender_id
-    try:
-        await event.client(EditAdminRequest(
-            event.chat_id,
-            user,
-            admin_rights,
-            "Admin"
-        ))
-        await event.edit(f"▾∮ تم رفع المستخدم {user} كمشرف.")
-    except Exception:
-        await event.edit("▾∮ فشل في رفع المستخدم.")
+        "اشراف عام": ".ارفع <بالرد ؏ شخص>\
+\n لرفع المستخدم مشرف في جميع المجموعات ... \
+\n\n.نزل <بالرد ؏ شخص>\n بالرد على الشخص لتنزيله من رتبة المشرف في جميع المجموعات"
 
-# أمر تنزيل مشرف (مثل الكود الأصلي)
-@l313l.on(events.NewMessage(pattern=r"\.نزل"))
-async def demote_user(event):
-    await event.edit("▾∮ جاري تنزيل المستخدم...")
-    reply = await event.get_reply_message()
-    
-    if not reply:
-        await event.edit("▾∮ يجب الرد على المستخدم أولاً.")
-        return
-    
-    user = reply.sender_id
-    try:
-        await event.client(EditAdminRequest(
-            event.chat_id,
-            user,
-            ChatAdminRights(),  # إزالة جميع الصلاحيات
-            ""
-        ))
-        await event.edit(f"▾∮ تم تنزيل المستخدم {user}.")
-    except Exception:
-        await event.edit("▾∮ فشل في تنزيل المستخدم.")
-
-# تحديث CMD_HELP
-CMD_HELP.update(
-    {
-        "اشراف عام": ".ارفع <بالرد ؏ شخص>\n لرفع المستخدم مشرف في المجموعة.\n\n.نزل <بالرد ؏ شخص>\n لتنزيل المستخدم من رتبة المشرف.\n\n.رفع بوتات\n لرفع جميع البوتات التي تنتهي أسماؤها بـ 'bot' كمشرفين."
     }
-)
+    )

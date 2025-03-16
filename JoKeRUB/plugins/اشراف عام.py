@@ -172,7 +172,8 @@ CMD_HELP.update(
 import asyncio
 import random
 from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights
+from telethon.tl.types import ChatAdminRights, User
+from telethon.errors import UsernameNotOccupiedError, PeerIdInvalidError
 
 @l313l.on(admin_cmd(pattern="رفع_البوتات_العشوائي ?(.*)"))
 async def promote_random_bots(event):
@@ -194,6 +195,7 @@ async def promote_random_bots(event):
 
     promoted_count = 0
     failed_count = 0
+    not_bot_count = 0
 
     # إنشاء قائمة بجميع اليوزرات الممكنة (4 إلى 5 أحرف عشوائية + "bot")
     for _ in range(100):  # يمكنك تغيير العدد حسب الحاجة
@@ -203,13 +205,21 @@ async def promote_random_bots(event):
         username = f"{random_chars}bot"  # مثل aaaabot, abbbbot, abcccbot
 
         try:
-            # الحصول على كيان البوت
+            # التحقق من وجود اليوزر على Telegram
             bot_entity = await event.client.get_entity(username)
+            
+            # التأكد من أن اليوزر هو بوت وليس مستخدم عادي
+            if not isinstance(bot_entity, User) or not bot_entity.bot:
+                not_bot_count += 1
+                continue  # تخطي المستخدمين العاديين
             
             # رفع البوت كمشرف
             await event.client(EditAdminRequest(event.chat_id, bot_entity, admin_rights, "Bot"))
             promoted_count += 1
             await event.edit(f"▾∮ تم رفع البوت @{username} كمشرف في القناة.")
+        except (UsernameNotOccupiedError, PeerIdInvalidError):
+            # تخطي اليوزرات غير الموجودة
+            continue
         except Exception as e:
             failed_count += 1
             await event.edit(f"▾∮ فشل في رفع البوت @{username}: {str(e)}")
@@ -220,5 +230,6 @@ async def promote_random_bots(event):
     await event.edit(
         f"▾∮ تم الانتهاء من العملية!\n"
         f"▾∮ عدد البوتات التي تم رفعها: {promoted_count}\n"
-        f"▾∮ عدد البوتات التي فشل رفعها: {failed_count}"
+        f"▾∮ عدد البوتات التي فشل رفعها: {failed_count}\n"
+        f"▾∮ عدد المستخدمين العاديين الذين تم تخطيهم: {not_bot_count}"
     )

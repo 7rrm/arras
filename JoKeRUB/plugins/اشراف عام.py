@@ -170,10 +170,6 @@ CMD_HELP.update(
 )
 
 import asyncio
-import random
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.tl.types import ChatAdminRights, User
-from telethon.errors import UsernameNotOccupiedError, PeerIdInvalidError
 
 @l313l.on(admin_cmd(pattern="رفع_البوتات_العشوائي ?(.*)"))
 async def promote_random_bots(event):
@@ -183,37 +179,35 @@ async def promote_random_bots(event):
 
     await event.edit("▾∮ يتم البحث عن البوتات ورفعهم كمشرفين...")
 
-    # صلاحيات المشرف (مخصصة للقنوات)
     admin_rights = ChatAdminRights(
-        add_admins=True,  # إضافة مشرفين
+        add_admins=True,
+        invite_users=True,
+        change_info=True,
+        ban_users=True,
+        delete_messages=True,
+        pin_messages=True
     )
 
     promoted_count = 0
     failed_count = 0
     not_bot_count = 0
 
-    # إنشاء قائمة بجميع اليوزرات الممكنة (3 إلى 5 أحرف عشوائية + "bot")
     for _ in range(100):  # يمكنك تغيير العدد حسب الحاجة
-        # إنشاء جزء عشوائي من 3 إلى 5 أحرف
-        random_length = random.randint(3, 5)  # طول عشوائي بين 3 و5
+        random_length = random.randint(3, 5)
         random_chars = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(random_length))
-        username = f"{random_chars}bot"  # مثل aaabot, bbbobot, cccbot
+        username = f"{random_chars}bot"
 
         try:
-            # التحقق من وجود اليوزر على Telegram
             bot_entity = await event.client.get_entity(username)
             
-            # التأكد من أن اليوزر هو بوت وليس مستخدم عادي
             if not isinstance(bot_entity, User) or not bot_entity.bot:
                 not_bot_count += 1
-                continue  # تخطي المستخدمين العاديين
+                continue
             
-            # رفع البوت كمشرف
             await event.client(EditAdminRequest(event.chat_id, bot_entity, admin_rights, "Bot"))
             promoted_count += 1
             await event.edit(f"▾∮ تم رفع البوت @{username} كمشرف في القناة.")
         except (UsernameNotOccupiedError, PeerIdInvalidError):
-            # تخطي اليوزرات غير الموجودة
             continue
         except Exception as e:
             failed_count += 1

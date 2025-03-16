@@ -186,10 +186,6 @@ async def promote_random_bots(event):
     # صلاحيات المشرف (مخصصة للقنوات)
     admin_rights = ChatAdminRights(
         add_admins=True,  # إضافة مشرفين
-        invite_users=False,  # دعوة مستخدمين
-        change_info=False,  # تغيير معلومات القناة
-        delete_messages=False,  # حذف رسائل
-        pin_messages=False  # تثبيت رسائل
     )
 
     promoted_count = 0

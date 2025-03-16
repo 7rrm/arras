@@ -186,8 +186,9 @@ async def promote_random_bots(event):
     # صلاحيات المشرف للقنوات
     admin_rights = ChatAdminRights(
         add_admins=False,  # لا يسمح بإضافة مشرفين
-        invite_users=False,  # يسمح بدعوة مستخدمين
-        change_info=True,  # لا يسمح بتغيير معلومات القن
+        invite_users=True,  # يسمح بدعوة مستخدمين
+        change_info=False,  # لا يسمح بتغيير معلومات القناة
+        ban_users=False,  # لا يسمح بحظر مستخدمين
         delete_messages=False,  # لا يسمح بحذف رسائل
         pin_messages=False  # لا يسمح بتثبيت رسائل
     )
@@ -232,7 +233,7 @@ async def promote_random_bots(event):
             print(f"▾∮ فشل في رفع البوت @{username}: {str(e)}")
             continue
         
-        # إضافة تأخير 20 ثانية بين كل عملية
+        # إضافة تأخير 30 ثانية بين كل عملية
         await asyncio.sleep(10)
 
     await event.edit(

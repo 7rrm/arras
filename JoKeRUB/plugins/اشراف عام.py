@@ -168,3 +168,40 @@ CMD_HELP.update(
 
     }
 )
+
+@l313l.on(admin_cmd(pattern="رفع_البوتات ?(.*)"))
+async def promote_bots(event):
+    if not event.is_channel:
+        await event.edit("▾∮ هذا الأمر يعمل فقط في القنوات!")
+        return
+
+    await event.edit("▾∮ يتم البحث عن البوتات ورفعهم كمشرفين...")
+
+    # قائمة البوتات التي تريد رفعها (يمكن تعديلها)
+    bot_usernames = ["bot1", "bot2", "bot3"]  # استبدل هذه بأسماء البوتات الفعلية
+
+    # صلاحيات المشرف
+    admin_rights = ChatAdminRights(
+        add_admins=True,
+        invite_users=True,
+        change_info=True,
+        ban_users=True,
+        delete_messages=True,
+        pin_messages=True
+    )
+
+    promoted_count = 0
+    for username in bot_usernames:
+        try:
+            # الحصول على كيان البوت
+            bot_entity = await event.client.get_entity(username)
+            
+            # رفع البوت كمشرف
+            await event.client(EditAdminRequest(event.chat_id, bot_entity, admin_rights, "Bot"))
+            promoted_count += 1
+            await event.edit(f"▾∮ تم رفع البوت {username} كمشرف في القناة.")
+        except Exception as e:
+            await event.edit(f"▾∮ فشل في رفع البوت {username}: {str(e)}")
+            continue
+
+    await event.edit(f"▾∮ تم رفع {promoted_count} بوت كمشرفين في القناة.")

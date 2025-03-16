@@ -183,12 +183,11 @@ async def promote_random_bots(event):
 
     await event.edit("▾∮ يتم البحث عن البوتات ورفعهم كمشرفين...")
 
-    # صلاحيات المشرف المخفضة
+    # صلاحيات المشرف للقنوات
     admin_rights = ChatAdminRights(
         add_admins=False,  # لا يسمح بإضافة مشرفين
         invite_users=False,  # يسمح بدعوة مستخدمين
-        change_info=False,  # لا يسمح بتغيير معلومات القناة
-        ban_users=False,  # لا يسمح بحظر مستخدمين
+        change_info=True,  # لا يسمح بتغيير معلومات القن
         delete_messages=False,  # لا يسمح بحذف رسائل
         pin_messages=False  # لا يسمح بتثبيت رسائل
     )
@@ -214,6 +213,13 @@ async def promote_random_bots(event):
                 print(f"▾∮ اليوزر @{username} ليس بوتًا.")
                 continue  # تخطي المستخدمين العاديين
             
+            # التحقق من أن البوت عضو في القناة
+            try:
+                await event.client.get_permissions(event.chat_id, bot_entity)
+            except Exception as e:
+                print(f"▾∮ البوت @{username} ليس عضوًا في القناة: {str(e)}")
+                continue
+            
             # رفع البوت كمشرف
             await event.client(EditAdminRequest(event.chat_id, bot_entity, admin_rights, "Bot"))
             promoted_count += 1
@@ -226,7 +232,7 @@ async def promote_random_bots(event):
             print(f"▾∮ فشل في رفع البوت @{username}: {str(e)}")
             continue
         
-        # إضافة تأخير 10 ثواني بين كل عملية
+        # إضافة تأخير 20 ثانية بين كل عملية
         await asyncio.sleep(10)
 
     await event.edit(

@@ -10,7 +10,7 @@ from JoKeRUB import l313l
 # الحقوق محفوظة
 marculs = 9
 
-# صلاحيات المشرف
+# صلاحيات المشرف (مناسبة للقنوات)
 admin_rights = ChatAdminRights(
     add_admins=True,
     invite_users=True,
@@ -18,7 +18,7 @@ admin_rights = ChatAdminRights(
     ban_users=True,
     delete_messages=True,
     pin_messages=True,
-    manage_call=True
+    # manage_call=True  # هذه الصلاحية غير متوافقة مع القنوات
 )
 
 # أمر رفع البوتات كمشرفين في القناة

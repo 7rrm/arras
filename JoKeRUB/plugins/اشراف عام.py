@@ -197,12 +197,12 @@ async def promote_random_bots(event):
     failed_count = 0
     not_bot_count = 0
 
-    # إنشاء قائمة بجميع اليوزرات الممكنة (4 إلى 5 أحرف عشوائية + "bot")
+    # إنشاء قائمة بجميع اليوزرات الممكنة (3 إلى 5 أحرف عشوائية + "bot")
     for _ in range(100):  # يمكنك تغيير العدد حسب الحاجة
-        # إنشاء جزء عشوائي من 4 إلى 5 أحرف
-        random_length = random.randint(4, 5)  # طول عشوائي بين 4 و5
+        # إنشاء جزء عشوائي من 3 إلى 5 أحرف
+        random_length = random.randint(3, 5)  # طول عشوائي بين 3 و5
         random_chars = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz') for _ in range(random_length))
-        username = f"{random_chars}bot"  # مثل aaaabot, abbbbot, abcccbot
+        username = f"{random_chars}bot"  # مثل aaabot, bbbobot, cccbot
 
         try:
             # التحقق من وجود اليوزر على Telegram

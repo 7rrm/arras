@@ -181,9 +181,12 @@ async def auto_reply_flags(event):
         return
 
     # البحث عن العلم داخل الأقواس (إذا وجد)
-    flag_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
+    flag_with_brackets = re.search(r'[\({]([^})]+)[\)}]', event.raw_text)
     if flag_with_brackets:
         flag = flag_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
+        # تجاهل النقطة في النهاية إذا وجدت
+        if flag.endswith('.'):
+            flag = flag[:-1]
     else:
         # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
         flag = event.raw_text.split(flags_trigger_text)[-1].strip()

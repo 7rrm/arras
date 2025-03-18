@@ -82,8 +82,8 @@ async def auto_reply_articles(event):
             await event.reply(cleaned_text)
 
 # باقي الكود الحالي...
-
 import asyncio
+import re
 from telethon import events
 from JoKeRUB import l313l
 
@@ -174,20 +174,26 @@ async def auto_reply_flags(event):
     global flags_enabled, active_chat_id, flags_allowed_user_ids, flags_trigger_text, flags_dict
     
     # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن المعرف المسموح
-    if flags_enabled and event.chat_id == active_chat_id and event.sender_id in flags_allowed_user_ids:
-        if flags_trigger_text in event.raw_text:
-            # البحث عن العلم داخل الأقواس (إذا وجد)
-            flag_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
-            if flag_with_brackets:
-                flag = flag_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
-            else:
-                # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
-                flag = event.raw_text.split(flags_trigger_text)[-1].strip()
-            
-            # البحث عن العلم في القاموس
-            if flag in flags_dict:
-                country = flags_dict[flag]
-                await event.reply(country)
+    if not (flags_enabled and event.chat_id == active_chat_id and event.sender_id in flags_allowed_user_ids):
+        return
+
+    if flags_trigger_text not in event.raw_text:
+        return
+
+    # البحث عن العلم داخل الأقواس (إذا وجد)
+    flag_with_brackets = re.search(r'\{([^}]+)\}', event.raw_text)
+    if flag_with_brackets:
+        flag = flag_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
+    else:
+        # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
+        flag = event.raw_text.split(flags_trigger_text)[-1].strip()
+    
+    # البحث عن العلم في القاموس
+    if flag in flags_dict:
+        country = flags_dict[flag]
+        await asyncio.sleep(1)  # تأخير لمدة ثانية واحدة
+        await event.reply(country)
+
 
 import asyncio
 import re

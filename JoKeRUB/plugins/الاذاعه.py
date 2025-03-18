@@ -13,6 +13,62 @@ from ..core.managers import edit_or_reply
 from . import *
 plugin_category = "utils"
 
+# أمر إضافة كروب جديد
+@l313l.ar_cmd(
+    pattern="\$\$اضافة_كروب ?(.*)$",  # الأمر الجديد مع $$
+    command=("اضافة_كروب", plugin_category),
+)
+async def add_group(event):
+    if not event.out and not is_fullsudo(event.sender_id):
+        return await edit_or_reply(event, "هـذا الامـر مقـيد ")
+    
+    group_id = event.pattern_match.group(1)
+    if not group_id:
+        return await edit_or_reply(event, "** ᯽︙ يرجى إدخال ايدي الكروب**")
+    
+    # تحميل القائمة الحالية
+    groups = load_groups()
+    
+    # إضافة الكروب الجديد إذا لم يكن موجودًا
+    if group_id not in groups:
+        groups.append(group_id)
+        save_groups(groups)
+        await edit_or_reply(event, f"** ᯽︙ تم إضافة الكروب `{group_id}` إلى القائمة بنجاح**")
+    else:
+        await edit_or_reply(event, f"** ᯽︙ الكروب `{group_id}` موجود بالفعل في القائمة**")
+
+# أمر إرسال الرسالة إلى الكروبات المضافة
+@l313l.ar_cmd(
+    pattern="\$\$نشر_رسالة$",  # الأمر الجديد مع $$
+    command=("نشر_رسالة", plugin_category),
+)
+async def send_to_specific_groups(event):
+    if not event.out and not is_fullsudo(event.sender_id):
+        return await edit_or_reply(event, "هـذا الامـر مقـيد ")
+    
+    # الرسالة المحددة التي تريد إرسالها
+    message = "ش"  # يمكنك تغييرها إلى أي رسالة تريدها
+    
+    # تحميل قائمة الكروبات
+    specific_groups = load_groups()
+    if not specific_groups:
+        return await edit_or_reply(event, "** ᯽︙ لم يتم إضافة أي كروبات بعد**")
+    
+    event = await edit_or_reply(event, "** ᯽︙ يتـم إرسـال الـرسـالـة إلـى الـكروبات الـمحددة انتـظر قليلا**")
+    
+    er = 0
+    done = 0
+    
+    for group in specific_groups:
+        try:
+            await bot.send_message(int(group), message)  # إرسال الرسالة إلى الكروب
+            done += 1
+        except Exception as e:
+            print(f"حدث خطأ في إرسال الرسالة إلى الكروب {group}: {e}")
+            er += 1
+    
+    await event.edit(f"** ᯽︙ تـم إرسـال الـرسـالـة إلـى {done} كروب بنجاح، وحدث خطأ في {er} كروب**")
+
 @l313l.ar_cmd(
     pattern="وجه ?(.*)$",
     command=("وجه", plugin_category),

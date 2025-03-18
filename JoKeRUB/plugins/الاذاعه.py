@@ -13,9 +13,27 @@ from ..core.managers import edit_or_reply
 from . import *
 plugin_category = "utils"
 
-# أمر إضافة كروب جديد
+import os
+
+# مسار ملف تخزين أيدي الكروبات
+GROUPS_FILE = "specific_groups.txt"
+
+# تحميل أيدي الكروبات من الملف
+def load_groups():
+    if not os.path.exists(GROUPS_FILE):
+        return []
+    with open(GROUPS_FILE, "r") as file:
+        return file.read().splitlines()
+
+# حفظ أيدي الكروبات في الملف
+def save_groups(groups):
+    with open(GROUPS_FILE, "w") as file:
+        for group in groups:
+            file.write(f"{group}\n")
+
+# أمر إضافة كروب
 @l313l.ar_cmd(
-    pattern="\$\$اضافة_كروب ?(.*)$",  # الأمر الجديد مع $$
+    pattern="اضافة_كروبات ?(.*)$",
     command=("اضافة_كروب", plugin_category),
 )
 async def add_group(event):
@@ -37,10 +55,10 @@ async def add_group(event):
     else:
         await edit_or_reply(event, f"** ᯽︙ الكروب `{group_id}` موجود بالفعل في القائمة**")
 
-# أمر إرسال الرسالة إلى الكروبات المضافة
+# أمر إرسال الرسالة إلى الكروبات المحددة
 @l313l.ar_cmd(
-    pattern="\$\$نشر_رسالة$",  # الأمر الجديد مع $$
-    command=("نشر_رسالة", plugin_category),
+    pattern="ارسال_كروبات$",
+    command=("ارسال_كروبات", plugin_category),
 )
 async def send_to_specific_groups(event):
     if not event.out and not is_fullsudo(event.sender_id):

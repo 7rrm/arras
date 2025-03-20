@@ -34,7 +34,7 @@ from ..core.managers import edit_delete, edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..helpers.utils import reply_id, _format
 from . import media_type, progress
-from ..utils import Zed_Dev, load_module, remove_plugin
+from ..utils import load_module, remove_plugin
 from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
 from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
 
@@ -94,7 +94,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 
 
 @l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
-async def repozedub(event):
+async def repol313l(event):
     global bbb
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
@@ -114,7 +114,7 @@ async def repozedub(event):
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
     	bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()
 
@@ -139,7 +139,7 @@ async def repozedub(event):
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()
 
@@ -164,6 +164,6 @@ async def repozedub(event):
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()

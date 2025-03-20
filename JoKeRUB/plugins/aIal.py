@@ -814,7 +814,7 @@ ZelzalVip_cmd = (
 "⪼  `.صيد سباعيات رقم6`  **مثـال ~** ARAAAAA"
 )
 
-@_cmd(pattern="(الصيد|التثبيت)")
+@l313l.ar_cmd(pattern="(الصيد|التثبيت)")
 async def cmd(zelzallll):
     await edit_or_reply(zelzallll, ZelzalChecler_cmd)
 
@@ -1031,7 +1031,7 @@ async def _(event):
                 if "username is already taken" in str(eee):
                     pass
                 else:
-                    await zedub.send_message(
+                    await l313l.send_message(
                         event.chat_id,
                         f"""- خطأ مع @{username} , الخطأ :{str(eee)}""",
                     )

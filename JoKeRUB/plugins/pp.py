@@ -136,11 +136,14 @@ async def repol313l(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
+    if response:
+        await response[0].click(event.chat_id)
+    else:
+        await event.edit("**⎉╎عـذراً .. لم أتمكن من العثور على نتائج**")
     await event.delete()
 
 @l313l.ar_cmd(pattern="همسة(?: |$)(.*)")

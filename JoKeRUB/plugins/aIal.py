@@ -8,7 +8,7 @@ from telethon.sync import functions
 from telethon.errors import FloodWaitError
 from user_agent import generate_user_agent
 
-from . import zedub
+from . import l313l
 from ..core.managers import edit_delete, edit_or_reply
 
 trys = [0]
@@ -814,19 +814,19 @@ ZelzalVip_cmd = (
 "⪼  `.صيد سباعيات رقم6`  **مثـال ~** ARAAAAA"
 )
 
-@zedub.zed_cmd(pattern="(الصيد|التثبيت)")
+@_cmd(pattern="(الصيد|التثبيت)")
 async def cmd(zelzallll):
     await edit_or_reply(zelzallll, ZelzalChecler_cmd)
 
-@zedub.zed_cmd(pattern="(النوع|الانواع)")
+@l313l.ar_cmd(pattern="(النوع|الانواع)")
 async def cmd(zelzallll):
     await edit_or_reply(zelzallll, ZelzalType_cmd)
 
-@zedub.zed_cmd(pattern="الانووااع")
+@l313l.ar_cmd(pattern="الانووااع")
 async def cmd(zelzallll):
     await edit_or_reply(zelzallll, ZelzalVip_cmd)
 
-@zedub.zed_cmd(pattern="صيد (.*)")
+@l313l.ar_cmd(pattern="صيد (.*)")
 async def hunterusername(event):
     choice = str(event.pattern_match.group(1))
     replly = await event.get_reply_message()
@@ -839,8 +839,8 @@ async def hunterusername(event):
         elif choice == "ايقاف":
             await edit_or_reply(event, "..")
         else:
-            zuz = f"@{zedub.me.username}" if zedub.me.username else ""
-            ch = await zedub(
+            zuz = f"@{l313l.me.username}" if l313l.me.username else ""
+            ch = await l313l(
                 functions.channels.CreateChannelRequest(
                     title="⎉ صيـد زدثون 𝗭𝗧𝗵𝗼𝗻 ⎉",
                     about=f"This channel to hunt username by - @ZThon | {zuz}",
@@ -852,7 +852,7 @@ async def hunterusername(event):
                 ch = ch.chats[0].id
             await edit_or_reply(event, f"**⎉╎تم بـدء الصيـد .. بنجـاح ☑️**\n**⎉╎علـى النـوع** {choice} \n**⎉╎لمعرفـة حالة عمليـة الصيـد (** `.حالة الصيد` **)**\n**⎉╎لـ ايقـاف عمليـة الصيـد (** `.صيد ايقاف` **)**")
     except Exception as e:
-        await zedub.send_message(event.chat_id, f"**- اووبـس .. خطـأ فـي إنشـاء القنـاة ؟!**\n**- تفاصيـل الخطـأ :**\n`{str(e)}`")
+        await l313l.send_message(event.chat_id, f"**- اووبـس .. خطـأ فـي إنشـاء القنـاة ؟!**\n**- تفاصيـل الخطـأ :**\n`{str(e)}`")
         vedmod = False
 
     itsclim.clear()
@@ -872,7 +872,7 @@ async def hunterusername(event):
         isav = await check_user(username)
         if isav == True:
             try:
-                await zedub(
+                await l313l(
                     functions.channels.UpdateUsernameRequest(
                         channel=ch, username=username
                     )
@@ -898,7 +898,7 @@ async def hunterusername(event):
                 pass
             except Exception as e:
                 if "too many public channels" in str(e):
-                    await zedub.send_message(
+                    await l313l.send_message(
                         event.chat_id,
                         f"""- خطأ بصيـد اليـوزر @{username} ,\n- الخطأ :\nانت تمتلك العديد من القنوات العامة قم بحذف معرف او اكثر من قنواتك لكي تستطيع صيد هذا اليوزر""",
                     )
@@ -915,20 +915,20 @@ async def hunterusername(event):
     trys[0] = 0
     return await event.client.send_message(event.chat_id, "**- تم الانتهاء من الصيد .. بنجـاح ✅**")
 
-@zedub.zed_cmd(pattern="تثبيت (.*)")
+@l313l.ar_cmd(pattern="تثبيت (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎امـر خاطـئ .. تصفح اوامـر التثبيت**\n**⎉╎لـ الاوامـر العامـه للتثبيت .. ارسـل** ( `.التثبيت` )")
 
-@zedub.zed_cmd(pattern="تثبيت_قناة (.*)")
+@l313l.ar_cmd(pattern="تثبيت_قناة (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if not zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.تثبيت_قناة`** + اليـوزر)**")
     try:
-        zuz = f"@{zedub.me.username}" if zedub.me.username else ""
-        ch = await zedub(
+        zuz = f"@{l313l.me.username}" if Il313l.me.username else ""
+        ch = await l313l(
             functions.channels.CreateChannelRequest(
                 title="⎉ تثبيت زدثون 𝗭𝗧𝗵𝗼𝗻 ⎉",
                 about=f"تم تثبيت اليـوزر بواسطـة سـورس زدثـــون - @ZThon | {zuz} ",
@@ -940,7 +940,7 @@ async def _(event):
             ch = ch.chats[0].id
         await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت .. بنجـاح ☑️**\n**⎉╎اليـوزر المثبت ( {zelzal} )**\n**⎉╎لمعرفـة تقـدم عمليـة التثبيت (**`.حالة تثبيت_القناة`**)**\n**⎉╎لـ ايقـاف عمليـة التثبيت (**`.ايقاف تثبيت_القناة`**)**")
     except Exception as e:
-        await zedub.send_message(
+        await l313l.send_message(
             event.chat_id, f"**- اووبـس .. خطـأ فـي إنشـاء القنـاة ؟!**\n**- تفاصيـل الخطـأ :**\n`{str(e)}`"
         )
         cmodels = False
@@ -953,7 +953,7 @@ async def _(event):
         isch = await checker_user(username)
         if isch == True:
             try:
-                await zedub(
+                await l313l(
                     functions.channels.UpdateUsernameRequest(
                         channel=ch, username=username
                     )
@@ -979,7 +979,7 @@ async def _(event):
                 if "username is already taken" in str(eee):
                     pass
                 else:
-                    await zedub.send_message(
+                    await l313l.send_message(
                         event.chat_id,
                         f"""- خطأ مع @{username} , الخطأ :{str(eee)}""",
                     )
@@ -992,10 +992,10 @@ async def _(event):
     iscuto.clear()
     iscuto.append("off")
     crys[0] = 0
-    return await zedub.send_message(event.chat_id, "**- تم الانتهاء من التثبيت .. بنجـاح ✅**")
+    return await l313l.send_message(event.chat_id, "**- تم الانتهاء من التثبيت .. بنجـاح ✅**")
 
 
-@zedub.zed_cmd(pattern="تثبيت_حساب (.*)")
+@l313l.ar_cmd(pattern="تثبيت_حساب (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if not zelzal.startswith('@'):
@@ -1009,7 +1009,7 @@ async def _(event):
         isac = await checker_user(username)
         if isac == True:
             try:
-                await zedub(functions.account.UpdateUsernameRequest(username=username))
+                await l313l(functions.account.UpdateUsernameRequest(username=username))
                 await event.client.send_message(
                     event.chat_id,
                     f"- Done : @{username} ✅\n- Save: ❲ Account ❳\n- By : @ZThon \n- Hunting Log {arys[0]}",
@@ -1044,10 +1044,10 @@ async def _(event):
     istuto.clear()
     istuto.append("off")
     arys[0] = 0
-    return await zedub.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت اليـوزر ع حسـابك .. بنجـاح ✅**")
+    return await l313l.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت اليـوزر ع حسـابك .. بنجـاح ✅**")
 
 
-@zedub.zed_cmd(pattern="تثبيت_بوت (.*)")
+@l313l.ar_cmd(pattern="تثبيت_بوت (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if not zelzal.startswith('@'):
@@ -1101,7 +1101,7 @@ async def _(event):
                 if "username is already taken" in str(eee):
                     pass
                 else:
-                    await zedub.send_message(
+                    await l313l.send_message(
                         event.chat_id,
                         f"""- خطأ مع @{username} , الخطأ :{str(eee)}""",
                     )
@@ -1114,10 +1114,10 @@ async def _(event):
     isbuto.clear()
     isbuto.append("off")
     brys[0] = 0
-    return await zedub.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت البـوت .. بنجـاح ✅**\n**- لـ التأكـد قـم بالذهـاب الـى @BotFather**")
+    return await l313l.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت البـوت .. بنجـاح ✅**\n**- لـ التأكـد قـم بالذهـاب الـى @BotFather**")
 
 
-@zedub.zed_cmd(pattern="حالة الصيد")
+@l313l.ar_cmd(pattern="حالة الصيد")
 async def _(event):
     if "on" in itsclim:
         await edit_or_reply(event, f"**- الصيد وصل لـ({trys[0]}) من المحـاولات**")
@@ -1126,7 +1126,7 @@ async def _(event):
     else:
         await edit_or_reply(event, "**- لقد حدث خطأ ما وتوقف الامر لديك**")
 
-@zedub.zed_cmd(pattern="حالة تثبيت_القناة")
+@l313l.ar_cmd(pattern="حالة تثبيت_القناة")
 async def _(event):
     if "on" in iscuto:
         await edit_or_reply(event, f"**- التثبيت وصل لـ({crys[0]}) من المحاولات**")
@@ -1135,7 +1135,7 @@ async def _(event):
     else:
         await edit_or_reply(event, "-لقد حدث خطأ ما وتوقف الامر لديك")
 
-@zedub.zed_cmd(pattern="حالة تثبيت_الحساب")
+@l313l.ar_cmd(pattern="حالة تثبيت_الحساب")
 async def _(event):
     if "on" in istuto:
         await edit_or_reply(event, f"**- التثبيت وصل لـ({arys[0]}) من المحاولات**")
@@ -1144,7 +1144,7 @@ async def _(event):
     else:
         await edit_or_reply(event, "-لقد حدث خطأ ما وتوقف الامر لديك")
 
-@zedub.zed_cmd(pattern="حالة تثبيت_البوت")
+@l313l.ar_cmd(pattern="حالة تثبيت_البوت")
 async def _(event):
     if "on" in isbuto:
         await edit_or_reply(event, f"**- التثبيت وصل لـ({brys[0]}) من المحاولات**")
@@ -1154,7 +1154,7 @@ async def _(event):
         await edit_or_reply(event, "-لقد حدث خطأ ما وتوقف الامر لديك")
 
 
-@zedub.zed_cmd(pattern="ايقاف تثبيت_القناة")
+@l313l.ar_cmd(pattern="ايقاف تثبيت_القناة")
 async def _(event):
     if "on" in iscuto:
         iscuto.clear()
@@ -1166,7 +1166,7 @@ async def _(event):
     else:
         return await edit_or_reply(event, "**-لقد حدث خطأ ما وتوقف الامر لديك**")
 
-@zedub.zed_cmd(pattern="ايقاف تثبيت_الحساب")
+@l313l.ar_cmd(pattern="ايقاف تثبيت_الحساب")
 async def _(event):
     if "on" in istuto:
         istuto.clear()
@@ -1178,7 +1178,7 @@ async def _(event):
     else:
         return await edit_or_reply(event, "**-لقد حدث خطأ ما وتوقف الامر لديك**")
 
-@zedub.zed_cmd(pattern="ايقاف تثبيت_البوت")
+@l313l.ar_cmd(pattern="ايقاف تثبيت_البوت")
 async def _(event):
     if "on" in isbuto:
         isbuto.clear()

@@ -119,7 +119,7 @@ async def repol313l(event):
     await event.delete()
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repozedub(event):
+async def repol313l(event):
     global bbb
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
@@ -164,6 +164,6 @@ async def repozedub(event):
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "JoKeRUB")
     await response[0].click(event.chat_id)
     await event.delete()

@@ -750,6 +750,23 @@ meaningful_words = [
 async def hunt_meaningful_usernames(event):
     await edit_or_reply(event, "**⎉╎تم بـدء صيد أسماء ذات معنى .. بنجـاح ☑️**\n**⎉╎لمعرفـة حالة عمليـة الصيـد (** `.حالة الصيد` **)**\n**⎉╎لـ ايقـاف عمليـة الصيـد (** `.صيد ايقاف` **)**")
     
+    # إنشاء قناة تلقائيًا إذا لم يتم توفير قناة
+    try:
+        zuz = f"@{l313l.me.username}" if l313l.me.username else ""
+        ch = await l313l(
+            functions.channels.CreateChannelRequest(
+                title="الصيد الخاص بـ Lx5x5",
+                about=f"تم إنشاء هذه القناة لصيد أسماء مستخدمين ذات معنى بواسطة - @aqhvv | {zuz}",
+            )
+        )
+        try:
+            ch = ch.updates[1].channel_id
+        except Exception:
+            ch = ch.chats[0].id
+    except Exception as e:
+        await l313l.send_message(event.chat_id, f"**- حدث خطأ أثناء إنشاء القناة:**\n`{str(e)}`")
+        return
+
     itsclim.clear()
     itsclim.append("on")
     vedmod = True

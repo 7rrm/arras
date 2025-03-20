@@ -1,59 +1,15 @@
-import json
-import math
 import os
-import aiohttp
-import requests
-import random
-import re
-import time
-from uuid import uuid4
-import sys
-import asyncio
-from validators.url import url
-from subprocess import run as runapp
-from datetime import datetime
-from pySmartDL import SmartDL
-from pathlib import Path
-from platform import python_version
-from telethon import Button, functions, events, types, custom
-from telethon.errors import QueryIdInvalidError
-from telethon.events import CallbackQuery, InlineQuery
-from telethon.utils import get_display_name
-from telethon.tl.types import InputMessagesFilterDocument
-from telethon.tl.types import MessageEntityMentionName
-from telethon.tl.functions.photos import GetUserPhotosRequest
+from telethon import Button, events
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
-from telethon.tl.functions.messages import SetInlineBotResultsRequest
-
-from . import l313l
+from telethon.tl.types import MessageEntityMentionName
 from ..Config import Config
-from ..helpers.functions import rand_key
-from ..core.logger import logging
-from ..core.managers import edit_delete, edit_or_reply
+from ..helpers.utils import reply_id
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.utils import reply_id, _format
-from . import media_type, progress
-from ..utils import load_module, remove_plugin
-from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
-from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
 
 LOGS = logging.getLogger(os.path.basename(__name__))
 
-scc = "secret"
-hmm = "همسـة"
-ymm = "يستطيـع"
-fmm = "فتـح الهمسـه 🗳"
-dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - **همسـة سـࢪيـه** 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
-nmm = "همسـه سريـه"
-mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص).\nعبـر زدثــون"
-bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
-ddd = "💌"
-Zel_Uid = l313l.uid
-
 async def get_user_from_event(event):
+    """الحصول على المستخدم من الحدث (رد أو معرف أو ذكر)."""
     if event.reply_to_msg_id:
         previous_message = await event.get_reply_message()
         user_object = await event.client.get_entity(previous_message.sender_id)
@@ -73,100 +29,52 @@ async def get_user_from_event(event):
         try:
             user_object = await event.client.get_entity(user)
         except (TypeError, ValueError) as err:
-            await event.edit(str(err))
+            await event.edit(f"**⎉╎حدث خطأ: {str(err)}**")
             return None
     return user_object
 
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
-    FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
-    first_name = zthon_user.first_name
-    full_name = FullUser.private_forward_name
-    user_id = zthon_user.id
-    username = zthon_user.username
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else None
-    )
-    full_name = full_name or first_name
-    username = "@{}".format(username) if username else "None"
-    return user_id, full_name, username
-
-
-@l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
-async def repol313l(event):
-    global bbb
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
+async def get_user_info(user, event):
+    """الحصول على معلومات المستخدم (الاسم، المعرف، الرقم)."""
+    full_user = (await event.client(GetFullUserRequest(user.id))).full_user
+    first_name = user.first_name or ""
+    full_name = full_user.private_forward_name or first_name
+    username = f"@{user.username}" if user.username else "None"
+    return user.id, full_name, username
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repol313l(event):
-    global bbb
+async def send_secret_message(event):
+    """إرسال همسة سرية إلى مستخدم معين."""
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-        bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    if response:
-        await response[0].click(event.chat_id)
-    else:
-        await event.edit("**⎉╎عـذراً .. لم أتمكن من العثور على نتائج**")
-    await event.delete()
+        return await event.edit("**⎉╎يجب الرد على مستخدم أو كتابة معرفه!**")
 
-@l313l.ar_cmd(pattern="همسة(?: |$)(.*)")
-async def repozedub(event):
-    global bbb
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
+    # الحصول على معلومات المستخدم
     try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
+        target_user = await get_user_from_event(event)
+        user_id, full_name, username = await get_user_info(target_user, event)
+    except Exception as e:
+        return await event.edit(f"**⎉╎حدث خطأ: {str(e)}**")
+
+    # حفظ معلومات المستخدم في المتغيرات العامة
     delgvar("hmsa_id")
     delgvar("hmsa_name")
     delgvar("hmsa_user")
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "JoKeRUB")
-    await response[0].click(event.chat_id)
-    await event.delete()
+
+    # إنشاء زر الهمسة
+    button_text = "اضـغـط هنـا"
+    query = f"secret {gvarstatus('hmsa_id')} \nهلو"
+    button = [Button.switch_inline(button_text, query=query, same_peer=True)]
+
+    # إرسال الاستعلام إلى البوت
+    try:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        if response:
+            await response[0].click(event.chat_id)
+            await event.delete()
+        else:
+            await event.edit("**⎉╎عـذراً .. لم أتمكن من العثور على نتائج**")
+    except Exception as e:
+        await event.edit(f"**⎉╎حدث خطأ: {str(e)}**")

@@ -691,7 +691,7 @@ async def gen_user(choice):
 
 
 ZelzalChecler_cmd = (
-    "𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - اوامـر الصيـد والتثبيت](t.me/ZThon) 𓆪\n\n"
+    "𓆩 [اوامـر الصيـد والتثبيت](t.me/Lx5x5) 𓆪\n\n"
     "**✾╎اولاً قـائمـة اوامـر تشيكـر صيـد معـرفات تيليجـرام :** \n\n"
     "`.النوع`\n"
     "**⪼ لـ عـرض الانـوع التي يمكـن صيدهـا مع الامثـله**\n"
@@ -727,12 +727,11 @@ ZelzalChecler_cmd = (
     "**⪼** تحلى بالصبر وكرر محاولات الصيد حتى تصيد يوزر\n"
     "**⪼** كل نوع من اليوزرات يختلف عن الاخر من حيث نسبة الصيد\n"
     "**⪼ التثبيت هو تثبيت يوزر محدد حتى ماينسرق منك عندما يصير متاح**\n\n"
-    "**- انضـم للقنـاة ~ @RRRDB**\n"
-    "**⪼ لـ رؤيـة بعـض اليـوزرات التي قام بصيدهـا منصبيـن زدثــون**\n\n"
+    
 )
 
 ZelzalType_cmd = (
-"𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - أنـواع اليـوزرات](t.me/ZThon) 𓆪\n\n"
+"𓆩 [أنـواع اليـوزرات](t.me/lx5x5) 𓆪\n\n"
 "**✾╎قـائمـة أنـواع اليـوزرات التي يمكـن صيدهـا مـع الامثـلة :** \n\n"
 "⪼  `.صيد ثلاثي1`  **مثـال ~** A_D_R\n"
 "⪼  `.صيد ثلاثي2`  **مثـال ~** A_7_R\n"
@@ -781,7 +780,7 @@ ZelzalType_cmd = (
 )
 
 ZelzalVip_cmd = (
-"𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - أنـواع اليـوزرات](t.me/ZThon) 𓆪\n\n"
+"𓆩 [أنـواع اليـوزرات](t.me/lx5x5) 𓆪\n\n"
 "**✾╎قـائمـة أنـواع اليـوزرات التي يمكـن صيدهـا مـع الامثـلة :** \n\n"
 "⪼  `.صيد شبه رباعيa`  **مثـال ~** A_RR_A\n"
 "⪼  `.صيد شبه رباعيz`  **مثـال ~** Z_RR_Z\n"
@@ -842,8 +841,8 @@ async def hunterusername(event):
             zuz = f"@{l313l.me.username}" if l313l.me.username else ""
             ch = await l313l(
                 functions.channels.CreateChannelRequest(
-                    title="⎉ صيـد زدثون 𝗭𝗧𝗵𝗼𝗻 ⎉",
-                    about=f"This channel to hunt username by - @ZThon | {zuz}",
+                    title="الـصيد الخـاص ب Lx5x5",
+                    about=f"This channel to hunt username by - @aqhvv | {zuz}",
                 )
             )
             try:
@@ -879,10 +878,10 @@ async def hunterusername(event):
                 )
                 await event.client.send_message(
                     event.chat_id,
-                    f"- Done : @{username} ✅\n- By : @ZThon\n- Hunting Log {trys[0]}",
+                    f"- Done : @{username} ✅\n- By : @Lx5x5\n- Hunting Log {trys[0]}",
                 )
                 await event.client.send_message(
-                    "@zzzzl1l", f"- Done : @{username} ✅\n- By : @ZThon\n- Hunting Log {trys[0]}",
+                    "@Lx5x5", f"- Done : @{username} ✅\n- By : @Lx5x5\n- Hunting Log {trys[0]}",
                 )
                 vedmod = False
                 break
@@ -930,8 +929,8 @@ async def _(event):
         zuz = f"@{l313l.me.username}" if Il313l.me.username else ""
         ch = await l313l(
             functions.channels.CreateChannelRequest(
-                title="⎉ تثبيت زدثون 𝗭𝗧𝗵𝗼𝗻 ⎉",
-                about=f"تم تثبيت اليـوزر بواسطـة سـورس زدثـــون - @ZThon | {zuz} ",
+                title="التـثبيت الخاص ب Lx5x5",
+                about=f"تم تثبيت اليـوزر - @aqhvv | {zuz} ",
             )
         )
         try:
@@ -960,7 +959,7 @@ async def _(event):
                 )
                 await event.client.send_message(
                     event.chat_id,
-                    f"- Done : @{username} ✅\n- Save: ❲ Channel ❳\n- By : @ZThon \n- Hunting Log {crys[0]}",
+                    f"- Done : @{username} ✅\n- Save: ❲ Channel ❳\n- By : @Lx5x5 \n- Hunting Log {crys[0]}",
                 )
                 break
             except FloodWaitError as zed: #Code by t.me/zzzzl1l
@@ -1012,7 +1011,7 @@ async def _(event):
                 await l313l(functions.account.UpdateUsernameRequest(username=username))
                 await event.client.send_message(
                     event.chat_id,
-                    f"- Done : @{username} ✅\n- Save: ❲ Account ❳\n- By : @ZThon \n- Hunting Log {arys[0]}",
+                    f"- Done : @{username} ✅\n- Save: ❲ Account ❳\n- By : @Lx5x5 \n- Hunting Log {arys[0]}",
                 )
                 break
             except FloodWaitError as zed: #Code by t.me/zzzzl1l

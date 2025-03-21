@@ -11,6 +11,7 @@ from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.utils import get_input_location
+from telethon.extensions import markdown, html
 
 from ..sql_helper.globals import gvarstatus
 from JoKeRUB import l313l

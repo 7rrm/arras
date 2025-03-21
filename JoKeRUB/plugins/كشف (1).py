@@ -4,13 +4,15 @@ import contextlib
 import requests
 from datetime import datetime
 from requests import get
+
+from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.utils import get_input_location
-from ..sql_helper.globals import gvarstatus
 
+from ..sql_helper.globals import gvarstatus
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
 from ..utils import Zed_Vip, Zed_Dev
@@ -51,6 +53,24 @@ async def get_user_from_event(event):
             await event.edit(str(err))
             return None
     return user_object
+
+class CustomParseMode:
+    """
+    Example using Markdown:
+
+    - client.send_message('me', 'hello this is a [Text](spoiler), with custom emoji [❤️](emoji/10002345) !')
+
+    Example using HTML:
+
+    - client.send_message('me', 'hello this is a <a href="spoiler">Text</a>, with custom emoji <a href="emoji/10002345">❤️</a> !')
+
+    `Sending spoilers and custom emoji <https://github.com/LonamiWebs/Telethon/wiki/Sending-more-than-just-messages#sending-spoilers-and-custom-emoji>`_
+    :param parse_mode: The format to use for parsing text.
+                       Can be either 'markdown' for Markdown formatting
+                       or 'html' for HTML formatting.
+    """
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
 
 async def fetch_zelzal(user_id):
     headers = {

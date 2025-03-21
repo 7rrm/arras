@@ -1,6 +1,7 @@
 import os
 import html
 import contextlib
+import requests
 from datetime import datetime
 from requests import get
 from telethon.tl.functions.photos import GetUserPhotosRequest

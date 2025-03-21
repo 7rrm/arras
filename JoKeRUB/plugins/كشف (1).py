@@ -4,6 +4,7 @@ import contextlib
 import requests
 from datetime import datetime
 from requests import get
+from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest

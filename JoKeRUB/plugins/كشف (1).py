@@ -10,7 +10,7 @@ from ..sql_helper.globals import gvarstatus
 
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
-
+from ..utils import Zed_Vip, Zed_Dev
 from ..Config import Config
 from ..core.managers import edit_or_reply
 from ..helpers import get_user_from_event, reply_id

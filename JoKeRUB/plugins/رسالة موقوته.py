@@ -71,14 +71,14 @@ async def disable_auto_delete(event):
 
 # ----------------------------------------
 # الوظيفة التلقائية لحذف الرسائل
-# ----------------------------------------
-@l313l.on(events.NewMessage(outgoing=True))
+# ------------@l313l.on(events.NewMessage(outgoing=True))
 async def auto_delete_messages(event):
-    "لحذف الرسائل تلقائيًا بعد الوقت المحدد"
     global delete_delay
     if delete_delay is not None:
-        await sleep(delete_delay)
-        try:
-            await event.delete()
-        except Exception as e:
-            LOGS.error(f"حدث خطأ أثناء حذف الرسالة: {e}")
+        # تجنب حذف الرسائل التي يتم تعديلها بواسطة أمر "كت"
+        if not event.message.text.startswith(".كت"):
+            await sleep(delete_delay)
+            try:
+                await event.delete()
+            except Exception as e:
+                LOGS.error(f"حدث خطأ أثناء حذف الرسالة: {e}")----------------------------

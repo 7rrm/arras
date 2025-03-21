@@ -50,6 +50,22 @@ async def get_user_from_event(event):
             return None
     return user_object
 
+async def fetch_zelzal(user_id):
+    headers = {
+        'Host': 'restore-access.indream.app',
+        'Connection': 'keep-alive',
+        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
+        'Accept': '*/*',
+        'Accept-Language': 'ar',
+        'Content-Length': '25',
+        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = '{"telegramId":' + str(user_id) + '}'
+    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
+    zelzal_date = response['data']['date']
+    return zelzal_date
+
 zed_dev = (5427469031, 1895219306, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
 zel_dev = (5427469031, 5426390871, 6269975462, 1985225531)
 zelzal = (5427469031, 1895219306, 5280339206)
@@ -59,7 +75,6 @@ Zel_Uid = l313l.uid
 ZED_BLACKLIST = [
     -1002171868084,
 ]
-
 async def fetch_info(replied_user, event):
     """Get details from the User object."""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user

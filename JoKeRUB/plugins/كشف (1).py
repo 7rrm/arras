@@ -253,31 +253,35 @@ async def fetch_info(replied_user, event):
     },
 )
 async def who(event):
-    "Gets info of an user"
-    #if gvarstatus("ZThon_Vip") is not None or Zel_Uid in Zed_Dev:
-        #input_str = event.pattern_match.group(1)
-        #reply = event.reply_to_msg_id
-        #if not input_str and not reply:
-            #return
+    print("تم استدعاء الأمر .ايدي")  # Debugging
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
+        print("المجموعة في القائمة السوداء")  # Debugging
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    
     zed = await edit_or_reply(event, "⇆")
+    print("تم إنشاء رسالة الانتظار")  # Debugging
+    
     if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
         os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
+    
     replied_user = await get_user_from_event(event)
+    print(f"تم الحصول على المستخدم: {replied_user}")  # Debugging
+    
     try:
         photo, caption = await fetch_info(replied_user, event)
-    #except (AttributeError, TypeError):
-        #return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+        print("تم إنشاء الصورة والنص")  # Debugging
     except AttributeError as e:
+        print(f"حدث خطأ: {e}")  # Debugging
         return await edit_or_reply(zed, str(e))
     except TypeError as e:
+        print(f"حدث خطأ: {e}")  # Debugging
         return await edit_or_reply(zed, str(e))
+    
     message_id_to_reply = event.message.reply_to_msg_id
     if not message_id_to_reply:
         message_id_to_reply = None
+    
     if gvarstatus("ZID_TEMPLATE") is None:
-        #event.client.parse_mode = CustomParseMode('html')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -286,15 +290,16 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
+                parse_mode="html",
             )
+            print("تم إرسال الملف بنجاح")  # Debugging
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("html"))
+        except (TypeError, ChatSendMediaForbiddenError) as e:
+            print(f"حدث خطأ أثناء الإرسال: {e}")  # Debugging
+            await zed.edit(caption, parse_mode="html")
     else:
-        #event.client.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -303,14 +308,15 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("markdown"),
+                parse_mode="markdown",
             )
+            print("تم إرسال الملف بنجاح")  # Debugging
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
-
+        except (TypeError, ChatSendMediaForbiddenError) as e:
+            print(f"حدث خطأ أثناء الإرسال: {e}")  # Debugging
+            await zed.edit(caption, parse_mode="markdown")
 
 @l313l.ar_cmd(
     pattern="كشف(?:\s|$)([\s\S]*)",

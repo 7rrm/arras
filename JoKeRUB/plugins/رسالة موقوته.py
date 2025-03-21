@@ -31,17 +31,6 @@ async def selfdestruct(destroy):
     await sleep(ttl)
     await smsg.delete()
 
-from asyncio import sleep
-from JoKeRUB import l313l
-from JoKeRUB.core.logger import logging
-from telethon import events
-
-plugin_category = "tools"
-LOGS = logging.getLogger(__name__)
-
-# متغير لتخزين الوقت المحدد لحذف الرسائل
-delete_delay = None
-
 # ----------------------------------------
 # الأمر: ضبط_المؤقت (لحذف جميع الرسائل بعد وقت محدد)
 # ----------------------------------------
@@ -64,6 +53,23 @@ async def set_auto_delete_timer(event):
         await event.edit("**⌔︙ يرجى إدخال رقم صحيح للوقت.**")
 
 # ----------------------------------------
+# الأمر: تعطيل_المؤقت (لإيقاف حذف الرسائل التلقائي)
+# ----------------------------------------
+@l313l.ar_cmd(
+    pattern="تعطيل_المؤقت",
+    command=("تعطيل_المؤقت", plugin_category),
+    info={
+        "شـرح": "لتعطيل المؤقت وحذف الرسائل التلقائي",
+        "⌔︙أسـتخدام": "{tr}تعطيل_المؤقت",
+    },
+)
+async def disable_auto_delete(event):
+    "لتعطيل المؤقت وحذف الرسائل التلقائي"
+    global delete_delay
+    delete_delay = None
+    await event.edit("**⌔︙ تم تعطيل المؤقت. لن يتم حذف الرسائل تلقائيًا.**")
+
+# ----------------------------------------
 # الوظيفة التلقائية لحذف الرسائل
 # ----------------------------------------
 @l313l.on(events.NewMessage(outgoing=True))
@@ -71,8 +77,9 @@ async def auto_delete_messages(event):
     "لحذف الرسائل تلقائيًا بعد الوقت المحدد"
     global delete_delay
     if delete_delay is not None:
-        await sleep(delete_delay)  # انتظر الوقت المحدد
+        await sleep(delete_delay)
         try:
-            await event.delete()  # حاول حذف الرسالة
+            await event.delete()
         except Exception as e:
             LOGS.error(f"حدث خطأ أثناء حذف الرسالة: {e}")
+            

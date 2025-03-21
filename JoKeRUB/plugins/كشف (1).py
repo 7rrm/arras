@@ -254,6 +254,11 @@ async def fetch_info(replied_user, event):
 )
 async def who(event):
     "Gets info of an user"
+    #if gvarstatus("ZThon_Vip") is not None or Zel_Uid in Zed_Dev:
+        #input_str = event.pattern_match.group(1)
+        #reply = event.reply_to_msg_id
+        #if not input_str and not reply:
+            #return
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
     zed = await edit_or_reply(event, "⇆")
@@ -262,6 +267,8 @@ async def who(event):
     replied_user = await get_user_from_event(event)
     try:
         photo, caption = await fetch_info(replied_user, event)
+    #except (AttributeError, TypeError):
+        #return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
     except AttributeError as e:
         return await edit_or_reply(zed, str(e))
     except TypeError as e:
@@ -270,6 +277,7 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     if gvarstatus("ZID_TEMPLATE") is None:
+        #event.client.parse_mode = CustomParseMode('html')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -278,14 +286,15 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode="html",  # استخدام وضع تحليل HTML
+                parse_mode=CustomParseMode("html"),
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode="html")  # استخدام وضع تحليل HTML
+            await zed.edit(caption, parse_mode=CustomParseMode("html"))
     else:
+        #event.client.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -294,13 +303,15 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode="markdown",  # استخدام وضع تحليل Markdown
+                parse_mode=CustomParseMode("markdown"),
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode="markdown")  # استخدام وضع تحليل Markdown
+            await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
+
+
 @l313l.ar_cmd(
     pattern="كشف(?:\s|$)([\s\S]*)",
     command=("كشف", plugin_category),

@@ -6,7 +6,7 @@ from datetime import datetime
 from requests import get
 
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
-from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
+from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty, MessageEntitySpoiler, MessageEntityCustomEmoji
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest
@@ -55,40 +55,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-class CustomParseMode:
-    """
-    Example using Markdown:
-
-    - client.send_message('me', 'hello this is a [Text](spoiler), with custom emoji [❤️](emoji/10002345) !')
-
-    Example using HTML:
-
-    - client.send_message('me', 'hello this is a <a href="spoiler">Text</a>, with custom emoji <a href="emoji/10002345">❤️</a> !')
-
-    `Sending spoilers and custom emoji <https://github.com/LonamiWebs/Telethon/wiki/Sending-more-than-just-messages#sending-spoilers-and-custom-emoji>`_
-    :param parse_mode: The format to use for parsing text.
-                       Can be either 'markdown' for Markdown formatting
-                       or 'html' for HTML formatting.
-    """
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-        
-def parse(self, text):
-        if self.parse_mode == 'markdown':
-            text, entities = markdown.parse(text)
-        elif self.parse_mode == 'html':
-            text, entities = html.parse(text)
-        else:
-            raise InvalidFormatException("Invalid parse mode. Choose either Markdown or HTML.")
-
-        for i, e in enumerate(entities):
-            if isinstance(e, types.MessageEntityTextUrl):
-                if e.url == 'spoiler':
-                    entities[i] = types.MessageEntitySpoiler(e.offset, e.length)
-                elif e.url.startswith('emoji/'):
-                    entities[i] = types.MessageEntityCustomEmoji(e.offset, e.length, int(e.url.split('/')[1]))
-        return text, entities
-    
 async def fetch_zelzal(user_id):
     headers = {
         'Host': 'restore-access.indream.app',
@@ -226,15 +192,15 @@ async def fetch_info(replied_user, event):
                     caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
+                        caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
+                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
+                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
                 caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
                 caption += f'<a href="emoji/5809662223890518926">❤️</a>'
@@ -245,40 +211,19 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
                 caption += f"\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>"
-                caption += f"\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
-                caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
-                if zilzal == True:
-                    caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
-                if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
-                    if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
-                caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
-                if user_id != (await event.client.get_me()).id: 
-                    caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
-                caption += f"ٴ<b>{ZEDF}</b>"
-        else:
-            caption = f"<b> {ZED_TEXT} </b>\n"
-            caption += f"ٴ<b>{ZEDF}</b>\n"
-            caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
-            caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-            caption += f"\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>"
-            caption += f"\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
+                            caption += f"\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
             caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
             if zilzal == True:
                 caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
-                    caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
+                    caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-            caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+            caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
+            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-            caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
+            caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
             caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
             caption += f"ٴ<b>{ZEDF}</b>"
     else:
@@ -309,11 +254,6 @@ async def fetch_info(replied_user, event):
 )
 async def who(event):
     "Gets info of an user"
-    #if gvarstatus("ZThon_Vip") is not None or Zel_Uid in Zed_Dev:
-        #input_str = event.pattern_match.group(1)
-        #reply = event.reply_to_msg_id
-        #if not input_str and not reply:
-            #return
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
     zed = await edit_or_reply(event, "⇆")
@@ -322,8 +262,6 @@ async def who(event):
     replied_user = await get_user_from_event(event)
     try:
         photo, caption = await fetch_info(replied_user, event)
-    #except (AttributeError, TypeError):
-        #return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
     except AttributeError as e:
         return await edit_or_reply(zed, str(e))
     except TypeError as e:
@@ -332,7 +270,6 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     if gvarstatus("ZID_TEMPLATE") is None:
-        #event.client.parse_mode = CustomParseMode('html')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -341,15 +278,14 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
+                parse_mode="html",  # استخدام وضع تحليل HTML
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("html"))
+            await zed.edit(caption, parse_mode="html")  # استخدام وضع تحليل HTML
     else:
-        #event.client.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
         try:
             await event.client.send_file(
                 event.chat_id,
@@ -358,15 +294,13 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("markdown"),
+                parse_mode="markdown",  # استخدام وضع تحليل Markdown
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
-
-
+            await zed.edit(caption, parse_mode="markdown")  # استخدام وضع تحليل Markdown
 @l313l.ar_cmd(
     pattern="كشف(?:\s|$)([\s\S]*)",
     command=("كشف", plugin_category),

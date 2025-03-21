@@ -49,7 +49,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-Zed_dev = (5427469031, 1895219306, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
+zed_dev = (5427469031, 1895219306, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
 zel_dev = (5427469031, 5426390871, 6269975462, 1985225531)
 zelzal = (5427469031, 1895219306, 5280339206)
 ZIDA = gvarstatus("Z_ZZID") or "zvhhhclc"
@@ -152,7 +152,7 @@ async def fetch_info(replied_user, event):
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " 
     ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" 
     if gvarstatus("ZID_TEMPLATE") is None:
-        if Zel_Uid in zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
+        if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
                 caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس زدثــون </b>"
                 caption += f'<a href="emoji/5812307593032372545">❤️</a>\n'
@@ -169,7 +169,7 @@ async def fetch_info(replied_user, event):
                 if zilzal == True:
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم</b>"
                     caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
-                if user_id in zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+                if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
@@ -194,7 +194,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
                 if zilzal == True:
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
-                if user_id in zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+                if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
@@ -259,7 +259,7 @@ async def who(event):
         #reply = event.reply_to_msg_id
         #if not input_str and not reply:
             #return
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_Dev):
+    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
     zed = await edit_or_reply(event, "⇆")
     if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):

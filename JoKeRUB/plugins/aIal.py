@@ -66,6 +66,132 @@ async def checker_user(username):
     else:
         return False
 
+@l313l.ar_cmd(pattern="نقل_قناة (.*)")
+async def transfer_to_channel(event):
+    username = event.pattern_match.group(1)
+    if not username.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_قناة`** + اليـوزر)**")
+    
+    try:
+        zuz = f"@{l313l.me.username}" if l313l.me.username else ""
+        ch = await l313l(
+            functions.channels.CreateChannelRequest(
+                title="القنـاة الجديـدة",
+                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv | {zuz}",
+            )
+        )
+        try:
+            ch = ch.updates[1].channel_id
+        except Exception:
+            ch = ch.chats[0].id
+        
+        await l313l(
+            functions.channels.UpdateUsernameRequest(
+                channel=ch, username=username.replace("@", "")
+            )
+        )
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى القنـاة الجديـدة .. بنجـاح ☑️**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
+
+@l313l.ar_cmd(pattern="نقل_حساب (.*)")
+async def transfer_to_account(event):
+    username = event.pattern_match.group(1)
+    if not username.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_حساب`** + اليـوزر)**")
+    
+    try:
+        await l313l(functions.account.UpdateUsernameRequest(username=username.replace("@", "")))
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى حسـابك .. بنجـاح ☑️**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
+
+@l313l.ar_cmd(pattern="نقل_بوت_القناة (.*)")
+async def transfer_bot_to_channel(event):
+    username = event.pattern_match.group(1)
+    if not username.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_بوت_القناة`** + اليـوزر)**")
+    
+    try:
+        # إزالة اليوزر من القناة
+        await l313l(
+            functions.channels.UpdateUsernameRequest(
+                channel=event.chat_id, username=""
+            )
+        )
+        
+        # إنشاء بوت جديد باستخدام اليوزر
+        bot_name = "البوت الجديد"
+        bot_description = "تم إنشاء هذا البوت بواسطة ZThon Userbot"
+        
+        await event.client.send_message("@BotFather", "/newbot")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_name)
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", "/setabouttext")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_description)
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", "/setdescription")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_description)
+        
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى بوت فـاذر (@BotFather) .. بنجـاح ☑️**\n**⎉╎تم إنشـاء بـوت جديد باستخـدام اليـوزر.**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
+
+@l313l.ar_cmd(pattern="نقل_بوت_الحساب (.*)")
+async def transfer_bot_to_account(event):
+    username = event.pattern_match.group(1)
+    if not username.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_بوت_الحساب`** + اليـوزر)**")
+    
+    try:
+        # إزالة اليوزر من الحساب
+        await l313l(functions.account.UpdateUsernameRequest(username=""))
+        
+        # إنشاء بوت جديد باستخدام اليوزر
+        bot_name = "البوت الجديد"
+        bot_description = "تم إنشاء هذا البوت بواسطة ZThon Userbot"
+        
+        await event.client.send_message("@BotFather", "/newbot")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_name)
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", "/setabouttext")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_description)
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", "/setdescription")
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(2)
+        await event.client.send_message("@BotFather", bot_description)
+        
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى بوت فـاذر (@BotFather) .. بنجـاح ☑️**\n**⎉╎تم إنشـاء بـوت جديد باستخـدام اليـوزر.**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
+
+@l313l.ar_cmd(pattern="نقل الملكية")
+async def transfer_ownership(event):
+    await edit_or_reply(event, "**⎉╎قـائمـة اوامـر تحويـل ملكيـة القنـاة/المجموعـة:**\n\n"
+                          "**⪼** `.نقل_قناة + اليوزر`\n"
+                          "**⪼** `.نقل_حساب + اليوزر`\n"
+                          "**⪼** `.نقل_بوت_القناة + اليوزر`\n"
+                          "**⪼** `.نقل_بوت_الحساب + اليوزر`\n\n"
+                          "**⎉╎لـ عـرض اوامـر الصيـد والتثبيت الاساسيـة ارسـل الامـر التالـي :**\n"
+                          "**⪼**  `.الصيد`  **او**  `.التثبيت`")
+
 async def gen_user(choice):
     a = "qwertyuiopasdfghjklzxcvbnm"
     b = "1234567890"

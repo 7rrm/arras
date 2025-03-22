@@ -103,18 +103,19 @@ async def transfer_to_account(event):
     if not username.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_حساب`** + اليـوزر)**")
 
-    try:
-        # إزالة اليوزر من القناة أولًا
-        await l313l(
-            functions.channels.UpdateUsernameRequest(
-                channel=event.chat_id, username=""
-            )
-        )
+    # الحصول على اليوزر الحالي للحساب
+    current_username = f"@{l313l.me.username}" if l313l.me.username else None
 
-        # تعيين اليوزر لحسابك
+    try:
+        # إذا كان الحساب يمتلك يوزر، قم بحذفه أولًا
+        if current_username:
+            await l313l(functions.account.UpdateUsernameRequest(username=""))
+            await edit_or_reply(event, f"**⎉╎تم إزالـة اليـوزر الحالي ({current_username}) .. بنجـاح ☑️**")
+
+        # تعيين اليوزر الجديد لحسابك
         await l313l(functions.account.UpdateUsernameRequest(username=username.replace("@", "")))
 
-        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى حسـابك .. بنجـاح ☑️**")
+        await edit_or_reply(event, f"**⎉╎تم تعييـن اليـوزر {username} لحسـابك .. بنجـاح ☑️**")
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 

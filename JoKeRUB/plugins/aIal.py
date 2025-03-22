@@ -81,7 +81,7 @@ async def transfer_to_channel(event):
         ch = await l313l(
             functions.channels.CreateChannelRequest(
                 title="القنـاة الجديـدة",
-                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv",
+                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv | @Lx5x5",
             )
         )
         ch = ch.chats[0].id  # الحصول على معرف القناة مباشرة
@@ -102,9 +102,18 @@ async def transfer_to_account(event):
     username = event.pattern_match.group(1)
     if not username.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_حساب`** + اليـوزر)**")
-    
+
     try:
+        # إزالة اليوزر من القناة أولًا
+        await l313l(
+            functions.channels.UpdateUsernameRequest(
+                channel=event.chat_id, username=""
+            )
+        )
+
+        # تعيين اليوزر لحسابك
         await l313l(functions.account.UpdateUsernameRequest(username=username.replace("@", "")))
+
         await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى حسـابك .. بنجـاح ☑️**")
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")

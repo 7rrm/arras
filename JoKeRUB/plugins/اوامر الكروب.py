@@ -1008,7 +1008,6 @@ async def reset_points(event):
 @l313l.ar_cmd(pattern="احكام(?: |$)(.*)")
 async def zed(event): # Code by t.me/zzzzl1l
     user = await event.get_sender()
-    userz = l313l.uid
     zed_chat = event.chat_id
     if gvarstatus("Z_AKM") is None:
         delgvar("Z_EKB")
@@ -1019,9 +1018,9 @@ async def zed(event): # Code by t.me/zzzzl1l
         delgvar("Z_A5K")
         delgvar("A_CHAT")
         addgvar("Z_AKM", "true")
-        addgvar("Z_AK", userz)
+        addgvar("Z_AK", user.id)  # إضافة الشخص الذي يرسل .احكام كأول لاعب
         addgvar("A_CHAT", zed_chat)
-        return await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا` ", link_preview=False)
+        return await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا`", link_preview=False)
     else:
         delgvar("Z_EKB")
         delgvar("Z_AK")
@@ -1032,9 +1031,10 @@ async def zed(event): # Code by t.me/zzzzl1l
         delgvar("Z_AKM")
         delgvar("A_CHAT")
         addgvar("Z_AKM", "true")
-        addgvar("Z_AK", userz)
+        addgvar("Z_AK", user.id)  # إعادة تعيين اللاعب الأول
         addgvar("A_CHAT", zed_chat)
-        return await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا` ", link_preview=False)
+        return await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا`", link_preview=False)
+
 
 @l313l.on(events.NewMessage(pattern=".انا"))
 async def _(event): # Code by t.me/zzzzl1l
@@ -1049,26 +1049,24 @@ async def _(event): # Code by t.me/zzzzl1l
                 break
         
         if is_joined:
-            return await event.reply("- عَزيزي ، أنت منضم سابقًا .")  # تمت إزالة link_preview=False
+            return await event.reply("- عَزيزي ، أنت منضم سابقًا .")  # رسالة الانضمام المسبق
         
         # إذا لم يكن منضمًا مسبقًا
-        if gvarstatus("Z_AK") is None:
-            addgvar("Z_AK", user.id)
-            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 2⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
-        elif gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is None:
+        if gvarstatus("Z_A2K") is None:
             addgvar("Z_A2K", user.id)
-            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 3⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
-        elif gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is None:
+            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 2⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A3K") is None:
             addgvar("Z_A3K", user.id)
-            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 4⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
-        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is None:
+            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 3⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A4K") is None:
             addgvar("Z_A4K", user.id)
-            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 5⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
-        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is None:
+            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 4⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A5K") is None:
             addgvar("Z_A5K", user.id)
-            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 6⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`", link_preview=False)
-        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is not None:
+            return await event.reply(f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 5⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        else:
             return await event.reply(f"**- عـذراً عـزيـزي**   [{user.first_name}](tg://user?id={user.id})  \n\n**- لقـد اكتمـل عـدد اللاعبيــن . . انتظـر بـدء اللعبـة من جديـد**", link_preview=False)
+
 
 @l313l.ar_cmd(pattern="تم(?: |$)(.*)")
 async def zed(event): 

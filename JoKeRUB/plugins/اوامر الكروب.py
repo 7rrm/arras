@@ -1004,3 +1004,148 @@ async def reset_points(event):
     global points
     points = {}
     await event.edit('**تم تصفير نقاط المشاركين بنجاح!**')
+
+
+
+@l313l.ar_cmd(pattern="احكام(?: |$)(.*)")
+async def zed(event): # Code by t.me/zzzzl1l
+    user = await event.get_sender()
+    userz = l313l.uid
+    zed_chat = event.chat_id
+    if gvarstatus("Z_AKM") is None:
+        delgvar("Z_EKB")
+        delgvar("Z_AK")
+        delgvar("Z_A2K")
+        delgvar("Z_A3K")
+        delgvar("Z_A4K")
+        delgvar("Z_A5K")
+        delgvar("A_CHAT")
+        addgvar("Z_AKM", "true")
+        addgvar("Z_AK", userz)
+        addgvar("A_CHAT", zed_chat)
+        return await edit_or_reply(event, f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا` ", link_preview=False)
+    else:
+        delgvar("Z_EKB")
+        delgvar("Z_AK")
+        delgvar("Z_A2K")
+        delgvar("Z_A3K")
+        delgvar("Z_A4K")
+        delgvar("Z_A5K")
+        delgvar("Z_AKM")
+        delgvar("A_CHAT")
+        addgvar("Z_AKM", "true")
+        addgvar("Z_AK", userz)
+        addgvar("A_CHAT", zed_chat)
+        return await edit_or_reply(event, f"[ᯓ. 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم بـدء اللعبـة وتـم إنضمـامي**  [{user.first_name}](tg://user?id={user.id})  **بنجـاح ☑️**\n\n**- اللي بيلعـب يرسل**  `.انا` ", link_preview=False)
+
+
+
+@zedub.on(events.NewMessage(pattern=".انا"))
+async def _(event): # Code by t.me/zzzzl1l
+    user = await event.get_sender()
+    if gvarstatus("Z_AKM") is not None and event.chat_id == int(gvarstatus("A_CHAT")):
+        if user.id == zedub.uid:
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- انت منضم مسبقـاً ؟!**", link_preview=False)
+        if gvarstatus("Z_AK") is None:
+            addgvar("Z_AK", user.id)
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 2⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is None:
+            addgvar("Z_A2K", user.id)
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 3⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is None:
+            addgvar("Z_A3K", user.id)
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 4⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is None:
+            addgvar("Z_A4K", user.id)
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 5⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`\n**- او ينتظـر انضمـام لاعبيـن 🛗**", link_preview=False)
+        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is None:
+            addgvar("Z_A5K", user.id)
+            return await event.reply(f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تم انضمـام**   [{user.first_name}](tg://user?id={user.id})  ** ☑️**\n\n**- اصبح عـدد اللاعبيـن 6⃣**\n**- على صاحب اللعبـة ان يرسـل**  `.تم`", link_preview=False)
+        elif gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is not None:
+            return await event.reply(f"**- عـذراً عـزيـزي**   [{user.first_name}](tg://user?id={user.id})  \n\n**- لقـد اكتمـل عـدد اللاعبيــن . . انتظـر بـدء اللعبـة من جديـد**", link_preview=False)
+
+
+
+@zedub.zed_cmd(pattern="تم(?: |$)(.*)")
+async def zed(event): # Code by t.me/zzzzl1l
+    ZZZZ = gvarstatus("Z_AKM")
+    AKM = gvarstatus("Z_AK")
+    AK2M = gvarstatus("Z_A2K")
+    AK3M = gvarstatus("Z_A3K")
+    AK4M = gvarstatus("Z_A4K")
+    AK5M = gvarstatus("Z_A5K")
+# Code by t.me/zzzzl1l
+    zana2 = [f"{AKM}", f"{AK2M}"]
+    zaza2 = [x for x in zana2 if x is not None]
+    zana3 = [f"{AKM}", f"{AK2M}", f"{AK3M}"]
+    zaza3 = [x for x in zana3 if x is not None]
+    zana4 = [f"{AKM}", f"{AK2M}", f"{AK3M}", f"{AK4M}"]
+    zaza4 = [x for x in zana4 if x is not None]
+    zana5 = [f"{AKM}", f"{AK2M}", f"{AK5M}", f"{AK3M}", f"{AK4M}"]
+    zaza5 = [x for x in zana5 if x is not None]
+# Code by t.me/zzzzl1l
+    zed2 = random.choice(zana2)
+    zee2 = random.choice([x for x in zaza2 if x != zed2])
+    zed3 = random.choice(zana3)
+    zee3 = random.choice([x for x in zaza3 if x != zed3])
+    zed4 = random.choice(zana4)
+    zee4 = random.choice([x for x in zaza4 if x != zed4])
+    zed5 = random.choice(zana5)
+    zee5 = random.choice([x for x in zaza5 if x != zed5])
+    if gvarstatus("Z_AKM") is None:
+        return await edit_or_reply(event, "**- انت لم تبـدأ اللعبـه بعـد ؟!\n- لـ بـدء لعبـة جديـدة ارسـل** `.احكام`")
+    if gvarstatus("Z_AK") is None:
+        return
+    if gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is None and gvarstatus("Z_A4K") is None and gvarstatus("Z_A5K") is None:
+       
+        zelzal = int(zed2)
+        zilzal = int(zee2)
+        try:
+            user_zed = await event.client.get_entity(zelzal)
+            user_zee = await event.client.get_entity(zilzal)
+        except ValueError:
+            return
+        name_zed = user_zed.first_name
+        name_zee = user_zee.first_name
+        await edit_or_reply(event, f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed2})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee2}) ", link_preview=False)
+        delgvar("Z_AKM")
+        return
+    if gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is None and gvarstatus("Z_A5K") is None:
+        zelzal = int(zed3)
+        zilzal = int(zee3)
+        try:
+            user_zed = await event.client.get_entity(zelzal)
+            user_zee = await event.client.get_entity(zilzal)
+        except ValueError:
+            return
+        name_zed = user_zed.first_name
+        name_zee = user_zee.first_name
+        await edit_or_reply(event, f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed3})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee3}) ", link_preview=False)
+        delgvar("Z_AKM")
+        return
+    if gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is None:
+        zelzal = int(zed4)
+        zilzal = int(zee4)
+        try:
+            user_zed = await event.client.get_entity(zelzal)
+            user_zee = await event.client.get_entity(zilzal)
+        except ValueError:
+            return
+        name_zed = user_zed.first_name
+        name_zee = user_zee.first_name
+        await edit_or_reply(event, f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed4})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee4}) ", link_preview=False)
+        delgvar("Z_AKM")
+        return
+    if gvarstatus("Z_AK") is not None and gvarstatus("Z_A2K") is not None and gvarstatus("Z_A3K") is not None and gvarstatus("Z_A4K") is not None and gvarstatus("Z_A5K") is not None:
+        zelzal = int(zed5)
+        zilzal = int(zee5)
+        try:
+            user_zed = await event.client.get_entity(zelzal)
+            user_zee = await event.client.get_entity(zilzal)
+        except ValueError:
+            return
+        name_zed = user_zed.first_name
+        name_zee = user_zee.first_name
+        await edit_or_reply(event, f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 - ⚖🧑🏻‍⚖ لعبـة أحكـام](t.me/ZThon)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed5})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee5}) ", link_preview=False)
+        delgvar("Z_AKM")
+        return

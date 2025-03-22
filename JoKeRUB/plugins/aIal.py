@@ -66,31 +66,34 @@ async def checker_user(username):
     else:
         return False
 
-@l313l.ar_cmd(pattern="نقل_قناة (.*)")
+@l313l.ar_cmd(pattern="نقل_قناة")
 async def transfer_to_channel(event):
-    username = event.pattern_match.group(1)
-    if not username.startswith('@'):
-        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_قناة`** + اليـوزر)**")
-    
+    # الحصول على اليوزر الحالي للحساب
+    current_username = f"@{l313l.me.username}" if l313l.me.username else None
+    if not current_username:
+        return await edit_or_reply(event, "**⎉╎حسـابك لا يمتلك يـوزر حاليـاً ❌**")
+
     try:
-        zuz = f"@{l313l.me.username}" if l313l.me.username else ""
+        # إنشاء قناة جديدة
         ch = await l313l(
             functions.channels.CreateChannelRequest(
                 title="القنـاة الجديـدة",
-                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv | {zuz}",
+                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv",
             )
         )
-        try:
-            ch = ch.updates[1].channel_id
-        except Exception:
-            ch = ch.chats[0].id
-        
+        ch = ch.chats[0].id  # الحصول على معرف القناة مباشرة
+
+        # نقل اليوزر إلى القناة الجديدة
         await l313l(
             functions.channels.UpdateUsernameRequest(
-                channel=ch, username=username.replace("@", "")
+                channel=ch, username=current_username.replace("@", "")
             )
         )
-        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى القنـاة الجديـدة .. بنجـاح ☑️**")
+
+        # إزالة اليوزر من الحساب
+        await l313l(functions.account.UpdateUsernameRequest(username=""))
+
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {current_username} إلى القنـاة الجديـدة .. بنجـاح ☑️**")
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 

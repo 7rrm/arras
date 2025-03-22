@@ -74,6 +74,9 @@ async def transfer_to_channel(event):
         return await edit_or_reply(event, "**⎉╎حسـابك لا يمتلك يـوزر حاليـاً ❌**")
 
     try:
+        # إزالة اليوزر من الحساب أولًا
+        await l313l(functions.account.UpdateUsernameRequest(username=""))
+
         # إنشاء قناة جديدة
         ch = await l313l(
             functions.channels.CreateChannelRequest(
@@ -83,15 +86,12 @@ async def transfer_to_channel(event):
         )
         ch = ch.chats[0].id  # الحصول على معرف القناة مباشرة
 
-        # نقل اليوزر إلى القناة الجديدة
+        # تعيين اليوزر للقناة الجديدة
         await l313l(
             functions.channels.UpdateUsernameRequest(
                 channel=ch, username=current_username.replace("@", "")
             )
         )
-
-        # إزالة اليوزر من الحساب
-        await l313l(functions.account.UpdateUsernameRequest(username=""))
 
         await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {current_username} إلى القنـاة الجديـدة .. بنجـاح ☑️**")
     except Exception as e:

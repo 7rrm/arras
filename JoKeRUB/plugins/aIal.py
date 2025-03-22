@@ -121,26 +121,11 @@ async def transfer_bot_to_channel(event):
         )
         
         # إنشاء بوت جديد باستخدام اليوزر
-        bot_name = "البوت الجديد"
-        bot_description = "تم إنشاء هذا البوت بواسطة ZThon Userbot"
+        bot_name = "البوت الجديد"  # يمكنك تغيير الاسم حسب الرغبة
         
         await event.client.send_message("@BotFather", "/newbot")
-        await asyncio.sleep(2)
         await event.client.send_message("@BotFather", bot_name)
-        await asyncio.sleep(2)
         await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", "/setabouttext")
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", bot_description)
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", "/setdescription")
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", bot_description)
         
         await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى بوت فـاذر (@BotFather) .. بنجـاح ☑️**\n**⎉╎تم إنشـاء بـوت جديد باستخـدام اليـوزر.**")
     except Exception as e:
@@ -157,40 +142,53 @@ async def transfer_bot_to_account(event):
         await l313l(functions.account.UpdateUsernameRequest(username=""))
         
         # إنشاء بوت جديد باستخدام اليوزر
-        bot_name = "البوت الجديد"
-        bot_description = "تم إنشاء هذا البوت بواسطة ZThon Userbot"
+        bot_name = "البوت الجديد"  # يمكنك تغيير الاسم حسب الرغبة
         
         await event.client.send_message("@BotFather", "/newbot")
-        await asyncio.sleep(2)
         await event.client.send_message("@BotFather", bot_name)
-        await asyncio.sleep(2)
         await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", "/setabouttext")
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", bot_description)
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", "/setdescription")
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(2)
-        await event.client.send_message("@BotFather", bot_description)
         
         await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} إلى بوت فـاذر (@BotFather) .. بنجـاح ☑️**\n**⎉╎تم إنشـاء بـوت جديد باستخـدام اليـوزر.**")
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 
-@l313l.ar_cmd(pattern="نقل الملكية")
+@l313l.ar_cmd(pattern="نقل_ملكية (.*)")
 async def transfer_ownership(event):
-    await edit_or_reply(event, "**⎉╎قـائمـة اوامـر تحويـل ملكيـة القنـاة/المجموعـة:**\n\n"
-                          "**⪼** `.نقل_قناة + اليوزر`\n"
-                          "**⪼** `.نقل_حساب + اليوزر`\n"
-                          "**⪼** `.نقل_بوت_القناة + اليوزر`\n"
-                          "**⪼** `.نقل_بوت_الحساب + اليوزر`\n\n"
-                          "**⎉╎لـ عـرض اوامـر الصيـد والتثبيت الاساسيـة ارسـل الامـر التالـي :**\n"
-                          "**⪼**  `.الصيد`  **او**  `.التثبيت`")
+    target_user = event.pattern_match.group(1)
+    if not target_user.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_ملكية`** + معرف الشخص)**")
+    
+    # طلب كلمة المرور من المستخدم
+    password_msg = await event.respond("**⎉╎رجـاءً أدخـل كلمـة مـرور حسـابك:**")
+    
+    try:
+        # انتظار إدخال كلمة المرور
+        def check_password(m):
+            return m.sender_id == event.sender_id and m.chat_id == event.chat_id
+        
+        password_event = await event.client.wait_for('message', timeout=60, check=check_password)
+        password = password_event.text
+        
+        # تعديل الرسالة لاستبدال كلمة المرور بعلامات ****
+        await password_event.edit("******")
+        
+        # الحصول على كيان المستخدم الهدف
+        target_entity = await event.client.get_entity(target_user)
+        
+        # نقل ملكية القناة
+        await event.client(
+            functions.channels.EditCreatorRequest(
+                channel=event.chat_id,
+                user_id=target_entity.id,
+                password=password  # استخدام كلمة المرور التي أدخلها المستخدم
+            )
+        )
+        
+        await edit_or_reply(event, f"**⎉╎تم نقـل ملكيـة القنـاة إلى {target_user} .. بنجـاح ☑️**")
+    except asyncio.TimeoutError:
+        await edit_or_reply(event, "**⎉╎انتهـى الوقـت المحدد لإدخـال كلمـة المـرور.**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل الملكيـة:**\n`{str(e)}`")
 
 async def gen_user(choice):
     a = "qwertyuiopasdfghjklzxcvbnm"

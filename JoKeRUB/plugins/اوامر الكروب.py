@@ -1049,7 +1049,7 @@ async def _(event): # Code by t.me/zzzzl1l
                 break
         
         if is_joined:
-            return await event.reply("- عَزيزي ، أنت منضم سابقًا .", link_preview=False)
+            return await event.reply("- عَزيزي ، أنت منضم سابقًا .")  # تمت إزالة link_preview=False
         
         # إذا لم يكن منضمًا مسبقًا
         if gvarstatus("Z_AK") is None:

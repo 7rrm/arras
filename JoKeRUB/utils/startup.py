@@ -99,10 +99,10 @@ async def startupmessage():
     try:
         if BOTLOG:
             Config.CATUBLOGO = await l313l.tgbot.send_file(
-                BOTLOG_CHATID,
-                "https://vault.pictures/p/343c20928c0e486aa6520695df9e2e1f",
-                caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓\n◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n  ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
-                buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
+    BOTLOG_CHATID,
+    "l313l/razan/resources/start/arras.JPEG",  # المسار المحلي للصورة
+    caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓\n◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n  ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
+    buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
             )
     except Exception as e:
         LOGS.error(e)

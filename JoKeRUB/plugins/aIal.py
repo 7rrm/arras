@@ -165,6 +165,9 @@ async def transfer_bot_to_account(event):
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 
+from telethon import functions, types, events
+from telethon.errors import FloodWaitError
+
 @l313l.ar_cmd(pattern="نقل_ملكية (.*)")
 async def transfer_ownership(event):
     # الحصول على اليوزر أو المعرف الخاص بالشخص الذي سيتم نقل الملكية إليه
@@ -192,9 +195,14 @@ async def transfer_ownership(event):
         if two_step_verification.has_password:
             # إذا كان التحقق بخطوتين مفعلًا، اطلب إدخال كلمة المرور
             await edit_or_reply(event, "**⎉╎يبدو أن لديك تحقق بخطوتين مفعل. الرجاء إدخال كلمة المرور:**")
-            password_response = await event.client.wait_for(
-                events.NewMessage(incoming=True, from_users=event.sender_id)
-            password = password_response.text.strip()
+            try:
+                password_response = await event.client.wait_for(
+                    events.NewMessage(incoming=True, from_users=event.sender_id),
+                    timeout=60  # انتظر لمدة 60 ثانية
+                )
+                password = password_response.text.strip()
+            except asyncio.TimeoutError:
+                return await edit_or_reply(event, "**⎉╎انتهى الوقت المحدد لإدخال كلمة المرور. الرجاء المحاولة مرة أخرى.**")
 
             # استخدام كلمة المرور في طلب نقل الملكية
             await l313l(

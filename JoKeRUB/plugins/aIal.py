@@ -165,29 +165,14 @@ async def transfer_bot_to_account(event):
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 
-@l313l.ar_cmd(pattern="نقل_ملكية (.*)")
+@l313l.ar_cmd(pattern="نقل_ملكية (@\\w+) (.+)")
 async def transfer_ownership(event):
-    target_user = event.pattern_match.group(1)
-    if not target_user.startswith('@'):
-        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_ملكية`** + معرف الشخص)**")
+    target_user = event.pattern_match.group(1)  # معرف الشخص
+    password = event.pattern_match.group(2)  # كلمة المرور
 
     try:
         # الحصول على كيان المستخدم الهدف
         target_entity = await event.client.get_entity(target_user)
-        
-        # طلب كلمة المرور من المستخدم
-        password_msg = await event.respond("**⎉╎رجـاءً أدخـل كلمـة مـرور حسـابك:**")
-        
-        # انتظار إدخال كلمة المرور
-        def check_password(m):
-            return m.sender_id == event.sender_id and m.chat_id == event.chat_id
-        
-        password_event = await event.client.get_messages(event.chat_id, limit=1, from_user='me', search=password_msg.text)
-        password = password_event[0].text
-        
-        # تعديل الرسالة لاستبدال كلمة المرور بعلامات **** (فقط إذا كانت الرسالة تحتوي على كلمة المرور)
-        if password:
-            await password_event[0].edit("**⎉╎كلمـة المـرور: ******")
         
         # نقل ملكية القناة
         await event.client(

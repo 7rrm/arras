@@ -100,8 +100,8 @@ async def startupmessage():
         if BOTLOG:
             Config.CATUBLOGO = await l313l.tgbot.send_file(
                 BOTLOG_CHATID,
-                "https://t.me/i1Voices/2139",
-                caption="**‏᯽︙ بــوت الجوكر يـعـمـل بـنـجـاح ✓ \n᯽︙ أرسل `.الاوامر`لرؤية اوامر السورس \n  ᯽︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل`.هاك`**",
+                "https://vault.pictures/p/343c20928c0e486aa6520695df9e2e1f",
+                caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓\n◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n  ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
                 buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
             )
     except Exception as e:

@@ -170,23 +170,23 @@ async def transfer_ownership(event):
     target_user = event.pattern_match.group(1)
     if not target_user.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_ملكية`** + معرف الشخص)**")
-    
-    # طلب كلمة المرور من المستخدم
-    password_msg = await event.respond("**⎉╎رجـاءً أدخـل كلمـة مـرور حسـابك:**")
-    
+
     try:
+        # الحصول على كيان المستخدم الهدف
+        target_entity = await event.client.get_entity(target_user)
+        
+        # طلب كلمة المرور من المستخدم
+        password_msg = await event.respond("**⎉╎رجـاءً أدخـل كلمـة مـرور حسـابك:**")
+        
         # انتظار إدخال كلمة المرور
         def check_password(m):
             return m.sender_id == event.sender_id and m.chat_id == event.chat_id
         
-        password_event = await event.client.wait_for('message', timeout=60, check=check_password)
-        password = password_event.text
+        password_event = await event.client.get_messages(event.chat_id, limit=1, from_user='me', search=password_msg.text)
+        password = password_event[0].text
         
         # تعديل الرسالة لاستبدال كلمة المرور بعلامات ****
-        await password_event.edit("******")
-        
-        # الحصول على كيان المستخدم الهدف
-        target_entity = await event.client.get_entity(target_user)
+        await password_event[0].edit("**⎉╎كلمـة المـرور: ******")
         
         # نقل ملكية القناة
         await event.client(
@@ -198,8 +198,6 @@ async def transfer_ownership(event):
         )
         
         await edit_or_reply(event, f"**⎉╎تم نقـل ملكيـة القنـاة إلى {target_user} .. بنجـاح ☑️**")
-    except asyncio.TimeoutError:
-        await edit_or_reply(event, "**⎉╎انتهـى الوقـت المحدد لإدخـال كلمـة المـرور.**")
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل الملكيـة:**\n`{str(e)}`")
 

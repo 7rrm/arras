@@ -167,6 +167,7 @@ async def transfer_bot_to_account(event):
 
 from telethon import functions, types, events
 from telethon.errors import FloodWaitError
+import asyncio
 
 @l313l.ar_cmd(pattern="نقل_ملكية (.*)")
 async def transfer_ownership(event):
@@ -196,7 +197,8 @@ async def transfer_ownership(event):
             # إذا كان التحقق بخطوتين مفعلًا، اطلب إدخال كلمة المرور
             await edit_or_reply(event, "**⎉╎يبدو أن لديك تحقق بخطوتين مفعل. الرجاء إدخال كلمة المرور:**")
             try:
-                password_response = await event.client.wait_for(
+                # انتظر رسالة جديدة من المستخدم تحتوي على كلمة المرور
+                password_response = await l313l.wait_for(
                     events.NewMessage(incoming=True, from_users=event.sender_id),
                     timeout=60  # انتظر لمدة 60 ثانية
                 )
@@ -236,40 +238,6 @@ async def transfer_ownership(event):
         error_message = f"**⎉╎حدث خطأ أثناء نقل الملكية:**\n`{str(e)}`"
         await edit_or_reply(event, error_message)
 
-@l313l.ar_cmd(pattern="نقل_بوت_لقناة (.*)")
-async def transfer_bot_to_channel(event):
-    username = event.pattern_match.group(1)
-    if not username.startswith('@'):
-        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_بوت_لقناة`** + اليـوزر)**")
-
-    try:
-        # حذف البوت المرتبط باليوزر
-        await event.client.send_message("@BotFather", "/delete")
-        await asyncio.sleep(1)
-        await event.client.send_message("@BotFather", username.replace("@", ""))
-        await asyncio.sleep(1)
-        await event.client.send_message("@BotFather", "نعم")
-
-        # إنشاء قناة جديدة
-        ch = await l313l(
-            functions.channels.CreateChannelRequest(
-                title="القنـاة الجديـدة",
-                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv",
-            )
-        )
-        ch = ch.chats[0].id  # الحصول على معرف القناة مباشرة
-
-        # نقل اليوزر إلى القناة الجديدة
-        await l313l(
-            functions.channels.UpdateUsernameRequest(
-                channel=ch, username=username.replace("@", "")
-            )
-        )
-
-        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} من @BotFather إلى القنـاة الجديـدة .. بنجـاح ☑️**")
-    except Exception as e:
-        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
-        
 async def gen_user(choice):
     a = "qwertyuiopasdfghjklzxcvbnm"
     b = "1234567890"

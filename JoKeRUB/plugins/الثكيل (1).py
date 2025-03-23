@@ -80,8 +80,10 @@ async def auto_reply_word_game(event):
                     word = word[:-1]
                 # تأخير الرد بـ 1 ثانية
                 await asyncio.sleep(1)
-                # الرد على الرسالة
-                await event.reply(word)
+                # إرسال رسالة جديدة تحتوي على الكلمة المستخرجة (بدون الرد على الرسالة الأصلية)
+                await event.client.send_message(event.chat_id, word)
+
+# باقي الكود الحالي...
                 
 ######المطور arras #####
                                   

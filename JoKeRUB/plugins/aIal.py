@@ -185,8 +185,9 @@ async def transfer_ownership(event):
         password_event = await event.client.get_messages(event.chat_id, limit=1, from_user='me', search=password_msg.text)
         password = password_event[0].text
         
-        # تعديل الرسالة لاستبدال كلمة المرور بعلامات ****
-        await password_event[0].edit("**⎉╎كلمـة المـرور: ******")
+        # تعديل الرسالة لاستبدال كلمة المرور بعلامات **** (فقط إذا كانت الرسالة تحتوي على كلمة المرور)
+        if password:
+            await password_event[0].edit("**⎉╎كلمـة المـرور: ******")
         
         # نقل ملكية القناة
         await event.client(

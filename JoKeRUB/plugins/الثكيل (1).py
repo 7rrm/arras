@@ -22,6 +22,66 @@ async def break_word(event):
     await event.delete()
 
 import asyncio
+import re
+from telethon import events
+from JoKeRUB import l313l
+
+# تعريف المتغيرات العامة
+word_game_enabled = False
+word_game_allowed_user_id = None  # معرف الشخص أو البوت المسموح له
+word_game_trigger_text = "- اسرع واحد يكتب الكلمه ->"  # النص المحفز الافتراضي
+
+# تفعيل ميزة الكلمات مع معرف الشخص أو البوت
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل كلمات(?: (\d+))?$'))
+async def enable_word_game(event):
+    global word_game_enabled, word_game_allowed_user_id
+    user_id = event.pattern_match.group(1)  # الحصول على المعرف إذا تم إدخالها
+
+    if user_id:
+        word_game_allowed_user_id = int(user_id)  # تعيين المعرف المسموح له
+    else:
+        # إذا لم يتم إدخال معرف، يتم إعلام المستخدم بضرورة إدخال معرف
+        await event.edit("**᯽︙ يرجى إدخال معرف صحيح بعد الأمر.**")
+        return
+
+    word_game_enabled = True
+    await event.edit(f"**᯽︙ تم تفعيل ميزة الكلمات بنجاح ✅**\n"
+                     f"**المعرف المسموح:** `{word_game_allowed_user_id}`")
+
+# تعطيل ميزة الكلمات
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل كلمات$'))
+async def disable_word_game(event):
+    global word_game_enabled, word_game_allowed_user_id
+    word_game_enabled = False
+    word_game_allowed_user_id = None  # إلغاء تعيين المعرف المسموح له
+    await event.edit("**᯽︙ تم تعطيل ميزة الكلمات بنجاح ✅**")
+
+# تفعيل نص محفز مخصص
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص كلمات (.*)$'))
+async def set_word_game_trigger_text(event):
+    global word_game_trigger_text
+    word_game_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
+    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{word_game_trigger_text}`")
+
+# الرد التلقائي على الرسائل
+@l313l.on(events.NewMessage(incoming=True))
+async def auto_reply_word_game(event):
+    global word_game_enabled, word_game_allowed_user_id, word_game_trigger_text
+    
+    # التحقق من أن الميزة مفعلة وأن الرسالة من المعرف المسموح له
+    if word_game_enabled and event.sender_id == word_game_allowed_user_id:
+        if word_game_trigger_text in event.raw_text:
+            # استخراج الكلمة بين الأقواس
+            match = re.search(r'\(([^)]+)\)', event.raw_text)
+            if match:
+                word = match.group(1).strip()  # إزالة المسافات الزائدة
+                # إزالة النقطة من نهاية الكلمة إذا وجدت
+                if word.endswith('.'):
+                    word = word[:-1]
+                # الرد على الرسالة
+                await event.reply(word)
+
+import asyncio
 from telethon import events
 from JoKeRUB import l313l
 

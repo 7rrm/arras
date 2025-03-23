@@ -71,16 +71,20 @@ async def auto_reply_word_game(event):
     # التحقق من أن الميزة مفعلة وأن الرسالة من المعرف المسموح له
     if word_game_enabled and event.sender_id == word_game_allowed_user_id:
         if word_game_trigger_text in event.raw_text:
-            # استخراج الكلمة بين الأقواس
-            match = re.search(r'\(([^)]+)\)', event.raw_text)
+            # استخراج الكلمة بين الأقواس (أي من () أو {})
+            match = re.search(r'[\({]([^)}]+)[\)}]', event.raw_text)
             if match:
                 word = match.group(1).strip()  # إزالة المسافات الزائدة
                 # إزالة النقطة من نهاية الكلمة إذا وجدت
                 if word.endswith('.'):
                     word = word[:-1]
+                # تأخير الرد بـ 1 ثانية
+                await asyncio.sleep(1)
                 # الرد على الرسالة
                 await event.reply(word)
-
+                
+######المطور arras #####
+                                  
 import asyncio
 from telethon import events
 from JoKeRUB import l313l

@@ -203,6 +203,40 @@ async def transfer_ownership(event):
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل الملكيـة:**\n`{str(e)}`")
 
+@l313l.ar_cmd(pattern="نقل_بوت_لقناة (.*)")
+async def transfer_bot_to_channel(event):
+    username = event.pattern_match.group(1)
+    if not username.startswith('@'):
+        return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.نقل_بوت_لقناة`** + اليـوزر)**")
+
+    try:
+        # حذف البوت المرتبط باليوزر
+        await event.client.send_message("@BotFather", "/delete")
+        await asyncio.sleep(1)
+        await event.client.send_message("@BotFather", username.replace("@", ""))
+        await asyncio.sleep(1)
+        await event.client.send_message("@BotFather", "نعم")
+
+        # إنشاء قناة جديدة
+        ch = await l313l(
+            functions.channels.CreateChannelRequest(
+                title="القنـاة الجديـدة",
+                about=f"تم نقـل اليـوزر بواسطـة - @aqhvv",
+            )
+        )
+        ch = ch.chats[0].id  # الحصول على معرف القناة مباشرة
+
+        # نقل اليوزر إلى القناة الجديدة
+        await l313l(
+            functions.channels.UpdateUsernameRequest(
+                channel=ch, username=username.replace("@", "")
+            )
+        )
+
+        await edit_or_reply(event, f"**⎉╎تم نقـل اليـوزر {username} من @BotFather إلى القنـاة الجديـدة .. بنجـاح ☑️**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
+        
 async def gen_user(choice):
     a = "qwertyuiopasdfghjklzxcvbnm"
     b = "1234567890"

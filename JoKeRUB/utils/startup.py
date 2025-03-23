@@ -101,7 +101,7 @@ async def startupmessage():
             Config.CATUBLOGO = await l313l.tgbot.send_file(
     BOTLOG_CHATID,
     "l313l/razan/resources/start/arras.JPEG",  # المسار المحلي للصورة
-    caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓\n◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n  ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
+    caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓ **\n ◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
     buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
             )
     except Exception as e:

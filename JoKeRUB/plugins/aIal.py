@@ -165,27 +165,68 @@ async def transfer_bot_to_account(event):
     except Exception as e:
         await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل اليـوزر:**\n`{str(e)}`")
 
-@l313l.ar_cmd(pattern="نقل_ملكية (@\\w+) (.+)")
+@l313l.ar_cmd(pattern="نقل_ملكية (.*)")
 async def transfer_ownership(event):
-    target_user = event.pattern_match.group(1)  # معرف الشخص
-    password = event.pattern_match.group(2)  # كلمة المرور
+    # الحصول على اليوزر أو المعرف الخاص بالشخص الذي سيتم نقل الملكية إليه
+    new_owner_username = event.pattern_match.group(1).strip()
+    if not new_owner_username.startswith("@"):
+        return await edit_or_reply(event, "**⎉╎عـذراً، يجب أن تبدأ اليوزر بعلامة @ ❌**")
 
     try:
-        # الحصول على كيان المستخدم الهدف
-        target_entity = await event.client.get_entity(target_user)
-        
-        # نقل ملكية القناة
-        await event.client(
-            functions.channels.EditCreatorRequest(
-                channel=event.chat_id,
-                user_id=target_entity.id,
-                password=password  # استخدام كلمة المرور التي أدخلها المستخدم
+        # الحصول على كائن المستخدم الجديد
+        new_owner = await l313l.get_entity(new_owner_username)
+
+        # التحقق من أن المستخدم الجديد موجود
+        if not new_owner:
+            return await edit_or_reply(event, f"**⎉╎عـذراً، لم يتم العثور على المستخدم {new_owner_username} ❌**")
+
+        # الحصول على الكائن الخاص بالدردشة الحالية (قناة أو مجموعة)
+        chat = await event.get_chat()
+
+        # التحقق من أن الدردشة هي قناة أو مجموعة
+        if not isinstance(chat, (types.Channel, types.Chat)):
+            return await edit_or_reply(event, "**⎉╎هذا الأمر يعمل فقط في القنوات أو المجموعات ❌**")
+
+        # التحقق مما إذا كان التحقق بخطوتين مفعلًا
+        two_step_verification = await l313l(functions.account.GetPasswordRequest())
+        if two_step_verification.has_password:
+            # إذا كان التحقق بخطوتين مفعلًا، اطلب إدخال كلمة المرور
+            await edit_or_reply(event, "**⎉╎يبدو أن لديك تحقق بخطوتين مفعل. الرجاء إدخال كلمة المرور:**")
+            password_response = await event.client.wait_for(
+                events.NewMessage(incoming=True, from_users=event.sender_id)
+            password = password_response.text.strip()
+
+            # استخدام كلمة المرور في طلب نقل الملكية
+            await l313l(
+                functions.channels.EditCreatorRequest(
+                    channel=chat,
+                    user_id=new_owner.id,
+                    password=password
+                )
             )
-        )
-        
-        await edit_or_reply(event, f"**⎉╎تم نقـل ملكيـة القنـاة إلى {target_user} .. بنجـاح ☑️**")
+        else:
+            # إذا لم يكن التحقق بخطوتين مفعلًا، قم بنقل الملكية مباشرة
+            await l313l(
+                functions.channels.EditCreatorRequest(
+                    channel=chat,
+                    user_id=new_owner.id
+                )
+            )
+
+        # إرسال رسالة تأكيد النقل
+        success_message = f"**⎉╎تم نقل ملكية القناة/المجموعة إلى {new_owner_username} بنجاح ☑️**"
+        await edit_or_reply(event, success_message)
+
+    except FloodWaitError as e:
+        # في حالة وجود FloodWaitError، انتظر المدة المحددة ثم أعد المحاولة
+        wait_time = e.seconds
+        await asyncio.sleep(wait_time)
+        await edit_or_reply(event, f"**⎉╎تم إيقاف العملية مؤقتًا بسبب FloodWait. سيتم الاستئناف بعد {wait_time} ثانية.**")
+
     except Exception as e:
-        await edit_or_reply(event, f"**⎉╎حدث خطأ أثناء نقـل الملكيـة:**\n`{str(e)}`")
+        # في حالة حدوث أي خطأ آخر، أظهر رسالة الخطأ
+        error_message = f"**⎉╎حدث خطأ أثناء نقل الملكية:**\n`{str(e)}`"
+        await edit_or_reply(event, error_message)
 
 @l313l.ar_cmd(pattern="نقل_بوت_لقناة (.*)")
 async def transfer_bot_to_channel(event):

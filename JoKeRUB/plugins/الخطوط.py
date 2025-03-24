@@ -1,6 +1,3 @@
-# Karar
-# © JoKeRUB Team 2023
-# ها شعدك داخل ع الملف تريد تخمط ؟ ابو زربة لهل درجة فاشل  
 from telethon import events
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
@@ -12,7 +9,7 @@ from telethon.errors.rpcerrorlist import MessageIdInvalidError
 async def btext(event):
     isbold = gvarstatus("bold")
     if not isbold:
-        addgvar ("bold", "on")
+        addgvar("bold", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الغامق بنجاح ✓**")
         return
 
@@ -25,7 +22,7 @@ async def btext(event):
 async def btext(event):
     istshwesh = gvarstatus("tshwesh")
     if not istshwesh:
-        addgvar ("tshwesh", "on")
+        addgvar("tshwesh", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط المشطوب بنجاح ✓**")
         return
 
@@ -38,7 +35,7 @@ async def btext(event):
 async def btext(event):
     isramz = gvarstatus("ramz")
     if not isramz:
-        addgvar ("ramz", "on")
+        addgvar("ramz", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الرمز بنجاح ✓**")
         return
 
@@ -51,7 +48,7 @@ async def btext(event):
 async def Aljoker(event):
     Aljoker = gvarstatus("joker")
     if not Aljoker:
-        addgvar ("joker", "on")
+        addgvar("joker", "on")
         await edit_delete(event, "**᯽︙ تم تفعيل خط الجوكر بنجاح ✓**")
         return
 
@@ -67,24 +64,31 @@ async def reda(event):
         isramz = gvarstatus("ramz")
         istshwesh = gvarstatus("tshwesh")
         Aljoker = gvarstatus("joker")
+        
+        text = event.message.text
+        
         if isbold:
-            try:
-                await event.edit(f"**{event.message.text}**")
-            except MessageIdInvalidError:
-                pass
+            # إذا كان النص يبدأ بنقطة - لا نفعّل الخط الغامق
+            if not text.startswith('.'):
+                try:
+                    await event.edit(f"**{text}**")
+                except MessageIdInvalidError:
+                    pass
+                    
         if isramz:
             try:
-                await event.edit(f"`{event.message.text}`")
-            except MessageIdInvalidError:
-                pass
-        if istshwesh:
-            try:
-                await event.edit(f"~~{event.message.text}~~")
-            except MessageIdInvalidError:
-                pass
-        if Aljoker:
-            try:
-                await event.edit(f"```{event.message.text}```")
+                await event.edit(f"`{text}`")
             except MessageIdInvalidError:
                 pass
                 
+        if istshwesh:
+            try:
+                await event.edit(f"~~{text}~~")
+            except MessageIdInvalidError:
+                pass
+                
+        if Aljoker:
+            try:
+                await event.edit(f"```{text}```")
+            except MessageIdInvalidError:
+                pass

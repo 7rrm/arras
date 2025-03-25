@@ -45,8 +45,7 @@ async def enable_word_game(event):
         return
 
     word_game_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل ميزة الكلمات بنجاح ✅**\n"
-                     f"**المعرف المسموح:** `{word_game_allowed_user_id}`")
+    await event.edit(f"ش")
 
 # تعطيل ميزة الكلمات
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل كلمات$'))
@@ -61,7 +60,7 @@ async def disable_word_game(event):
 async def set_word_game_trigger_text(event):
     global word_game_trigger_text
     word_game_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{word_game_trigger_text}`")
+    await event.edit(f"ش")
 
 # الرد التلقائي على الرسائل
 @l313l.on(events.NewMessage(incoming=True))
@@ -112,8 +111,8 @@ async def enable_articles(event):
         return
 
     articles_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل ميزة المقالات بنجاح ✅**\n"
-                     f"**المعرفات المسموحة:** {', '.join(map(str, articles_allowed_user_ids))}")
+    await event.edit(f"ش")
+                    # f"**المعرفات المسموحة:** {', '.join(map(str, articles_allowed_user_ids))}")
 
 # تعطيل ميزة المقالات
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
@@ -128,7 +127,7 @@ async def disable_articles(event):
 async def set_articles_trigger_text(event):
     global articles_trigger_text
     articles_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{articles_trigger_text}`")
+    await event.edit(f"ش")
 
 # الرد التلقائي على الرسائل
 @l313l.on(events.NewMessage(incoming=True))
@@ -218,8 +217,8 @@ async def enable_flags(event):
 
     active_chat_id = event.chat_id  # حفظ معرف الدردشة
     flags_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل ميزة الأعلام في هذه الدردشة بنجاح ✅**\n"
-                     f"**المعرفات المسموحة:** {', '.join(map(str, flags_allowed_user_ids))}")
+    await event.edit(f"ش")
+                   #  f"**المعرفات المسموحة:** {', '.join(map(str, flags_allowed_user_ids))}")
 
 # تعطيل ميزة الأعلام
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
@@ -235,7 +234,7 @@ async def disable_flags(event):
 async def set_flags_trigger_text(event):
     global flags_trigger_text
     flags_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{flags_trigger_text}`")
+    await event.edit(f"ش")
 
 # الرد التلقائي على الأعلام
 @l313l.on(events.NewMessage(incoming=True))
@@ -294,8 +293,8 @@ async def enable_break_bot(event):
 
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
     break_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل تفكيك البوت في هذه المجموعة بنجاح ✅**\n"
-                     f"**المعرفات المسموحة:** {', '.join(map(str, break_allowed_user_ids))}")
+    await event.edit(f"ش")
+                  #   f"**المعرفات المسموحة:** {', '.join(map(str, break_allowed_user_ids))}")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
@@ -311,7 +310,7 @@ async def disable_break_bot(event):
 async def set_break_trigger_text(event):
     global break_trigger_text
     break_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{break_trigger_text}`")
+    await event.edit(f"ش")
 
 # تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
@@ -383,8 +382,8 @@ async def enable_meanings_bot(event):
 
     active_chat_id = event.chat_id  # حفظ معرف المجموعة
     meanings_enabled = True
-    await event.edit(f"**᯽︙ تم تفعيل معاني السمايلات في هذه المجموعة بنجاح ✅**\n"
-                     f"**المعرفات المسموحة:** {', '.join(map(str, meanings_allowed_user_ids))}")
+    await event.edit(f"ش")
+                   #  f"**المعرفات المسموحة:** {', '.join(map(str, meanings_allowed_user_ids))}")
 
 # تعطيل ميزة المعاني
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل معاني$'))
@@ -400,7 +399,7 @@ async def disable_meanings_bot(event):
 async def set_meanings_trigger_text(event):
     global meanings_trigger_text
     meanings_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"**᯽︙ تم تعيين النص المحفز إلى:** `{meanings_trigger_text}`")
+    await event.edit(f"ش")
 
 # الرد التلقائي على السمايلات
 @l313l.on(events.NewMessage(incoming=True))

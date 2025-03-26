@@ -331,6 +331,7 @@ async def break_word_on_trigger(event):
                     word = word[:-1]
                 # تفكيك النص إلى أحرف
                 letters = ' '.join(list(word))
+                await asyncio.sleep(2)  # تأخير لمدة ثانيتين
                 # إرسال النص المفكوك كرسالة جديدة
                 await event.respond(letters)
 

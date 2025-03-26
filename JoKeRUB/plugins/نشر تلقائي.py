@@ -132,9 +132,9 @@ async def send_to_groups(event):
             await asyncio.sleep(2)
     
     report = (
-        f"**᯽︙ تم إرسال الرسالة بنجاح إلى {sent_count} مجموعة\n"
-        f"᯽︙ فشل الإرسال إلى {failed_count} مجموعة\n"
-        f"᯽︙ الرسالة:**\n{message}"
+        f"**◈︙ تم إرسال الرسالة بنجاح إلى {sent_count} مجموعة\n"
+        f"◈︙ فشل الإرسال إلى {failed_count} مجموعة\n"
+        f"◈︙ الرسالة:**\n{message}"
     )
     
     await edit_or_reply(event, report)

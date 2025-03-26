@@ -29,7 +29,7 @@ async def get_user_from_event(event):
         if event.message.entities:
             probable_user_mention_entity = event.message.entities[0]
             if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
+                user_id = probable_user_mention_mention_entity.user_id
                 user_obj = await event.client.get_entity(user_id)
                 return user_obj
         if isinstance(user, int) or user.startswith("@"):
@@ -69,8 +69,6 @@ async def _(event):
     add_post(str(JoKeRUB), event.chat_id)
     await edit_or_reply(event, f"**᯽︙ تم تفعيـل النشـر التلقـائي من القنـاة ** `{jok}` **بنجـاح ✓**")
 
-
-
 @l313l.on(admin_cmd(pattern="(ايقاف_نشر|ايقاف_النشر)"))
 async def _(event):
     if (event.is_private or event.is_group):
@@ -98,6 +96,45 @@ async def _(event):
     remove_post(str(JoKeRUB), event.chat_id)
     await edit_or_reply(event, f"**᯽︙ تم ايقـاف النشـر التلقـائي من** `{jok}`")
 
+@l313l.on(admin_cmd(pattern="ارسال (.*)"))
+async def send_to_groups(event):
+    # الحصول على الرسالة من الأمر
+    message = event.pattern_match.group(1)
+    
+    if not message:
+        return await edit_or_reply(event, "**᯽︙ يرجى تحديد الرسالة المراد إرسالها**")
+    
+    # قائمة المجموعات المحددة (يمكنك تعديلها حسب احتياجاتك)
+    target_groups = [
+        -1002171868084,  # مثال: إيدي مجموعة 1
+        -1002257133164,  # مثال: إيدي مجموعة 2
+    ]
+    
+    sent_count = 0
+    failed_count = 0
+    
+    await edit_or_reply(event, f"**᯽︙ جاري إرسال الرسالة إلى {len(target_groups)} مجموعة...**")
+    
+    for group in target_groups:
+        try:
+            await l313l.send_message(group, message)
+            sent_count += 1
+        except Exception as e:
+            logging.error(f"فشل في إرسال الرسالة إلى {group}: {str(e)}")
+            failed_count += 1
+    
+    report = (
+        f"**᯽︙ تم إرسال الرسالة بنجاح إلى {sent_count} مجموعة\n"
+        f"᯽︙ فشل الإرسال إلى {failed_count} مجموعة\n"
+        f"᯽︙ الرسالة:**\n{message}"
+    )
+    
+    await edit_or_reply(event, report)
+    if BOTLOG:
+        await event.client.send_message(
+            BOTLOG_CHATID,
+            f"#إرسال_الجماعي\n{report}",
+        )
 
 @l313l.ar_cmd(incoming=True, forword=None)
 async def _(event):

@@ -98,26 +98,33 @@ async def _(event):
     remove_post(str(JoKeRUB), event.chat_id)
     await edit_or_reply(event, f"**᯽︙ تم ايقـاف النشـر التلقـائي من** `{jok}`")
 
-@l313l.on(admin_cmd(pattern="اضافة_مجموعة ?(.*)"))
+@l313l.on(admin_cmd(pattern="اضافة_مجموعة (-?\d+)"))
 async def add_broadcast_group(event):
-    chat = event.pattern_match.group(1)
-    if not chat:
-        if event.is_private:
-            return await edit_or_reply(event, "**᯽︙ لا يمكن إضافة الدردشات الخاصة**")
-        chat = event.chat_id
+    chat_id = event.pattern_match.group(1)
+    
+    # التحقق من أن الأيدي صالح للمجموعات/القنوات
+    if not chat_id.startswith("-100"):
+        return await edit_or_reply(event, "**᯽︙ خطأ: يجب أن يكون أيدي المجموعة بصيغة -100123456789**")
     
     try:
-        chat_entity = await event.client.get_entity(chat)
-        chat_id = chat_entity.id
-        title = chat_entity.title if hasattr(chat_entity, 'title') else "دردشة خاصة"
+        chat_id = int(chat_id)
+        chat_entity = await event.client.get_entity(chat_id)
+        
+        # التأكد من أن الدردشة ليست خاصة
+        if isinstance(chat_entity, (types.User, types.PeerUser)):
+            return await edit_or_reply(event, "**᯽︙ لا يمكن إضافة الدردشات الخاصة**")
+            
+        title = getattr(chat_entity, 'title', 'مجموعة بدون اسم')
+    except ValueError:
+        return await edit_or_reply(event, "**᯽︙ خطأ: الأيدي يجب أن يكون رقمًا صحيحًا**")
     except Exception as e:
-        return await edit_or_reply(event, f"**᯽︙ خطأ في الحصول على المجموعة:** `{str(e)}`")
+        return await edit_or_reply(event, f"**᯽︙ خطأ في الوصول إلى المجموعة:** `{str(e)}`")
     
     if add_broadcast_chat(chat_id):
-        await edit_or_reply(event, f"**᯽︙ تمت إضافة المجموعة** `{title}` **إلى قائمة البث بنجاح ✓**")
+        await edit_or_reply(event, f"**᯽︙ تمت إضافة المجموعة** `{title}` **بأيدي** `{chat_id}` **إلى قائمة البث بنجاح ✓**")
     else:
         await edit_or_reply(event, f"**᯽︙ المجموعة** `{title}` **موجودة بالفعل في قائمة البث**")
-
+        
 @l313l.on(admin_cmd(pattern="حذف_مجموعة ?(.*)"))
 async def remove_broadcast_group(event):
     chat = event.pattern_match.group(1)

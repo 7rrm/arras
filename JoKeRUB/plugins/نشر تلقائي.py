@@ -4,6 +4,7 @@ from telethon.tl.functions.channels import GetParticipantRequest, GetFullChannel
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from telethon.tl.functions.users import GetFullUserRequest
+import asyncio
 
 from JoKeRUB import l313l
 
@@ -106,9 +107,11 @@ async def send_to_groups(event):
     
     # قائمة المجموعات المحددة (يمكنك تعديلها حسب احتياجاتك)
     target_groups = [
-        -100123456789,  # مثال: إيدي مجموعة 1
-        -100987654321,  # مثال: إيدي مجموعة 2
-        "@group_username"  # مثال: معرف مجموعة
+        -1001620950804,  # مثال: إيدي مجموعة 1 
+        -1002468151715,  # مثال: إيدي مجموعة 2
+        -1002661574486,  # مثال: إيدي مجموعة 2
+        -1002299561292,  # مثال: إيدي مجموعة 2
+      #  -100,  # مثال: إيدي مجموعة 2
     ]
     
     sent_count = 0
@@ -120,9 +123,13 @@ async def send_to_groups(event):
         try:
             await l313l.send_message(group, message)
             sent_count += 1
+            # إضافة تأخير لمدة ثانية واحدة بين كل إرسال
+            await asyncio.sleep(2)
         except Exception as e:
             logging.error(f"فشل في إرسال الرسالة إلى {group}: {str(e)}")
             failed_count += 1
+            # التأخير حتى في حالة الفشل للحفاظ على المعدل
+            await asyncio.sleep(2)
     
     report = (
         f"**᯽︙ تم إرسال الرسالة بنجاح إلى {sent_count} مجموعة\n"

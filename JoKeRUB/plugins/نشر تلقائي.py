@@ -4,12 +4,14 @@ from telethon.tl.functions.channels import GetParticipantRequest, GetFullChannel
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from telethon.tl.functions.users import GetFullUserRequest
+import asyncio
 
 from JoKeRUB import l313l
 
 from ..Config import Config
 from ..core.managers import edit_delete, edit_or_reply
 from ..sql_helper.autopost_sql import add_post, get_all_post, is_post, remove_post
+from ..sql_helper.broadcast_sql import add_broadcast_chat, get_all_broadcast_chats, remove_broadcast_chat
 from JoKeRUB.core.logger import logging
 from ..sql_helper.globals import gvarstatus
 from . import BOTLOG, BOTLOG_CHATID
@@ -29,7 +31,7 @@ async def get_user_from_event(event):
         if event.message.entities:
             probable_user_mention_entity = event.message.entities[0]
             if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_mention_entity.user_id
+                user_id = probable_user_mention_entity.user_id
                 user_obj = await event.client.get_entity(user_id)
                 return user_obj
         if isinstance(user, int) or user.startswith("@"):
@@ -96,44 +98,107 @@ async def _(event):
     remove_post(str(JoKeRUB), event.chat_id)
     await edit_or_reply(event, f"**᯽︙ تم ايقـاف النشـر التلقـائي من** `{jok}`")
 
-@l313l.on(admin_cmd(pattern="ارسال (.*)"))
-async def send_to_groups(event):
-    # الحصول على الرسالة من الأمر
-    message = event.pattern_match.group(1)
+@l313l.on(admin_cmd(pattern="اضافة_مجموعة ?(.*)"))
+async def add_broadcast_group(event):
+    chat = event.pattern_match.group(1)
+    if not chat:
+        if event.is_private:
+            return await edit_or_reply(event, "**᯽︙ لا يمكن إضافة الدردشات الخاصة**")
+        chat = event.chat_id
     
+    try:
+        chat_entity = await event.client.get_entity(chat)
+        chat_id = chat_entity.id
+        title = chat_entity.title if hasattr(chat_entity, 'title') else "دردشة خاصة"
+    except Exception as e:
+        return await edit_or_reply(event, f"**᯽︙ خطأ في الحصول على المجموعة:** `{str(e)}`")
+    
+    if add_broadcast_chat(chat_id):
+        await edit_or_reply(event, f"**᯽︙ تمت إضافة المجموعة** `{title}` **إلى قائمة البث بنجاح ✓**")
+    else:
+        await edit_or_reply(event, f"**᯽︙ المجموعة** `{title}` **موجودة بالفعل في قائمة البث**")
+
+@l313l.on(admin_cmd(pattern="حذف_مجموعة ?(.*)"))
+async def remove_broadcast_group(event):
+    chat = event.pattern_match.group(1)
+    if not chat:
+        if event.is_private:
+            return await edit_or_reply(event, "**᯽︙ لا يمكن حذف الدردشات الخاصة**")
+        chat = event.chat_id
+    
+    try:
+        chat_entity = await event.client.get_entity(chat)
+        chat_id = chat_entity.id
+        title = chat_entity.title if hasattr(chat_entity, 'title') else "دردشة خاصة"
+    except Exception as e:
+        return await edit_or_reply(event, f"**᯽︙ خطأ في الحصول على المجموعة:** `{str(e)}`")
+    
+    if remove_broadcast_chat(chat_id):
+        await edit_or_reply(event, f"**᯽︙ تم حذف المجموعة** `{title}` **من قائمة البث بنجاح ✓**")
+    else:
+        await edit_or_reply(event, f"**᯽︙ المجموعة** `{title}` **غير موجودة في قائمة البث**")
+
+@l313l.on(admin_cmd(pattern="عرض_المجموعات$"))
+async def show_broadcast_groups(event):
+    broadcast_chats = get_all_broadcast_chats()
+    if not broadcast_chats:
+        return await edit_or_reply(event, "**᯽︙ لا توجد مجموعات في قائمة البث**")
+    
+    message = "**᯽︙ قائمة المجموعات المضافة للبث:**\n\n"
+    for chat_id in broadcast_chats:
+        try:
+            chat = await event.client.get_entity(int(chat_id))
+            title = chat.title if hasattr(chat, 'title') else "دردشة خاصة"
+            message += f"• **{title}** (`{chat_id}`)\n"
+        except:
+            message += f"• مجموعة غير متاحة (`{chat_id}`)\n"
+    
+    await edit_or_reply(event, message)
+
+@l313l.on(admin_cmd(pattern="ارسال ?(.*)"))
+async def send_to_groups(event):
+    message = event.pattern_match.group(1)
     if not message:
         return await edit_or_reply(event, "**᯽︙ يرجى تحديد الرسالة المراد إرسالها**")
     
-    # قائمة المجموعات المحددة (يمكنك تعديلها حسب احتياجاتك)
-    target_groups = [
-        -1002171868084,  # مثال: إيدي مجموعة 1
-        -1002257133164,  # مثال: إيدي مجموعة 2
-    ]
+    broadcast_chats = get_all_broadcast_chats()
+    if not broadcast_chats:
+        return await edit_or_reply(event, "**᯽︙ لا توجد مجموعات في قائمة البث**")
     
     sent_count = 0
     failed_count = 0
+    total = len(broadcast_chats)
     
-    await edit_or_reply(event, f"**᯽︙ جاري إرسال الرسالة إلى {len(target_groups)} مجموعة...**")
+    progress = await edit_or_reply(event, f"**᯽︙ جاري إرسال الرسالة إلى {total} مجموعة...**")
     
-    for group in target_groups:
+    for chat_id in broadcast_chats:
         try:
-            await l313l.send_message(group, message)
+            await l313l.send_message(int(chat_id), message)
             sent_count += 1
+            await progress.edit(
+                f"**᯽︙ جاري الإرسال...\n"
+                f"✅ تم بنجاح: {sent_count}\n"
+                f"❌ فشل: {failed_count}\n"
+                f"📊 الإجمالي: {total}**"
+            )
+            await asyncio.sleep(1)  # تأخير لمدة ثانية واحدة
         except Exception as e:
-            logging.error(f"فشل في إرسال الرسالة إلى {group}: {str(e)}")
+            logging.error(f"فشل في إرسال الرسالة إلى {chat_id}: {str(e)}")
             failed_count += 1
     
     report = (
-        f"**᯽︙ تم إرسال الرسالة بنجاح إلى {sent_count} مجموعة\n"
-        f"᯽︙ فشل الإرسال إلى {failed_count} مجموعة\n"
-        f"᯽︙ الرسالة:**\n{message}"
+        f"**᯽︙ تم الانتهاء من الإرسال الجماعي\n\n"
+        f"✅ تم بنجاح: {sent_count}\n"
+        f"❌ فشل: {failed_count}\n"
+        f"📊 الإجمالي: {total}\n\n"
+        f"📝 الرسالة:**\n{message}"
     )
     
-    await edit_or_reply(event, report)
+    await progress.edit(report)
     if BOTLOG:
         await event.client.send_message(
             BOTLOG_CHATID,
-            f"#إرسال_الجماعي\n{report}",
+            f"#الإرسال_الجماعي\n{report}",
         )
 
 @l313l.ar_cmd(incoming=True, forword=None)
@@ -141,7 +206,7 @@ async def _(event):
     if event.is_private:
         return
     chat_id = str(event.chat_id).replace("-100", "")
-    channels_set  = get_all_post(chat_id)
+    channels_set = get_all_post(chat_id)
     if channels_set == []:
         return
     for chat in channels_set:

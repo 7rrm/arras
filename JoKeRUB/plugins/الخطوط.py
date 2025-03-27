@@ -63,13 +63,30 @@ async def handle_all_messages(event):
         return
         
     text = event.message.text
-    modified = False
     
     # تجنب تنفيذ الأوامر التي تبدأ بنقطة
     if text.startswith('.'):
         return
     
-    # تطبيق كافة التنسيقات
+    # إذا كان التشويش مفعلاً
+    if gvarstatus("cllear"):
+        try:
+            # إرسال الرسالة الجديدة مع التشويش أولاً
+            await event.respond(
+                f"`‹` {text} `›`",
+                parse_mode="markdown",
+                spoiler=True
+            )
+            # ثم حذف الرسالة الأصلية
+            await event.delete()
+            return
+        except Exception as e:
+            print(f"حدث خطأ في التشويش: {e}")
+            return
+    
+    # بقية التنسيقات (الغامق، المشطوب، إلخ)
+    modified = False
+    
     if gvarstatus("bold"):
         text = f"**{text}**"
         modified = True
@@ -85,19 +102,6 @@ async def handle_all_messages(event):
     if gvarstatus("joker") and not modified:
         text = f"```{text}```"
         modified = True
-        
-    if gvarstatus("cllear") and not modified:
-        try:
-            await event.delete()
-            await event.respond(
-                f"`‹` {text} `›`",
-                parse_mode="markdown",
-                spoiler=True
-            )
-            return
-        except Exception as e:
-            print(f"Error: {e}")
-            return
         
     if modified:
         try:

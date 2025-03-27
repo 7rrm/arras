@@ -42,6 +42,15 @@ async def joker_toggle(event):
         delgvar("joker")
         await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**")
 
+@l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش)"))
+async def spoiler_toggle(event):
+    if not gvarstatus("spoiler"):
+        addgvar("spoiler", "on")
+        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش ✓**")
+    else:
+        delgvar("spoiler")
+        await edit_delete(event, "**᯽︙ تم إيقاف خط التشويش ✓**")
+
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
     if not event.message.text or event.message.media:
@@ -68,9 +77,13 @@ async def handle_text_formatting(event):
         text = f"```{text}```"
         modified = True
         
-    if modified:
+    if gvarstatus("spoiler") and not modified:
+        # استخدام خاصية spoiler مباشرة في الرسالة
+        event.message.spoiler = True
+        modified = True
+        
+    if modified and not gvarstatus("spoiler"):
         try:
             await event.edit(text)
         except:
             pass
-            

@@ -5,6 +5,49 @@ from ..core.managers import edit_delete
 from telethon import functions
 from telethon.errors.rpcerrorlist import MessageIdInvalidError
 
+class CustomParseMode:
+    """
+    Example using Markdown:
+
+    - client.send_message('me', 'hello this is a [Text](spoiler), with custom emoji [❤️](emoji/10002345) !')
+
+    Example using HTML:
+
+    - client.send_message('me', 'hello this is a <a href="spoiler">Text</a>, with custom emoji <a href="emoji/10002345">❤️</a> !')
+
+    `Sending spoilers and custom emoji <https://github.com/LonamiWebs/Telethon/wiki/Sending-more-than-just-messages#sending-spoilers-and-custom-emoji>`_
+    :param parse_mode: The format to use for parsing text.
+                       Can be either 'markdown' for Markdown formatting
+                       or 'html' for HTML formatting.
+    """
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'markdown':
+            text, entities = markdown.parse(text)
+        elif self.parse_mode == 'html':
+            text, entities = html.parse(text)
+        else:
+            raise InvalidFormatException("Invalid parse mode. Choose either Markdown or HTML.")
+
+        for i, e in enumerate(entities):
+            if isinstance(e, types.MessageEntityTextUrl):
+                if e.url == 'spoiler':
+                    entities[i] = types.MessageEntitySpoiler(e.offset, e.length)
+                elif e.url.startswith('emoji/'):
+                    entities[i] = types.MessageEntityCustomEmoji(e.offset, e.length, int(e.url.split('/')[1]))
+        return text, entities
+
+    @staticmethod
+    def unparse(text, entities):
+        for i, e in enumerate(entities or []):
+            if isinstance(e, types.MessageEntityCustomEmoji):
+                entities[i] = types.MessageEntityTextUrl(e.offset, e.length, f'emoji/{e.document_id}')
+            if isinstance(e, types.MessageEntitySpoiler):
+                entities[i] = types.MessageEntityTextUrl(e.offset, e.length, 'spoiler')
+        return html.unparse(text, entities)
+
 # جميع أوامر الخطوط مع التعديل الجديد للخط الغامق
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def bold_toggle(event):
@@ -77,20 +120,26 @@ async def handle_text_formatting(event):
             pass
 
 @l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
-async def spoiler_toggle(event):
-    if not gvarstatus("cllear"):
-        addgvar("cllear", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙ خط التشويش مفعل بالفعل! ✓**")
+async def _(event):
+    is_cllear = gvarstatus("cllear")
+    if not is_cllear:
+        addgvar ("cllear", "on")
+        await edit_delete(event, "**⎉╎تم تفعيـل خـط التشـويش .. بنجـاح ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش) **")
+        return
+    if is_cllear:
+        await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش) **")
+        return
 
 @l313l.on(admin_cmd(pattern="(تعطيل تشويش|تعطيل التشويش)"))
-async def spoiler_disable(event):
-    if gvarstatus("cllear"):
+async def _(event):
+    is_cllear = gvarstatus("cllear")
+    if is_cllear:
         delgvar("cllear")
-        await edit_delete(event, "**᯽︙ تم تعطيل خط التشويش بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙ خط التشويش معطل بالفعل! ✓**")
+        await edit_delete(event, "**⎉╎تم تعطيـل خـط التشـويش .. بنجـاح ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
+        return
+    if not is_cllear:
+        await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
+        return
 
 
 @l313l.on(events.NewMessage(outgoing=True))
@@ -99,10 +148,6 @@ async def comming(event):
         is_cllear = gvarstatus("cllear")
         if is_cllear:
             try:
-                await event.edit(
-                    f"`‹` {event.message.text} `›`",  # النص بين علامات `‹` و `›`
-                    spoiler=True,  # هذه هي الخاصية التي تفعل التشويش
-                    parse_mode="markdown"
-                )
+                await event.edit(f"[{event.message.text}](spoiler)", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass

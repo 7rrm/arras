@@ -42,21 +42,7 @@ async def joker_toggle(event):
         delgvar("joker")
         await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**")
 
-@l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
-async def spoiler_toggle(event):
-    if not gvarstatus("cllear"):
-        addgvar("cllear", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙ خط التشويش مفعل بالفعل! ✓**")
 
-@l313l.on(admin_cmd(pattern="(تعطيل تشويش|تعطيل التشويش)"))
-async def spoiler_disable(event):
-    if gvarstatus("cllear"):
-        delgvar("cllear")
-        await edit_delete(event, "**᯽︙ تم تعطيل خط التشويش بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙ خط التشويش معطل بالفعل! ✓**")
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
@@ -84,12 +70,35 @@ async def handle_text_formatting(event):
         text = f"```{text}```"
         modified = True
         
-    if gvarstatus("cllear") and not modified:
-        text = f"`‹` ||{text}|| `›`"
-        modified = True
-        
     if modified:
         try:
             await event.edit(text)
         except:
             pass
+
+@l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
+async def spoiler_toggle(event):
+    if not gvarstatus("cllear"):
+        addgvar("cllear", "on")
+        await edit_delete(event, "**᯽︙ تم تفعيل خط التشويش بنجاح ✓**")
+    else:
+        await edit_delete(event, "**᯽︙ خط التشويش مفعل بالفعل! ✓**")
+
+@l313l.on(admin_cmd(pattern="(تعطيل تشويش|تعطيل التشويش)"))
+async def spoiler_disable(event):
+    if gvarstatus("cllear"):
+        delgvar("cllear")
+        await edit_delete(event, "**᯽︙ تم تعطيل خط التشويش بنجاح ✓**")
+    else:
+        await edit_delete(event, "**᯽︙ خط التشويش معطل بالفعل! ✓**")
+
+
+@l313l.on(events.NewMessage(outgoing=True))
+async def comming(event):
+    if event.message.text and not event.message.media and "." not in event.message.text:
+        is_cllear = gvarstatus("cllear")
+        if is_cllear:
+            try:
+                await event.edit(f"`‹` ||**[{event.message.text}](spoiler)**|| `›`", parse_mode=CustomParseMode("markdown"))
+            except MessageIdInvalidError:
+                pass

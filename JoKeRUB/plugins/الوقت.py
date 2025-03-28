@@ -25,93 +25,67 @@ from asyncio import sleep
 
 # قائمة الأوقات المميزة
 SPECIAL_TIMES = [
-    "12:00",  # 12:00 مساءً
-    "12:12",  # 12:12 مساءً
-    "01:00",  # 1:00 صباحًا أو مساءً
-    "01:01",  # 1:01 صباحًا أو مساءً
-    "02:00",  # 2:00 صباحًا أو مساءً
-    "02:02",  # 2:02 صباحًا أو مساءً
-    "03:00",  # 3:00 صباحًا أو مساءً
-    "03:03",  # 3:03 صباحًا أو مساءً
-    "04:00",  # 4:00 صباحًا أو مساءً
-    "04:04",  # 4:04 صباحًا أو مساءً
-    "05:00",  # 5:00 صباحًا أو مساءً
-    "05:05",  # 5:05 صباحًا أو مساءً
-    "06:00",  # 6:00 صباحًا أو مساءً
-    "06:06",  # 6:06 صباحًا أو مساءً
-    "07:00",  # 7:00 صباحًا أو مساءً
-    "07:07",  # 7:07 صباحًا أو مساءً
-    "08:00",  # 8:00 صباحًا أو مساءً
-    "08:08",  # 8:08 صباحًا أو مساءً
-    "09:00",  # 9:00 صباحًا أو مساءً
-    "09:09",  # 9:09 صباحًا أو مساءً
-    "10:00",  # 10:00 صباحًا أو مساءً
-    "10:10",  # 10:10 صباحًا أو مساءً
-    "11:00",  # 11:00 صباحًا أو مساءً
-    "11:11",  # 11:11 صباحًا أو مساءً
+    "12:00", "12:12", "01:00", "01:01", "02:00", "02:02", 
+    "03:00", "03:03", "04:00", "04:04", "05:00", "05:05",
+    "06:00", "06:06", "07:00", "07:07", "08:00", "08:08",
+    "09:00", "09:09", "09:18", "10:00", "10:10", "11:00", "11:11"
 ]
 
-# متغير لتحديد حالة التشغيل (تفعيل/تعطيل)
-is_active = False
+# متغيرات لتتبع الحالة
+active_chats = {}  # {chat_id: {'active': bool, 'last_sent': str}}
 
 @l313l.ar_cmd(
-    pattern="تفعيل_وقتي$",
+    pattern="تفعيل_وقتي(?:\s+(-?\d+))?$",
     command=("تفعيل_وقتي", plugin_category),
     info={
         "header": "تفعيل إرسال الرسائل في الأوقات المميزة",
-        "usage": "{tr}تفعيل_وقتي",
+        "usage": [
+            "{tr}تفعيل_وقتي",
+            "{tr}تفعيل_وقتي <ايدي المجموعة>",
+        ],
     },
 )
 async def activate_special_times(event):
     "تفعيل إرسال الرسائل في الأوقات المميزة"
-    global is_active
-    if is_active:
-        await edit_or_reply(event, "**الأمر مفعل بالفعل!**")
+    chat_id = event.pattern_match.group(1)
+    chat_id = int(chat_id) if chat_id else event.chat_id
+    
+    if chat_id in active_chats and active_chats[chat_id]['active']:
+        await edit_or_reply(event, f"**⚠️ الأمر مفعل بالفعل في هذه المجموعة!**")
         return
 
-    is_active = True  # تفعيل الأمر
-    await edit_or_reply(event, "**تم تفعيل إرسال الرسائل في الأوقات المميزة**")
-    last_sent_time = None  # لتخزين الوقت المميز الأخير الذي تم إرسال رسالة عنه
-
-    while is_active:  # التنفيذ طالما أن الأمر مفعل
-        now = dt.now().strftime("%I:%M %p")  # الحصول على الوقت الحالي بتنسيق 12 ساعة مع AM/PM
+    active_chats[chat_id] = {'active': True, 'last_sent': None}
+    await edit_or_reply(event, f"**✅ تم تفعيل الإرسال في المجموعة {chat_id}**")
+    
+    while active_chats.get(chat_id, {}).get('active', False):
+        now = dt.now().strftime("%I:%M %p").replace("AM", "ᴀᴍ").replace("PM", "ᴘᴍ")
         
-        # تغيير تنسيق AM/PM إلى ᴀᴍ/ᴘᴍ
-        if "AM" in now:
-            now = now.replace("AM", "ᴀᴍ")
-        elif "PM" in now:
-            now = now.replace("PM", "ᴘᴍ")
+        if now[:-3] in SPECIAL_TIMES and now != active_chats[chat_id]['last_sent']:
+            await event.client.send_message(chat_id, f"```ㅤ {now} ```")
+            active_chats[chat_id]['last_sent'] = now
 
-        print(f"الوقت الحالي: {now}")  # طباعة الوقت للتحقق
-
-        if now[:-3] in SPECIAL_TIMES:  # التحقق من الوقت المميز
-            if now != last_sent_time:  # تجنب التكرار
-                print(f"تم التعرف على الوقت المميز: {now}")  # طباعة للتحقق
-                await event.client.send_message(
-                    event.chat_id,
-                    f"```ㅤ {now} ```",  # إرسال الوقت مع ᴀᴍ/ᴘᴍ
-                )
-                last_sent_time = now  # تحديث الوقت المميز الأخير
-
-        await sleep(30)  # التحقق كل 30 ثانية لزيادة الدقة
+        await sleep(30)
 
 @l313l.ar_cmd(
     pattern="تعطيل_وقتي$",
     command=("تعطيل_وقتي", plugin_category),
     info={
-        "header": "تعطيل إرسال الرسائل في الأوقات المميزة",
+        "header": "تعطيل الإرسال في جميع المجموعات",
         "usage": "{tr}تعطيل_وقتي",
     },
 )
 async def deactivate_special_times(event):
-    "تعطيل إرسال الرسائل في الأوقات المميزة"
-    global is_active
-    if not is_active:
-        await edit_or_reply(event, "**الأمر معطل بالفعل!**")
+    "تعطيل الإرسال في جميع المجموعات"
+    if not active_chats:
+        await edit_or_reply(event, "**⚠️ لا توجد مجموعات مفعلة!**")
         return
 
-    is_active = False  # تعطيل الأمر
-    await edit_or_reply(event, "**تم تعطيل إرسال الرسائل في الأوقات المميزة**")
+    for chat_id in list(active_chats.keys()):
+        active_chats[chat_id]['active'] = False
+    
+    active_chats.clear()
+    await edit_or_reply(event, "**✅ تم تعطيل الإرسال في جميع المجموعات**")
+
     
 
 

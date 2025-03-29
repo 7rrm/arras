@@ -336,9 +336,11 @@ async def break_word_on_trigger(event):
         original_message = await event.get_reply_message()
         if original_message.sender_id != l313l.uid:
             return
+        delay = 1  # تأخير 1 ثانية في وضع الرد
     else:
         if break_trigger_text not in event.raw_text:
             return
+        delay = 2  # تأخير 2 ثانية في الوضع العادي
     
     # تعبير عادي سريع ومحدد للأقواس {} و () فقط
     text_to_search = event.raw_text
@@ -349,7 +351,9 @@ async def break_word_on_trigger(event):
         word = re.sub(r'[\s\n]+', '', word)
         if word:
             letters = ' '.join(list(word))
+            await asyncio.sleep(delay)  # استخدام التأخير المناسب حسب الوضع
             await event.reply(letters)
+
 
 import asyncio
 from telethon import events

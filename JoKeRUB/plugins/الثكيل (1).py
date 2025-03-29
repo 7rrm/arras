@@ -333,6 +333,7 @@ async def break_word_on_trigger(event):
         word = re.sub(r'[\s\n]+', '', word)
         if word:
             letters = ' '.join(list(word))
+            await asyncio.sleep(2)
             await event.reply(letters)
 
 import asyncio

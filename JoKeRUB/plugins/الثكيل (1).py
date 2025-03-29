@@ -277,68 +277,79 @@ from JoKeRUB import l313l
 # تعريف المتغيرات العامة
 break_enabled = False
 active_chat_id = None
-break_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-break_trigger_text = "⌔︙فكك :"  # النص المحفز الافتراضي للتفكيك
+break_allowed_user_ids = set()
+break_trigger_text = "⌔︙فكك :"
 
 # تفعيل تفكيك البوت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?: (\d+)(?:\s+(\-?\d+))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_break_bot(event):
     global break_enabled, active_chat_id, break_allowed_user_ids
-    user_id_input = event.pattern_match.group(1)  # الحصول على ايدي المستخدم
-    group_id_input = event.pattern_match.group(2)  # الحصول على ايدي المجموعة إذا تم إدخاله
-
-    # إضافة معرف المستخدم إلى المجموعة
-    if user_id_input:
-        break_allowed_user_ids.add(int(user_id_input))
-    else:
-        await event.edit("**᯽︙ يرجى إدخال معرف المستخدم بعد الأمر.**")
+    
+    # الحصول على المعرفات من الأمر
+    user_id = event.pattern_match.group(1)
+    group_id = event.pattern_match.group(2)
+    
+    if not user_id:
+        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`")
         return
-
-    # تعيين معرف المجموعة إذا تم إدخاله
-    if group_id_input:
-        active_chat_id = int(group_id_input)
+    
+    # إضافة معرف المستخدم المسموح
+    break_allowed_user_ids.add(int(user_id))
+    
+    # تحديد معرف المجموعة
+    if group_id:
+        active_chat_id = int(group_id)
     else:
-        active_chat_id = event.chat_id  # استخدام المجموعة الحالية إذا لم يتم تحديد واحدة
-
+        active_chat_id = event.chat_id
+    
     break_enabled = True
-    await event.edit(f"ش\n\nايدي المجموعة: {active_chat_id}")
+    await event.edit(f"**✅ تم تفعيل التفكيك بنجاح**\n"
+                    f"المجموعة: `{active_chat_id}`\n"
+                    f"المستخدم المسموح: `{user_id}`")
 
 # تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
     global break_enabled, active_chat_id, break_allowed_user_ids
-    active_chat_id = None  # إلغاء تفعيل المجموعة
     break_enabled = False
-    break_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
-    await event.edit("**᯽︙ تم تعطيل تفكيك البوت في جميع المجموعات بنجاح ✅**")
+    active_chat_id = None
+    break_allowed_user_ids.clear()
+    await event.edit("**✅ تم تعطيل التفكيك بنجاح**")
 
 # تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
 async def set_break_trigger_text(event):
     global break_trigger_text
-    break_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"ش")
+    break_trigger_text = event.pattern_match.group(1)
+    await event.edit(f"**✅ تم تعيين نص التفكيك إلى:** `{break_trigger_text}`")
 
 # تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
     global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
     
-    # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
-    if break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids:
-        if break_trigger_text in event.raw_text:
-            # البحث عن النص داخل الأقواس {} أو () (إذا وجد)
-            match_with_brackets = re.search(r'[{(]([^})]+)[})]', event.raw_text)
-            if match_with_brackets:
-                word = match_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
-                # إزالة النقطة من النهاية إذا وجدت
-                if word.endswith('.'):
-                    word = word[:-1]
-                # تفكيك النص إلى أحرف
-                letters = ' '.join(list(word))
-                await asyncio.sleep(2)  # تأخير لمدة ثانيتين
-                # إرسال النص المفكوك كرسالة جديدة
-                await event.respond(letters)
+    if not break_enabled:
+        return
+    
+    if active_chat_id and event.chat_id != active_chat_id:
+        return
+    
+    if event.sender_id not in break_allowed_user_ids:
+        return
+    
+    if break_trigger_text not in event.raw_text:
+        return
+    
+    # البحث عن النص داخل الأقواس {} أو () أو بدون أقواس
+    match = re.search(r'[{(]?([^})\n]+)[})]?', event.raw_text.split(break_trigger_text)[-1])
+    if match:
+        word = match.group(1).strip()
+        if word.endswith('.'):
+            word = word[:-1]
+        
+        letters = ' '.join(list(word))
+        await asyncio.sleep(2)
+        await event.reply(letters)
 
 import asyncio
 from telethon import events

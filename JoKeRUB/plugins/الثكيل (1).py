@@ -336,6 +336,11 @@ async def break_word_on_trigger(event):
         original_message = await event.get_reply_message()
         if original_message.sender_id != l313l.uid:
             return
+        
+        # التحقق مما إذا كانت الرسالة الأصلية تحتوي على النص المحفز
+        if break_trigger_text not in original_message.text:
+            return
+        
         delay = 1  # تأخير 1 ثانية في وضع الرد
     else:
         if break_trigger_text not in event.raw_text:

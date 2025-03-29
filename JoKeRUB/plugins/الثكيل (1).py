@@ -319,20 +319,20 @@ async def set_break_trigger_text(event):
 async def break_word_on_trigger(event):
     global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
     
-    if not (break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids):
+    if not break_enabled or event.chat_id != active_chat_id or event.sender_id not in break_allowed_user_ids:
         return
     
     if break_trigger_text not in event.raw_text:
         return
     
-    # تعبير عادي محسن للأقواس {} و () فقط
-    match = re.search(r'[{(]([^})]+)[})]', event.raw_text)
+    # تعبير عادي سريع ومحدد للأقواس {} و () فقط
+    match = re.search(r'[{(]([^})]+)[})]', event.raw_text.split(break_trigger_text)[-1], re.DOTALL)
     if match:
         word = match.group(1).strip()
+        # إزالة أي فواصل أو مسافات زائدة
+        word = re.sub(r'[\s\n]+', '', word)
         if word:
-            # تفكيك الحروف مع إزالة المسافات
-            letters = ' '.join(list(word.replace(' ', '')))
-            await asyncio.sleep(2)
+            letters = ' '.join(list(word))
             await event.reply(letters)
 
 import asyncio

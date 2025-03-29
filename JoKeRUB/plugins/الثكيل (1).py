@@ -268,7 +268,6 @@ async def auto_reply_flags(event):
         await asyncio.sleep(1)  # تأخير لمدة ثانية واحدة
         await event.reply(country)
 
-
 import asyncio
 import re
 from telethon import events
@@ -280,12 +279,9 @@ active_chat_id = None
 break_allowed_user_ids = set()
 break_trigger_text = "⌔︙فكك :"
 
-# تفعيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_break_bot(event):
     global break_enabled, active_chat_id, break_allowed_user_ids
-    
-    # الحصول على المعرفات من الأمر
     user_id = event.pattern_match.group(1)
     group_id = event.pattern_match.group(2)
     
@@ -293,10 +289,8 @@ async def enable_break_bot(event):
         await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`")
         return
     
-    # إضافة معرف المستخدم المسموح
     break_allowed_user_ids.add(int(user_id))
     
-    # تحديد معرف المجموعة
     if group_id:
         active_chat_id = int(group_id)
     else:
@@ -307,7 +301,6 @@ async def enable_break_bot(event):
                     f"المجموعة: `{active_chat_id}`\n"
                     f"المستخدم المسموح: `{user_id}`")
 
-# تعطيل تفكيك البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
     global break_enabled, active_chat_id, break_allowed_user_ids
@@ -316,40 +309,31 @@ async def disable_break_bot(event):
     break_allowed_user_ids.clear()
     await event.edit("**✅ تم تعطيل التفكيك بنجاح**")
 
-# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
 async def set_break_trigger_text(event):
     global break_trigger_text
     break_trigger_text = event.pattern_match.group(1)
     await event.edit(f"**✅ تم تعيين نص التفكيك إلى:** `{break_trigger_text}`")
 
-# تفكيك الكلمة التي تلي النص المحفز
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
     global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
     
-    if not break_enabled:
-        return
-    
-    if active_chat_id and event.chat_id != active_chat_id:
-        return
-    
-    if event.sender_id not in break_allowed_user_ids:
+    if not (break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids):
         return
     
     if break_trigger_text not in event.raw_text:
         return
     
-    # البحث عن النص داخل الأقواس {} أو () أو بدون أقواس
-    match = re.search(r'[{(]?([^})\n]+)[})]?', event.raw_text.split(break_trigger_text)[-1])
+    # تعبير عادي محسن للأقواس {} و () فقط
+    match = re.search(r'[{(]([^})]+)[})]', event.raw_text)
     if match:
         word = match.group(1).strip()
-        if word.endswith('.'):
-            word = word[:-1]
-        
-        letters = ' '.join(list(word))
-        await asyncio.sleep(2)
-        await event.reply(letters)
+        if word:
+            # تفكيك الحروف مع إزالة المسافات
+            letters = ' '.join(list(word.replace(' ', '')))
+            await asyncio.sleep(2)
+            await event.reply(letters)
 
 import asyncio
 from telethon import events

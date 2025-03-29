@@ -278,64 +278,63 @@ break_enabled = False
 active_chat_id = None
 break_allowed_user_ids = set()
 break_trigger_text = "⌔︙فكك :"
-interactive_mode = False
 
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[./]تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_break_bot(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, interactive_mode
-    
-    interactive_mode = event.text.startswith('/')
+    global break_enabled, active_chat_id, break_allowed_user_ids
     user_id = event.pattern_match.group(1)
     group_id = event.pattern_match.group(2)
     
     if not user_id:
-        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**")
+        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`")
         return
     
     break_allowed_user_ids.add(int(user_id))
     
-    active_chat_id = int(group_id) if group_id else event.chat_id
-    break_enabled = True
+    if group_id:
+        active_chat_id = int(group_id)
+    else:
+        active_chat_id = event.chat_id
     
-    await event.edit(f"**✅ تم تفعيل التفكيك ({'تفاعلي' if interactive_mode else 'عادي'})**\n"
-                   f"المجموعة: `{active_chat_id}`\nالمستخدم: `{user_id}`\n"
-                   f"النص المحفز: `{break_trigger_text}`")
+    break_enabled = True
+    await event.edit(f"**✅ تم تفعيل التفكيك بنجاح**\n"
+                    f"المجموعة: `{active_chat_id}`\n"
+                    f"المستخدم المسموح: `{user_id}`")
 
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.+)$'))
-async def set_trigger_text(event):
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
+async def disable_break_bot(event):
+    global break_enabled, active_chat_id, break_allowed_user_ids
+    break_enabled = False
+    active_chat_id = None
+    break_allowed_user_ids.clear()
+    await event.edit("**✅ تم تعطيل التفكيك بنجاح**")
+
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
+async def set_break_trigger_text(event):
     global break_trigger_text
     break_trigger_text = event.pattern_match.group(1)
-    await event.edit(f"**✅ تم تعيين نص التفكيك:** `{break_trigger_text}`")
-
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[./]تعطيل تفكيك$'))
-async def disable_break_bot(event):
-    global break_enabled, interactive_mode
-    break_enabled = False
-    interactive_mode = False
-    await event.edit("**✅ تم تعطيل التفكيك**")
+    await event.edit(f"**✅ تم تعيين نص التفكيك إلى:** `{break_trigger_text}`")
 
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text, interactive_mode
+    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
     
-    # التحقق من الشروط الأساسية
-    if not (break_enabled and event.chat_id == active_chat_id and event.sender_id in break_allowed_user_ids):
+    if not break_enabled or event.chat_id != active_chat_id or event.sender_id not in break_allowed_user_ids:
         return
     
-    # التحقق من الوضع التفاعلي
-    if interactive_mode and (not event.is_reply or (await event.get_reply_message()).sender_id != (await event.client.get_me()).id):
-        return
-    
-    # البحث عن النص المحفز
     if break_trigger_text not in event.raw_text:
         return
     
-    # استخراج الكلمة من الأقواس
-    if match := re.search(r'[{(]([^})]+)[})]', event.raw_text):
-        word = match.group(1).strip().replace(' ', '')
+    # تعبير عادي سريع ومحدد للأقواس {} و () فقط
+    match = re.search(r'[{(]([^})]+)[})]', event.raw_text.split(break_trigger_text)[-1], re.DOTALL)
+    if match:
+        word = match.group(1).strip()
+        # إزالة أي فواصل أو مسافات زائدة
+        word = re.sub(r'[\s\n]+', '', word)
         if word:
-            await event.reply(' '.join(word))
-
+            letters = ' '.join(list(word))
+            await asyncio.sleep(2)
+            await event.reply(letters)
 
 import asyncio
 from telethon import events

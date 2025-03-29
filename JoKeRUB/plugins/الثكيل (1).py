@@ -278,18 +278,21 @@ break_enabled = False
 active_chat_id = None
 break_allowed_user_ids = set()
 break_trigger_text = "⌔︙فكك :"
+reply_mode = False  # متغير جديد لتحديد وضع الرد
 
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_break_bot(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids
-    user_id = event.pattern_match.group(1)
-    group_id = event.pattern_match.group(2)
+    global break_enabled, active_chat_id, break_allowed_user_ids, reply_mode
+    user_id = event.pattern_match.group(2)
+    group_id = event.pattern_match.group(3)
+    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
     
     if not user_id:
-        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`")
+        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`\nأو `.تفعيل تفكيك` للوضع العادي")
         return
     
     break_allowed_user_ids.add(int(user_id))
+    reply_mode = is_reply_mode  # تعيين وضع الرد
     
     if group_id:
         active_chat_id = int(group_id)
@@ -297,16 +300,19 @@ async def enable_break_bot(event):
         active_chat_id = event.chat_id
     
     break_enabled = True
+    mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
     await event.edit(f"**✅ تم تفعيل التفكيك بنجاح**\n"
                     f"المجموعة: `{active_chat_id}`\n"
-                    f"المستخدم المسموح: `{user_id}`")
+                    f"المستخدم المسموح: `{user_id}`\n"
+                    f"الوضع: `{mode_text}`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids
+    global break_enabled, active_chat_id, break_allowed_user_ids, reply_mode
     break_enabled = False
     active_chat_id = None
     break_allowed_user_ids.clear()
+    reply_mode = False
     await event.edit("**✅ تم تعطيل التفكيك بنجاح**")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
@@ -317,23 +323,32 @@ async def set_break_trigger_text(event):
 
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text
+    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text, reply_mode
     
     if not break_enabled or event.chat_id != active_chat_id or event.sender_id not in break_allowed_user_ids:
         return
     
-    if break_trigger_text not in event.raw_text:
-        return
+    # التحقق من وضع الرد
+    if reply_mode:
+        if not event.is_reply or not event.reply_to_msg_id:
+            return
+        # الحصول على الرسالة الأصلية التي تم الرد عليها
+        original_message = await event.get_reply_message()
+        if original_message.sender_id != l313l.uid:
+            return
+    else:
+        if break_trigger_text not in event.raw_text:
+            return
     
     # تعبير عادي سريع ومحدد للأقواس {} و () فقط
-    match = re.search(r'[{(]([^})]+)[})]', event.raw_text.split(break_trigger_text)[-1], re.DOTALL)
+    text_to_search = event.raw_text
+    match = re.search(r'[{(]([^})]+)[})]', text_to_search.split(break_trigger_text)[-1] if not reply_mode else text_to_search, re.DOTALL)
     if match:
         word = match.group(1).strip()
         # إزالة أي فواصل أو مسافات زائدة
         word = re.sub(r'[\s\n]+', '', word)
         if word:
             letters = ' '.join(list(word))
-            await asyncio.sleep(2)
             await event.reply(letters)
 
 import asyncio

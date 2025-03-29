@@ -328,35 +328,33 @@ async def break_word_on_trigger(event):
     if not break_enabled or event.chat_id != active_chat_id or event.sender_id not in break_allowed_user_ids:
         return
     
-    # التحقق من وضع الرد
     if reply_mode:
-        if not event.is_reply or not event.reply_to_msg_id:
+        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+        if not event.is_reply:
             return
-        # الحصول على الرسالة الأصلية التي تم الرد عليها
-        original_message = await event.get_reply_message()
-        if original_message.sender_id != l313l.uid:
+            
+        replied_msg = await event.get_reply_message()
+        if replied_msg.sender_id != l313l.uid or break_trigger_text not in event.raw_text:
             return
-        
-        # التحقق مما إذا كانت الرسالة الأصلية تحتوي على النص المحفز
-        if break_trigger_text not in original_message.text:
-            return
-        
-        delay = 1  # تأخير 1 ثانية في وضع الرد
+            
+        text_to_search = event.raw_text
+        delay = 1
     else:
+        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if break_trigger_text not in event.raw_text:
             return
-        delay = 2  # تأخير 2 ثانية في الوضع العادي
+            
+        text_to_search = event.raw_text.split(break_trigger_text)[-1]
+        delay = 2
     
-    # تعبير عادي سريع ومحدد للأقواس {} و () فقط
-    text_to_search = event.raw_text
-    match = re.search(r'[{(]([^})]+)[})]', text_to_search.split(break_trigger_text)[-1] if not reply_mode else text_to_search, re.DOTALL)
+    # البحث عن الأقواس {} أو ()
+    match = re.search(r'[{(]([^})]+)[})]', text_to_search)
     if match:
         word = match.group(1).strip()
-        # إزالة أي فواصل أو مسافات زائدة
         word = re.sub(r'[\s\n]+', '', word)
         if word:
             letters = ' '.join(list(word))
-            await asyncio.sleep(delay)  # استخدام التأخير المناسب حسب الوضع
+            await asyncio.sleep(delay)
             await event.reply(letters)
 
 
@@ -368,7 +366,7 @@ from JoKeRUB import l313l
 meanings_enabled = False
 active_chat_id = None
 meanings_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-meanings_trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "  # النص المحفز الافتراضي للمعاني
+meanings_trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "  # النص المحفز الافتراضي للمعان
 
 # قاموس السمايلات ومعانيها
 smiley_meanings = {

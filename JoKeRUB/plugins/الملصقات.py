@@ -319,34 +319,40 @@ async def kang(args):  # sourcery no-metrics
             is_anim = True
             photo = 1
         elif message.media.document.mime_type in ["video/mp4", "video/webm"]:
-            emojibypass = False
-            is_video = True
-            photo = 1
-            if message.media.document.mime_type == "video/webm":
-                attributes = message.media.document.attributes
-                for attribute in attributes:
-                    if isinstance(attribute, DocumentAttributeSticker):
-                        if message.media.document.size / 1024 > 255:
-                            catevent = await edit_or_reply(
-                                args, "__⌛ File size big,,, Downloading..__"
-                            )
-                            sticker = await animator(message, args, catevent)
-                            await edit_or_reply(
-                                catevent, f"`{random.choice(KANGING_STR)}`"
-                            )
-                        else:
-                            catevent = await edit_or_reply(
-                                args, f"`{random.choice(KANGING_STR)}`"
-                            )
-                            sticker = await args.client.download_media(
-                                message.media.document, "animate.webm"
-                            )
-                        emoji = attribute.alt
-                        emojibypass = True
-            else:
-                catevent = await edit_or_reply(args, "__⌛ جارِ التحميل عزيزي..__")
-                sticker = await animator(message, args, catevent)
-                await edit_or_reply(catevent, f"`{random.choice(KANGING_STR)}`")
+    emojibypass = False
+    is_video = True
+    photo = 1
+    if message.media.document.mime_type == "video/webm":
+        # تأكد من أن حجم الملف أقل من 256 كيلوبايت
+        if message.media.document.size / 1024 > 255:
+            catevent = await edit_or_reply(args, "__⌛ جارِ ضغط الفيديو...__")
+            sticker = await animator(message, args, catevent)
+            await edit_or_reply(catevent, f"`{random.choice(KANGING_STR)}`")
+        else:
+            catevent = await edit_or_reply(args, f"`{random.choice(KANGING_STR)}`")
+            sticker = await args.client.download_media(message.media.document, "animate.webm")
+        # تحويل إلى WEBM إذا لم يكن بالفعل
+        if not sticker.endswith('.webm'):
+            import ffmpeg
+            try:
+                ffmpeg.input(sticker).output('animate.webm').run()
+                sticker = 'animate.webm'
+            except Exception as e:
+                await edit_delete(catevent, f"فشل تحويل الفيديو: {str(e)}")
+                return
+        # الحصول على الايموجي من سمات الملصق
+        attributes = message.media.document.attributes
+        for attribute in attributes:
+            if isinstance(attribute, DocumentAttributeSticker):
+                emoji = attribute.alt
+                emojibypass = True
+        emoji = emoji if emojibypass else "😂"
+    else:
+        catevent = await edit_or_reply(args, "__⌛ جارِ تحويل الفيديو إلى WEBM...__")
+        sticker = await animator(message, args, catevent)
+        await edit_or_reply(catevent, f"`{random.choice(KANGING_STR)}`")
+        # تعيين ايموجي افتراضي إذا لم يكن هناك ايموجي مرفق
+        emoji = "😂"
         else:
             await edit_delete(args, "`الملف غير مدعوم!`")
             return

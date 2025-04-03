@@ -312,17 +312,17 @@ async def del_welcome(event):
 from telethon import events, types
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, gvarstatus, delgvar
-from ..core.managers import edit_delete, edit_or_reply
-import time
+from ..core.managers import edit_delete
 import random
+import time
 
-# تخزين طلبات الانضمام المؤقتة
-join_requests = {}
+# تخزين مؤقت لطلبات الانضمام
+pending_join_requests = {}
 
 WELCOME_MESSAGES = [
     "**🎊 نورت يا {mention} بعد الموافقة!**",
     "**👋 أهلًا وسهلًا بـ {mention} بعد القبول!**",
-    "**🔥 {mention} تمت الموافقة عليك وحلّ الضيافة!**"
+    "**🔥 {mention} تمت الموافقة عليك!**"
 ]
 
 @l313l.ar_cmd(
@@ -356,48 +356,47 @@ async def disable_approval_welcome(event):
     await edit_delete(event, "**✓ تم تعطيل الترحيب عند الموافقة**")
 
 @l313l.on(events.ChatAction)
-async def track_join_requests(event):
+async def handle_join_requests(event):
     try:
-        if not event.is_group or not gvarstatus(f"approval_welcome_{event.chat_id}"):
+        chat_id = event.chat_id
+        
+        # 1. التحقق من تفعيل الميزة في هذه المجموعة
+        if not gvarstatus(f"approval_welcome_{chat_id}"):
             return
-
-        # إذا كان هناك مستخدمون جدد مضافون
-        if event.user_added:
-            for user_id in event.users:
-                join_requests[user_id] = {
-                    'chat_id': event.chat_id,
-                    'timestamp': time.time()
-                }
-
-        # إذا ظهر مستخدم فجأة (قد يكون موافقة)
+            
+        # 2. إذا كان الحدث هو طلب انضمام
+        if isinstance(event.action, types.ChannelAdminLogEventActionParticipantJoinRequest):
+            user_id = event.user_id
+            pending_join_requests[user_id] = {
+                'chat_id': chat_id,
+                'request_time': time.time()
+            }
+            
+        # 3. إذا كان الحدث هو انضمام عضو
         elif event.user_joined:
             user = await event.get_user()
-            if user.id in join_requests:
-                if time.time() - join_requests[user.id]['timestamp'] < 10:  # خلال دقيقتين
-                    await send_welcome(event, user)
-                del join_requests[user.id]
+            
+            # أ- إذا كان موجودًا في طلبات الانضمام (تمت الموافقة)
+            if user.id in pending_join_requests:
+                request_data = pending_join_requests[user.id]
+                
+                # التأكد من أن الموافقة تمت خلال 5 دقائق (قابلة للتعديل)
+                if time.time() - request_data['request_time'] < 20:
+                    await send_approval_welcome(event, user)
+                    del pending_join_requests[user.id]
+                    
+            # ب- إذا انضم بدون طلب مسبق (تمت دعوته مباشرة)
+            else:
+                pass  # يمكنك إضافة ترحيب مختلف هنا
 
     except Exception as e:
-        print(f"Error in track_join_requests: {e}")
+        print(f"Error in handle_join_requests: {e}")
 
-async def send_welcome(event, user):
+async def send_approval_welcome(event, user):
     try:
-        chat = await event.get_chat()
         welcome_msg = random.choice(WELCOME_MESSAGES).format(
             mention=f"[{user.first_name}](tg://user?id={user.id})"
         )
         await event.reply(welcome_msg)
     except Exception as e:
         print(f"Error sending welcome: {e}")
-
-@l313l.on(events.NewMessage(pattern=r'.تست', outgoing=True))
-async def test_welcome(event):
-    """لاختبار عمل الترحيب"""
-    chat = await event.get_chat()
-    user = await event.client.get_me()
-    test_event = types.ChatAction(
-        user_id=user.id,
-        chat_id=chat.id,
-        action=types.MessageActionChatAddUser(users=[user.id])
-    )
-    await track_join_requests(test_event)

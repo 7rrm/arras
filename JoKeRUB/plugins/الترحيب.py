@@ -308,5 +308,36 @@ async def del_welcome(event):
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
+from telethon import events
+import random
+
+# قائمة بكليشات الترحيب
+WELCOME_MESSAGES = [
+    "**نَـورت**↜  {mention}",
+    "**هُـِݪآإ**↜  {mention}",
+    "**يهُـِݪآإ**↜  {mention}",
+    "**ءنـرت عزيزي**↜  {mention}",
+    "**هَِـلا يڪَِمر**↜  {mention}",
+    "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
+]
+
+@l313l.on(events.ChatAction)
+async def handle_approval_welcome(event):
+    # التحقق من أن الحدث هو موافقة على انضمام عضو
+    if event.user_approved:
+        # جلب معلومات العضو
+        user = await event.get_user()
+        chat = await event.get_chat()
+        
+        # التحقق من أن العضو ليس بوت
+        if not user.bot:
+            # اختيار رسالة ترحيب عشوائية
+            welcome_message = random.choice(WELCOME_MESSAGES).format(
+                mention=f"[{user.first_name}](tg://user?id={user.id})"
+            )
+            
+            # إرسال رسالة الترحيب
+            await event.reply(welcome_message)
+
 
     

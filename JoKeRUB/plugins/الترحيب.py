@@ -309,15 +309,23 @@ async def del_welcome(event):
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
 
+from telethon import events
+import random
+from JoKeRUB import l313l
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..core.managers import edit_delete, edit_or_reply
+from telethon.tl.types import ChannelParticipantsAdmins
+import logging
+
+logger = logging.getLogger(__name__)
 
 # قائمة بكليشات الترحيب
 APPROVAL_WELCOME_MESSAGES = [
-    "**نَـورت**↜  {mention}",
-    "**هُـِݪآإ**↜  {mention}",
-    "**يهُـِݪآإ**↜  {mention}",
-    "**ءنـرت عزيزي**↜  {mention}",
-    "**هَِـلا يڪَِمر**↜  {mention}",
-    "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
+    "**🎊 نورت يا {mention}!**",
+    "**👋 أهلًا وسهلًا بـ {mention}!**",
+    "**🔥 {mention} انضم وحلّ الضيافة!**",
+    "**🚀 بداية جديدة مع {mention}!**",
+    "**💫 {mention}، حياك الله بين إخوانك!**"
 ]
 
 @l313l.ar_cmd(
@@ -331,11 +339,15 @@ APPROVAL_WELCOME_MESSAGES = [
 )
 async def enable_approval_welcome(event):
     "لتفعيل الترحيب عند الموافقة على الأعضاء"
-    chat_id = event.chat_id
-    if gvarstatus(f"approval_welcome_{chat_id}") == "true":
-        return await edit_delete(event, "**✓ الترحيب عند الموافقة مفعل بالفعل في هذه المجموعة**")
-    addgvar(f"approval_welcome_{chat_id}", "true")
-    await edit_delete(event, "**✓ تم تفعيل الترحيب عند الموافقة بنجاح**")
+    try:
+        chat_id = event.chat_id
+        if gvarstatus(f"approval_welcome_{chat_id}") == "true":
+            return await edit_delete(event, "**✓ الترحيب عند الموافقة مفعل بالفعل هنا**")
+        addgvar(f"approval_welcome_{chat_id}", "true")
+        await edit_delete(event, "**✓ تم التفعيل بنجاح | سيتم الترحيب بالأعضاء عند الموافقة عليهم**")
+    except Exception as e:
+        logger.error(f"Error enabling approval welcome: {e}")
+        await edit_delete(event, "**𐄂 حدث خطأ أثناء التفعيل**")
 
 @l313l.ar_cmd(
     pattern="تعطيل ترحيب الموافقه$",
@@ -348,31 +360,51 @@ async def enable_approval_welcome(event):
 )
 async def disable_approval_welcome(event):
     "لتعطيل الترحيب عند الموافقة على الأعضاء"
-    chat_id = event.chat_id
-    if gvarstatus(f"approval_welcome_{chat_id}") != "true":
-        return await edit_delete(event, "**✓ الترحيب عند الموافقة معطل بالفعل في هذه المجموعة**")
-    delgvar(f"approval_welcome_{chat_id}")
-    await edit_delete(event, "**✓ تم تعطيل الترحيب عند الموافقة بنجاح**")
+    try:
+        chat_id = event.chat_id
+        if gvarstatus(f"approval_welcome_{chat_id}") != "true":
+            return await edit_delete(event, "**✓ الترحيب عند الموافقة معطل بالفعل هنا**")
+        delgvar(f"approval_welcome_{chat_id}")
+        await edit_delete(event, "**✓ تم التعطيل بنجاح | لن يتم الترحيب بالأعضاء الجدد**")
+    except Exception as e:
+        logger.error(f"Error disabling approval welcome: {e}")
+        await edit_delete(event, "**𐄂 حدث خطأ أثناء التعطيل**")
 
 @l313l.on(events.ChatAction)
 async def handle_approval_welcome(event):
-    # التحقق من أن الميزة مفعلة في هذه المجموعة
-    chat_id = event.chat_id
-    if gvarstatus(f"approval_welcome_{chat_id}") != "true":
-        return
-    
-    # التحقق من أن الحدث هو موافقة على انضمام عضو
-    if event.user_approved:
+    try:
+        # التحقق الأساسي
+        if not event.is_group:
+            return
+            
+        chat_id = event.chat_id
+        
+        # التحقق من التفعيل
+        if gvarstatus(f"approval_welcome_{chat_id}") != "true":
+            return
+            
+        # التحقق من نوع الحدث
+        if not hasattr(event, 'user_approved') or not event.user_approved:
+            return
+            
         # جلب معلومات العضو
         user = await event.get_user()
-        chat = await event.get_chat()
-        
-        # التحقق من أن العضو ليس بوت
-        if not user.bot:
-            # اختيار رسالة ترحيب عشوائية
-            welcome_message = random.choice(APPROVAL_WELCOME_MESSAGES).format(
-                mention=f"[{user.first_name}](tg://user?id={user.id})"
-            )
+        if not user or user.bot:
+            return
             
-            # إرسال رسالة الترحيب
-            await event.reply(welcome_message)
+        # التحقق من صلاحيات البوت
+        if not await event.client.get_permissions(chat_id, event.client.uid).send_messages:
+            logger.warning(f"No send permissions in chat {chat_id}")
+            return
+            
+        # إرسال الترحيب
+        welcome_msg = random.choice(APPROVAL_WELCOME_MESSAGES).format(
+            mention=f"[{user.first_name}](tg://user?id={user.id})"
+        )
+        await event.reply(welcome_msg)
+        
+        # تسجيل التنفيذ
+        logger.info(f"Welcomed user {user.id} in chat {chat_id}")
+        
+    except Exception as e:
+        logger.error(f"Error in approval welcome handler: {e}")

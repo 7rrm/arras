@@ -24,10 +24,14 @@ async def _(event):
     if not warn_reason:
         warn_reason = "- لا يوجد سبب ، 🗒"
     reply_message = await event.get_reply_message()
+    if not reply_message:
+        return await edit_or_reply(event, "**▸┊يجب الرد على الرسالة لتحذير المستخدم!**")
+    
     limit, soft_warn = sql.get_warn_setting(event.chat_id)
     num_warns, reasons = sql.warn_user(
         str(reply_message.sender_id), event.chat_id, warn_reason
     )
+    
     if num_warns >= limit:
         sql.reset_warns(str(reply_message.sender_id), event.chat_id)
         user_id = reply_message.sender_id
@@ -46,7 +50,7 @@ async def _(event):
         )
         if warn_reason:
             reply += "\n▸┊سبب التحذير الأخير \n{}".format(html.escape(warn_reason))
-    await edit_or_reply(event, reply)
+        await edit_or_reply(event, reply)
 
 
 @l313l.ar_cmd(
@@ -94,5 +98,7 @@ async def _(event):
 async def _(event):
     "لحذف او اعادة تحذيرات المستخدم الذي تم الرد عليه"
     reply_message = await event.get_reply_message()
+    if not reply_message:
+        return await edit_or_reply(event, "**▸┊يجب الرد على المستخدم أولاً!**")
     sql.reset_warns(str(reply_message.sender_id), event.chat_id)
     await edit_or_reply(event, "**▸┊تم إعادة ضبط التحذيرات!**")

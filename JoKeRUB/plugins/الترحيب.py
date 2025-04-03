@@ -309,23 +309,20 @@ async def del_welcome(event):
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
 
-from telethon import events
-import random
+from telethon import events, types
 from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..sql_helper.globals import addgvar, gvarstatus, delgvar
 from ..core.managers import edit_delete, edit_or_reply
-from telethon.tl.types import ChannelParticipantsAdmins
-import logging
+import time
+import random
 
-logger = logging.getLogger(__name__)
+# تخزين طلبات الانضمام المؤقتة
+join_requests = {}
 
-# قائمة بكليشات الترحيب
-APPROVAL_WELCOME_MESSAGES = [
-    "**🎊 نورت يا {mention}!**",
-    "**👋 أهلًا وسهلًا بـ {mention}!**",
-    "**🔥 {mention} انضم وحلّ الضيافة!**",
-    "**🚀 بداية جديدة مع {mention}!**",
-    "**💫 {mention}، حياك الله بين إخوانك!**"
+WELCOME_MESSAGES = [
+    "**🎊 نورت يا {mention} بعد الموافقة!**",
+    "**👋 أهلًا وسهلًا بـ {mention} بعد القبول!**",
+    "**🔥 {mention} تمت الموافقة عليك وحلّ الضيافة!**"
 ]
 
 @l313l.ar_cmd(
@@ -333,78 +330,74 @@ APPROVAL_WELCOME_MESSAGES = [
     command=("تفعيل ترحيب الموافقه", plugin_category),
     info={
         "header": "لتفعيل الترحيب عند الموافقة على الأعضاء",
-        "description": "عند التفعيل، سيرحب بالأعضاء عند الموافقة عليهم",
         "usage": "{tr}تفعيل ترحيب الموافقه",
     },
 )
 async def enable_approval_welcome(event):
-    "لتفعيل الترحيب عند الموافقة على الأعضاء"
-    try:
-        chat_id = event.chat_id
-        if gvarstatus(f"approval_welcome_{chat_id}") == "true":
-            return await edit_delete(event, "**✓ الترحيب عند الموافقة مفعل بالفعل هنا**")
-        addgvar(f"approval_welcome_{chat_id}", "true")
-        await edit_delete(event, "**✓ تم التفعيل بنجاح | سيتم الترحيب بالأعضاء عند الموافقة عليهم**")
-    except Exception as e:
-        logger.error(f"Error enabling approval welcome: {e}")
-        await edit_delete(event, "**𐄂 حدث خطأ أثناء التفعيل**")
+    chat_id = event.chat_id
+    if gvarstatus(f"approval_welcome_{chat_id}") == "true":
+        return await edit_delete(event, "**✓ الميزة مفعلة مسبقًا**")
+    addgvar(f"approval_welcome_{chat_id}", "true")
+    await edit_delete(event, "**✓ تم تفعيل الترحيب عند الموافقة**")
 
 @l313l.ar_cmd(
     pattern="تعطيل ترحيب الموافقه$",
     command=("تعطيل ترحيب الموافقه", plugin_category),
     info={
         "header": "لتعطيل الترحيب عند الموافقة على الأعضاء",
-        "description": "عند التعطيل، لن يتم الترحيب بالأعضاء عند الموافقة عليهم",
         "usage": "{tr}تعطيل ترحيب الموافقه",
     },
 )
 async def disable_approval_welcome(event):
-    "لتعطيل الترحيب عند الموافقة على الأعضاء"
-    try:
-        chat_id = event.chat_id
-        if gvarstatus(f"approval_welcome_{chat_id}") != "true":
-            return await edit_delete(event, "**✓ الترحيب عند الموافقة معطل بالفعل هنا**")
-        delgvar(f"approval_welcome_{chat_id}")
-        await edit_delete(event, "**✓ تم التعطيل بنجاح | لن يتم الترحيب بالأعضاء الجدد**")
-    except Exception as e:
-        logger.error(f"Error disabling approval welcome: {e}")
-        await edit_delete(event, "**𐄂 حدث خطأ أثناء التعطيل**")
+    chat_id = event.chat_id
+    if gvarstatus(f"approval_welcome_{chat_id}") != "true":
+        return await edit_delete(event, "**✓ الميزة معطلة مسبقًا**")
+    delgvar(f"approval_welcome_{chat_id}")
+    await edit_delete(event, "**✓ تم تعطيل الترحيب عند الموافقة**")
 
 @l313l.on(events.ChatAction)
-async def handle_approval_welcome(event):
+async def track_join_requests(event):
     try:
-        # التحقق الأساسي
-        if not event.is_group:
+        if not event.is_group or not gvarstatus(f"approval_welcome_{event.chat_id}"):
             return
-            
-        chat_id = event.chat_id
-        
-        # التحقق من التفعيل
-        if gvarstatus(f"approval_welcome_{chat_id}") != "true":
-            return
-            
-        # التحقق من نوع الحدث
-        if not hasattr(event, 'user_approved') or not event.user_approved:
-            return
-            
-        # جلب معلومات العضو
-        user = await event.get_user()
-        if not user or user.bot:
-            return
-            
-        # التحقق من صلاحيات البوت
-        if not await event.client.get_permissions(chat_id, event.client.uid).send_messages:
-            logger.warning(f"No send permissions in chat {chat_id}")
-            return
-            
-        # إرسال الترحيب
-        welcome_msg = random.choice(APPROVAL_WELCOME_MESSAGES).format(
+
+        # إذا كان هناك مستخدمون جدد مضافون
+        if event.user_added:
+            for user_id in event.users:
+                join_requests[user_id] = {
+                    'chat_id': event.chat_id,
+                    'timestamp': time.time()
+                }
+
+        # إذا ظهر مستخدم فجأة (قد يكون موافقة)
+        elif event.user_joined:
+            user = await event.get_user()
+            if user.id in join_requests:
+                if time.time() - join_requests[user.id]['timestamp'] < 10:  # خلال دقيقتين
+                    await send_welcome(event, user)
+                del join_requests[user.id]
+
+    except Exception as e:
+        print(f"Error in track_join_requests: {e}")
+
+async def send_welcome(event, user):
+    try:
+        chat = await event.get_chat()
+        welcome_msg = random.choice(WELCOME_MESSAGES).format(
             mention=f"[{user.first_name}](tg://user?id={user.id})"
         )
         await event.reply(welcome_msg)
-        
-        # تسجيل التنفيذ
-        logger.info(f"Welcomed user {user.id} in chat {chat_id}")
-        
     except Exception as e:
-        logger.error(f"Error in approval welcome handler: {e}")
+        print(f"Error sending welcome: {e}")
+
+@l313l.on(events.NewMessage(pattern=r'.تست', outgoing=True))
+async def test_welcome(event):
+    """لاختبار عمل الترحيب"""
+    chat = await event.get_chat()
+    user = await event.client.get_me()
+    test_event = types.ChatAction(
+        user_id=user.id,
+        chat_id=chat.id,
+        action=types.MessageActionChatAddUser(users=[user.id])
+    )
+    await track_join_requests(test_event)

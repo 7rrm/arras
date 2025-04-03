@@ -308,11 +308,10 @@ async def del_welcome(event):
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
-from telethon import events
-import random
+
 
 # قائمة بكليشات الترحيب
-WELCOME_MESSAGES = [
+APPROVAL_WELCOME_MESSAGES = [
     "**نَـورت**↜  {mention}",
     "**هُـِݪآإ**↜  {mention}",
     "**يهُـِݪآإ**↜  {mention}",
@@ -321,8 +320,47 @@ WELCOME_MESSAGES = [
     "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
 ]
 
+@l313l.ar_cmd(
+    pattern="تفعيل ترحيب الموافقه$",
+    command=("تفعيل ترحيب الموافقه", plugin_category),
+    info={
+        "header": "لتفعيل الترحيب عند الموافقة على الأعضاء",
+        "description": "عند التفعيل، سيرحب بالأعضاء عند الموافقة عليهم",
+        "usage": "{tr}تفعيل ترحيب الموافقه",
+    },
+)
+async def enable_approval_welcome(event):
+    "لتفعيل الترحيب عند الموافقة على الأعضاء"
+    chat_id = event.chat_id
+    if gvarstatus(f"approval_welcome_{chat_id}") == "true":
+        return await edit_delete(event, "**✓ الترحيب عند الموافقة مفعل بالفعل في هذه المجموعة**")
+    addgvar(f"approval_welcome_{chat_id}", "true")
+    await edit_delete(event, "**✓ تم تفعيل الترحيب عند الموافقة بنجاح**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل ترحيب الموافقه$",
+    command=("تعطيل ترحيب الموافقه", plugin_category),
+    info={
+        "header": "لتعطيل الترحيب عند الموافقة على الأعضاء",
+        "description": "عند التعطيل، لن يتم الترحيب بالأعضاء عند الموافقة عليهم",
+        "usage": "{tr}تعطيل ترحيب الموافقه",
+    },
+)
+async def disable_approval_welcome(event):
+    "لتعطيل الترحيب عند الموافقة على الأعضاء"
+    chat_id = event.chat_id
+    if gvarstatus(f"approval_welcome_{chat_id}") != "true":
+        return await edit_delete(event, "**✓ الترحيب عند الموافقة معطل بالفعل في هذه المجموعة**")
+    delgvar(f"approval_welcome_{chat_id}")
+    await edit_delete(event, "**✓ تم تعطيل الترحيب عند الموافقة بنجاح**")
+
 @l313l.on(events.ChatAction)
 async def handle_approval_welcome(event):
+    # التحقق من أن الميزة مفعلة في هذه المجموعة
+    chat_id = event.chat_id
+    if gvarstatus(f"approval_welcome_{chat_id}") != "true":
+        return
+    
     # التحقق من أن الحدث هو موافقة على انضمام عضو
     if event.user_approved:
         # جلب معلومات العضو
@@ -332,12 +370,9 @@ async def handle_approval_welcome(event):
         # التحقق من أن العضو ليس بوت
         if not user.bot:
             # اختيار رسالة ترحيب عشوائية
-            welcome_message = random.choice(WELCOME_MESSAGES).format(
+            welcome_message = random.choice(APPROVAL_WELCOME_MESSAGES).format(
                 mention=f"[{user.first_name}](tg://user?id={user.id})"
             )
             
             # إرسال رسالة الترحيب
             await event.reply(welcome_message)
-
-
-    

@@ -5,7 +5,7 @@ from JoKeRUB import l313l
 plugin_category = "misc"
 
 @l313l.ar_cmd(
-    pattern=r"حفظ كامل (-?\d+)",  
+    pattern="حفظ كامل (-?\d+)",  
     command=("حفظ كامل", plugin_category),
     info={
         "header": "نقل جميع الرسائل من قناة معينة حتى لو كانت محمية.",

@@ -31,7 +31,7 @@ async def transfer_channel(event):
         messages = await l313l.get_messages(chat, limit=5000, reverse=True)
 
         for msg in messages:
-            await asyncio.sleep(1)  # منع الحظر بسبب السرعة العالية
+            await asyncio.sleep(2)  # منع الحظر بسبب السرعة العالية
 
             try:
                 # إرسال النصوص العادية
@@ -43,7 +43,7 @@ async def transfer_channel(event):
                     media_caption = msg.text if msg.text else "📎 صورة محفوظة"  # تعليق تلقائي للصور بدون نص
                     file_path = await l313l.download_media(msg.media)  # تحميل الملف محليًا
                     await l313l.send_file(chat_id, file_path, caption=media_caption)  # إعادة الرفع
-                    await asyncio.sleep(1)  # تأخير لمنع الضغط على السيرفر
+                    await asyncio.sleep(2)  # تأخير لمنع الضغط على السيرفر
 
             except Exception as e:
                 await l313l.send_message(chat_id, f"✎┊‌ خطأ أثناء حفظ الرسالة: {str(e)}")

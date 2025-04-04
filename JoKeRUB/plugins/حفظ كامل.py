@@ -8,46 +8,78 @@ plugin_category = "misc"
     pattern="حفظ كامل(?: |$)(.*)",
     command=("حفظ كامل", plugin_category),
     info={
-        "header": "نقل جميع الرسائل من قناة معينة حتى لو كانت محمية.",
-        "description": "ينقل كل المحتوى من قناة معينة أو مجموعة إلى المكان الذي يتم كتابة الأمر فيه، مع الحفاظ على الترتيب من الأقدم إلى الأحدث.",
-        "usage": "{tr}حفظ_كامل <ID القناة أو المجموعة>",
+        "header": "نقل جميع الرسائل من قناة معينة مع الحفاظ على تنسيق الوسائط المتعددة.",
+        "description": "يحفظ كل الرسائل من قناة/مجموعة مع الاحتفاظ بالصور المتعددة في رسالة واحدة.",
+        "usage": "{tr}حفظ_كامل <رابط/معرف/ID القناة>",
     },
 )
 async def transfer_channel(event):
-    channel_id = int(event.pattern_match.group(1))
-    if not channel_id:
-        return await event.edit("**✎┊‌ يرجى تحديد ID القناة أو المجموعة!**")
+    input_str = event.pattern_match.group(1).strip()
+    if not input_str:
+        return await event.edit("**✎┊ يرجى تحديد رابط القناة أو المعرف أو الـ ID!**")
 
-    await event.edit("**✎┊‌ جاري التحقق من القناة، يرجى الانتظار...**")
+    await event.edit("**✎┊ جاري التحقق من القناة، يرجى الانتظار...**")
 
     try:
-        chat = await l313l.get_entity(channel_id)
+        if input_str.startswith(("https://t.me/", "t.me/", "@")):
+            channel_entity = input_str.split("/")[-1].replace("@", "")
+            chat = await l313l.get_entity(channel_entity)
+        elif input_str.isdigit():
+            chat = await l313l.get_entity(int(input_str))
+        else:
+            return await event.edit("**✎┊ الرابط أو المعرف غير صالح!**")
     except Exception as e:
-        return await event.edit(f"**✎┊‌ خطأ أثناء جلب القناة/المجموعة: {str(e)}**")
+        return await event.edit(f"**✎┊ خطأ أثناء جلب القناة: {str(e)}**")
 
-    chat_id = event.chat_id  # المكان اللي راح تنحفظ بيه الرسائل
+    target_chat = event.chat_id  # الدردشة الهدف (حيث سيتم حفظ الرسائل)
 
     try:
         messages = await l313l.get_messages(chat, limit=5000, reverse=True)
+        total = len(messages)
+        success = 0
 
         for msg in messages:
-            await asyncio.sleep(2)  # منع الحظر بسبب السرعة العالية
+            await asyncio.sleep(2)  # تقليل خطر الحظر
 
             try:
-                # إرسال النصوص العادية
-                if msg.text:
-                    await l313l.send_message(chat_id, f"{msg.text}")
+                # إذا كانت الرسالة تحتوي على وسائط متعددة (مثل ألبوم صور)
+                if msg.media and hasattr(msg, "grouped_id"):
+                    media_files = []
+                    caption = msg.text if msg.text else ""
 
-                # إعادة رفع الوسائط بدون إعادة توجيه
-                if msg.media:
-                    media_caption = msg.text if msg.text else "📎 صورة محفوظة"  # تعليق تلقائي للصور بدون نص
-                    file_path = await l313l.download_media(msg.media)  # تحميل الملف محليًا
-                    await l313l.send_file(chat_id, file_path, caption=media_caption)  # إعادة الرفع
-                    await asyncio.sleep(2)  # تأخير لمنع الضغط على السيرفر
+                    # تحميل جميع الوسائط في الألبوم
+                    async for m in l313l.iter_messages(chat, ids=range(msg.id, msg.id + 10)):
+                        if m.grouped_id == msg.grouped_id and m.media:
+                            media_path = await l313l.download_media(m.media)
+                            media_files.append(media_path)
+
+                    # إرسالها كمجموعة واحدة
+                    if media_files:
+                        await l313l.send_file(
+                            target_chat,
+                            media_files,
+                            caption=caption,
+                        )
+                        success += 1
+
+                # إذا كانت رسالة عادية (نص أو صورة واحدة)
+                else:
+                    if msg.text and not msg.media:
+                        await l313l.send_message(target_chat, msg.text)
+                        success += 1
+                    elif msg.media:
+                        caption = msg.text if msg.text else ""
+                        media_path = await l313l.download_media(msg.media)
+                        await l313l.send_file(
+                            target_chat,
+                            media_path,
+                            caption=caption,
+                        )
+                        success += 1
 
             except Exception as e:
-                await l313l.send_message(chat_id, f"✎┊‌ خطأ أثناء حفظ الرسالة: {str(e)}")
+                await event.reply(f"**✎┊ خطأ في حفظ الرسالة {msg.id}: {str(e)}**")
 
-        await event.edit("**✎┊‌ تم نقل جميع الرسائل بنجاح! ✅**")
+        await event.edit(f"**✎┊ تم نقل {success}/{total} رسالة بنجاح! ✅**")
     except Exception as e:
-        await event.edit(f"✎┊‌ حدث خطأ أثناء جلب الرسائل. الخطأ: {str(e)}")
+        await event.edit(f"**✎┊ حدث خطأ أثناء جلب الرسائل: {str(e)}**")

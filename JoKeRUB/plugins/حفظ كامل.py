@@ -39,7 +39,7 @@ async def transfer_channel(event):
         success = 0
 
         for msg in messages:
-            await asyncio.sleep(2)  # تقليل خطر الحظر
+            await asyncio.sleep(5)  # تقليل خطر الحظر
 
             try:
                 # إذا كانت الرسالة تحتوي على وسائط متعددة (مثل ألبوم صور)

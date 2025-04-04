@@ -166,56 +166,64 @@ async def ViewChJok(event):
     hico = []
     async for dialog in event.client.iter_dialogs():
         entity = dialog.entity
-        if isinstance(entity, Channel) and entity.broadcast:
+        if isinstance(entity, Channel):
             channel_name = entity.title
             channel_id = entity.id
             is_owner = entity.creator
-            is_admin = entity.admin_rights
-            if entity.username:
-                if entity.megagroup:  # قناة عامة
-                    channel_link = f"{channel_name} ({entity.username})"
+            is_admin = entity.admin_rights if hasattr(entity, 'admin_rights') else False
+            
+            # الحصول على معلومات القناة الكاملة
+            try:
+                full_channel = await event.client.get_entity(entity.id)
+                is_owner = full_channel.creator
+                is_admin = full_channel.admin_rights if hasattr(full_channel, 'admin_rights') else False
+            except:
+                pass
+            
+            if hasattr(entity, 'username') and entity.username:
+                if hasattr(entity, 'megagroup') and entity.megagroup:  # قناة عامة
+                    channel_link = f"{channel_name} (@{entity.username})"
                 else:  # قناة خاصة
                     channel_link = f"[{channel_name}](https://t.me/{entity.username})"
-                if is_owner:
-                    hico.append(channel_link)
-                if is_admin:
-                    hica.append(channel_link)
-                if not is_owner and not is_admin:
-                    hi.append(channel_link)
             else:
-                if entity.megagroup:  # قناة عامة
-                    channel_link = f"{channel_name}"
+                if hasattr(entity, 'megagroup') and entity.megagroup:  # قناة عامة
+                    channel_link = f"{channel_name} (خاصة - {channel_id})"
                 else:  # قناة خاصة
                     channel_link = f"[{channel_name}](https://t.me/c/{channel_id}/1)"
-                if is_owner:
-                    hico.append(channel_link)
-                if is_admin:
-                    hica.append(channel_link)
-                if not is_owner and not is_admin:
-                    hi.append(channel_link)
+            
+            if is_owner:
+                hico.append(channel_link)
+            elif is_admin:
+                hica.append(channel_link)
+            else:
+                hi.append(channel_link)
+    
     if catcmd == "جميع القنوات":
         output = CHANNELS_STR
-        for k, channel in enumerate(hi, start=1):
+        for k, channel in enumerate(hi + hica + hico, start=1):
             output += f"{k}• {channel}\n"
     elif catcmd == "القنوات المشرف عليها":
         output = CHANNELS_ADMINSTR
-        for k, channel in enumerate(hica, start=1):
+        for k, channel in enumerate(hica + hico, start=1):
             output += f"{k}• {channel}\n"
     elif catcmd == "قنواتي":
         output = CHANNELS_OWNERSTR
         for k, channel in enumerate(hico, start=1):
             output += f"{k}• {channel}\n"
+    
     stop_time = time.time() - start_time
     try:
         cat = Get(cat)
         await event.client(cat)
     except BaseException:
         pass
+    
     output += f"\n\n**استغرق حساب القنوات: **{stop_time:.02f} ثانية"
     try:
         await catevent.edit(output)
     except Exception:
         await edit_or_reply(catevent, output)
+
         
 @l313l.on(admin_cmd(pattern="قائمه (جميع المجموعات|مجموعات اديرها|كروباتي)$"))
 async def stats(event):  # sourcery no-metrics

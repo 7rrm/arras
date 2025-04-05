@@ -94,43 +94,27 @@ async def user_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def secret_msg(event):
-    if gvarstatus("ZThon_Vip") is None and event.sender_id not in Zed_Dev:
+global bbb
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
-    
-    reply = await event.get_reply_message()
-    if not reply and not event.pattern_match.group(1):
-        return await edit_or_reply(event, "**⌔╎يجب الرد على الشخص أو كتابة معرفه**")
-    
+    user = event.pattern_match.group(1)
+    if not user and not event.reply_to_msg_id:
+        return
+    zthon_user = await get_user_from_event(event)
     try:
-        user = await get_user_from_event(event)
-        user_id = user.id
-        full_name = user.first_name
-    except Exception as e:
-        return await edit_or_reply(event, f"**حدث خطأ: {str(e)}**")
-    
-    # إنشاء زر إنلاين يعمل مع اليوزر بوت
-    button = [
-        [
-            Button.url(
-                "اضغط هنا لإرسال الهمسة",
-                f"https://t.me/{Config.TG_BOT_USERNAME}?start=hmsa_{user_id}"
-            )
-        ]
-    ]
-    
-    # نص الرسالة
-    msg_text = (
-        f"**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"
-        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"⌔╎اضغـط الـزر بالاسفـل ⚓\n"
-        f"⌔╎لـ إرسال همسـه سـࢪيـه إلى {full_name}"
-    )
-    
-    # إرسال الرسالة
-    await event.client.send_message(
-        event.chat_id,
-        msg_text,
-        buttons=button,
-        reply_to=reply.id if reply else None
-    )
+        user_id, full_name, username = await user_info(zthon_user, event)
+    except (AttributeError, TypeError):
+        return
+    delgvar("hmsa_id")
+    delgvar("hmsa_name")
+    delgvar("hmsa_user")
+    addgvar("hmsa_id", user_id)
+    addgvar("hmsa_name", full_name)
+    addgvar("hmsa_user", username)
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "None")
+    await response[0].click(event.chat_id)
     await event.delete()

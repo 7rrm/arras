@@ -114,9 +114,10 @@ async def repol313l(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     
-button = [[Button.url("اضـغـط هنـا", f"t.me/{Config.TG_BOT_USERNAME}?start=hmsa_{user_id}")]]
-    
-    # إرسال الرسالة مع الزر
+    # إنشاء زر الإنلاين لليوزر بوت
+  button = [[Button.inline("اضـغـط هنـا", data=f"hmsa_{user_id}")]]
+ 
+# إرسال الرسالة مع الزر
     await event.client.send_message(
         event.chat_id,
         "**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"

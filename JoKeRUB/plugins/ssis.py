@@ -92,3 +92,39 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
+@l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
+async def repozedub(event):
+    user = event.pattern_match.group(1)
+    if not user and not event.reply_to_msg_id:
+        return await edit_or_reply(event, "**⎉╎يجب الرد على مستخدم أو كتابة اسم المستخدم**")
+
+    try:
+        zthon_user = await get_user_from_event(event)
+        if not zthon_user:
+            return await edit_or_reply(event, "**⎉╎لم يتم العثور على المستخدم**")
+
+        user_id, full_name, username = await zzz_info(zthon_user, event)
+        
+        # حفظ المتغيرات
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", str(user_id))
+        addgvar("hmsa_name", full_name or "غير معروف")
+        addgvar("hmsa_user", username or "غير معروف")
+
+        # إنشاء الزر
+        query_text = f"secret {user_id} \nهلو"
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=query_text, same_peer=True))]
+
+        # إرسال الرسالة المضمنة
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        if response:
+            await response[0].click(event.chat_id)
+            await event.delete()
+        else:
+            await edit_or_reply(event, "**⎉╎حدث خطأ في إنشاء الرسالة المضمنة**")
+
+    except Exception as e:
+        await edit_or_reply(event, f"**⎉╎حدث خطأ: {str(e)}**")
+        LOGS.error(f"Error in repozedub: {str(e)}")

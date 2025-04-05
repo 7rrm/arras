@@ -211,18 +211,32 @@ async def _(event):
 
 
 # أمر الهمسة السرية
+# أمر الهمسة السرية المعدل
 @bot.on(admin_cmd(pattern="اهمس$"))
 async def whisper_command(event):
     if event.is_reply:
         replied = await event.get_reply_message()
         target_user = replied.sender_id
-        buttons = [
+        
+        # إنشاء زر الإنلاين
+        button = [
             [Button.inline("اضغط هنا لكتابة الهمسة", data=f"whisper_{target_user}")]
         ]
-        await event.edit("**لإرسال همسة سرية:**", buttons=buttons)
+        
+        # إرسال الرسالة مع الزر
+        await event.client.send_message(
+            event.chat_id,
+            "**لإرسال همسة سرية:**",
+            buttons=button,
+            reply_to=replied.id
+        )
+        await event.delete()  # حذف الأمر الأصلي
     else:
         await event.edit("يجب الرد على الشخص المراد إرسال الهمسة له باستخدام الأمر `.اهمس`")
+        await asyncio.sleep(3)
+        await event.delete()
 
+# باقي الكود كما هو...
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"whisper_(\d+)")))
 async def whisper_callback(event):

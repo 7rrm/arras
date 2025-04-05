@@ -93,37 +93,44 @@ async def user_info(zthon_user, event):
     return user_id, full_name, username
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repol313l(event):
+async def secret_msg(event):
     if gvarstatus("ZThon_Vip") is None and event.sender_id not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
     
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
+    reply = await event.get_reply_message()
+    if not reply and not event.pattern_match.group(1):
         return await edit_or_reply(event, "**⌔╎يجب الرد على الشخص أو كتابة معرفه**")
     
     try:
-        zthon_user = await get_user_from_event(event)
-        user_id, full_name, username = await user_info(zthon_user, event)
+        user = await get_user_from_event(event)
+        user_id = user.id
+        full_name = user.first_name
     except Exception as e:
         return await edit_or_reply(event, f"**حدث خطأ: {str(e)}**")
     
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", str(user_id))
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
+    # إنشاء زر إنلاين يعمل مع اليوزر بوت
+    button = [
+        [
+            Button.url(
+                "اضغط هنا لإرسال الهمسة",
+                f"https://t.me/{Config.TG_BOT_USERNAME}?start=hmsa_{user_id}"
+            )
+        ]
+    ]
     
-    # إنشاء زر الإنلاين لليوزر بوت
-  button = [[Button.inline("اضـغـط هنـا", data=f"hmsa_{user_id}")]]
- 
-# إرسال الرسالة مع الزر
+    # نص الرسالة
+    msg_text = (
+        f"**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"
+        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+        f"⌔╎اضغـط الـزر بالاسفـل ⚓\n"
+        f"⌔╎لـ إرسال همسـه سـࢪيـه إلى {full_name}"
+    )
+    
+    # إرسال الرسالة
     await event.client.send_message(
         event.chat_id,
-        "**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"
-        "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"⌔╎اضغـط الـزر بالاسفـل ⚓\n"
-        f"⌔╎لـ اࢪسـال همسـه سـࢪيـه الى {full_name}",
-        buttons=button
+        msg_text,
+        buttons=button,
+        reply_to=reply.id if reply else None
     )
     await event.delete()

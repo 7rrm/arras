@@ -26,7 +26,7 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
 from telethon.tl.functions.messages import SetInlineBotResultsRequest
 
-from . import zedub
+from . import l313l
 from ..Config import Config
 from ..helpers.functions import rand_key
 from ..core.logger import logging

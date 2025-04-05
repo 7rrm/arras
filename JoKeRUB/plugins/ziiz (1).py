@@ -94,33 +94,56 @@ async def user_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def secret_msg(event):
-    if gvarstatus("ZThon_Vip") is None and event.sender_id not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
-    
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⌔╎يجب الرد على الشخص أو كتابة معرفه**")
-    
     try:
-        zthon_user = await get_user_from_event(event)
-        user_id, full_name, username = await user_info(zthon_user, event)
-    except Exception as e:
-        return await edit_or_reply(event, f"**حدث خطأ: {str(e)}**")
-    
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", str(user_id))
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    
-    # إنشاء زر الإنلاين
-    button = [[Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]]
-    
-    # إرسال الرسالة مع الزر
-    await event.client.send_message(
-        event.chat_id,
-        f"**{ttt} {full_name}**",
-        buttons=button
-    )
-    await event.delete()
+        # التحقق من الصلاحيات
+        if gvarstatus("ZThon_Vip") is None and event.sender_id not in Zed_Dev:
+            return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
+        
+        # الحصول على المستخدم المستهدف
+        user = event.pattern_match.group(1)
+        if not user and not event.reply_to_msg_id:
+            return await edit_or_reply(event, "**⌔╎يجب الرد على الشخص أو كتابة معرفه**")
+        
+        try:
+            zthon_user = await get_user_from_event(event)
+            user_id, full_name, username = await user_info(zthon_user, event)
+        except Exception as user_error:
+            LOGS.error(f"خطأ في جلب معلومات المستخدم: {str(user_error)}")
+            return await edit_or_reply(event, f"**⌔╎حدث خطأ في جلب معلومات المستخدم: {str(user_error)}**")
+        
+        # إدارة المتغيرات
+        try:
+            delgvar("hmsa_id")
+            delgvar("hmsa_name")
+            delgvar("hmsa_user")
+            addgvar("hmsa_id", str(user_id))
+            addgvar("hmsa_name", full_name)
+            addgvar("hmsa_user", username)
+        except Exception as gvar_error:
+            LOGS.error(f"خطأ في إدارة المتغيرات: {str(gvar_error)}")
+            return await edit_or_reply(event, f"**⌔╎حدث خطأ في إدارة المتغيرات: {str(gvar_error)}**")
+        
+        # إنشاء وإرسال الزر الإنلاين
+        try:
+            button = [[
+                Button.switch_inline(
+                    "اضـغـط هنـا لإرسال الهمسة", 
+                    query=f"secret {user_id}", 
+                    same_peer=True
+                )
+            ]]
+            
+            await event.client.send_message(
+                event.chat_id,
+                f"**{ttt} {full_name}**",
+                buttons=button
+            )
+            await event.delete()
+            
+        except Exception as send_error:
+            LOGS.error(f"خطأ في إرسال الزر الإنلاين: {str(send_error)}")
+            return await edit_or_reply(event, f"**⌔╎حدث خطأ في إرسال الزر الإنلاين: {str(send_error)}**")
+            
+    except Exception as main_error:
+        LOGS.error(f"خطأ رئيسي في أمر الهمسة: {str(main_error)}")
+        return await edit_or_reply(event, f"**⌔╎حدث خطأ غير متوقع: {str(main_error)}**")

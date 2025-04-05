@@ -11,6 +11,17 @@ from ..Config import Config
 JEP_IC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 ROE = "**♰ هـذه هي قائمة اوامـر السـورس  ♰**"
 
+hmm = "همسـة"
+ymm = "يستطيـع"
+fmm = "فتـح الهمسـه 🗳"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+hss = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - **همسـة سـࢪيـه** 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+nmm = "همسـه سريـه"
+mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص).\nعبـر زدثــون"
+bmm = "اضغـط للـرد"
+ttt = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ddd = "💌"
+
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
@@ -210,33 +221,70 @@ async def _(event):
     await event.edit(CLORN, buttons=buttons)
 
 
-# أمر الهمسة السرية
-# أمر الهمسة السرية المعدل
+async def get_user_from_event(event):
+    if event.reply_to_msg_id:
+        previous_message = await event.get_reply_message()
+        user_object = await event.client.get_entity(previous_message.sender_id)
+    else:
+        user = event.pattern_match.group(1)
+        if user.isnumeric():
+            user = int(user)
+        if event.message.entities:
+            probable_user_mention_entity = event.message.entities[0]
+            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
+                user_id = probable_user_mention_entity.user_id
+                user_obj = await event.client.get_entity(user_id)
+                return user_obj
+        if isinstance(user, int) or user.startswith("@"):
+            user_obj = await event.client.get_entity(user)
+            return user_obj
+        try:
+            user_object = await event.client.get_entity(user)
+        except (TypeError, ValueError) as err:
+            await event.edit(str(err))
+            return None
+    return user_object
+
+async def user_info(user, event):
+    FullUser = (await event.client(GetFullUserRequest(user.id))).full_user
+    first_name = user.first_name
+    full_name = FullUser.private_forward_name
+    user_id = user.id
+    username = user.username
+    first_name = (
+        first_name.replace("\u2060", "")
+        if first_name
+        else None
+    )
+    full_name = full_name or first_name
+    username = "@{}".format(username) if username else "None"
+    return user_id, full_name, username
+
 @bot.on(admin_cmd(pattern="اهمس$"))
 async def whisper_command(event):
     if event.is_reply:
         replied = await event.get_reply_message()
-        target_user = replied.sender_id
+        target_user = await get_user_from_event(event)
+        try:
+            user_id, full_name, username = await user_info(target_user, event)
+        except (AttributeError, TypeError):
+            return
         
         # إنشاء زر الإنلاين
-        button = [
-            [Button.inline("اضغط هنا لكتابة الهمسة", data=f"whisper_{target_user}")]
-        ]
+        button = [[Button.inline("اضغط هنا لكتابة الهمسة", data=f"whisper_{user_id}")]]
         
         # إرسال الرسالة مع الزر
         await event.client.send_message(
             event.chat_id,
-            "**لإرسال همسة سرية:**",
+            f"{ttt} {full_name}",
             buttons=button,
             reply_to=replied.id
         )
-        await event.delete()  # حذف الأمر الأصلي
+        await event.delete()
     else:
-        await event.edit("يجب الرد على الشخص المراد إرسال الهمسة له باستخدام الأمر `.اهمس`")
+        await event.edit("**يجب الرد على الشخص المراد إرسال الهمسة له باستخدام الأمر `.اهمس`**")
         await asyncio.sleep(3)
         await event.delete()
-
-# باقي الكود كما هو...
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"whisper_(\d+)")))
 async def whisper_callback(event):
@@ -247,24 +295,21 @@ async def whisper_callback(event):
     
     # إرسال رسالة لكتابة الهمسة
     async with bot.conversation(event.sender_id) as conv:
-        await conv.send_message("أرسل الهمسة السرية الآن:")
+        await conv.send_message("**أرسل الهمسة السرية الآن:**")
         try:
             whisper_msg = await conv.get_response(timeout=60)
-            await conv.send_message("تم إرسال الهمسة بنجاح!")
+            await conv.send_message("**تم إرسال الهمسة بنجاح!**")
             
             # إرسال الهمسة للشخص المستهدف
-            buttons = [
-                [Button.inline("اضغط هنا لرؤية الهمسة", data=f"show_whisper_{event.sender_id}")]
-            ]
+            buttons = [[Button.inline("اضغط هنا لرؤية الهمسة", data=f"show_whisper_{event.sender_id}")]]
             await bot.send_message(
                 target_user,
-                f"لديك همسة سرية من {event.sender.first_name}",
+                f"**{hss} {event.sender.first_name}**",
                 buttons=buttons
             )
             
         except asyncio.TimeoutError:
-            await conv.send_message("انتهى الوقت المحدد لإرسال الهمسة")
-
+            await conv.send_message("**انتهى الوقت المحدد لإرسال الهمسة**")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"show_whisper_(\d+)")))
 async def show_whisper(event):
@@ -274,6 +319,4 @@ async def show_whisper(event):
         return
     
     # هنا يمكنك استرجاع الهمسة من قاعدة بيانات أو أي طريقة تخزين تفضلها
-    # في هذا المثال سنستخدم محادثة بسيطة
-    async with bot.conversation(sender_id) as conv:
-        await conv.send_message("الهمسة السرية هي: ...")  # استبدل هذا بالهمسة الفعلية
+    await event.answer("هذه هي الهمسة السرية: [المحتوى السري]", alert=True)

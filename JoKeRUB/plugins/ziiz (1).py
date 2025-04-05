@@ -77,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
+async def user_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
@@ -95,7 +95,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repozedub(event):
+async def repol313l(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")

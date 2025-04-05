@@ -208,3 +208,58 @@ async def _(event):
 async def _(event):
     buttons = [[Button.inline("رجوع", data="l313l0")]]
     await event.edit(CLORN, buttons=buttons)
+
+
+# أمر الهمسة السرية
+@bot.on(admin_cmd(pattern="اهمس$"))
+async def whisper_command(event):
+    if event.is_reply:
+        replied = await event.get_reply_message()
+        target_user = replied.sender_id
+        buttons = [
+            [Button.inline("اضغط هنا لكتابة الهمسة", data=f"whisper_{target_user}")]
+        ]
+        await event.edit("**لإرسال همسة سرية:**", buttons=buttons)
+    else:
+        await event.edit("يجب الرد على الشخص المراد إرسال الهمسة له باستخدام الأمر `.اهمس`")
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"whisper_(\d+)")))
+async def whisper_callback(event):
+    target_user = int(event.data_match.group(1).decode('utf-8'))
+    if event.sender_id != target_user:
+        await event.answer("هذه الهمسة ليست لك!", alert=True)
+        return
+    
+    # إرسال رسالة لكتابة الهمسة
+    async with bot.conversation(event.sender_id) as conv:
+        await conv.send_message("أرسل الهمسة السرية الآن:")
+        try:
+            whisper_msg = await conv.get_response(timeout=60)
+            await conv.send_message("تم إرسال الهمسة بنجاح!")
+            
+            # إرسال الهمسة للشخص المستهدف
+            buttons = [
+                [Button.inline("اضغط هنا لرؤية الهمسة", data=f"show_whisper_{event.sender_id}")]
+            ]
+            await bot.send_message(
+                target_user,
+                f"لديك همسة سرية من {event.sender.first_name}",
+                buttons=buttons
+            )
+            
+        except asyncio.TimeoutError:
+            await conv.send_message("انتهى الوقت المحدد لإرسال الهمسة")
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"show_whisper_(\d+)")))
+async def show_whisper(event):
+    sender_id = int(event.data_match.group(1).decode('utf-8'))
+    if event.sender_id != sender_id:
+        await event.answer("هذه الهمسة ليست لك!", alert=True)
+        return
+    
+    # هنا يمكنك استرجاع الهمسة من قاعدة بيانات أو أي طريقة تخزين تفضلها
+    # في هذا المثال سنستخدم محادثة بسيطة
+    async with bot.conversation(sender_id) as conv:
+        await conv.send_message("الهمسة السرية هي: ...")  # استبدل هذا بالهمسة الفعلية

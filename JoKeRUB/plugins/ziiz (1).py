@@ -114,15 +114,16 @@ async def repol313l(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     
-    buttons = [
-        [Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]
-    ]
+    # إنشاء زر الإنلاين
+    button = [Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]
     
-    await event.reply(
+    # إرسال الرسالة مع الزر
+    await event.client.send_message(
+        event.chat_id,
         "**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"
         "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
         f"⌔╎اضغـط الـزر بالاسفـل ⚓\n"
         f"⌔╎لـ اࢪسـال همسـه سـࢪيـه الى {full_name}",
-        buttons=buttons
+        buttons=button
     )
     await event.delete()

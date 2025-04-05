@@ -31,8 +31,8 @@ LOGS = logging.getLogger("aljoker")
 logging.getLogger('telethon').setLevel(logging.WARNING)
 ##Reda hands here
 cmdhr = Config.COMMAND_HAND_LER
-Zed_Dev = (5427469031,)  # ملاحظة: الفاصلة ضرورية لجعلها tuple
-Zed_Vip = (5427469031,)  # ملاحظة: الفاصلة ضرورية لجعلها tuple
+Zed_Dev = (5427469031, 6269975462)  # ملاحظة: الفاصلة ضرورية لجعلها tuple
+Zed_Vip = (5427469031, 6269975462)  # ملاحظة: الفاصلة ضرورية لجعلها tuple
 bot = l313l
 ENV = bool(os.environ.get("ENV", False))
 

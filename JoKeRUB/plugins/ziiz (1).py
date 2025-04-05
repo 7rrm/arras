@@ -114,8 +114,7 @@ async def repol313l(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     
-    # إنشاء زر الإنلاين
-    button = [Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]
+button = [[Button.url("اضـغـط هنـا", f"t.me/{Config.TG_BOT_USERNAME}?start=hmsa_{user_id}")]]
     
     # إرسال الرسالة مع الزر
     await event.client.send_message(

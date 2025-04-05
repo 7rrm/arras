@@ -123,27 +123,9 @@ async def secret_msg(event):
             LOGS.error(f"خطأ في إدارة المتغيرات: {str(gvar_error)}")
             return await edit_or_reply(event, f"**⌔╎حدث خطأ في إدارة المتغيرات: {str(gvar_error)}**")
         
-        # إنشاء وإرسال الزر الإنلاين
         try:
-            button = [[
-                Button.switch_inline(
-                    "اضـغـط هنـا لإرسال الهمسة", 
-                    query=f"secret {user_id}", 
-                    same_peer=True
-                )
-            ]]
-            
-            await event.client.send_message(
-                event.chat_id,
-                f"**{ttt} {full_name}**",
-                buttons=button
-            )
-            await event.delete()
-            
-        except Exception as send_error:
-            LOGS.error(f"خطأ في إرسال الزر الإنلاين: {str(send_error)}")
-            return await edit_or_reply(event, f"**⌔╎حدث خطأ في إرسال الزر الإنلاين: {str(send_error)}**")
-            
-    except Exception as main_error:
-        LOGS.error(f"خطأ رئيسي في أمر الهمسة: {str(main_error)}")
-        return await edit_or_reply(event, f"**⌔╎حدث خطأ غير متوقع: {str(main_error)}**")
+           # الطريقة المضمونة لزدثون
+           await event.reply(
+               f"**{ttt} {full_name}**",
+               buttons=[
+                   [Button.url("اضغط هنا", f"t.me/{Config.TG_BOT_USERNAME}?start=hmsa_{user_id}")]

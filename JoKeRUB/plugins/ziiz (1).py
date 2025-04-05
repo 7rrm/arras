@@ -94,7 +94,6 @@ async def user_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def secret_msg(event):
-    global bbb
     if gvarstatus("ZThon_Vip") is None and event.sender_id not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
     
@@ -116,15 +115,12 @@ async def secret_msg(event):
     addgvar("hmsa_user", username)
     
     # إنشاء زر الإنلاين
-    bbb = [Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]
+    button = [[Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]]
     
     # إرسال الرسالة مع الزر
     await event.client.send_message(
         event.chat_id,
-        "**ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه**\n"
-        "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"⌔╎اضغـط الـزر بالاسفـل ⚓\n"
-        f"⌔╎لـ اࢪسـال همسـه سـࢪيـه الى {full_name}",
-        buttons=bbb
+        f"**{ttt} {full_name}**",
+        buttons=button
     )
     await event.delete()

@@ -198,31 +198,3 @@ async def inline_handler(event):
     else:
         return
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"rzan_(.*)")))
-async def on_hmusa_callback(event):
-    try:
-        timestamp = event.pattern_match.group(1).decode("UTF-8")
-        secret_file = os.path.join("./JoKeRUB", "secrets.txt")
-        
-        # إنشاء الملف إذا لم يكن موجوداً
-        if not os.path.exists(secret_file):
-            with open(secret_file, "w") as f:
-                json.dump({}, f)
-        
-        with open(secret_file, "r") as f:
-            secrets = json.load(f)
-        
-        if timestamp not in secrets:
-            return await event.answer("❌ الهمسة انتهت أو غير موجودة", alert=True)
-            
-        secret_data = secrets[timestamp]
-        allowed_users = [secret_data["userid"], Config.OWNER_ID] + Config.SUDO_USERS
-        
-        if event.sender_id in allowed_users:
-            await event.answer(secret_data["text"], alert=True)
-        else:
-            await event.answer("❌ ليس لديك صلاحية رؤية هذه الهمسة", alert=True)
-            
-    except Exception as e:
-        LOGS.error(f"Error in secret callback: {e}")
-        await event.answer("❌ حدث خطأ في عرض الهمسة", alert=True)

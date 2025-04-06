@@ -26,7 +26,7 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
 from telethon.tl.functions.messages import SetInlineBotResultsRequest
 
-from . import zedub
+from . import l313l
 from ..Config import Config
 from ..helpers.functions import rand_key
 from ..core.logger import logging
@@ -51,7 +51,7 @@ mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص).\nعبـ�
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - همسـة سـࢪيـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
 ddd = "💌"
-Zel_Uid = zedub.uid
+Zel_Uid = l313l.uid
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -92,33 +92,6 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
-@zedub.zed_cmd(pattern="همسه(?: |$)(.*)")
-async def repozedub(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
 @zedub.zed_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
     global bbb
@@ -142,33 +115,6 @@ async def repozedub(event):
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
     	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-@zedub.zed_cmd(pattern="همسة(?: |$)(.*)")
-async def repozedub(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot**")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await zedub.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()

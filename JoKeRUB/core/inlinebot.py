@@ -205,15 +205,7 @@ def paginate_help(
             )
         ]
     return pairs
-
-# إنشاء المجلد والملفات التلقائية عند التشغيل
-os.makedirs("./JoKeRUB", exist_ok=True)
-secret_files = ["secrets.txt", "hide.txt", "troll.txt"]
-for file in secret_files:
-    if not os.path.exists(f"./JoKeRUB/{file}"):
-        with open(f"./JoKeRUB/{file}", "w") as f:
-            json.dump({}, f)
-            
+          
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):  # sourcery no-metrics
     builder = event.builder

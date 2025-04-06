@@ -92,7 +92,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
-@zedub.zed_cmd(pattern="اهمس(?: |$)(.*)")
+@l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:

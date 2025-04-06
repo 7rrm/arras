@@ -5,9 +5,6 @@ import html
 import shutil
 import os
 import base64
-import requests
-from requests import get
-
 from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
@@ -16,7 +13,7 @@ from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
 from telethon.extensions import markdown, html
-from .xtelethonimport CustomParseMode
+from .xtelethon import CustomParseMode
 from . import l313l
 from ..Config import Config
 from ..utils import Zed_Vip, Zed_Dev
@@ -28,7 +25,7 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from . import BOTLOG, BOTLOG_CHATID, spamwatch
 
-plugin_category = "العروض"
+plugin_category = "البوت"
 LOGS = logging.getLogger(__name__)
 
 zed_dev = (5176749470, 5427469031, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
@@ -97,22 +94,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def fetch_zelzal(user_id):
-    headers = {
-        'Host': 'restore-access.indream.app',
-        'Connection': 'keep-alive',
-        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
-        'Accept': '*/*',
-        'Accept-Language': 'ar',
-        'Content-Length': '25',
-        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    data = '{"telegramId":' + str(user_id) + '}'
-    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
-    zelzal_date = response['data']['date']
-    return zelzal_date
-
 async def fetch_info(replied_user, event):
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
     replied_user_profile_photos = await event.client(
@@ -124,7 +105,6 @@ async def fetch_info(replied_user, event):
         replied_user_profile_photos_count = replied_user_profile_photos.count
         dc_id = replied_user.photo.dc_id
     user_id = replied_user.id
-    zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name
@@ -137,7 +117,7 @@ async def fetch_info(replied_user, event):
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
 
-  if zilzal == True or user_id in zelzal:
+    if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
     else:
         zpre = "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
@@ -157,40 +137,36 @@ async def fetch_info(replied_user, event):
                 if emoji_id is None:
                     emoji_id = 5834880210268329130
             except Exception:
-                    emoji_id = 5834880210268329130
+                emoji_id = 5834880210268329130
     photo = await event.client.download_profile_photo(
         user_id,
         Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",
         download_big=True,
     )
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else ("هذا المستخدم ليس له اسم أول")
-    )
-    #full_name = full_name or first_name
-    username = "@{}".format(username) if username else ("لا يـوجـد")
+    first_name = first_name.replace("\u2060", "") if first_name else "هذا المستخدم ليس له اسم أول"
+    username = "@{}".format(username) if username else "لا يـوجـد"
     user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
-    zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) 
+    
+    zmsg = await event.client.get_messages(event.chat_id, 0, from_user=user_id) 
     zzz = zmsg.total
+    
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
-    elif zzz > 200 and zzz < 500:
+    elif 200 < zzz < 500:
         zelzzz = "ضعيف  🗿"
-    elif zzz > 500 and zzz < 700:
+    elif 500 < zzz < 700:
         zelzzz = "شد حيلك  🏇"
-    elif zzz > 700 and zzz < 1000:
-        zelzzz = "ماشي الحال  🏄🏻‍♂"
-    elif zzz > 1000 and zzz < 2000:
+    elif 700 < zzz < 1000:
+        zelzzz = "ماشي الحال  🏄🏻♂"
+    elif 1000 < zzz < 2000:
         zelzzz = "ملك التفاعل  🎖"
-    elif zzz > 2000 and zzz < 3000:
+    elif 2000 < zzz < 3000:
         zelzzz = "امبراطور التفاعل  🥇"
-    elif zzz > 3000 and zzz < 4000:
+    elif 3000 < zzz < 4000:
         zelzzz = "غنبله  💣"
     else:
         zelzzz = "نار وشرر  🏆"
-################# Dev ZilZal #################
+
     if user_id in zelzal: 
         rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
@@ -199,11 +175,11 @@ async def fetch_info(replied_user, event):
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
-################# Dev ZilZal #################
-    #zid = int(gvarstatus("ZThon_Vip"))
+
     ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " 
     ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" 
+
     if gvarstatus("ZID_TEMPLATE") is None:
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
@@ -224,15 +200,14 @@ async def fetch_info(replied_user, event):
                     caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
+                        caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
+                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
                 caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
                 caption += f'<a href="emoji/5809662223890518926">❤️</a>'
@@ -249,13 +224,12 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
+                        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
                 caption += f"ٴ<b>{ZEDF}</b>"
         else:
@@ -270,13 +244,12 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
-                    caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
+                    caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-            caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+            caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
+            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-            caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
             caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
             caption += f"ٴ<b>{ZEDF}</b>"
     else:
@@ -292,10 +265,8 @@ async def fetch_info(replied_user, event):
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,
-            zsnc=zzzsinc,
             zbio=user_bio,
-      )
-
+        )
     return photo, caption
 
 @l313l.ar_cmd(
@@ -315,8 +286,10 @@ async def who(event):
     replied_user = await get_user_from_event(event)
     try:
         photo, caption = await fetch_info(replied_user, event)
-    except (AttributeError, TypeError) as e:
-        return await edit_or_reply(zed, f"**- خطأ: {str(e)}**")
+    except Exception as e:
+        await edit_or_reply(zed, f"**حدث خطأ: {str(e)}**")
+        LOGS.error(f"Error in اايدي command: {str(e)}")
+        return
     message_id_to_reply = event.message.reply_to_msg_id
     if not message_id_to_reply:
         message_id_to_reply = None
@@ -333,5 +306,6 @@ async def who(event):
         if not photo.startswith("http"):
             os.remove(photo)
         await zed.delete()
-    except (TypeError, ChatSendMediaForbiddenError):
-        await zed.edit(caption, parse_mode=CustomParseMode("html"))
+    except Exception as e:
+        await zed.edit(f"**فشل الإرسال: {str(e)}**")
+        LOGS.error(f"Send error: {str(e)}")

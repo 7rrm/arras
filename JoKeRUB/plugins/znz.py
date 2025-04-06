@@ -167,7 +167,7 @@ async def inline_handler(event):
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
-            old_msg = os.path.join("./zlzl", f"{user_id}.txt")
+            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
             try:
                 jsondata = json.load(open(old_msg))
             except Exception:

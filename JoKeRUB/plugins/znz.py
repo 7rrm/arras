@@ -24,7 +24,7 @@ from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
 
-from . import zedub
+from . import l313l
 from ..Config import Config
 from ..helpers import reply_id
 from ..sql_helper.globals import gvarstatus
@@ -49,7 +49,7 @@ ddd = "💌"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
-@zedub.tgbot.on(InlineQuery)
+@l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
     result = None
@@ -91,9 +91,9 @@ async def inline_handler(event):
             for user in users:
                 usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
                 try:
-                    u = await zedub.get_entity(usr)
+                    u = await l313l.get_entity(usr)
                 except ValueError:
-                    u = await zedub(GetUsersRequest(usr))
+                    u = await l313l(GetUsersRequest(usr))
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
@@ -101,7 +101,7 @@ async def inline_handler(event):
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
-            old_msg = os.path.join("./zlzl", f"{user_id}.txt")
+            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
             try:
                 jsondata = json.load(open(old_msg))
             except Exception:
@@ -157,9 +157,9 @@ async def inline_handler(event):
             for user in users:
                 usr = int(user) if user.isdigit() else user
                 try:
-                    u = await zedub.get_entity(usr)
+                    u = await l313l.get_entity(usr)
                 except ValueError:
-                    u = await zedub(GetUsersRequest(usr))
+                    u = await l313l(GetUsersRequest(usr))
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:

@@ -28,7 +28,7 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from . import BOTLOG, BOTLOG_CHATID, spamwatch
 
-plugin_category = "العروض"
+plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
 zed_dev = (5176749470, 5427469031, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)

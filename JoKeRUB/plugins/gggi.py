@@ -17,7 +17,7 @@ from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbi
 from telethon import events, types
 from telethon.extensions import markdown, html
 #from .xtelethonimport CustomParseMode  # TODO: Call the class from custom module
-from . import zedub
+from . import l313l
 from ..Config import Config
 from ..utils import Zed_Vip, Zed_Dev
 from ..helpers import reply_id
@@ -35,7 +35,7 @@ zed_dev = (5176749470, 1895219306, 925972505, 5280339206, 5426390871, 6269975462
 zel_dev = (5176749470, 5426390871, 6269975462, 1985225531)
 zelzal = (925972505, 1895219306, 5280339206)
 ZIDA = gvarstatus("Z_ZZID") or "zvhhhclc"
-Zel_Uid = zedub.uid
+Zel_Uid = l313l.uid
 #zedub.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
 
 ZED_BLACKLIST = [
@@ -180,7 +180,6 @@ async def fetch_info(replied_user, event):
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
-    zzzsinc = zelzal_sinc
     #zid = int(gvarstatus("ZThon_Vip"))
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
@@ -342,9 +341,9 @@ async def fetch_info(replied_user, event):
         )
     return photo, caption
 
-    @zedub.zed_cmd(
-    pattern="ايدي(?: |$)(.*)",
-    command=("ايدي", plugin_category),
+    @l313l.ar_cmd(
+    pattern="ايدي2(?: |$)(.*)",
+    command=("ايدي2", plugin_category),
     info={
         "header": "لـ عـرض معلومـات الشخـص",
         "الاستـخـدام": " {tr}ايدي بالـرد او {tr}ايدي + معـرف/ايـدي الشخص",
@@ -409,7 +408,7 @@ async def who(event):
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
 
-@zedub.zed_cmd(pattern="الانشاء(?: |$)(.*)")
+@l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):
     zed = await edit_or_reply(event, "**- جـارِ جلب المعلومـات . . .**")
     zthon_user = await get_user_from_event(event)

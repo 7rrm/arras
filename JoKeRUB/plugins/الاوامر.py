@@ -1,7 +1,10 @@
 import random
 import os
 from telethon import events, types
+from telethon.tl import functions
 from telethon.tl.functions.messages import GetCustomEmojiDocumentsRequest
+from telethon.extensions import html, markdown
+from telethon.errors.rpcerrorlist import ChatSendMediaForbiddenError
 from ..core.managers import edit_or_reply, edit_delete
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
@@ -10,7 +13,7 @@ from . import l313l
 # المتغيرات الأساسية
 ZED_BLACKLIST = [-1001935599871]
 Zel_Uid = l313l.uid
-plugin_category = "extra"
+plugin_category = "utils"
 
 # كلاس التحليل المخصص
 class CustomParseMode:
@@ -31,13 +34,13 @@ class CustomParseMode:
                             document_id=document_id
                         )
             return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
         raise ValueError("Unsupported parse mode")
 
     @staticmethod
     def unparse(text, entities):
         return html.unparse(text, entities)
-
-
 rehu = [
     "قال المهدي(عجل الله فرجه):الدّينُ لمحمّد صلى الله عليه وآله وسلم والهدايةُ لعَلِيٍّ أمير المؤمنين ع، لأنها لهُ وفي عَقِبِه باقيةً إلى يومِ القيامة",
     "قال المهدي(عجل الله فرجه):إذا استغفرت الله (عز وجل) فالله يغفر لك",

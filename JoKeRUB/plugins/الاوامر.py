@@ -1,16 +1,42 @@
-# WRITE BY JoKeRUB
-# PLUGIN FOR JoKeRUB
-# @jepthon
-
-from telethon import events
 import random
+import os
+from telethon import events, types
+from telethon.tl.functions.messages import GetCustomEmojiDocumentsRequest
+from ..core.managers import edit_or_reply, edit_delete
 from ..Config import Config
-from JoKeRUB.utils import admin_cmd
-from JoKeRUB import l313l
-from ..core.managers import edit_or_reply
 from ..sql_helper.globals import gvarstatus
+from . import l313l
 
+# المتغيرات الأساسية
+ZED_BLACKLIST = [-1001935599871]
+Zel_Uid = l313l.uid
 plugin_category = "extra"
+
+# كلاس التحليل المخصص
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
 
 rehu = [
     "قال المهدي(عجل الله فرجه):الدّينُ لمحمّد صلى الله عليه وآله وسلم والهدايةُ لعَلِيٍّ أمير المؤمنين ع، لأنها لهُ وفي عَقِبِه باقيةً إلى يومِ القيامة",
@@ -33,45 +59,68 @@ rehu = [
     "عن الامام علي (عليه السلام) قال : لسانك حصانك، إن صنته صانك",
 ]
 
-@l313l.ar_cmd(pattern="الإوامر(?:\s|$)([\s\S]*)")
-async def _(event):
-    if not event.text[0].isalpha() and event.text[0] not in ("/", "#", "@", "!"):
-        lMl10l = random.choice(rehu)
-        await event.edit(
-            f"**🎴┊ قائـمة الاوامـر 🎴**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**⚙️ الأقسام الرئيسية:**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**🛠️ ` .م1 `** ⦙ أوامر الإدارة\n"
-            f"**👥 ` .م2 `** ⦙ أوامر المجموعة\n"
-            f"**🎉 ` .م3 `** ⦙ أوامر الترحيب والردود\n"
-            f"**🔒 ` .م4 `** ⦙ حماية الخاص والتلكراف\n"
-            f"**📢 ` .م5 `** ⦙ أوامر المنشن والانتحال\n"
-            f"**📥 ` .م6 `** ⦙ أوامر التحميل والترجمة\n"
-            f"**🚫 ` .م7 `** ⦙ أوامر المنع والقفل\n"
-            f"**🧹 ` .م8 `** ⦙ أوامر التنظيف والتكرار\n"
-            f"**🎨 ` .م9 `** ⦙ أوامر التخصيص والفارات\n"
-            f"**⏰ ` .م10 `** ⦙ أوامر الوقتي والتشغيل\n"
-            f"**🔍 ` .م11 `** ⦙ أوامر الكشف والروابط\n"
-            f"**📣 ` .م12 `** ⦙ أوامر المساعدة والإذاعة\n"
-            f"**📨 ` .م13 `** ⦙ أوامر الإرسال والأذكار\n"
-            f"**🖼️ ` .م14 `** ⦙ أوامر الملصقات وكوكل\n"
-            f"**🎭 ` .م15 `** ⦙ أوامر التسلية والميمز\n"
-            f"**🔄 ` .م16 `** ⦙ أوامر الصيغ والجهات\n"
-            f"**✨ ` .م17 `** ⦙ أوامر التمبلر والزغرفة\n"
-            f"**🎮 ` .م18 `** ⦙ أوامر الحساب والترفيه\n"
-            f"**🎵 ` .م19 `** ⦙ أوامر الميوزك والتشغيل\n"
-            f"**🎬 ` .م20 `** ⦙ أوامر بصمات الميمز\n"
-            f"**💰 ` .م21 `** ⦙ أوامر تجميع النقاط وبوت وعد\n"
-            f"**📸 ` .م22 `** ⦙ أوامر الذاتية للبصمات والصور\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**📜┊ حكمة اليوم:**\n"
-            f"`{lMl10l} .`\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
-            f"**⚡┊ المطور: @Lx5x5**\n"
-            f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+@l313l.ar_cmd(
+    pattern="الإوامر(?:\s|$)([\s\S]*)",
+    command=("الإوامر", plugin_category),
+    info={
+        "header": "امـر مختصـر لـ عـرض قائـمة الاوامـر",
+        "الاستـخـدام": " {tr}الإوامر",
+    },
+)
+async def show_commands(event):
+    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    
+    zed = await edit_or_reply(event, "**⇆ جاري تجهيز الأوامر...**")
+    lMl10l = random.choice(rehu)
+    
+    # إنشاء الكابشن الأساسي
+    caption = f"<b>✦ قائـمة اوامـر سـورس آراس </b>"
+    caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
+    
+    # إضافة الإيموجيات البريميوم قبل كل قسم
+    caption += (
+        f'<a href="emoji/6323136954380585694">❤️</a> <b>🛠️ .م1</b> ⦙ أوامر الإدارة\n'
+        f'<a href="emoji/6325684673145997914">❤️</a> <b>👥 .م2</b> ⦙ أوامر المجموعة\n'
+        f'<a href="emoji/6323205570778107774">❤️</a> <b>🎉 .م3</b> ⦙ أوامر الترحيب والردود\n'
+        f'<a href="emoji/6323518746908428943">❤️</a> <b>🔒 .م4</b> ⦙ حماية الخاص والتلكراف\n'
+        f'<a href="emoji/5834774412338927340">❤️</a> <b>📢 .م5</b> ⦙ أوامر المنشن والانتحال\n'
+        f'<a href="emoji/6325480992911919689">❤️</a> <b>📥 .م6</b> ⦙ أوامر التحميل والترجمة\n'
+        f'<a href="emoji/6323564170482551899">❤️</a> <b>🚫 .م7</b> ⦙ أوامر المنع والقفل\n'
+        f'<a href="emoji/6323191058083613275">❤️</a> <b>🧹 .م8</b> ⦙ أوامر التنظيف والتكرار\n'
+        f'<a href="emoji/6325310787652946500">❤️</a> <b>🎨 .م9</b> ⦙ أوامر التخصيص والفارات\n'
+        f'<a href="emoji/6323136954380585694">❤️</a> <b>⏰ .م10</b> ⦙ أوامر الوقتي والتشغيل\n'
+        f'<a href="emoji/6325684673145997914">❤️</a> <b>🔍 .م11</b> ⦙ أوامر الكشف والروابط\n'
+        f'<a href="emoji/6323205570778107774">❤️</a> <b>📣 .م12</b> ⦙ أوامر المساعدة والإذاعة\n'
+        f'<a href="emoji/6323518746908428943">❤️</a> <b>📨 .م13</b> ⦙ أوامر الإرسال والأذكار\n'
+        f'<a href="emoji/5834774412338927340">❤️</a> <b>🖼️ .م14</b> ⦙ أوامر الملصقات وكوكل\n'
+        f'<a href="emoji/6325480992911919689">❤️</a> <b>🎭 .م15</b> ⦙ أوامر التسلية والميمز\n'
+        f'<a href="emoji/6323564170482551899">❤️</a> <b>🔄 .م16</b> ⦙ أوامر الصيغ والجهات\n'
+        f'<a href="emoji/6323191058083613275">❤️</a> <b>✨ .م17</b> ⦙ أوامر التمبلر والزغرفة\n'
+        f'<a href="emoji/6325310787652946500">❤️</a> <b>🎮 .م18</b> ⦙ أوامر الحساب والترفيه\n'
+        f'<a href="emoji/6323136954380585694">❤️</a> <b>🎵 .م19</b> ⦙ أوامر الميوزك والتشغيل\n'
+        f'<a href="emoji/6325684673145997914">❤️</a> <b>🎬 .م20</b> ⦙ أوامر بصمات الميمز\n'
+        f'<a href="emoji/6323205570778107774">❤️</a> <b>💰 .م21</b> ⦙ أوامر تجميع النقاط وبوت وعد\n'
+        f'<a href="emoji/6323518746908428943">❤️</a> <b>📸 .م22</b> ⦙ أوامر الذاتية للبصمات والصور\n'
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f"**📜┊ حكمة اليوم:**\n"
+        f"`{lMl10l} .`\n"
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+        f'<a href="emoji/5834774412338927340">❤️</a> <b>⚡ المطور: @Lx5x5</b>\n'
+        f"▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    )
+    
+    try:
+        await event.client.send_message(
+            event.chat_id,
+            caption,
+            link_preview=False,
+            parse_mode=CustomParseMode("html"),
         )
-        
+        await zed.delete()
+    except Exception as e:
+        await edit_or_reply(zed, f"**حدث خطأ:** {str(e)}")
+
 commands = {
     "م1": "** قائمة اوامر الادمن لسورس الجوكر **:\n ★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n ᯽︙ اختر احدى هذه القوائم\n\n- ( `.اوامر الحظر` )\n- ( `.اوامر الكتم` )\n- ( `.اوامر التثبيت` )\n- ( `.اوامر الاشراف` )\n★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n⌔︙Dev : @Lx5x5",
     "م2": "** قائمة اوامر المجـموعه لسورس الجوكر **:\n ★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n ᯽︙ اختر احدى هذه القوائم\n\n- ( `.اوامر التفليش` )\n- ( `.اوامر المحذوفين` )\n- ( `.اوامر الكروب` )\n★•┉ ┉ ┉ ┉ ┉ ┉  ┉ ┉ ┉ ┉•★\n⌔︙Dev : @Lx5x5",

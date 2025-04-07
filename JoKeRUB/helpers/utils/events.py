@@ -20,20 +20,13 @@ async def reply_id(event):
 
 
 async def get_user_from_event(
-    event,
-    zedevent=None,
-    secondgroup=None,
-    thirdgroup=None,
-    nogroup=False,
-    noedits=False,
+    event, catevent=None, secondgroup=None, nogroup=False, noedits=False
 ):  # sourcery no-metrics
-    if zedevent is None:
-        zedevent = event
+    if catevent is None:
+        catevent = event
     if nogroup is False:
         if secondgroup:
             args = event.pattern_match.group(2).split(" ", 1)
-        elif thirdgroup:
-            args = event.pattern_match.group(3).split(" ", 1)
         else:
             args = event.pattern_match.group(1).split(" ", 1)
     extra = None
@@ -53,8 +46,8 @@ async def get_user_from_event(
             if isinstance(user, int) or user.startswith("@"):
                 user_obj = await event.client.get_entity(user)
                 return user_obj, extra
-    except Exception as e:
-        LOGS.error(str(e))
+    except Exception:
+        pass
     try:
         if nogroup is False:
             if secondgroup:
@@ -68,20 +61,20 @@ async def get_user_from_event(
             previous_message = await event.get_reply_message()
             if previous_message.from_id is None:
                 if not noedits:
-                    await edit_delete(zedevent, "`Well that's an anonymous admin !`")
+                    await edit_delete(catevent, "`Well that's an anonymous admin !`")
                 return None, None
             user_obj = await event.client.get_entity(previous_message.sender_id)
             return user_obj, extra
-        if not args:
+        elif not args:
             if not noedits:
                 await edit_delete(
-                    zedevent, "`Pass the user's username, id or reply!`", 5
+                    catevent, "⌯︙يجب وضـع ايدي او معرف او بالـرد على الشخص "
                 )
             return None, None
     except Exception as e:
         LOGS.error(str(e))
     if not noedits:
-        await edit_delete(zedevent, "__Couldn't fetch user to proceed further.__")
+        await edit_delete(catevent, "⌯︙ يجـب الـرد علـى رسالة اولا")
     return None, None
 
 
@@ -92,3 +85,4 @@ async def checking(l313l):
         await l313l(cat_channel)
     except BaseException:
         pass
+        

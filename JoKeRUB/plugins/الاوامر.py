@@ -79,7 +79,7 @@ async def show_commands(event):
     
     # إنشاء الكابشن الأساسي
     caption = f"<b>✦ قائـمة اوامـر سـورس آراس </b>"
-    caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
+    caption += f'<a href="emoji/5668127928907464707">❤️</a>\n\n'
     
     # إضافة الإيموجيات البريميوم قبل كل قسم
     caption += (
@@ -125,7 +125,7 @@ async def show_commands(event):
         f'<a href="emoji/6323564170482551899">❤️</a>'
         f'<a href="emoji/6323191058083613275">❤️</a>'
         f'<a href="emoji/6325310787652946500">❤️</a>\n'
-        f'<a href="emoji/5219998342687242062">❤️</a> <b> المطور: @Lx5x5</b>\n'
+        f'<a href="emoji/5219998342687242062">❤️</a> <b> المـطـور: @Lx5x5</b>\n'
     )
     
     try:

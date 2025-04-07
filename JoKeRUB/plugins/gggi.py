@@ -252,15 +252,21 @@ async def fetch_info(replied_user, event):
             if mypremium == True:
                 caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس آراس </b>"
                 caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
-                caption += f'<a href="emoji/6323136954380585694">❤️</a>'
-                caption += f'<a href="emoji/6325684673145997914">❤️</a>'
-                caption += f'<a href="emoji/6323205570778107774">❤️</a>'
-                caption += f'<a href="emoji/6323518746908428943">❤️</a>'
-                caption += f'<a href="emoji/5834774412338927340">❤️</a>'
-                caption += f'<a href="emoji/6325480992911919689">❤️</a>'
-                caption += f'<a href="emoji/6323564170482551899">❤️</a>'
-                caption += f'<a href="emoji/6323191058083613275">❤️</a>'
-                caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
+                    # قائمة الإيموجيات (أكثر تنظيماً)
+    premium_emojis = [
+        6325310787652946500,
+        6323191058083613275,
+        6323564170482551899,
+        6325480992911919689,
+        5834774412338927340,#الوسط
+        6323518746908428943,
+        6323205570778107774,
+        6325684673145997914,
+        6323136954380585694
+    ]
+    
+    # إضافة جميع الإيموجيات بسطر واحد
+    caption += "".join(f'<a href="emoji/{emoji_id}">❤️</a>' for emoji_id in premium_emojis) + "\n"
                 caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:

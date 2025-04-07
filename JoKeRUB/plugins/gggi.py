@@ -341,41 +341,67 @@ async def fetch_info(replied_user, event):
     return photo, caption
 
 @l313l.ar_cmd(
-    pattern="ايدي2(?: |$)(.*)",
-    command=("ايدي2", plugin_category),
+    pattern="ا(?: |$)(.*)",
+    command=("ا", plugin_category),
     info={
-        "header": "لـ عـرض معلومـات الشخـص",
-        "الاستـخـدام": [
-            "{tr}ايدي + بالرد",
-            "{tr}ايدي + معرف/ايدي",
-            "{tr}ايدي (بدون anything لعرض معلوماتك)"
-        ],
+        "header": "امـر مختصـر لـ عـرض معلومـات الشخـص",
+        "الاستـخـدام": " {tr}ا بالـرد او {tr}ا + معـرف/ايـدي الشخص",
     },
 )
 async def who(event):
-    if event.chat_id in ZED_BLACKLIST:
-        return await edit_or_reply(event, "**⛔ هذا الأمر غير متاح هنا**")
-    
-    zed = await edit_or_reply(event, "**جاري جلب المعلومات...**")
-    
+    "Gets info of an user"
+    #if gvarstatus("ZThon_Vip") is not None or Zel_Uid in Zed_Dev:
+        #input_str = event.pattern_match.group(1)
+        #reply = event.reply_to_msg_id
+        #if not input_str and not reply:
+            #return
+    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    zed = await edit_or_reply(event, "⇆")
+    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
+        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_delete(zed, "**⚠️ لم أتمكن من العثور على المستخدم**")
-    
     try:
         photo, caption = await fetch_info(replied_user, event)
-        await event.client.send_message(
-            event.chat_id,
-            caption,
-            file=photo,
-            parse_mode="html",
-            reply_to=event.reply_to_msg_id
-        )
-        await zed.delete()
-        if photo and not str(photo).startswith("http"):
-            os.remove(photo)
-    except Exception as e:
-        await edit_or_reply(zed, f"**❌ حدث خطأ:** {str(e)}")
+    except (AttributeError, TypeError):
+        return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+    message_id_to_reply = event.message.reply_to_msg_id
+    if not message_id_to_reply:
+        message_id_to_reply = None
+    if gvarstatus("ZID_TEMPLATE") is None:
+        try:
+            await event.client.send_file(
+                event.chat_id,
+                photo,
+                caption=caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("html"),
+            )
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(caption, parse_mode=CustomParseMode("html"))
+    else:
+        try:
+            await event.client.send_file(
+                event.chat_id,
+                photo,
+                caption=caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("markdown"),
+            )
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
+
+
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

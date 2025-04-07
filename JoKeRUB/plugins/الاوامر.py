@@ -114,7 +114,7 @@ async def show_commands(event):
         f'<a href="emoji/6323564170482551899">❤️</a>'
         f'<a href="emoji/6323191058083613275">❤️</a>'
         f'<a href="emoji/6325310787652946500">❤️</a>\n'
-        f'<a href="emoji/6323518746908428943">❤️</a> <b>┊ حكمة اليوم:</b>\n"
+        f'<a href="emoji/6323518746908428943">❤️</a> <b>┊ حكمة اليوم:</b>\n'
         f"<code>{lMl10l}</code>\n"
         f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
         f'<a href="emoji/6325684673145997914">❤️</a>'

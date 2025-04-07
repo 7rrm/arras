@@ -426,4 +426,33 @@ async def zelzalll(event):
         await zed.delete()
     except:
         await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode="html")
+
+
+@l313l.ar_cmd(
+    pattern="ايدي_ايموجي$",
+    command=("ايدي_ايموجي", plugin_category),
+    info={
+        "header": "جلب ايدي الإيموجي البريميوم للمستخدم",
+        "الاستخدام": "{tr}ايدي_ايموجي بالرد على المستخدم",
+    },
+)
+async def get_emoji_id(event):
+    replied_user = await event.get_reply_message()
+    if not replied_user:
+        return await edit_delete(event, "**⚠️ يرجى الرد على المستخدم**", time=10)
+    
+    try:
+        user = await event.client.get_entity(replied_user.sender_id)
+        if user.premium and user.emoji_status:
+            emoji_id = user.emoji_status.document_id
+            await edit_or_reply(
+                event,
+                f"**🎟 ايدي الإيموجي البريميوم لـ [{user.first_name}](tg://user?id={user.id}):**\n"
+                f"`{emoji_id}`\n"
+                f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>`"
+            )
+        else:
+            await edit_or_reply(event, "**❌ هذا المستخدم ليس لديه إيموجي بريميوم**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
       

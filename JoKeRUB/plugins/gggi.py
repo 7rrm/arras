@@ -250,10 +250,10 @@ async def fetch_info(replied_user, event):
     if gvarstatus("ZID_TEMPLATE") is None:
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
-                caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس زدثــون </b>"
+                caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس آراس </b>"
                 caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
                 caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
-                caption += f'<a href="emoji/5809662223890518926">❤️</a>'
+                caption += f'<a href="emoji/5449393787212148368">❤️</a>'
                 caption += f"<b>─┄─┄─┄─┄⋆</b>\n"
                 caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
@@ -278,7 +278,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
                 caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
-                caption += f'<a href="emoji/5809662223890518926">❤️</a>'
+                caption += f'<a href="emoji/5449393787212148368">❤️</a>'
                 caption += f"<b>─┄─┄─┄─┄⋆</b>\n"
             else:
                 caption = f"<b> {ZED_TEXT} </b>\n"

@@ -31,10 +31,9 @@ from . import BOTLOG, BOTLOG_CHATID, spamwatch
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
 
-zed_dev = (5176749470, 1895219306, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
-zel_dev = (5176749470, 5426390871, 6269975462, 1985225531)
-zelzal = (925972505, 1895219306, 5280339206)
-ZIDA = gvarstatus("Z_ZZID") or "zvhhhclc"
+zed_dev = (5176749470, 5427469031, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
+zel_dev = (5176749470, 5427469031, 6269975462, 1985225531)
+zelzal = (925972505, 5427469031, 5280339206)
 Zel_Uid = l313l.uid
 #zedub.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
 

@@ -341,7 +341,8 @@ async def fetch_info(replied_user, event):
         )
     return photo, caption
 
-    @l313l.ar_cmd(
+    # يجب أن تكون الأوامر هنا (بعد نهاية الكلاس CustomParseMode وقبل الدوال الأخرى)
+@l313.ar_cmd(  # استبدل l313l بـ zedub
     pattern="ايدي2(?: |$)(.*)",
     command=("ايدي2", plugin_category),
     info={

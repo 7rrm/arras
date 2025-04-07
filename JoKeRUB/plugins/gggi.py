@@ -251,7 +251,7 @@ async def fetch_info(replied_user, event):
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
                 caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس زدثــون </b>"
-                caption += f'<a href="emoji/5812307593032372545">❤️</a>\n'
+                caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
                 caption += f"ٴ<b>⋆┄─┄─┄─┄─</b>"
                 caption += f'<a href="emoji/5809662223890518926">❤️</a>'
                 caption += f"<b>─┄─┄─┄─┄⋆</b>\n"

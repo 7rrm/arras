@@ -311,7 +311,7 @@ async def fetch_info(replied_user, event):
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
+                caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n"
                 caption += f"ٴ<b>{ZEDF}</b>"
         else:
             caption = f"<b> {ZED_TEXT} </b>\n"

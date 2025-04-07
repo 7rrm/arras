@@ -457,3 +457,80 @@ async def get_emoji_id(event):
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
 
 
+from telethon import functions, types
+from datetime import datetime
+
+@l313l.ar_cmd(
+    pattern="نسخ_حزمة(?:\s|$)([\s\S]*)",
+    command=("نسخ_حزمة", plugin_category),
+    info={
+        "header": "نسخ حزمة إيموجي كاملة",
+        "الاستخدام": "{tr}نسخ_حزمة + رابط الحزمة",
+        "مثال": "{tr}نسخ_حزمة https://t.me/addemoji/EmojiPackName"
+    },
+)
+async def copy_full_emoji_pack(event):
+    # التحقق من صلاحيات البريميوم
+    me = await event.client.get_me()
+    if not me.premium:
+        return await edit_delete(event, "**⚠️ تحتاج اشتراك بريميوم+**", 10)
+
+    input_str = event.pattern_match.group(1)
+    if not input_str:
+        return await edit_delete(event, "**⚠️ يرجى إدخال رابط الحزمة**", 10)
+
+    # استخراج اسم الحزمة من الرابط
+    try:
+        pack_name = input_str.split("/")[-1]
+        if not pack_name:
+            raise ValueError
+    except:
+        return await edit_delete(event, "**❌ رابط غير صالح**", 10)
+
+    # جلب معلومات الحزمة الأصلية
+    try:
+        original_pack = await event.client(
+            functions.messages.GetEmojiPacksRequest(
+                emoticon_set=[pack_name]
+            )
+        )
+        if not original_pack.packs:
+            return await edit_delete(event, "**⚠️ الحزمة غير موجودة**", 10)
+    except Exception as e:
+        return await edit_delete(event, f"**❌ خطأ في جلب الحزمة:** {str(e)}", 10)
+
+    # إنشاء الحزمة الجديدة
+    new_pack_title = f"{me.first_name}_Copy_{pack_name}"
+    try:
+        # 1. إنشاء الحزمة الجديدة
+        create_result = await event.client(
+            functions.messages.CreateEmojiPackRequest(
+                title=new_pack_title,
+                category="premium"
+            )
+        )
+
+        # 2. إضافة كل إيموجي
+        for emoji in original_pack.packs[0].documents:
+            await event.client(
+                functions.messages.UploadEmojiRequest(
+                    file=types.InputDocument(
+                        id=emoji.id,
+                        access_hash=emoji.access_hash,
+                        file_reference=emoji.file_reference
+                    ),
+                    emoji_name=emoji.attributes[0].alt,
+                    title=new_pack_title
+                )
+            )
+
+        await edit_or_reply(
+            event,
+            f"**✅ تم نسخ الحزمة بنجاح**\n"
+            f"• الحزمة الأصلية: `{original_pack.packs[0].title}`\n"
+            f"• الحزمة الجديدة: `{new_pack_title}`\n"
+            f"• عدد الإيموجيات: `{len(original_pack.packs[0].documents)}`\n"
+            f"**© حقوق النسخ: {me.first_name}**"
+        )
+    except Exception as e:
+        await edit_or_reply(event, f"**❌ فشل في النسخ:** {str(e)}")

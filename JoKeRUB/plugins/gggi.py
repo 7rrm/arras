@@ -455,4 +455,92 @@ async def get_emoji_id(event):
             await edit_or_reply(event, "**❌ هذا المستخدم ليس لديه إيموجي بريميوم**")
     except Exception as e:
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
+
+
+from telethon.tl import functions, types
+from urllib.parse import urlparse
+
+
+@l313l.ar_cmd(
+    pattern="بريميوم(?:\s|$)([\s\S]*)",
+    command=("بريميوم", plugin_category),
+    info={
+        "header": "نسخ إيموجي وإضافته لحزمة خاصة",
+        "الاستخدام": [
+            "{tr}اضف_ايموجي بالرد على مستخدم + اسم الحزمة",
+            "{tr}اضف_ايموجي + معرف/ايدي + اسم الحزمة"
+        ],
+        "مثال": [
+            "{tr}اضف_ايموجي @username حزمة_الأسد",
+            "{tr}اضف_ايموجي (بالرد) حزمة_الأسد"
+        ]
+    },
+)
+async def add_to_emoji_pack(event):
+    # التحقق من اشتراك البريميوم
+    me = await event.client.get_me()
+    if not me.premium:
+        return await edit_delete(event, "**⚠️ تحتاج اشتراك بريميوم لاستخدام هذا الأمر**", 10)
+
+    # معالجة المدخلات
+    args = event.pattern_match.group(1).split(maxsplit=1)
+    if len(args) < 1:
+        return await edit_delete(event, "**⚠️ يرجى تحديد اسم الحزمة**", 10)
+
+    pack_name = args[0]
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_delete(event, "**⚠️ لم يتم العثور على المستخدم**", 10)
+
+    # جلب الإيموجي
+    try:
+        target = await event.client.get_entity(replied_user.id)
+        if not target.emoji_status:
+            return await edit_delete(event, "**⚠️ المستخدم ليس لديه إيموجي بريميوم**", 10)
+
+        emoji_id = target.emoji_status.document_id
+        emoji_name = getattr(target.emoji_status, 'alt', 'custom_emoji')
+        pack_ref = target.emoji_status.file_reference
+    except Exception as e:
+        return await edit_delete(event, f"**❌ خطأ في جلب الإيموجي:** {str(e)}", 10)
+
+    # التحقق من وجود الحزمة أو إنشائها
+    try:
+        # جلب الحزمة إن وجدت
+        all_packs = await event.client(functions.messages.GetEmojiPacksRequest())
+        target_pack = next((p for p in all_packs.packs if p.title == pack_name), None)
+
+        # إنشاء حزمة جديدة إذا لم توجد
+        if not target_pack:
+            create_result = await event.client(
+                functions.messages.CreateEmojiPackRequest(
+                    title=pack_name,
+                    category="premium"
+                )
+            )
+            target_pack = create_result.packs[0]
+
+        # إضافة الإيموجي للحزمة
+        await event.client(
+            functions.messages.UploadEmojiRequest(
+                file=types.InputDocument(
+                    id=emoji_id,
+                    access_hash=0,
+                    file_reference=pack_ref
+                ),
+                emoji_name=emoji_name,
+                title=pack_name
+            )
+        )
+
+        await edit_or_reply(
+            event,
+            f"**✅ تمت الإضافة بنجاح**\n"
+            f"• الإيموجي: `{emoji_name}`\n"
+            f"• الحزمة: `{pack_name}`\n"
+            f"• الأيدي: `{emoji_id}`\n"
+            f"**© حقوق النسخ: {me.first_name}**"
+        )
+    except Exception as e:
+        await edit_or_reply(event, f"**❌ فشل في الإضافة:** {str(e)}")
       

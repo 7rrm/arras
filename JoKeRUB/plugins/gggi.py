@@ -283,15 +283,15 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
-                caption += f'<a href="emoji/6323136954380585694">❤️</a>'
-                caption += f'<a href="emoji/6325684673145997914">❤️</a>'
-                caption += f'<a href="emoji/6323205570778107774">❤️</a>'
-                caption += f'<a href="emoji/6323518746908428943">❤️</a>'
-                caption += f'<a href="emoji/5834774412338927340">❤️</a>'
-                caption += f'<a href="emoji/6325480992911919689">❤️</a>'
-                caption += f'<a href="emoji/6323564170482551899">❤️</a>'
+                caption += f'ٴ<a href="emoji/6325310787652946500">❤️</a>'
                 caption += f'<a href="emoji/6323191058083613275">❤️</a>'
-                caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
+                caption += f'<a href="emoji/6323564170482551899">❤️</a>'
+                caption += f'<a href="emoji/6325480992911919689">❤️</a>'
+                caption += f'<a href="emoji/5834774412338927340">❤️</a>'
+                caption += f'ٴ<a href="emoji/6323518746908428943">❤️</a>'
+                caption += f'<a href="emoji/6323205570778107774">❤️</a>'
+                caption += f'<a href="emoji/6325684673145997914">❤️</a>'
+                caption += f'<a href="emoji/6323136954380585694">❤️</a>\n'
             else:
                 caption = f"<b> {ZED_TEXT} </b>\n"
                 caption += f"ٴ<b>{ZEDF}</b>\n"

@@ -9,7 +9,7 @@ from telethon.errors import UserIsBlockedError
 from telethon.events import CallbackQuery, StopPropagation
 from telethon.utils import get_display_name
 
-from . import Config, zedub
+from . import Config, l313l
 
 from ..core import check_owner, pool
 from ..core.logger import logging
@@ -30,9 +30,9 @@ from .botmanagers import ban_user_from_bot
 
 LOGS = logging.getLogger(__name__)
 
-plugin_category = "البوت"
+plugin_category = "utils"
 botusername = Config.TG_BOT_USERNAME
-Zel_Uid = zedub.uid
+Zel_Uid = l313l.uid
 dd = []
 kk = []
 tt = []
@@ -73,14 +73,14 @@ async def check_bot_started_users(user, event):
         await event.client.send_message(BOTLOG_CHATID, notification)
 
 
-@zedub.bot_cmd(
+@l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
     incoming=True,
     func=lambda e: e.is_private,
 )
 async def bot_start(event):
     chat = await event.get_chat()
-    user = await zedub.get_me()
+    user = await l313l.get_me()
     if check_is_black_list(chat.id):
         return
     if int(chat.id) in kk:
@@ -104,11 +104,11 @@ async def bot_start(event):
         zz_txt = "⌔ لـ التواصـل خـاص ⌔"
         zz_ch = user.username
     else:
-        zz_txt = "⌔ قنـاة السـورس ⌔"
-        zz_ch = "ZThon"
-    zid = 5176749470
+        zz_txt = "⌔ قنـاة المـطور ⌔"
+        zz_ch = "aqhvv"
+    zid = 5427469031
     if gvarstatus("ZThon_Vip") is None:
-        zid = 5176749470
+        zid = 5427469031
     else:
         zid = int(gvarstatus("ZThon_Vip"))
     custompic = gvarstatus("BOT_START_PIC") or None
@@ -252,7 +252,7 @@ async def bot_start(event):
         await check_bot_started_users(chat, event)
 
 
-@zedub.bot_cmd(incoming=True, func=lambda e: e.is_private)
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics
     chat = await event.get_chat()
     reply_to = await reply_id(event)

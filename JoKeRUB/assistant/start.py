@@ -153,7 +153,7 @@ async def bot_start(event):
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
+                Button.inline("هاك تيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -196,8 +196,11 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
+                Button.inline("هاك تيرمكس ⚓", data="termux_hack"),
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -264,8 +267,7 @@ async def termux_hack_handler(event):
             "**- لرؤية أوامـر الإختراق أرسل** /hack",
             buttons=[
                 [Button.inline("رجوع", data="styleback")]
-            ],
-            link_preview=False
+            ]
         )
     else:
         await event.edit(
@@ -276,8 +278,7 @@ async def termux_hack_handler(event):
             "• @Lx5x5",
             buttons=[
                 [Button.inline("رجوع", data="styleback")]
-            ],
-            link_preview=False
+            ]
         )
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
@@ -302,7 +303,7 @@ async def bot_pms(event):  # sourcery no-metrics
                 reply_to=reply_to,
             )
         if chat.id in dd:
-            text event.text
+            text = event.text
             iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠜', '𖠲', '𖤍', '𖠛', ' 𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']
             smiile1 = random.choice(iitems)
             smiile2 = random.choice(iitems)
@@ -878,40 +879,30 @@ async def settings_toggle(c_q: CallbackQuery):
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-on$")))
-async def enable_communication(event):
-    user_id = event.query.user_id
-    if user_id in tt:
-        return await event.answer("وضع التواصل مفعل بالفعل!", alert=False)
-    tt.append(user_id)
-    await event.edit(
+async def settings_toggle(c_q: CallbackQuery):
+    if c_q.query.user_id in tt:
+        return await c_q.answer("**- وضـع التواصـل .. مفعـل مسبقـاً**", alert=False)
+    tt.append(int(c_q.query.user_id))
+    await c_q.edit(
         """**- تم تفعيـل وضع التواصل ✓**
 **- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 .""",
+
         buttons=[
-            [Button.inline("تعطيل التواصل", data="ttk_bot-off")],
-            [Button.inline("رجوع", data="styleback")]
-        ]
-    )
+            [Button.inline("تعطيل وضع التواصل", data="ttk_bot-off")],
+        ],
+    link_preview=False)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-off$")))
-async def disable_communication(event):
-    user_id = event.query.user_id
-    if user_id not in tt:
-        return await event.answer("وضع التواصل معطل بالفعل!", alert=False)
-    tt.remove(user_id)
-    await event.edit(
-        """**- تم تعطيل وضع التواصـل ✗**
-**- لـن يـتم توجيه رسائلك إلى المالك تلقائيـاً .**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-.""",
-        buttons=[
-            [Button.inline("تفعيل التواصل", data="ttk_bot-on")],
-            [Button.inline("رجوع", data="styleback")]
-        ]
-    )
-    
+async def settings_toggle(c_q: CallbackQuery):
+    if c_q.query.user_id not in tt:
+        return await c_q.answer("**- وضـع التواصـل .. معطـل مسبقـاً**", alert=False)
+    tt.remove(int(c_q.query.user_id))
+    await c_q.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()
@@ -953,11 +944,7 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
-            ],
-            [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -977,8 +964,7 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -1004,8 +990,7 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")

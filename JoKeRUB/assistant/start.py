@@ -282,13 +282,18 @@ async def termux_hack_handler(event):
         )
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def bot_pms(event):  # sourcery no-metrics
+async def bot_pms(event):
     chat = await event.get_chat()
-    reply_to = await reply_id(event)
     if check_is_black_list(chat.id):
         return
-    if event.contact or int(chat.id) in kk:
+    
+    # إذا كان التواصل مفعلاً
+    if int(chat.id) in tt:
+        # توجيه الرسالة فقط إلى المالك دون معالجة إضافية
+        await event.forward_to(Config.OWNER_ID)
         return
+    
+    # إذا كان التواصل غير مفعّل (المعالجة العادية)
     if chat.id != Config.OWNER_ID:
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:

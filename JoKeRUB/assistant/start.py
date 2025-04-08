@@ -196,9 +196,6 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
-            ],
-            [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
                 Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
@@ -284,17 +281,38 @@ async def termux_hack_handler(event):
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):
     chat = await event.get_chat()
+    reply_to = await reply_id(event)
+    
     if check_is_black_list(chat.id):
+        return
+    
+    # تجاهل الرسائل إذا كانت جهة اتصال أو تم التعامل معها مسبقاً
+    if event.contact or int(chat.id) in kk:
         return
     
     # إذا كان التواصل مفعلاً
     if int(chat.id) in tt:
-        # توجيه الرسالة فقط إلى المالك دون معالجة إضافية
-        await event.forward_to(Config.OWNER_ID)
+        # توجيه الرسالة فقط إلى المالك
+        try:
+            msg = await event.forward_to(Config.OWNER_ID)
+            # إرسال تأكيد للمستخدم
+            await event.client.send_message(
+                chat.id,
+                "✓ تم إرسال رسالتك إلى المالك",
+                buttons=[
+                    [Button.inline("تعطيل التواصل", data="ttk_bot-off")]
+                ],
+                reply_to=reply_to
+            )
+            # تسجيل في قاعدة البيانات
+            add_user_to_db(msg.id, get_display_name(chat), chat.id, event.id, 0, 0)
+        except Exception as e:
+            LOGS.error(f"خطأ في التوجيه: {e}")
         return
     
     # إذا كان التواصل غير مفعّل (المعالجة العادية)
     if chat.id != Config.OWNER_ID:
+        # ... (بقية الكود العادي)
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:
                 dd.remove(int(chat.id))
@@ -884,30 +902,40 @@ async def settings_toggle(c_q: CallbackQuery):
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-on$")))
-async def settings_toggle(c_q: CallbackQuery):
-    if c_q.query.user_id in tt:
-        return await c_q.answer("**- وضـع التواصـل .. مفعـل مسبقـاً**", alert=False)
-    tt.append(int(c_q.query.user_id))
-    await c_q.edit(
+async def enable_communication(event):
+    user_id = event.query.user_id
+    if user_id in tt:
+        return await event.answer("وضع التواصل مفعل بالفعل!", alert=False)
+    tt.append(user_id)
+    await event.edit(
         """**- تم تفعيـل وضع التواصل ✓**
 **- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 .""",
-
         buttons=[
-            [Button.inline("تعطيل وضع التواصل", data="ttk_bot-off")],
-        ],
-    link_preview=False)
+            [Button.inline("تعطيل التواصل", data="ttk_bot-off")],
+            [Button.inline("رجوع", data="styleback")]
+        ]
+    )
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-off$")))
-async def settings_toggle(c_q: CallbackQuery):
-    if c_q.query.user_id not in tt:
-        return await c_q.answer("**- وضـع التواصـل .. معطـل مسبقـاً**", alert=False)
-    tt.remove(int(c_q.query.user_id))
-    await c_q.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
-
-
+async def disable_communication(event):
+    user_id = event.query.user_id
+    if user_id not in tt:
+        return await event.answer("وضع التواصل معطل بالفعل!", alert=False)
+    tt.remove(user_id)
+    await event.edit(
+        """**- تم تعطيل وضع التواصـل ✗**
+**- لـن يـتم توجيه رسائلك إلى المالك تلقائيـاً .**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+.""",
+        buttons=[
+            [Button.inline("تفعيل التواصل", data="ttk_bot-on")],
+            [Button.inline("رجوع", data="styleback")]
+        ]
+    )
+    
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()
@@ -971,9 +999,6 @@ async def settings_toggle(event):
             ],
             [
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
-            ],
-            [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),

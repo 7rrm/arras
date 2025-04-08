@@ -279,26 +279,32 @@ async def termux_hack_handler(event):
         )
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def bot_pms(event):  # sourcery no-metrics
+async def bot_pms(event):
     chat = await event.get_chat()
-    reply_to = await reply_id(event)
     if check_is_black_list(chat.id):
         return
-    if event.contact or int(chat.id) in kk:
+    
+    # تجاهل إذا كانت جهة اتصال
+    if event.contact:
         return
-    if chat.id != Config.OWNER_ID:
-        if event.text.startswith("/cancle"):
-            if int(chat.id) in dd:
-                dd.remove(int(chat.id))
-            if int(chat.id) in kk:
-                kk.remove(int(chat.id))
-            zzc = "**- تم الالغـاء .. بنجـاح**"
-            return await event.client.send_message(
-                chat.id,
-                zzc,
-                link_preview=False,
-                reply_to=reply_to,
+
+    # إذا كان التواصل مفعلاً (tt = قائمة المستخدمين المفعل لهم التواصل)
+    if int(chat.id) in tt:
+        try:
+            # 1. توجيه الرسالة للمالك
+            await event.forward_to(Config.OWNER_ID)
+            
+            # 2. إرسال تأكيد للمستخدم فقط
+            await event.respond(
+                "✓ تم إرسال رسالتك للمالك",
+                buttons=[[Button.inline("تعطيل التواصل", data="ttk_bot-off")]]
             )
+        except Exception as e:
+            LOGS.error(f"خطأ في التوجيه: {e}")
+        return  # يمنع أي معالجة أخرى
+
+    # إذا وصلنا هنا يعني التواصل معطل → لا تعالج الرسالة مطلقاً
+    return
         if chat.id in dd:
             text event.text
             iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠜', '𖠲', '𖤍', '𖠛', ' 𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']

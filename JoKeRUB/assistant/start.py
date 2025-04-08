@@ -153,7 +153,7 @@ async def bot_start(event):
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هاك تيرمكس ⚓", data="termux_hack")
+                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -199,8 +199,8 @@ async def bot_start(event):
                 Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
             ],
             [
-                Button.inline("هاك تيرمكس ⚓", data="termux_hack"),
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -944,7 +944,11 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -964,7 +968,11 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -990,7 +998,8 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تـيرمكس ⚓", data="termux_hack")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")

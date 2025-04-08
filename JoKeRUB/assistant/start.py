@@ -45,33 +45,28 @@ class FloodConfig:
     ALERT = defaultdict(dict)
     AUTOBAN = 10
 
-
 async def check_bot_started_users(user, event):
     if user.id == Config.OWNER_ID:
         return
-    check = get_starter_details(user.id)
-    usernaam = f"@{user.username}" if user.username else "لايوجـد"
-    if check is None:
+        
+    check = get_starter_details(user.id)  # التحقق من وجود المستخدم
+    
+    if check is None:  # فقط للمستخدمين الجدد
         start_date = str(datetime.now().strftime("%B %d, %Y"))
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
-    else:
-        start_date = check.date
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
-    try:
-        add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
-    except Exception as e:
-        LOGS.error(str(e))
-    if BOTLOG:
-        await event.client.send_message(BOTLOG_CHATID, notification)
+        usernaam = f"@{user.username}" if user.username else "لايوجـد"
+        notification = f"""- مرحبـاً سيـدي 🧑🏻‍💻
+- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡
 
+- الاسـم : {get_display_name(user)}
+- الايـدي : `{user.id}`
+- اليـوزر : {usernaam}"""
+        
+        try:
+            add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
+            if BOTLOG:
+                await event.client.send_message(BOTLOG_CHATID, notification)
+        except Exception as e:
+            LOGS.error(str(e))
 
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",

@@ -314,4 +314,3 @@ except AttributeError:
     HuReClient.send_message = send_message
     HuReClient.send_file = send_file
     HuReClient.edit_message = edit_message
-

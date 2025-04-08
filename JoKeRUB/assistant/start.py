@@ -281,38 +281,32 @@ async def termux_hack_handler(event):
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):
     chat = await event.get_chat()
-    reply_to = await reply_id(event)
-    
     if check_is_black_list(chat.id):
         return
     
-    # تجاهل الرسائل إذا كانت جهة اتصال أو تم التعامل معها مسبقاً
+    # تجاهل إذا كانت جهة اتصال أو معالجة مسبقة
     if event.contact or int(chat.id) in kk:
         return
-    
+
+    reply_to = await reply_id(event)
+
     # إذا كان التواصل مفعلاً
     if int(chat.id) in tt:
-        # توجيه الرسالة فقط إلى المالك
         try:
-            msg = await event.forward_to(Config.OWNER_ID)
-            # إرسال تأكيد للمستخدم
-            await event.client.send_message(
-                chat.id,
-                "✓ تم إرسال رسالتك إلى المالك",
-                buttons=[
-                    [Button.inline("تعطيل التواصل", data="ttk_bot-off")]
-                ],
-                reply_to=reply_to
+            # توجيه الرسالة للمالك فقط
+            await event.forward_to(Config.OWNER_ID)
+            # إرسال إشعار للمستخدم (بدون توجيه مكرر)
+            await event.respond(
+                "✓ تم إرسال رسالتك للمالك",
+                buttons=[[Button.inline("تعطيل التواصل", data="ttk_bot-off")]]
             )
-            # تسجيل في قاعدة البيانات
-            add_user_to_db(msg.id, get_display_name(chat), chat.id, event.id, 0, 0)
         except Exception as e:
             LOGS.error(f"خطأ في التوجيه: {e}")
-        return
-    
-    # إذا كان التواصل غير مفعّل (المعالجة العادية)
+        return  # ← الأهم! يمنع المعالجة المزدوجة
+
+    # المعالجة العادية (عند تعطيل التواصل)
     if chat.id != Config.OWNER_ID:
-        # ... (بقية الكود العادي)
+        # ... (الكود الأصلي للمعالجة العادية)
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:
                 dd.remove(int(chat.id))

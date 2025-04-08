@@ -139,6 +139,9 @@ async def bot_start(event):
 
         buttons = [
             [
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
                 Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
             ],
             [
@@ -149,11 +152,8 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
-            ],
-            [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هاك تيرمكس ⚓", data="termux_hack")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -178,12 +178,11 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            start_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\
-                        \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                        \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                        \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                        \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                        \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+            start_msg = f"**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\
+                        \n\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\
+                        \n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\
+                        \n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\
+                        \n\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :**  /help\"
         buttons = [
             [
                 Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
@@ -196,11 +195,8 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
-            ],
-            [
-                Button.inline("هاك تيرمكس ⚓", data="termux_hack"),
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack"),
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")

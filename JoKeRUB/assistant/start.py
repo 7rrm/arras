@@ -196,8 +196,8 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack"),
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -852,7 +852,7 @@ async def settings_toggle(c_q: CallbackQuery):
 **- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
 **- سوف يتلقاها مالك البـوت 📫**
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او التعطيـل استخـدم الازرار بالاسفـل 🛃**
+**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
 .""",
 
         buttons=[
@@ -931,6 +931,9 @@ async def settings_toggle(event):
                     \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
         buttons = [
             [
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
                 Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
             ],
             [
@@ -961,7 +964,7 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
@@ -987,7 +990,7 @@ async def settings_toggle(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -1000,7 +1003,7 @@ async def settings_toggle(event):
 async def settings_toggle(c_q: CallbackQuery):
     try:
         await c_q.edit(
-            """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **رمـوز تمبلـر** 🎡
+            """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **رمـوز تمبلـر** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 𓅄 𓅅 𓅆 𓅇 𓅈 𓅉 𓅊 𓅋 𓅌 𓅍 𓅎 𓅏 𓅐 𓅑 𓅒 𓅓 𓅔𓅕 𓅖 𓅗 𓅘 𓅙 𓅚 𓅛 𓅜 𓅝 𓅞 𓅟 𓅠 𓅡 𓅢 𓅣 𓅤 𓅥 𓅦 𓅧 𓅨 𓅩 𓅫 𓅬 𓅭 𓅮 𓅯 𓅰 𓅱 𓅲 𓅳 𓅴 
 ‏𓅵 𓅶 𓅷 𓅸 𓅹 𓅺 𓅻 
@@ -1033,7 +1036,7 @@ ____
     except Exception:
         await c_q.client.send_message(
             c_q.query.user_id,
-            """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **رمـوز تمبلـر** 🎡
+            """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **رمـوز تمبلـر** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 𓅄 𓅅 𓅆 𓅇 𓅈 𓅉 𓅊 𓅋 𓅌 𓅍 𓅎 𓅏 𓅐 𓅑 𓅒 𓅓 𓅔𓅕 𓅖 𓅗 𓅘 𓅙 𓅚 𓅛 𓅜 𓅝 𓅞 𓅟 𓅠 𓅡 𓅢 𓅣 𓅤 𓅥 𓅦 𓅧 𓅨 𓅩 𓅫 𓅬 𓅭 𓅮 𓅯 𓅰 𓅱 𓅲 𓅳 𓅴 
 ‏𓅵 𓅶 𓅷 𓅸 𓅹 𓅺 𓅻 
@@ -1069,7 +1072,7 @@ ____
 async def settings_toggle(c_q: CallbackQuery):
     try:
         await c_q.edit(
-            """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **رمـوز تمبلـر** 🎡
+            """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **رمـوز تمبلـر** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 ‏ ‐ ‑ ‒ – — ― ‖ ‗ ‘ ’ ‚ ‛ “ ” „ ‟ † ‡ • ‣ ․ ‥ … ‧     
   ‰ ‱ ′ ″ ‴ ‵ ‶ ‷ ‸ ‹ › ※ ‼️ ‽ ‾ ‿ ⁀ ⁁ ⁂ ⁃ ⁄ ⁅ ⁆ ⁇ ⁈ ⁉️ ⁊ ⁋ ⁌ ⁍ ⁎ ⁏ ⁐ ⁑ ⁒ ⁓ ⁔ ⁕ ⁖ ⁗ ⁘ ⁙ ⁚ ⁛ ⁜ ⁝ ⁞   ⁠ ⁡ ⁢ ⁣ ⁤ ⁥ ‌ ‌ ⁨ ⁩ ⁪ ⁫ ⁬ ⁭ ⁮ ⁯ 
@@ -1130,7 +1133,7 @@ async def settings_toggle(c_q: CallbackQuery):
     except Exception:
         await c_q.client.send_message(
             c_q.query.user_id,
-            """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **رمـوز تمبلـر** 🎡
+            """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **رمـوز تمبلـر** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 ‏ ‐ ‑ ‒ – — ― ‖ ‗ ‘ ’ ‚ ‛ “ ” „ ‟ † ‡ • ‣ ․ ‥ … ‧     
   ‰ ‱ ′ ″ ‴ ‵ ‶ ‷ ‸ ‹ › ※ ‼️ ‽ ‾ ‿ ⁀ ⁁ ⁂ ⁃ ⁄ ⁅ ⁆ ⁇ ⁈ ⁉️ ⁊ ⁋ ⁌ ⁍ ⁎ ⁏ ⁐ ⁑ ⁒ ⁓ ⁔ ⁕ ⁖ ⁗ ⁘ ⁙ ⁚ ⁛ ⁜ ⁝ ⁞   ⁠ ⁡ ⁢ ⁣ ⁤ ⁥ ‌ ‌ ⁨ ⁩ ⁪ ⁫ ⁬ ⁭ ⁮ ⁯ 
@@ -1192,7 +1195,7 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-3$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
-        """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **ارقـام مزغـرفـة** 🎡
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **ارقـام مزغـرفـة** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁰
 ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ ₀
@@ -1226,7 +1229,7 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-4$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
-        """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **ارقـام مزغـرفـة** 🎡
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **ارقـام مزغـرفـة** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁰
 ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉ ₀
@@ -1259,11 +1262,11 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-5$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
-        """ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗦𝘁𝘆𝗹𝗲 - **حـذف الحسـاب** ⚠️
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗹 - **حـذف الحسـاب** ⚠️
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 **- لـ حذف حسابك قم بارسـال الامـر التالي :**
 
-حذف حسابي
+`حذف حسابي`
 
 **ثم اتبـع التعليمـات**
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
@@ -1277,7 +1280,7 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-insta$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
-        """ᯓ 𝗭𝗧𝗵𝗼𝗻 - **رشـق لايكـات إنستجـرام** 🎡
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 - **رشـق لايكـات إنستجـرام** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 **- لـ رشـق لايكـات منشـور انستا 🖤**
 **- قم بارسـال الامـر التالي :**
@@ -1296,7 +1299,7 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-tiktok$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
-        """ᯓ 𝗭𝗧𝗵𝗼𝗻 - **رشـق مشاهـدات تيك توك** 🎡
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 - **رشـق مشاهـدات تيك توك** 🎡
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 **- لـ رشـق 1000 مشاهـدة تيك توك 🖤**
 **- قم بارسـال الامـر التالي :**

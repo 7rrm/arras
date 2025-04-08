@@ -279,34 +279,14 @@ async def termux_hack_handler(event):
         )
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def bot_pms(event):
+async def bot_pms(event):  # sourcery no-metrics
     chat = await event.get_chat()
+    reply_to = await reply_id(event)
     if check_is_black_list(chat.id):
         return
-    
-    # تجاهل إذا كانت جهة اتصال أو معالجة مسبقة
     if event.contact or int(chat.id) in kk:
         return
-
-    reply_to = await reply_id(event)
-
-    # إذا كان التواصل مفعلاً
-    if int(chat.id) in tt:
-        try:
-            # توجيه الرسالة للمالك فقط
-            await event.forward_to(Config.OWNER_ID)
-            # إرسال إشعار للمستخدم (بدون توجيه مكرر)
-            await event.respond(
-                "✓ تم إرسال رسالتك للمالك",
-                buttons=[[Button.inline("تعطيل التواصل", data="ttk_bot-off")]]
-            )
-        except Exception as e:
-            LOGS.error(f"خطأ في التوجيه: {e}")
-        return  # ← الأهم! يمنع المعالجة المزدوجة
-
-    # المعالجة العادية (عند تعطيل التواصل)
     if chat.id != Config.OWNER_ID:
-        # ... (الكود الأصلي للمعالجة العادية)
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:
                 dd.remove(int(chat.id))
@@ -320,7 +300,7 @@ async def bot_pms(event):
                 reply_to=reply_to,
             )
         if chat.id in dd:
-            text = event.text
+            text event.text
             iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠜', '𖠲', '𖤍', '𖠛', ' 𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']
             smiile1 = random.choice(iitems)
             smiile2 = random.choice(iitems)

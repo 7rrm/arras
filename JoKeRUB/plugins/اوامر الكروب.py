@@ -764,7 +764,7 @@ async def search_photo(event):
     if image_urls:
         #  تحميل  الصور  في  قائمة 
         input_media = []
-        for i in range(10): #  تحميل  حتى  10  صور 
+        for i in range(8): #  تحميل  حتى  10  صور 
             try:
                 image_url = await ai_img_gen(prompt)
                 image_save_path = os.path.join(
@@ -779,7 +779,7 @@ async def search_photo(event):
 
         #  إرسال  جميع  الصور  في  رسالة  واحدة 
         if input_media:
-            await l313l.send_file(event.chat_id, input_media, caption=f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗣𝗵𝗼𝘁𝗼.𝗔𝗶 -💡-](t.me/ZThon) **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• تم رسم ³ صور 📇**\n**• بواسطة الذكاء الاصطناعي💡**\n• `{prompt}`")
+            await l313l.send_file(event.chat_id, input_media, caption=f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗣𝗵𝗼𝘁𝗼.𝗔𝗶 -💡-](t.me/lx5x5) **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• تم رسم ⁸ صور 📇**\n**• بواسطة الذكاء الاصطناعي💡**\n• `{prompt}`")
             await zzz.delete()
         else:
             await zzz.edit(f"**- اووبـس .. لم استطـع ايجـاد صـور عـن {prompt} ؟!**\n**- حـاول مجـدداً واكتـب الكلمـه بشكـل صحيح**")

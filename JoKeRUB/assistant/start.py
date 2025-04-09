@@ -77,13 +77,14 @@ async def check_bot_started_users(user, event):
 # دالة للبحث في Pinterest
 async def search_pinterest(query, limit=10):
     try:
-        url = f"https://www.pinterest.com/resource/BaseSearchResource/get/"
+        url = "https://www.pinterest.com/resource/BaseSearchResource/get/"
         params = {
             "source_url": f"/search/pins/?q={query}",
-            "data": '{"options":{"query":"' + query + '","scope":"pins"},"context":{}}'
+            "data": '{"options":{"query":"' + query + '","scope":"pins","bookmarks":[""]},"context":{}}'
         }
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Referer": f"https://www.pinterest.com/search/pins/?q={query}"
         }
         
         response = requests.get(url, params=params, headers=headers)
@@ -94,14 +95,18 @@ async def search_pinterest(query, limit=10):
         image_urls = []
         
         for pin in pins[:limit]:
-            if "images" in pin:
-                image_url = pin["images"]["orig"]["url"]
-                image_urls.append(image_url)
+            if pin.get("images"):
+                # نحاول الحصول على أفضل جودة متاحة
+                image_url = pin["images"].get("orig", {}).get("url") or \
+                          pin["images"].get("736x", {}).get("url") or \
+                          pin["images"].get("474x", {}).get("url")
+                if image_url:
+                    image_urls.append(image_url)
         
-        return image_urls
+        return image_urls if image_urls else None
     except Exception as e:
         LOGS.error(f"Error searching Pinterest: {str(e)}")
-        return []
+        return None
 
 # دالة معالجة الرسائل بعد تفعيل البحث
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
@@ -114,31 +119,61 @@ async def handle_pinterest_search(event):
             raise StopPropagation
         
         search_query = event.text
-        await event.reply(f"**جارٍ البحث عن: {search_query} في Pinterest...**")
+        await event.reply(f"**جارٍ البحث عن: 『 {search_query} 』 في Pinterest...**")
         
         try:
             image_urls = await search_pinterest(search_query)
             
             if not image_urls:
-                await event.reply("**لم يتم العثور على صور لهذا البحث.**")
-                return
+                # إعادة المحاولة مع إضافة اقتراحات بحث
+                alternative_queries = [
+                    f"{search_query} aesthetic",
+                    f"{search_query} HD",
+                    f"{search_query} high quality"
+                ]
+                
+                for alt_query in alternative_queries:
+                    image_urls = await search_pinterest(alt_query)
+                    if image_urls:
+                        break
+                
+                if not image_urls:
+                    await event.reply(
+                        "**⚠️ لم أتمكن من العثور على صور لهذا البحث.**\n"
+                        "**جرب هذه الاقتراحات:**\n"
+                        f"- {search_query} aesthetic\n"
+                        f"- {search_query} HD\n"
+                        f"- {search_query} art\n"
+                        "**أو جرب كلمات بحث أكثر تحديداً**"
+                    )
+                    del pinterest_search_active[user_id]
+                    raise StopPropagation
             
-            # إرسال أول 5 صور فقط لتجنب التحميل الزائد
-            for url in image_urls[:5]:
+            # إرسال الصور مع رسالة تأكيد
+            sent_count = 0
+            for url in image_urls[:5]:  # إرسال أول 5 صور فقط
                 try:
                     await event.client.send_file(
                         event.chat_id,
                         file=url,
-                        caption=f"**نتيجة البحث عن: {search_query}**",
+                        caption=f"**نتيجة البحث: 『 {search_query} 』**",
                         reply_to=event.id
                     )
+                    sent_count += 1
                 except Exception as e:
                     LOGS.error(f"Error sending image: {str(e)}")
-                    await event.reply(f"**حدث خطأ أثناء إرسال الصورة: {str(e)}**")
+                    continue
             
-            await event.reply("**تم الانتهاء من إرسال نتائج البحث.**")
+            if sent_count > 0:
+                await event.reply(f"**تم إرسال {sent_count} صور بنجاح ✅**")
+            else:
+                await event.reply("**حدث خطأ أثناء إرسال الصور**")
+            
         except Exception as e:
-            await event.reply(f"**حدث خطأ أثناء البحث: {str(e)}**")
+            await event.reply(
+                f"**حدث خطأ أثناء البحث: {str(e)}**\n"
+                "**يرجى المحاولة مرة أخرى لاحقاً**"
+            )
         
         del pinterest_search_active[user_id]
         raise StopPropagation
@@ -356,11 +391,15 @@ async def pinterest_search_handler(event):
     user_id = event.query.user_id
     await event.answer("جارِ فتح خدمة البحث عن الصور...", alert=False)
     await event.edit(
-        "**- مرحبـا بك عـزيـزي 🧚‍♀**\n"
-        "**- في قسـم بحث الصـور 🎆**\n"
-        "**- بحث صور عالية الدقـه من موقع 🅿️**\n"
-        "**- ارسـل الان الكلمـة الذي تريـد البحث عنها ✓**\n\n"
-        "**- لـ الالغـاء ارسـل /cancle**"
+        "**🎀 مرحبـا بك في محرك البحث عن الصور 🎀**\n\n"
+        "**🧚‍♀ يمكنك البحث عن:**\n"
+        "- صور شخصية\n"
+        "- خلفيات HD\n"
+        "- صور فنية\n"
+        "- تصاميم جرافيك\n\n"
+        "**✍︎ أرسل الآن كلمة البحث المطلوبة**\n"
+        "**مثال:** `خلفيات ورد` أو `تصاميم جرافيك`\n\n"
+        "**لإلغاء البحث ارسل:** /cancle"
     )
     pinterest_search_active[user_id] = True
 

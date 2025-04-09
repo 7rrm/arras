@@ -39,7 +39,7 @@ from telethon.tl.types import (
     MessageEntityCustomEmoji,
 )
 from JoKeRUB import l313l
-from ..utils import Zed_Vip
+from ..utils import Zed_Dev
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from datetime import datetime
 from telethon.tl.functions.channels import GetParticipantRequest

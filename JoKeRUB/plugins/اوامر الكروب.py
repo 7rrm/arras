@@ -705,13 +705,23 @@ async def process_gpt(question):
                 return False
 
 async def dark_response(query):
-    url = f'https://dark-gpt-v1.vercel.app/ai?query={query}'
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = json.loads(response.text)
-        return data.get('response')
-    else:
-        return "Error fetching response."
+    try:
+        # 1. الاتصال بالخادم
+        url = "https://api.example.com/dark-ai"  # استبدل برابط API الصحيح
+        headers = {"Authorization": "Bearer YOUR_API_KEY"}  # إذا كان يتطلب مصادقة
+        data = {"question": query}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, json=data, headers=headers) as resp:
+                if resp.status == 200:
+                    response = await resp.json()
+                    return response.get("answer", "لا توجد إجابة متاحة")
+                return "فشل الاتصال بالخادم (رمز الخطأ: {})".format(resp.status)
+    
+    except aiohttp.ClientError as e:
+        return "خطأ في الاتصال: {}".format(str(e))
+    except Exception as e:
+        return "حدث خطأ غير متوقع: {}".format(str(e))
 
 @l313l.ar_cmd(pattern="زد(?: |$)(.*)")
 async def zelzal_gpt(event):

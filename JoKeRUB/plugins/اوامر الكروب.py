@@ -677,6 +677,8 @@ async def Hussein(event):
     await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
 
 # الكود من كتابة فريق الجوكر بس تسرقة تنشر بقناة الفضايح انتَ وقناتك 🖤
+lastResponse = None
+
 async def process_gpt(question):
     global lastResponse
     if lastResponse is None:

@@ -2,6 +2,7 @@
 from asyncio import sleep
 import asyncio
 import aiohttp
+import shutil
 import requests
 import random
 from datetime import datetime
@@ -704,24 +705,22 @@ async def process_gpt(question):
             else:
                 return False
 
-async def dark_response(query):
-    try:
-        # 1. الاتصال بالخادم
-        url = "https://api.example.com/dark-ai"  # استبدل برابط API الصحيح
-        headers = {"Authorization": "Bearer YOUR_API_KEY"}  # إذا كان يتطلب مصادقة
-        data = {"question": query}
+async def ai_img_gen(prompt):
+    #image_url = 'https://img.hazex.workers.dev/?prompt={prompt}&improve=true&format=tall&random=Hj6Fq19j'
+    # تعريف الباراميترات المطلوبة من ال API
+    params = {
+        'prompt': prompt,
+        'improve': 'true',  # true or false the best is true
+        'format': 'square',   # wide or tall or square
+        'random': 'Hj6Fq19j'  # Replace with your random string
+    }
+    url = 'https://img.hazex.workers.dev/'
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        return response.content
+    else:
+        return False
         
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, json=data, headers=headers) as resp:
-                if resp.status == 200:
-                    response = await resp.json()
-                    return response.get("answer", "لا توجد إجابة متاحة")
-                return "فشل الاتصال بالخادم (رمز الخطأ: {})".format(resp.status)
-    
-    except aiohttp.ClientError as e:
-        return "خطأ في الاتصال: {}".format(str(e))
-    except Exception as e:
-        return "حدث خطأ غير متوقع: {}".format(str(e))
 
 @l313l.ar_cmd(pattern="ار(?: |$)(.*)")
 async def zelzal_gpt(event):
@@ -747,40 +746,50 @@ async def zelzal_gpt(event):
         if len(lastResponse) > 8:
             lastResponse.pop(0)
             
-@l313l.ar_cmd(pattern="دارك(?: |$)(.*)")
-async def dark_ai(event):
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5**")
-    query = event.pattern_match.group(1)
-    zzz = await event.get_reply_message()
-    if not query and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⎉╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.دارك من هو مكتشف الجاذبية الارضية`")
-    if not query and event.reply_to_msg_id and zzz.text: 
-        query = zzz.text
-    if not event.reply_to_msg_id: 
-        query = event.pattern_match.group(1)
-    zed = await edit_or_reply(event, "**⎉╎جـارِ الاتصـال بـ الذكـاء الاصطناعي (Dark)\n⎉╎الرجـاء الانتظـار .. لحظـات**")
-    try:
-        querys = query.strip()
-        translator = Translator()
-        lan = "en" 
-        translated = translator.translate(querys, dest=lan)
-        querry = translated.text
-    except Exception:
-        querry = query
-    answer = await dark_response(querry)
-    try:
-        answers = answer.strip()
-        translator = Translator()
-        lan = "ar" 
-        translated = translator.translate(answers, dest=lan)
-        after_tr_text = translated.text
-        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗮𝗿𝗸𝗔𝗶 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {query}**\n\n• {after_tr_text}", link_preview=False)
-        #await zed.delete()
-    except Exception as exc:
-        #await zed.edit(f"**- خطـأ :**\n`{exc}`", time=5)
-        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗮𝗿𝗸𝗔𝗶 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {query}**\n\n• {answer}", link_preview=False)
+@l313l.ar_cmd(pattern="ارسم ?(.*)")
+async def search_photo(event):
+    prompt = event.pattern_match.group(1)
+    if not prompt:
+        return await edit_or_reply(event, "**-ارسـل** `.ارسم` **+ نـص لـ البـدء**")
+    wzed_dir = os.path.join(
+        Config.TMP_DOWNLOAD_DIRECTORY,
+        prompt
+    )
+    if not os.path.isdir(wzed_dir):
+        os.makedirs(wzed_dir)
+    zzz = await edit_or_reply(event, "**╮ ❐ جـاري رسـم الصـور بواسطـة الذكـاء الاصطنـاعـي ...𓅫╰**")
+    image_urls = await ai_img_gen(prompt)
 
+    if image_urls:
+        #  تحميل  الصور  في  قائمة 
+        input_media = []
+        for i in range(10): #  تحميل  حتى  10  صور 
+            try:
+                image_url = await ai_img_gen(prompt)
+                image_save_path = os.path.join(
+                    wzed_dir,
+                    f"{prompt}_{i}.jpg"
+                )
+                with open(image_save_path, "wb") as f:
+                    f.write(image_url)
+                input_media.append(image_save_path)
+            except Exception as e:
+                print(f"حدث خطأ أثناء تحميل الصورة: {e}")
+
+        #  إرسال  جميع  الصور  في  رسالة  واحدة 
+        if input_media:
+            await l313l.send_file(event.chat_id, input_media, caption=f"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗣𝗵𝗼𝘁𝗼.𝗔𝗶 -💡-](t.me/ZThon) **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• تم رسم ³ صور 📇**\n**• بواسطة الذكاء الاصطناعي💡**\n• `{prompt}`")
+            await zzz.delete()
+        else:
+            await zzz.edit(f"**- اووبـس .. لم استطـع ايجـاد صـور عـن {prompt} ؟!**\n**- حـاول مجـدداً واكتـب الكلمـه بشكـل صحيح**")
+            return
+        #  حذف  الملفات  المؤقتة 
+        for each_file in input_media:
+            os.remove(each_file)
+        shutil.rmtree(wzed_dir, ignore_errors=True)
+    else:
+        await event.reply(f"لم يتم العثور على صور لـ '{prompt}")
+        
 
 #ها هم تريد تخمط بمحرم ؟ روح شوفلك موكب واضرب زنجيل احسن من ماتخمط
 Ya_Hussein = False

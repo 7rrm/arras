@@ -677,20 +677,51 @@ async def Hussein(event):
     await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
 
 # الكود من كتابة فريق الجوكر بس تسرقة تنشر بقناة الفضايح انتَ وقناتك 🖤
-@l313l.ar_cmd(pattern=r"ذكاء(.*)")
-async def hussein(event):
-    await event.edit("**᯽︙ جارِ الجواب على سؤالك انتظر قليلاً ...**")
-    text = event.pattern_match.group(1).strip()
-    if text:
-        url = f'http://api.itdevo.uz/ChatGPT/api/index.php?text={text}'
-        response = requests.get(url).text
-        await event.edit(response)
-    else:
-        await event.edit("يُرجى كتابة رسالة مع الأمر للحصول على إجابة.")
-is_Reham = False
-No_group_Joker = "@Lx5x5"
-# يا يلفاشل هم الك نيه تاخذه وتنشره بسورسك 🤣
-active_aljoker = []
+async def process_gpt(question):
+    global lastResponse
+    if lastResponse is None:
+        lastResponse = []
+    url = "https://chat-gpt.hazex.workers.dev/"
+    data = {
+        "gpt": lastResponse,
+        "user": str(question)
+    }
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, json=data) as response:
+            if response.status == 200:
+                try:
+                    get = await response.json()
+                    print(get)
+                    ans = get['answer']
+                    return ans
+                except Exception as e:
+                    return False
+            else:
+                return False
+
+@l313l.ar_cmd(pattern="زد(?: |$)(.*)")
+async def zelzal_gpt(event):
+    global lastResponse
+    if lastResponse is None:
+        lastResponse = []
+    question = event.pattern_match.group(1)
+    zzz = await event.get_reply_message()
+    if not question and not event.reply_to_msg_id:
+        return await edit_or_reply(event, "**⎉╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.زد من هو مكتشف الجاذبية الارضية`")
+    if not question and event.reply_to_msg_id and zzz.text: 
+        question = zzz.text
+    if not event.reply_to_msg_id: 
+        question = event.pattern_match.group(1)
+    if question == "مسح" or question == "حذف":
+        lastResponse.pop(0)
+        return await edit_or_reply(event, "**⎉╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.زد + سؤالك) لـ البـدء من جديد**")
+    zed = await edit_or_reply(event, "**⎉╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
+    answer = await process_gpt(question)
+    if answer:
+        await zed.edit(f"ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗭𝗧𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
+        lastResponse.append(str(answer))
+        if len(lastResponse) > 8:
+            lastResponse.pop(0)
 
 @l313l.ar_cmd(pattern=r"الذكاء تفعيل")
 async def enable_bot(event):

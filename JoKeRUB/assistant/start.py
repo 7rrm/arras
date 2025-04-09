@@ -205,6 +205,9 @@ async def bot_start(event):
                 Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
             ],
             [
+                Button.inline("رسم الصور 🎨", data="draw_images")  # <-- الزر الجديد
+            ],
+            [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
@@ -276,6 +279,55 @@ async def termux_hack_handler(event):
                 [Button.inline("رجوع", data="styleback")]
             ]
         )
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"draw_images$")))
+async def draw_images_handler(event):
+    user_id = event.query.user_id
+    if user_id == Config.OWNER_ID:
+        await event.edit(
+            "**- مرحـبا بك عزيزي المـطور **\n"
+            "**- في قسم انشاء صـور بالذكاء الأصطناعي **\n\n"
+            "**- لأستخدام الأمر ارسل:**\n"
+            "`.ارسم` + نص\n\n"
+            "**مثال:**\n"
+            "`.ارسم منظر غروب الشمس`",
+            buttons=[
+                [Button.inline("تجربة مثال", data="try_example")],
+                [Button.inline("رجوع", data="styleback")]
+            ],
+            link_preview=False
+        )
+    else:
+        await event.edit(
+            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
+            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
+            "• لـ تنصيب بـوت مماثـل\n"
+            "• تواصـل مع المـطور آراس\n"
+            "• @Lx5x5",
+            buttons=[
+                [Button.inline("رجوع", data="styleback")]
+            ],
+            link_preview=False
+        )
+
+# ثالثا: دالة معالجة مثال تجريبي
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"try_example$")))
+async def try_example_handler(event):
+    if event.query.user_id == Config.OWNER_ID:
+        await event.edit(
+            "**- جاري إنشاء صورة تجريبية...**",
+            buttons=[[Button.inline("إلغاء", data="draw_images")]]
+        )
+        # استدعاء دالة الرسم مع مثال مسبق
+        await event.respond(".ارسم منظر غروب الشمس على البحر")
+    else:
+        await event.answer("غير مسموح لك بتنفيذ هذا الأمر!", alert=True)
+
+# رابعا: دالة الرسم الأصلية (كما هي)
+@l313l.ar_cmd(pattern="ارسم ?(.*)")
+async def search_photo(event):
+    prompt = event.pattern_match.group(1)
+    if not prompt:
+        return await edit_or_reply(event, "**-ارسـل** `.ارسم` **+ نـص لـ البـدء**")
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics

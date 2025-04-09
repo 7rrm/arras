@@ -723,40 +723,7 @@ async def zelzal_gpt(event):
         if len(lastResponse) > 8:
             lastResponse.pop(0)
 
-@l313l.ar_cmd(pattern=r"الذكاء تفعيل")
-async def enable_bot(event):
-    global is_Reham
-    if not is_Reham:
-        is_Reham = True
-        active_aljoker.append(event.chat_id)
-        await event.edit("**᯽︙ تم تفعيل امر الذكاء الاصطناعي سيتم الرد على اسئلة الجميع عند الرد علي.**")
-    else:
-        await event.edit("**᯽︙ الزر مُفعّل بالفعل.**")
-@l313l.ar_cmd(pattern=r"الذكاء تعطيل")
-async def disable_bot(event):
-    global is_Reham
-    if is_Reham:
-        is_Reham = False
-        active_aljoker.remove(event.chat_id)
-        await event.edit("**᯽︙ تم تعطيل امر الذكاء الاصطناعي.**")
-    else:
-        await event.edit("**᯽︙ الزر مُعطّل بالفعل.**")
-@l313l.on(events.NewMessage(incoming=True))
-async def reply_to_hussein(event):
-    if not is_Reham:
-        return
-    if event.is_private or event.chat_id not in active_aljoker:
-        return
-    message = event.message
-    if message.reply_to_msg_id:
-        reply_message = await event.get_reply_message()
-        if reply_message.sender_id == event.client.uid:
-            text = message.text.strip()
-            if event.chat.username == No_group_Joker:
-                return
-            response = requests.get(f'https://gptzaid.zaidbot.repl.co/1/text={text}').text
-            await asyncio.sleep(4)
-            await event.reply(response)
+
 #ها هم تريد تخمط بمحرم ؟ روح شوفلك موكب واضرب زنجيل احسن من ماتخمط
 Ya_Hussein = False
 active_joker = []
@@ -786,6 +753,7 @@ async def disable_emoji_blocker(event):
     Ya_Hussein = False
     active_joker.remove(event.chat_id)
     await event.edit("**᯽︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
+
 remove_admins_aljoker = {}
 #الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
 @l313l.on(events.ChatAction)

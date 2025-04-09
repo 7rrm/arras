@@ -1,5 +1,6 @@
 import re
 import random
+import requests
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional, Union
@@ -37,6 +38,8 @@ dd = []
 kk = []
 tt = []
 
+pinterest_search_active = {} # تخزين حالة. البحث P
+
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -70,7 +73,75 @@ async def check_bot_started_users(user, event):
         LOGS.error(str(e))
     if BOTLOG:
         await event.client.send_message(BOTLOG_CHATID, notification)
+
+# دالة للبحث في Pinterest
+async def search_pinterest(query, limit=10):
+    try:
+        url = f"https://www.pinterest.com/resource/BaseSearchResource/get/"
+        params = {
+            "source_url": f"/search/pins/?q={query}",
+            "data": '{"options":{"query":"' + query + '","scope":"pins"},"context":{}}'
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        }
         
+        response = requests.get(url, params=params, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        
+        pins = data.get("resource_response", {}).get("data", {}).get("results", [])
+        image_urls = []
+        
+        for pin in pins[:limit]:
+            if "images" in pin:
+                image_url = pin["images"]["orig"]["url"]
+                image_urls.append(image_url)
+        
+        return image_urls
+    except Exception as e:
+        LOGS.error(f"Error searching Pinterest: {str(e)}")
+        return []
+
+# دالة معالجة الرسائل بعد تفعيل البحث
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
+async def handle_pinterest_search(event):
+    user_id = event.sender_id
+    if user_id in pinterest_search_active and pinterest_search_active[user_id]:
+        if event.text == "/cancle":
+            del pinterest_search_active[user_id]
+            await event.reply("**تم إلغاء البحث عن الصور.**")
+            raise StopPropagation
+        
+        search_query = event.text
+        await event.reply(f"**جارٍ البحث عن: {search_query} في Pinterest...**")
+        
+        try:
+            image_urls = await search_pinterest(search_query)
+            
+            if not image_urls:
+                await event.reply("**لم يتم العثور على صور لهذا البحث.**")
+                return
+            
+            # إرسال أول 5 صور فقط لتجنب التحميل الزائد
+            for url in image_urls[:5]:
+                try:
+                    await event.client.send_file(
+                        event.chat_id,
+                        file=url,
+                        caption=f"**نتيجة البحث عن: {search_query}**",
+                        reply_to=event.id
+                    )
+                except Exception as e:
+                    LOGS.error(f"Error sending image: {str(e)}")
+                    await event.reply(f"**حدث خطأ أثناء إرسال الصورة: {str(e)}**")
+            
+            await event.reply("**تم الانتهاء من إرسال نتائج البحث.**")
+        except Exception as e:
+            await event.reply(f"**حدث خطأ أثناء البحث: {str(e)}**")
+        
+        del pinterest_search_active[user_id]
+        raise StopPropagation
 
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
@@ -205,6 +276,9 @@ async def bot_start(event):
                 Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
             ],
             [
+                Button.inline("بحث صور 🖼️", data="pinterest_search")
+            ],
+            [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
@@ -276,6 +350,19 @@ async def termux_hack_handler(event):
                 [Button.inline("رجوع", data="styleback")]
             ]
         )
+        
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"pinterest_search")))
+async def pinterest_search_handler(event):
+    user_id = event.query.user_id
+    await event.answer("جارِ فتح خدمة البحث عن الصور...", alert=False)
+    await event.edit(
+        "**- مرحبـا بك عـزيـزي 🧚‍♀**\n"
+        "**- في قسـم بحث الصـور 🎆**\n"
+        "**- بحث صور عالية الدقـه من موقع 🅿️**\n"
+        "**- ارسـل الان الكلمـة الذي تريـد البحث عنها ✓**\n\n"
+        "**- لـ الالغـاء ارسـل /cancle**"
+    )
+    pinterest_search_active[user_id] = True
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics

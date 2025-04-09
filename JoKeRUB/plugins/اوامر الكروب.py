@@ -39,6 +39,7 @@ from telethon.tl.types import (
     MessageEntityCustomEmoji,
 )
 from JoKeRUB import l313l
+from ..utils import Zed_Vip
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from datetime import datetime
 from telethon.tl.functions.channels import GetParticipantRequest
@@ -51,6 +52,7 @@ from ..helpers import readable_time
 from . import BOTLOG, BOTLOG_CHATID
 LOGS = logging.getLogger(__name__)
 plugin_category = "admin"
+Zel_Uid = l313l.uid
 spam_chats = []
 aljoker_time = None
 BANNED_RIGHTS = ChatBannedRights(
@@ -702,6 +704,15 @@ async def process_gpt(question):
             else:
                 return False
 
+async def dark_response(query):
+    url = f'https://dark-gpt-v1.vercel.app/ai?query={query}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        return data.get('response')
+    else:
+        return "Error fetching response."
+
 @l313l.ar_cmd(pattern="زد(?: |$)(.*)")
 async def zelzal_gpt(event):
     global lastResponse
@@ -721,10 +732,44 @@ async def zelzal_gpt(event):
     zed = await edit_or_reply(event, "**⎉╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
     answer = await process_gpt(question)
     if answer:
-        await zed.edit(f"ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗭𝗧𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
+        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗮𝗥𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
         lastResponse.append(str(answer))
         if len(lastResponse) > 8:
             lastResponse.pop(0)
+            
+@l313l.ar_cmd(pattern="دارك(?: |$)(.*)")
+async def dark_ai(event):
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5**")
+    query = event.pattern_match.group(1)
+    zzz = await event.get_reply_message()
+    if not query and not event.reply_to_msg_id:
+        return await edit_or_reply(event, "**⎉╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.دارك من هو مكتشف الجاذبية الارضية`")
+    if not query and event.reply_to_msg_id and zzz.text: 
+        query = zzz.text
+    if not event.reply_to_msg_id: 
+        query = event.pattern_match.group(1)
+    zed = await edit_or_reply(event, "**⎉╎جـارِ الاتصـال بـ الذكـاء الاصطناعي (Dark)\n⎉╎الرجـاء الانتظـار .. لحظـات**")
+    try:
+        querys = query.strip()
+        translator = Translator()
+        lan = "en" 
+        translated = translator.translate(querys, dest=lan)
+        querry = translated.text
+    except Exception:
+        querry = query
+    answer = await dark_response(querry)
+    try:
+        answers = answer.strip()
+        translator = Translator()
+        lan = "ar" 
+        translated = translator.translate(answers, dest=lan)
+        after_tr_text = translated.text
+        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗮𝗿𝗸𝗔𝗶 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {query}**\n\n• {after_tr_text}", link_preview=False)
+        #await zed.delete()
+    except Exception as exc:
+        #await zed.edit(f"**- خطـأ :**\n`{exc}`", time=5)
+        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗮𝗿𝗸𝗔𝗶 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {query}**\n\n• {answer}", link_preview=False)
 
 
 #ها هم تريد تخمط بمحرم ؟ روح شوفلك موكب واضرب زنجيل احسن من ماتخمط

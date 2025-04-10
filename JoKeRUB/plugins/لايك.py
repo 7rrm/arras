@@ -149,8 +149,6 @@ async def fetch_info(event):
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
-    # Copyright (C) 2021 Zed-Thon . All Rights Reserved
-    # الـرتب الوهميـه & فارات الكليشـه & البريميـوم & عـدد الرسـائل & التفاعـل = كتـابـة الكـود - زلــزال الـهيبــه @zzzzl1l / خاصـه بسـورس - زدثــون @ZThon فقـط
     zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l
     zzz = zmsg.total
     if zzz < 100: #Code by T.me/zzzzl1l
@@ -179,9 +177,9 @@ async def fetch_info(event):
     else:
         rotbat = "العضـو 𓅫"
 ################# Dev ZilZal #################
-    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  #Code by T.me/zzzzl1l
+    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن سـورس آراس"  #Code by T.me/zzzzl1l
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " #Code by T.me/zzzzl1l
-    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" #Code by T.me/zzzzl1l
+    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─" #Code by T.me/zzzzl1l
     if gvarstatus("ZID_TEMPLATE") is None:
         caption = f"<b> {ZED_TEXT} </b>\n"
         caption += f"ٴ<b>{ZEDF}</b>\n"

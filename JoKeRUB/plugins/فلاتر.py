@@ -56,7 +56,7 @@ font_list = [
 ]
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="فرام(ف|م)?$",
     command=("فرام", plugin_category),
     info={
@@ -135,7 +135,7 @@ async def maccmd(event):  # sourcery no-metrics
     await catevent.delete()
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="(حقوق|اطبع)(?:\s|$)([\s\S]*)",
     command=("حقوق", plugin_category),
     info={
@@ -222,7 +222,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الخطوط(?:\s|$)([\s\S]*)",
     command=("الخطوط", plugin_category),
     info={
@@ -240,7 +240,7 @@ async def lang(event):
         return
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="خطوط(?:\s|$)([\s\S]*)",
     command=("خطوط", plugin_category),
     info={
@@ -256,7 +256,7 @@ async def lang(event):
         await event.edit(f"**⎉╎قم بكتابة الامـر كالتالـي :**\n`.خطوط` **+ رقـم الخـط**\n**⎉╎لعـرض قائمـة الخطـوط ارسـل** `.الخطوط`")
         return
     if input_str == "عربي":
-        arr = f"zlzl/helpers/styles/zarz.ttf"
+        arr = f"JoKeRUB/helpers/styles/zarz.ttf"
         addgvar("ZED_FONTS", arr)
         await edit_or_reply(event, "**⎉╎تم تغييـر خـط كتابـة الحقـوق الـى العربيـة**")
     if input_str not in font_list:
@@ -264,12 +264,12 @@ async def lang(event):
         await asyncio.sleep(1)
         await catevent.edit(f"**⎉╎قائمـة خطـوط زدثــون هـي :-**\n\n{FONTS}")
     else:
-        arg = f"zlzl/helpers/styles/{input_str}"
+        arg = f"JoKeRUB/helpers/styles/{input_str}"
         addgvar("ZED_FONTS", arg)
         await edit_or_reply(event, f"**⎉╎تم تغييـر خـط كتابـة الحقـوق الـى :-** `{input_str}`")
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="رقميه(?:\s|$)([\s\S]*)",
     command=("رقميه", plugin_category),
     info={
@@ -324,7 +324,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="عكس الالوان$",
     command=("عكس الالوان", plugin_category),
     info={
@@ -369,7 +369,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="سولار$",
     command=("سولار", plugin_category),
     info={
@@ -414,7 +414,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="ميرور$",
     command=("ميرور", plugin_category),
     info={
@@ -459,7 +459,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="قلب الصوره$",
     command=("قلب الصوره", plugin_category),
     info={
@@ -504,7 +504,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="فلتر رصاصي$",
     command=("فلتر رصاصي", plugin_category),
     info={
@@ -549,7 +549,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="زوم ?([\s\S]*)",
     command=("زوم", plugin_category),
     info={
@@ -602,7 +602,7 @@ async def memes(event):
             os.remove(files)
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="اطار ?([\s\S]*)",
     command=("اطار", plugin_category),
     info={

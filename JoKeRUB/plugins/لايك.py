@@ -20,7 +20,7 @@ from ..Config import Config
 from ..helpers import _format, mention
 from ..core.managers import edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from . import StartTime, l313l, zedversion, BOTLOG_CHATID
+from . import StartTime, l313l, BOTLOG_CHATID
 from ..utils import Zed_Vip, Zed_Dev
 
 plugin_category = "tools"
@@ -78,7 +78,7 @@ async def fetch_info(event):
     is_bot = replied_user.bot
     restricted = replied_user.restricted
     verified = replied_user.verified
-    zilzal = (await event.client.get_entity(user_id)).premium
+    zilzal = (await l313l.get_entity(user_id)).premium
     
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
@@ -87,7 +87,7 @@ async def fetch_info(event):
     
     photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, f"user_{user_id}.jpg")
     try:
-        photo = await event.client.download_profile_photo(
+        photo = await l313l.download_profile_photo(
             user_id,
             photo_path,
             download_big=True,
@@ -101,7 +101,7 @@ async def fetch_info(event):
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else "غيـر معلـوم"
     
-    zmsg = await event.client.get_messages(event.chat_id, 0, from_user=user_id)
+    zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id)
     zzz = zmsg.total
     
     if zzz < 100:
@@ -147,7 +147,7 @@ async def fetch_info(event):
         caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
         caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
         caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n"
-        if user_id != (await event.client.get_me()).id:
+        if user_id != (await l313l.get_me()).id:
             caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
         caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n"
         caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
@@ -170,7 +170,7 @@ async def fetch_info(event):
     
     return photo_path, caption
 
-@zedub.zed_cmd(pattern="لايك(?: |$)(.*)")
+@l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
@@ -216,11 +216,11 @@ async def who(event):
     
     await zed.delete()
 
-@zedub.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
 async def _(event):
     user_id = event.sender_id
     try:
-        user = await event.client.get_entity(user_id)
+        user = await l313l.get_entity(user_id)
         user_name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
         user_username = f"@{user.username}" if user.username else "لا يوجد"
     except Exception:
@@ -229,7 +229,7 @@ async def _(event):
     
     Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
     
-    if add_like(str(zedub.uid), str(user.id), user_name, user_username):
+    if add_like(str(l313l.uid), str(user.id), user_name, user_username):
         Like_id += 1
         addgvar("Like_Id", Like_id)
         
@@ -251,12 +251,12 @@ async def _(event):
     else:
         await event.answer("لقد قمت بالإعجاب من قبل! ❤️", alert=True)
 
-@zedub.zed_cmd(pattern="المعجبين$")
+@l313l.ar_cmd(pattern="المعجبين$")
 async def on_like_list(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     
-    likers = get_likes(zedub.uid)
+    likers = get_likes(l313l.uid)
     if not likers:
         return await edit_or_reply(event, "**- لا يوجد معجبين حتى الآن!**")
     
@@ -267,15 +267,15 @@ async def on_like_list(event):
     output += f"\n**𓆩 الإجمالي: {len(likers)} معجب𓆪**"
     await edit_or_reply(event, output)
 
-@zedub.zed_cmd(pattern="مسح المعجبين$")
+@l313l.ar_cmd(pattern="مسح المعجبين$")
 async def on_all_liked_delete(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     
-    likers = get_likes(zedub.uid)
+    likers = get_likes(l313l.uid)
     if not likers:
         return await edit_or_reply(event, "**- لا يوجد معجبين ليتم مسحهم!**")
     
-    remove_all_likes(zedub.uid)
+    remove_all_likes(l313l.uid)
     delgvar("Like_Id")
     await edit_or_reply(event, "**✓ تم مسح جميع المعجبين بنجاح**")

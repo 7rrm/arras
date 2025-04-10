@@ -248,7 +248,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 zedda = f"{zzd}┊{zzt}"
             else:
                 zedda = f"{bt.year}/{bt.month}/{bt.day}"
-            zme = await zedub.get_me()
+            zme = await l313l.get_me()
             z_name = f"{zme.first_name}{zme.last_name}" if zme.last_name else zme.first_name
             z_username = zme.username if zme.username else "ZThon"
             USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
@@ -405,7 +405,7 @@ async def on_like_list(event):
     likers = get_likes(l313l.uid)
     if likers:
         for mogab in likers:
-            OUT_STR = f"𓆩 𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - **قائمـة المعجبيــن** ❤️𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المعجبيـن {count}**\n"
+            OUT_STR = f"𓆩 𝗮𝗥𝗥𝗮𝗦 𝗟𝗶𝗸𝗲 - **قائمـة المعجبيــن** ❤️𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المعجبيـن {count}**\n"
             OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• الايـدي:** `{}`\n**• اليـوزر:** {}".format(mogab.f_name, mogab.lik_id, mogab.lik_id, mogab.f_user)
             count += 1
         await edit_or_reply(
@@ -470,11 +470,7 @@ async def _(event):
             f"**- قام بعمـل لايـك لـ الايـدي الخـاص بـك ♥️**\n"
             f"**- اصبح عـدد معجبينك هـو :** {Like_id} 🤳\n"
             f"**- لـ عـرض قائمـة المعجبيـن ارسـل:** ( `.المعجبين` ) 🎴\n"
-            f"**- لـ مسح قائمـة المعجبيـن ارسـل:** ( `.مسح المعجبين` ) 🗑\n\n"
-            f"**- ملاحظـه 💡:**\n"
-            f"**• هـذه الميـزة إضافة جديدة وحصرية 🧾**\n"
-            f"**• غير موجودة فقـط لدى سورس زدثــون¹**\n"
-            f"**• لـ تصفـح الاوامـر المدفوعـة ارسـل** ( `.المميز` )",
+            f"**- لـ مسح قائمـة المعجبيـن ارسـل:** ( `.مسح المعجبين` ) 🗑",
         )
     except Exception as e:
         await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")

@@ -88,6 +88,57 @@ async def delete_it(event):
     elif not input_str:
         await event.delete()
 
+@l313l.ar_cmd(
+    pattern="رسائلي$",
+    command=("رسائلي", plugin_category),
+    info={
+        "header": "لعرض عدد رسائلك في الدردشة",
+        "description": "يظهر عدد الرسائل التي أرسلتها في الدردشة الحالية (خاص أو مجموعة)",
+        "usage": "{tr}رسائلي",
+    },
+)
+async def my_messages_count(event):
+    "لعرض عدد رسائلك في الدردشة"
+    count = 0
+    async for message in event.client.iter_messages(event.chat_id, from_user='me'):
+        count += 1
+    
+    await edit_or_reply(event, f"↜︙ عدد رسائلك في هذه الدردشة: {count} رسالة")
+
+
+@l313l.ar_cmd(
+    pattern="رسائله(?: |$)(.*)",
+    command=("رسائله", plugin_category),
+    info={
+        "header": "لعرض عدد رسائل المستخدم",
+        "description": "يظهر عدد رسائل المستخدم الذي تم الرد عليه أو تحديده باليوزر",
+        "usage": [
+            "{tr}رسائله بالرد على المستخدم",
+            "{tr}رسائله + يوزر المستخدم",
+        ],
+    },
+)
+async def user_messages_count(event):
+    "لعرض عدد رسائل المستخدم"
+    reply = await event.get_reply_message()
+    input_str = event.pattern_match.group(1)
+    
+    if reply:
+        user = await event.client.get_entity(reply.sender_id)
+    elif input_str:
+        try:
+            user = await event.client.get_entity(input_str)
+        except ValueError:
+            return await edit_or_reply(event, "↜︙ لم يتم العثور على المستخدم!")
+    else:
+        return await edit_or_reply(event, "↜︙ يجب الرد على المستخدم أو كتابة يوزره مع الأمر!")
+    
+    count = 0
+    async for message in event.client.iter_messages(event.chat_id, from_user=user.id):
+        count += 1
+    
+    await edit_or_reply(event, f"↜︙ عدد رسائل [{user.first_name}](tg://user?id={user.id}) في هذه الدردشة: {count} رسالة")
+
 
 @l313l.ar_cmd(
     pattern="مسح رسائلي$",

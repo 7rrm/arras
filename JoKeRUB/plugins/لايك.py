@@ -208,22 +208,6 @@ async def fetch_info(event):
         )
     return photo_path, caption
 
-
-zed_temp = """
-┏───────────────┓
-│ ◉ sᴏʀᴄᴇ ᴢᴛʜᴏɴ ɪs ʀᴜɴɴɪɴɢ ɴᴏᴡ
-┣───────────────┫
-│ ● ɴᴀᴍᴇ ➪  {mention}
-│ ● ᴢᴛʜᴏɴ ➪ {telever}
-│ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
-│ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
-│ ● ᴘɪɴɢ ➪ {ping}
-│ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
-│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {zedda}
-│ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/ZThon)
-┗───────────────┛"""
-
-
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
@@ -234,48 +218,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await l313l.get_me()
         
-        if query.startswith("الفحص") and event.query.user_id == l313l.uid:
-            uptime = await get_readable_time((time.time() - StartTime))
-            boot_time_timestamp = psutil.boot_time()
-            bt = datetime.fromtimestamp(boot_time_timestamp)
-            start = datetime.now()
-            end = datetime.now()
-            ms = (end - start).microseconds / 1000
-            _, check_sgnirts = check_data_base_heal_th()
-            if gvarstatus("z_date") is not None:
-                zzd = gvarstatus("z_date")
-                zzt = gvarstatus("z_time")
-                zedda = f"{zzd}┊{zzt}"
-            else:
-                zedda = f"{bt.year}/{bt.month}/{bt.day}"
-            zme = await l313l.get_me()
-            z_name = f"{zme.first_name}{zme.last_name}" if zme.last_name else zme.first_name
-            z_username = zme.username if zme.username else "ZThon"
-            USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
-            ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else "-"
-            mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
-            zed_caption = gvarstatus("ALIVE_TEMPLATE") or zed_temp
-            caption = zed_caption.format(
-                mention=mention,
-                uptime=uptime,
-                zedda=zzd,
-                zzd=zzd,
-                zzt=zzt,
-                telever=version.__version__,
-                zdver=zedversion,
-                pyver=python_version(),
-                dbhealth=check_sgnirts,
-                ping=ms,
-            )
-            buttons = [[Button.url(z_name, f"https://t.me/{z_username}")]]
-            result = builder.article(
-                title="l313l",
-                text=caption,
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
-        elif query.startswith("idid") and event.query.user_id == l313l.uid:
+        if query.startswith("idid") and event.query.user_id == l313l.uid:
             #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
                 #return
             if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
@@ -387,14 +330,6 @@ async def who(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
     await response[0].click(event.chat_id)
     await zed.delete()
-
-@l313l.ar_cmd(pattern="الفحص")
-async def help(event):
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "الفحص")
-    await response[0].click(event.chat_id)
-    await event.delete()
 
 # اوامـر لايك ايدي تبدأ من هنا
 @l313l.ar_cmd(pattern="المعجبين$")

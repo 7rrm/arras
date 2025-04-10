@@ -57,7 +57,7 @@ async def get_user_from_event(event):
         if user.isnumeric():
             user = int(user)
         if not user:
-            self_user = await zedub.get_me()
+            self_user = await l313l.get_me()
             user = self_user.id
         if event.message.entities:
             probable_user_mention_entity = event.message.entities[0]
@@ -69,7 +69,7 @@ async def get_user_from_event(event):
             user_obj = await event.client.get_entity(user)
             return user_obj
         try:
-            user_object = await zedub.get_entity(user)
+            user_object = await l313l.get_entity(user)
         except (TypeError, ValueError) as err:
             await event.edit(str(err))
             return None

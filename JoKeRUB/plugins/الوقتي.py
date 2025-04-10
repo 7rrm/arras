@@ -1,3 +1,8 @@
+# اذا تخمط اذكر الحقوق رجـاءا  - 
+# كتابة وتعديل وترتيب  ~ @lMl10l
+# For ~ @Jepthon
+#تعديل Reda / رضا
+#من تعرف تخمط اذكر حقوق لتسوي نفسك مطور
 from ..sql_helper.group import auto_g, del_auto_g, get_auto_g
 import webcolors
 import asyncio
@@ -90,8 +95,10 @@ async def digitalpicloop():
             return
         DIGITALPICSTART = gvarstatus("digitalpic") == "true"
 
+#Reda
+#اننننسخخخخخ هههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههههه
 async def digitalgrouppicloop():
-    "2KjZiNin2LPYt9ipINiz2YjYsdizINis2YrYqNir2YjZhi Ao2KfYsNinINin2LPYqtio2K/ZhNiq2Ycg2LHYp9itINiq2KvYqNiqINmB2LTZhNmDKSDZhdi5INiq2K3Zitin2KrZiiDYp9iu2YjZg9mFINix2LbYpyBAcmQwcjA="
+    "2KjZiNin2LPYt9ipINiz2YjYsdizINis2YrYqNir2YjZhiAo2KfYsNinINin2LPYqtio2K/ZhNiq2Ycg2LHYp9itINiq2KvYqNiqINmB2LTZhNmDKSDZhdi5INiq2K3Zitin2KrZiiDYp9iu2YjZg9mFINix2LbYpyBAcmQwcjA="
 
     dgp = gvarstatus("digitalgrouppic")
     colorco = gvarstatus("digitalgrouppiccolor") or Config.DIGITAL_PIC_COLOR
@@ -208,29 +215,7 @@ async def autobio_loop():
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
 
-async def autolastname_loop():
-    AUTOLASTNAMESTART = gvarstatus("autolastname") == "true"
-    while AUTOLASTNAMESTART:
-        time.strftime("%d-%m-%y")
-        HM = time.strftime("%I:%M")
-        for normal in HM:
-            if normal in normzltext:
-                namerzfont = gvarstatus("JP_FN") or "𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗𝟎"
-                namefont = namerzfont[normzltext.index(normal)]
-                HM = HM.replace(normal, namefont)
-                lMl10l = gvarstatus("TIME_JEP") or ""
-        lastname = f"{lMl10l} {HM}"
-        LOGS.info(lastname)
-        try:
-            await l313l(functions.account.UpdateProfileRequest(last_name=lastname))
-        except FloodWaitError as ex:
-            LOGS.warning(str(ex))
-            await asyncio.sleep(120)
-        await asyncio.sleep(Config.CHANGE_TIME)
-        AUTOLASTNAMESTART = gvarstatus("autolastname") == "true"
-
-
-@l313l.on(admin_cmd(pattern=f"{phow8t}$"))
+@l313l.on(admin_cmd(pattern=f"{phow8t}(?:\s|$)([\s\S]*)"))
 async def _(event):
     "To set random colour pic with time to profile pic"
     downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
@@ -243,7 +228,7 @@ async def _(event):
     await edit_delete(event, "**تم تفـعيل الصـورة الـوقتية بنجـاح ✓**")
     await digitalpicloop()
 
-@l313l.on(admin_cmd(pattern="كروب وقتي$"))
+@l313l.on(admin_cmd(pattern="كروب وقتي"))
 async def _(event):
     ison = get_auto_g()
     if event.is_group or event.is_channel:
@@ -256,7 +241,7 @@ async def _(event):
     else:
         return await edit_delete(event, "**يمكنك استعمال الاسم الوقتي في الكروب او في القناة فقط**")
 
-@l313l.on(admin_cmd(pattern="كروب صورة وقتي$"))
+@l313l.on(admin_cmd(pattern="كروب صورة وقتي"))
 async def _(event):
     ison = gvarstatus("digitalgrouppic")
     if event.is_group or event.is_channel:
@@ -269,7 +254,7 @@ async def _(event):
     else:
         return await edit_delete(event, "**يمكنك استعمال الصورة الوقتية في كروب او قناة**")
 
-@l313l.on(admin_cmd(pattern="اسم وقتي$"))
+@l313l.on(admin_cmd(pattern=f"{namew8t}(?:\s|$)([\s\S]*)"))
 async def _(event):
     "To set your display name along with time"
     if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
@@ -279,38 +264,14 @@ async def _(event):
     await autoname_loop()
 
 
-@l313l.on(admin_cmd(pattern="اسم وقتي 2$"))
+@l313l.on(admin_cmd(pattern=f"{biow8t}(?:\s|$)([\s\S]*)"))
 async def _(event):
-    "To set your last name along with time"
-    if gvarstatus("autolastname") is not None and gvarstatus("autolastname") == "true":
-        return await edit_delete(event, "**اسم العائلة الوقتي شغال بالأصل 🧸♥**")
-    addgvar("autolastname", True)
-    await edit_delete(event, "**تم تفعيل اسم العائلة الوقتي بنجاح ✓**")
-    await autolastname_loop()
-
-
-@l313l.on(admin_cmd(pattern="انهاء اسم وقتي$"))
-async def _(event):
-    "To stop the display name time function"
-    if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
-        delgvar("autoname")
-        await event.client(
-            functions.account.UpdateProfileRequest(first_name=DEFAULTUSER)
-        )
-        return await edit_delete(event, "**تم ايقاف الاسم الوقتي بنـجاح ✓ **")
-    return await edit_delete(event, "**لم يتم تفعيل الاسم الوقتي بالأصل 🧸♥**")
-
-
-@l313l.on(admin_cmd(pattern="انهاء اسم وقتي 2$"))
-async def _(event):
-    "To stop the last name time function"
-    if gvarstatus("autolastname") is not None and gvarstatus("autolastname") == "true":
-        delgvar("autolastname")
-        await event.client(
-            functions.account.UpdateProfileRequest(last_name="")
-        )
-        return await edit_delete(event, "**تم ايقاف اسم العائلة الوقتي بنجاح ✓**")
-    return await edit_delete(event, "**لم يتم تفعيل اسم العائلة الوقتي بالأصل 🧸♥**")
+    "To update your bio along with time"
+    if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
+        return await edit_delete(event, "**الـبايو الـوقتي شغـال بالأصـل 🧸♥**")
+    addgvar("autobio", True)
+    await edit_delete(event, "**تم تفـعيل البـايو الـوقتي بنجـاح ✓**")
+    await autobio_loop()
 
 
 @l313l.ar_cmd(
@@ -356,18 +317,12 @@ async def _(event):  # sourcery no-metrics
             del_auto_g()
             return await edit_delete(event, "** تـم ايقاف الاسم الوقتي للكروب/القناة ✓**")
         return await edit_delete(event, "** لم يتم تفعيل الاسم الوقتي للكروب/القناة بالأصل **")
-    if input_str == "اسم وقتي 2":
-        if gvarstatus("autolastname") is not None and gvarstatus("autolastname") == "true":
-            delgvar("autolastname")
-            return await edit_delete(event, "**تم ايقاف اسم العائلة الوقتي بنجاح ✓**")
-        return await edit_delete(event, "**لم يتم تفعيل اسم العائلة الوقتي بالأصل 🧸♥**")
     END_CMDS = [
         "الصورة الوقتية",
         "اسم وقتي",
         "بايو وقتي",
         "كروب وقتي",
         "كروب صورة وقتي",
-        "اسم وقتي 2",
     ]
     if input_str not in END_CMDS:
         await edit_delete(
@@ -381,5 +336,4 @@ l313l.loop.create_task(digitalpicloop())
 l313l.loop.create_task(digitalgrouppicloop())
 l313l.loop.create_task(autoname_loop())
 l313l.loop.create_task(autobio_loop())
-l313l.loop.create_task(autolastname_loop())
 l313l.loop.create_task(group_loop())

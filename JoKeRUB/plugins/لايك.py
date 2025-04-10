@@ -1,11 +1,6 @@
-import asyncio
-import contextlib
+
 import re
-import random
-import time
-import psutil
 import html
-import shutil
 import os
 import base64
 import requests
@@ -14,7 +9,7 @@ import psutil
 from datetime import datetime
 from platform import python_version
 
-from telethon import Button, events, version
+from telethon import Button, events
 from telethon.events import CallbackQuery
 from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName
@@ -23,7 +18,7 @@ from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 
-from . import StartTime, l313l, mention
+from . import l313l, mention
 from ..core import check_owner, pool
 from ..Config import Config
 from ..utils import Zed_Vip, Zed_Dev
@@ -32,7 +27,6 @@ from ..helpers.utils import _format
 from ..core.logger import logging
 from ..core.managers import edit_or_reply, edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
 from ..sql_helper.like_sql import (
     add_like,
     get_likes,

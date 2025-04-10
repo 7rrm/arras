@@ -32,7 +32,7 @@ from ..helpers.utils import _format
 from ..core.logger import logging
 from ..core.managers import edit_or_reply, edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
+from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
 from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from ..sql_helper.like_sql import (
     add_like,

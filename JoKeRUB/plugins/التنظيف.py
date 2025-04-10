@@ -120,9 +120,9 @@ async def my_messages_count(event):
             from_user='me',
             limit=None
         )
-        await edit_or_reply(event, f"᯽︙ عدد رسائلك في هذه الدردشة: **{count}** رسالة")
+        await edit_or_reply(event, f"↯︙ عـدد رسائـلك في هذه المـحادثة: `{count}` **رسالة**")
     except Exception as e:
-        await edit_or_reply(event, f"᯽︙ حدث خطأ أثناء العد: `{str(e)}`")
+        await edit_or_reply(event, f"↯︙ حدث خطأ أثناء العد: `{str(e)}`")
 
 
 @l313l.ar_cmd(
@@ -149,9 +149,9 @@ async def user_messages_count(event):
             user = await event.client.get_entity(input_str)
             user_id = user.id
         except ValueError:
-            return await edit_or_reply(event, "᯽︙ لم يتم العثور على المستخدم!")
+            return await edit_or_reply(event, "↯︙ لم يتم العثور على المستخدم!")
     else:
-        return await edit_or_reply(event, "᯽︙ يجب الرد على المستخدم أو كتابة يوزره مع الأمر!")
+        return await edit_or_reply(event, "↯︙ يجب الرد على المستخدم أو كتابة يوزره مع الأمر!")
     
     try:
         count = await get_messages_count(
@@ -161,7 +161,7 @@ async def user_messages_count(event):
             limit=None
         )
         user = await event.client.get_entity(user_id)
-        await edit_or_reply(event, f"᯽︙ عدد رسائل [{user.first_name}](tg://user?id={user.id}) في هذه الدردشة: **{count}** رسالة")
+        await edit_or_reply(event, f"↯︙ عـدد رسائـل [{user.first_name}](tg://user?id={user.id}) فـي هـذه المـحادثة: `{count}` **رسالة**")
     except Exception as e:
         await edit_or_reply(event, f"᯽︙ حدث خطأ أثناء العد: `{str(e)}`")
 

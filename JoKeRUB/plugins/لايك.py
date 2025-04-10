@@ -82,9 +82,21 @@ async def get_user_from_event(event):
     return user_object
 
 # Copyright (C) 2023 T.me/ZThon . All Rights Reserved
-async def fetch_zelzal(user_id):
-    """تاريخ الإنشاء الثابت 2022"""
-    return "2022"
+async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
+    headers = {
+        'Host': 'restore-access.indream.app',
+        'Connection': 'keep-alive',
+        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
+        'Accept': '*/*',
+        'Accept-Language': 'ar',
+        'Content-Length': '25',
+        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = '{"telegramId":' + str(user_id) + '}'
+    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
+    zelzal_date = response['data']['date']
+    return zelzal_date
 
 async def fetch_info(event):
     """Get details from the User object."""
@@ -100,7 +112,7 @@ async def fetch_info(event):
         replied_user_profile_photos_count = replied_user_profile_photos.count
         dc_id = replied_user.photo.dc_id
     user_id = replied_user.id
-    zelzal_sinc = "2022"
+    zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
     full_name = FullUser.private_forward_name
     common_chat = FullUser.common_chats_count
@@ -136,7 +148,7 @@ async def fetch_info(event):
     full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc
+    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     # Copyright (C) 2021 Zed-Thon . All Rights Reserved
     # الـرتب الوهميـه & فارات الكليشـه & البريميـوم & عـدد الرسـائل & التفاعـل = كتـابـة الكـود - زلــزال الـهيبــه @zzzzl1l / خاصـه بسـورس - زدثــون @ZThon فقـط
     zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l

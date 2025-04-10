@@ -179,7 +179,7 @@ async def fetch_info(event):
 ################# Dev ZilZal #################
     ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن سـورس آراس"  #Code by T.me/zzzzl1l
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " #Code by T.me/zzzzl1l
-    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "ٴ⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─" #Code by T.me/zzzzl1l
+    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆" #Code by T.me/zzzzl1l
     if gvarstatus("ZID_TEMPLATE") is None:
         caption = f"<b> {ZED_TEXT} </b>\n"
         caption += f"ٴ<b>{ZEDF}</b>\n"

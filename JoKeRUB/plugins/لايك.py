@@ -47,7 +47,7 @@ ZED_BLACKLIST = [
     -1001935599871,
 ]
 
-"""
+
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
         previous_message = await event.get_reply_message()
@@ -74,7 +74,7 @@ async def get_user_from_event(event):
             await event.edit(str(err))
             return None
     return user_object
-"""
+
 
 
 async def fetch_zelzal(user_id):
@@ -95,7 +95,7 @@ async def fetch_info(event):
         replied_user_profile_photos_count = replied_user_profile_photos.count
         dc_id = replied_user.photo.dc_id
     user_id = replied_user.id
-    zelzal_sinc = await fetch_zelzal(user_id)
+    zelzal_sinc = "2022"
     first_name = replied_user.first_name
     full_name = FullUser.private_forward_name
     common_chat = FullUser.common_chats_count
@@ -131,7 +131,7 @@ async def fetch_info(event):
     full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc if zelzal_sinc else ("2022")  # تاريخ الإنشاء ثابت الآن
+    zzzsinc = zelzal_sinc
     # Copyright (C) 2021 Zed-Thon . All Rights Reserved
     # الـرتب الوهميـه & فارات الكليشـه & البريميـوم & عـدد الرسـائل & التفاعـل = كتـابـة الكـود - زلــزال الـهيبــه @zzzzl1l / خاصـه بسـورس - زدثــون @ZThon فقـط
     zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l

@@ -154,7 +154,7 @@ async def fetch_info(event):
     ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  #Code by T.me/zzzzl1l
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " #Code by T.me/zzzzl1l
     ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" #Code by T.me/zzzzl1l
-    if gvarstatus("ZID_TEMPLATE") is None:
+   if gvarstatus("ZID_TEMPLATE") is None:
         caption = f"<b> {ZED_TEXT} </b>\n"
         caption += f"ٴ<b>{ZEDF}</b>\n"
         caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
@@ -174,7 +174,7 @@ async def fetch_info(event):
         caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" #Code by T.me/zzzzl1l
         caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
         caption += f"ٴ<b>{ZEDF}</b>"
-     else:
+   else:
         zzz_caption = gvarstatus("ZID_TEMPLATE")
         caption = zzz_caption.format(
             znam=full_name,
@@ -200,7 +200,7 @@ async def fetch_info(event):
       query = event.text
       await l313l.get_me()
 
-if query.startswith("idid") and event.query.user_id == zedub.uid:
+if query.startswith("idid") and event.query.user_id == l313l.uid:
             #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
                 #return
             if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):

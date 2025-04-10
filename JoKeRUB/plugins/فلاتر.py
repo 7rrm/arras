@@ -186,7 +186,7 @@ async def memes(event):
     meme_file = output[1]
     meme = os.path.join("./temp", "catmeme.jpg")
     if gvarstatus("ZED_FONTS") is None:
-        ZED_FONTS = "zlzl/helpers/styles/Terserah.ttf"
+        ZED_FONTS = "JoKeRUB/helpers/styles/Terserah.ttf"
     else:
         ZED_FONTS = gvarstatus("ZED_FONTS")
     if max(len(top), len(bottom)) < 21:

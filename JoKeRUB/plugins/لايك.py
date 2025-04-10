@@ -1,11 +1,5 @@
-
-import contextlib
 import re
-import random
-import time
-import psutil
 import html
-import shutil
 import os
 import base64
 import requests
@@ -23,7 +17,7 @@ from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 
-from . import StartTime, l313l, mention
+from . import l313l, mention
 from ..core import check_owner, pool
 from ..Config import Config
 from ..utils import Zed_Vip, Zed_Dev
@@ -32,23 +26,21 @@ from ..helpers.utils import _format
 from ..core.logger import logging
 from ..core.managers import edit_or_reply, edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
-from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from ..sql_helper.like_sql import (
     add_like,
     get_likes,
     remove_all_likes,
     remove_like,
 )
-from . import BOTLOG, BOTLOG_CHATID, spamwatch, mention
+from . import BOTLOG, BOTLOG_CHATID
+
 
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
 #Code by T.me/zzzzl1l
 zed_dev = Zed_Dev
-zel_dev = (5176749470, 5426390871, 6269975462, 1985225531)
-zelzal = (925972505, 1895219306, 5280339206)
-ZIDA = gvarstatus("Z_ZZID") or "zvhhhclc"
+zel_dev = (5176749470, 5427469031, 6269975462, 1985225531)
+zelzal = (925972505, 5427469031, 5280339206)
 Zel_Uid = l313l.uid
 
 ZED_BLACKLIST = [
@@ -91,7 +83,7 @@ async def fetch_info(event):
     """Get details from the User object."""
     replied_user = await l313l.get_me()
     #user = self_user.id
-    FullUser = (await zedub(GetFullUserRequest(replied_user.id))).full_user
+    FullUser = (await l313l(GetFullUserRequest(replied_user.id))).full_user
     replied_user_profile_photos = await l313l(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
@@ -429,7 +421,7 @@ async def on_all_liked_delete(event):
         zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المعجبيـن .. انتظـر ⏳**")
         for mogab in liikers:
             count += 1
-        remove_all_likes(zedub.uid)
+        remove_all_likes(l313l.uid)
         delgvar("Like_Id")
         await zed.edit("**⪼ تم حـذف جميـع المعجبيـن .. بنجـاح ✅**")
     else:
@@ -445,7 +437,7 @@ async def _(event):
         user_name = f"{user.first_name}{user.last_name}" if user.last_name else user.first_name
         user_username = f"@{user.username}" if user.username else "لا يوجد"
     except ValueError:
-        user = await zedub(GetUsersRequest(user_id))
+        user = await l313l(GetUsersRequest(user_id))
         user_name = f"{user.first_name}{user.last_name}" if user.last_name else user.first_name
         user_username = f"@{user.username}" if user.username else "لا يوجد"
     except Exception:
@@ -478,7 +470,7 @@ async def _(event):
             f"**• لـ تصفـح الاوامـر المدفوعـة ارسـل** ( `.المميز` )",
         )
     except Exception as e:
-        await zedub.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
+        await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
     # تحديث زر الإعجاب
     try:
         await event.edit(buttons=[[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]])

@@ -67,7 +67,7 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     }
     data = '{"telegramId":' + str(user_id) + '}'
     response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
-    zelzal_date = response['data']['date']
+    zelzal_date = "2022"  # تاريخ الإنشاء ثابت الآن
     return zelzal_date
 
 async def fetch_info(event):
@@ -120,7 +120,7 @@ async def fetch_info(event):
     full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
+    zzzsinc = zelzal_sinc if zelzal_sinc else ("2022")  # تاريخ الإنشاء ثابت الآن
     # Copyright (C) 2021 Zed-Thon . All Rights Reserved
     # الـرتب الوهميـه & فارات الكليشـه & البريميـوم & عـدد الرسـائل & التفاعـل = كتـابـة الكـود - زلــزال الـهيبــه @zzzzl1l / خاصـه بسـورس - زدثــون @ZThon فقـط
     zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l
@@ -146,7 +146,7 @@ async def fetch_info(event):
         rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
         rotbat = "مـطـور 𐏕" 
-    elif user_id == (await zedub.get_me()).id:
+    elif user_id == (await l313l.get_me()).id:
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
@@ -154,7 +154,7 @@ async def fetch_info(event):
     ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  #Code by T.me/zzzzl1l
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " #Code by T.me/zzzzl1l
     ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" #Code by T.me/zzzzl1l
-   if gvarstatus("ZID_TEMPLATE") is None:
+    if gvarstatus("ZID_TEMPLATE") is None:
         caption = f"<b> {ZED_TEXT} </b>\n"
         caption += f"ٴ<b>{ZEDF}</b>\n"
         caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
@@ -165,16 +165,16 @@ async def fetch_info(event):
         if zilzal == True or user_id in zelzal: #Code by T.me/zzzzl1l
             caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
         #if user_id in Zed_Dev or user_id == zid: #Code by T.me/zzzzl1l
-        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ 💎</b>\n"
+        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ 💎</b>\n"
         caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-        caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n" #Code by T.me/zzzzl1l
-        caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" #Code by T.me/zzzzl1l
+        caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n" #Code by T.me/zzzzl1l
+        caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" #Code by T.me/zzzzl1l
         if user_id != (await l313l.get_me()).id: #Code by T.me/zzzzl1l
             caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-        caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" #Code by T.me/zzzzl1l
+        caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" #Code by T.me/zzzzl1l
         caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
         caption += f"ٴ<b>{ZEDF}</b>"
-   else:
+    else:
         zzz_caption = gvarstatus("ZID_TEMPLATE")
         caption = zzz_caption.format(
             znam=full_name,
@@ -194,87 +194,87 @@ async def fetch_info(event):
 
 @tgbot.on(events.InlineQuery)
 @check_owner
- async def inline_handler(event):
-      builder = event.builder
-      result = None
-      query = event.text
-      await l313l.get_me()
+async def inline_handler(event):
+    builder = event.builder
+    result = None
+    query = event.text
+    await l313l.get_me()
 
-if query.startswith("idid") and event.query.user_id == l313l.uid:
-            #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
-                #return
-            if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
-                os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
-            #replied_user = await get_user_from_event(event)
+    if query.startswith("idid") and event.query.user_id == l313l.uid:
+        #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
+            #return
+        if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
+            os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
+        #replied_user = await get_user_from_event(event)
+        try:
+            photo_path, caption = await fetch_info(event)
+        except (AttributeError, TypeError):
+            return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+        message_id_to_reply = None
+        if gvarstatus("ZID_TEMPLATE") is None:
             try:
-                photo_path, caption = await fetch_info(event)
-            except (AttributeError, TypeError):
-                return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
-            message_id_to_reply = None
-            if gvarstatus("ZID_TEMPLATE") is None:
-                try:
-                    uploaded_file = await event.client.upload_file(file=photo_path)
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
-                    result = builder.photo(
-                        uploaded_file,
-                        #title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
-                    if not photo_path.startswith("http"):
-                        os.remove(photo_path)
-                    #await zed.delete()
-                except (TypeError, ChatSendMediaForbiddenError, Exception):
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
-                    result = builder.article(
-                        title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
-            else:
-                try:
-                    uploaded_file = await event.client.upload_file(file=photo_path)
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
-                    result = builder.photo(
-                        uploaded_file,
-                        #title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
-                    if not photo_path.startswith("http"):
-                        os.remove(photo_path)
-                    #await zed.delete()
-                except (TypeError, ChatSendMediaForbiddenError, Exception):
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
-                    result = builder.article(
-                        title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
-            await event.answer([result] if result else None)
+                uploaded_file = await event.client.upload_file(file=photo_path)
+                Like_id = gvarstatus("Like_Id")
+                Like_id = Like_id if Like_id else 0
+                buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                result = builder.photo(
+                    uploaded_file,
+                    #title="l313l",
+                    text=caption,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="html",
+                )
+                if not photo_path.startswith("http"):
+                    os.remove(photo_path)
+                #await zed.delete()
+            except (TypeError, ChatSendMediaForbiddenError, Exception):
+                Like_id = gvarstatus("Like_Id")
+                Like_id = Like_id if Like_id else 0
+                buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                result = builder.article(
+                    title="l313l",
+                    text=caption,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="html",
+                )
         else:
-            return
+            try:
+                uploaded_file = await event.client.upload_file(file=photo_path)
+                Like_id = gvarstatus("Like_Id")
+                Like_id = Like_id if Like_id else 0
+                buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                result = builder.photo(
+                    uploaded_file,
+                    #title="l313l",
+                    text=caption,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="html",
+                )
+                if not photo_path.startswith("http"):
+                    os.remove(photo_path)
+                #await zed.delete()
+            except (TypeError, ChatSendMediaForbiddenError, Exception):
+                Like_id = gvarstatus("Like_Id")
+                Like_id = Like_id if Like_id else 0
+                buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                result = builder.article(
+                    title="l313l",
+                    text=caption,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="html",
+                )
+        await event.answer([result] if result else None)
+    else:
+        return
 
 @l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     input_str = event.pattern_match.group(1)
     reply = event.reply_to_msg_id
     if input_str and reply:
@@ -295,7 +295,7 @@ async def who(event):
 @l313l.ar_cmd(pattern="like(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     input_str = event.pattern_match.group(1)
     reply = event.reply_to_msg_id
     if input_str and reply:
@@ -316,7 +316,7 @@ async def who(event):
 @l313l.ar_cmd(pattern="المعجبين$")
 async def on_like_list(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     count = 1
     likers = get_likes(l313l.uid)
     if likers:
@@ -337,7 +337,7 @@ async def on_like_list(event):
 @l313l.ar_cmd(pattern="مسح المعجبين$")
 async def on_all_liked_delete(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
     liikers = get_likes(l313l.uid)
     count = 1
     if liikers:
@@ -373,8 +373,8 @@ async def _(event):
         addgvar("Like_Id", Like_id)
     else:
         return await event.answer("- انت معجب من قبل بهذا الشخص ❤️", cache_time=0, alert=True)
-        #remove_like(str(zedub.uid), str(user.id))
-        #if add_like(str(zedub.uid), str(user.id), user_name, user_username) is True:
+        #remove_like(str(l313l.uid), str(user.id))
+        #if add_like(str(l313l.uid), str(user.id), user_name, user_username) is True:
             #return await
     try:
         await l313l.send_message(

@@ -1,15 +1,3 @@
-# @Zed-Thon - ZelZal
-# Copyright (C) 2022 ZThon . All Rights Reserved
-#< https://t.me/ZThon >
-# This file is a part of < https://github.com/Zed-Thon/ZelZal/ >
-# PLease read the GNU Affero General Public License in
-# <https://www.github.com/Zed-Thon/ZelZal/blob/master/LICENSE/>.
-#كـود الصورة الوقتيه كتـابتي وتعديلـي من زمان ومتعوب عليها 
-#+ كـود زخـرفة الصورة الوقتيه
-#+ دددي لا ابلـع حســابك بـانـد بطـعـم الليمــون 🍋😹🤘
-#زلــزال الهيبــه يـ ولــد - حقــوق لـ التــاريـخ ®
-#هههههههههههههههههههههههههههههههههههههههههههههههههه
-
 import asyncio
 import math
 import os
@@ -38,18 +26,18 @@ from ..Config import Config
 from ..helpers.utils import _format
 from ..core.managers import edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from . import edit_delete, zedub, logging, BOTLOG_CHATID, mention
+from . import edit_delete, l313l, logging, BOTLOG_CHATID, mention
 
-plugin_category = "الادوات"
+plugin_category = "tools"
 LOGS = logging.getLogger(__name__)
 CHANGE_TIME = int(gvarstatus("CHANGE_TIME")) if gvarstatus("CHANGE_TIME") else 60
 FONT_FILE_TO_USE = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 normzltext = "1234567890"
 
-autopic_path = os.path.join(os.getcwd(), "zelz", "original_pic.png")
-digitalpic_path = os.path.join(os.getcwd(), "zelz", "digital_pic.png")
-autophoto_path = os.path.join(os.getcwd(), "zelz", "photo_pfp.png")
+autopic_path = os.path.join(os.getcwd(), "JoKeRUB", "original_pic.png")
+digitalpic_path = os.path.join(os.getcwd(), "JoKeRUB", "digital_pic.png")
+autophoto_path = os.path.join(os.getcwd(), "JoKeRUB", "photo_pfp.png")
 
 
 NAUTO = gvarstatus("Z_NAUTO") or "(الاسم تلقائي|الاسم الوقتي|اسم وقتي|اسم تلقائي)"
@@ -88,16 +76,16 @@ async def digitalpicloop():
         fnt = ImageFont.truetype(f"{zedfont}", 35) #Code by T.me/zzzzl1l
         drawn_text.text((140, 70), ZT, font=fnt, fill=(280, 280, 280)) #Code by T.me/zzzzl1l
         img.save(autophoto_path)
-        file = await zedub.upload_file(autophoto_path)
+        file = await l313l.upload_file(autophoto_path)
         try:
             if i > 0:
-                await zedub(
+                await l313l(
                     functions.photos.DeletePhotosRequest(
-                        await zedub.get_profile_photos("me", limit=1)
+                        await l313l.get_profile_photos("me", limit=1)
                     )
                 )
             i += 1
-            await zedub(functions.photos.UploadProfilePhotoRequest(file))
+            await l313l(functions.photos.UploadProfilePhotoRequest(file))
             os.remove(autophoto_path)
             await asyncio.sleep(CHANGE_TIME)
         except BaseException:
@@ -122,7 +110,7 @@ async def autoname_loop():
         name = f"{ZT}{ZEDT}"
         LOGS.info(name)
         try:
-            await zedub(functions.account.UpdateProfileRequest(first_name=name))
+            await l313l(functions.account.UpdateProfileRequest(first_name=name))
         except FloodWaitError as ex:
             LOGS.warning(str(ex))
             await asyncio.sleep(ex.seconds)
@@ -147,7 +135,7 @@ async def auto2name_loop(): #Code by T.me/zzzzl1l
         name = f"{ZEDT}{ZT}"
         LOGS.info(name)
         try:
-            await zedub(functions.account.UpdateProfileRequest(last_name=name))
+            await l313l(functions.account.UpdateProfileRequest(last_name=name))
         except FloodWaitError as ex:
             LOGS.warning(str(ex))
             await asyncio.sleep(ex.seconds)
@@ -173,7 +161,7 @@ async def autobio_loop():
         bio = f"{DEFAULTUSERBIO} ⏐ {ZT}" 
         LOGS.info(bio)
         try:
-            await zedub(functions.account.UpdateProfileRequest(about=bio))
+            await l313l(functions.account.UpdateProfileRequest(about=bio))
         except FloodWaitError as ex:
             LOGS.warning(str(ex))
             await asyncio.sleep(ex.seconds)
@@ -181,12 +169,12 @@ async def autobio_loop():
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
 
-@zedub.zed_cmd(pattern=f"{PAUTO}$")
+@l313l.ar_cmd(pattern=f"{PAUTO}$")
 async def _(event):
     zed = await edit_or_reply(event, "**• جـارِ تفعيـل البروفايـل الوقتـي ⅏. . .**")
     downloaded_file_name = await event.client.download_profile_photo(
-        zedub.uid,
-        Config.TMP_DOWNLOAD_DIRECTORY + str(zedub.uid) + ".jpg",
+        l313l.uid,
+        Config.TMP_DOWNLOAD_DIRECTORY + str(l313l.uid) + ".jpg",
         download_big=True,
     )
     try:
@@ -213,7 +201,7 @@ async def _(event):
     await digitalpicloop()
 
 
-@zedub.zed_cmd(pattern=f"{NAUTO}$")
+@l313l.ar_cmd(pattern=f"{NAUTO}$")
 async def _(event):
     if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
         delgvar("auto2name")
@@ -236,7 +224,7 @@ async def _(event):
     await autoname_loop()
 
 
-@zedub.zed_cmd(pattern=f"{NAAUTO}$")
+@l313l.ar_cmd(pattern=f"{NAAUTO}$")
 async def _(event): #Code by T.me/zzzzl1l
     if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
         delgvar("autoname")
@@ -248,7 +236,7 @@ async def _(event): #Code by T.me/zzzzl1l
     await auto2name_loop()
 
 
-@zedub.zed_cmd(pattern=f"{BAUTO}$")
+@l313l.ar_cmd(pattern=f"{BAUTO}$")
 async def _(event):
     if gvarstatus("DEFAULT_BIO") is None:
         return await edit_delete(event, "**- فار النبـذة الوقتيـه غيـر موجـود ؟!**\n**- ارسـل نـص النبـذه ثم قم بالـرد عليهـا بالامـر :**\n\n`.اضف البايو`")
@@ -259,7 +247,7 @@ async def _(event):
     await autobio_loop()
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الغاء(?: |$)(.*)",
     command=("الغاء", plugin_category),
     info={
@@ -313,7 +301,7 @@ async def _(event):  # sourcery no-metrics
         return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="ايقاف(?: |$)(.*)",
     command=("ايقاف", plugin_category),
     info={
@@ -368,7 +356,7 @@ async def _(event):  # sourcery no-metrics
 
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="انهاء(?: |$)(.*)",
     command=("انهاء", plugin_category),
     info={
@@ -422,7 +410,7 @@ async def _(event):  # sourcery no-metrics
     if input_str == "البايو تلقائي" or input_str == "البايو" or input_str == "البايو التلقائي" or input_str == "البايو الوقتي" or input_str == "النبذه الوقتيه" or input_str == "النبذة الوقتية" or input_str == "بايو الوقتي" or input_str == "نبذه الوقتي":
         if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
             delgvar("autobio")
-            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @ZedThon"
+            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @Lx5x5"
             await event.client(
                 functions.account.UpdateProfileRequest(about=DEFAULTUSERBIO)
             )
@@ -450,10 +438,10 @@ async def _(event):  # sourcery no-metrics
         )
 
 
-zedub.loop.create_task(digitalpicloop())
-zedub.loop.create_task(autoname_loop())
-zedub.loop.create_task(auto2name_loop())
-zedub.loop.create_task(autobio_loop())
+l313l.loop.create_task(digitalpicloop())
+l313l.loop.create_task(autoname_loop())
+l313l.loop.create_task(auto2name_loop())
+l313l.loop.create_task(autobio_loop())
 
 
 # ================================================================================================ #
@@ -500,19 +488,19 @@ ZelzalVP_cmd = (
     "**✾╎لـ رؤيـة زغـارف البروفايـل الوقتـي ↶**  [⦇  اضـغـط هنــا  ⦈](t.me/Zed_Thon) \n\n"
     "**✾╎لـ رؤيـة زغـارف الاســم الوقتـي ↶**  [⦇  اضـغـط هنــا  ⦈](t.me/Zed_Thon) \n\n\n"
     "🛃 سيتـم اضـافة المزيـد من الزغـارف بالتحديثـات الجـايـه\n\n"
-    "\n𓆩 [𐇮 𝙕𝞝𝙇𝙕𝘼𝙇 الهہـيـٖ͡ـ͢ـبـه 𐇮](t.me/zzzzl1l) 𓆪"
+    "\n𓆩 [𓏺 ᥲRRᥲS . آراس](t.me/lx5x5) 𓆪"
 )
 
 
 # Copyright (C) 2022 @Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="وقتيه(?: |$)(.*)")
+@l313l.ar_cmd(pattern="وقتيه(?: |$)(.*)")
 async def variable(event):
     input_str = event.pattern_match.group(1)
     zed = await edit_or_reply(event, "**✾╎جـاري اضـافة زخـرفـة الوقتيـه لـ بوتـك 💞🦾 . . .**")
     # All Rights Reserved for "@Zed-Thon" "زلـزال الهيبـه"
     if input_str == "1":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/ZThon.ttf"
+        zinfo = "JoKeRUB/helpers/styles/jepthon.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -521,7 +509,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "2":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Starjedi.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Starjedi.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -530,7 +518,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "3":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Papernotes.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Papernotes.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -539,7 +527,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "4":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Terserah.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Terserah.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -548,7 +536,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "5":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Photography Signature.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Photography Signature.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -557,7 +545,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "6":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Austein.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Austein.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -566,7 +554,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "7":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Dream MMA.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Dream MMA.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -575,7 +563,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "8":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/EASPORTS15.ttf"
+        zinfo = "JoKeRUB/helpers/styles/EASPORTS15.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -584,7 +572,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "9":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/KGMissKindergarten.ttf"
+        zinfo = "JoKeRUB/helpers/styles/KGMissKindergarten.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -593,7 +581,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "10":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/212 Orion Sans PERSONAL USE.ttf"
+        zinfo = "JoKeRUB/helpers/styles/212 Orion Sans PERSONAL USE.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -602,7 +590,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "11":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/PEPSI_pl.ttf"
+        zinfo = "JoKeRUB/helpers/styles/PEPSI_pl.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -611,7 +599,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "12":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Paskowy.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Paskowy.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -620,7 +608,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "13":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Cream Cake.otf"
+        zinfo = "JoKeRUB/helpers/styles/Cream Cake.otf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -629,7 +617,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "14":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Hello Valentina.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Hello Valentina.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -638,7 +626,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "15":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Alien-Encounters-Regular.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Alien-Encounters-Regular.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -647,7 +635,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "16":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/Linebeam.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Linebeam.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -656,7 +644,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "17":
         variable = "DEFAULT_PIC"
-        zinfo = "zelz/helpers/styles/EASPORTS15.ttf"
+        zinfo = "JoKeRUB/helpers/styles/EASPORTS15.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("DEFAULT_PIC") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة البروفـايل الوقـتي {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.البروفايل` **لـ بـدء البروفـايل الوقتـي . .**".format(input_str))
@@ -666,7 +654,7 @@ async def variable(event):
 
 
 # Copyright (C) 2022 @Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="الوقتي(?: |$)(.*)")
+@l313l.ar_cmd(pattern="الوقتي(?: |$)(.*)")
 async def hhhzelzal(event):
     input_str = event.pattern_match.group(1)
     zed = await edit_or_reply(event, "**✾╎جـاري اضـافة زخـرفـة الوقتيـه لـ بوتـك 💞🦾 . . .**")
@@ -787,21 +775,21 @@ async def hhhzelzal(event):
 
 
 # Copyright (C) 2022 @Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="اوامر الوقتي")
+@l313l.ar_cmd(pattern="اوامر الاسم الوقتي")
 async def cmd(zelzallll):
     await edit_or_reply(zelzallll, ZelzalVP_cmd)
 
 
 
 # Copyright (C) 2022 @Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="الخط(?: |$)(.*)")
+@l313l.ar_cmd(pattern="الخط(?: |$)(.*)")
 async def variable(event):
     input_str = event.pattern_match.group(1)
     zed = await edit_or_reply(event, "**✾╎جـاري اضـافة زخـرفـة خـط الحقـوق لـ بوتـك 💞🦾 . . .**")
     # All Rights Reserved for "@Zed-Thon" "زلـزال الهيبـه"
     if input_str == "1":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/ZThon.ttf"
+        zinfo = "JoKeRUB/helpers/styles/jepthon.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -810,7 +798,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "2":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Starjedi.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Starjedi.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -819,7 +807,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "3":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Papernotes.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Papernotes.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -828,7 +816,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "4":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Terserah.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Terserah.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -837,7 +825,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "5":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Photography Signature.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Photography Signature.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -846,7 +834,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "6":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Austein.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Austein.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -855,7 +843,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "7":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Dream MMA.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Dream MMA.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -864,7 +852,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "8":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/EASPORTS15.ttf"
+        zinfo = "JoKeRUB/helpers/styles/EASPORTS15.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -873,7 +861,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "9":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/KGMissKindergarten.ttf"
+        zinfo = "JoKeRUB/helpers/styles/KGMissKindergarten.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -882,7 +870,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "10":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/212 Orion Sans PERSONAL USE.ttf"
+        zinfo = "JoKeRUB/helpers/styles/212 Orion Sans PERSONAL USE.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -891,7 +879,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "11":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/PEPSI_pl.ttf"
+        zinfo = "JoKeRUB/helpers/styles/PEPSI_pl.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -900,7 +888,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "12":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Paskowy.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Paskowy.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -909,7 +897,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "13":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Cream Cake.otf"
+        zinfo = "JoKeRUB/helpers/styles/Cream Cake.otf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -918,7 +906,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "14":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Hello Valentina.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Hello Valentina.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -927,7 +915,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "15":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Alien-Encounters-Regular.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Alien-Encounters-Regular.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -936,7 +924,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "16":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/Linebeam.ttf"
+        zinfo = "JoKeRUB/helpers/styles/Linebeam.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))
@@ -945,7 +933,7 @@ async def variable(event):
         addgvar(variable, zinfo)
     elif input_str == "17":
         variable = "ZED_FONTS"
-        zinfo = "zelz/helpers/styles/EASPORTS15.ttf"
+        zinfo = "JoKeRUB/helpers/styles/EASPORTS15.ttf"
         await asyncio.sleep(1.5)
         if gvarstatus("ZED_FONTS") is None:
             await zed.edit("**✾╎تم اضـافـة زغـرفـة خـط الحقـوق {} بنجـاح ☑️**\n\n**✾╎الان قـم بـ ارسـال الامـر ↶** `.حقوق` **+ كلمـه بالـرد ع (صوره-ملصق-متحركه-فيديو) . .**".format(input_str))

@@ -11,7 +11,7 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from . import Convert, l313l
 
 from ..core.managers import edit_delete, edit_or_reply
-from ..helpers import asciiart, zed_meeme, zed_meme, media_type, meme_type
+from ..helpers import asciiart, cat_meeme, cat_meme, media_type, meme_type
 from ..helpers.functions import (
     add_frame,
     crop,
@@ -24,7 +24,7 @@ from ..helpers.functions import (
 from ..helpers.utils import reply_id
 from ..sql_helper.globals import addgvar, gvarstatus
 
-plugin_category = "الادوات"
+plugin_category = "tools"
 
 
 def random_color():

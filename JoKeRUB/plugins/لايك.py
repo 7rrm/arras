@@ -75,7 +75,7 @@ async def fetch_info(event):
     replied_user = await l313l.get_me()
     #user = self_user.id
     FullUser = (await l313l(GetFullUserRequest(replied_user.id))).full_user
-    replied_user_profile_photos = await zedub(
+    replied_user_profile_photos = await l313l(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
     replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
@@ -105,7 +105,7 @@ async def fetch_info(event):
         #zvip = "𝕍𝕀ℙ 💎"
     #else:
         #zvip = "ℕ𝕆ℕ𝔼"
-    photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg")
+    photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, str(user_id) + ".jpg")
     photo = await l313l.download_profile_photo(
         user_id,
         photo_path,
@@ -123,7 +123,7 @@ async def fetch_info(event):
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     # Copyright (C) 2021 Zed-Thon . All Rights Reserved
     # الـرتب الوهميـه & فارات الكليشـه & البريميـوم & عـدد الرسـائل & التفاعـل = كتـابـة الكـود - زلــزال الـهيبــه @zzzzl1l / خاصـه بسـورس - زدثــون @ZThon فقـط
-    zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l
+    zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l
     zzz = zmsg.total
     if zzz < 100: #Code by T.me/zzzzl1l
         zelzzz = "غير متفاعل  🗿"
@@ -192,7 +192,15 @@ async def fetch_info(event):
         )
     return photo_path, caption
 
-elif query.startswith("idid") and event.query.user_id == zedub.uid:
+@tgbot.on(events.InlineQuery)
+@check_owner
+ async def inline_handler(event):
+      builder = event.builder
+      result = None
+      query = event.text
+      await l313l.get_me()
+
+if query.startswith("idid") and event.query.user_id == zedub.uid:
             #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
                 #return
             if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
@@ -369,7 +377,7 @@ async def _(event):
         #if add_like(str(zedub.uid), str(user.id), user_name, user_username) is True:
             #return await
     try:
-        await zedub.send_message(
+        await l313l.send_message(
             BOTLOG_CHATID,
             "#الايـدي_بـ_لايــك 💝\n\n"
             f"**- المُستخـدِم :** {_format.mentionuser(user_name ,user.id)} \n"
@@ -385,7 +393,7 @@ async def _(event):
             f"**• لـ تصفـح الاوامـر المدفوعـة ارسـل** ( `.المميز` )",
         )
     except Exception as e:
-        await zedub.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
+        await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
     # تحديث زر الإعجاب
     try:
         await event.edit(buttons=[[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]])

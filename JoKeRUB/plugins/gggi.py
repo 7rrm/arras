@@ -117,9 +117,21 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def fetch_zelzal(user_id):
-    """إرجاع تاريخ ثابت 2022 بدلاً من الاتصال بالخدمة الخارجية"""
-    return "2022"  # تاريخ ثابت بدلاً من التاريخ الحقيقي
+async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
+    headers = {
+        'Host': 'restore-access.indream.app',
+        'Connection': 'keep-alive',
+        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
+        'Accept': '*/*',
+        'Accept-Language': 'ar',
+        'Content-Length': '25',
+        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = '{"telegramId":' + str(user_id) + '}'
+    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
+    zelzal_date = response['data']['date']
+    return zelzal_date
 
 
 async def zzz_info(zthon_user, event):
@@ -127,7 +139,7 @@ async def zzz_info(zthon_user, event):
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
     user_id = zthon_user.id
-    zelzal_sinc = "2022"  # استخدام التاريخ الثابت مباشرة
+    zelzal_sinc = await fetch_zelzal(user_id)
     username = zthon_user.username
     verified = zthon_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
@@ -138,7 +150,7 @@ async def zzz_info(zthon_user, event):
     )
     full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لا يـوجـد")
-    zzzsinc = zelzal_sinc  # لن نتحقق من وجود قيمة لأنها ثابتة
+    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     
     ZThon = f'<a href="T.me/ZThon">ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮 📟</a>'
     ZThon += f"\n<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
@@ -167,7 +179,7 @@ async def fetch_info(replied_user, event):
         dc_id = replied_user.photo.dc_id
     
     user_id = replied_user.id
-    zelzal_sinc = "2022"  # التاريخ الثابت هنا أيضاً
+    zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name

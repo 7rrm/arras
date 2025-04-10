@@ -1,45 +1,23 @@
-import asyncio
-import contextlib
-import re
-import random
-import time
-import psutil
-import html
-import shutil
 import os
-import base64
+import re
 import requests
-from requests import get
-import psutil
-from datetime import datetime
-from platform import python_version
-
-from telethon import Button, events, version
-from telethon.events import CallbackQuery
-from telethon.tl.functions.messages import ImportChatInviteRequest as Get
-from telethon.tl.types import MessageEntityMentionName
-from telethon.tl.functions.photos import GetUserPhotosRequest
+from telethon import Button, events
 from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
-from telethon.utils import pack_bot_file_id
-from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
+from telethon.tl.functions.photos import GetUserPhotosRequest
+from telethon.errors.rpcerrorlist import ChatSendMediaForbiddenError
 
-from . import StartTime, l313l, mention
-from ..core import check_owner, pool
+from . import l313l
 from ..Config import Config
 from ..utils import Zed_Vip, Zed_Dev
-from ..helpers import reply_id
-from ..helpers.utils import _format
-from ..core.logger import logging
-from ..core.managers import edit_or_reply, edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
 from ..sql_helper.like_sql import (
     add_like,
     get_likes,
     remove_all_likes,
     remove_like,
 )
-from . import BOTLOG, BOTLOG_CHATID
+from . import BOTLOG_CHATID
+from ..helpers import _format
 
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)

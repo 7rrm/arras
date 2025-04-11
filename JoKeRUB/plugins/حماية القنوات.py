@@ -22,11 +22,9 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import ChatBannedRights, MessageActionChannelCreate
 from telethon.tl.functions.channels import GetFullChannelRequest, GetParticipantsRequest, GetAdminLogRequest, CreateChannelRequest, CheckUsernameRequest
 from telethon.tl.functions.messages import GetFullChatRequest, GetHistoryRequest
-from telethon.tl.functions.channels import (
-    EditAdminRequest,
-    EditBannedRequest,
-    EditPhotoRequest,
-)
+from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.functions.channels import EditPhotoRequest
+
 from telethon.tl.types import (
     ChatAdminRights,
     ChannelParticipantAdmin,

@@ -1,3 +1,40 @@
+import requests
+import asyncio
+import random
+import os
+import sys
+import html
+import urllib.request
+from datetime import datetime, timedelta
+from time import sleep
+
+try:
+    import unicodedata
+    from bs4 import BeautifulSoup
+except ModuleNotFoundError:
+    os.system("pip3 install unicodedata bs4")
+    import unicodedata
+    from bs4 import BeautifulSoup
+
+from telethon.tl import functions
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import Channel, Chat, InputPhoto, User, InputMessagesFilterEmpty
+
+from telethon import events
+from telethon.errors import FloodWaitError
+from telethon.tl.functions.messages import GetHistoryRequest, ImportChatInviteRequest
+from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl.functions.messages import ImportChatInviteRequest
+from telethon.errors.rpcerrorlist import YouBlockedUserError
+from telethon.tl.functions.contacts import UnblockRequest as unblock
+from telethon.tl.functions.messages import ImportChatInviteRequest as Get
+
+from ..Config import Config
+from ..core.logger import logging
+from ..core.managers import edit_delete, edit_or_reply
+from ..helpers.utils import _catutils, reply_id
+from ..sql_helper.globals import gvarstatus
+from . import ALIVE_NAME, BOTLOG, BOTLOG_CHATID, l313l, edit_delete, get_user_from_event
 import contextlib
 import base64
 import asyncio

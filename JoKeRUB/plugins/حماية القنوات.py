@@ -9,6 +9,7 @@ from math import sqrt
 
 from telethon.events import InlineQuery, callbackquery
 from telethon import Button
+from telethon.tl.functions.channels import EditAdminRequest
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest, SendMediaRequest

@@ -9,7 +9,6 @@ from math import sqrt
 
 from telethon.events import InlineQuery, callbackquery
 from telethon import Button
-from telethon.tl.functions.channels import EditAdminRequest
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest, SendMediaRequest
@@ -22,23 +21,27 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import ChatBannedRights, MessageActionChannelCreate
 from telethon.tl.functions.channels import GetFullChannelRequest, GetParticipantsRequest, GetAdminLogRequest, CreateChannelRequest, CheckUsernameRequest
 from telethon.tl.functions.messages import GetFullChatRequest, GetHistoryRequest
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.functions.channels import EditPhotoRequest
-from telethon.tl.types import ChatAdminRights
-from telethon.tl.types import ChannelParticipantAdmin
-from telethon.tl.types import ChannelParticipantCreator
-from telethon.tl.types import ChannelParticipantsAdmins
-from telethon.tl.types import ChannelParticipantsBots
-from telethon.tl.types import ChannelParticipantsKicked
-from telethon.tl.types import MessageActionChannelMigrateFrom
-from telethon.tl.types import UserStatusEmpty
-from telethon.tl.types import UserStatusLastMonth
-from telethon.tl.types import UserStatusLastWeek
-from telethon.tl.types import UserStatusOffline
-from telethon.tl.types import UserStatusOnline
-from telethon.tl.types import UserStatusRecently
-
-
+from telethon.tl.functions.channels import (
+    EditAdminRequest,
+    EditBannedRequest,
+    EditPhotoRequest,
+)
+from telethon.tl.types import (
+    ChatAdminRights,
+    ChannelParticipantAdmin,
+    ChannelParticipantCreator,
+    ChannelParticipantsAdmins,
+    ChannelParticipantsBots,
+    ChannelParticipantsKicked,
+    ChatBannedRights,
+    MessageActionChannelMigrateFrom,
+    UserStatusEmpty,
+    UserStatusLastMonth,
+    UserStatusLastWeek,
+    UserStatusOffline,
+    UserStatusOnline,
+    UserStatusRecently,
+)
 from telethon.errors import (
     ChatAdminRequiredError,
     UserAdminInvalidError,

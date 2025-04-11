@@ -61,7 +61,7 @@ ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
 from ..Config import Config
 
 
-plugin_category = "الادمن"
+plugin_category = "admin"
 
 
 async def is_admin(event, user):

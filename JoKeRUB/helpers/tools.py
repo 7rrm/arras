@@ -1,22 +1,72 @@
 from html_telegraph_poster import TelegraphPoster
 
-def media_type(message):
-    if message and message.photo:
-        return "Photo"
-    if message and message.audio:
-        return "Audio"
-    if message and message.voice:
-        return "Voice"
-    if message and message.video_note:
-        return "Round Video"
-    if message and message.gif:
-        return "Gif"
-    if message and message.sticker:
-        return "Sticker"
-    if message and message.video:
-        return "Video"
-    if message and message.document:
-        return "Document"
+async def meme_type(message):
+    if message:
+        try:
+            if message.photo:
+                return "Photo"
+            if message.audio:
+                return "Audio"
+            if message.voice:
+                return "Voice"
+            if message.video_note:
+                return "Round Video"
+            if message.gif:
+                return "Gif"
+            if message.sticker:
+                mime = message.document.mime_type
+                if mime == "application/x-tgsticker":
+                    return "Animated Sticker"
+                if mime == "video/webm":
+                    return "Video Sticker"
+                return "Static Sticker"
+            if message.video:
+                return "Video"
+            if message.document:
+                mime = message.document.mime_type
+                if mime != "image/gif" and mime.split("/")[0] == "image":
+                    return "Photo"
+                if mime == "image/gif":
+                    return "Gif"
+                if mime.split("/")[0] == "video":
+                    return "Video"
+                if mime == "application/x-tgsticker":
+                    return "Animated Sticker"
+                return "Document"
+        except AttributeError:
+            return await file_type(message)
+    return None
+
+
+async def media_type(message):
+    if message:
+        try:
+            if message.photo:
+                return "Photo"
+            if message.audio:
+                return "Audio"
+            if message.voice:
+                return "Voice"
+            if message.video_note:
+                return "Round Video"
+            if message.gif:
+                return "Gif"
+            if message.sticker:
+                return "Sticker"
+            if message.video:
+                return "Video"
+            if message.document:
+                return "Document"
+        except AttributeError:
+            media = await file_type(message)
+            if media and media in [
+                "Video Sticker",
+                "Animated Sticker",
+                "Static Sticker",
+            ]:
+                return "Sticker"
+            return media
+    return None
 
 async def post_to_telegraph(page_title, html_format_content):
     post_client = TelegraphPoster(use_api=True)

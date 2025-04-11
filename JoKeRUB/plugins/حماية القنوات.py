@@ -8,41 +8,54 @@ from datetime import datetime
 from math import sqrt
 
 from telethon.events import InlineQuery, callbackquery
-from telethon import Button
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.errors.rpcerrorlist import UserNotParticipantError
-from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.tl.functions.messages import ExportChatInviteRequest, SendMediaRequest
-from telethon.tl.functions.users import GetFullUserRequest
-
-from telethon import events, functions, types
-from telethon.errors.rpcerrorlist import UserAdminInvalidError, UserIdInvalidError
-from telethon.tl.functions.messages import EditChatDefaultBannedRightsRequest
-from telethon.tl.functions.messages import ImportChatInviteRequest as Get
-from telethon.tl.types import ChatBannedRights, MessageActionChannelCreate
-from telethon.tl.functions.channels import GetFullChannelRequest, GetParticipantsRequest, GetAdminLogRequest, CreateChannelRequest, CheckUsernameRequest
-from telethon.tl.functions.messages import GetFullChatRequest, GetHistoryRequest
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.functions.channels import EditPhotoRequest
-from telethon.tl.types import ChatAdminRights
-from telethon.tl.types import ChannelParticipantAdmin
-from telethon.tl.types import ChannelParticipantCreator
-from telethon.tl.types import ChannelParticipantsAdmins
-from telethon.tl.types import ChannelParticipantsBots
-from telethon.tl.types import ChannelParticipantsKicked
-from telethon.tl.types import MessageActionChannelMigrateFrom
-from telethon.tl.types import UserStatusEmpty
-from telethon.tl.types import UserStatusLastMonth
-from telethon.tl.types import UserStatusLastWeek
-from telethon.tl.types import UserStatusOffline
-from telethon.tl.types import UserStatusOnline
-from telethon.tl.types import UserStatusRecently
-
-
-from telethon.errors import (
-    ChatAdminRequiredError,
-    UserAdminInvalidError,
+from telethon import Button, events, functions, types
+from telethon.tl.functions.channels import (
+    EditAdminRequest,
+    GetParticipantRequest,
+    EditBannedRequest,
+    GetFullChannelRequest,
+    CreateChannelRequest,
+    CheckUsernameRequest,
+    GetParticipantsRequest,
+    GetAdminLogRequest
 )
+from telethon.errors.rpcerrorlist import (
+    UserNotParticipantError,
+    UserAdminInvalidError,
+    UserIdInvalidError,
+    ChatAdminRequiredError
+)
+from telethon.tl.functions.messages import (
+    ExportChatInviteRequest,
+    SendMediaRequest,
+    EditChatDefaultBannedRightsRequest,
+    GetFullChatRequest,
+    GetHistoryRequest
+)
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import (
+    ChannelParticipantsAdmins,
+    ChannelParticipantsBanned,
+    ChannelParticipantAdmin,
+    ChannelParticipantCreator,
+    ChannelParticipantsBots,
+    ChannelParticipantsKicked,
+    ChatAdminRights,
+    ChatBannedRights,
+    MessageActionChannelCreate,
+    MessageActionChannelMigrateFrom,
+    InputPeerChannel,
+    MessageEntityMentionName,
+    MessageMediaPhoto,
+    MessageMediaDocument,
+    UserStatusEmpty,
+    UserStatusLastMonth,
+    UserStatusLastWeek,
+    UserStatusOffline,
+    UserStatusOnline,
+    UserStatusRecently
+)
+
 from . import l313l
 from ..utils import is_admin
 from ..sql_helper.locks_sql import get_locks, is_locked, update_lock
@@ -50,14 +63,7 @@ from ..core.managers import edit_delete, edit_or_reply
 from ..helpers import media_type, meme_type, progress, thumb_from_audio
 from ..helpers.utils import reply_id, _format
 from ..sql_helper.fsub_sql import *
-
-from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
-# All Rights Reserved for "Zed-Thon - ZelZal" "زلـزال الهيبـه"
-ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
-    until_date=None, view_messages=None, send_media=True, send_stickers=True, send_gifs=True
-)
 from ..Config import Config
-
 
 plugin_category = "admin"
 

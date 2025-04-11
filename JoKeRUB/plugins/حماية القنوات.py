@@ -24,23 +24,21 @@ from telethon.tl.functions.channels import GetFullChannelRequest, GetParticipant
 from telethon.tl.functions.messages import GetFullChatRequest, GetHistoryRequest
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.functions.channels import EditPhotoRequest
+from telethon.tl.types import ChatAdminRights
+from telethon.tl.types import ChannelParticipantAdmin
+from telethon.tl.types import ChannelParticipantCreator
+from telethon.tl.types import ChannelParticipantsAdmins
+from telethon.tl.types import ChannelParticipantsBots
+from telethon.tl.types import ChannelParticipantsKicked
+from telethon.tl.types import MessageActionChannelMigrateFrom
+from telethon.tl.types import UserStatusEmpty
+from telethon.tl.types import UserStatusLastMonth
+from telethon.tl.types import UserStatusLastWeek
+from telethon.tl.types import UserStatusOffline
+from telethon.tl.types import UserStatusOnline
+from telethon.tl.types import UserStatusRecently
 
-from telethon.tl.types import (
-    ChatAdminRights,
-    ChannelParticipantAdmin,
-    ChannelParticipantCreator,
-    ChannelParticipantsAdmins,
-    ChannelParticipantsBots,
-    ChannelParticipantsKicked,
-    ChatBannedRights,
-    MessageActionChannelMigrateFrom,
-    UserStatusEmpty,
-    UserStatusLastMonth,
-    UserStatusLastWeek,
-    UserStatusOffline,
-    UserStatusOnline,
-    UserStatusRecently,
-)
+
 from telethon.errors import (
     ChatAdminRequiredError,
     UserAdminInvalidError,

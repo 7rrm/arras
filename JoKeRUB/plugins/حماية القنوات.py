@@ -46,7 +46,7 @@ from telethon.errors import (
     ChatAdminRequiredError,
     UserAdminInvalidError,
 )
-from . import zedub
+from . import l313l
 from ..utils import is_admin
 from ..sql_helper.locks_sql import get_locks, is_locked, update_lock
 from ..core.managers import edit_delete, edit_or_reply
@@ -78,9 +78,9 @@ async def is_admin(event, user):
 
 
 
-@zedub.zed_cmd(
-    pattern="قفل(?: |$)(.*)",
-    command=("قفل", plugin_category),
+@l313l.ar_cmd(
+    pattern="اقفل(?: |$)(.*)",
+    command=("اقفل", plugin_category),
     info={
         "header": "اوامــر قفـل الحمـاية الخـاصه بـ القنـوات",
         "الوصـف": "اوامـر ذكيـه لـ قفـل / فتـح حمـاية القنـوات بالمسـح والطـرد والتقييـد لـ اول مـره فقـط ع سـورس زدثــون",
@@ -190,9 +190,9 @@ async def _(event):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي .. لايمكنك قفـل اي شي هنـا ...𓆰**")
 
 
-@zedub.zed_cmd(
-    pattern="فتح(?: |$)(.*)",
-    command=("فتح", plugin_category),
+@l313l.ar_cmd(
+    pattern="افتح(?: |$)(.*)",
+    command=("افتح", plugin_category),
     info={
         "header": "اوامــر فتـح الحمـاية الخـاصه بـ القنـوات",
         "الوصـف": "اوامـر ذكيـه لـ قفـل / فتـح حمـاية القنـوات بالمسـح والطـرد والتقييـد لـ اول مـره فقـط ع سـورس زدثــون",
@@ -303,7 +303,7 @@ async def _(event):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي .. لايمكنك اعـادة فتـح اي شي هنـا ...𓆰**")
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="حماية القناة$",
     command=("حماية القناة", plugin_category),
     info={
@@ -353,7 +353,7 @@ async def _(event):
     res += f"**⎉╎الانـلايـن :** {uinline}\n"
     await edit_or_reply(event, res)
 
-@zedub.zed_cmd(
+@l313l.ar._cmd(
     pattern="الاعدادات$",
     command=("الاعدادات", plugin_category),
     info={
@@ -403,7 +403,7 @@ async def _(event):
     res += f"**⎉╎الانـلايـن :** {uinline}\n"
     await edit_or_reply(event, res)
 
-@zedub.zed_cmd(incoming=True, forword=None)
+@l313l.ar_cmd(incoming=True, forword=None)
 async def check_incoming_messages(event):
     if event.is_private or event.is_group:
         return
@@ -413,9 +413,9 @@ async def check_incoming_messages(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (2095357462, 1895219306, 925972505, 1346542270, 1885375980, 1721284724, 1951523146, 1243462298, 1037828349, 1985711199, 2028523456, 2045039090, 1764272868, 2067387667, 294317157, 2066568220, 1403932655, 1389046667, 444672531, 2055451976, 294317157, 2134101721, 1719023510, 1985225531, 2107283646, 2146086267)
+    zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
     zelzal = event.sender_id
-    malath = zedub.uid
+    malath = l313l.uid
     hhh = event.message.text
     mmm = event.message
     zed_id = event.chat_id
@@ -566,7 +566,7 @@ async def check_incoming_messages(event):
 
 
 # Copyright (C) 2022 Zed-Thon
-@zedub.on(events.MessageEdited)
+@l313l.on(events.MessageEdited)
 async def check_edit_media(event):
     if not event.is_channel:
         return
@@ -574,9 +574,9 @@ async def check_edit_media(event):
         chat = await event.get_chat()
         admin = chat.admin_rights
         creator = chat.creator
-        zed_dev = (925972505, 1895219306, 5280339206)  #Write Code By T.me/zzzzl1l
+        zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
         zelzal = event.sender_id
-        malath = zedub.uid
+        malath = l313l.uid
         hhh = event.message.text
         #zed_id = event.chat_id
         user = await event.get_sender()
@@ -602,8 +602,8 @@ async def chat_action_empty(event: events.ChatAction.Event):
         admin = chat.admin_rights
         creator = chat.creator
     # All Rights Reserved for "Zed-Thon - ZelZal" "زلـزال الهيبـه"
-    zed_dev = (2095357462, 1895219306, 925972505, 1346542270, 1885375980, 1721284724, 1951523146, 1243462298, 1037828349, 1985711199, 2028523456, 2045039090, 1764272868, 2067387667, 294317157, 2066568220, 1403932655, 1389046667, 444672531, 2055451976, 294317157, 2134101721, 1719023510, 1985225531, 2107283646, 2146086267)
-    malath = zedub.uid
+    zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
+    malath = l313l.uid
     adminlog = await event.client.get_admin_log(event.chat_id, limit=1, ban=True)
     if is_locked(event.chat_id, "bots"):
         for msg in adminlog:
@@ -618,13 +618,13 @@ async def chat_action_empty(event: events.ChatAction.Event):
             else:
                 try:
                     await event.client.kick_participant(event.chat_id, ruser.id)
-                    await zedub.send_message(event.chat_id, 
+                    await l313l.send_message(event.chat_id, 
                         "**⎉╎عـذراً**  [عزيـزي⚠️](tg://user?id={})  **يُمنـع الانضمـام لـ هـذه القنـوات •**\n\n**⎉╎تـم حظـرك .. بنجـاح 🛂**\n\nᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗘𝗗𝗧𝗛𝗢𝗡╎@ZedThon".format(
                         ruser.id
                         )
                     )
                 except Exception as e:
-                    await zedub.send_message(event.chat_id, 
+                    await l313l.send_message(event.chat_id, 
                         "**⎉╎عـذراً  عـزيـزي .. لا املك صـلاحيات المشـرف هنـا 𓆰** \n`{}`".format(
                             str(e)
                         )
@@ -639,7 +639,7 @@ async def chat_action_empty(event: events.ChatAction.Event):
             )
 """
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def _(event):
     if not is_locked(event.chat_id, "voice"):
         return
@@ -649,7 +649,7 @@ async def _(event):
         creator = channel.creator
         if not admin and not creator:
             return
-        zed_dev = (925972505, 1895219306, 5280339206)
+        zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
         if event.user_joined: 
             zedy = await event.client.get_entity(event.user_id)
             is_ban_able = True
@@ -675,7 +675,7 @@ async def _(event):
                 )
 
 # Copyright (C) 2022 Zed-Thon
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def handle_event(event):
     global kicked_count
     if not is_locked(event.chat_id, "bots"):
@@ -685,8 +685,8 @@ async def handle_event(event):
         kicked_count += 1
         if kicked_count == 3:
             try:
-                await zedub(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
-                await zedub(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
                 kicked_count = 0
                 await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
             except Exception as e:

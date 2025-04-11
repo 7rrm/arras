@@ -412,7 +412,7 @@ async def check_incoming_messages(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
+    zed_dev = (5427469031, 7225540241)  # أرقام أخرى للمطورين الإضافيين
     zelzal = event.sender_id
     malath = l313l.uid
     hhh = event.message.text
@@ -573,7 +573,7 @@ async def check_edit_media(event):
         chat = await event.get_chat()
         admin = chat.admin_rights
         creator = chat.creator
-        zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
+        zed_dev = (5427469031, 7225540241)  # أرقام أخرى للمطورين الإضافيين
         zelzal = event.sender_id
         malath = l313l.uid
         hhh = event.message.text
@@ -592,7 +592,7 @@ async def check_edit_media(event):
 
 
 # Copyright (C) 2022 Zed-Thon
-"""@events.register(events.ChatAction(func=lambda e: e.action_message is None))
+@events.register(events.ChatAction(func=lambda e: e.action_message is None))
 async def chat_action_empty(event: events.ChatAction.Event):
     if event.is_private:
         return
@@ -601,7 +601,7 @@ async def chat_action_empty(event: events.ChatAction.Event):
         admin = chat.admin_rights
         creator = chat.creator
     # All Rights Reserved for "Zed-Thon - ZelZal" "زلـزال الهيبـه"
-    zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
+    zed_dev = (5427469031, 7225540241)  # أرقام أخرى للمطورين الإضافيين
     malath = l313l.uid
     adminlog = await event.client.get_admin_log(event.chat_id, limit=1, ban=True)
     if is_locked(event.chat_id, "bots"):
@@ -636,7 +636,6 @@ async def chat_action_empty(event: events.ChatAction.Event):
                     zedy.id
                 )
             )
-"""
 
 @l313l.on(events.ChatAction())
 async def _(event):
@@ -648,7 +647,7 @@ async def _(event):
         creator = channel.creator
         if not admin and not creator:
             return
-        zed_dev = (5427469031, 1234567890)  # أرقام أخرى للمطورين الإضافيين
+        zed_dev = (5427469031, 7225540241)  # أرقام أخرى للمطورين الإضافيين
         if event.user_joined: 
             zedy = await event.client.get_entity(event.user_id)
             is_ban_able = True

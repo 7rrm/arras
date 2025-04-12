@@ -536,11 +536,31 @@ async def _(event):
         return
 
 @l313l.on(events.NewMessage(outgoing=True))
-async def comming(event):
-    if event.message.text and not event.message.media and "." not in event.message.text:
-        is_cllear = gvarstatus("cllear")
-        if is_cllear:
-            try:
-                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
-            except MessageIdInvalidError:
-                pass
+async def handle_spoiler(event):
+    if not event.message.text or event.message.media or "." in event.message.text:
+        return
+    
+    if not gvarstatus("cllear"):
+        return
+    
+    try:
+        # الحصول على النص والكيانات الأصلية
+        original_text = event.message.text
+        original_entities = event.message.entities or []
+        
+        # تصفية الكيانات للحفاظ على الإيموجي البريميوم فقط
+        premium_emoji_entities = [
+            e for e in original_entities 
+            if isinstance(e, types.MessageEntityCustomEmoji)
+        ]
+        
+        # تطبيق التشويش على النص مع الحفاظ على الإيموجي البريميوم
+        await event.edit(
+            f"‹ {original_text} ›",
+            formatting_entities=[
+                *premium_emoji_entities,
+                types.MessageEntitySpoiler(offset=3, length=len(original_text))
+            ]
+        )
+    except Exception as e:
+        print(f"Error in spoiler handler: {e}")

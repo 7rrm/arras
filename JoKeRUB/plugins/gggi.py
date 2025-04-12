@@ -498,14 +498,21 @@ async def permalink(event):
 )
 async def permalink(event):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(event)
+    user = await get_user_from_event(event)
     if not user:
         return
-    if custom:
-        return await edit_or_reply(event, f"[{custom}](tg://user?id={user.id})")
-    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
-    await edit_or_reply(event, f"[{tag}](tg://user?id={user.id})")
-
+    
+    # الحصول على النص المخصص إذا وجد (الجزء بعد الأمر)
+    custom_text = event.pattern_match.group(1).strip() if event.pattern_match.group(1) else None
+    
+    if custom_text:
+        text = f"[{custom_text}](tg://user?id={user.id})"
+    else:
+        tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+        text = f"[{tag}](tg://user?id={user.id})"
+    
+    await edit_or_reply(event, text)
+    
 @l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
 async def _(event):
     is_cllear = gvarstatus("cllear")
@@ -535,6 +542,6 @@ async def comming(event):
         is_cllear = gvarstatus("cllear")
         if is_cllear:
             try:
-                await event.edit(f"[{event.message.text}](spoiler)", parse_mode=CustomParseMode("markdown"))
+                await event.edit(f"كك[{event.message.text}](spoiler)كك", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass

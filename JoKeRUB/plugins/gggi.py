@@ -542,6 +542,6 @@ async def comming(event):
         is_cllear = gvarstatus("cllear")
         if is_cllear:
             try:
-                await event.edit(f"‹ㅤ** [{event.message.text}](spoiler) **ㅤ›", parse_mode=CustomParseMode("markdown"))
+                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass

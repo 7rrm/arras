@@ -31,9 +31,9 @@ from . import BOTLOG, BOTLOG_CHATID, spamwatch
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
-zed_dev = (5176749470, 5427469031, 925972505, 5280339206, 5426390871, 6269975462, 1985225531)
-zel_dev = (5176749470, 5427469031, 6269975462, 1985225531)
-zelzal = (925972505, 5427469031, 5280339206)
+zed_dev = (5280339206, 5427469031)
+zel_dev = (5176749470, 5427469031)
+zelzal = (5427469031, 5280339206)
 Zel_Uid = l313l.uid
 #zedub.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
 
@@ -481,3 +481,60 @@ async def get_emoji_id(event):
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
 
 
+@l313l.ar_cmd(pattern="اسمي$")
+async def permalink(event):
+    user = await event.client.get_me()
+    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    await edit_or_reply(event, f"[{tag}](tg://user?id={user.id})")
+
+
+@l313l.ar_cmd(
+    pattern="اسمه(?:\\s|$)([\\s\\S]*)",
+    command=("اسمه", plugin_category),
+    info={
+        "header": "لـ جـلب اسـم الشخـص بشكـل ماركـدون ⦇.اسمه بالـرد او + معـرف/ايـدي الشخص⦈ ",
+        "الاسـتخـدام": "{tr}اسمه <username/userid/reply>",
+    },
+)
+async def permalink(event):
+    """Generates a link to the user's PM with a custom text."""
+    user, custom = await get_user_from_event(event)
+    if not user:
+        return
+    if custom:
+        return await edit_or_reply(event, f"[{custom}](tg://user?id={user.id})")
+    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    await edit_or_reply(event, f"[{tag}](tg://user?id={user.id})")
+
+@l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
+async def _(event):
+    is_cllear = gvarstatus("cllear")
+    if not is_cllear:
+        addgvar ("cllear", "on")
+        await edit_delete(event, "**⎉╎تم تفعيـل خـط التشـويش .. بنجـاح ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش) **")
+        return
+    if is_cllear:
+        await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش) **")
+        return
+
+@l313l.on(admin_cmd(pattern="(تعطيل تشويش|تعطيل التشويش)"))
+async def _(event):
+    is_cllear = gvarstatus("cllear")
+    if is_cllear:
+        delgvar("cllear")
+        await edit_delete(event, "**⎉╎تم تعطيـل خـط التشـويش .. بنجـاح ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
+        return
+    if not is_cllear:
+        await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
+        return
+
+
+@l313l.on(events.NewMessage(outgoing=True))
+async def comming(event):
+    if event.message.text and not event.message.media and "." not in event.message.text:
+        is_cllear = gvarstatus("cllear")
+        if is_cllear:
+            try:
+                await event.edit(f"[{event.message.text}](spoiler)", parse_mode=CustomParseMode("markdown"))
+            except MessageIdInvalidError:
+                pass

@@ -542,6 +542,28 @@ async def comming(event):
         is_cllear = gvarstatus("cllear")
         if is_cllear:
             try:
-                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
+                # الحفاظ على الكيانات الأصلية للرسالة (بما في ذلك إيموجي البريميوم)
+                entities = event.message.entities or []
+                new_entities = []
+                
+                # نسخ جميع الكيانات الأصلية
+                for entity in entities:
+                    if isinstance(entity, types.MessageEntityCustomEmoji):
+                        # الحفاظ على إيموجي البريميوم
+                        new_entities.append(entity)
+                    elif isinstance(entity, types.MessageEntitySpoiler):
+                        # تجاهل كيانات السبويلر القديمة إن وجدت
+                        continue
+                
+                # إضافة كيان السبويلر للنص كامل
+                spoiler_entity = types.MessageEntitySpoiler(offset=0, length=len(event.message.text))
+                new_entities.append(spoiler_entity)
+                
+                # تعديل الرسالة مع الحفاظ على الكيانات الأصلية
+                await event.edit(
+                    f"‹  {event.message.text}  ›",
+                    parse_mode=None,  # تعطيل التحليل التلقائي
+                    formatting_entities=new_entities
+                )
             except MessageIdInvalidError:
                 pass

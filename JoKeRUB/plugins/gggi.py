@@ -537,41 +537,10 @@ async def _(event):
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def comming(event):
-    if not event.message.text or event.message.media or "." in event.message.text:
-        return
-    
-    if not gvarstatus("cllear"):
-        return
-    
-    try:
-        # الحصول على النص والكيانات الأصلية
-        original_text = event.message.text
-        original_entities = event.message.entities or []
-        
-        # إنشاء نسخة من الكيانات الأصلية
-        new_entities = []
-        custom_emoji_ids = []
-        
-        # تحديد مواقع الإيموجي البريميوم
-        for entity in original_entities:
-            if isinstance(entity, types.MessageEntityCustomEmoji):
-                custom_emoji_ids.append(entity.document_id)
-                new_entities.append(entity)
-        
-        # تطبيق التشويش على النص مع الحفاظ على الإيموجي البريميوم
-        if custom_emoji_ids:
-            # إذا كان هناك إيموجي بريميوم، نستخدم التحليل المخصص
-            await event.edit(
-                f"‹ {original_text} ›",
-                parse_mode=None,
-                formatting_entities=[
-                    *new_entities,
-                    types.MessageEntitySpoiler(offset=3, length=len(original_text))
-                ]
-            )
-        else:
-            # إذا لم يكن هناك إيموجي بريميوم، نستخدم الطريقة العادية
-            await event.edit(f"‹ **[{original_text}](spoiler)** ›")
-    
-    except Exception as e:
-        print(f"حدث خطأ في معالجة التشويش: {str(e)}")
+    if event.message.text and not event.message.media and "." not in event.message.text:
+        is_cllear = gvarstatus("cllear")
+        if is_cllear:
+            try:
+                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
+            except MessageIdInvalidError:
+                pass

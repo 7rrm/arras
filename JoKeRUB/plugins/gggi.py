@@ -535,35 +535,12 @@ async def _(event):
         await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
         return
 
-
 @l313l.on(events.NewMessage(outgoing=True))
 async def comming(event):
     if event.message.text and not event.message.media and "." not in event.message.text:
         is_cllear = gvarstatus("cllear")
         if is_cllear:
             try:
-                # الحفاظ على الكيانات الأصلية للرسالة (بما في ذلك إيموجي البريميوم)
-                entities = event.message.entities or []
-                new_entities = []
-                
-                # نسخ جميع الكيانات الأصلية
-                for entity in entities:
-                    if isinstance(entity, types.MessageEntityCustomEmoji):
-                        # الحفاظ على إيموجي البريميوم
-                        new_entities.append(entity)
-                    elif isinstance(entity, types.MessageEntitySpoiler):
-                        # تجاهل كيانات السبويلر القديمة إن وجدت
-                        continue
-                
-                # إضافة كيان السبويلر للنص كامل
-                spoiler_entity = types.MessageEntitySpoiler(offset=0, length=len(event.message.text))
-                new_entities.append(spoiler_entity)
-                
-                # تعديل الرسالة مع الحفاظ على الكيانات الأصلية
-                await event.edit(
-                    f"‹  {event.message.text}  ›",
-                    parse_mode=None,  # تعطيل التحليل التلقائي
-                    formatting_entities=new_entities
-                )
+                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass

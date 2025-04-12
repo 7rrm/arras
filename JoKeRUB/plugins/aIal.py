@@ -1030,7 +1030,7 @@ async def _(event):
     if not zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.تثبيت_قناة`** + اليـوزر)**")
     try:
-        zuz = f"@{l313l.me.username}" if Il313l.me.username else ""
+        zuz = f"@{l313l.me.username}" if l313l.me.username else ""
         ch = await l313l(
             functions.channels.CreateChannelRequest(
                 title="التـثبيت الخاص ب Lx5x5",

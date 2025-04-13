@@ -1,90 +1,53 @@
 from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-import os
-import datetime
-import asyncio
 from telethon import events
-from JoKeRUB import *
+from ..Config import Config
+from ..sql_helper.globals import gvarstatus, addgvar, delgvar
+from ..utils import Zed_Dev
 
-# أيام الأسبوع بالعربية
-Aljoker_Asbo3 = {
-    'Monday': 'الاثنين',
-    'Tuesday': 'الثلاثاء',
-    'Wednesday': 'الأربعاء',
-    'Thursday': 'الخميس',
-    'Friday': 'الجمعة',
-    'Saturday': 'السبت',
-    'Sunday': 'الأحد'
-}
+Zel_Uid = l313l.uid
+vocself = True
 
-# أمر جلب الصوت
-@l313l.on(admin_cmd(pattern="(جلب الصوت|جلب صوت|صوت)"))
-async def dato(event):
-    if not event.is_reply:
-        return await event.edit("يجب الرد على رسالة صوتية لاستخدام هذا الأمر.")
-    
-    lMl10l = await event.get_reply_message()
-    if not lMl10l.voice:
-        return await event.edit("الرد يجب أن يكون على رسالة صوتية.")
-    
-    voice = await lMl10l.download_media(file="voices/")
-    await bot.send_file(
-        "me",  # إرسال الملف إليك
-        voice,
-        caption=f"""
-- تـم حفظ الـصوت بنجـاح ✓ 
-- غير مبري الذمه اذا استخدمت الامر للابتزاز
-- CH: @aqhvv
-- Dev: @Lx5x5
-  """,
-    )
+@l313l.ar_cmd(pattern="(تفعيل البصمه الذاتيه|تفعيل البصمه الذاتية|تفعيل البصمة الذاتيه|تفعيل البصمة الذاتية)")
+async def start_datea(event):
+    global vocself
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+    zid = int(gvarstatus("ZThon_Vip"))
+    if Zel_Uid != zid:
+        return
+    if vocself:
+        return await edit_or_reply(event, "**⎉╎حفظ البصمه الذاتية التلقائي 🎙**\n**⎉╎مفعلـه .. مسبقـاً ✅**")
+    vocself = True
+    await edit_or_reply(event, "**⎉╎تم تفعيل حفظ البصمه الذاتية 🎙**\n**⎉╎تلقائياً .. بنجاح ✅**")
 
-# تفعيل حفظ الرسائل الصوتية
-@l313l.on(admin_cmd(pattern="(الصوت تشغيل|صوت تشغيل)"))
-async def reda(event):
-    if gvarstatus("savevoiceforme"):
-        return await edit_delete(event, "**᯽︙حفظ الرسائل الصوتية مفعل وليس بحاجة للتفعيل مجدداً **")
-    else:
-        addgvar("savevoiceforme", "reda")
-        await edit_delete(event, "**᯽︙تم تفعيل ميزة حفظ الرسائل الصوتية بنجاح ✓**")
+@l313l.ar_cmd(pattern="(تعطيل البصمه الذاتيه|تعطيل البصمه الذاتية|تعطيل البصمة الذاتيه|تعطيل البصمة الذاتية)")
+async def stop_datea(event):
+    global vocself
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5 .**")
+    zid = int(gvarstatus("ZThon_Vip"))
+    if Zel_Uid != zid:
+        return
+    if vocself:
+        vocself = False
+        return await edit_or_reply(event, "**⎉╎تم تعطيل حفظ البصمه الذاتية 🎙**\n**⎉╎الان صارت مو شغالة .. ✅**")
+    await edit_or_reply(event, "**⎉╎حفظ البصمه الذاتية التلقائي 🎙**\n**⎉╎معطلـه .. مسبقـاً ✅**")
 
-# تعطيل حفظ الرسائل الصوتية
-@l313l.on(admin_cmd(pattern="(الصوت تعطيل|صوت تعطيل)"))
-async def Reda_Is_Here(event):
-    if gvarstatus("savevoiceforme"):
-        delgvar("savevoiceforme")
-        return await edit_delete(event, "**᯽︙تم تعطيل حفظ الرسائل الصوتية بنجاح ✓**")
-    else:
-        await edit_delete(event, "**᯽︙انت لم تفعل حفظ الرسائل الصوتية لتعطيلها!**")
-
-# دالة للتحقق من وجود رسالة صوتية ذاتية التدمير
-def joker_unread_voice(message):
-    return message.media_unread and message.voice and message.media.ttl_seconds is not None
-
-# دالة لحفظ الرسائل الصوتية وإرسالها مع التدمير الذاتي
-async def Hussein(event, caption):
-    voice = await event.download_media(file="voices/")
-    sender = await event.get_sender()
-    sender_id = event.sender_id
-    lMl10l_date = event.date.strftime("%Y-%m-%d")
-    lMl10l_day = Aljoker_Asbo3[event.date.strftime("%A")]
-    await bot.send_file(
-        "me",
-        voice,
-        caption=caption.format(sender.first_name, sender_id, lMl10l_date, lMl10l_day),
-        parse_mode="markdown"
-    )
-
-# حدث الاستماع للرسائل الصوتية الجديدة
-@l313l.on(events.NewMessage(func=lambda e: e.is_private and joker_unread_voice(e) and e.sender_id != bot.uid))
-async def Reda(event):
-    if gvarstatus("savevoiceforme"):
-        caption = """**
-           ♡  غير مبري الذمة اذا استعملته للأبتزاز  ♡
-♡ تم حفظ الرسالة الصوتية بنجاح ✓
-♡ تم الصنع : @Lx5x5
-♡ أسم المرسل : [{0}](tg://user?id={1})
-♡  تاريخ الرسالة : `{2}`
-♡  أرسلت في يوم `{3}`
-        **"""
-        await Hussein(event, caption)
+@l313l.on(events.NewMessage(func=lambda e: e.is_private and (e.audio or e.voice) and e.media_unread))
+async def sddm(event):
+    global vocself
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return
+    zelzal = event.sender_id
+    malath = l313l.uid
+    if zelzal == malath:
+        return
+    zid = int(gvarstatus("ZThon_Vip")) if gvarstatus("ZThon_Vip") else 0
+    if Zel_Uid != zid:
+        return
+    if vocself:
+        sender = await event.get_sender()
+        username = f"@{sender.username}" if sender.username else "لا يوجد"
+        chat = await event.get_chat()
+        voc = await event.download_media()
+        await l313l.send_file("me", voc, caption=f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ البصمه الذاتيه 🎙](t.me/lx5x5)\n⋆─┄─┄─┄─┄─┄─┄─⋆\n**⌔ مࢪحبـاً .. عـزيـزي 🫂\n⌔ تـم حفظ البصمه الذاتية .. تلقائياً ☑️** ❝\n**⌔ معلومـات المـرسـل :-**\n**• الاسم :** {_format.mentionuser(sender.first_name , sender.id)}\n**• اليوزر :** {username}\n**• الايدي :** `{sender.id}`")

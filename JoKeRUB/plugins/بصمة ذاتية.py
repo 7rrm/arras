@@ -38,21 +38,46 @@ async def stop_datea(event):
         return await edit_or_reply(event, "**⎉╎تم تعطيل حفظ البصمه الذاتية 🎙**\n**⎉╎الان صارت مو شغالة .. ✅**")
     await edit_or_reply(event, "**⎉╎حفظ البصمه الذاتية التلقائي 🎙**\n**⎉╎معطلـه .. مسبقـاً ✅**")
 
-@l313l.on(events.NewMessage(func=lambda e: e.is_private and (e.audio or e.voice) and e.media_unread))
+@l313l.on(events.NewMessage(func=lambda e: e.is_private and (e.audio or e.voice) and e.media_unread)
 async def sddm(event):
     global vocself
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+    if not vocself:  # إذا كانت ميزة الحفظ معطلة
         return
-    zelzal = event.sender_id
-    malath = l313l.uid
-    if zelzal == malath:
+    
+    # تحقق من صلاحية VIP
+    zid = gvarstatus("ZThon_Vip")
+    if zid is None and Zel_Uid not in Zed_Dev:
         return
-    zid = int(gvarstatus("ZThon_Vip")) if gvarstatus("ZThon_Vip") else 0
-    if Zel_Uid != zid:
+    
+    if zid is not None:
+        if Zel_Uid != int(zid):
+            return
+    
+    # تجنب حفظ الرسائل المرسلة من نفس المستخدم
+    if event.sender_id == l313l.uid:
         return
-    if vocself:
+    
+    try:
         sender = await event.get_sender()
         username = f"@{sender.username}" if sender.username else "لا يوجد"
-        chat = await event.get_chat()
+        
+        # تحميل الملف الصوتي
         voc = await event.download_media()
-        await l313l.send_file("me", voc, caption=f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ البصمه الذاتيه 🎙](t.me/lx5x5)\n⋆─┄─┄─┄─┄─┄─┄─⋆\n**⌔ مࢪحبـاً .. عـزيـزي 🫂\n⌔ تـم حفظ البصمه الذاتية .. تلقائياً ☑️** ❝\n**⌔ معلومـات المـرسـل :-**\n**• الاسم :** {_format.mentionuser(sender.first_name , sender.id)}\n**• اليوزر :** {username}\n**• الايدي :** `{sender.id}`")
+        
+        # إرسال الملف مع المعلومات
+        await l313l.send_file(
+            "me",
+            voc,
+            caption=(
+                f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ البصمه الذاتيه 🎙](t.me/ZThon)\n"
+                f"⋆─┄─┄─┄─┄─┄─┄─⋆\n"
+                f"**⌔ مࢪحبـاً .. عـزيـزي 🫂\n"
+                f"⌔ تـم حفظ البصمه الذاتية .. تلقائياً ☑️** ❝\n"
+                f"**⌔ معلومـات المـرسـل :-**\n"
+                f"**• الاسم :** {sender.first_name}\n"
+                f"**• اليوزر :** {username}\n"
+                f"**• الايدي :** `{sender.id}`"
+            )
+        )
+    except Exception as e:
+        print(f"حدث خطأ أثناء حفظ البصمة: {e}")

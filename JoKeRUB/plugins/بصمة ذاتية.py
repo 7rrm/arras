@@ -27,6 +27,8 @@ async def dato(event):
   """,
     )
 
+addgvar("savepicforme", "reda")  # تم تفعيل الميزة تلقائيًا
+
 # تفعيل حفظ الرسائل الصوتية
 @l313l.on(admin_cmd(pattern="(الصوت تشغيل|صوت تشغيل)"))
 async def reda(event):

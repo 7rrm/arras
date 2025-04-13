@@ -1,19 +1,11 @@
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
-import datetime
 from telethon import events
 from JoKeRUB import *
-#ها يالفاشل شعدك داخل هنا 🫣 اعتمد ع نفسك لتخلي سورس الجوكر مصدر طشت سورسك
-Aljoker_Asbo3 = {
-    'Monday': 'الاثنين',
-    'Tuesday': 'الثلاثاء',
-    'Wednesday': 'الأربعاء',
-    'Thursday': 'الخميس',
-    'Friday': 'الجمعة',
-    'Saturday': 'السبت',
-    'Sunday': 'الأحد'
-}
+
+# تفعيل الميزة تلقائياً عند بدء التشغيل
+addgvar("savepicforme", "reda")
 
 @l313l.on(admin_cmd(pattern="(جلب الصوره|ذاتيه|ذاتية|احح)"))
 async def dato(event):
@@ -32,14 +24,7 @@ async def dato(event):
   """,
     )
     await event.delete()
-#By @jepthon For You 🌹
-from telethon import events
-import os
 
-# تفعيل الميزة تلقائيًا عند بدء التشغيل
-addgvar("savepicforme", "reda")  # تم تفعيل الميزة تلقائيًا
-
-# أمر تفعيل الذاتية يدويًا
 @l313l.on(events.NewMessage(pattern="(تفعيل الذاتية|تفعيل ذاتية)"))
 async def enable_auto_save(event):
     if gvarstatus("savepicforme"):
@@ -48,7 +33,6 @@ async def enable_auto_save(event):
         addgvar("savepicforme", "reda")
         await event.reply("**᯽︙تم تفعيل ميزة حفظ الذاتيات بنجاح ✓**")
 
-# أمر تعطيل الذاتية يدويًا
 @l313l.on(events.NewMessage(pattern="(تعطيل الذاتية|تعطيل ذاتية)"))
 async def disable_auto_save(event):
     if gvarstatus("savepicforme"):
@@ -57,36 +41,34 @@ async def disable_auto_save(event):
     else:
         await event.reply("**᯽︙حفظ الذاتيات معطل بالفعل!**")
 
-# دالة للتحقق من وجود ميديا غير مقروءة
 def joker_unread_media(message):
     return message.media_unread and (message.photo or message.video)
 
-# دالة لحفظ الذاتية وإرسالها
-async def Hussein(event, caption):
+async def Hussein(event):
     media = await event.download_media()
     sender = await event.get_sender()
-    sender_id = event.sender_id
-    lMl10l_date = event.date.strftime("%Y-%m-%d")
-    lMl10l_day = event.date.strftime("%A")  # يمكنك استبدالها بقائمة أيام إذا لزم الأمر
+    username = f"@{sender.username}" if sender.username else "لا يوجد"
+    
+    caption = f"""
+ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ البصمه الذاتيه 🎙
+⋆─┄─┄─┄─┄─┄─┄─⋆
+**⌔ مࢪحبـاً .. عـزيـزي 🫂**
+**⌔ تـم حفظ البصمه الذاتية .. تلقائياً ☑️ ❝**
+**⌔ معلومـات المـرسـل :-**
+**• الاسم :** `{sender.first_name}`
+**• اليوزر :** {username}
+**• الايدي :** `{sender.id}`
+    """
+    
     await bot.send_file(
         "me",
         media,
-        caption=caption.format(sender.first_name, sender_id, lMl10l_date, lMl10l_day),
+        caption=caption,
         parse_mode="markdown"
     )
     os.remove(media)
 
-# دالة للتعامل مع الرسائل الواردة
 @l313l.on(events.NewMessage(func=lambda e: e.is_private and joker_unread_media(e) and e.sender_id != bot.uid))
 async def Reda(event):
-    if gvarstatus("savepicforme"):  # إذا كانت الميزة مفعلة
-        caption = """**
-           ♡  غير مبري الذمة اذا استعملته للأبتزاز  ♡
-♡ تم حفظ الذاتية بنجاح ✓
-♡ تم الصنع : @lx5x5
-♡ أسم المرسل : [{0}](tg://user?id={1})
-♡  تاريخ الذاتية : `{2}`
-♡  أرسلت في يوم `{3}`
-       ♡    Karar    ♡
-        **"""
-        await Hussein(event, caption)
+    if gvarstatus("savepicforme"):
+        await Hussein(event)

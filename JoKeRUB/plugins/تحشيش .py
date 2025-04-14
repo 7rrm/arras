@@ -24,7 +24,7 @@ plugin_category = "utils"
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     muh = user.first_name.replace("\u2060", "") if user.first_name else user.username
@@ -39,7 +39,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -54,7 +54,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -69,7 +69,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -84,7 +84,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -99,7 +99,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -114,7 +114,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -129,7 +129,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:
@@ -144,7 +144,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:

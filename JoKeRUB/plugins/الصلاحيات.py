@@ -66,12 +66,12 @@ ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
     until_date=None, view_messages=None, send_media=True, send_stickers=True, send_gifs=True
 )
 from ..Config import Config
-zed_dev = (925972505, 1895219306, 5280339206)
+zed_dev = (5427469031, 5280339206)
 kicked_count = 0
 The_Premium = False
 activated = []
 admins_out = {}
-plugin_category = "الادمن"
+plugin_category = "admin"
 
 async def is_admin(event, user):
     try:
@@ -84,7 +84,7 @@ async def is_admin(event, user):
         is_mod = False
     return is_mod
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="قفل(?: |$)(.*)",
     command=("قفل", plugin_category),
     info={
@@ -233,7 +233,7 @@ async def _(event):
 
         return await edit_or_reply(event, "**⎉╎عـذࢪاً عـزيـزي .. لايمكنك قفـل اي شي هنـا ...𓆰**")
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="فتح(?: |$)(.*)",
     command=("فتح", plugin_category),
     info={
@@ -385,21 +385,21 @@ async def _(event):
 
         return await edit_or_reply(event, "**⎉╎عـذࢪاً عـزيـزي .. لايمكنك اعـادة فتـح اي شي هنـا ...𓆰**")
 
-@zedub.zed_cmd(pattern="(المميز تفعيل|قفل المميز)")
+@l313l.ar_cmd(pattern="(المميز تفعيل|قفل المميز)")
 async def lock_premium(event):
     global The_Premium
     The_Premium = True
     activated.append(event.chat_id)
     return await edit_or_reply(event, "**⎉╎تم قفـل الايمـوجي المميـز .. بنجاح ✓**")
 
-@zedub.zed_cmd(pattern="(المميز تعطيل|فتح المميز)")
+@l313l.ar_cmd(pattern="(المميز تعطيل|فتح المميز)")
 async def unlock_premium(event):
     global The_Premium
     The_Premium = False
     activated.remove(event.chat_id)
     return await edit_or_reply(event, "**⎉╎تم فتـح الايمـوجي المميـز .. بنجاح ✓**")
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الاعدادات$",
     command=("الاعدادات", plugin_category),
     info={
@@ -443,7 +443,7 @@ async def _(event):
     await edit_or_reply(event, res)
 
 
-@zedub.zed_cmd(incoming=True, forword=None)
+@l313l.ar_cmd(incoming=True, forword=None)
 async def check_incoming_messages(event):
     if not event.is_group:
         return
@@ -455,10 +455,10 @@ async def check_incoming_messages(event):
             return
     except Exception:
         return
-    zed_dev = (925972505, 1895219306, 5280339206)
+    zed_dev = (5427469031, 5280339206)
     zelzal = event.sender_id
     zelzal_by = event.sender_id
-    malath = zedub.uid
+    malath = l313l.uid
     hhh = event.message.text
     ttt = gvarstatus("ANTI_THIFT")
     zed_id = event.chat_id
@@ -576,7 +576,7 @@ async def check_incoming_messages(event):
 	            )
 	            update_lock(zed_id, "inline", False)
 
-@zedub.on(events.NewMessage(incoming=True))
+@l313l.on(events.NewMessage(incoming=True))
 async def Premiumz(event):
     if not The_Premium:
         return
@@ -585,7 +585,7 @@ async def Premiumz(event):
     if event.is_private or event.chat_id not in activated:
         return
     sender_id = event.sender_id
-    malath = zedub.uid
+    malath = l313l.uid
     if sender_id == malath or await is_admin(event, sender_id) or not await is_admin(event, malath):
         return
     if sender_id not in zed_dev:
@@ -600,7 +600,7 @@ async def Premiumz(event):
                 return
 
 
-@zedub.on(events.MessageEdited)
+@l313l.on(events.MessageEdited)
 async def check_edit_media(event):
     if not is_locked(event.chat_id, "document"):
         return
@@ -612,9 +612,9 @@ async def check_edit_media(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (925972505, 1895219306, 5280339206) 
+    zed_dev = (5427469031, 5280339206) 
     zelzal = event.sender_id
-    malath = zedub.uid
+    malath = l313l.uid
     hhh = event.message.text
     zed_id = event.chat_id
     user = await event.get_sender()
@@ -634,7 +634,7 @@ async def check_edit_media(event):
 	            update_lock(zed_id, "document", False)
 
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def _(event):
     if not is_locked(event.chat_id, "contact"):
         return
@@ -646,8 +646,8 @@ async def _(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (925972505, 1895219306, 5280339206)
-    malath = zedub.uid
+    zed_dev = (5427469031, 5280339206)
+    malath = l313l.uid
     if event.user_added:
         zedy = await event.client.get_entity(event.user_id)
         zelzal_by = event.action_message.sender_id
@@ -684,7 +684,7 @@ async def _(event):
                 )
             )
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def _(event):
     if not is_locked(event.chat_id, "egame"):
         return
@@ -696,7 +696,7 @@ async def _(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (1895219306, 925972505)
+    zed_dev = (5427469031, 925972505)
     if event.user_joined: 
         a_user = await event.get_user()
         first = a_user.first_name
@@ -732,7 +732,7 @@ async def _(event):
                 )
             )
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def _(event):
     if not is_locked(event.chat_id, "location"):
         return
@@ -744,7 +744,7 @@ async def _(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (925972505, 1895219306, 5280339206)
+    zed_dev = (5427469031, 5280339206)
     if event.user_joined: 
         zedy = await event.client.get_entity(event.user_id)
         is_ban_able = False
@@ -777,7 +777,7 @@ async def _(event):
             )
 
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def _(event):
     if not is_locked(event.chat_id, "bots"):
         return
@@ -789,8 +789,8 @@ async def _(event):
         creator = chat.creator
         if not admin and not creator:
             return
-    zed_dev = (925972505, 1895219306, 5280339206)
-    malath = zedub.uid
+    zed_dev = (5427469031, 5280339206)
+    malath = l313l.uid
     if event.user_added:
         zedy = await event.client.get_entity(event.user_id)
         zelzal_by = event.action_message.sender_id
@@ -828,7 +828,7 @@ async def _(event):
             )
 
 
-@zedub.on(events.ChatAction())
+@l313l.on(events.ChatAction())
 async def handle_event(event):
     global kicked_count
     if not is_locked(event.chat_id, "bots"):
@@ -851,7 +851,7 @@ async def handle_event(event):
                 await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
 
 
-@zedub.zed_cmd(pattern=f"البوتات ?(.*)")
+@l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):
     con = zed.pattern_match.group(1).lower()
     del_u = 0

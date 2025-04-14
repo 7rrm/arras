@@ -41,7 +41,7 @@ rehu = [
 
 @l313l.on(admin_cmd(pattern="رفع مرتي(?:\s|$)([\s\S]*)"))
 async def permalink(mention):
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     JoKeRUB = user.last_name.replace("\u2060", "") if user.last_name else user.username
@@ -53,7 +53,7 @@ async def permalink(mention):
 @l313l.on(admin_cmd(pattern="رفع جلب(?:\s|$)([\s\S]*)"))
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = await get_user_from_event(mention)
+    user = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:

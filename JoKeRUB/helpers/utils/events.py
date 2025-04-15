@@ -19,25 +19,25 @@ async def reply_id(event):
     return reply_to_id
 
 
-async def get_user_from_event(event):
-    """ نسخة معدلة متوافقة مع السورس الجديد """
+async def get_user_from_event(event, secondgroup=False):
+    """Get user from event with optional secondgroup parameter"""
     if event.reply_to_msg_id:
         previous_message = await event.get_reply_message()
         try:
             user_object = await event.client.get_entity(previous_message.sender_id)
-            return user_object
+            return (user_object, None) if secondgroup else user_object
         except Exception as e:
             await edit_or_reply(event, f"**خطأ في جلب المستخدم:** {str(e)}")
-            return None
+            return (None, None) if secondgroup else None
     
     args = event.pattern_match.group(1)
     if not args:
         try:
             self_user = await event.client.get_me()
-            return self_user
+            return (self_user, None) if secondgroup else self_user
         except Exception as e:
             await edit_or_reply(event, f"**خطأ في جلب معلوماتك:** {str(e)}")
-            return None
+            return (None, None) if secondgroup else None
     
     try:
         if args.isnumeric() or (args.startswith("-") and args[1:].isnumeric()):
@@ -46,13 +46,15 @@ async def get_user_from_event(event):
         if event.message.entities:
             probable_user_mention_entity = event.message.entities[0]
             if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                return await event.client.get_entity(user_id)
+                user_id = probable_user_mention_mention_entity.user_id
+                user_object = await event.client.get_entity(user_id)
+                return (user_object, None) if secondgroup else user_object
         
-        return await event.client.get_entity(args)
+        user_object = await event.client.get_entity(args)
+        return (user_object, None) if secondgroup else user_object
     except Exception as e:
         await edit_or_reply(event, f"**خطأ في جلب المستخدم:** {str(e)}")
-        return None
+        return (None, None) if secondgroup else None
 
 async def checking(l313l):
     cat_c = base64.b64decode("YnkybDJvRG04WEpsT1RBeQ==")

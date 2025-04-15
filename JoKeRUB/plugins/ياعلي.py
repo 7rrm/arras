@@ -72,7 +72,7 @@ import telethon
 from telethon.events import CallbackQuery, InlineQuery
 from telethon import Button, events, functions
 from telethon.tl import functions, types
-from telethon.extensions import html, markdown
+from telethon.extensions import html
 from telethon.errors import FloodWaitError
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.channels import EditBannedRequest, GetFullChannelRequest, GetParticipantRequest
@@ -231,7 +231,6 @@ async def stop_datea(event):
     await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. معطـل مسبقـاً ☑️**")
 
 
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def fp(event):
     global zelzaal
@@ -267,26 +266,27 @@ async def fp(event):
                     chn = ra.link
                 if chn.startswith("https://"):
                     message = (
-                        f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - **الاشتࢪاك الإجباࢪي**\n"
-                        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                        f"⌔╎**مࢪحبـاً عـزيـزي 🫂** [{sender.first_name}](tg://user?id={sender.id})\n"
-                        f"⌔╎**لـ الغـاء كتمـك 🔊**\n"
-                        f"⌔╎**يُࢪجـى الإشتـࢪاك بالقنـاة {chn}** <a href='emoji/5668127928907464707'>❤️</a>"
+                        f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
+                        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+                        f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
+                        f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
+                        f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة {chn}</b> <a href='emoji/5668127928907464707'>❤️</a>"
                     )
                     await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
                     return await event.delete()
                 else:
                     message = (
-                        f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - **الاشتࢪاك الإجباࢪي**\n"
-                        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                        f"⌔╎**مࢪحبـاً عـزيـزي 🫂** [{sender.first_name}](tg://user?id={sender.id})\n"
-                        f"⌔╎**لـ الغـاء كتمـك 🔊**\n"
-                        f"⌔╎**يُࢪجـى الإشتـࢪاك بالقنـاة @{chn}** <a href='emoji/5668127928907464707'>❤️</a>"
+                        f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
+                        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+                        f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
+                        f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
+                        f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{chn}</b> <a href='emoji/5668127928907464707'>❤️</a>"
                     )
                     await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
                     return await event.delete()
         except BaseException:
             return
+
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الكروب|وضع اشتراك الكروب) ?(.*)")
 async def fs(event):
@@ -357,11 +357,11 @@ async def fg(event):
             rip = await check_him(channel, event.sender_id)
             if rip is False:
                 message = (
-                    f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي](t.me/ZedThon)\n"
-                    f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                    f"⌔╎**مࢪحبـاً عـزيـزي 🫂** [{sender.first_name}](tg://user?id={sender.id})\n"
-                    f"⌔╎**لـ الغـاء كتمـك 🔊**\n"
-                    f"⌔╎**يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}** <a href='emoji/5668127928907464707'>❤️</a>"
+                    f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
+                    f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+                    f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
+                    f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
+                    f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}</b> <a href='emoji/5668127928907464707'>❤️</a>"
                 )
                 await bot.send_message(
                     event.chat_id, 
@@ -374,7 +374,8 @@ async def fg(event):
             if not await rights(event):
                 await bot.send_message(
                     event.chat_id,
-                    "**⌔╎عـذراً .. عـزيـزي\n**⌔╎لا املك صلاحيات المشـرف هنـا**",
+                    "<b>⌔╎عـذراً .. عـزيـزي\n⌔╎لا املك صلاحيات المشـرف هنـا</b>",
+                    parse_mode=CustomParseMode("html")
                 )
 
 @l313l.ar_cmd(pattern="تعطيل اشتراك الكروب$")

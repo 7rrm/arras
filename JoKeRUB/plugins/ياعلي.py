@@ -236,56 +236,49 @@ async def fp(event):
     global zelzaal
     if not zelzaal:
         return
-    chat_id = event.chat_id
+    
+    # التحقق من الشروط المسبقة
     chat = await event.get_chat()
     sender = await event.get_sender()
-    zelzal = (await event.get_sender()).id
-    if no_log_pms_sql.is_approved(chat.id) and chat.id == 777000:
+    if chat.bot or sender.bot or chat.id == 777000:
         return
-    if chat.id == 777000:
-        return
-    if chat.bot:
-        return
-    if sender.bot:
-        return
-    if zelzal in zed_dev:
-        return
-    if zelzaal:
-        try:
-            ch = gvarstatus("Custom_Pm_Channel")
-            try:
-                ch = int(ch)
-            except BaseException:
-                return
-            rip = await check_him(ch, event.sender_id)
-            if rip is False and not pmpermit_sql.is_approved(event.sender_id):
-                c = await l313l.get_entity(ch)
-                chn = c.username
-                if c.username == None:
-                    ra = await l313l(ExportChatInviteRequest(ch))
-                    chn = ra.link
-                if chn.startswith("https://"):
-                    message = (
-                        f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
-                        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                        f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
-                        f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
-                        f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة {chn}</b> <a href='emoji/5668127928907464707'>❤️</a>"
-                    )
-                    await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
-                    return await event.delete()
-                else:
-                    message = (
-                        f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
-                        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                        f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
-                        f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
-                        f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{chn}</b> <a href='emoji/5668127928907464707'>❤️</a>"
-                    )
-                    await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
-                    return await event.delete()
-        except BaseException:
+    
+    try:
+        ch = gvarstatus("Custom_Pm_Channel")
+        if not ch:
             return
+            
+        ch = int(ch)
+        rip = await check_him(ch, event.sender_id)
+        
+        if rip is False and not pmpermit_sql.is_approved(event.sender_id):
+            # الحصول على معلومات المستخدم مسبقاً
+            try:
+                user = await event.client.get_entity(event.sender_id)
+                username = user.first_name or "عزيزي"
+            except:
+                username = "عزيزي"
+            
+            # الحصول على معلومات القناة
+            c = await l313l.get_entity(ch)
+            chn = c.username if c.username else (await l313l(ExportChatInviteRequest(ch))).link
+            
+            # بناء الرسالة النهائية
+            message = (
+                f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
+                f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+                f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> {username}\n"
+                f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
+                f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn}</b> "
+                f"<a href='emoji/5668127928907464707'>❤️</a>"
+            )
+            
+            # إرسال الرسالة
+            await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
+            await event.delete()
+            
+    except Exception as e:
+        LOGS.error(f"Error in force subscribe: {str(e)}")
 
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الكروب|وضع اشتراك الكروب) ?(.*)")

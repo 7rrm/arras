@@ -269,7 +269,7 @@ async def fp(event):
                 f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
                 f"⌔╎مࢪحبـاً عـزيـزي {username}"
                 f"<a href='emoji/5994531982975964413'>❤️</a>\n"
-                f"⌔╎لـ الغـاء كتمـك"
+                f"⌔╎لـ الغـاء كتمـك "
                 f"<a href='emoji/5841359499146825803'>❤️</a>\n"
                 f"⌔╎يُرجـى الإشتـراك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn} "
                 f"<a href='emoji/5994576637750941503'>❤️</a>"

@@ -265,12 +265,14 @@ async def fp(event):
             
             # بناء الرسالة النهائية
             message = (
-                f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
-                f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> {username}\n"
-                f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
-                f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn}</b> "
-                f"<a href='emoji/5668127928907464707'>❤️</a>"
+                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري\n"
+                f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+                f"⌔╎مࢪحبـاً عـزيـزي {username}"
+                f"<a href='emoji/5994531982975964413'>❤️</a>\n"
+                f"⌔╎لـ الغـاء كتمـك"
+                f"<a href='emoji/5841359499146825803'>❤️</a>\n"
+                f"⌔╎يُرجـى الإشتـراك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn} "
+                f"<a href='emoji/5994576637750941503'>❤️</a>"
             )
             
             # إرسال الرسالة
@@ -350,11 +352,13 @@ async def fg(event):
             rip = await check_him(channel, event.sender_id)
             if rip is False:
                 message = (
-                    f"<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b>\n"
+                    f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري</b>\n"
                     f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                    f"<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> [{sender.first_name}](tg://user?id={sender.id})\n"
-                    f"<b>⌔╎لـ الغـاء كتمـك 🔊</b>\n"
-                    f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}</b> <a href='emoji/5668127928907464707'>❤️</a>"
+                    f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id})"
+                    f"<a href='emoji/5994531982975964413'>❤️</a>\n"
+                    f"<b>⌔╎لـ الغـاء كتمـك </b>"
+                    f"<a href='emoji/5841359499146825803'>❤️</a>\n"
+                    f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}</b> <a href='emoji/5994576637750941503'>❤️</a>"
                 )
                 await bot.send_message(
                     event.chat_id, 

@@ -88,7 +88,7 @@ from ..core.logger import logging
 from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
 
 zilzal = l3l31.uid
-zed_dev = (5427469031),
+zed_dev = (5427469031,)
 LOGS = logging.getLogger(__name__)
 zelzaal = False
 MUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=True)
@@ -292,7 +292,7 @@ async def fg(event):
     if not chat_db:
         return
     chat_id = event.chat_id
-    zed_dev = (5427469031),
+    zed_dev = (5427469031,)
     zelzal = event.sender_id
     try:
         sender = await event.get_sender()

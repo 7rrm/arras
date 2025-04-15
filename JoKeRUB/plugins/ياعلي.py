@@ -87,7 +87,7 @@ from ..core.managers import edit_delete, edit_or_reply
 from ..core.logger import logging
 from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
 
-zilzal = l3l31.uid
+zilzal = l313l.uid
 zed_dev = (5427469031,)
 LOGS = logging.getLogger(__name__)
 zelzaal = False

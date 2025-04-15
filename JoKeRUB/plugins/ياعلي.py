@@ -267,7 +267,7 @@ async def fp(event):
             message = (
                 f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري\n"
                 f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                f"⌔╎مࢪحبـاً عـزيـزي {username}"
+                f"⌔╎مࢪحبـاً عـزيـزي {username} "
                 f"<a href='emoji/5994531982975964413'>❤️</a>\n"
                 f"⌔╎لـ الغـاء كتمـك "
                 f"<a href='emoji/5841359499146825803'>❤️</a>\n"
@@ -354,7 +354,7 @@ async def fg(event):
                 message = (
                     f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري</b>\n"
                     f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                    f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id})"
+                    f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id}) "
                     f"<a href='emoji/5994531982975964413'>❤️</a>\n"
                     f"<b>⌔╎لـ الغـاء كتمـك </b>"
                     f"<a href='emoji/5841359499146825803'>❤️</a>\n"

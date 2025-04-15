@@ -301,7 +301,7 @@ async def fp(event):
                     chn = ra.link
                 if chn.startswith("https://"):
                     await event.reply(
-                        f'<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b> <a href="emoji/5668127928907464707">❤️</a>\n'
+                        f'<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢 - الاشتࢪاك الإجباࢪي</b> <a href="emoji/5668127928907464707">❤️</a>\n'
                         f'<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b> <a href="emoji/5210763312597326700">❤️</a>\n\n'
                         f'<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> <a href="tg://user?id={sender.id}">{sender.first_name}</a> <a href="emoji/5210763312597326700">❤️</a>\n'
                         f'<b>⌔╎لـ الغـاء كتمـك 🔊</b> <a href="emoji/5210763312597326700">❤️</a>\n'
@@ -312,7 +312,7 @@ async def fp(event):
                     return await event.delete()
                 else:
                     await event.reply(
-                        f'<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي</b> <a href="emoji/5668127928907464707">❤️</a>\n'
+                        f'<b>ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡n - الاشتࢪاك الإجباࢪي</b> <a href="emoji/5668127928907464707">❤️</a>\n'
                         f'<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b> <a href="emoji/5210763312597326700">❤️</a>\n\n'
                         f'<b>⌔╎مࢪحبـاً عـزيـزي 🫂</b> <a href="tg://user?id={sender.id}">{sender.first_name}</a> <a href="emoji/5210763312597326700">❤️</a>\n'
                         f'<b>⌔╎لـ الغـاء كتمـك 🔊</b> <a href="emoji/5210763312597326700">❤️</a>\n'
@@ -355,7 +355,7 @@ async def fg(event):
             rip = await check_him(channel, event.sender_id)
             if rip is False:
                 await bot.send_message(
-                    event.chat_id, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - الاشتࢪاك الإجباࢪي](t.me/ZedThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مࢪحبـاً عـزيـزي 🫂** [{sender.first_name}](tg://user?id={sender.id}) \n⌔╎**لـ الغـاء كتمـك 🔊**\n⌔╎**يُࢪجـى الإشتـࢪاك بالقنـاة @{channel} **", link_preview=False
+                    event.chat_id, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 arrar - الاشتࢪاك الإجباࢪي](t.me/ZedThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مࢪحبـاً عـزيـزي 🫂** [{sender.first_name}](tg://user?id={sender.id}) \n⌔╎**لـ الغـاء كتمـك 🔊**\n⌔╎**يُࢪجـى الإشتـࢪاك بالقنـاة @{channel} **", link_preview=False
                 )
                 await event.delete()
         except:

@@ -59,6 +59,9 @@ async def repo(event):
     await response[0].click(event.chat_id)
     await event.delete()
 
+########################################
+#################الاشـتـراك###################
+#######################################
 
 import os
 import re
@@ -69,6 +72,7 @@ import telethon
 from telethon.events import CallbackQuery, InlineQuery
 from telethon import Button, events, functions
 from telethon.tl import functions, types
+from telethon.extensions import html, markdown
 from telethon.errors import FloodWaitError
 from telethon.errors.rpcerrorlist import UserNotParticipantError
 from telethon.tl.functions.channels import EditBannedRequest, GetFullChannelRequest, GetParticipantRequest
@@ -120,6 +124,7 @@ UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
     until_date=None, view_messages=None, send_messages=True, send_media=True, send_stickers=True, send_gifs=True
 )
+
 async def is_admin(event, user):
     try:
         sed = await event.client.get_permissions(event.chat_id, user)
@@ -208,6 +213,7 @@ async def _(event):
         addgvar("Custom_Pm_Channel", event.chat_id)
         await edit_or_reply(event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`")
 
+
 @l313l.ar_cmd(pattern="(تفعيل اشتراك الخاص|تفعيل الاشتراك خاص)")
 async def start_datea(event):
     global zelzaal
@@ -223,6 +229,8 @@ async def stop_datea(event):
         zelzaal = False
         return await edit_or_reply(event, "**⎉╎تم تعطيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
     await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. معطـل مسبقـاً ☑️**")
+
+
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def fp(event):
@@ -278,7 +286,7 @@ async def fp(event):
                     await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
                     return await event.delete()
         except BaseException:
-        return
+            return
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الكروب|وضع اشتراك الكروب) ?(.*)")
 async def fs(event):
@@ -316,6 +324,7 @@ async def fs(event):
             )
         add_fsub(event.chat_id, str(channel))
         await event.reply(f"**✾╎تم تفعيل الاشتراك الاجباري .. بنجاح ☑️**\n**✾╎قناة الاشتراك ~** @{channel}.")
+
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def fg(event):
@@ -367,7 +376,6 @@ async def fg(event):
                     event.chat_id,
                     "**⌔╎عـذراً .. عـزيـزي\n**⌔╎لا املك صلاحيات المشـرف هنـا**",
                 )
-                
 
 @l313l.ar_cmd(pattern="تعطيل اشتراك الكروب$")
 async def removef(event):

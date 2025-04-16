@@ -118,7 +118,7 @@ class CustomParseMode:
 zilzal = l313l.uid
 zed_dev = (5427469031,)
 LOGS = logging.getLogger(__name__)
-zelzaal = False
+zelzaal = gvarstatus("zelzaal_fsub") == "true"
 MUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=True)
 UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
@@ -216,25 +216,21 @@ async def _(event):
 
 @l313l.ar_cmd(pattern="(تفعيل اشتراك الخاص|تفعيل الاشتراك خاص)")
 async def start_datea(event):
-    global zelzaal
-    if zelzaal:
+    if gvarstatus("zelzaal_fsub") == "true":
         return await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. مفعـل مسبقـاً ☑️**")
-    zelzaal = True
+    addgvar("zelzaal_fsub", "true")
     await edit_or_reply(event, "**⎉╎تم تفعيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
 
 @l313l.ar_cmd(pattern="(تعطيل اشتراك الخاص|تعطيل الاشتراك الخاص)")
 async def stop_datea(event):
-    global zelzaal
-    if zelzaal:
-        zelzaal = False
+    if gvarstatus("zelzaal_fsub") == "true":
+        delgvar("zelzaal_fsub")
         return await edit_or_reply(event, "**⎉╎تم تعطيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
     await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. معطـل مسبقـاً ☑️**")
 
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def fp(event):
-    global zelzaal
-    if not zelzaal:
+    if gvarstatus("zelzaal_fsub") != "true":
         return
     
     # التحقق من الشروط المسبقة

@@ -1,7 +1,7 @@
 import asyncio
 from telethon import events
-from telethon.tl.functions.account import UpdateThemeRequest
-from telethon.tl.types import InputThemeSettings, BaseTheme
+from telethon.tl.functions.messages import SetChatWallPaperRequest
+from telethon.tl.types import InputWallPaper, InputWallPaperSlug, WallPaperSettings
 from JoKeRUB import l313l
 
 plugin_category = "misc"
@@ -13,26 +13,31 @@ WALLPAPER_URL = "https://graph.org/file/e603688c0459cad3d0303-9affde935331f8f648
 async def apply_chat_wallpaper(event):
     try:
         # تنزيل الصورة
-        downloaded = await l313l.download_media(WALLPAPER_URL, file="wallpaper.jpg")
+        wallpaper = await l313l.download_media(WALLPAPER_URL, file="wallpaper.jpg")
         
         # إعدادات الخلفية مع ضبابية
-        settings = InputThemeSettings(
-            base_theme=BaseTheme.CLASSIC,
-            wallpaper=downloaded,
-            wallpaper_settings={
-                'blur': True,
-                'intensity': 50,
-            }
+        settings = WallPaperSettings(
+            blur=True,
+            intensity=50,
+            background_color=0,
+            second_background_color=0,
+            third_background_color=0,
+            fourth_background_color=0,
         )
         
         # تطبيق الخلفية
-        await l313l(UpdateThemeRequest(
-            slug="my_custom_theme",
+        await l313l(SetChatWallPaperRequest(
+            peer=await event.get_input_chat(),
+            wallpaper=InputWallPaper(
+                id=0,
+                access_hash=0,
+                file_reference=b''
+            ),
             settings=settings
         ))
         return True
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"حدث خطأ: {str(e)}")
         return False
 
 @l313l.on(events.NewMessage(incoming=True))

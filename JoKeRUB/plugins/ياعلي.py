@@ -67,7 +67,6 @@ import os
 import re
 import time
 import asyncio
-import sqlite3
 from asyncio import sleep
 import telethon
 from telethon.events import CallbackQuery, InlineQuery
@@ -116,79 +115,10 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
 
-# إنشاء جدول قاعدة البيانات
-def init_db():
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS fsub_settings (
-        chat_id INTEGER PRIMARY KEY,
-        channel TEXT,
-        is_active INTEGER DEFAULT 0
-    )
-    ''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
 zilzal = l313l.uid
 zed_dev = (5427469031,)
 LOGS = logging.getLogger(__name__)
-
-# وظائف قاعدة البيانات
-def get_fsub_status(chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id:
-        cursor.execute('SELECT is_active FROM fsub_settings WHERE chat_id = ?', (chat_id,))
-        result = cursor.fetchone()
-        conn.close()
-        return bool(result[0]) if result else False
-    else:
-        cursor.execute('SELECT is_active FROM fsub_settings WHERE chat_id = 0')
-        result = cursor.fetchone()
-        conn.close()
-        return bool(result[0]) if result else False
-
-def set_fsub_status(status, chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, is_active) VALUES (?, ?)', 
-                      (chat_id, int(status)))
-    else:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, is_active) VALUES (0, ?)', 
-                      (int(status),))
-    conn.commit()
-    conn.close()
-
-def get_fsub_channel(chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id:
-        cursor.execute('SELECT channel FROM fsub_settings WHERE chat_id = ?', (chat_id,))
-        result = cursor.fetchone()
-        conn.close()
-        return result[0] if result else None
-    else:
-        cursor.execute('SELECT channel FROM fsub_settings WHERE chat_id = 0')
-        result = cursor.fetchone()
-        conn.close()
-        return result[0] if result else None
-
-def set_fsub_channel(channel, chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, channel) VALUES (?, ?)', 
-                      (chat_id, channel))
-    else:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, channel) VALUES (0, ?)', 
-                      (channel,))
-    conn.commit()
-    conn.close()
-
+zelzaal = False
 MUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=True)
 UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
@@ -240,7 +170,8 @@ async def _(event):
         try:
             if p.first_name:
                 await asyncio.sleep(1.5)
-                set_fsub_channel(f"-100{p.id}")
+                delgvar("Custom_Pm_Channel")
+                addgvar("Custom_Pm_Channel", f"-100{p.id}")
                 return await edit_or_reply(
                     event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎يوزر القناة : ↶** `{input_str}`\n**⎉╎ايدي القناة : ↶** `{p.id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`"
                 )
@@ -248,7 +179,8 @@ async def _(event):
             try:
                 if p.title:
                     await asyncio.sleep(1.5)
-                    set_fsub_channel(f"-100{p.id}")
+                    delgvar("Custom_Pm_Channel")
+                    addgvar("Custom_Pm_Channel", f"-100{p.id}")
                     return await edit_or_reply(
                         event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎اسم القناة : ↶** `{p.title}`\n**⎉╎ايدي القناة : ↶** `{p.id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`"
                     )
@@ -259,42 +191,50 @@ async def _(event):
         r_msg = await event.get_reply_message()
         if r_msg.media:
             await asyncio.sleep(1.5)
-            set_fsub_channel(str(event.chat_id))
+            delgvar("Custom_Pm_Channel")
+            addgvar("Custom_Pm_Channel", event.chat_id)
             await edit_or_reply(
                 event,
                 f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`",
             )
+
         else:
             await asyncio.sleep(1.5)
-            set_fsub_channel(str(event.chat_id))
+            delgvar("Custom_Pm_Channel")
+            addgvar("Custom_Pm_Channel", event.chat_id)
             await edit_or_reply(
                 event,
                 f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`",
             )
+
     else:
         await asyncio.sleep(1.5)
-        set_fsub_channel(str(event.chat_id))
+        delgvar("Custom_Pm_Channel")
+        addgvar("Custom_Pm_Channel", event.chat_id)
         await edit_or_reply(event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`")
 
 
 @l313l.ar_cmd(pattern="(تفعيل اشتراك الخاص|تفعيل الاشتراك خاص)")
 async def start_datea(event):
-    if get_fsub_status():
+    global zelzaal
+    if zelzaal:
         return await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. مفعـل مسبقـاً ☑️**")
-    set_fsub_status(True)
+    zelzaal = True
     await edit_or_reply(event, "**⎉╎تم تفعيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
 
 @l313l.ar_cmd(pattern="(تعطيل اشتراك الخاص|تعطيل الاشتراك الخاص)")
 async def stop_datea(event):
-    if get_fsub_status():
-        set_fsub_status(False)
+    global zelzaal
+    if zelzaal:
+        zelzaal = False
         return await edit_or_reply(event, "**⎉╎تم تعطيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
     await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. معطـل مسبقـاً ☑️**")
 
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def fp(event):
-    if not get_fsub_status():
+    global zelzaal
+    if not zelzaal:
         return
     
     # التحقق من الشروط المسبقة
@@ -304,7 +244,7 @@ async def fp(event):
         return
     
     try:
-        ch = get_fsub_channel()
+        ch = gvarstatus("Custom_Pm_Channel")
         if not ch:
             return
             
@@ -325,7 +265,7 @@ async def fp(event):
             
             # بناء الرسالة النهائية
             message = (
-                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗯 - الاشتراك الإجباري\n"
+                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري\n"
                 f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
                 f"⌔╎مࢪحبـاً عـزيـزي {username} "
                 f"<a href='emoji/5994531982975964413'>❤️</a>\n"
@@ -378,8 +318,6 @@ async def fs(event):
                 link_preview=False,
             )
         add_fsub(event.chat_id, str(channel))
-        set_fsub_channel(channel, event.chat_id)
-        set_fsub_status(True, event.chat_id)
         await event.reply(f"**✾╎تم تفعيل الاشتراك الاجباري .. بنجاح ☑️**\n**✾╎قناة الاشتراك ~** @{channel}.")
 
 
@@ -414,7 +352,7 @@ async def fg(event):
             rip = await check_him(channel, event.sender_id)
             if rip is False:
                 message = (
-                    f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗯 - الاشتراك الإجباري</b>\n"
+                    f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري</b>\n"
                     f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
                     f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id}) "
                     f"<a href='emoji/5994531982975964413'>❤️</a>\n"
@@ -441,7 +379,7 @@ async def fg(event):
 async def removef(event):
     if is_fsub(event.chat_id):
         rm_fsub(event.chat_id)
-        set_fsub_status(False, event.chat_id)
         await edit_or_reply(event, "**✾╎تـم إيقـاف الاشتـراك الاجبـاري هنـا .. بنجـاح ✓**")
     else:
         return await edit_delete(event, "**✾╎عـذراً .. الاشتـراك الاجبـاري غيـر مفعـل هنـا**")
+    

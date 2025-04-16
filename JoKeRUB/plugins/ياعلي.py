@@ -233,51 +233,38 @@ async def fp(event):
     if gvarstatus("zelzaal_fsub") != "true":
         return
     
-    # التحقق من الشروط المسبقة
     chat = await event.get_chat()
     sender = await event.get_sender()
     if chat.bot or sender.bot or chat.id == 777000:
         return
     
-    try:
-        ch = gvarstatus("Custom_Pm_Channel")
-        if not ch:
-            return
-            
-        ch = int(ch)
-        rip = await check_him(ch, event.sender_id)
+    ch = gvarstatus("Custom_Pm_Channel")
+    if not ch:
+        return
         
-        if rip is False and not pmpermit_sql.is_approved(event.sender_id):
-            # الحصول على معلومات المستخدم مسبقاً
-            try:
-                user = await event.client.get_entity(event.sender_id)
-                username = user.first_name or "عزيزي"
-            except:
-                username = "عزيزي"
-            
-            # الحصول على معلومات القناة
-            c = await l313l.get_entity(ch)
-            chn = c.username if c.username else (await l313l(ExportChatInviteRequest(ch))).link
-            
-            # بناء الرسالة النهائية
-            message = (
-                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري\n"
-                f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                f"⌔╎مࢪحبـاً عـزيـزي {username} "
-                f"<a href='emoji/5994531982975964413'>❤️</a>\n"
-                f"⌔╎لـ الغـاء كتمـك "
-                f"<a href='emoji/5841359499146825803'>❤️</a>\n"
-                f"⌔╎يُرجـى الإشتـراك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn} "
-                f"<a href='emoji/5994576637750941503'>❤️</a>"
-            )
-            
-            # إرسال الرسالة
-            await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
-            await event.delete()
-            
-    except Exception as e:
-        LOGS.error(f"Error in force subscribe: {str(e)}")
-
+    ch = int(ch)
+    rip = await check_him(ch, event.sender_id)
+    
+    if rip is False and not pmpermit_sql.is_approved(event.sender_id):
+        user = await event.client.get_entity(event.sender_id)
+        username = user.first_name or "عزيزي"
+        
+        c = await l313l.get_entity(ch)
+        chn = c.username if c.username else (await l313l(ExportChatInviteRequest(ch))).link
+        
+        message = (
+            f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗯 - الاشتراك الإجباري\n"
+            f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+            f"⌔╎مࢪحبـاً عـزيـزي {username} "
+            f"<a href='emoji/5994531982975964413'>❤️</a>\n"
+            f"⌔╎لـ الغـاء كتمـك "
+            f"<a href='emoji/5841359499146825803'>❤️</a>\n"
+            f"⌔╎يُرجـى الإشتـراك بالقنـاة {f'@{chn}' if chn.startswith('@') or not chn.startswith('http') else chn} "
+            f"<a href='emoji/5994576637750941503'>❤️</a>"
+        )
+        
+        await event.respond(message, parse_mode=CustomParseMode("html"), link_preview=False)
+        await event.delete()
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الكروب|وضع اشتراك الكروب) ?(.*)")
 async def fs(event):

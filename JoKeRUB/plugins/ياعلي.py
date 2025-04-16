@@ -67,7 +67,6 @@ import os
 import re
 import time
 import asyncio
-import sqlite3
 from asyncio import sleep
 import telethon
 from telethon.events import CallbackQuery, InlineQuery
@@ -116,73 +115,10 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
 
-# إنشاء جدول قاعدة البيانات
-def init_db():
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS fsub_settings (
-        chat_id INTEGER PRIMARY KEY,
-        channel TEXT,
-        is_active INTEGER DEFAULT 0
-    )
-    ''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
 zilzal = l313l.uid
 zed_dev = (5427469031,)
 LOGS = logging.getLogger(__name__)
-
-# وظائف قاعدة البيانات
-def get_fsub_status(chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id is not None:
-        cursor.execute('SELECT is_active FROM fsub_settings WHERE chat_id = ?', (chat_id,))
-    else:
-        cursor.execute('SELECT is_active FROM fsub_settings WHERE chat_id = 0')
-    result = cursor.fetchone()
-    conn.close()
-    return bool(result[0]) if result else False
-
-def set_fsub_status(status, chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id is not None:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, is_active) VALUES (?, ?)', 
-                      (chat_id, int(status)))
-    else:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, is_active) VALUES (0, ?)', 
-                      (int(status),))
-    conn.commit()
-    conn.close()
-
-def get_fsub_channel(chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id is not None:
-        cursor.execute('SELECT channel FROM fsub_settings WHERE chat_id = ?', (chat_id,))
-    else:
-        cursor.execute('SELECT channel FROM fsub_settings WHERE chat_id = 0')
-    result = cursor.fetchone()
-    conn.close()
-    return result[0] if result else None
-
-def set_fsub_channel(channel, chat_id=None):
-    conn = sqlite3.connect('fsub.db')
-    cursor = conn.cursor()
-    if chat_id is not None:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, channel) VALUES (?, ?)', 
-                      (chat_id, channel))
-    else:
-        cursor.execute('INSERT OR REPLACE INTO fsub_settings (chat_id, channel) VALUES (0, ?)', 
-                      (channel,))
-    conn.commit()
-    conn.close()
-
+zelzaal = False
 MUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=True)
 UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 ANTI_DDDD_ZEDTHON_MODE = ChatBannedRights(
@@ -203,28 +139,25 @@ async def is_admin(event, user):
 
 async def check_him(channel, user):
     try:
-        result = await l313l(functions.channels.GetParticipantRequest(channel=channel, user_id=user))
+        result = await bot(
+            functions.channels.GetParticipantRequest(channel, user)
+        )
         return True
-    except UserNotParticipantError:
-        return False
-    except Exception as e:
-        LOGS.error(f"Error in check_him: {str(e)}")
+    except telethon.errors.rpcerrorlist.UserNotParticipantError:
         return False
 
 
 async def rights(event):
-    try:
-        result = await l313l(functions.channels.GetParticipantRequest(
+    result = await bot(
+        functions.channels.GetParticipantRequest(
             channel=event.chat_id,
             user_id=zilzal,
-        ))
-        p = result.participant
-        return isinstance(p, types.ChannelParticipantCreator) or (
-            isinstance(p, types.ChannelParticipantAdmin) and p.admin_rights.ban_users
         )
-    except Exception as e:
-        LOGS.error(f"Error in rights check: {str(e)}")
-        return False
+    )
+    p = result.participant
+    return isinstance(p, types.ChannelParticipantCreator) or (
+        isinstance(p, types.ChannelParticipantAdmin) and p.admin_rights.ban_users
+    )
 
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الخاص|وضع اشتراك الخاص)(?: |$)(.*)")
@@ -237,7 +170,8 @@ async def _(event):
         try:
             if p.first_name:
                 await asyncio.sleep(1.5)
-                set_fsub_channel(f"-100{p.id}")
+                delgvar("Custom_Pm_Channel")
+                addgvar("Custom_Pm_Channel", f"-100{p.id}")
                 return await edit_or_reply(
                     event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎يوزر القناة : ↶** `{input_str}`\n**⎉╎ايدي القناة : ↶** `{p.id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`"
                 )
@@ -245,7 +179,8 @@ async def _(event):
             try:
                 if p.title:
                     await asyncio.sleep(1.5)
-                    set_fsub_channel(f"-100{p.id}")
+                    delgvar("Custom_Pm_Channel")
+                    addgvar("Custom_Pm_Channel", f"-100{p.id}")
                     return await edit_or_reply(
                         event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎اسم القناة : ↶** `{p.title}`\n**⎉╎ايدي القناة : ↶** `{p.id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`"
                     )
@@ -254,36 +189,52 @@ async def _(event):
         await edit_or_reply(event, "⪼ **أدخل معـرف القناة او قم باستخدام الامر داخل القناة**")
     elif event.reply_to_msg_id:
         r_msg = await event.get_reply_message()
-        await asyncio.sleep(1.5)
-        set_fsub_channel(str(event.chat_id))
-        await edit_or_reply(
-            event,
-            f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`",
-        )
+        if r_msg.media:
+            await asyncio.sleep(1.5)
+            delgvar("Custom_Pm_Channel")
+            addgvar("Custom_Pm_Channel", event.chat_id)
+            await edit_or_reply(
+                event,
+                f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`",
+            )
+
+        else:
+            await asyncio.sleep(1.5)
+            delgvar("Custom_Pm_Channel")
+            addgvar("Custom_Pm_Channel", event.chat_id)
+            await edit_or_reply(
+                event,
+                f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`",
+            )
+
     else:
         await asyncio.sleep(1.5)
-        set_fsub_channel(str(event.chat_id))
+        delgvar("Custom_Pm_Channel")
+        addgvar("Custom_Pm_Channel", event.chat_id)
         await edit_or_reply(event, f"**⎉╎تم إضافة قناة الاشتراك الاجباري للخاص .. بنجـاح ☑️**\n\n**⎉╎ايدي القناة : ↶** `{event.chat_id}`\n\n**⎉╎ارسـل الان** `.تفعيل الاشتراك خاص`")
 
 
 @l313l.ar_cmd(pattern="(تفعيل اشتراك الخاص|تفعيل الاشتراك خاص)")
 async def start_datea(event):
-    if get_fsub_status():
+    global zelzaal
+    if zelzaal:
         return await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. مفعـل مسبقـاً ☑️**")
-    set_fsub_status(True)
+    zelzaal = True
     await edit_or_reply(event, "**⎉╎تم تفعيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
 
 @l313l.ar_cmd(pattern="(تعطيل اشتراك الخاص|تعطيل الاشتراك الخاص)")
 async def stop_datea(event):
-    if get_fsub_status():
-        set_fsub_status(False)
+    global zelzaal
+    if zelzaal:
+        zelzaal = False
         return await edit_or_reply(event, "**⎉╎تم تعطيـل الاشتـراك الاجبـاري خـاص .. بنجـاح ☑️**")
     await edit_or_reply(event, "**⎉╎الاشتراك الاجبـاري لـ الخـاص .. معطـل مسبقـاً ☑️**")
 
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def fp(event):
-    if not get_fsub_status():
+    global zelzaal
+    if not zelzaal:
         return
     
     # التحقق من الشروط المسبقة
@@ -293,15 +244,11 @@ async def fp(event):
         return
     
     try:
-        ch = get_fsub_channel()
+        ch = gvarstatus("Custom_Pm_Channel")
         if not ch:
             return
             
-        try:
-            ch = int(ch)
-        except ValueError:
-            return LOGS.error(f"Invalid channel ID: {ch}")
-            
+        ch = int(ch)
         rip = await check_him(ch, event.sender_id)
         
         if rip is False and not pmpermit_sql.is_approved(event.sender_id):
@@ -313,16 +260,12 @@ async def fp(event):
                 username = "عزيزي"
             
             # الحصول على معلومات القناة
-            try:
-                c = await l313l.get_entity(ch)
-                chn = c.username if c.username else (await l313l(ExportChatInviteRequest(ch))).link
-            except Exception as e:
-                LOGS.error(f"Error getting channel info: {str(e)}")
-                return
+            c = await l313l.get_entity(ch)
+            chn = c.username if c.username else (await l313l(ExportChatInviteRequest(ch))).link
             
             # بناء الرسالة النهائية
             message = (
-                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗯 - الاشتراك الإجباري\n"
+                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري\n"
                 f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
                 f"⌔╎مࢪحبـاً عـزيـزي {username} "
                 f"<a href='emoji/5994531982975964413'>❤️</a>\n"
@@ -333,11 +276,8 @@ async def fp(event):
             )
             
             # إرسال الرسالة
-            try:
-                await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
-                await event.delete()
-            except Exception as e:
-                LOGS.error(f"Error sending message: {str(e)}")
+            await event.reply(message, parse_mode=CustomParseMode("html"), link_preview=False)
+            await event.delete()
             
     except Exception as e:
         LOGS.error(f"Error in force subscribe: {str(e)}")
@@ -345,7 +285,7 @@ async def fp(event):
 
 @l313l.ar_cmd(pattern="(ضع اشتراك الكروب|وضع اشتراك الكروب) ?(.*)")
 async def fs(event):
-    permissions = await event.client.get_permissions(event.chat_id, event.sender_id)
+    permissions = await bot.get_permissions(event.chat_id, event.sender_id)
     if not permissions.is_admin:
         return await event.reply(
             "**⌔╎عـذراً .. عـزيـزي\n**⌔╎لا املك صلاحيات المشـرف هنـا**"
@@ -355,50 +295,40 @@ async def fs(event):
     if event.is_private:
         await edit_or_reply(event, "**✾╎عـذراً .. هـذا الامـر خـاص بالمجمـوعـات فقـط**")
         return
-    args = event.pattern_match.group(2)
-    if not args:
+    ahmed = event.pattern_match.group(1)
+    if not ahmed:
         return await edit_delete(event, "**✾╎استخـدم الامـر هكـذا**\n**✾╎.اشتراك الكروب + معـرف القنـاة**")
-    
+    args = event.pattern_match.group(2)
     channel = args.replace("@", "")
-    if args.lower() in ("off", "تعطيل", "ايقاف"):
+    if args == "تفعيل" or args == "تشغيل":
+        return await event.reply("**⌔╎عـذراً .. يرجى التحقق من معـرف القنـاة**")
+    if args in ("off", "تعطيل", "ايقاف"):
         rm_fsub(event.chat_id)
-        set_fsub_status(False, event.chat_id)
-        return await event.reply("**✾╎تـم إيقـاف الاشتـراك الاجبـاري هنـا .. بنجـاح ✓**")
-    
-    try:
-        ch_full = await l313l(GetFullChannelRequest(channel=channel))
-    except Exception as e:
-        LOGS.error(f"Error getting channel info: {str(e)}")
-        return await event.reply("**⌔╎عـذراً .. معـرف القنـاة غيـر موجـود**")
-    
-    rip = await check_him(channel, zilzal)
-    if rip is False:
-        return await event.reply(
-            f"**⌔╎عـذراً .. عـزيـزي**\n**⌔╎لـ تمكين الاشتـراك الاجبـاري**\n**⌔╎يجب ان تكون مشرفًا في** [القنـاة](https://t.me/{channel}).",
-            link_preview=False,
-        )
-    
-    add_fsub(event.chat_id, str(channel))
-    set_fsub_channel(channel, event.chat_id)
-    set_fsub_status(True, event.chat_id)
-    await event.reply(f"**✾╎تم تفعيل الاشتراك الاجباري .. بنجاح ☑️**\n**✾╎قناة الاشتراك ~** @{channel}.")
+        await event.reply("**✾╎تـم إيقـاف الاشتـراك الاجبـاري هنـا .. بنجـاح ✓**")
+    else:
+        try:
+            ch_full = await bot(GetFullChannelRequest(channel=channel))
+        except Exception as e:
+            await event.reply(f"{e}")
+            return await event.reply("**⌔╎عـذراً .. معـرف القنـاة غيـر موجـود**")
+        rip = await check_him(channel, zilzal)
+        if rip is False:
+            return await event.reply(
+                f"**⌔╎عـذراً .. عـزيـزي**\n**⌔╎لـ تمكين الاشتـراك الاجبـاري**\n**⌔╎يجب ان تكون مشرفًا في** [القنـاة](https://t.me/{args}).",
+                link_preview=False,
+            )
+        add_fsub(event.chat_id, str(channel))
+        await event.reply(f"**✾╎تم تفعيل الاشتراك الاجباري .. بنجاح ☑️**\n**✾╎قناة الاشتراك ~** @{channel}.")
 
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def fg(event):
-    if not get_fsub_status(event.chat_id):
+    chat_db = is_fsub(event.chat_id)
+    if not chat_db:
         return
-        
     chat_id = event.chat_id
     zed_dev = (5427469031,)
     zelzal = event.sender_id
-    
-    if zelzal in zed_dev:
-        return
-        
-    if not await is_admin(event, zilzal):
-        return
-        
     try:
         sender = await event.get_sender()
         sender_entity = await event.client.get_entity(sender)
@@ -407,55 +337,49 @@ async def fg(event):
     except FloodWaitError as e:
         wait_time = e.seconds
         await sleep(wait_time + 3)
-    except Exception as e:
-        LOGS.error(f"Error getting sender: {str(e)}")
+    if zelzal in zed_dev:
         return
-    
-    chat_db = is_fsub(event.chat_id)
-    if not chat_db:
+    if not await is_admin(event, zilzal):
         return
-        
-    try:
-        channel = chat_db.channel
-        rip = await check_him(channel, event.sender_id)
-        if rip is False:
+    if chat_db:
+        try:
+            channel = chat_db.channel
+            chat_id = event.chat_id
+            chat_db = is_fsub(event.chat_id)
+            channel = chat_db.channel
             sender = await event.get_sender()
-            message = (
-                f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗯 - الاشتراك الإجباري</b>\n"
-                f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
-                f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id}) "
-                f"<a href='emoji/5994531982975964413'>❤️</a>\n"
-                f"<b>⌔╎لـ الغـاء كتمـك </b>"
-                f"<a href='emoji/5841359499146825803'>❤️</a>\n"
-                f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}</b> <a href='emoji/5994576637750941503'>❤️</a>"
-            )
-            try:
-                await event.client.send_message(
+            grp = f"t.me/{channel}"
+            rip = await check_him(channel, event.sender_id)
+            if rip is False:
+                message = (
+                    f"<b>ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘂𝗕 - الاشتراك الإجباري</b>\n"
+                    f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+                    f"<b>⌔╎مࢪحبـاً عـزيـزي</b> [{sender.first_name}](tg://user?id={sender.id}) "
+                    f"<a href='emoji/5994531982975964413'>❤️</a>\n"
+                    f"<b>⌔╎لـ الغـاء كتمـك </b>"
+                    f"<a href='emoji/5841359499146825803'>❤️</a>\n"
+                    f"<b>⌔╎يُࢪجـى الإشتـࢪاك بالقنـاة @{channel}</b> <a href='emoji/5994576637750941503'>❤️</a>"
+                )
+                await bot.send_message(
                     event.chat_id, 
                     message,
                     parse_mode=CustomParseMode("html"),
                     link_preview=False
                 )
                 await event.delete()
-            except Exception as e:
-                LOGS.error(f"Error sending message: {str(e)}")
-    except Exception as e:
-        LOGS.error(f"Error in group force subscribe: {str(e)}")
-        if not await rights(event):
-            try:
-                await event.client.send_message(
+        except:
+            if not await rights(event):
+                await bot.send_message(
                     event.chat_id,
                     "<b>⌔╎عـذراً .. عـزيـزي\n⌔╎لا املك صلاحيات المشـرف هنـا</b>",
                     parse_mode=CustomParseMode("html")
                 )
-            except Exception as e:
-                LOGS.error(f"Error sending admin message: {str(e)}")
 
 @l313l.ar_cmd(pattern="تعطيل اشتراك الكروب$")
 async def removef(event):
     if is_fsub(event.chat_id):
         rm_fsub(event.chat_id)
-        set_fsub_status(False, event.chat_id)
         await edit_or_reply(event, "**✾╎تـم إيقـاف الاشتـراك الاجبـاري هنـا .. بنجـاح ✓**")
     else:
         return await edit_delete(event, "**✾╎عـذراً .. الاشتـراك الاجبـاري غيـر مفعـل هنـا**")
+    

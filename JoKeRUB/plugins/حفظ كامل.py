@@ -25,13 +25,12 @@ async def apply_chat_wallpaper(event):
             fourth_background_color=0,
         )
         
-        # تطبيق الخلفية
+        # تطبيق الخلفية (الطريقة الصحيحة)
         await l313l(SetChatWallPaperRequest(
             peer=await event.get_input_chat(),
             wallpaper=InputWallPaper(
                 id=0,
                 access_hash=0,
-                file_reference=b''
             ),
             settings=settings
         ))

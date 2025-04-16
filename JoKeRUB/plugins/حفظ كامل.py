@@ -1,8 +1,63 @@
 import asyncio
 from telethon import events
+from telethon.tl.functions.account import UpdateThemeRequest
+from telethon.tl.types import InputThemeSettings, BaseTheme
 from JoKeRUB import l313l
 
 plugin_category = "misc"
+
+# متغير لتخزين حالة التفعيل
+WALLPAPER_ENABLED = False
+WALLPAPER_URL = "https://graph.org/file/e603688c0459cad3d0303-9affde935331f8f648.jpg"
+
+async def apply_chat_wallpaper(event):
+    try:
+        # تنزيل الصورة
+        downloaded = await l313l.download_media(WALLPAPER_URL, file="wallpaper.jpg")
+        
+        # إعدادات الخلفية مع ضبابية
+        settings = InputThemeSettings(
+            base_theme=BaseTheme.CLASSIC,
+            wallpaper=downloaded,
+            wallpaper_settings={
+                'blur': True,
+                'intensity': 50,
+            }
+        )
+        
+        # تطبيق الخلفية
+        await l313l(UpdateThemeRequest(
+            slug="my_custom_theme",
+            settings=settings
+        ))
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+
+@l313l.on(events.NewMessage(incoming=True))
+async def handle_new_message(event):
+    if WALLPAPER_ENABLED and event.is_private:
+        await apply_chat_wallpaper(event)
+
+@l313l.ar_cmd(
+    pattern="تفعيل الخلفية$",
+    command=("تفعيل الخلفية", plugin_category),
+)
+async def enable_wallpaper(event):
+    global WALLPAPER_ENABLED
+    WALLPAPER_ENABLED = True
+    await event.edit("**✓ تم تفعيل تغيير الخلفية تلقائيًا**")
+
+@l313l.ar_cmd(
+    pattern="ايقاف الخلفية$",
+    command=("ايقاف الخلفية", plugin_category),
+)
+async def disable_wallpaper(event):
+    global WALLPAPER_ENABLED
+    WALLPAPER_ENABLED = False
+    await event.edit("**✗ تم إيقاف تغيير الخلفية تلقائيًا**")
+    
 
 @l313l.ar_cmd(
     pattern="حفظ كامل(?: |$)(.*)",

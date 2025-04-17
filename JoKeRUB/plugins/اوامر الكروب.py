@@ -11,8 +11,6 @@ import time
 from telethon.tl import types
 from telethon.tl.types import Channel, Chat, User, ChannelParticipantsAdmins
 from telethon.tl.functions.channels import GetFullChannelRequest
-from telethon.tl.functions.messages import GetPeerDialogsRequest
-from telethon.tl.types import InputDialogPeerFolder
 from telethon.errors.rpcerrorlist import ChannelPrivateError
 from telethon.tl.custom import Message
 from ..Config import Config
@@ -672,34 +670,44 @@ async def hussein(event):
                 print(f"حدث خطأ أثناء حذف المحادثة الخاصة: {e}")
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
+from telethon.tl.functions.messages import GetDialogsRequest
+from telethon.tl.types import InputPeerEmpty
+
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف محادثات البوتات (مع تجاهل الأرشيف بالكامل)...**")
+    await event.edit("**᯽︙ جارٍ حذف محادثات البوتات (مع تجاهل الأرشيف)...**")
     
-    # جلب جميع جهات الاتصال (بما في ذلك البوتات)
-    result = await event.client(GetContactsRequest(0))
-    bots = [user for user in result.users if user.bot]
-    
-    # جلب جميع الدردشات في الأرشيف (للتأكد من عدم حذف أي شيء منها)
-    archived_chats = await event.client(GetPeerDialogsRequest(
-        peers=[InputDialogPeerFolder(folder_id=1)]  # الأرشيف = folder_id=1
+    # جلب جميع الدردشات بما فيها الأرشيف
+    dialogs = await event.client(GetDialogsRequest(
+        offset_date=None,
+        offset_id=0,
+        offset_peer=InputPeerEmpty(),
+        limit=200,
+        hash=0
     ))
-    archived_chat_ids = set()
-    for chat in archived_chats.dialogs:
-        if hasattr(chat.peer, 'user_id'):  # إذا كانت محادثة مع مستخدم/بوت
-            archived_chat_ids.add(chat.peer.user_id)
     
+    # تصفية البوتات (غير المؤرشفة)
+    bots = []
+    archived_chats = []
+    
+    for dialog in dialogs.dialogs:
+        entity = dialogs.entities[dialog.entity]
+        if hasattr(entity, 'bot') and entity.bot:
+            if dialog.folder_id:  # إذا كانت في الأرشيف
+                archived_chats.append(entity.id)
+            else:
+                bots.append(entity.id)
+    
+    # حذف البوتات غير المؤرشفة
     deleted_count = 0
-    for bot in bots:
-        if bot.id not in archived_chat_ids:  # تجاهل أي بوت موجود في الأرشيف
-            try:
-                await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
-                deleted_count += 1
-            except Exception as e:
-                print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
+    for bot_id in bots:
+        try:
+            await event.client(DeleteHistoryRequest(bot_id, max_id=0, just_clear=True))
+            deleted_count += 1
+        except Exception as e:
+            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
     
-    await event.edit(f"**᯽︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف بالكامل) ✓**")
-
+    await event.edit(f"**᯽︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف) ✓**")
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

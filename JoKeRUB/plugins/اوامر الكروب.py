@@ -670,41 +670,31 @@ async def hussein(event):
                 print(f"حدث خطأ أثناء حذف المحادثة الخاصة: {e}")
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
+from telethon.tl.functions.contacts import GetContactsRequest
+from telethon.tl.functions.messages import DeleteHistoryRequest
+from telethon.tl.types import InputPeerUser
+
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب (باستثناء الأرشيف)...**")
+    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب ...**")
     
     # الحصول على قائمة البوتات
     result = await event.client(GetContactsRequest(0))
     bots = [user for user in result.users if user.bot]
     
-    # الحصول على قائمة المحادثات المؤرشفة
-    archived = await event.client(GetPeerDialogsRequest(
-        [InputDialogPeerFolder(folder_id=1)]))
-    
-    # استخراج آيدي البوتات المؤرشفة
-    archived_bots = []
-    if hasattr(archived, 'dialogs'):
-        archived_bots = [
-            dialog.peer.user_id for dialog in archived.dialogs 
-            if hasattr(dialog.peer, 'user_id')
-        ]
-    
     deleted_count = 0
     for bot in bots:
-        # إذا كان البوت غير موجود في الأرشيف، نقوم بحذف محادثاته
-        if bot.id not in archived_bots:
-            try:
-                await event.client(DeleteHistoryRequest(
-                    peer=bot.id,
-                    max_id=0,
-                    just_clear=True  # مسح المحادثة بدون حظر
-                ))
-                deleted_count += 1
-            except Exception as e:
-                print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
+        try:
+            await event.client(DeleteHistoryRequest(
+                peer=InputPeerUser(user_id=bot.id, access_hash=bot.access_hash),
+                max_id=0,
+                just_clear=True
+            ))
+            deleted_count += 1
+        except Exception as e:
+            print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
     
-    await event.edit(f"**᯽︙ تم حذف محادثات {deleted_count} بوت ✓ (تم استثناء البوتات المؤرشفة)**")
+    await event.edit(f"**᯽︙ تم حذف محادثات {deleted_count} بوت ✓**")
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

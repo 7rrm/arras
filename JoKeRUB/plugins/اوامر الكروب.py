@@ -671,32 +671,15 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**✧︙ جارٍ حذف محادثات البوتات ⦗ مع تجاهل الأرشيف بالكامل ⦘..**")
-    
-    # جلب جميع جهات الاتصال (بما في ذلك البوتات)
+    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب ...**")
     result = await event.client(GetContactsRequest(0))
     bots = [user for user in result.users if user.bot]
-    
-    # جلب جميع الدردشات في الأرشيف (للتأكد من عدم حذف أي شيء منها)
-    archived_chats = await event.client(GetPeerDialogsRequest(
-        peers=[InputDialogPeerFolder(folder_id=1)]  # الأرشيف = folder_id=1
-    ))
-    archived_chat_ids = set()
-    for chat in archived_chats.dialogs:
-        if hasattr(chat.peer, 'user_id'):  # إذا كانت محادثة مع مستخدم/بوت
-            archived_chat_ids.add(chat.peer.user_id)
-    
-    deleted_count = 0
     for bot in bots:
-        if bot.id not in archived_chat_ids:  # تجاهل أي بوت موجود في الأرشيف
-            try:
-                await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
-                deleted_count += 1
-            except Exception as e:
-                print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
-    
-    await event.edit(f"**✧︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف بالكامل) ✓**")
-
+        try:
+            await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
+        except Exception as e:
+            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
+    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
 # الكود من كتابة فريق الجوكر بس تسرقة تنشر بقناة الفضايح انتَ وقناتك 🖤
 lastResponse = None
 

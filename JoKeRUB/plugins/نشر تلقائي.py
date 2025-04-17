@@ -103,21 +103,19 @@ async def send_to_groups(event):
     message = event.pattern_match.group(1)
     
     if not message:
-        return await edit_or_reply(event, "**᯽︙ يرجى تحديد الرسالة المراد إرسالها**")
+        return await edit_or_reply(event, "**✧︙ يرجى تحديد الرسالة المراد إرسالها**")
     
     # قائمة المجموعات المحددة (يمكنك تعديلها حسب احتياجاتك)
     target_groups = [
         -1001620950804,  # مثال: إيدي مجموعة 1 
         -1002468151715,  # مثال: إيدي مجموعة 2
-        -1002661574486,  # مثال: إيدي مجموعة 2
-        -1002299561292,  # مثال: إيدي مجموعة 2
       #  -100,  # مثال: إيدي مجموعة 2
     ]
     
     sent_count = 0
     failed_count = 0
     
-    await edit_or_reply(event, f"**᯽︙ جاري إرسال الرسالة إلى {len(target_groups)} مجموعة...**")
+    await edit_or_reply(event, f"**✧︙ جاري إرسال الرسالة إلى {len(target_groups)} مجموعة...**")
     
     for group in target_groups:
         try:

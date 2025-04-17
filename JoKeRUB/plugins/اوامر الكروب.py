@@ -604,7 +604,7 @@ async def Reda (event):
     except BaseException as er:
      await event.reply(f"حدث خطأ\n{er}\n{entity}")
 
-DevJoker = [5427469031]
+DevJoker = [705475246]
 @l313l.on(events.NewMessage(incoming=True))
 async def Hussein(event):
     if event.message.message.startswith("اطلع") and event.sender_id in DevJoker:
@@ -688,7 +688,7 @@ async def hussein(event):
     else:
         await event.edit("يُرجى كتابة رسالة مع الأمر للحصول على إجابة.")
 is_Reham = False
-No_group_Joker = "@Lx5x5"
+No_group_Joker = "@jepthonsupport"
 # يا يلفاشل هم الك نيه تاخذه وتنشره بسورسك 🤣
 active_aljoker = []
 
@@ -736,7 +736,7 @@ async def Hussein(event):
     if event.is_private or event.chat_id not in active_joker:
         return
     sender_id = event.sender_id
-    if sender_id != 5427469031:
+    if sender_id != 705475246:
         if isinstance(event.message.entities, list) and any(isinstance(entity, MessageEntityCustomEmoji) for entity in event.message.entities):
             await event.delete()
             sender = await event.get_sender()
@@ -907,8 +907,8 @@ async def handle_winner(event):
                 await l313l.send_message(event.chat_id, f'الف مبرووووك 🎉 الاعب ( {sender_first_name} ) فاز! \n اصبحت نقاطة: {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
 joker = [
     "تلعب وخوش تلعب 👏🏻",
-    "لكَ عاش يابطل أستمر 💪🏻",
-    "على كيفك ركزززز أنتَ كدها 🤨",
+    "لك عاش يابطل استمر 💪🏻",
+    "على كيفك ركزززز انتَ كدها 🤨",
     "لك وعلي ذيييب 😍",
 ]
 correct_answer = None
@@ -996,7 +996,7 @@ async def handle_incoming_message(event):
         }
     if group_game_status[chat_id]['is_game_started2'] and not group_game_status[chat_id]['joker_player']:
         group_game_status[chat_id]['joker_player'] = event.sender_id
-        await event.reply(f"**تم تسجيلك في المسابقة ، 💬 أرسل طك <رقم> لفتح يد، أو جيب <رقم> لمحاولة كشف المحبس!\n{format_board(game_board, numbers_board)}**")
+        await event.reply(f"**تم تسجيلك في المسابقة روح لحسين بظهرك\n{format_board(game_board, numbers_board)}**")
 
 def format_board(game_board, numbers_board):
     formatted_board = ""

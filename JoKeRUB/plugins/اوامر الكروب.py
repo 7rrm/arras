@@ -670,14 +670,16 @@ async def hussein(event):
                 print(f"حدث خطأ أثناء حذف المحادثة الخاصة: {e}")
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
-from telethon.tl.functions.messages import GetDialogsRequest
+from telethon.tl.functions.messages import GetDialogsRequest, DeleteHistoryRequest
 from telethon.tl.types import InputPeerEmpty, PeerUser
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
     await event.edit("**᯽︙ جارٍ حذف محادثات البوتات (مع تجاهل الأرشيف)...**")
     
-    # جلب جميع الدردشات
+    # قائمة البوتات الرسمية التي يجب تجاهلها
+    OFFICIAL_BOTS = [93372553, 4244000, 5422615479]  # أمثلة: BotFather, SpamBot, etc
+    
     dialogs = await event.client(GetDialogsRequest(
         offset_date=None,
         offset_id=0,
@@ -690,30 +692,32 @@ async def Hussein(event):
     archived_chats = []
 
     for dialog in dialogs.dialogs:
-        # الحصول على معلومات المحادثة
         peer = dialog.peer
-        if isinstance(peer, PeerUser):  # التأكد أنها محادثة مع مستخدم
+        if isinstance(peer, PeerUser):
             try:
                 entity = await event.client.get_entity(peer.user_id)
-                if getattr(entity, 'bot', False):  # إذا كان بوت
-                    if dialog.folder_id:  # إذا كانت في الأرشيف
-                        archived_chats.append(entity.id)
-                    else:
-                        bots.append(entity.id)
+                if getattr(entity, 'bot', False):
+                    # تجاهل البوتات الرسمية والمؤرشفة
+                    if entity.id in OFFICIAL_BOTS or dialog.folder_id:
+                        continue
+                    bots.append(entity.id)
             except Exception as e:
-                print(f"خطأ في جلب معلومات المستخدم: {e}")
+                print(f"خطأ في معالجة المحادثة: {e}")
 
-    # حذف البوتات غير المؤرشفة
     deleted_count = 0
     for bot_id in bots:
         try:
-            await event.client(DeleteHistoryRequest(bot_id, max_id=0, just_clear=True))
+            await event.client(DeleteHistoryRequest(
+                peer=bot_id,
+                max_id=0,
+                just_clear=True
+            ))
             deleted_count += 1
         except Exception as e:
-            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
+            print(f"فشل في حذف بوت {bot_id}: {e}")
 
-    await event.edit(f"**᯽︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف) ✓**")
-
+    await event.edit(f"**✧︙ تم حـذف {deleted_count} مـحادثة بوت ✓\n"
+                    f"**✧︙تـم تجاهل جَميع المحادثات التي في الأرشيف**")
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

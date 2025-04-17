@@ -670,17 +670,36 @@ async def hussein(event):
                 print(f"حدث خطأ أثناء حذف المحادثة الخاصة: {e}")
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
+from telethon.tl.functions.contacts import GetContactsRequest
+from telethon.tl.functions.messages import DeleteHistoryRequest
+
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
     await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب ...**")
     result = await event.client(GetContactsRequest(0))
     bots = [user for user in result.users if user.bot]
+    
+    deleted = 0
+    failed = 0
+    
     for bot in bots:
         try:
-            await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
+            await event.client(DeleteHistoryRequest(
+                peer=bot.id,
+                max_id=0,
+                just_clear=True
+            ))
+            deleted += 1
         except Exception as e:
-            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
-    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
+            print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
+            failed += 1
+    
+    msg = f"**᯽︙ تم الانتهاء من التصفية ✓**\n"
+    msg += f"- عدد البوتات التي تم مسح محادثاتها: {deleted}\n"
+    if failed > 0:
+        msg += f"- عدد البوتات التي فشل مسحها: {failed}\n"
+    
+    await event.edit(msg)
     
 lastResponse = None
 async def process_gpt(question):

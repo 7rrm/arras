@@ -671,37 +671,64 @@ async def hussein(event):
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
 from telethon.tl.functions.contacts import GetContactsRequest
-from telethon.tl.functions.messages import DeleteHistoryRequest
-from telethon.tl.types import InputPeerUser
+from telethon.tl.functions.messages import DeleteHistoryRequest, GetDialogsRequest
+from telethon.tl.types import InputPeerUser, InputDialogPeer
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب (مع الاحتفاظ بالأرشيف)...**")
-    result = await event.client(GetContactsRequest(0))
-    bots = [user for user in result.users if user.bot]
+    await event.edit("**᯽︙ جارٍ البحث عن جميع محادثات البوتات في الحساب...**")
+    
+    # الحصول على جميع الدردشات الحديثة أولاً
+    dialogs = await event.client(GetDialogsRequest(
+        offset_date=None,
+        offset_id=0,
+        offset_peer=InputPeerEmpty(),
+        limit=200,
+        hash=0
+    ))
+    
+    # جمع كل البوتات من الدردشات والجهات الاتصال
+    bots = []
+    
+    # 1. البوتات في جهات الاتصال
+    try:
+        contacts = await event.client(GetContactsRequest(0))
+        bots.extend([user for user in contacts.users if user.bot])
+    except Exception as e:
+        print(f"خطأ في جلب جهات الاتصال: {e}")
+    
+    # 2. البوتات في الدردشات الحديثة
+    for dialog in dialogs.dialogs:
+        entity = dialog.entity
+        if hasattr(entity, 'bot') and entity.bot:
+            bots.append(entity)
+    
+    # إزالة التكرارات
+    unique_bots = {bot.id: bot for bot in bots}.values()
+    
+    if not unique_bots:
+        return await event.edit("**᯽︙ لم يتم العثور على أي بوتات في حسابك!**")
+    
+    await event.edit(f"**᯽︙ جارٍ حذف محادثات {len(unique_bots)} بوت...**")
     
     deleted = 0
     errors = 0
     
-    for bot in bots:
+    for bot in unique_bots:
         try:
-            # جلب معلومات الدردشة
-            peer = await event.client.get_input_entity(bot.id)
-            if isinstance(peer, InputPeerUser):
-                # حذف المحادثة مع الاحتفاظ بالأرشيف
-                await event.client(DeleteHistoryRequest(
-                    peer=peer,
-                    max_id=0,
-                    just_clear=True,  # هذا يحافظ على الأرشيف
-                    revoke=False
-                ))
-                deleted += 1
+            await event.client(DeleteHistoryRequest(
+                peer=bot.id,
+                max_id=0,
+                just_clear=True,  # للاحتفاظ بالأرشيف
+                revoke=False
+            ))
+            deleted += 1
         except Exception as e:
-            print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
+            print(f"خطأ في حذف محادثات البوت {bot.id}: {e}")
             errors += 1
     
     message = f"**᯽︙ تم الانتهاء من التصفية**\n"
-    message += f"**- عدد البوتات التي تم معالجتها:** {len(bots)}\n"
+    message += f"**- عدد البوتات المكتشفة:** {len(unique_bots)}\n"
     message += f"**- المحادثات المحذوفة:** {deleted}\n"
     if errors > 0:
         message += f"**- عدد الأخطاء:** {errors}\n"

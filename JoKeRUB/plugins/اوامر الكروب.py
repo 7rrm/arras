@@ -115,7 +115,7 @@ async def remoteaccess(event):
 )
 async def kickme(leave):
     "to leave the group."
-    await leave.edit("᯽︙  حسنا سأغادر المجموعه وداعا ")
+    await leave.edit("✧︙  حسنا سأغادر المجموعه وداعا ")
     await leave.client.kick_participant(leave.chat_id, "me")
 
 @l313l.ar_cmd(
@@ -138,7 +138,7 @@ async def _(event):
     )
     if not result.participant.admin_rights.ban_users:
         return await edit_or_reply(
-            event, "᯽︙ - يبدو انه ليس لديك صلاحيات الحذف في هذه الدردشة "
+            event, "✧︙ - يبدو انه ليس لديك صلاحيات الحذف في هذه الدردشة "
         )
     admins = await event.client.get_participants(
         event.chat_id, filter=ChannelParticipantsAdmins
@@ -180,7 +180,7 @@ async def _(event):
     )
     if not result:
         return await edit_or_reply(
-            event, "᯽︙ - يبدو انه ليس لديك صلاحيات الحذف في هذه الدردشة ❕"
+            event, "✧︙ - يبدو انه ليس لديك صلاحيات الحذف في هذه الدردشة ❕"
         )
     admins = await event.client.get_participants(
         event.chat_id, filter=ChannelParticipantsAdmins
@@ -200,7 +200,7 @@ async def _(event):
         except Exception as e:
             LOGS.info(str(e))
     await event.reply(
-        f"᯽︙  تم بنجاح حظر من {total} الاعضاء ✅ "
+        f"✧︙  تم بنجاح حظر من {total} الاعضاء ✅ "
     )
 
 
@@ -219,7 +219,7 @@ async def _(event):
 async def _(event):
     "To unban all banned users from group."
     catevent = await edit_or_reply(
-        event, "**᯽︙ يتـم الـغاء حـظر الجـميع فـي هذه الـدردشـة**"
+        event, "**✧︙ يتـم الـغاء حـظر الجـميع فـي هذه الـدردشـة**"
     )
     succ = 0
     total = 0
@@ -255,7 +255,7 @@ async def _(event):
                     )
             except MessageNotModifiedError:
                 pass
-    await catevent.edit(f"᯽︙ الغاء حظر :__{succ}/{total} في الدردشه {chat.title}__")
+    await catevent.edit(f"✧︙ الغاء حظر :__{succ}/{total} في الدردشه {chat.title}__")
 
 # Ported by ©[NIKITA](t.me/kirito6969) and ©[EYEPATCH](t.me/NeoMatrix90)
 @l313l.ar_cmd(
@@ -272,18 +272,18 @@ async def rm_deletedacc(show):
     "To check deleted accounts and clean"
     con = show.pattern_match.group(1).lower()
     del_u = 0
-    del_status = "᯽︙  لم يتم العثور على حسابات متروكه او حسابات محذوفة الكروب نظيف"
+    del_status = "✧︙  لم يتم العثور على حسابات متروكه او حسابات محذوفة الكروب نظيف"
     if con != "اطردهم":
         event = await edit_or_reply(
-            show, "᯽︙  يتم البحث عن حسابات محذوفة او حسابات متروكة انتظر"
+            show, "✧︙  يتم البحث عن حسابات محذوفة او حسابات متروكة انتظر"
         )
         async for user in show.client.iter_participants(show.chat_id):
             if user.deleted:
                 del_u += 1
                 await sleep(0.5)
         if del_u > 0:
-            del_status = f"᯽︙ تـم العـثور : **{del_u}** على حسابات محذوفة ومتروكه في هذه الدردشه من الحسابات في هذه الدردشه,\
-                           \nاطردهم بواسطه  `.المحذوفين اطردهم`"
+            del_status = f"✧︙تم ايجـاد ** {del_u} ** من  الحسابـات المحذوفـه في هـذه المجموعـه\n
+✧︙لحذفهـم إستخـدم الأمـر  ⩥ :  `.المحذوفين اطردهم`"
         await event.edit(del_status)
         return
     chat = await show.get_chat()
@@ -293,7 +293,7 @@ async def rm_deletedacc(show):
         await edit_delete(show, "أنا لسـت مشرف هـنا", 5)
         return
     event = await edit_or_reply(
-        show, "᯽︙ جاري حذف الحسابات المحذوفة"
+        show, "✧︙ جاري حذف الحسابات المحذوفة"
     )
     del_u = 0
     del_a = 0
@@ -356,7 +356,7 @@ async def banall(event):
 @l313l.ar_cmd(pattern="كتم_الكل(?:\s|$)([\s\S]*)")
 async def muteall(event):
      if event.is_private:
-         return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+         return await edit_or_reply(event, "** ✧︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
      msg = "كتم"
      is_admin = False
      try:
@@ -387,7 +387,7 @@ async def muteall(event):
 async def kickall(event):
      chat_id = event.chat_id
      if event.is_private:
-         return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+         return await edit_or_reply(event, "** ✧︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
      msg = "طرد"
      is_admin = False
      try:
@@ -470,7 +470,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusLastMonth):
@@ -480,7 +480,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusLastWeek):
@@ -490,7 +490,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusOffline):
@@ -498,7 +498,7 @@ async def _(event):  # sourcery no-metrics
             if "o" in input_str:
                 status, e = await ban_user(event.chat_id, i, rights)
                 if not status:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
                 else:
@@ -508,7 +508,7 @@ async def _(event):  # sourcery no-metrics
             if "q" in input_str:
                 status, e = await ban_user(event.chat_id, i, rights)
                 if not status:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
                 else:
@@ -520,7 +520,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if i.bot:
@@ -528,7 +528,7 @@ async def _(event):  # sourcery no-metrics
             if "b" in input_str:
                 status, e = await ban_user(event.chat_id, i, rights)
                 if not status:
-                    await et.edit("᯽︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
                 else:
@@ -540,7 +540,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
         elif i.status is None:
             n += 1
@@ -576,7 +576,7 @@ async def _(event):  # sourcery no-metrics
 
 @l313l.ar_cmd(pattern="مغادرة الكروبات")
 async def Reda (event):
-    await event.edit("**᯽︙ جارِ مغادرة جميع الكروبات الموجوده في حسابك ...**")
+    await event.edit("**✧︙ جارِ مغادرة جميع الكروبات الموجوده في حسابك ...**")
     gr = []
     dd = []
     num = 0
@@ -603,9 +603,9 @@ async def Reda (event):
                 num += 1
                 await sleep(1)
         if num >=1:
-            await event.edit(f"**᯽︙ تم المغادرة من {num} كروب بنجاح ✓**")
+            await event.edit(f"**✧︙ تم المغادرة من {num} كروب بنجاح ✓**")
         else:
-            await event.edit("**᯽︙ ليس لديك كروبات في حسابك لمغادرتها !**")
+            await event.edit("**✧︙ ليس لديك كروبات في حسابك لمغادرتها !**")
     except BaseException as er:
      await event.reply(f"حدث خطأ\n{er}\n{entity}")
 

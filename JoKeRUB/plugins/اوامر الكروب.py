@@ -681,6 +681,7 @@ async def Hussein(event):
             print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
     await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
 
+lastResponse = None
 async def process_gpt(question):
     global lastResponse
     if lastResponse is None:

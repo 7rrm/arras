@@ -355,8 +355,9 @@ async def banall(event):
          pass
 @l313l.ar_cmd(pattern="كتم_الكل(?:\s|$)([\s\S]*)")
 async def muteall(event):
+     chat_id = event.chat_id  # <-- هنا نضيف تعريف chat_id
      if event.is_private:
-         return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+         return await edit_or_reply(event, "** ✧︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
      msg = "كتم"
      is_admin = False
      try:
@@ -366,9 +367,9 @@ async def muteall(event):
          ))
      except UserNotParticipantError:
          is_admin = False
-     spam_chats.append(chat_id)
+     spam_chats.append(chat_id)  # <-- الآن chat_id معرّف
      usrnum = 0
-     async for usr in l313l.iter_participants(chat_id):
+     async for usr in l313l.iter_participants(chat_id):  # <-- الآن chat_id معرّف
          if not chat_id in spam_chats:
              break
          userb = usr.username

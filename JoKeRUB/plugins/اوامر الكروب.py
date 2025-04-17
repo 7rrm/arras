@@ -11,6 +11,8 @@ import time
 from telethon.tl import types
 from telethon.tl.types import Channel, Chat, User, ChannelParticipantsAdmins
 from telethon.tl.functions.channels import GetFullChannelRequest
+from telethon.tl.functions.messages import GetPeerDialogsRequest
+from telethon.tl.types import InputDialogPeerFolder
 from telethon.errors.rpcerrorlist import ChannelPrivateError
 from telethon.tl.custom import Message
 from ..Config import Config

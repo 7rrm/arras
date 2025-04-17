@@ -676,12 +676,8 @@ from telethon.tl.types import InputPeerUser
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ تصفية جميع محادثات البوتات في الحساب...**")
-    
-    # الحصول على قائمة جهات الاتصال
+    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب (مع الاحتفاظ بالأرشيف)...**")
     result = await event.client(GetContactsRequest(0))
-    
-    # تصفية البوتات فقط
     bots = [user for user in result.users if user.bot]
     
     deleted = 0
@@ -689,25 +685,27 @@ async def Hussein(event):
     
     for bot in bots:
         try:
-            # التحقق مما إذا كان البوت في الأرشيف (has pinned attribute)
-            entity = await event.client.get_entity(bot.id)
-            if getattr(entity, 'pinned', False):
-                continue  # تخطي البوتات في الأرشيف
-                
-            await event.client(DeleteHistoryRequest(
-                peer=bot.id,
-                max_id=0,
-                just_clear=True  # مسح المحادثة دون حظر
-            ))
-            deleted += 1
+            # جلب معلومات الدردشة
+            peer = await event.client.get_input_entity(bot.id)
+            if isinstance(peer, InputPeerUser):
+                # حذف المحادثة مع الاحتفاظ بالأرشيف
+                await event.client(DeleteHistoryRequest(
+                    peer=peer,
+                    max_id=0,
+                    just_clear=True,  # هذا يحافظ على الأرشيف
+                    revoke=False
+                ))
+                deleted += 1
         except Exception as e:
             print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
             errors += 1
     
-    message = f"**᯽︙ تم الانتهاء من التصفية ✓**\n"
-    message += f"- عدد البوتات التي تم مسحها: {deleted}\n"
-    message += f"- عدد الأخطاء: {errors}\n"
-    message += "**ملاحظة:** لم يتم مسح البوتات الموجودة في الأرشيف"
+    message = f"**᯽︙ تم الانتهاء من التصفية**\n"
+    message += f"**- عدد البوتات التي تم معالجتها:** {len(bots)}\n"
+    message += f"**- المحادثات المحذوفة:** {deleted}\n"
+    if errors > 0:
+        message += f"**- عدد الأخطاء:** {errors}\n"
+    message += "**᯽︙ تم الاحتفاظ بالمحادثات المؤرشفة**"
     
     await event.edit(message)
     

@@ -671,15 +671,31 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب ...**")
+    await event.edit("**✧︙ جارٍ حذف محادثات البوتات ⦗ مع تجاهل الأرشيف بالكامل ⦘..**")
+    
+    # جلب جميع جهات الاتصال (بما في ذلك البوتات)
     result = await event.client(GetContactsRequest(0))
     bots = [user for user in result.users if user.bot]
+    
+    # جلب جميع الدردشات في الأرشيف (للتأكد من عدم حذف أي شيء منها)
+    archived_chats = await event.client(GetPeerDialogsRequest(
+        peers=[InputDialogPeerFolder(folder_id=1)]  # الأرشيف = folder_id=1
+    ))
+    archived_chat_ids = set()
+    for chat in archived_chats.dialogs:
+        if hasattr(chat.peer, 'user_id'):  # إذا كانت محادثة مع مستخدم/بوت
+            archived_chat_ids.add(chat.peer.user_id)
+    
+    deleted_count = 0
     for bot in bots:
-        try:
-            await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
-        except Exception as e:
-            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
-    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
+        if bot.id not in archived_chat_ids:  # تجاهل أي بوت موجود في الأرشيف
+            try:
+                await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
+                deleted_count += 1
+            except Exception as e:
+                print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
+    
+    await event.edit(f"**✧︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف بالكامل) ✓**")
 
 # الكود من كتابة فريق الجوكر بس تسرقة تنشر بقناة الفضايح انتَ وقناتك 🖤
 lastResponse = None
@@ -731,15 +747,15 @@ async def zelzal_gpt(event):
     question = event.pattern_match.group(1)
     zzz = await event.get_reply_message()
     if not question and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⎉╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.ار من هو مكتشف الجاذبية الارضية`")
+        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.ار من هو مكتشف الجاذبية الارضية`")
     if not question and event.reply_to_msg_id and zzz.text: 
         question = zzz.text
     if not event.reply_to_msg_id: 
         question = event.pattern_match.group(1)
     if question == "مسح" or question == "حذف":
         lastResponse.pop(0)
-        return await edit_or_reply(event, "**⎉╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ار + سؤالك) لـ البـدء من جديد**")
-    zed = await edit_or_reply(event, "**⎉╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
+        return await edit_or_reply(event, "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ار + سؤالك) لـ البـدء من جديد**")
+    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
     answer = await process_gpt(question)
     if answer:
         await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗮𝗥𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
@@ -764,7 +780,7 @@ async def search_photo(event):
     if image_urls:
         #  تحميل  الصور  في  قائمة 
         input_media = []
-        for i in range(8): #  تحميل  حتى  10  صور 
+        for i in range(6): #  تحميل  حتى  10  صور 
             try:
                 image_url = await ai_img_gen(prompt)
                 image_save_path = os.path.join(

@@ -331,7 +331,6 @@ async def Hussein(event):
                 await event.reply(file=url)
 
 
-
 from telethon import events
 from . import l313l
 
@@ -353,7 +352,7 @@ async def _(event):
     global stop_sending
     stop_sending = False
 
-    animation_interval = 22  # تأخير 7 ثواني بين كل رسالة
+    animation_interval = 22  # تأخير 22 ثانية بين كل رسالة
     animation_chars = [
         "قَلبي يُحدّثُني بأنّكَ مُتلِفي",
         "روحي فداكَ عرفتَ أمْ لمْ تعرفِ",
@@ -386,18 +385,25 @@ async def _(event):
     # حذف رسالة الأمر
     await event.delete()
 
-    # الرد على الرسالة التي قمت بالرد عليها بالأمر
-    previous_message = await event.get_reply_message()
-    if previous_message:
-        reply = await previous_message.reply(animation_chars[0])
+    try:
+        # الرد على الرسالة التي قمت بالرد عليها بالأمر أو إرسال رسالة جديدة
+        previous_message = await event.get_reply_message()
+        if previous_message:
+            reply = await previous_message.reply(animation_chars[0])
+        else:
+            reply = await event.respond(animation_chars[0])
+        
         previous_message = reply
 
-    for line in animation_chars[1:]:
-        if stop_sending:
-            break
-        reply = await previous_message.reply(line)
-        previous_message = reply
-        await asyncio.sleep(animation_interval)
+        for line in animation_chars[1:]:
+            if stop_sending:
+                break
+            reply = await previous_message.reply(line)
+            previous_message = reply
+            await asyncio.sleep(animation_interval)
+            
+    except Exception as e:
+        await event.reply(f"حدث خطأ: {str(e)}")
 
 @l313l.ar_cmd(
     pattern="توقف$",
@@ -412,4 +418,3 @@ async def stop(event):
     global stop_sending
     stop_sending = True
     await event.reply("تم إيقاف إرسال كلمات الأغنية.")
-    

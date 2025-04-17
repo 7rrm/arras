@@ -671,13 +671,13 @@ async def hussein(event):
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
 from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.tl.types import InputPeerEmpty
+from telethon.tl.types import InputPeerEmpty, PeerUser
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
     await event.edit("**᯽︙ جارٍ حذف محادثات البوتات (مع تجاهل الأرشيف)...**")
     
-    # جلب جميع الدردشات بما فيها الأرشيف
+    # جلب جميع الدردشات
     dialogs = await event.client(GetDialogsRequest(
         offset_date=None,
         offset_id=0,
@@ -686,18 +686,23 @@ async def Hussein(event):
         hash=0
     ))
     
-    # تصفية البوتات (غير المؤرشفة)
     bots = []
     archived_chats = []
-    
+
     for dialog in dialogs.dialogs:
-        entity = dialogs.entities[dialog.entity]
-        if hasattr(entity, 'bot') and entity.bot:
-            if dialog.folder_id:  # إذا كانت في الأرشيف
-                archived_chats.append(entity.id)
-            else:
-                bots.append(entity.id)
-    
+        # الحصول على معلومات المحادثة
+        peer = dialog.peer
+        if isinstance(peer, PeerUser):  # التأكد أنها محادثة مع مستخدم
+            try:
+                entity = await event.client.get_entity(peer.user_id)
+                if getattr(entity, 'bot', False):  # إذا كان بوت
+                    if dialog.folder_id:  # إذا كانت في الأرشيف
+                        archived_chats.append(entity.id)
+                    else:
+                        bots.append(entity.id)
+            except Exception as e:
+                print(f"خطأ في جلب معلومات المستخدم: {e}")
+
     # حذف البوتات غير المؤرشفة
     deleted_count = 0
     for bot_id in bots:
@@ -706,8 +711,9 @@ async def Hussein(event):
             deleted_count += 1
         except Exception as e:
             print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
-    
+
     await event.edit(f"**᯽︙ تم حذف {deleted_count} محادثة بوت (مع تجاهل الأرشيف) ✓**")
+
 lastResponse = None
 async def process_gpt(question):
     global lastResponse
@@ -767,7 +773,7 @@ async def zelzal_gpt(event):
     zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
     answer = await process_gpt(question)
     if answer:
-        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗮𝗥𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
+        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
         lastResponse.append(str(answer))
         if len(lastResponse) > 8:
             lastResponse.pop(0)

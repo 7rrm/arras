@@ -6,6 +6,7 @@ import urllib.parse
 import os
 import random
 from pathlib import Path
+from YoutubeSearch import YoutubeSearch
 from yt_dlp import YoutubeDL
 from ShazamAPI import Shazam
 from telethon import types

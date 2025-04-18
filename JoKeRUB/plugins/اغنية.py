@@ -27,9 +27,9 @@ LOGS = logging.getLogger(__name__)
 # =========================================================== #
 #                           STRINGS                           #
 # =========================================================== #
-SONG_SEARCH_STRING = "<code>جاري البحث، انتظر قليلاً...</code>"
-SONG_NOT_FOUND = "<code>عذرًا، لم أتمكن من العثور على الأغنية</code>"
-SONG_SENDING_STRING = "<code>جارٍ التحميل والإرسال...</code>"
+SONG_SEARCH_STRING = "جاري البحث، انتظر قليلاً..."
+SONG_NOT_FOUND = "عذرًا، لم أتمكن من العثور على الأغنية"
+SONG_SENDING_STRING = "جارٍ التحميل والإرسال..."
 # =========================================================== #
 
 def get_cookies_file():
@@ -104,7 +104,7 @@ async def song_search(event):
         await event.client.send_file(
             event.chat_id,
             file_path,
-            caption=f"🎵 {title}",
+            caption=f"🎵 ٕ{title}",
             reply_to=reply_to_id,
             supports_streaming=True,
         )

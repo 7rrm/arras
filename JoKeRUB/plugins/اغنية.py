@@ -49,41 +49,31 @@ def remove_if_exists(path):
     if os.path.exists(path):
         os.remove(path)
 
-@l313l.ar_cmd(
-    pattern="بحث(?: |$)(.*)",
-    command=("بحث", plugin_category),
-    info={
-        "header": "للبحث عن الأغاني من يوتيوب",
-        "description": "يبحث عن المقطع الصوتي الأول من يوتيوب ويرسله",
-        "usage": "{tr}بحث <اسم المقطع>",
-        "examples": "{tr}بحث أغنية",
-    },
-)
-async def _(event):
-    "للبحث عن الأغاني"
-    reply_to_id = await reply_id(event)
+def remove_if_exists(path): #Code by T.me/zzzzl1l
+    if os.path.exists(path):
+        os.remove(path)
+
+#Code by T.me/zzzzl1l
+@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
+async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()
-    
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
     elif reply and reply.message:
         query = reply.message
     else:
         return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
-    
-    catevent = await edit_or_reply(event, SONG_SEARCH_STRING)
-    
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
     ydl_ops = {
         "format": "bestaudio[ext=m4a]",
-        "keepvideo": False,
+        "keepvideo": True,
         "prefer_ffmpeg": False,
         "geo_bypass": True,
         "outtmpl": "%(title)s.%(ext)s",
-        "quiet": True,
+        "quite": True,
         "no_warnings": True,
-        "cookiefile": get_cookies_file(),
+        "cookiefile" : get_cookies_file(),
     }
-    
     try:
         results = YoutubeSearch(query, max_results=1).to_dict()
         link = f"https://youtube.com{results[0]['url_suffix']}"
@@ -91,37 +81,49 @@ async def _(event):
         thumbnail = results[0]["thumbnails"][0]
         thumb_name = f"{title}.jpg"
         thumb = requests.get(thumbnail, allow_redirects=True)
-        open(thumb_name, "wb").write(thumb.content)
+        try:
+            open(thumb_name, "wb").write(thumb.content)
+        except Exception:
+            thumb_name = None
+            pass
         duration = results[0]["duration"]
+
     except Exception as e:
-        await catevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await zedub.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
         return
-    
-    await catevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
-    
+    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
     try:
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info_dict = ydl.extract_info(link, download=False)
             audio_file = ydl.prepare_filename(info_dict)
             ydl.process_info(info_dict)
-        
-        await catevent.edit(SONG_SENDING_STRING)
+        host = str(info_dict["uploader"])
+        secmul, dur, dur_arr = 1, 0, duration.split(":")
+        for i in range(len(dur_arr) - 1, -1, -1):
+            dur += int(float(dur_arr[i])) * secmul
+            secmul *= 60
+        await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**⎉╎البحث :** `{title}`",
+            caption=f"**⎉╎البحث :** `{title}`",
             thumb=thumb_name,
-            reply_to=reply_to_id,
         )
-        await catevent.delete()
+        await zedevent.delete()
+    except ChatSendMediaForbiddenError as err: # Code By T.me/zzzzl1l
+        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا ؟!**")
+        LOGS.error(str(err))
     except Exception as e:
-        await catevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-    finally:
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+    try:
         remove_if_exists(audio_file)
         remove_if_exists(thumb_name)
-
-
+    except Exception as e:
+        print(e)
+        
 @l313l.ar_cmd(
     pattern="فيديو(?:\s|$)([\s\S]*)",
     command=("فيديو", plugin_category),

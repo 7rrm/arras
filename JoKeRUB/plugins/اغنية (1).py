@@ -27,14 +27,12 @@ LOGS = logging.getLogger(__name__)
 # =========================================================== #
 #                           STRINGS                           #
 # =========================================================== #
-SONG_SEARCH_STRING = "<code>يجؤة الانتظار قليلا يتم البحث على المطلوب</code>"
-SONG_NOT_FOUND = "<code>عذرا لا يمكنني ايجاد اي اغنيه مثل هذه</code>"
-SONG_SENDING_STRING = "<code>جارِ الارسال انتظر قليلا...</code>"
+SONG_SEARCH_STRING = "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**"
+SONG_NOT_FOUND = "**- فشـل في العثور على النتائج**"
+SONG_SENDING_STRING = "**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**"
 # =========================================================== #
 #                                                             #
 # =========================================================== #
-
-# دالة للحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = os.path.join(os.getcwd(), "karar")  # المسار إلى مجلد zion
     if not os.path.exists(folder_path):
@@ -46,93 +44,81 @@ def get_cookies_file():
         
     return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
+def remove_if_exists(path):
+    if os.path.exists(path):
+        os.remove(path)
+
 @l313l.ar_cmd(
-    pattern="بحث(320)?(?:\s|$)([\s\S]*)",
+    pattern="بحث(?: |$)(.*)",
     command=("بحث", plugin_category),
     info={
-        "header": "To get songs from youtube.",
-        "description": "Basically this command searches youtube and send the first video as audio file.",
-        "flags": {
-            "320": "if you use song320 then you get 320k quality else 128k quality",
-        },
-        "usage": "{tr}song <song name>",
-        "examples": "{tr}song memories song",
+        "header": "للبحث عن الأغاني من يوتيوب",
+        "description": "يبحث عن المقطع الصوتي الأول من يوتيوب ويرسله",
+        "usage": "{tr}بحث <اسم المقطع>",
+        "examples": "{tr}بحث أغنية",
     },
 )
 async def _(event):
-    "To search songs"
+    "للبحث عن الأغاني"
     reply_to_id = await reply_id(event)
     reply = await event.get_reply_message()
     
-    # الحصول على الاستعلام للبحث
-    if event.pattern_match.group(2):
-        query = event.pattern_match.group(2)
+    if event.pattern_match.group(1):
+        query = event.pattern_match.group(1)
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "⌔∮ يرجى الرد على ما تريد البحث عنه")
+        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
     
-    catevent = await edit_or_reply(event, "⌔∮ جاري البحث عن المطلوب انتظر")
+    catevent = await edit_or_reply(event, SONG_SEARCH_STRING)
+    
+    ydl_ops = {
+        "format": "bestaudio[ext=m4a]",
+        "keepvideo": False,
+        "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quiet": True,
+        "no_warnings": True,
+        "cookiefile": get_cookies_file(),
+    }
     
     try:
-        # الحصول على ملف الكوكيز
-        cookie_file = get_cookies_file()
+        results = YoutubeSearch(query, max_results=1).to_dict()
+        link = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"][:40]
+        thumbnail = results[0]["thumbnails"][0]
+        thumb_name = f"{title}.jpg"
+        thumb = requests.get(thumbnail, allow_redirects=True)
+        open(thumb_name, "wb").write(thumb.content)
+        duration = results[0]["duration"]
     except Exception as e:
-        return await catevent.edit(f"❌ خطأ في الكوكيز: {str(e)}")
+        await catevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        return
     
-    # البحث عن الفيديو
+    await catevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+    
     try:
-        ydl_opts = {
-            'cookiefile': cookie_file,  # استخدام ملف الكوكيز
-            'extract_flat': True,
-        }
-        with YoutubeDL(ydl_opts) as ydl:
-            search_results = ydl.extract_info(f"ytsearch:{query}", download=False)
-            video_link = search_results['entries'][0]['url']  # الحصول على رابط الفيديو الأول
-    except Exception as e:
-        return await catevent.edit(f"❌ فشل البحث: {str(e)}")
-    
-    # تحديد جودة الصوت
-    cmd = event.pattern_match.group(1)
-    q = "320k" if cmd == "320" else "128k"
-    
-    # تنزيل المقطع الصوتي
-    try:
-        ydl_opts = {
-            'cookiefile': cookie_file,  # استخدام ملف الكوكيز
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': q,
-            }],
-            'outtmpl': f"{os.getcwd()}/temp/%(title)s.%(ext)s",  # حفظ الملف في مجلد temp
-        }
-        with YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_link, download=True)
-            song_file = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')  # تغيير الامتداد إلى mp3
-            title = info_dict.get('title', 'Unknown Title')  # الحصول على عنوان الفيديو
-    except Exception as e:
-        return await catevent.edit(f"❌ فشل التنزيل: {str(e)}")
-    
-    # إرسال الملف
-    await catevent.edit("**⌔∮ جارِ الارسال انتظر قليلاً**")
-    try:
+        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
+            info_dict = ydl.extract_info(link, download=False)
+            audio_file = ydl.prepare_filename(info_dict)
+            ydl.process_info(info_dict)
+        
+        await catevent.edit(SONG_SENDING_STRING)
         await event.client.send_file(
             event.chat_id,
-            song_file,
+            audio_file,
             force_document=False,
-            caption=f"**العنوان:** `{title}`",
-            supports_streaming=True,
+            caption=f"**⎉╎البحث :** `{title}`",
+            thumb=thumb_name,
             reply_to=reply_to_id,
         )
         await catevent.delete()
     except Exception as e:
-        await catevent.edit(f"❌ فشل الإرسال: {str(e)}")
+        await catevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
     finally:
-        # تنظيف الملفات المؤقتة
-        if os.path.exists(song_file):
-            os.remove(song_file)
+        remove_if_exists(audio_file)
+        remove_if_exists(thumb_name)
 
 
 @l313l.ar_cmd(

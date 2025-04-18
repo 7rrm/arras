@@ -90,7 +90,7 @@ async def _(event): #Code by T.me/zzzzl1l
 
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await zedub.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
         return
     await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
     try:

@@ -24,122 +24,100 @@ from . import l313l
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
-
 # =========================================================== #
 #                           STRINGS                           #
 # =========================================================== #
-SONG_SEARCH_STRING = "<code>يجري البحث، يرجى الانتظار...</code>"
-SONG_NOT_FOUND = "<code>عذرًا، لم أتمكن من العثور على أي أغنية بهذا الاسم</code>"
-SONG_SENDING_STRING = "<code>جارٍ الإرسال، انتظر قليلاً...</code>"
+SONG_SEARCH_STRING = "<code>جاري البحث، انتظر قليلاً...</code>"
+SONG_NOT_FOUND = "<code>عذرًا، لم أتمكن من العثور على الأغنية</code>"
+SONG_SENDING_STRING = "<code>جارٍ التحميل والإرسال...</code>"
 # =========================================================== #
 
 def get_cookies_file():
-    """الحصول على ملف كوكيز عشوائي من مجلد karar"""
+    """الحصول على ملف كوكيز عشوائي"""
     folder_path = os.path.join(os.getcwd(), "karar")
     if not os.path.exists(folder_path):
-        raise FileNotFoundError("مجلد 'karar' غير موجود في الدليل الحالي")
+        raise FileNotFoundError("مجلد الكوكيز غير موجود")
     
     txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
     if not txt_files:
-        raise FileNotFoundError("لا توجد ملفات كوكيز بصيغة txt في مجلد 'karar'")
+        raise FileNotFoundError("لا توجد ملفات كوكيز")
     
     return os.path.join(folder_path, random.choice(txt_files))
 
 @l313l.ar_cmd(
-    pattern="بحث(320)?(?:\s|$)([\s\S]*)",
+    pattern="بحث(?:\s|$)([\s\S]*)",  # تم إزالة خيار 320
     command=("بحث", plugin_category),
     info={
-        "header": "للبحث عن الأغاني من يوتيوب",
-        "description": "تقوم هذه الأداة بالبحث في يوتيوب وإرسال أول نتيجة كملف صوتي",
-        "flags": {
-            "320": "استخدم 320 للحصول على جودة 320k وإلا ستكون الجودة 128k",
-        },
+        "header": "للبحث عن الأغاني من يوتيوب بجودة متوسطة (128k)",
         "usage": "{tr}بحث <اسم الأغنية>",
         "examples": "{tr}بحث أغنية memories",
     },
 )
 async def song_search(event):
-    """للبحث عن الأغاني وإرسالها"""
-    # الحصول على معرّف الرد مسبقاً
+    """للبحث عن الأغاني بجودة 128k فقط"""
     reply_to_id = await reply_id(event)
-    
-    # الحصول على الاستعلام من الرسالة أو الرد
     reply = await event.get_reply_message()
-    query = event.pattern_match.group(2) or (reply.message if reply else None)
+    query = event.pattern_match.group(1) or (reply.message if reply else None)
     
     if not query:
-        return await edit_or_reply(event, "⌔∮ يرجى تحديد ما تريد البحث عنه")
-    
+        return await edit_or_reply(event, "⚠️ يرجى تحديد اسم الأغنية")
+
     catevent = await edit_or_reply(event, SONG_SEARCH_STRING)
     
     try:
-        # الحصول على ملف الكوكيز
         cookie_file = get_cookies_file()
         
-        # إعدادات البحث الأولي
+        # إعدادات البحث
         ydl_opts = {
             'cookiefile': cookie_file,
             'extract_flat': True,
-            'quiet': True,  # تقليل السجلات غير الضرورية
+            'quiet': True,
         }
         
-        # البحث عن الفيديو
         with YoutubeDL(ydl_opts) as ydl:
-            search_results = ydl.extract_info(
-                f"ytsearch:{query}",
-                download=False
-            )
-            if not search_results.get('entries'):
+            results = ydl.extract_info(f"ytsearch:{query}", download=False)
+            if not results.get('entries'):
                 return await catevent.edit(SONG_NOT_FOUND)
                 
-            video_link = search_results['entries'][0]['url']
-            video_title = search_results['entries'][0].get('title', 'غير معروف')
+            video_url = results['entries'][0]['url']
+            title = results['entries'][0].get('title', 'بدون عنوان')
             
-        # إعدادات التنزيل
-        quality = "320k" if event.pattern_match.group(1) else "128k"
-        temp_dir = os.path.join(os.getcwd(), "temp")
-        os.makedirs(temp_dir, exist_ok=True)  # إنشاء المجلد إذا لم يكن موجوداً
-        
+        # إعدادات التنزيل (جودة 128k ثابتة)
         ydl_opts = {
             'cookiefile': cookie_file,
             'format': 'bestaudio/best',
-            'outtmpl': os.path.join(temp_dir, f'{video_title}.%(ext)s'),
+            'outtmpl': os.path.join("temp", '%(title)s.%(ext)s'),
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
-                'preferredquality': quality,
+                'preferredquality': '128k',  # جودة ثابتة
             }],
-            'quiet': True,  # تقليل السجلات
+            'quiet': True,
         }
         
-        # التنزيل
+        os.makedirs("temp", exist_ok=True)
         with YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_link, download=True)
-            song_file = ydl.prepare_filename(info_dict).replace('.webm', '.mp3')
+            info = ydl.extract_info(video_url, download=True)
+            file_path = ydl.prepare_filename(info).replace('.webm', '.mp3')
             
-        # الإرسال
         await catevent.edit(SONG_SENDING_STRING)
         await event.client.send_file(
             event.chat_id,
-            song_file,
-            caption=f"**العنوان:** `{video_title}`\n**الجودة:** `{quality}`",
+            file_path,
+            caption=f"🎵 {title}",
             reply_to=reply_to_id,
             supports_streaming=True,
-            force_document=False,
         )
         
     except Exception as e:
-        LOGS.error(f"خطأ في البحث عن الأغنية: {str(e)}")
-        await catevent.edit(f"❌ حدث خطأ: {str(e)}")
-        
+        await catevent.edit(f"❌ خطأ: {str(e)}")
+        LOGS.error(f"Song search error: {e}")
     finally:
-        # التنظيف
-        if 'song_file' in locals() and os.path.exists(song_file):
-            try:
-                os.remove(song_file)
-            except Exception as e:
-                LOGS.error(f"خطأ في حذف الملف المؤقت: {str(e)}")
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
         await catevent.delete()
+
+
 
 
 @l313l.ar_cmd(

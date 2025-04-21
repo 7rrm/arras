@@ -39,7 +39,7 @@ async def permalink(mention):
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user = await get_user_from_event(mention)
+    user, custom = await get_user_from_event(mention)
     if not user:
         return
     if user.id == 5427469031:

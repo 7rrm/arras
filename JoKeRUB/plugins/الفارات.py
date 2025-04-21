@@ -71,8 +71,8 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار لون الوقتي \n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
-            '''
         heroku_var[variable] = vra
+        '''
     if exe == "رمز الاسم":
         variable = "TIME_JEP"
         await asyncio.sleep(1)
@@ -115,8 +115,8 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار البايو\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
-            '''
         heroku_var[variable] = vra
+        '''
     if exe == "امر نشر" or exe == "امر النشر" or exe == "مكرر":
         variable = "MUKRR_ET"
         await asyncio.sleep(1)
@@ -201,8 +201,8 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار زخرفه الارقام\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
-            '''
         heroku_var[variable] = vra
+        '''
     if exe == "اسم" or exe == "الاسم":
         variable = "ALIVE_NAME"
         await asyncio.sleep(1)
@@ -286,8 +286,8 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار البايو\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
-        '''
         del heroku_var[variable]
+        '''
     if exe == "القروب" or exe == "الكروب":
         variable = "DEFAULT_GROUP"
         await asyncio.sleep(1)
@@ -318,8 +318,8 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار لون الوقتي\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
-        '''
         del heroku_var[variable]
+        '''
     if exe == "الصورة" or exe == "الصوره":
         variable = "DIGITAL_PIC"
         await asyncio.sleep(1)
@@ -352,8 +352,8 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار زخرفه الارقام\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
-        '''
         del heroku_var[variable]
+        '''
     if exe == "كروب التخزين":
         variable = "PM_LOGGER_GROUP_ID"
         await asyncio.sleep(1)

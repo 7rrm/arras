@@ -450,42 +450,6 @@ async def download_audio(event):
     await zedevent.delete()
 
 
-@l313l.ar_cmd(
-    pattern="يوتيوب(?: |$)(\\d*)? ?([\\s\\S]*)",
-    command=("يوتيوب", plugin_category),
-    info={
-        "header": "لـ البحـث عـن روابــط بالكلمــه المحــدده علـى يـوتيــوب",
-        "مثــال": [
-            "{tr}يوتيوب + كلمـه",
-            "{tr}يوتيوب + عدد + كلمـه",
-        ],
-    },
-)
-async def yt_search(event):
-    "Youtube search command"
-    if event.is_reply and not event.pattern_match.group(2):
-        query = await event.get_reply_message()
-        query = str(query.message)
-    else:
-        query = str(event.pattern_match.group(2))
-    if not query:
-        return await edit_delete(
-            event, "**╮ بالـرد ﮼؏ كلمـٓھہ للبحث أو ضعها مـع الأمـر ... 𓅫╰**"
-        )
-    video_q = await edit_or_reply(event, "**╮ جـارِ البحث ▬▭... ╰**")
-    if event.pattern_match.group(1) != "":
-        lim = int(event.pattern_match.group(1))
-        if lim <= 0:
-            lim = int(10)
-    else:
-        lim = int(10)
-    try:
-        full_response = await ytsearch(query, limit=lim)
-    except Exception as e:
-        return await edit_delete(video_q, str(e), time=10, parse_mode=_format.parse_pre)
-    reply_text = f"**⎉╎اليك عزيزي قائمة بروابط الكلمة اللتي بحثت عنها:**\n`{query}`\n\n**⎉╎النتائج:**\n{full_response}"
-    await edit_or_reply(video_q, reply_text)
-
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
@@ -565,8 +529,6 @@ async def _(event): #Code by T.me/zzzzl1l
     except Exception as e:
         print(e)
 
-
-#Code by T.me/zzzzl1l
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()
@@ -627,240 +589,6 @@ async def _(event): #Code by T.me/zzzzl1l
 # ================================================================================================ #
 # =========================================ردود الخاص================================================= #
 # ================================================================================================ #
-
-@l313l.ar_cmd(
-    pattern="ابحث(?:\ع|$)([\s\S]*)",
-    command=("ابحث", plugin_category),
-    info={
-        "header": "To reverse search song.",
-        "الوصـف": "Reverse search audio file using shazam api",
-        "امـر مضـاف": {"ع": "To send the song of sazam match"},
-        "الاستخـدام": [
-            "{tr}ابحث بالــرد ع بصمـه او مقطـع صوتي",
-            "{tr}ابحث ع بالــرد ع بصمـه او مقطـع صوتي",
-        ],
-    },
-)
-async def shazamcmd(event):
-    "To reverse search song."
-    reply = await event.get_reply_message()
-    mediatype = await media_type(reply)
-    chat = "@DeezerMusicBot"
-    delete = False
-    flag = event.pattern_match.group(1)
-    if not reply or not mediatype or mediatype not in ["Voice", "Audio"]:
-        return await edit_delete(
-            event, "**- بالــرد ع مقطـع صـوتي**"
-        )
-    zedevent = await edit_or_reply(event, "**- جـار تحميـل المقـطع الصـوتي ...**")
-    name = "zed.mp3"
-    try:
-        for attr in getattr(reply.document, "attributes", []):
-            if isinstance(attr, types.DocumentAttributeFilename):
-                name = attr.file_name
-        dl = io.FileIO(name, "a")
-        await event.client.fast_download_file(
-            location=reply.document,
-            out=dl,
-        )
-        dl.close()
-        mp3_fileto_recognize = open(name, "rb").read()
-        shazam = Shazam(mp3_fileto_recognize)
-        recognize_generator = shazam.recognizeSong()
-        track = next(recognize_generator)[1]["track"]
-    except Exception as e:
-        LOGS.error(e)
-        return await edit_delete(
-            zedevent, f"**- خطـأ :**\n__{e}__"
-        )
-
-    file = track["images"]["background"]
-    title = track["share"]["subject"]
-    slink = await yt_search(title)
-    if flag == "s":
-        deezer = track["hub"]["providers"][1]["actions"][0]["uri"][15:]
-        async with event.client.conversation(chat) as conv:
-            try:
-                purgeflag = await conv.send_message("/start")
-            except YouBlockedUserError:
-                await zedub(unblock("DeezerMusicBot"))
-                purgeflag = await conv.send_message("/start")
-            await conv.get_response()
-            await event.client.send_read_acknowledge(conv.chat_id)
-            await conv.send_message(deezer)
-            await event.client.get_messages(chat)
-            song = await event.client.get_messages(chat)
-            await song[0].click(0)
-            await conv.get_response()
-            file = await conv.get_response()
-            await event.client.send_read_acknowledge(conv.chat_id)
-            delete = True
-    await event.client.send_file(
-        event.chat_id,
-        file,
-        caption=f"<b>⎉╎ المقطـع الصـوتي :</b> <code>{title}</code>\n<b>⎉╎ الرابـط : <a href = {slink}/1>YouTube</a></b>",
-        reply_to=reply,
-        parse_mode="html",
-    )
-    await zedevent.delete()
-    if delete:
-        await delete_conv(event, chat, purgeflag)
-
-
-# Code by T.me/zzzzl1l
-@l313l.ar_cmd(pattern=".ff(?:\s|$)([\s\S]*)")
-async def zelzal_song(event):
-    song = event.pattern_match.group(1)
-    chat = "@ROOTMusic_bot"
-    reply_id_ = await reply_id(event)
-    zzevent = await edit_or_reply(event, SONG_SEARCH_STRING, parse_mode="html")
-    async with event.client.conversation(chat) as conv:
-        try:
-            purgeflag = await conv.send_message("/start")
-        except YouBlockedUserError:
-            await catub(unblock("ROOTMusic_bot"))
-            await conv.send_message("/start")
-        await conv.send_message(song)
-        hmm = await conv.get_response()
-        zzz = await event.client.get_messages(chat)
-        await zzevent.edit(SONG_SENDING_STRING, parse_mode="html")
-        await zzz[0].click(0)
-        await conv.get_response()
-        music = await conv.get_response()
-        await event.client.send_read_acknowledge(conv.chat_id)
-        await event.client.send_file(
-            event.chat_id,
-            music,
-            caption=f"<b>⎉╎البحث : <code>{song}</code></b>",
-            parse_mode="html",
-            reply_to=reply_id_,
-        )
-        await zzevent.delete()
-        await delete_conv(event, chat, purgeflag)
-
-
-@l313l.ar_cmd(
-    pattern="يوتيوب(?: |$)(\d*)? ?([\s\S]*)",
-    command=("يوتيوب", plugin_category),
-    info={
-        "header": "لـ البحـث عـن روابــط بالكلمــه المحــدده علـى يـوتيــوب",
-        "مثــال": [
-            "{tr}يوتيوب + كلمـه",
-            "{tr}يوتيوب + عدد + كلمـه",
-        ],
-    },
-)
-async def you_search(event):
-    "Youtube search command"
-    if event.is_reply and not event.pattern_match.group(2):
-        query = await event.get_reply_message()
-        query = str(query.message)
-    else:
-        query = str(event.pattern_match.group(2))
-    if not query:
-        return await edit_delete(
-            event, "**╮ بالـرد ﮼؏ كلمـٓھہ للبحث أو ضعها مـع الأمـر ... 𓅫╰**"
-        )
-    video_q = await edit_or_reply(event, "**╮ جـارِ البحث ▬▭... ╰**")
-    if event.pattern_match.group(1) != "":
-        lim = int(event.pattern_match.group(1))
-        if lim <= 0:
-            lim = int(10)
-    else:
-        lim = int(10)
-    try:
-        full_response = await ytsearch(query, limit=lim)
-    except Exception as e:
-        return await edit_delete(video_q, str(e), time=10, parse_mode=_format.parse_pre)
-    reply_text = f"**•  اليك عزيزي قائمة بروابط الكلمة اللتي بحثت عنها:**\n`{query}`\n\n**•  النتائج:**\n{full_response}"
-    await edit_or_reply(video_q, reply_text)
-
-
-async def ytdl_down(event, opts, url):
-    ytdl_data = None
-    try:
-        await event.edit("**╮ ❐ يتـم جلـب البيانـات انتظـر قليلاً ...𓅫╰▬▭ **")
-        with YoutubeDL(opts) as ytdl:
-            ytdl_data = ytdl.extract_info(url)
-    except DownloadError as DE:
-        await event.edit(f"`{DE}`")
-    except ContentTooShortError:
-        await event.edit("**- عذرا هذا المحتوى قصير جدا لتنزيله ⚠️**")
-    except GeoRestrictedError:
-        await event.edit(
-            "**- الفيديو غير متاح من موقعك الجغرافي بسبب القيود الجغرافية التي يفرضها موقع الويب ❕**"
-        )
-    except MaxDownloadsReached:
-        await event.edit("**- تم الوصول إلى الحد الأقصى لعدد التنزيلات ❕**")
-    except PostProcessingError:
-        await event.edit("**كان هناك خطأ أثناء المعالجة**")
-    except UnavailableVideoError:
-        await event.edit("**⌔∮عـذراً .. الوسائط غير متوفـره بالتنسيق المطلـوب**")
-    except XAttrMetadataError as XAME:
-        await event.edit(f"`{XAME.code}: {XAME.msg}\n{XAME.reason}`")
-    except ExtractorError:
-        await event.edit("**حدث خطأ أثناء استخراج المعلومات يرجى وضعها بشكل صحيح ⚠️**")
-    except Exception as e:
-        await event.edit(f"**Error : **\n__{e}__")
-    return ytdl_data
-
-
-async def fix_attributes(
-    path, info_dict: dict, supports_streaming: bool = False, round_message: bool = False
-) -> list:
-    """Avoid multiple instances of an attribute."""
-    new_attributes = []
-    video = False
-    audio = False
-
-    uploader = info_dict.get("uploader", "Unknown artist")
-    duration = int(info_dict.get("duration", 0))
-    suffix = path.suffix[1:]
-    if supports_streaming and suffix != "mp4":
-        supports_streaming = True
-
-    attributes, mime_type = get_attributes(path)
-    if suffix == "mp3":
-        title = str(info_dict.get("title", info_dict.get("id", "Unknown title")))
-        audio = types.DocumentAttributeAudio(
-            duration=duration, voice=None, title=title, performer=uploader
-        )
-    elif suffix == "mp4":
-        width = int(info_dict.get("width", 0))
-        height = int(info_dict.get("height", 0))
-        for attr in attributes:
-            if isinstance(attr, types.DocumentAttributeVideo):
-                duration = duration or attr.duration
-                width = width or attr.w
-                height = height or attr.h
-                break
-        video = types.DocumentAttributeVideo(
-            duration=duration,
-            w=width,
-            h=height,
-            round_message=round_message,
-            supports_streaming=supports_streaming,
-        )
-
-    if audio and isinstance(audio, types.DocumentAttributeAudio):
-        new_attributes.append(audio)
-    if video and isinstance(video, types.DocumentAttributeVideo):
-        new_attributes.append(video)
-
-    new_attributes.extend(
-        attr
-        for attr in attributes
-        if (
-            isinstance(attr, types.DocumentAttributeAudio)
-            and not audio
-            or not isinstance(attr, types.DocumentAttributeAudio)
-            and not video
-            or not isinstance(attr, types.DocumentAttributeAudio)
-            and not isinstance(attr, types.DocumentAttributeVideo)
-        )
-    )
-    return new_attributes, mime_type
-
 
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
@@ -1078,7 +806,7 @@ async def reply_id(event):
 async def filter_incoming_handler(event):
     name = event.raw_text
     repl = await reply_id(event)
-    filters = get_pasmats(zedub.uid)
+    filters = get_pasmats(l313l.uid)
     if not filters:
         return
     for trigger in filters:
@@ -1150,7 +878,7 @@ async def add_new_meme(event):
 @l313l.ar_cmd(pattern="بصماتي$")
 async def on_meme_list(event):
     OUT_STR = "**⪼ لا يوجـد لديك بصمـات محفوظـه ❌**\n\n**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**"
-    filters = get_pasmats(zedub.uid)
+    filters = get_pasmats(l313l.uid)
     for filt in filters:
         if OUT_STR == "**⪼ لا يوجـد لديك بصمـات محفوظـه ❌**\n\n**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**":
             OUT_STR = "𓆩 𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - قائمـة بصمـاتك المضـافـة 🔊𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
@@ -1193,7 +921,7 @@ async def filter_incoming_handler(event):
     if event.sender_id == event.client.uid:
         return
     name = event.raw_text
-    filters = get_pmrads(zedub.uid)
+    filters = get_pmrads(l313l.uid)
     if not filters:
         return
     a_user = await event.get_sender()
@@ -1290,7 +1018,7 @@ async def add_new_meme(event):
 @l313l.ar_cmd(pattern="ردود الخاص$")
 async def on_meme_list(event):
     OUT_STR = "**⪼ لا يوجـد لديك ردود تلقائيـه لـ الخـاص ❌**\n\n**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**"
-    filters = get_pmrads(zedub.uid)
+    filters = get_pmrads(l313l.uid)
     for filt in filters:
         if OUT_STR == "**⪼ لا يوجـد لديك ردود تلقائيـه لـ الخـاص ❌**\n\n**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**":
             OUT_STR = "𓆩 𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - ردودك التلقـائيـه خـاص 🗣𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"

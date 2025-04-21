@@ -24,12 +24,12 @@ plugin_category = "utils"
 )
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user = await get_user_from_event(mention)
+    user, custom = await get_user_from_event(mention)
     if not user:
         return
     muh = user.first_name.replace("\u2060", "") if user.first_name else user.username
     rza = random.choice(roz)
-    await edit_or_reply(mention, f"**⏎︙ نـسـبتكم انـت و [{muh}](tg://user?id={user.id}) هـي {rza}** 😔🖤")
+    await edit_or_reply(mention, f"نـسـبتكم انـت و [{muh}](tg://user?id={user.id}) هـي {rza} 😔🖤")
     
     
    

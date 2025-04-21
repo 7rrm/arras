@@ -64,12 +64,14 @@ async def custom_HuRe(event):
     if input_str == "امر النشر" or input_str == "امر نشر":
         addgvar("MUKRR_ET", text)
         var = "MUKRR_ET"
+        '''
     if input_str == "زخرفة الارقام" or input_str == "زخرفه الارقام":
         addgvar("JP_FN", text)
         var = "JP_FN"
     if input_str == "البايو" or input_str == "بايو":
         addgvar("DEFAULT_BIO", text)
         var = "DEFAULT_BIO"
+        '''
     if input_str == "رمز الاسم" or input_str == "علامة الاسم":
         addgvar("TIME_JEP", text)
         var = "TIME_JEP"
@@ -91,6 +93,7 @@ async def custom_HuRe(event):
     if input_str == "عدد التحذيرات":
         addgvar("MAX_FLOOD_IN_PMS", text)
         var = "MAX_FLOOD_IN_PMS"
+        '''
     if (
         input_str == "لون الوقتي"
         or input_str == "لون وقتي"
@@ -100,6 +103,7 @@ async def custom_HuRe(event):
     ):
        addgvar("digitalpiccolor", text)
        var = "digitalpiccolor"
+       '''
     if input_str == "التخزين" or input_str == "تخزين":
         addgvar("PM_LOGGER_GROUP_ID", text)
         var = "PM_LOGGER_GROUP_ID"
@@ -157,6 +161,7 @@ async def custom_HuRe(event):
                 event, "**⎙ :: عزيزي المستخدم انت لم تقوم باضافه هذا الفار اصلا**"
             )
         delgvar("pmpermit_pic")
+        '''  
     if (
         input_str == "لون الوقتي"
         or input_str == "لون وقتي"
@@ -168,6 +173,7 @@ async def custom_HuRe(event):
                 event, "**لم تضيف الفار اصلاً**"
             )
         delgvar("digitalpiccolor")
+        '''
     if input_str == "صورة الفحص" or input_str == "صوره الفحص":
         if gvarstatus("ALIVE_PIC") is None:
             return await edit_delete(
@@ -199,6 +205,7 @@ async def custom_HuRe(event):
             return await edit_delete(
                 event, "**⎙ :: عزيزي المستخدم انت لم تقوم باضافه هذا الفار اصلا**"
             )
+            '''
         delgvar("ALIVE_TEXT")
     if input_str == "زخرفة الارقام" or input_str == "زخرفه الارقام":
         if gvarstatus("JP_FN") is None:
@@ -212,6 +219,7 @@ async def custom_HuRe(event):
                 event, "**⎙ :: عزيزي المستخدم انت لم تقوم باضافه هذا الفار اصلا**"
             )
         delgvar("DEFAULT_BIO")
+        '''
     if input_str == "رمز الاسم":
         if gvarstatus("TIME_JEP") is None:
             return await edit_delete(

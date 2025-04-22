@@ -1,256 +1,249 @@
-import base64
 import asyncio
-from datetime import datetime
+import shutil
+import contextlib
+from datetime import datetime, timedelta
+import re
+from asyncio import sleep
+
 from telethon import events
-from telethon.errors import BadRequestError, UserAdminInvalidError
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import ChatBannedRights
 from telethon.utils import get_display_name
 
 from JoKeRUB import l313l
-
+from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import _format
-from ..sql_helper import gban_sql_helper as gban_sql
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..sql_helper.katm_sql import (
+    add_katm,
+    get_katms,
+    remove_all_katms,
+    remove_katm,
+)
 from ..sql_helper.mute_sql import is_muted, mute, unmute
-from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
+from ..utils import admin_groups, get_user_from_event
 
 plugin_category = "admin"
-joker_users = []
+LOGS = logging.getLogger(__name__)
 joker_mute = "https://telegra.ph/file/c5ef9550465a47845c626.jpg"
 joker_unmute = "https://telegra.ph/file/e9473ddef0b58cdd7f9e7.jpg"
-import os
 
-file_path = 'AljokerMute.txt'
-
-if not os.path.isfile(file_path):
-    open(file_path, 'w').close()
-
-def add_to_mute_list(user):
-    with open(file_path, 'a') as file:
-        file.write(f"{user.id}\n")
-
-    
-def remove_from_mute_list(user_id):
-    global file_path  # Ensure you are modifying the global file_path
-    file_path = [id for id in file_path if id != str(user_id)]
-
-#=================== الكـــــــــــــــتم  ===================  #
-
-@l313l.ar_cmd(pattern=f"كتم(?:\s|$)([\s\S]*)")
-async def mutejep(event):
+@l313l.ar_cmd(pattern="كتم مؤقت(?:\s|$)([\s\S]*)")
+async def temp_mute(event):
     if event.is_private:
-        replied_user = await event.client.get_entity(event.chat_id)
-        if is_muted(event.chat_id, event.chat_id):  # Corrected this line
-            return await event.edit(
-                "**- هـذا المسـتخـدم مڪتـوم . . سـابقـاً **"
-            )
-        if event.chat_id == l313l.uid:
-            return await edit_delete(event, "**𖡛... . لمـاذا تࢪيـد كتم نفسـك؟  ...𖡛**")
-        if event.chat_id == 5427469031:
-            return await edit_delete(event, "** دي . . لا يمڪنني كتـم مطـور السـورس  ╰**")
-        try:
-            mute(event.chat_id, event.chat_id)  # Corrected this line
-            add_to_mute_list(replied_user)
-        except Exception as e:
-            await event.edit(f"**- خطــأ : **`{e}`")
+        await event.edit("**⪼ هذا الأمر يعمل فقط في المجموعات!**")
+        return
+    
+    input_str = event.pattern_match.group(1)
+    if not input_str:
+        return await event.edit("**⪼ يجب تحديد مدة الكتم مثل: `.كتم مؤقت 5m سبب`**")
+    
+    split_args = input_str.split(maxsplit=2)
+    if len(split_args) < 2:
+        return await event.edit("**⪼ صيغة خاطئة! استخدم: `.كتم مؤقت الوقت سبب`**")
+    
+    time_value = split_args[0]
+    reason = split_args[1] if len(split_args) > 1 else "لا يوجد سبب"
+    
+    try:
+        time_amount = int(time_value[:-1])
+        time_unit = time_value[-1].lower()
+        
+        if time_unit == 'm':
+            mute_duration = timedelta(minutes=time_amount)
+        elif time_unit == 'h':
+            mute_duration = timedelta(hours=time_amount)
+        elif time_unit == 'd':
+            mute_duration = timedelta(days=time_amount)
         else:
-            return await event.client.send_file(
-                event.chat_id,
-                joker_mute,
-                caption="** تم ڪتـم الـمستخـدم  . . بنجـاح 🔕✓**",
-            )
-        if BOTLOG:
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                "#كتــم_الخــاص\n"
-                f"**- الشخـص  :** [{replied_user.first_name}](tg://user?id={event.chat_id})\n",
-            )
-    else:
-        args = event.pattern_match.group(1).strip()
-        user = None
+            return await event.edit("**⪼ وحدة الوقت غير صالحة! استخدم m للدقائق, h للساعات, d للأيام**")
+    except Exception as e:
+        return await event.edit(f"**⪼ خطأ في تحديد الوقت: {str(e)}**")
+    
+    user, _ = await get_user_from_event(event)
+    if not user:
+        return
+    
+    if user.id == l313l.uid:
+        return await edit_delete(event, "**⪼ لا يمكنك كتم نفسك!**")
+    
+    if user.id == 5427469031:
+        return await edit_delete(event, "**⪼ لا يمكنني كتم مطور السورس!**")
+    
+    try:
+        mute(user.id, "temp_mute")
+        await event.client.send_file(
+            event.chat_id,
+            joker_mute,
+            caption=f"**⎉╎تم كتم المستخدم مؤقتاً**\n**⎉╎المدة: {time_value}**\n**⎉╎السبب: {reason}**",
+        )
+        
+        await asyncio.sleep(mute_duration.total_seconds())
+        unmute(user.id, "temp_mute")
+        await event.client.send_file(
+            event.chat_id,
+            joker_unmute,
+            caption=f"**⎉╎تم إلغاء كتم المستخدم**\n**⎉╎انتهت مدة الكتم: {time_value}**",
+        )
+        
+    except Exception as e:
+        await event.edit(f"**⪼ حدث خطأ: {str(e)}**")
 
-        if event.reply_to_msg_id:
-            replied_message = await event.get_reply_message()
-            user = await event.client.get_entity(replied_message.from_id)
-        elif args:
-            try:
-                user = await event.client.get_entity(args)
-            except Exception as e:
-                return await event.edit(f"**- خطــأ : **`{e}`")
-
+@l313l.ar_cmd(pattern="كتم(?:\s|$)([\s\S]*)")
+async def startgmute(event):
+    if event.is_private:
+        await asyncio.sleep(0.5)
+        user, reason = await get_user_from_event(event)
         if not user:
-            return await event.edit("**- يرجى تقديم المعرف أو اسم المستخدم، أو الرد على رسالة المستخدم**")
-
-        chat = await event.get_chat()
-        admin = chat.admin_rights
-        creator = chat.creator
-        if not admin and not creator:
-            return await edit_or_reply(
-                event, "** أنـا لسـت مشـرف هنـا ؟!! .**"
-            )
+            return
         if user.id == l313l.uid:
-            return await edit_or_reply(event, "**𖡛... . لمـاذا تࢪيـد كتم نفسـك؟  ...𖡛**")
+            return await edit_or_reply(event, "**⪼ لا يمكنك كتم نفسك!**")
         if user.id == 5427469031:
-            return await edit_or_reply(event, "** دي . . لا يمڪنني كتـم مطـور السـورس  ╰**")
-        if is_muted(user.id, event.chat_id): 
-            return await edit_or_reply(
-                event, "**عــذراً .. هـذا الشخـص مكتــوم سـابقــاً هنـا**"
-            )
-        result = await event.client.get_permissions(event.chat_id, user.id)
-        try:
-            if result.participant.banned_rights.send_messages:
-                return await edit_or_reply(
-                    event,
-                    "**عــذراً .. هـذا الشخـص مكتــوم سـابقــاً هنـا**",
-                )
-        except AttributeError:
-            pass
-        except Exception as e:
-            return await edit_or_reply(event, f"**- خطــأ : **`{e}`")
-        try:
-            mute(user.id, event.chat_id) 
-            add_to_mute_list(user)
-        except UserAdminInvalidError:
-            if "admin_rights" in vars(chat) and vars(chat)["admin_rights"] is not None:
-                if chat.admin_rights.delete_messages is not True:
-                    return await edit_or_reply(
-                        event,
-                        "**- عــذراً .. ليـس لديـك صـلاحيـة حـذف الرسـائل هنـا**",
-                    )
-            elif "creator" not in vars(chat):
-                return await edit_or_reply(
-                    event, "**- عــذراً .. ليـس لديـك صـلاحيـة حـذف الرسـائل هنـا**"
-                )
-        except Exception as e:
-            return await edit_or_reply(event, f"**- خطــأ : **`{e}`")
-        reason = event.pattern_match.group(1).split(maxsplit=1)[1] if len(event.pattern_match.group(1).split(maxsplit=1)) > 1 else ""
+            return await edit_or_reply(event, "**⪼ لا يمكنني كتم مطور السورس!**")
+        userid = user.id 
+    else:
+        user, reason = await get_user_from_event(event)
+        if not user:
+            return
+        if user.id == l313l.uid:
+            return await edit_or_reply(event, "**⪼ لا يمكنك كتم نفسك!**")
+        if user.id == 5427469031:
+            return await edit_or_reply(event, "**⪼ لا يمكنني كتم مطور السورس!**")
+        userid = user.id
+    
+    try:
+        user = await event.client.get_entity(userid)
+    except Exception:
+        return await edit_or_reply(event, "**⪼ لا يمكنني العثور على المستخدم!**")
+    
+    if is_muted(userid, "gmute"):
+        return await edit_or_reply(
+            event,
+            f"**⎉╎المستخـدم** {_format.mentionuser(user.first_name ,user.id)} \n**⎉╎مڪتوم سابقـاً**",
+        )
+    
+    try:
+        mute(userid, "gmute")
+    except Exception as e:
+        await edit_or_reply(event, f"**⪼ خطأ: {e}**")
+    else:
         if reason:
             await event.client.send_file(
                 event.chat_id,
                 joker_mute,
-                caption=f"**- المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}  \n**- تـم كتمـه بنجـاح ✓**\n\n**- السـبب :** {reason}",
+                caption=f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم كتمــه .. بنجــاح 🔕**\n**⎉╎السـبب:** {reason}",
             )
         else:
             await event.client.send_file(
                 event.chat_id,
                 joker_mute,
-                caption=f"**- المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}  \n**- تـم كتمـه بنجـاح ✓**\n\n",
+                caption=f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم كتمــه .. بنجــاح 🔕**",
             )
-        if BOTLOG:
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                "#الكــتم\n"
-                f"**الشخـص :** [{user.first_name}](tg://user?id={user.id})\n"
-                f"**الدردشـه :** {get_display_name(await event.get_chat())}(`{event.chat_id}`)",
-            )   
-@l313l.on(events.NewMessage)
-async def handle_forwarded(event):
-    if event.fwd_from:
-        if is_muted(event.sender_id, event.chat_id):
-            await event.delete()
-#=================== الغـــــــــــــاء الكـــــــــــــــتم  ===================  #
+    
+    if BOTLOG:
+        if reason:
+            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
+                await event.client.send_message(
+                    BOTLOG_CHATID,
+                    "#الكــتم_العــام 🔕\n\n"
+                    f"**- المستخدم:** {_format.mentionuser(user.first_name ,user.id)}\n"
+                    f"**- الايدي:** `{user.id}`\n"
+                    f"**- السبب:** `{reason}`\n\n"
+                    f"**⎉╎تم إضافة المستخدم لقائمة المكتومين**",
+                )
+        else:
+            reason = "لا يوجد"
+            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
+                await event.client.send_message(
+                    BOTLOG_CHATID,
+                    "#الكــتم_العــام 🔕\n\n"
+                    f"**- المستخدم:** {_format.mentionuser(user.first_name ,user.id)}\n"
+                    f"**- الايدي:** `{user.id}`\n\n"
+                    f"**⎉╎تم إضافة المستخدم لقائمة المكتومين**",
+                )
 
-@l313l.ar_cmd(pattern=f"(الغاء الكتم|الغاء كتم)(?:\s|$)([\s\S]*)")
-async def unmutejep(event):
+@l313l.ar_cmd(pattern="الغاء كتم(?:\s|$)([\s\S]*)")
+async def endgmute(event):
     if event.is_private:
-        replied_user = await event.client.get_entity(event.chat_id)
-        if not is_muted(event.chat_id, event.chat_id):
-            return await event.edit(
-                "**عــذراً .. هـذا الشخـص غيــر مكتــوم هنـا**"
+        await asyncio.sleep(0.5)
+        userid = event.chat_id
+        reason = event.pattern_match.group(1)
+    else:
+        user, reason = await get_user_from_event(event)
+        if not user:
+            return
+        if user.id == l313l.uid:
+            return await edit_or_reply(event, "**⪼ أنت غير مكتوم أصلاً!**")
+        userid = user.id
+    
+    try:
+        user = await event.client.get_entity(userid)
+    except Exception:
+        return await edit_or_reply(event, "**⪼ لا يمكنني العثور على المستخدم!**")
+    
+    if not is_muted(userid, "gmute"):
+        return await edit_or_reply(
+            event, f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name ,user.id)}\n\n**⎉╎غيـر مكتـوم عــام ✓**"
+        )
+    
+    try:
+        unmute(userid, "gmute")
+    except Exception as e:
+        await edit_or_reply(event, f"**⪼ خطأ: {e}**")
+    else:
+        if reason:
+            await event.client.send_file(
+                event.chat_id,
+                joker_unmute,
+                caption=f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم الغـاء كتمــه .. بنجــاح 🔔**\n**⎉╎السـبب:** {reason}",
             )
-        try:
-            unmute(event.chat_id, event.chat_id)
-            if str(replied_user.id) in file_path:
-                remove_from_mute_list(replied_user.id)  # Ensure user ID is removed from the list
-        except Exception as e:
-            await event.edit(f"**- خطــأ : **`{e}`")
         else:
             await event.client.send_file(
                 event.chat_id,
                 joker_unmute,
-                caption="**- تـم الغــاء كتــم الشخـص هنـا .. بنجــاح ✓**",
+                caption=f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name ,user.id)}\n\n**⎉╎تم الغـاء كتمــه .. بنجــاح 🔔**",
             )
-        if BOTLOG:
+    
+    if BOTLOG:
+        if reason:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                "#الغــاء_الكــتم\n"
-                f"**- الشخـص :** [{replied_user.first_name}](tg://user?id={event.chat_id})\n",
+                "#الغــاء_الكــتم_العــام 🔔\n\n"
+                f"**- المستخدم:** {_format.mentionuser(user.first_name ,user.id)}\n"
+                f"**- السبب:** `{reason}`",
             )
-    else:
-        args = event.pattern_match.group(2).strip()
-        user = None
-
-        if event.reply_to_msg_id:
-            replied_message = await event.get_reply_message()
-            user = await event.client.get_entity(replied_message.from_id)
-        elif args:
-            try:
-                user = await event.client.get_entity(args)
-            except Exception as e:
-                return await event.edit(f"**- خطــأ : **`{e}`")
-
-        if not user:
-            return await event.edit("**- يرجى تقديم المعرف أو اسم المستخدم، أو الرد على رسالة المستخدم**")
-
-        try:
-            if is_muted(user.id, event.chat_id):  # Corrected this line
-                unmute(user.id, event.chat_id)  # Corrected this line
-                if str(user.id) in file_path:  # Ensure file_path contains user ids as strings
-                    remove_from_mute_list(user.id)  # Use user.id instead of user
-            else:
-                result = await event.client.get_permissions(event.chat_id, user.id)
-                if result.participant.banned_rights.send_messages:
-                    await event.client(
-                        EditBannedRequest(event.chat_id, user.id, UNBAN_RIGHTS)
-                    )
-        except AttributeError:
-            return await edit_or_reply(
-                event,
-                "**- الشخـص غيـر مكـتـوم**",
-            )
-        except Exception as e:
-            return await edit_or_reply(event, f"**- خطــأ : **`{e}`")
-        await event.client.send_file(
-            event.chat_id,
-            joker_unmute,
-            caption=f"**- المستخـدم :** {_format.mentionuser(user.first_name, user.id)} \n**- تـم الغـاء كتمـه بنجـاح ✓**",
-        )
-        if BOTLOG:
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                "#الغــاء_الكــتم\n"
-                f"**- الشخـص :** [{user.first_name}](tg://user?id={user.id})\n"
-                f"**- الدردشــه :** {get_display_name(await event.get_chat())}(`{event.chat_id}`)",
-            )
-
-@l313l.ar_cmd(pattern=r"قائمة المكتومين")
-async def show_muted_users(event):
-    if os.path.isfile(file_path):
-        with open(file_path, 'r') as file:
-            muted_ids = file.read().splitlines()
-        if len(muted_ids) > 0:
-            joker_list = "**᯽︙ قائمة المستخدمين المكتومين:**\n"
-            for i, user_id in enumerate(muted_ids, start=1):
-                try:
-                    user = await event.client.get_entity(int(user_id))
-                    joker_link = f"[{user.first_name}](tg://user?id={user.id})"
-                    joker_list += f"{i}. {joker_link}\n"
-                except ValueError:
-                    joker_list += f"{i}. User ID: {user_id} (Error: Could not find user)\n"
-                except Exception as e:
-                    joker_list += f"{i}. User ID: {user_id} (Error: {e})\n"
-            await event.edit(joker_list)
         else:
-            await event.edit("**᯽︙ لا يوجد مستخدمين مكتومين حاليًا**")
-    else:
-        await event.edit("**᯽︙ لا يوجد مستخدمين مكتومين حاليًا**")
-# ===================================== # 
+            await event.client.send_message(
+                BOTLOG_CHATID,
+                "#الغــاء_الكــتم_العــام 🔔\n\n"
+                f"**- المستخدم:** {_format.mentionuser(user.first_name ,user.id)}\n",
+            )
 
-@l313l.ar_cmd(incoming=True)
+@l313l.ar_cmd(pattern="المكتومين$")
+async def on_mute_list(event):
+    mktoms = get_katms(l313l.uid)
+    if not mktoms:
+        return await edit_or_reply(event, "**⪼ لا يوجد مستخدمين مكتومين حالياً!**")
+    
+    msg = "**𓆩 قائمـة المكتوميــن 𓆪**\n\n"
+    for count, mktoom in enumerate(mktoms, start=1):
+        msg += f"**{count} -** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id})\n**السبب:** {mktoom.f_reason}\n\n"
+    
+    await edit_or_reply(event, msg)
+
+@l313l.ar_cmd(pattern="مسح المكتومين$")
+async def on_all_muted_delete(event):
+    mktomers = get_katms(l313l.uid)
+    if not mktomers:
+        return await edit_or_reply(event, "**⪼ لا يوجد مستخدمين مكتومين حالياً!**")
+    
+    zed = await edit_or_reply(event, "**⪼ جاري مسح جميع المكتومين...**")
+    for mktoom in mktomers:
+        unmute(mktoom.ktm_id, "gmute")
+    
+    remove_all_katms(l313l.uid)
+    await zed.edit("**⪼ تم مسح جميع المكتومين بنجاح!**")
+
+@l313l.on(events.NewMessage(incoming=True))
 async def watcher(event):
-    if is_muted(event.sender_id, "كتم_مؤقت"):
+    if is_muted(event.sender_id, "gmute") or is_muted(event.sender_id, "temp_mute"):
         await event.delete()
-
-#=====================================  #

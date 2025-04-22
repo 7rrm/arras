@@ -281,12 +281,12 @@ async def temporary_mute(event):
     input_str = event.pattern_match.group(1)
     args = input_str.split()
     
-    if len(args) < 2:
-        return await edit_or_reply(event, "**⪼ استخـدم الأمـر بالشكـل التالـي:**\n`.كتم مؤقت + المدة + السبب + بالرد أو المعرف`")
+    if len(args) < 1:
+        return await edit_or_reply(event, "**⪼ استخـدم الأمـر بالشكـل التالـي:**\n`.كتم مؤقت + المدة + (السبب اختياري) + بالرد أو المعرف`")
     
-    # Extract time and reason
+    # Extract time and reason (default to "لا يوجد" if no reason provided)
     time_amount = args[0]
-    reason = ' '.join(args[1:])
+    reason = ' '.join(args[1:]) if len(args) > 1 else "لا يوجد"
     
     # Get user from event
     user, _ = await get_user_from_event(event)
@@ -330,10 +330,10 @@ async def temporary_mute(event):
     # Send confirmation
     await edit_or_reply(
         event,
-        f"**⎉╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
-        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-        f"**⎉╎المـدة:** {time_amount}\n"
-        f"**⎉╎السبـب:** {reason}"
+        f"**✧╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
+        f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**✧╎المـدة:** {time_amount}\n"
+        f"**✧╎السبـب:** {reason}"
     )
     
     # Log to BOTLOG
@@ -358,12 +358,12 @@ async def temporary_mute(event):
     
     # Send unmute notification
     unmute_msg = (
-        f"**⎉╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
-        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-        f"**⎉╎الايـدي:** `{user.id}`\n"
-        f"**⎉╎اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
-        f"**⎉╎المـدة:** {time_amount}\n"
-        f"**⎉╎السبـب:** {reason}"
+        f"**✧╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
+        f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**✧╎الايـدي:** `{user.id}`\n"
+        f"**✧╎اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+        f"**✧╎المـدة:** {time_amount}\n"
+        f"**✧╎السبـب:** {reason}"
     )
     
     await event.client.send_message(event.chat_id, unmute_msg)

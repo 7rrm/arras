@@ -273,7 +273,7 @@ async def on_all_muted_delete(event):
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
 
-@l313l.ar_cmd(pattern="كتم مؤقت(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
     # Parse the input
     input_str = event.pattern_match.group(1)

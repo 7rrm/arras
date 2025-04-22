@@ -65,13 +65,14 @@ async def startgmute(event):
     except Exception:
         return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنني العثــوࢪ علـى المسـتخــدم ؟!**")
     if is_muted(userid, "gmute"):
-        return await edit_or_reply(...)
-    
+        return await edit_or_reply(
+            event,
+            f"**⎉╎المستخـدم**  {_format.mentionuser(user.first_name ,user.id)} \n**⎉╎مڪتوم سابقـاً**",
+        )
     try:
         mute(userid, "gmute")
-        add_katm(str(event.chat_id), str(user.id), user.first_name, reason or "لا يوجد")
     except Exception as e:
-        await edit_or_reply(event, f"خطأ: {e}")
+        await edit_or_reply(event, f"**- خطـأ :**\n`{e}`")
     else:
         if reason:
             if gvarstatus("PC_MUTE") is not None:
@@ -232,6 +233,8 @@ async def endgmute(event):
                     f"**• لـ تصفح قائمة المكتومين ارسـل** ( `.المكتومين` )\n"
                     f"**• لـ مسح جميع المكتومين ارسـل** ( `.مسح المكتومين` )",
                 )
+
+
 
 
 @l313l.ar_cmd(incoming=True, forword=True)

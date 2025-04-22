@@ -275,7 +275,107 @@ async def on_all_muted_delete(event):
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
 
-@l313l.ar_cmd(incoming=True)
-async def watcher(event):
-    if is_muted(event.sender_id, "كتم_مؤقت"):
-        await event.delete()
+@l313l.ar_cmd(pattern="كتم مؤقت(?:\s|$)([\s\S]*)")
+async def temporary_mute(event):
+    # Parse the input
+    input_str = event.pattern_match.group(1)
+    args = input_str.split()
+    
+    if len(args) < 2:
+        return await edit_or_reply(event, "**⪼ استخـدم الأمـر بالشكـل التالـي:**\n`.كتم مؤقت + المدة + السبب + بالرد أو المعرف`")
+    
+    # Extract time and reason
+    time_amount = args[0]
+    reason = ' '.join(args[1:])
+    
+    # Get user from event
+    user, _ = await get_user_from_event(event)
+    if not user:
+        return
+    
+    # Check permissions
+    if user.id == l313l.uid:
+        return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنك كتــم نفســك ؟!**")
+    if user.id in Zed_Dev:
+        return await edit_or_reply(event, "**- فكيـو - fuck You 😾🖕**\n**- لاتعيدهـا مـع مطـوࢪين السـورس ...🚧**")
+    if user.id == 5427469031:
+        return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنك كتــم مطـور السـورس ؟!**")
+    
+    # Parse time
+    time_letter = time_amount[-1]
+    time_number = time_amount[:-1]
+    
+    if not time_number.isdigit():
+        return await edit_or_reply(event, "**- رقـم الوقت غيـر صحيـح!**")
+    
+    time_number = int(time_number)
+    
+    time_dict = {
+        's': time_number,
+        'm': time_number * 60,
+        'h': time_number * 3600,
+        'd': time_number * 86400
+    }
+    
+    mute_time = time_dict.get(time_letter.lower())
+    if not mute_time:
+        return await edit_or_reply(event, "**- وحـدة الوقت غيـر صحيحـة! استخـدم:**\n`s` للثواني, `m` للدقائق, `h` للساعات, `d` للأيام")
+    
+    # Mute the user
+    try:
+        mute(user.id, "gmute")
+    except Exception as e:
+        return await edit_or_reply(event, f"**- خطـأ في الكتـم:**\n`{e}`")
+    
+    # Send confirmation
+    await edit_or_reply(
+        event,
+        f"**⎉╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
+        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**⎉╎المـدة:** {time_amount}\n"
+        f"**⎉╎السبـب:** {reason}"
+    )
+    
+    # Log to BOTLOG
+    if BOTLOG:
+        await event.client.send_message(
+            BOTLOG_CHATID,
+            "#الكتم_المؤقت ⏳\n\n"
+            f"**- المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+            f"**- الايـدي:** `{user.id}`\n"
+            f"**- المـدة:** {time_amount}\n"
+            f"**- السبـب:** {reason}\n\n"
+            f"**- تم كتم المستخدم مؤقتاً ✅**"
+        )
+    
+    # Unmute after time expires
+    await asyncio.sleep(mute_time)
+    
+    try:
+        unmute(user.id, "gmute")
+    except Exception as e:
+        LOGS.error(f"Error unmuting user: {e}")
+    
+    # Send unmute notification
+    unmute_msg = (
+        f"**⎉╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
+        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**⎉╎الايـدي:** `{user.id}`\n"
+        f"**⎉╎اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+        f"**⎉╎المـدة:** {time_amount}\n"
+        f"**⎉╎السبـب:** {reason}"
+    )
+    
+    await event.client.send_message(event.chat_id, unmute_msg)
+    
+    if BOTLOG:
+        await event.client.send_message(
+            BOTLOG_CHATID,
+            "#انتهاء_الكتم_المؤقت 🔔\n\n"
+            f"**- المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+            f"**- الايـدي:** `{user.id}`\n"
+            f"**- اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+            f"**- المـدة:** {time_amount}\n"
+            f"**- السبـب:** {reason}\n\n"
+            f"**- تم الغاء الكتم تلقائياً بعد انتهاء المدة ✅**"
+        )

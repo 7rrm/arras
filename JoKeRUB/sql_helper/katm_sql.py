@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Numeric, String, UnicodeText
+from sqlalchemy import Column, Numeric, String, UnicodeText, DateTime
+from datetime import datetime
 
 from . import BASE, SESSION
 
@@ -9,12 +10,18 @@ class Katm(BASE):
     ktm_id = Column(String(14), primary_key=True, nullable=False)
     f_name = Column(UnicodeText)
     f_reason = Column(UnicodeText)
+    is_temporary = Column(String(1), default="0")
+    mute_time = Column(String(20))
+    end_time = Column(DateTime)
 
-    def __init__(self, chat_id, ktm_id, f_name, f_reason):
+    def __init__(self, chat_id, ktm_id, f_name, f_reason, is_temporary="0", mute_time=None, end_time=None):
         self.chat_id = str(chat_id)
         self.ktm_id = str(ktm_id)
         self.f_name = f_name
         self.f_reason = f_reason
+        self.is_temporary = is_temporary
+        self.mute_time = mute_time
+        self.end_time = end_time
 
     def __eq__(self, other):
         return bool(
@@ -41,17 +48,37 @@ def get_katms(chat_id):
         SESSION.close()
 
 
-def add_katm(chat_id, ktm_id, f_name, f_reason):
+def get_temporary_katms(chat_id):
+    try:
+        return SESSION.query(Katm).filter(
+            Katm.chat_id == str(chat_id),
+            Katm.is_temporary == "1"
+        ).all()
+    finally:
+        SESSION.close()
+
+
+def get_permanent_katms(chat_id):
+    try:
+        return SESSION.query(Katm).filter(
+            Katm.chat_id == str(chat_id),
+            Katm.is_temporary == "0"
+        ).all()
+    finally:
+        SESSION.close()
+
+
+def add_katm(chat_id, ktm_id, f_name, f_reason, is_temporary="0", mute_time=None, end_time=None):
     to_check = get_katm(chat_id, ktm_id)
     if not to_check:
-        adder = Katm(str(chat_id), str(ktm_id), f_name, f_reason)
+        adder = Katm(str(chat_id), str(ktm_id), f_name, f_reason, is_temporary, mute_time, end_time)
         SESSION.add(adder)
         SESSION.commit()
         return True
     rem = SESSION.query(Katm).get((str(chat_id), str(ktm_id)))
     SESSION.delete(rem)
     SESSION.commit()
-    adder = Katm(str(chat_id), str(ktm_id), f_name, f_reason)
+    adder = Katm(str(chat_id), str(ktm_id), f_name, f_reason, is_temporary, mute_time, end_time)
     SESSION.add(adder)
     SESSION.commit()
     return False

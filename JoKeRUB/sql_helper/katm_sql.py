@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Numeric, String, UnicodeText, Integer
-
 from . import BASE, SESSION
 
 class Katm(BASE):

@@ -19,6 +19,10 @@ from ..sql_helper.katm_sql import (
     get_katms,
     remove_all_katms,
     remove_katm,
+    add_tempkatm,
+    get_tempkatms,
+    remove_tempkatm,
+    check_expired_tempkatms
 )
 from ..sql_helper.mute_sql import is_muted, mute, unmute
 from ..utils import Zed_Dev
@@ -243,8 +247,11 @@ async def watcher(event):
 
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
+    from datetime import datetime
+    from ..sql_helper.katm_sql import check_expired_tempkatms, get_katms, get_tempkatms
+    
     # التحقق من الكتم المؤقت المنتهي
-    check_expired_tempkatms()
+    expired = check_expired_tempkatms()
     
     # جلب القوائم
     mktoms = get_katms(event.chat_id)
@@ -270,10 +277,14 @@ async def on_mute_list(event):
             minutes, seconds = divmod(remainder, 60)
             OUT_STR += f"**{i}.** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id})\n"
             OUT_STR += f"   - المدة: `{mktoom.mute_time}`\n"
-            OUT_STR += f"   - المتبقي: `{hours}h {minutes}m {seconds}s`\n"
+            OUT_STR += f"   - المتبقي: `{hours} ساعة {minutes} دقيقة {seconds} ثانية`\n"
             OUT_STR += f"   - السبب: `{mktoom.f_reason}`\n"
     else:
         OUT_STR += "\n**𓆰 لا يوجد مستخدمين مكتومين مؤقتاً حالياً 🔔**\n"
+    
+    # إضافة ملاحظة عن المنتهي
+    if expired:
+        OUT_STR += f"\n**𓆰 تم إزالة {len(expired)} مستخدم من الكتم المؤقت (انتهت المدة)**\n"
     
     await edit_or_reply(event, OUT_STR)
 

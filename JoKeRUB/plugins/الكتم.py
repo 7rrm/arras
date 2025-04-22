@@ -1,17 +1,20 @@
+import base64
 import asyncio
-import shutil
-import contextlib
-from datetime import datetime, timedelta
-import re
-from asyncio import sleep
-
+from datetime import datetime
 from telethon import events
+from telethon.errors import BadRequestError, UserAdminInvalidError
+from telethon.tl.functions.channels import EditBannedRequest
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import ChatBannedRights
 from telethon.utils import get_display_name
 
 from JoKeRUB import l313l
-from ..core.logger import logging
+
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import _format
+from ..sql_helper import gban_sql_helper as gban_sql
+from ..sql_helper.mute_sql import is_muted, mute, unmute
+from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..sql_helper.katm_sql import (
     add_katm,
@@ -19,10 +22,9 @@ from ..sql_helper.katm_sql import (
     remove_all_katms,
     remove_katm,
 )
-from ..sql_helper.mute_sql import is_muted, mute, unmute
-from ..utils import admin_groups, get_user_from_event
-
 plugin_category = "admin"
+joker_users = []
+
 LOGS = logging.getLogger(__name__)
 joker_mute = "https://telegra.ph/file/c5ef9550465a47845c626.jpg"
 joker_unmute = "https://telegra.ph/file/e9473ddef0b58cdd7f9e7.jpg"

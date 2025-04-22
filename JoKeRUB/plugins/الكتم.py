@@ -19,6 +19,7 @@ from ..sql_helper.katm_sql import (
     get_katms,
     remove_all_katms,
     remove_katm,
+    is_katm,  # Lx5x5 
 )
 from ..sql_helper.mute_sql import is_muted, mute, unmute
 from ..utils import Zed_Dev
@@ -244,17 +245,29 @@ async def watcher(event):
 
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
-    OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
-    count = 1
-    mktoms = get_katms(l313l.uid)
-    for mktoom in mktoms:
-        if OUT_STR == "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**":
-            OUT_STR = f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المكتوميـن {count}**\n"
-        OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• السبب:** {}".format(mktoom.f_name, mktoom.ktm_id, mktoom.f_reason)
-        count += 1
+    # Get permanent mutes
+    perm_mutes = get_katms(l313l.uid, is_temporary=0)
+    # Get temporary mutes
+    temp_mutes = get_katms(l313l.uid, is_temporary=1)
+    
+    if not perm_mutes and not temp_mutes:
+        return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
+    
+    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n"
+    
+    if perm_mutes:
+        output += f"\n**𓆰 الكتــم العــام 🔕 (عدد: {len(perm_mutes)})**\n"
+        for i, mute in enumerate(perm_mutes, start=1):
+            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - السبب: `{mute.f_reason}`\n"
+    
+    if temp_mutes:
+        output += f"\n**𓆰 الكتــم المـؤقـت ⏳ (عدد: {len(temp_mutes)})**\n"
+        for i, mute in enumerate(temp_mutes, start=1):
+            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - المدة: `{mute.mute_time}` - السبب: `{mute.f_reason}`\n"
+    
     await edit_or_reply(
         event,
-        OUT_STR,
+        output,
         caption="**⧗╎قائمـة المكتوميــن 🔕**",
         file_name="mktoms.text",
     )
@@ -262,18 +275,24 @@ async def on_mute_list(event):
 
 @l313l.ar_cmd(pattern="مسح المكتومين$")
 async def on_all_muted_delete(event):
-    mktomers = get_katms(l313l.uid)
-    count = 1
-    if mktomers:
-        zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المكتوميـن .. انتظـر ⏳**")
-        for mktoom in mktomers:
-            unmute(mktoom.ktm_id, "gmute")
-            count += 1
-        remove_all_katms(l313l.uid)
-        await zed.edit("**⪼ تم حـذف جميـع المكتوميـن .. بنجـاح ✅**")
-    else:
-        OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
-        await edit_or_reply(event, OUT_STR)
+    # Delete all mutes (both permanent and temporary)
+    perm_mutes = get_katms(l313l.uid, is_temporary=0)
+    temp_mutes = get_katms(l313l.uid, is_temporary=1)
+    
+    if not perm_mutes and not temp_mutes:
+        return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
+    
+    zed = await edit_or_reply(event, "**⪼ جـارِ مسـح جميع المكتوميـن .. انتظـر ⏳**")
+    
+    # Unmute all users
+    for mute in perm_mutes + temp_mutes:
+        unmute(mute.ktm_id, "gmute")
+    
+    # Remove all from database
+    remove_all_katms(l313l.uid)
+    
+    await zed.edit("**⪼ تم حـذف جميـع المكتوميـن .. بنجـاح ✅**")
+
 
 @l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
@@ -327,6 +346,9 @@ async def temporary_mute(event):
     except Exception as e:
         return await edit_or_reply(event, f"**- خطـأ في الكتـم:**\n`{e}`")
     
+    # Add to temporary mute list
+    add_katm(str(l313l.uid), str(user.id), user.first_name, reason, is_temporary=1, mute_time=time_amount)
+    
     # Send confirmation
     await edit_or_reply(
         event,
@@ -353,6 +375,7 @@ async def temporary_mute(event):
     
     try:
         unmute(user.id, "gmute")
+        remove_katm(str(l313l.uid), str(user.id))
     except Exception as e:
         LOGS.error(f"Error unmuting user: {e}")
     

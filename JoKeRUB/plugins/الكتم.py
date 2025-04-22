@@ -64,14 +64,13 @@ async def startgmute(event):
     except Exception:
         return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنني العثــوࢪ علـى المسـتخــدم ؟!**")
     if is_muted(userid, "gmute"):
-        return await edit_or_reply(
-            event,
-            f"**⎉╎المستخـدم**  {_format.mentionuser(user.first_name ,user.id)} \n**⎉╎مڪتوم سابقـاً**",
-        )
+        return await edit_or_reply(...)
+    
     try:
         mute(userid, "gmute")
+        add_katm(str(event.chat_id), str(user.id), user.first_name, reason or "لا يوجد")
     except Exception as e:
-        await edit_or_reply(event, f"**- خطـأ :**\n`{e}`")
+        await edit_or_reply(event, f"خطأ: {e}")
     else:
         if reason:
             if gvarstatus("PC_MUTE") is not None:
@@ -248,43 +247,44 @@ async def watcher(event):
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
     from datetime import datetime
-    from ..sql_helper.katm_sql import check_expired_tempkatms, get_katms, get_tempkatms
+    from ..sql_helper.katm_sql import (
+        get_katms, 
+        get_tempkatms,
+        check_expired_tempkatms
+    )
     
-    # التحقق من الكتم المؤقت المنتهي
-    expired = check_expired_tempkatms()
+    # التحقق من الكتم المؤقت المنتهي في هذه المحادثة
+    expired = check_expired_tempkatms(event.chat_id)
     
     # جلب القوائم
     mktoms = get_katms(event.chat_id)
     temp_mktoms = get_tempkatms(event.chat_id)
     
     # إنشاء رسالة العرض
-    OUT_STR = "**𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - قائمـة المكتوميــن 𓆪**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n"
+    OUT_STR = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - قائمـة المكتوميــن 𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
     
     # قسم الكتم العام
     if mktoms:
-        OUT_STR += f"\n**𓆰 الكتـم العــام 🔕 (عدد {len(mktoms)})**\n"
-        for i, mktoom in enumerate(mktoms, start=1):
-            OUT_STR += f"**{i}.** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id}) - السبب: `{mktoom.f_reason}`\n"
+        OUT_STR += f"\n𓆰 الكتـم العــام 🔕 (عدد {len(mktoms)})\n"
+        for mktoom in mktoms:
+            OUT_STR += f"• [{mktoom.f_name}](tg://user?id={mktoom.ktm_id}) - السبب: {mktoom.f_reason}\n"
     else:
-        OUT_STR += "\n**𓆰 لا يوجد مستخدمين مكتومين عام حالياً 🔔**\n"
+        OUT_STR += "\n𓆰 لا يوجد مستخدمين مكتومين عام حالياً 🔔\n"
     
     # قسم الكتم المؤقت
     if temp_mktoms:
-        OUT_STR += f"\n**𓆰 الكتـم المؤقــت ⏳ (عدد {len(temp_mktoms)})**\n"
-        for i, mktoom in enumerate(temp_mktoms, start=1):
+        OUT_STR += f"\n𓆰 الكتـم المؤقــت ⏳ (عدد {len(temp_mktoms)})\n"
+        for mktoom in temp_mktoms:
             time_left = datetime.fromtimestamp(mktoom.end_time) - datetime.now()
-            hours, remainder = divmod(time_left.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            OUT_STR += f"**{i}.** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id})\n"
-            OUT_STR += f"   - المدة: `{mktoom.mute_time}`\n"
-            OUT_STR += f"   - المتبقي: `{hours} ساعة {minutes} دقيقة {seconds} ثانية`\n"
-            OUT_STR += f"   - السبب: `{mktoom.f_reason}`\n"
+            hours = time_left.seconds // 3600
+            minutes = (time_left.seconds % 3600) // 60
+            seconds = time_left.seconds % 60
+            OUT_STR += f"• [{mktoom.f_name}](tg://user?id={mktoom.ktm_id})\n"
+            OUT_STR += f"  المدة: {mktoom.mute_time}\n"
+            OUT_STR += f"  المتبقي: {hours}h {minutes}m {seconds}s\n"
+            OUT_STR += f"  السبب: {mktoom.f_reason}\n"
     else:
-        OUT_STR += "\n**𓆰 لا يوجد مستخدمين مكتومين مؤقتاً حالياً 🔔**\n"
-    
-    # إضافة ملاحظة عن المنتهي
-    if expired:
-        OUT_STR += f"\n**𓆰 تم إزالة {len(expired)} مستخدم من الكتم المؤقت (انتهت المدة)**\n"
+        OUT_STR += "\n𓆰 لا يوجد مستخدمين مكتومين مؤقتاً حالياً 🔔\n"
     
     await edit_or_reply(event, OUT_STR)
 
@@ -303,7 +303,7 @@ async def on_all_muted_delete(event):
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
 
-@l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="كتم مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
     # Parse the input
     input_str = event.pattern_match.group(1)
@@ -352,8 +352,9 @@ async def temporary_mute(event):
     # Mute the user
     try:
         mute(user.id, "gmute")
+        add_tempkatm(str(event.chat_id), str(user.id), user.first_name, reason or "لا يوجد", time_amount)
     except Exception as e:
-        return await edit_or_reply(event, f"**- خطـأ في الكتـم:**\n`{e}`")
+        await edit_or_reply(...)
     
     # Send confirmation
     await edit_or_reply(

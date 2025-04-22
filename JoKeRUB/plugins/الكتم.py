@@ -241,6 +241,7 @@ async def watcher(event):
     if is_muted(event.sender_id, "gmute"):
         await event.delete()
 
+
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
     OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
@@ -248,7 +249,7 @@ async def on_mute_list(event):
     mktoms = get_katms(l313l.uid)
     for mktoom in mktoms:
         if OUT_STR == "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**":
-            OUT_STR = f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦  - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المكتوميـن {count}**\n"
+            OUT_STR = f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المكتوميـن {count}**\n"
         OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• السبب:** {}".format(mktoom.f_name, mktoom.ktm_id, mktoom.f_reason)
         count += 1
     await edit_or_reply(
@@ -257,6 +258,7 @@ async def on_mute_list(event):
         caption="**⧗╎قائمـة المكتوميــن 🔕**",
         file_name="mktoms.text",
     )
+
 
 @l313l.ar_cmd(pattern="مسح المكتومين$")
 async def on_all_muted_delete(event):
@@ -273,7 +275,7 @@ async def on_all_muted_delete(event):
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
 
-@l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="كتم مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
     # Parse the input
     input_str = event.pattern_match.group(1)

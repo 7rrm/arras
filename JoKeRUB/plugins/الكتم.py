@@ -275,3 +275,7 @@ async def on_all_muted_delete(event):
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
 
+@l313l.ar_cmd(incoming=True)
+async def watcher(event):
+    if is_muted(event.sender_id, "كتم_مؤقت"):
+        await event.delete()

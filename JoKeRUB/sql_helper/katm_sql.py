@@ -47,6 +47,12 @@ Katm.__table__.create(bind=SESSION.get_bind(), checkfirst=True)
 TempKatm.__table__.create(bind=SESSION.get_bind(), checkfirst=True)
 
 # دوال الكتم العام
+def get_katm(chat_id, ktm_id):
+    try:
+        return SESSION.query(Katm).get((str(chat_id), str(ktm_id)))
+    finally:
+        SESSION.close()
+
 def get_katms(chat_id):
     try:
         return SESSION.query(Katm).filter(Katm.chat_id == str(chat_id)).all()
@@ -58,7 +64,28 @@ def add_katm(chat_id, ktm_id, f_name, f_reason):
     SESSION.add(adder)
     SESSION.commit()
 
+def remove_katm(chat_id, ktm_id):
+    to_check = get_katm(chat_id, ktm_id)
+    if not to_check:
+        return False
+    rem = SESSION.query(Katm).get((str(chat_id), str(ktm_id)))
+    SESSION.delete(rem)
+    SESSION.commit()
+    return True
+
+def remove_all_katms(chat_id):
+    saved_katm = SESSION.query(Katm).filter(Katm.chat_id == str(chat_id))
+    if saved_katm:
+        saved_katm.delete()
+        SESSION.commit()
+
 # دوال الكتم المؤقت
+def get_tempkatm(chat_id, ktm_id):
+    try:
+        return SESSION.query(TempKatm).get((str(chat_id), str(ktm_id)))
+    finally:
+        SESSION.close()
+
 def get_tempkatms(chat_id):
     try:
         return SESSION.query(TempKatm).filter(TempKatm.chat_id == str(chat_id)).all()
@@ -69,6 +96,21 @@ def add_tempkatm(chat_id, ktm_id, f_name, f_reason, mute_time):
     adder = TempKatm(str(chat_id), str(ktm_id), f_name, f_reason, mute_time)
     SESSION.add(adder)
     SESSION.commit()
+
+def remove_tempkatm(chat_id, ktm_id):
+    to_check = get_tempkatm(chat_id, ktm_id)
+    if not to_check:
+        return False
+    rem = SESSION.query(TempKatm).get((str(chat_id), str(ktm_id)))
+    SESSION.delete(rem)
+    SESSION.commit()
+    return True
+
+def remove_all_tempkatms(chat_id):
+    saved_katm = SESSION.query(TempKatm).filter(TempKatm.chat_id == str(chat_id))
+    if saved_katm:
+        saved_katm.delete()
+        SESSION.commit()
 
 def check_expired_tempkatms(chat_id=None):
     current_time = datetime.now().timestamp()

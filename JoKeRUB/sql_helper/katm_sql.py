@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Numeric, String, UnicodeText, Integer
-from datetime import datetime
+from datetime import datetime, timedelta
 from . import BASE, SESSION
-
 
 class Katm(BASE):
     __tablename__ = "zedkatms"
@@ -23,7 +22,6 @@ class Katm(BASE):
             and self.ktm_id == other.ktm_id
         )
 
-
 class TempKatm(BASE):
     __tablename__ = "zedtempkatms"
     chat_id = Column(String(14), primary_key=True)
@@ -39,19 +37,19 @@ class TempKatm(BASE):
         self.f_name = f_name
         self.f_reason = f_reason
         self.mute_time = mute_time
-        self.end_time = datetime.now().timestamp() + self.parse_time(mute_time)
+        self.end_time = (datetime.now() + self.parse_time(mute_time)).timestamp()
 
     def parse_time(self, time_str):
-        time_letter = time_str[-1]
+        time_letter = time_str[-1].lower()
         time_number = int(time_str[:-1])
         
         time_dict = {
-            's': time_number,
-            'm': time_number * 60,
-            'h': time_number * 3600,
-            'd': time_number * 86400
+            's': timedelta(seconds=time_number),
+            'm': timedelta(minutes=time_number),
+            'h': timedelta(hours=time_number),
+            'd': timedelta(days=time_number)
         }
-        return time_dict.get(time_letter.lower(), 0)
+        return time_dict.get(time_letter, timedelta(seconds=0))
 
     def __eq__(self, other):
         return bool(
@@ -60,8 +58,6 @@ class TempKatm(BASE):
             and self.ktm_id == other.ktm_id
         )
 
-
-# إنشاء الجداول
 Katm.__table__.create(bind=SESSION.get_bind(), checkfirst=True)
 TempKatm.__table__.create(bind=SESSION.get_bind(), checkfirst=True)
 
@@ -72,13 +68,11 @@ def get_katm(chat_id, ktm_id):
     finally:
         SESSION.close()
 
-
 def get_katms(chat_id):
     try:
         return SESSION.query(Katm).filter(Katm.chat_id == str(chat_id)).all()
     finally:
         SESSION.close()
-
 
 def add_katm(chat_id, ktm_id, f_name, f_reason):
     to_check = get_katm(chat_id, ktm_id)
@@ -95,7 +89,6 @@ def add_katm(chat_id, ktm_id, f_name, f_reason):
     SESSION.commit()
     return False
 
-
 def remove_katm(chat_id, ktm_id):
     to_check = get_katm(chat_id, ktm_id)
     if not to_check:
@@ -104,7 +97,6 @@ def remove_katm(chat_id, ktm_id):
     SESSION.delete(rem)
     SESSION.commit()
     return True
-
 
 def remove_all_katms(chat_id):
     if saved_katm := SESSION.query(Katm).filter(Katm.chat_id == str(chat_id)):
@@ -118,13 +110,11 @@ def get_tempkatm(chat_id, ktm_id):
     finally:
         SESSION.close()
 
-
 def get_tempkatms(chat_id):
     try:
         return SESSION.query(TempKatm).filter(TempKatm.chat_id == str(chat_id)).all()
     finally:
         SESSION.close()
-
 
 def add_tempkatm(chat_id, ktm_id, f_name, f_reason, mute_time):
     to_check = get_tempkatm(chat_id, ktm_id)
@@ -141,7 +131,6 @@ def add_tempkatm(chat_id, ktm_id, f_name, f_reason, mute_time):
     SESSION.commit()
     return False
 
-
 def remove_tempkatm(chat_id, ktm_id):
     to_check = get_tempkatm(chat_id, ktm_id)
     if not to_check:
@@ -151,12 +140,10 @@ def remove_tempkatm(chat_id, ktm_id):
     SESSION.commit()
     return True
 
-
 def remove_all_tempkatms(chat_id):
     if saved_katm := SESSION.query(TempKatm).filter(TempKatm.chat_id == str(chat_id)):
         saved_katm.delete()
         SESSION.commit()
-
 
 def check_expired_tempkatms():
     current_time = datetime.now().timestamp()

@@ -19,11 +19,6 @@ from ..sql_helper.katm_sql import (
     get_katms,
     remove_all_katms,
     remove_katm,
-    get_temporary_katms,
-    get_permanent_katms,
-    add_temporary_katm,
-    add_permanent_katm,
-    remove_expired_katms
 )
 from ..sql_helper.mute_sql import is_muted, mute, unmute
 from ..utils import Zed_Dev
@@ -249,34 +244,17 @@ async def watcher(event):
 
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
-    permanent_katms = get_permanent_katms(l313l.uid)
-    temporary_katms = get_temporary_katms(l313l.uid)
-    
-    if not permanent_katms and not temporary_katms:
-        return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
-    
-    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n"
-    
-    if permanent_katms:
-        output += f"\n**𓆰 الكتــم العــام 🔕**\n"
-        for count, mktoom in enumerate(permanent_katms, start=1):
-            output += f"**{count}.** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id}) - `{mktoom.ktm_id}`\n"
-            output += f"**السبـب:** {mktoom.f_reason}\n\n"
-    
-    if temporary_katms:
-        output += f"\n**𓆰 الكتــم المـؤقـت ⏳**\n"
-        for count, mktoom in enumerate(temporary_katms, start=1):
-            time_left = mktoom.end_time - datetime.now()
-            hours, remainder = divmod(time_left.seconds, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            output += f"**{count}.** [{mktoom.f_name}](tg://user?id={mktoom.ktm_id}) - `{mktoom.ktm_id}`\n"
-            output += f"**المـدة:** {mktoom.mute_time}\n"
-            output += f"**متبقـي:** {hours} ساعة {minutes} دقيقة\n"
-            output += f"**السبـب:** {mktoom.f_reason}\n\n"
-    
+    OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
+    count = 1
+    mktoms = get_katms(l313l.uid)
+    for mktoom in mktoms:
+        if OUT_STR == "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**":
+            OUT_STR = f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المكتوميـن {count}**\n"
+        OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• السبب:** {}".format(mktoom.f_name, mktoom.ktm_id, mktoom.f_reason)
+        count += 1
     await edit_or_reply(
         event,
-        output,
+        OUT_STR,
         caption="**⧗╎قائمـة المكتوميــن 🔕**",
         file_name="mktoms.text",
     )
@@ -284,38 +262,38 @@ async def on_mute_list(event):
 
 @l313l.ar_cmd(pattern="مسح المكتومين$")
 async def on_all_muted_delete(event):
-    permanent_katms = get_permanent_katms(l313l.uid)
-    temporary_katms = get_temporary_katms(l313l.uid)
-    
-    if not permanent_katms and not temporary_katms:
-        return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
-    
-    zed = await edit_or_reply(event, "**⪼ جـارِ مسـح جميع المكتوميـن .. انتظـر ⏳**")
-    
-    for mktoom in permanent_katms:
-        unmute(mktoom.ktm_id, "gmute")
-    for mktoom in temporary_katms:
-        unmute(mktoom.ktm_id, "gmute")
-    
-    remove_all_katms(l313l.uid)
-    await zed.edit("**⪼ تم حـذف جميـع المكتوميـن .. بنجـاح ✅**")
-
+    mktomers = get_katms(l313l.uid)
+    count = 1
+    if mktomers:
+        zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المكتوميـن .. انتظـر ⏳**")
+        for mktoom in mktomers:
+            unmute(mktoom.ktm_id, "gmute")
+            count += 1
+        remove_all_katms(l313l.uid)
+        await zed.edit("**⪼ تم حـذف جميـع المكتوميـن .. بنجـاح ✅**")
+    else:
+        OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
+        await edit_or_reply(event, OUT_STR)
 
 @l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
+    # Parse the input
     input_str = event.pattern_match.group(1)
     args = input_str.split()
     
     if len(args) < 1:
         return await edit_or_reply(event, "**⪼ استخـدم الأمـر بالشكـل التالـي:**\n`.كتم مؤقت + المدة + (السبب اختياري) + بالرد أو المعرف`")
     
+    # Extract time and reason (default to "لا يوجد" if no reason provided)
     time_amount = args[0]
     reason = ' '.join(args[1:]) if len(args) > 1 else "لا يوجد"
     
+    # Get user from event
     user, _ = await get_user_from_event(event)
     if not user:
         return
     
+    # Check permissions
     if user.id == l313l.uid:
         return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنك كتــم نفســك ؟!**")
     if user.id in Zed_Dev:
@@ -323,6 +301,7 @@ async def temporary_mute(event):
     if user.id == 5427469031:
         return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنك كتــم مطـور السـورس ؟!**")
     
+    # Parse time
     time_letter = time_amount[-1]
     time_number = time_amount[:-1]
     
@@ -342,23 +321,13 @@ async def temporary_mute(event):
     if not mute_time:
         return await edit_or_reply(event, "**- وحـدة الوقت غيـر صحيحـة! استخـدم:**\n`s` للثواني, `m` للدقائق, `h` للساعات, `d` للأيام")
     
-    end_time = datetime.now() + timedelta(seconds=mute_time)
-    
+    # Mute the user
     try:
         mute(user.id, "gmute")
     except Exception as e:
         return await edit_or_reply(event, f"**- خطـأ في الكتـم:**\n`{e}`")
     
-    add_katm(
-        str(l313l.uid),
-        str(user.id),
-        user.first_name,
-        reason,
-        is_temporary="1",
-        mute_time=time_amount,
-        end_time=end_time
-    )
-    
+    # Send confirmation
     await edit_or_reply(
         event,
         f"**⎉╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
@@ -367,6 +336,7 @@ async def temporary_mute(event):
         f"**⎉╎السبـب:** {reason}"
     )
     
+    # Log to BOTLOG
     if BOTLOG:
         await event.client.send_message(
             BOTLOG_CHATID,
@@ -378,14 +348,15 @@ async def temporary_mute(event):
             f"**- تم كتم المستخدم مؤقتاً ✅**"
         )
     
+    # Unmute after time expires
     await asyncio.sleep(mute_time)
     
     try:
         unmute(user.id, "gmute")
-        remove_katm(str(l313l.uid), str(user.id))
     except Exception as e:
         LOGS.error(f"Error unmuting user: {e}")
     
+    # Send unmute notification
     unmute_msg = (
         f"**⎉╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
         f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"

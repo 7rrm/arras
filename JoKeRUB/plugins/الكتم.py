@@ -32,8 +32,6 @@ KTMZ = gvarstatus("Z_KTM") or "كتم"
 async def startgmute(event):
     if event.is_private:
         await asyncio.sleep(0.5)
-        #userid = event.chat_id
-        #reason = event.pattern_match.group(1)
         user, reason = await get_user_from_event(event)
         if not user:
             return
@@ -100,8 +98,8 @@ async def startgmute(event):
         if reply:
             await reply.forward_to(BOTLOG_CHATID)
         if reason:
-            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
-                return await event.client.send_message(
+            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason, is_temporary=0) is True:
+                await event.client.send_message(
                     BOTLOG_CHATID,
                     "#الكتــم_العـــام 🔕\n\n"
                     f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
@@ -109,51 +107,16 @@ async def startgmute(event):
                     f"**- الســبب :** `{reason}`\n\n"
                     f"**- تم إضافة المستخدم لـ قائمة المكتوميـن ✅**",
                 )
-            else:
-                remove_katm(str(l313l.uid), str(user.id))
-                if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
-                    return await event.client.send_message(
-                        BOTLOG_CHATID,
-                        "#الكتــم_العـــام 🔕\n\n"
-                        f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                        f"**- الايدي** `{user.id}`\n"
-                        f"**- الســبب :** `{reason}`\n\n"
-                        f"**- تم إضافة المستخدم لـ قائمة المكتوميـن ✅**",
-                    )
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                "#الكتــم_العـــام 🔕\n\n"
-                f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                f"**- الســبب :** `{reason}`",
-            )
         else:
             reason = "لا يوجد"
-            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
-                return await event.client.send_message(
+            if add_katm(str(l313l.uid), str(user.id), user.first_name, reason, is_temporary=0) is True:
+                await event.client.send_message(
                     BOTLOG_CHATID,
                     "#الكتــم_العـــام 🔕\n\n"
                     f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
                     f"**- الايدي** `{user.id}`\n\n"
                     f"**- تم إضافة المستخدم لـ قائمة المكتوميـن ✅**",
                 )
-            else:
-                remove_katm(str(l313l.uid), str(user.id))
-                if add_katm(str(l313l.uid), str(user.id), user.first_name, reason) is True:
-                    return await event.client.send_message(
-                        BOTLOG_CHATID,
-                        "#الكتــم_العـــام 🔕\n\n"
-                        f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                        f"**- الايدي** `{user.id}`\n\n"
-                        f"**- تم إضافة المستخدم لـ قائمة المكتوميـن ✅**\n"
-                        f"**• لـ تصفح قائمة المكتومين ارسـل** ( `.المكتومين` )\n"
-                        f"**• لـ مسح جميع المكتومين ارسـل** ( `.مسح المكتومين` )",
-                    )
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                "#الكتــم_العـــام 🔕\n"
-                f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n",
-            )
-
 
 @l313l.ar_cmd(pattern="الغاء كتم(?: |$)(.*)")
 async def endgmute(event):
@@ -192,42 +155,25 @@ async def endgmute(event):
                 f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**⎉╎تم الغـاء كتمــه .. بنجــاح 🔔**",
             )
     if BOTLOG:
-        if not remove_katm(str(l313l.uid), str(user.id)):
-            if reason:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    "#الغـــاء_الكتــم_العـــام 🔔\n\n"
-                    f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                    f"**- الســبب :** `{reason}`",
-                )
-            else:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    "#الغـــاء_الكتــم_العـــام 🔔\n\n"
-                    f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n",
-                )
+        remove_katm(str(l313l.uid), str(user.id))
+        if reason:
+            await event.client.send_message(
+                BOTLOG_CHATID,
+                "#الغـــاء_الكتــم_العـــام 🔔\n\n"
+                f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
+                f"**- الايدي** `{user.id}`\n"
+                f"**- الســبب :** `{reason}`\n\n"
+                f"**- تم إزالة المستخدم من قائمة المكتوميـن ✅**",
+            )
         else:
-            if reason:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    "#الغـــاء_الكتــم_العـــام 🔔\n\n"
-                    f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                    f"**- الايدي** `{user.id}`\n"
-                    f"**- الســبب :** `{reason}`\n\n"
-                    f"**- تم إزالة المستخدم من قائمة المكتوميـن ✅**\n"
-                    f"**• لـ تصفح قائمة المكتومين ارسـل** ( `.المكتومين` )\n"
-                    f"**• لـ مسح جميع المكتومين ارسـل** ( `.مسح المكتومين` )",
-                )
-            else:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    "#الغـــاء_الكتــم_العـــام 🔔\n\n"
-                    f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
-                    f"**- الايدي** `{user.id}`\n\n"
-                    f"**- تم إزالة المستخدم من قائمة المكتوميـن ✅**\n"
-                    f"**• لـ تصفح قائمة المكتومين ارسـل** ( `.المكتومين` )\n"
-                    f"**• لـ مسح جميع المكتومين ارسـل** ( `.مسح المكتومين` )",
-                )
+            await event.client.send_message(
+                BOTLOG_CHATID,
+                "#الغـــاء_الكتــم_العـــام 🔔\n\n"
+                f"**- المُستخدِم :** {_format.mentionuser(user.first_name ,user.id)} \n"
+                f"**- الايدي** `{user.id}`\n\n"
+                f"**- تم إزالة المستخدم من قائمة المكتوميـن ✅**",
+            )
+
 
 
 @l313l.ar_cmd(incoming=True, forword=True)
@@ -244,17 +190,34 @@ async def watcher(event):
 
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
-    OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
-    count = 1
-    mktoms = get_katms(l313l.uid)
-    for mktoom in mktoms:
-        if OUT_STR == "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**":
-            OUT_STR = f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المكتوميـن {count}**\n"
-        OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• السبب:** {}".format(mktoom.f_name, mktoom.ktm_id, mktoom.f_reason)
-        count += 1
+    # Get permanent mutes
+    perm_mutes = get_katms(l313l.uid, is_temporary=0)
+    # Get temporary mutes
+    temp_mutes = get_katms(l313l.uid, is_temporary=1)
+    
+    if not perm_mutes and not temp_mutes:
+        return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
+    
+    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n"
+    output += "**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n"
+    
+    if perm_mutes:
+        output += "\n**𓆰 الكـتم العـام 🔕:**\n"
+        for i, mute in enumerate(perm_mutes, start=1):
+            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - `{mute.f_reason}`\n"
+    
+    if temp_mutes:
+        output += "\n**𓆰 الكـتم المؤقـت ⏳:**\n"
+        for i, mute in enumerate(temp_mutes, start=1):
+            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - `{mute.f_reason}` - المدة: {mute.mute_time}\n"
+    
+    total = len(perm_mutes) + len(temp_mutes)
+    output = output.replace("𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪", 
+                           f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**• إجمالي عـدد المكتوميـن: {total}**")
+    
     await edit_or_reply(
         event,
-        OUT_STR,
+        output,
         caption="**⧗╎قائمـة المكتوميــن 🔕**",
         file_name="mktoms.text",
     )
@@ -327,6 +290,9 @@ async def temporary_mute(event):
     except Exception as e:
         return await edit_or_reply(event, f"**- خطـأ في الكتـم:**\n`{e}`")
     
+    # Add to database with temporary flag
+    add_katm(str(l313l.uid), str(user.id), user.first_name, reason, is_temporary=1, mute_time=time_amount)
+    
     # Send confirmation
     await edit_or_reply(
         event,
@@ -353,6 +319,7 @@ async def temporary_mute(event):
     
     try:
         unmute(user.id, "gmute")
+        remove_katm(str(l313l.uid), str(user.id))
     except Exception as e:
         LOGS.error(f"Error unmuting user: {e}")
     
@@ -378,4 +345,4 @@ async def temporary_mute(event):
             f"**- المـدة:** {time_amount}\n"
             f"**- السبـب:** {reason}\n\n"
             f"**- تم الغاء الكتم تلقائياً بعد انتهاء المدة ✅**"
-)
+        )

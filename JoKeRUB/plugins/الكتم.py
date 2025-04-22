@@ -187,7 +187,6 @@ async def watcher(event):
     if is_muted(event.sender_id, "gmute"):
         await event.delete()
 
-
 @l313l.ar_cmd(pattern="المكتومين$")
 async def on_mute_list(event):
     # Get permanent mutes
@@ -198,22 +197,22 @@ async def on_mute_list(event):
     if not perm_mutes and not temp_mutes:
         return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
     
-    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n"
-    output += "**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n"
+    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - قائمـة المكتوميــن 🔕𓆪\n"
+    output += f"**• إجمالي عـدد المكتوميـن:** {len(perm_mutes) + len(temp_mutes)}\n"
+    output += "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
     
     if perm_mutes:
-        output += "\n**𓆰 الكـتم العـام 🔕:**\n"
+        output += "**✧ الكـتم العـام 🔕:**\n"
         for i, mute in enumerate(perm_mutes, start=1):
-            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - `{mute.f_reason}`\n"
+            output += f"**{i}.** - المستـخدم : [{mute.f_name}](tg://user?id={mute.ktm_id})\n"
+            output += f"- السـبب : `{mute.f_reason}`\n\n"
     
     if temp_mutes:
-        output += "\n**𓆰 الكـتم المؤقـت ⏳:**\n"
+        output += "**✧ الكـتم المؤقـت ⏳:**\n"
         for i, mute in enumerate(temp_mutes, start=1):
-            output += f"**{i}.** [{mute.f_name}](tg://user?id={mute.ktm_id}) - `{mute.f_reason}` - المدة: {mute.mute_time}\n"
-    
-    total = len(perm_mutes) + len(temp_mutes)
-    output = output.replace("𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪", 
-                           f"𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - **قائمـة المكتوميــن** 🔕𓆪\n**• إجمالي عـدد المكتوميـن: {total}**")
+            output += f"**{i}.** - المستـخدم : [{mute.f_name}](tg://user?id={mute.ktm_id})\n"
+            output += f"- المـدة : `{mute.mute_time}`\n"
+            output += f"- السـبب : `{mute.f_reason}`\n\n"
     
     await edit_or_reply(
         event,
@@ -221,7 +220,6 @@ async def on_mute_list(event):
         caption="**⧗╎قائمـة المكتوميــن 🔕**",
         file_name="mktoms.text",
     )
-
 
 @l313l.ar_cmd(pattern="مسح المكتومين$")
 async def on_all_muted_delete(event):

@@ -63,8 +63,8 @@ rehu = [
 ]
 
 @l313l.ar_cmd(
-    pattern="الإوامر(?:\s|$)([\s\S]*)",
-    command=("الإوامر", plugin_category),
+    pattern="التوامر(?:\s|$)([\s\S]*)",
+    command=("الاوامر", plugin_category),
     info={
         "header": "امـر مختصـر لـ عـرض قائـمة الاوامـر",
         "الاستـخـدام": " {tr}الإوامر",

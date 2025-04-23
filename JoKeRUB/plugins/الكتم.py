@@ -60,7 +60,7 @@ async def startgmute(event):
     if is_muted(userid, "gmute"):
         return await edit_or_reply(
             event,
-            f"**⎉╎المستخـدم**  {_format.mentionuser(user.first_name ,user.id)} \n**⎉╎مڪتوم سابقـاً**",
+            f"**✧╎المستخـدم**  {_format.mentionuser(user.first_name ,user.id)} \n**✧╎مڪتوم سابقـاً**",
         )
     try:
         mute(userid, "gmute")
@@ -85,13 +85,13 @@ async def startgmute(event):
                 await event.client.send_file(
                     event.chat_id,
                     gvarstatus("PC_MUTE"),
-                    caption=f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم كتمــه .. بنجــاح 🔕**",
+                    caption=f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح 🔕**",
                 )
                 await event.delete()
             else:
                 await edit_or_reply(
                     event,
-                    f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم كتمــه .. بنجــاح 🔕**",
+                    f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح 🔕**",
                 )
     if BOTLOG:
         reply = await event.get_reply_message()
@@ -108,7 +108,7 @@ async def startgmute(event):
                     f"**- تم إضافة المستخدم لـ قائمة المكتوميـن ✅**",
                 )
         else:
-            reason = "لا يوجد"
+            reason = "لا يـوجد"
             if add_katm(str(l313l.uid), str(user.id), user.first_name, reason, is_temporary=0) is True:
                 await event.client.send_message(
                     BOTLOG_CHATID,
@@ -137,7 +137,7 @@ async def endgmute(event):
         return await edit_or_reply(event, "**- عــذࢪاً .. لايمكــنني العثــوࢪ علـى المسـتخــدم ؟!**")
     if not is_muted(userid, "gmute"):
         return await edit_or_reply(
-            event, f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**⎉╎غيـر مكتـوم عــام ✓**"
+            event, f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**✧╎غيـر مكتـوم عــام ✓**"
         )
     try:
         unmute(userid, "gmute")
@@ -147,12 +147,12 @@ async def endgmute(event):
         if reason:
             await edit_or_reply(
                 event,
-                f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**⎉╎تم الغـاء كتمــه .. بنجــاح 🔔**\n**⎉╎السـبب :** {reason}",
+                f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تم الغـاء كتمــه .. بنجــاح 🔔**\n**✧╎السـبب :** {reason}",
             )
         else:
             await edit_or_reply(
                 event,
-                f"**⎉╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**⎉╎تم الغـاء كتمــه .. بنجــاح 🔔**",
+                f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**✧╎تم الغـاء كتمــه .. بنجــاح 🔔**",
             )
     if BOTLOG:
         remove_katm(str(l313l.uid), str(user.id))
@@ -247,7 +247,7 @@ async def temporary_mute(event):
     
     # Extract time and reason (default to "لا يوجد" if no reason provided)
     time_amount = args[0]
-    reason = ' '.join(args[1:]) if len(args) > 1 else "لا يوجد"
+    reason = ' '.join(args[1:]) if len(args) > 1 else "لا يـوجد"
     
     # Get user from event
     user, _ = await get_user_from_event(event)
@@ -294,10 +294,10 @@ async def temporary_mute(event):
     # Send confirmation
     await edit_or_reply(
         event,
-        f"**⎉╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
-        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-        f"**⎉╎المـدة:** {time_amount}\n"
-        f"**⎉╎السبـب:** {reason}"
+        f"**✧╎تم كتـم المستخـدم مؤقتـاً 🔕**\n"
+        f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**✧╎المـدة:** `{time_amount}`\n"
+        f"**✧╎السبـب:** `{reason}`"
     )
     
     # Log to BOTLOG
@@ -307,8 +307,8 @@ async def temporary_mute(event):
             "#الكتم_المؤقت ⏳\n\n"
             f"**- المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
             f"**- الايـدي:** `{user.id}`\n"
-            f"**- المـدة:** {time_amount}\n"
-            f"**- السبـب:** {reason}\n\n"
+            f"**- المـدة:** `{time_amount}`\n"
+            f"**- السبـب:** `{reason}`\n\n"
             f"**- تم كتم المستخدم مؤقتاً ✅**"
         )
     
@@ -323,12 +323,12 @@ async def temporary_mute(event):
     
     # Send unmute notification
     unmute_msg = (
-        f"**⎉╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
-        f"**⎉╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-        f"**⎉╎الايـدي:** `{user.id}`\n"
-        f"**⎉╎اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
-        f"**⎉╎المـدة:** {time_amount}\n"
-        f"**⎉╎السبـب:** {reason}"
+        f"**»╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
+        f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+        f"**✧╎الايـدي:** `{user.id}`\n"
+        f"**✧╎اليـوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+        f"**✧╎المـدة:** `{time_amount}`\n"
+        f"**✧╎السبـب:** `{reason}`"
     )
     
     await event.client.send_message(event.chat_id, unmute_msg)

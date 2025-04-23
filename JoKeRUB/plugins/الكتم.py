@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 import datetime
 from asyncio import sleep
+from collections import defaultdict
 
 from telethon import events
 from telethon.utils import get_display_name
@@ -27,6 +28,9 @@ from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
 plugin_category = "الخدمات"
 LOGS = logging.getLogger(__name__)
 KTMZ = gvarstatus("Z_KTM") or "كتم"
+
+# متغير لتخزين المهام المؤقتة
+temp_mute_tasks = defaultdict(dict)
 
 @l313l.ar_cmd(pattern=f"{KTMZ}(?: |$)(.*)")
 async def startgmute(event):
@@ -131,6 +135,13 @@ async def endgmute(event):
         if user.id == l313l.uid:
             return await edit_or_reply(event, "**- عــذࢪاً .. انت غيـر مكتـوم**")
         userid = user.id
+    
+    # إلغاء أي مهام مؤقتة لهذا المستخدم
+    if userid in temp_mute_tasks:
+        for task in temp_mute_tasks[userid].values():
+            task.cancel()
+        del temp_mute_tasks[userid]
+    
     try:
         user = await event.client.get_entity(userid)
     except Exception:
@@ -174,13 +185,10 @@ async def endgmute(event):
                 f"**- تم إزالة المستخدم من قائمة المكتوميـن ✅**",
             )
 
-
-
 @l313l.ar_cmd(incoming=True, forword=True)
 async def watcher(event):
     if is_muted(event.sender_id, "gmute"):
         await event.delete()
-
 
 @l313l.ar_cmd(incoming=True)
 async def watcher(event):
@@ -228,6 +236,12 @@ async def on_all_muted_delete(event):
     if mktomers:
         zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المكتوميـن .. انتظـر ⏳**")
         for mktoom in mktomers:
+            # إلغاء أي مهام مؤقتة للمستخدمين
+            if mktoom.ktm_id in temp_mute_tasks:
+                for task in temp_mute_tasks[mktoom.ktm_id].values():
+                    task.cancel()
+                del temp_mute_tasks[mktoom.ktm_id]
+            
             unmute(mktoom.ktm_id, "gmute")
             count += 1
         remove_all_katms(l313l.uid)
@@ -235,6 +249,48 @@ async def on_all_muted_delete(event):
     else:
         OUT_STR = "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**"
         await edit_or_reply(event, OUT_STR)
+
+async def unmute_after_time(event, user, mute_time, time_amount, reason):
+    try:
+        await asyncio.sleep(mute_time)
+        
+        # نتحقق إذا كان المستخدم لا يزال مكتوماً قبل الإلغاء
+        if is_muted(user.id, "gmute"):
+            unmute(user.id, "gmute")
+            remove_katm(str(l313l.uid), str(user.id))
+            
+            # إرسال الإشعار فقط إذا كان الكتم لم يلغ يدوياً
+            unmute_msg = (
+                f"**»╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
+                f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+                f"**✧╎الايـدي:** `{user.id}`\n"
+                f"**✧╎اليـوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+                f"**✧╎المـدة:** `{time_amount}`\n"
+                f"**✧╎السبـب:** `{reason}`"
+            )
+            
+            await event.client.send_message(event.chat_id, unmute_msg)
+            
+            if BOTLOG:
+                await event.client.send_message(
+                    BOTLOG_CHATID,
+                    "#انتهاء_الكتم_المؤقت 🔔\n\n"
+                    f"**- المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
+                    f"**- الايـدي:** `{user.id}`\n"
+                    f"**- اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
+                    f"**- المـدة:** {time_amount}\n"
+                    f"**- السبـب:** {reason}\n\n"
+                    f"**- تم الغاء الكتم تلقائياً بعد انتهاء المدة ✅**"
+                )
+    except asyncio.CancelledError:
+        # تم إلغاء المهمة يدوياً
+        pass
+    finally:
+        # تنظيف المهمة من الذاكرة
+        if user.id in temp_mute_tasks and event.chat_id in temp_mute_tasks[user.id]:
+            del temp_mute_tasks[user.id][event.chat_id]
+            if not temp_mute_tasks[user.id]:
+                del temp_mute_tasks[user.id]
 
 @l313l.ar_cmd(pattern="كتم_مؤقت(?:\s|$)([\s\S]*)")
 async def temporary_mute(event):
@@ -312,35 +368,8 @@ async def temporary_mute(event):
             f"**- تم كتم المستخدم مؤقتاً ✅**"
         )
     
-    # Unmute after time expires
-    await asyncio.sleep(mute_time)
+    # إنشاء مهمة مؤقتة يمكن إلغاؤها
+    task = asyncio.create_task(unmute_after_time(event, user, mute_time, time_amount, reason))
     
-    try:
-        unmute(user.id, "gmute")
-        remove_katm(str(l313l.uid), str(user.id))
-    except Exception as e:
-        LOGS.error(f"Error unmuting user: {e}")
-    
-    # Send unmute notification
-    unmute_msg = (
-        f"**»╎انتهـى الوقـت المحدد للكتم المؤقـت 🔔**\n"
-        f"**✧╎المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-        f"**✧╎الايـدي:** `{user.id}`\n"
-        f"**✧╎اليـوزر:** @{user.username if user.username else 'لا يوجد'}\n"
-        f"**✧╎المـدة:** `{time_amount}`\n"
-        f"**✧╎السبـب:** `{reason}`"
-    )
-    
-    await event.client.send_message(event.chat_id, unmute_msg)
-    
-    if BOTLOG:
-        await event.client.send_message(
-            BOTLOG_CHATID,
-            "#انتهاء_الكتم_المؤقت 🔔\n\n"
-            f"**- المستخـدم:** {_format.mentionuser(user.first_name, user.id)}\n"
-            f"**- الايـدي:** `{user.id}`\n"
-            f"**- اليوزر:** @{user.username if user.username else 'لا يوجد'}\n"
-            f"**- المـدة:** {time_amount}\n"
-            f"**- السبـب:** {reason}\n\n"
-            f"**- تم الغاء الكتم تلقائياً بعد انتهاء المدة ✅**"
-        )
+    # تخزين المهمة للرجوع إليها لاحقاً
+    temp_mute_tasks[user.id][event.chat_id] = task

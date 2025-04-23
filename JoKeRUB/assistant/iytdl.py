@@ -2,7 +2,6 @@
 # --------------------------- #
 #   Modded ytdl by code-rgb   #
 # --------------------------- #
-'''
 import asyncio
 import glob
 import io
@@ -294,4 +293,3 @@ async def ytdl_callback(c_q: CallbackQuery):
             ),
             parse_mode="html",
         )
-'''

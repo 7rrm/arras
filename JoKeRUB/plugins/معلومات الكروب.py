@@ -203,7 +203,7 @@ async def info(event):
             await event.client.send_message(
                 BOTLOG_CHATID, f"**᯽︙ هنـاك خطـأ في معلومـات الدردشـة ✕ : **\n`{str(e)}`"
             )
-        await catevent.edit("**᯽︙ حـدث خـطأ مـا، يرجـى التحقق من الأمـر ⎌**")
+        await catevent.edit("**✧︙ حـدث خـطأ مـا، يرجـى التحقق من الأمـر ⎌**")
 
 
 async def get_chatinfo(event, catevent):
@@ -387,54 +387,54 @@ async def fetch_info(chat, event):  # sourcery no-metrics
         for _ in bots_list:
             bots += 1  
 
-    caption = "<b>᯽︙ معلومـات الدردشـة  🝢 :</b>\n"
+    caption = "<b>✧︙ معلومـات الدردشـة  🝢 :</b>\n"
     caption += f"⌔︙الآيـدي  : <code>{chat_obj_info.id}</code>\n"
     if chat_title is not None:
-        caption += f"᯽︙ إسـم المجموعـة  :{chat_title}\n"
+        caption += f"⌔︙ إسـم المجموعـة  :`{chat_title}`\n"
     if former_title is not None:  # Meant is the very first title
-        caption += f"᯽︙ الإسم السابـق  : {former_title}\n"
+        caption += f"⌔︙ الإسم السابـق  :`{former_title}`\n"
     if username is not None:
-        caption += f"᯽︙ نـوع المجموعـة ⌂ : مجموعـة عامّـة  \n"
-        caption += f"᯽︙ الرابـط  : \n {username}\n"
+        caption += f"⌔︙ نـوع المجموعـة ⌂ : مجموعـة عامّـة  \n"
+        caption += f"⌔︙ الرابـط  : \n {username}\n"
     else:
-        caption += f"᯽︙ نـوع المجموعـة ⌂ : مجموعـة عامّـة  \n"
+        caption += f"⌔︙ نـوع المجموعـة ⌂ : مجموعـة عامّـة  \n"
     if creator_username is not None:
-        caption += f"᯽︙ المالـك  :  {creator_username}\n"
+        caption += f"⌔︙ المالـك  :  {creator_username}\n"
     elif creator_valid:
         caption += (
-            '᯽︙ المالـك  : <a href="tg://user?id={creator_id}">{creator_firstname}</a>\n'
+            '⌔︙ المالـك  : <a href="tg://user?id={creator_id}">{creator_firstname}</a>\n'
         )
     if created is not None:
-        caption += f"᯽︙ تاريـخ الإنشـاء  : \n <code>{created.date().strftime('%b %d, %Y')} - {created.time()}</code>\n"
+        caption += f"⌔︙ تاريـخ الإنشـاء  : \n <code>{created.date().strftime('%b %d, %Y')} - {created.time()}</code>\n"
     else:
-        caption += f"᯽︙ الإنتـاج  :   <code>{chat_obj_info.date.date().strftime('%b %d, %Y')} - {chat_obj_info.date.time()}</code> {warn_emoji}\n"
+        caption += f"⌔︙ الإنتـاج  :   <code>{chat_obj_info.date.date().strftime('%b %d, %Y')} - {chat_obj_info.date.time()}</code> {warn_emoji}\n"
     caption += f"⌔︙آ يـدي قاعـدة البيانـات : {dc_id}\n"
     if exp_count is not None:
         chat_level = int((1 + sqrt(1 + 7 * exp_count / 14)) / 2)
-        caption += f"᯽︙ الأعضـاء : <code>{chat_level}</code>\n"
+        caption += f"⌔︙ الأعضـاء : <code>{chat_level}</code>\n"
     if messages_viewable is not None:
-        caption += f"᯽︙ الرسائـل التي يمڪن مشاهدتها : <code>{messages_viewable}</code>\n"
+        caption += f"⌔︙ الرسائـل التي يمڪن مشاهدتها : <code>{messages_viewable}</code>\n"
     if messages_sent:
-        caption += f"᯽︙ الرسائـل المرسلـة  :<code>{messages_sent}</code>\n"
+        caption += f"⌔︙ الرسائـل المرسلـة  :<code>{messages_sent}</code>\n"
     elif messages_sent_alt:
-        caption += f"᯽︙ الرسـائل المرسلة: <code>{messages_sent_alt}</code> {warn_emoji}\n"
+        caption += f"⌔︙ الرسـائل المرسلة: <code>{messages_sent_alt}</code> {warn_emoji}\n"
     if members is not None:
-        caption += f"᯽︙ الأعضـاء : <code>{members}</code>\n"
+        caption += f"⌔︙ الأعضـاء : <code>{members}</code>\n"
     if admins is not None:
-        caption += f"᯽︙ المشرفيـن : <code>{admins}</code>\n"
+        caption += f"⌔︙ المشرفيـن : <code>{admins}</code>\n"
     if bots_list:
-        caption += f"᯽︙ البـوتات : <code>{bots}</code>\n"
+        caption += f"⌔︙ البـوتات : <code>{bots}</code>\n"
     if members_online:
-        caption += f"᯽︙ المتصليـن حـالياً : <code>{members_online}</code>\n"
+        caption += f"⌔︙ المتصليـن حـالياً : <code>{members_online}</code>\n"
     if restrcited_users is not None:
-        caption += f"᯽︙ الأعضـاء المقيّديـن : <code>{restrcited_users}</code>\n"
+        caption += f"⌔︙ الأعضـاء المقيّديـن : <code>{restrcited_users}</code>\n"
     if banned_users is not None:
-        caption += f"᯽︙ الأعضـاء المحظوريـن : <code>{banned_users}</code>"
+        caption += f"⌔︙ الأعضـاء المحظوريـن : <code>{banned_users}</code>"
     if group_stickers is not None:
         caption += f'{chat_type} ⌔︙الملصقـات : <a href="t.me/addstickers/{chat.full_chat.stickerset.short_name}">{group_stickers}</a>'
     caption += "\n"
     if not broadcast:
-        caption += f"᯽︙ الوضـع البطيئ : {slowmode}"
+        caption += f"⌔︙ الوضـع البطيئ : {slowmode}"
         if (
             hasattr(chat_obj_info, "slowmode_enabled")
             and chat_obj_info.slowmode_enabled
@@ -442,19 +442,19 @@ async def fetch_info(chat, event):  # sourcery no-metrics
             caption += f", <code>{slowmode_time}s</code>\n"
         else:
             caption += "\n"
-        caption += f"᯽︙ الـمجموعـة الخارقـة  : {supergroup}\n"
+        caption += f"⌔︙ الـمجموعـة الخارقـة  : {supergroup}\n"
     if hasattr(chat_obj_info, "restricted"):
-        caption += f"᯽︙ المقيّـد : {restricted}"
+        caption += f"⌔︙ المقيّـد : {restricted}"
         if chat_obj_info.restricted:
             caption += f"> : {chat_obj_info.restriction_reason[0].platform}\n"
-            caption += f"> ᯽︙  السـبب  : {chat_obj_info.restriction_reason[0].reason}\n"
-            caption += f"> ᯽︙ النّـص  : {chat_obj_info.restriction_reason[0].text}\n\n"
+            caption += f"> ✧︙  السـبب  : {chat_obj_info.restriction_reason[0].reason}\n"
+            caption += f"> ✧︙ النّـص  : {chat_obj_info.restriction_reason[0].text}\n\n"
         else:
             caption += "\n"
     if hasattr(chat_obj_info, "scam") and chat_obj_info.scam:
         caption += "⌔︙السارقيـن : <b>Yes</b>\n"
     if hasattr(chat_obj_info, "verified"):
-        caption += f"᯽︙ الحسابـات الموثقـة   : {verified}\n"
+        caption += f"⌔︙ الحسابـات الموثقـة   : {verified}\n"
     if description:
         caption += f"⌔︙الوصـف  : \n<code>{description}</code>\n"
     return caption

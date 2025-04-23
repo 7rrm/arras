@@ -1,4 +1,4 @@
-#@lMl10l   - @jepthon
+'''#@lMl10l   - @jepthon
 # Copyright (C) 2021 JoKeRUB TEAM
 # FILES WRITTEN BY  @lMl10l
 import asyncio
@@ -438,3 +438,4 @@ async def _(event):
             pass
         await bot.send_file(event.chat_id, video, caption="᯽︙ BY : @jepthon 🎀",parse_mode="html")
         await event.delete()
+'''

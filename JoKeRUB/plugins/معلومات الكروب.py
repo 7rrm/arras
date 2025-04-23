@@ -1,5 +1,7 @@
+import asyncio
 from datetime import datetime
 from math import sqrt
+from asyncio import sleep
 
 from emoji import emojize
 from telethon.errors import (

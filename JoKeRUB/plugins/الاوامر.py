@@ -63,7 +63,7 @@ rehu = [
 ]
 
 @l313l.ar_cmd(
-    pattern="التوامر(?:\s|$)([\s\S]*)",
+    pattern="الاوامر(?:\s|$)([\s\S]*)",
     command=("الاوامر", plugin_category),
     info={
         "header": "امـر مختصـر لـ عـرض قائـمة الاوامـر",
@@ -72,7 +72,7 @@ rehu = [
 )
 async def show_commands(event):
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر هـنا 🚫**")
     
     zed = await edit_or_reply(event, "**⇆ جاري تجهيز الأوامر...**")
     lMl10l = random.choice(rehu)

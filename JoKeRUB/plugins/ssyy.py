@@ -440,7 +440,7 @@ async def download_audio(event):
         await event.client.send_file(
             event.chat_id,
             file=media,
-            caption=f"<b>⎉╎المقطع : </b><code>{vid_data.get('title', os.path.basename(pathlib.Path(_fpath)))}</code>",
+            caption=f"<b>✧╎المقطع : </b><code>{vid_data.get('title', os.path.basename(pathlib.Path(_fpath)))}</code>",
             supports_streaming=True,
             reply_to=reply_to_id,
             parse_mode="html",
@@ -458,7 +458,6 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-#Code by T.me/zzzzl1l
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()
@@ -467,8 +466,8 @@ async def _(event): #Code by T.me/zzzzl1l
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎بحث + اسـم المقطـع الصـوتي**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️╰**")
     ydl_ops = {
         "format": "bestaudio[ext=m4a]",
         "keepvideo": True,
@@ -495,7 +494,7 @@ async def _(event): #Code by T.me/zzzzl1l
 
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
         return
     await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
     try:
@@ -513,7 +512,7 @@ async def _(event): #Code by T.me/zzzzl1l
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**⎉╎البحث :** `{title}`",
+            caption=f"**✧╎البحث :** `{title}`",
             thumb=thumb_name,
         )
         await zedevent.delete()
@@ -522,7 +521,7 @@ async def _(event): #Code by T.me/zzzzl1l
         LOGS.error(str(err))
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
     try:
         remove_if_exists(audio_file)
         remove_if_exists(thumb_name)
@@ -537,7 +536,7 @@ async def _(event): #Code by T.me/zzzzl1l
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎فيديو + اسـم الفيديـو**")
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎فيديو + اسـم الفيديـو**")
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن الفيديـو... 🎧♥️╰**")
     ydl_opts = {
         "format": "best",
@@ -575,7 +574,7 @@ async def _(event): #Code by T.me/zzzzl1l
     await event.client.send_file(
         event.chat_id,
         file_name,
-        caption=f"**⎉╎البحث :** `{title}`",
+        caption=f"**✧╎البحث :** `{title}`",
         thumb=preview,
         supports_streaming=True,
     )
@@ -629,7 +628,7 @@ async def download_audio(event):
         if not _fpath:
             return await edit_delete(zedevent, "__Unable to upload file__")
         await zedevent.edit(
-            f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
+            f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...╰**:\
             \n**{vid_data['title']}***"
         )
         attributes, mime_type = get_attributes(str(_fpath))

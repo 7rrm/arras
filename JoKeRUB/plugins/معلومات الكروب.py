@@ -84,46 +84,58 @@ async def _(event):
     await event.delete()
 
 
-@l313l.ar_cmd(
-    pattern="البوتات(?: |$)(.*)",
-    command=("البوتات", plugin_category),
-    info={
-        "header": "᯽︙ لإظهـار قائمـة البوتـات 🝰",
-        "description": "᯽︙ سيظهـر لك قائمـة البوتـات  🝰",
-        "usage": [
-            "{tr}البوتات + إسم المستخـدم/معرّف المستخـدم> 🝰 ",
-            "{tr}البوتات + في المجموعـة التي تريدهـا 🝰 ",
-        ],
-        "examples": "{tr}البوتات @l313l",
-    },
-)
-async def _(event):
-    "᯽︙ لإظهـار قائمـة البوتـات 🝰"
-    mentions = "**᯽︙ البـوتات في هذه الـمجموعة 🝰 : ** \n"
-    input_str = event.pattern_match.group(1)
-    if not input_str:
-        chat = await event.get_input_chat()
-    else:
-        mentions = "**᯽︙ البوتـات في {} من المجموعات 🝰 : ** \n".format(input_str)
-        try:
-            chat = await event.client.get_entity(input_str)
-        except Exception as e:
-            return await edit_or_reply(event, str(e))
-    try:
-        async for x in event.client.iter_participants(
-            chat, filter=ChannelParticipantsBots
-        ):
-            if isinstance(x.participant, ChannelParticipantAdmin):
-                mentions += "\n - [{}](tg://user?id={}) `{}`".format(
-                    x.first_name, x.id, x.id
-                )
-            else:
-                mentions += "\n [{}](tg://user?id={}) `{}`".format(
-                    x.first_name, x.id, x.id
-                )
-    except Exception as e:
-        mentions += " " + str(e) + "\n"
-    await edit_or_reply(event, mentions)
+@l313l.ar_cmd(pattern=f"البوتات ?(.*)")
+async def zelzal(zed):
+    con = zed.pattern_match.group(1).lower()
+    del_u = 0
+    del_status = "**✧╎مجمـوعتك/قناتـك في أمـان ✅.. لاتوجـد بوتـات في هذه المجمـوعـة ༗**"
+    if con != "طرد":
+        event = await edit_or_reply(zed, "**✧╎جـاري البحـث عن بوتات في هـذه المجمـوعـة ...🝰**")
+        async for user in zed.client.iter_participants(zed.chat_id):
+            if user.bot:
+                del_u += 1
+                await sleep(0.5)
+        if del_u > 0:
+            del_status = f"🛂**┊كشـف البـوتات -** 𝗮𝗥𝗥𝗮𝗦 \
+                           \n\n**⌔╎تم العثور على** **{del_u}**  **بـوت**\
+                           \n**⌔╎لطـرد البوتات استخدم الامـر التالي ⩥** `.البوتات طرد`"
+        await event.edit(del_status)
+        return
+    chat = await zed.get_chat()
+    admin = chat.admin_rights
+    creator = chat.creator
+    if not admin and not creator:
+        await edit_or_reply(zed, "**✧╎عـذࢪاً .. احتـاج الى صلاحيـات المشـرف هنـا**")
+        return
+    event = await edit_or_reply(zed, "**✧╎جـارِ طـرد البوتـات من هنـا ...⅏**")
+    del_u = 0
+    del_a = 0
+    async for user in zed.client.iter_participants(zed.chat_id):
+        if user.bot:
+            try:
+                await zed.client.kick_participant(zed.chat_id, user.id)
+                await sleep(0.5)
+                del_u += 1
+            except ChatAdminRequiredError:
+                await edit_or_reply(event, "**✧╎اووبس .. ليس لدي صلاحيـات حظـر هنـا**")
+                return
+            except UserAdminInvalidError:
+                del_a += 1
+    if del_u > 0:
+        del_status = f"**✧╎تم طـرد  {del_u}  بـوت .. بنجـاح🚮**"
+    if del_a > 0:
+        del_status = f"❇️**┊طـرد البـوتات -** 𝙎𝙊𝙐𝙍𝘾𝞝 𝙕𝙏𝙃𝙊𝙉\
+                           \n\n**⎉╎تم طـرد  {del_u}  بـوت بنجـاح ✓** 🚮 \
+                           \n**⎉╎لـم يتـم طـرد  {del_a}  بـوت لانـها اشـراف ..⅏** \
+                           \n\n**⎉╎الان لـ الحفـاظ علـى كروبك/قناتك من التصفيـر ارسـل ⩥** `.قفل البوتات`"
+    await edit_or_reply(event, del_status)
+    if BOTLOG:
+        await zed.client.send_message(
+            BOTLOG_CHATID,
+            f"#طـرد_البوتـات\
+            \n ✧╎{del_status}\
+            \n ✧╎الدردشه: {zed.chat.title}(`{zed.chat_id}`)",
+        )
 
 
 @l313l.ar_cmd(

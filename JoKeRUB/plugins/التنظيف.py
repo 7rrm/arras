@@ -89,7 +89,6 @@ async def delete_it(event):
         await event.delete()
 
 
-
 @l313l.ar_cmd(pattern="رسائلي$")
 async def zed(event):
     zzm = "me"
@@ -109,22 +108,6 @@ async def zed(event):
         return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
     else:
         await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
-
-
-@l313l.ar_cmd(pattern="(الرسائل|رسائل) ?(.*)")
-async def zed(event):
-    k = await event.get_reply_message()
-    if k:
-        a = await bot.get_messages(event.chat_id, 0, from_user=k.sender_id)
-        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    zzm = event.pattern_match.group(1)
-    if zzm:
-        a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
-        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    else:
-        await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
-
-
 
 
 @l313l.ar_cmd(

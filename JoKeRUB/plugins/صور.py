@@ -103,54 +103,47 @@ async def _(event):
     
     try:
         async with aiohttp.ClientSession() as session:
-            data = {
-                "q": query + " خلفيات HD",  # إضافة HD للبحث عن خلفيات عالية الجودة
-                "app_id": ZELZAL_APP_ID,
-                "p": "GoogleImages"
-            }
-            response = await session.get(input_url, params=data, headers=headers)
-            result = await response.json()
-            
-            for item in result.get("results", [])[:10]:  # الحد الأقصى 10 صور
-                image_url = item.get("url")
-                if not image_url:
-                    continue
-                
-                try:
-                    async with session.get(image_url) as img_response:
-                        # معالجة نوع المحتوى بشكل آمن
-                        content_type = img_response.headers.get("Content-Type", "image/jpeg")
-                        ext = guess_extension(content_type) or ".jpg"
-                        filename = f"{int(time.time())}{ext}"
-                        filepath = os.path.join(download_dir, filename)
-                        
-                        with open(filepath, "wb") as f:
-                            f.write(await img_response.read())
-                        image_paths.append(filepath)
-                except Exception as e:
-                    print(f"Failed to download image: {e}")
-                    continue
-    
-        if not image_paths:
-            await event.edit(f"**- لم أتمكن من إيجاد خلفيات لـ {query}**")
+    data = {
+        "q": query + " خلفيات HD",
+        "app_id": ZELZAL_APP_ID,
+        "p": "GoogleImages"
+    }
+    try:
+        response = await session.get(input_url, params=data, headers=headers)
+        if response.status != 200:
+            await event.edit(f"**- خطأ في الخادم: {response.status}**")
             return
             
-        await event.reply(file=image_paths, parse_mode="html", force_document=True)
+        result = await response.json()
         
-    except Exception as e:
-        await event.edit(f"**حدث خطأ: {str(e)}**")
-        return
-    finally:
-        # تنظيف الملفات المؤقتة
-        for file in image_paths:
+        if not result.get("results"):
+            await event.edit(f"**- لا توجد نتائج لـ {query}**")
+            return
+            
+        for item in result["results"][:10]:
+            image_url = item.get("url")
+            if not image_url:
+                continue
+                
             try:
-                os.remove(file)
-            except:
-                pass
-        shutil.rmtree(download_dir, ignore_errors=True)
-        
-        end = datetime.now()
-        ms = (end - start).seconds
-        await event.edit(f"**- اكتمل البحث عن خلفيات {query} في {ms} ثانية ✓**", link_preview=False)
-        await asyncio.sleep(5)
-        await event.delete()
+                async with session.get(image_url, timeout=10) as img_response:
+                    if img_response.status != 200:
+                        continue
+                        
+                    # معالجة نوع المحتوى بشكل آمن
+                    content_type = img_response.headers.get("Content-Type", "image/jpeg")
+                    ext = guess_extension(content_type) or ".jpg"
+                    filename = f"{int(time.time())}{ext}"
+                    filepath = os.path.join(download_dir, filename)
+                    
+                    with open(filepath, "wb") as f:
+                        f.write(await img_response.read())
+                        
+                    if os.path.getsize(filepath) > 0:  # التأكد من أن الملف غير فارغ
+                        image_paths.append(filepath)
+                    else:
+                        os.remove(filepath)
+                        
+            except (aiohttp.ClientError, asyncio.TimeoutError, OSError) as e:
+                print(f"Failed to download image: {e}")
+                continue

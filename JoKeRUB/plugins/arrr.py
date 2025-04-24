@@ -19,7 +19,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("مساعده") and event.query.user_id == bot.uid:
             buttons = [
-                [Button.inline("البـحـث والتحميـل 🪄", data="ljsjs")],
+                [Button.inline("البـحـث والتحميـل 🪄", data="search_download")],
             ]
             if JEP_IC and JEP_IC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
@@ -42,6 +42,19 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 )
             await event.answer([result] if result else None)
 
+    @tgbot.on(events.CallbackQuery(pattern="search_download"))
+    async def search_download_buttons(event):
+        await event.edit(
+            buttons=[
+                [Button.inline("بحـث", data="search"), Button.inline("فـيديو", data="video")],
+                [Button.inline("سـاونـد", data="sound")],
+                [Button.inline("تحميل صوت", data="download_sound"), Button.inline("تحميل فـيديو", data="download_video")],
+                [Button.inline("سـناب", data="snap")],
+                [Button.inline("انـستـا", data="insta"), Button.inline("فـيسبـوك", data="facebook")],
+                [Button.inline("بـنترسـت", data="pinterest")]
+            ]
+        )
+
 
 @bot.on(admin_cmd(outgoing=True, pattern="مساعده"))
 async def repo(event):
@@ -53,5 +66,3 @@ async def repo(event):
     response = await bot.inline_query(lMl10l, "مساعده")
     await response[0].click(event.chat_id)
     await event.delete()
-
-

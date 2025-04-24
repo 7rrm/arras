@@ -36,6 +36,7 @@ from yt_dlp.utils import (
 from telethon import events
 from telethon.tl import types
 from telethon.utils import get_attributes
+from telethon.tl.functions.messages import DeleteHistoryRequest
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon.tl.functions.contacts import UnblockRequest as unblock
 
@@ -585,9 +586,6 @@ async def _(event): #Code by T.me/zzzzl1l
         print(e)
 
 
-# ================================================================================================ #
-# =========================================ردود الخاص================================================= #
-# ================================================================================================ #
 
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
@@ -757,13 +755,13 @@ async def zelzal_insta(event):
     if link.startswith("http://instagram"):
         link = link.replace("http://instagram", "http://www.instagram")
     if "/reel/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا (ريلـز) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا (ريلـز) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     elif "/tv/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل بث انستـا (Tv) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل بث انستـا (Tv) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     elif "/stories/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل ستـوري انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل ستـوري انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     else:
-        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة آراس </b>"
     chat = "@story_repost_bot"
     zed = await edit_or_reply(event, "** ⌔╎جـارِ التحميل من الانستـا .. انتظر قليلا ▬▭**")
     async with borg.conversation(chat) as conv:

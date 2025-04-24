@@ -217,12 +217,13 @@ async def ViewChJok(event):
     except Exception:
         await edit_or_reply(catevent, output)
         
-@l313l.on(admin_cmd(pattern="قائمه (جميع المجموعات|مجموعات اديرها|كروباتي)$"))
+@l313l.ar_cmd(
+    pattern="كروباتي (الكل|ادمن|مالك)$",
+)
 async def stats(event):  # sourcery no-metrics
     catcmd = event.pattern_match.group(1)
-    catevent = await edit_or_reply(event, STAT_INDICATION)
+    zedevent = await edit_or_reply(event, STAT_INDICATION)
     start_time = time.time()
-    cat = base64.b64decode("YnkybDJvRG04WEpsT1RBeQ==")
     hi = []
     higa = []
     higo = []
@@ -242,33 +243,32 @@ async def stats(event):  # sourcery no-metrics
                 higa.append([entity.title, entity.id])
             if entity.creator:
                 higo.append([entity.title, entity.id])
-    if catcmd == "جميع المجموعات":
+    
+    if catcmd == "الكل":
         output = GROUPS_STR
-        for k, i in enumerate(hi, start=1):
-            output += f"{k} .) [{i[0]}](https://t.me/c/{i[1]}/1)\n"
-        caption = GROUPS_STR
-    elif catcmd == "مجموعات اديرها":
+        for i in hi:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(hi)
+    elif catcmd == "ادمن":
         output = GROUPS_ADMINSTR
-        for k, i in enumerate(higa, start=1):
-            output += f"{k} .) [{i[0]}](https://t.me/c/{i[1]}/1)\n"
-        caption = GROUPS_ADMINSTR
-    elif catcmd == "كروباتي":
+        for i in higa:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(higa)
+    elif catcmd == "مالك":
         output = GROUPS_OWNERSTR
-        for k, i in enumerate(higo, start=1):
-            output += f"{k} .) [{i[0]}](https://t.me/c/{i[1]}/1)\n"
-        caption = GROUPS_OWNERSTR
+        for i in higo:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(higo)
+    
     stop_time = time.time() - start_time
+    output += f"\n**⌔︙ العدد الإجمالي: {count} مجموعة**"
+    output += f"\n**- الوقت المستغرق: {stop_time:.02f} ثانية**"
+    
     try:
-        cat = Get(cat)
-        await event.client(cat)
-    except BaseException:
-        pass
-    output += f"\n**استغرق حساب المجموعات : ** {stop_time:.02f} ثانيه"
-    try:
-        await catevent.edit(output)
+        await zedevent.edit(output)
     except Exception:
         await edit_or_reply(
-            catevent,
+            zedevent,
             output,
             caption=caption,
-        )
+    )

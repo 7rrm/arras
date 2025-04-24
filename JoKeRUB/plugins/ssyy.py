@@ -757,15 +757,15 @@ async def zelzal_insta(event):
     if link.startswith("http://instagram"):
         link = link.replace("http://instagram", "http://www.instagram")
     if "/reel/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا (ريلـز) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:[هـنا]({link})\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا (ريلـز) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     elif "/tv/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل بث انستـا (Tv) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:  {link}\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل بث انستـا (Tv) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     elif "/stories/" in link:
-        cap_zzz = f"<b>✧╎تم تحميـل ستـوري انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:  {link}\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل ستـوري انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     else:
-        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:  {link}\n ✧╎تم التحميـل بواسطـة آراس </b>"
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇:`{link}`\n ✧╎تم التحميـل بواسطـة آراس </b>"
     chat = "@story_repost_bot"
-    zed = await edit_or_reply(event, "**⎉╎جـارِ التحميل من الانستـا .. انتظر قليلا ▬▭**")
+    zed = await edit_or_reply(event, "** ⌔╎جـارِ التحميل من الانستـا .. انتظر قليلا ▬▭**")
     async with borg.conversation(chat) as conv:
         try:
             await conv.send_message("/start")

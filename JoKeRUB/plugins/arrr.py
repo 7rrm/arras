@@ -19,31 +19,31 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("مساعده") and event.query.user_id == bot.uid:
             buttons = [
-                [Button.inline("اوامر الادمن 🧑‍💻", data="l313l0")],
+                [Button.inline("اوامر الادمن 🧑‍💻", data="ljsjs")],
                 [
-                    Button.inline("اوامر البوت 🤖", data="rozbot"),
-                    Button.inline("الحساب 🆔", data="Jmrz"),
-                    Button.inline("المجموعات 👥", data="gro"),
+                    Button.inline("اوامر البوت 🤖", data="rozbonsnst"),
+                    Button.inline("الحساب 🆔", data="Jmrssbz"),
+                    Button.inline("المجموعات 👥", data="grsbsbo"),
                 ],
                 [
-                    Button.inline("الصيغ & الجهات ⚡", data="sejrz"),
-                    Button.inline("الحماية & تلكراف ⚓", data="grrz"),
+                    Button.inline("الصيغ & الجهات ⚡", data="sejbsbsrz"),
+                    Button.inline("الحماية & تلكراف ⚓", data="gbsbrrz"),
                 ],
                 [
-                    Button.inline("اوامر التسلية 💫", data="tslrzj"),
-                    Button.inline("الترحيبات & الردود 👋", data="r7brz"),
+                    Button.inline("اوامر التسلية 💫", data="tslrzbzbsj"),
+                    Button.inline("الترحيبات & الردود 👋", data="r7brsbsbsz"),
                 ],
                 [
-                    Button.inline("اومر المساعدة ✨", data="krrznd"),
-                    Button.inline("الملصقات وصور 🌃", data="jrzst"),
+                    Button.inline("اومر المساعدة ✨", data="krrzbsbsnd"),
+                    Button.inline("الملصقات وصور 🌃", data="jrzsbzbzzt"),
                 ],
                 [
-                    Button.inline("التكرار والتنظيف 🚮", data="krrznd"),
-                    Button.inline("الترفيـه ✨", data="rfhrz"),
+                    Button.inline("التكرار والتنظيف 🚮", data="krrbzbssznd"),
+                    Button.inline("الترفيـه ✨", data="rfhbsbrz"),
                 ],
                 [
-                    Button.inline("الأكستـرا ⚡", data="iiers"),
-                    Button.inline("الانتحال والتقليد 🗣️", data="uscuxrz"),
+                    Button.inline("الأكستـرا ⚡", data="iierbzbzs"),
+                    Button.inline("الانتحال والتقليد 🗣️", data="uscuxbzbzrz"),
                 ],
             ]
             if JEP_IC and JEP_IC.endswith((".jpg", ".png", "gif", "mp4")):

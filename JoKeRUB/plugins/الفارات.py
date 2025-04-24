@@ -845,6 +845,7 @@ async def _(malatha):
     if malatha.fwd_from:
         return
     zed = await edit_or_reply(malatha, "**⎉╎جـاري اضـافة فـار الصـورة الوقتـي الـى بـوتك ...**")
+    
     if not os.path.isdir(Config.TEMP_DIR):
         os.makedirs(Config.TEMP_DIR)
     
@@ -853,41 +854,44 @@ async def _(malatha):
         input_str = malatha.pattern_match.group(1)
         
         if input_str in ["الوقتي", "البروفايل"]:
+            # تحميل الميديا
             downloaded_file_name = await malatha.client.download_media(
                 r_message, Config.TEMP_DIR
             )
             await zed.edit(f"** ⪼ تم تحميل** {downloaded_file_name} **.. بنجـاح ✓**")
             
-            if downloaded_file_name.endswith((".webp")):
+            # تعديل صيغة webp إذا لزم الأمر
+            if downloaded_file_name.endswith(".webp"):
                 resize_image(downloaded_file_name)
-                
-            try:
-                with open(downloaded_file_name, "rb") as f:
-                    data = f.read()
-                    resp = requests.post("https://envs.sh", files={"file": data})
-                    if resp.status_code == 200:
-                        vinfo = resp.text
-                    else:
-                        os.remove(downloaded_file_name)
-                        return await zed.edit("**- حدث خطأ أثناء رفع الميديا**\n**- حاول مجدداً لاحقاً**")
-            except Exception as exc:
-                await zed.edit(f"**⎉╎خطأ : **{str(exc)}")
-                os.remove(downloaded_file_name)
-                return
-                
-            os.remove(downloaded_file_name)
-            addgvar("DIGITAL_PIC", vinfo)
             
             try:
-                await malatha.client.send_file(
-                    malatha.chat_id,
-                    vinfo,
-                    caption="**⎉╎تم تغيير صورة {} بنجاح ☑️**\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str),
-                )
+                # رفع الصورة إلى telegraph
+                media_urls = upload_file(downloaded_file_name)
+                if not media_urls:
+                    return await zed.edit("**⎉╎فشل في رفع الصورة إلى Telegraph!**")
+                
+                # الحصول على الرابط مباشرة
+                vinfo = media_urls[0] if isinstance(media_urls, list) else media_urls
+                
+                # حفظ المتغير
+                addgvar("DIGITAL_PIC", vinfo)
+                
+                # محاولة إرسال الصورة
+                try:
+                    await malatha.client.send_file(
+                        malatha.chat_id,
+                        vinfo,
+                        caption=f"**⎉╎تم تغيير صورة {input_str} بنجاح ☑️**\n**⎉╎قنـاة السـورس:** @ZThon",
+                    )
+                except Exception as e:
+                    await zed.edit(f"**⎉╎تم تغيير الصورة بنجاح!**\n**⎉╎يمكنك استخدام المتغير:** `{vinfo}`")
+                
                 await zed.delete()
-            except ChatSendMediaForbiddenError:
-                await zed.edit("**⎉╎تم تغيير صورة {} بنجاح ☑️**\n**⎉╎المتغير:** `{}`\n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
+                
             except Exception as e:
-                await zed.edit(f"**⎉╎حدث خطأ أثناء الإرسال:** {str(e)}")
+                await zed.edit(f"**⎉╎حدث خطأ:** {str(e)}")
+            finally:
+                if os.path.exists(downloaded_file_name):
+                    os.remove(downloaded_file_name)
     else:
-        await zed.edit("**⎉╎بالرد على صورة لتعيين فار الصورة الوقتية**")
+        await zed.edit("**⎉╎يجب الرد على صورة لتعيينها كصورة وقتية**")

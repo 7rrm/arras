@@ -14,13 +14,13 @@ plugin_category = "utils"
 # =========================================================== #
 #                           الثـوابت                           #
 # =========================================================== #
-STAT_INDICATION = "**᯽︙ جـاري جـمـع الإحصـائيـات انتـظـر ⏱ **"
-CHANNELS_STR = "**᯽︙ قائمة القنوات التي أنت فيها موجودة هنا\n\n"
-CHANNELS_ADMINSTR = "**᯽︙ قائمة القنوات التي انت مشـرف بهـا **\n\n"
-CHANNELS_OWNERSTR = "**᯽︙ قائمة القنوات التي تـكون انت مالكـها**\n\n"
-GROUPS_STR = "**᯽︙ قائمة المجموعات التي أنت فيها موجود فيـها**\n\n"
-GROUPS_ADMINSTR = "**᯽︙ قائمة المجموعات التي تكون مشـرف بهـا**\n\n"
-GROUPS_OWNERSTR = "**᯽︙ قائمة المجموعات التي تـكون انت مالكـها**\n\n"
+STAT_INDICATION = "**✧︙ جـاري جـمـع الإحصـائيـات انتـظـر ⏱ **"
+CHANNELS_STR = "**✧︙ قائمة القنوات التي أنت فيها موجودة هنا\n\n"
+CHANNELS_ADMINSTR = "**✧︙ قائمة القنوات التي انت مشـرف بهـا **\n\n"
+CHANNELS_OWNERSTR = "**✧︙ قائمة القنوات التي تـكون انت مالكـها**\n\n"
+GROUPS_STR = "**✧︙ قائمة المجموعات التي أنت فيها موجود فيـها**\n\n"
+GROUPS_ADMINSTR = "**✧︙ قائمة المجموعات التي تكون مشـرف بهـا**\n\n"
+GROUPS_OWNERSTR = "**✧︙ قائمة المجموعات التي تـكون انت مالكـها**\n\n"
 # =========================================================== #
 #                                                             #
 # =========================================================== #
@@ -99,124 +99,70 @@ async def stats(event):  # sourcery no-metrics
     stop_time = time.time() - start_time
     full_name = inline_mention(await event.client.get_me())
     response = f"✛━━━━━━━━━━━━━✛ \n"
-    response += f"**᯽︙ الدردشات الخاصة ️  :** {private_chats} \n"
-    response += f"**᯽︙ المستخـدمين : {private_chats - bots} \n"
-    response += f"**᯽︙ الـبوتـات :** {bots} \n"
-    response += f"**᯽︙ المجـموعـات :** {groups} \n"
-    response += f"**᯽︙ القنـوات  :** {broadcast_channels} \n"
-    response += f"**᯽︙ المجـموعات التـي تكـون فيها مشرف  :** {admin_in_groups} \n"
-    response += f"**᯽︙ المجموعات التـي تـكون انت مالكـها  **: {creator_in_groups} \n"
-    response += f"**᯽︙ القنوات التـي تكـون فيها مشـرف :** {admin_in_broadcast_channels} \n"
+    response += f"**✧︙ الدردشات الخاصة ️  :** {private_chats} \n"
+    response += f"**✧︙ المستخـدمين : {private_chats - bots} \n"
+    response += f"**✧︙ الـبوتـات :** {bots} \n"
+    response += f"**✧︙ المجـموعـات :** {groups} \n"
+    response += f"**✧︙ القنـوات  :** {broadcast_channels} \n"
+    response += f"**✧︙ المجـموعات التـي تكـون فيها مشرف  :** {admin_in_groups} \n"
+    response += f"**✧︙ المجموعات التـي تـكون انت مالكـها  **: {creator_in_groups} \n"
+    response += f"**✧︙ القنوات التـي تكـون فيها مشـرف :** {admin_in_broadcast_channels} \n"
     response += (
-        f"**᯽︙ صلاحيات الاشـراف  :** {admin_in_broadcast_channels - creator_in_channels} \n"
+        f"**✧︙ صلاحيات الاشـراف  :** {admin_in_broadcast_channels - creator_in_channels} \n"
     )
-    response += f"**᯽︙ المحـادثـات الغيـر مقـروء**: {unread} \n"
-    response += f"**᯽︙ الـتاكـات الغيـر مقـروء** : {unread_mentions} \n"
+    response += f"**✧︙ المحـادثـات الغيـر مقـروء**: {unread} \n"
+    response += f"**✧︙ الـتاكـات الغيـر مقـروء** : {unread_mentions} \n"
     response += f"✛━━━━━━━━━━━━━✛\n"
     await cat.edit(response)
         
 @l313l.ar_cmd(
-    pattern="كروباته(?:\s|$)([\s\S]*)",
-    command=("كروباته", plugin_category),
-    info={
-        "header": "To get list of public groups of repled person or mentioned person.",
-        "usage": "{tr}ustat <reply/userid/username>",
-    },
+    pattern="قنواتي (الكل|ادمن|مالك)$",
 )
-async def _(event):
-    "To get replied users public groups."
-    input_str = "".join(event.text.split(maxsplit=1)[1:])
-    reply_message = await event.get_reply_message()
-    if not input_str and not reply_message:
-        return await edit_delete(
-            event,
-            "᯽︙ يجـب وضع ايدي الشخـص او معـرفه او بالرد عليه"
-         )
-    if input_str:
-        try:
-            uid = int(input_str)
-        except ValueError:
-            try:
-                u = await event.client.get_entity(input_str)
-            except ValueError:
-                await edit_delete(
-                    event, "᯽︙ يجـب وضع ايدي الشخـص او معـرفه اولا"
-                )
-            uid = u.id
-    else:
-        uid = reply_message.sender_id
-    chat = "@tgscanrobot"
-    catevent = await edit_or_reply(event, "**-**")
-    async with event.client.conversation(chat) as conv:
-        try:
-            await conv.send_message(f"{uid}")
-        except Exception:
-            await edit_delete(catevent, "`unblock `@tgscanrobot` and then try`")
-        response = await conv.get_response()
-        await event.client.send_read_ackno
-
-@l313l.on(admin_cmd(pattern="قائمه (جميع القنوات|القنوات المشرف عليها|قنواتي)"))
-async def ViewChJok(event):  
+async def stats(event):  # sourcery no-metrics
     catcmd = event.pattern_match.group(1)
-    catevent = await edit_or_reply(event, STAT_INDICATION)
+    zedevent = await edit_or_reply(event, STAT_INDICATION)
     start_time = time.time()
-    cat = base64.b64decode("YnkybDJvRG04WEpsT1RBeQ==")
     hi = []
     hica = []
     hico = []
     async for dialog in event.client.iter_dialogs():
         entity = dialog.entity
         if isinstance(entity, Channel) and entity.broadcast:
-            channel_name = entity.title
-            channel_id = entity.id
-            is_owner = entity.creator
-            is_admin = entity.admin_rights
-            if entity.username:
-                if entity.megagroup:  # قناة عامة
-                    channel_link = f"{channel_name} ({entity.username})"
-                else:  # قناة خاصة
-                    channel_link = f"[{channel_name}](https://t.me/{entity.username})"
-                if is_owner:
-                    hico.append(channel_link)
-                if is_admin:
-                    hica.append(channel_link)
-                if not is_owner and not is_admin:
-                    hi.append(channel_link)
-            else:
-                if entity.megagroup:  # قناة عامة
-                    channel_link = f"{channel_name}"
-                else:  # قناة خاصة
-                    channel_link = f"[{channel_name}](https://t.me/c/{channel_id}/1)"
-                if is_owner:
-                    hico.append(channel_link)
-                if is_admin:
-                    hica.append(channel_link)
-                if not is_owner and not is_admin:
-                    hi.append(channel_link)
-    if catcmd == "جميع القنوات":
+            hi.append([entity.title, entity.id])
+            if entity.creator or entity.admin_rights:
+                hica.append([entity.title, entity.id])
+            if entity.creator:
+                hico.append([entity.title, entity.id])
+    
+    if catcmd == "الكل":
         output = CHANNELS_STR
-        for k, channel in enumerate(hi, start=1):
-            output += f"{k}• {channel}\n"
-    elif catcmd == "القنوات المشرف عليها":
+        for i in hi:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(hi)
+    elif catcmd == "ادمن":
         output = CHANNELS_ADMINSTR
-        for k, channel in enumerate(hica, start=1):
-            output += f"{k}• {channel}\n"
-    elif catcmd == "قنواتي":
+        for i in hica:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(hica)
+    elif catcmd == "مالك":
         output = CHANNELS_OWNERSTR
-        for k, channel in enumerate(hico, start=1):
-            output += f"{k}• {channel}\n"
+        for i in hico:
+            output += f"⌔︙ [{i[0]}](https://t.me/c/{i[1]}/1)\n"
+        count = len(hico)
+    
     stop_time = time.time() - start_time
+    output += f"\n**⌔︙ العدد الإجمالي: {count} قناة**"
+    output += f"\n**- الوقت المستغرق: {stop_time:.02f} ثانية**"
+    
     try:
-        cat = Get(cat)
-        await event.client(cat)
-    except BaseException:
-        pass
-    output += f"\n\n**استغرق حساب القنوات: **{stop_time:.02f} ثانية"
-    try:
-        await catevent.edit(output)
+        await zedevent.edit(output)
     except Exception:
-        await edit_or_reply(catevent, output)
-        
+        await edit_or_reply(
+            zedevent,
+            output,
+            caption=caption,
+        )
+
 @l313l.ar_cmd(
     pattern="كروباتي (الكل|ادمن|مالك)$",
 )

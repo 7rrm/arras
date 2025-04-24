@@ -31,7 +31,7 @@ LOGS = logging.getLogger(__name__)
 plugin_category = "utils"
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="المشرفين(?:\s|$)([\s\S]*)",
     command=("المشرفين", plugin_category),
     info={

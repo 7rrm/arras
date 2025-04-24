@@ -19,7 +19,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("مساعده") and event.query.user_id == bot.uid:
             buttons = [
-                [Button.inline("البـحـث والتحميـل 🪄", data="search_download")],
+                [Button.inline("البـحـث والتحميـل 🪄", data="search_download_menu")],
             ]
             if JEP_IC and JEP_IC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
@@ -44,24 +44,24 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     async def show_main_menu(event):
         buttons = [
-            [Button.inline("البـحـث والتحميـل 🪄", data="search_download")],
+            [Button.inline("البـحـث والتحميـل 🪄", data="search_download_menu")],
         ]
         await event.edit(
             text=ROE,
             buttons=buttons
         )
 
-    @tgbot.on(events.CallbackQuery(pattern="search_download"))
+    @tgbot.on(events.CallbackQuery(pattern=r"search_download_menu"))
     async def search_download_buttons(event):
         await event.edit(
             text="**♰ قائمة البحث والتحميل ♰**",
             buttons=[
-                [Button.inline("بحـث", data="search"), Button.inline("فـيديو", data="video")],
-                [Button.inline("سـاونـد", data="sound")],
-                [Button.inline("تحميل صوت", data="download_sound"), Button.inline("تحميل فـيديو", data="download_video")],
-                [Button.inline("سـناب", data="snap")],
-                [Button.inline("انـستـا", data="insta"), Button.inline("فـيسبـوك", data="facebook")],
-                [Button.inline("بـنترسـت", data="pinterest")],
+                [Button.inline("بحـث", data="search_cmd"), Button.inline("فـيديو", data="video_cmd")],
+                [Button.inline("سـاونـد", data="sound_cmd")],
+                [Button.inline("تحميل صوت", data="download_sound_cmd"), Button.inline("تحميل فـيديو", data="download_video_cmd")],
+                [Button.inline("سـناب", data="snap_cmd")],
+                [Button.inline("انـستـا", data="insta_cmd"), Button.inline("فـيسبـوك", data="facebook_cmd")],
+                [Button.inline("بـنترسـت", data="pinterest_cmd")],
                 [Button.inline("رجـوع", data="main_menu")]
             ]
         )
@@ -82,9 +82,9 @@ async def repo(event):
     await response[0].click(event.chat_id)
     await event.delete()
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"search")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"search_cmd")))
 @check_owner
-async def _(event):
+async def search_command(event):
     await event.edit(
         """[ᯓ  𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اوامــر البحـث والتحميــل 🛰](t.me/ZThon) .
 **- الامـر :**
@@ -99,6 +99,6 @@ async def _(event):
 **- مثـال :**
 `.بحث حسين الجسمي احبك`""",
         buttons=[
-            [Button.inline("رجوع", data="search_download")],
+            [Button.inline("رجوع", data="search_download_menu")],
         ],
     link_preview=False)

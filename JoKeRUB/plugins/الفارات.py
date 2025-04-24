@@ -9,6 +9,7 @@ from JoKeRUB import l313l
 
 from ..Config import Config
 from ..core.managers import edit_delete, edit_or_reply
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

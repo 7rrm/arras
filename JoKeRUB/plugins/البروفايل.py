@@ -30,7 +30,7 @@ USERNAME_TAKEN = "**᯽︙  هذا المعرف مستخدم ⌁ ،**"
 #ياعلي مدد
 
 @l313l.ar_cmd(
-    pattern="وضع بايو (.*)",
+    pattern="البايو وضع (.*)",
     command=("وضع بايو", plugin_category),
     info={
         "header": "To set bio for this account.",
@@ -48,7 +48,7 @@ async def _(event):
 
 
 @l313l.ar_cmd(
-    pattern="وضع اسم (.*)",
+    pattern="الاسم وضع (.*)",
     command=("وضع اسم", plugin_category),
     info={
         "header": "To set/change name for this account.",
@@ -74,7 +74,7 @@ async def _(event):
 
 
 @l313l.ar_cmd(
-    pattern="وضع صورة$",
+    pattern="الصوره وضع$",
     command=("وضع صورة", plugin_category),
     info={
         "header": "To set profile pic for this account.",
@@ -98,7 +98,7 @@ async def _(event):
         await catevent.edit(str(e))
     else:
         if photo:
-            await catevent.edit("᯽︙ أنتـظر قلـيلا ")
+            await catevent.edit("✧︙ أنتـظر قلـيلا ")
             if photo.endswith((".mp4", ".MP4")):
                 # https://t.me/tgbetachat/324694
                 size = os.stat(photo).st_size
@@ -130,7 +130,7 @@ async def _(event):
 
 
 @l313l.ar_cmd(
-    pattern="وضع معرف (.*)",
+    pattern="المعرف وضع (.*)",
     command=("وضع معرف", plugin_category),
     info={
         "header": "To set/update username for this account.",
@@ -184,17 +184,17 @@ async def count(event):
         else:
             LOGS.info(d)
 
-    result += f"**᯽︙ الأشخاص:**\t**{u}**\n"
-    result += f"**᯽︙ الـمجموعات:**\t**{g}**\n"
-    result += f"**᯽︙ المجموعات الخارقه:**\t**{c}**\n"
-    result += f"**᯽︙ القنوات:**\t**{bc}**\n"
-    result += f"**᯽︙ البوتات:**\t**{b}**"
+    result += f"**✧︙ الأشخاص:**\t**{u}**\n"
+    result += f"**✧︙ الـمجموعات:**\t**{g}**\n"
+    result += f"**✧︙ المجموعات الخارقه:**\t**{c}**\n"
+    result += f"**✧︙ القنوات:**\t**{bc}**\n"
+    result += f"**✧︙ البوتات:**\t**{b}**"
 
     await catevent.edit(result)
 
 
 @l313l.ar_cmd(
-    pattern="حذف صوره ?(.*)",
+    pattern="الصوره حذف ?(.*)",
     command=("حذف صوره", plugin_category),
     info={
         "header": "To delete profile pic for this account.",

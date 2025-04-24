@@ -88,82 +88,44 @@ async def delete_it(event):
     elif not input_str:
         await event.delete()
 
-async def get_messages_count(client, chat_id, from_user=None, limit=None):
-    """
-    دالة مخصصة لحساب عدد الرسائل بأقصى سرعة ممكنة
-    """
-    count = 0
-    async for _ in client.iter_messages(
-        chat_id,
-        from_user=from_user,
-        limit=limit
-    ):
-        count += 1
-    return count
 
 
-@l313l.ar_cmd(
-    pattern="رسائلي$",
-    command=("رسائلي", plugin_category),
-    info={
-        "header": "لعرض عدد رسائلك في الدردشة",
-        "description": "يظهر عدد الرسائل التي أرسلتها في الدردشة الحالية (خاص أو مجموعة)",
-        "usage": "{tr}رسائلي",
-    },
-)
-async def my_messages_count(event):
-    "لعرض عدد رسائلك في الدردشة بأقصى سرعة"
-    try:
-        count = await get_messages_count(
-            event.client,
-            event.chat_id,
-            from_user='me',
-            limit=None
-        )
-        await edit_or_reply(event, f"↯︙ عـدد رسائـلك في هذه المـحادثة: `{count}` **رسالة**")
-    except Exception as e:
-        await edit_or_reply(event, f"↯︙ حدث خطأ أثناء العد: `{str(e)}`")
+@l313l.ar_cmd(pattern="رسائلي$")
+async def zed(event):
+    zzm = "me"
+    a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
+    await edit_or_reply(event, f"**✧╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
 
 
-@l313l.ar_cmd(
-    pattern="رسائله(?: |$)(.*)",
-    command=("رسائله", plugin_category),
-    info={
-        "header": "لعرض عدد رسائل المستخدم",
-        "description": "يظهر عدد رسائل المستخدم الذي تم الرد عليه أو تحديده باليوزر",
-        "usage": [
-            "{tr}رسائله بالرد على المستخدم",
-            "{tr}رسائله + يوزر المستخدم",
-        ],
-    },
-)
-async def user_messages_count(event):
-    "لعرض عدد رسائل المستخدم بأقصى سرعة"
-    reply = await event.get_reply_message()
-    input_str = event.pattern_match.group(1)
-    
-    if reply:
-        user_id = reply.sender_id
-    elif input_str:
-        try:
-            user = await event.client.get_entity(input_str)
-            user_id = user.id
-        except ValueError:
-            return await edit_or_reply(event, "↯︙ لم يتم العثور على المستخدم!")
+@l313l.ar_cmd(pattern="رسائله ?(.*)")
+async def zed(event):
+    k = await event.get_reply_message()
+    if k:
+        a = await bot.get_messages(event.chat_id, 0, from_user=k.sender_id)
+        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+    zzm = event.pattern_match.group(1)
+    if zzm:
+        a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
+        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
     else:
-        return await edit_or_reply(event, "↯︙ يجب الرد على المستخدم أو كتابة يوزره مع الأمر!")
-    
-    try:
-        count = await get_messages_count(
-            event.client,
-            event.chat_id,
-            from_user=user_id,
-            limit=None
-        )
-        user = await event.client.get_entity(user_id)
-        await edit_or_reply(event, f"↯︙ عـدد رسائـل [{user.first_name}](tg://user?id={user.id}) فـي هـذه المـحادثة: `{count}` **رسالة**")
-    except Exception as e:
-        await edit_or_reply(event, f"᯽︙ حدث خطأ أثناء العد: `{str(e)}`")
+        await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
+
+
+@l313l.ar_cmd(pattern="(الرسائل|رسائل) ?(.*)")
+async def zed(event):
+    k = await event.get_reply_message()
+    if k:
+        a = await bot.get_messages(event.chat_id, 0, from_user=k.sender_id)
+        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+    zzm = event.pattern_match.group(1)
+    if zzm:
+        a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
+        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+    else:
+        await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
+
+
+
 
 @l313l.ar_cmd(
     pattern="مسح رسائلي$",

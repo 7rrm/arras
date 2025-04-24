@@ -168,7 +168,6 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
-
 @l313l.ar_cmd(pattern=f"{PAUTO}$")
 async def _(event):
     zed = await edit_or_reply(event, "**• جـارِ تفعيـل البروفايـل الوقتـي ⅏. . .**")
@@ -178,27 +177,40 @@ async def _(event):
         download_big=True,
     )
     try:
+        # استبدال هذا الجزء
         media_urls = upload_file(downloaded_file_name)
+        # بهذا
+        media_urls = upload_file(downloaded_file_name)
+        if isinstance(media_urls, str):
+            # إذا كانت النتيجة سلسلة نصية (رابط مباشر)
+            vinfo = media_urls
+        else:
+            # إذا كانت النتيجة قاموس
+            vinfo = "https://graph.org{}".format(media_urls[0])
     except exceptions.TelegraphException as exc:
         await zed.edit("**⎉╎خطا : **" + str(exc))
         os.remove(downloaded_file_name)
+        return
     else:
         os.remove(downloaded_file_name)
-        vinfo = ("https://graph.org{}".format(media_urls[0]))
         addgvar("DIGITAL_PIC", vinfo)
 
     digitalpfp = gvarstatus("DIGITAL_PIC")
+    if not digitalpfp:
+        return await edit_delete(event, "**- فار الصـورة الوقتيـه غيـر موجـود ؟!**\n**- ارسـل صورة ثم قم بالـرد عليهـا بالامـر :**\n\n`.اضف صورة الوقتي`")
+    
     downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
     downloader.start(blocking=False)
     while not downloader.isFinished():
         pass
-    if gvarstatus("DIGITAL_PIC") is None:
-        return await edit_delete(event, "**- فار الصـورة الوقتيـه غيـر موجـود ؟!**\n**- ارسـل صورة ثم قم بالـرد عليهـا بالامـر :**\n\n`.اضف صورة الوقتي`")
-    if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
+        
+    if gvarstatus("digitalpic") == "true":
         return await edit_delete(event, "**⎉╎البروفـايل الوقتـي .. تم تفعيلهـا سابقـاً**")
+        
     addgvar("digitalpic", True)
     await zed.edit("<b>⎉╎تـم بـدء البروفايـل الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف البروفايـل الوقتـي ↶ <a href = https://t.me/zzzvrr/24>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await digitalpicloop()
+
 
 
 @l313l.ar_cmd(pattern=f"{NAUTO}$")

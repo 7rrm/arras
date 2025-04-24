@@ -175,12 +175,11 @@ async def _(event):
     zed = await edit_or_reply(event, "**• جـارِ تفعيـل البروفايـل الوقتـي ⅏. . .**")
     
     if input_str:
-        # تحقق من أن الرابط يحتوي على امتداد صورة
-        valid_extensions = ['.jpg', '.jpeg', '.png', '.webp']
-        if any(input_str.lower().endswith(ext) for ext in valid_extensions):
+        # إذا تم إدخال رابط مباشر
+        if input_str.startswith("http"):
             addgvar("DIGITAL_PIC", input_str)
         else:
-            return await zed.edit("**⎉╎يجب إدخال رابط صورة صحيح (jpg, jpeg, png, webp)!**")
+            return await zed.edit("**⎉╎يجب إدخال رابط صورة صحيح!**")
     else:
         # إذا لم يتم إدخال رابط، نرفع صورة الملف الشخصي
         downloaded_file_name = await event.client.download_profile_photo(
@@ -212,21 +211,17 @@ async def _(event):
     if not digitalpfp:
         return await edit_delete(event, "**- فار الصـورة الوقتيـه غيـر موجـود ؟!**\n**- يمكنك إرسال رابط صورة مع الأمر أو استخدام `.اضف صورة الوقتي`**")
 
-    try:
-        downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
-        downloader.start(blocking=False)
-        while not downloader.isFinished():
-            pass
-    except Exception as e:
-        return await zed.edit(f"**⎉╎خطأ في تحميل الصورة: {str(e)}**")
-
+    downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
+    downloader.start(blocking=False)
+    while not downloader.isFinished():
+        pass
+        
     if gvarstatus("digitalpic") == "true":
         return await edit_delete(event, "**⎉╎البروفـايل الوقتـي .. تم تفعيلهـا سابقـاً**")
         
     addgvar("digitalpic", True)
     await zed.edit("<b>⎉╎تـم بـدء البروفايـل الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف البروفايـل الوقتـي ↶ <a href = https://t.me/zzzvrr/24>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await digitalpicloop()
-
 
 @l313l.ar_cmd(pattern=f"{NAUTO}$")
 async def _(event):

@@ -917,3 +917,4 @@ async def zelzal_insta(event):
             await asyncio.sleep(2)
             await event.client(DeleteHistoryRequest(1332941342, max_id=0, just_clear=True))
             
+

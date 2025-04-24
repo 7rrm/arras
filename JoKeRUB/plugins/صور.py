@@ -20,64 +20,69 @@ async def _(event):
         return
     start = datetime.now()
     await event.edit("**╮ ❐ جـاري البحث عن الصـور  ...𓅫╰**")
-    zedthon = event.pattern_match.group(1)
-    wzed_dir = os.path.join(
-        Config.TMP_DOWNLOAD_DIRECTORY,
-        zedthon
-    )
-    if not os.path.isdir(wzed_dir):
-        os.makedirs(wzed_dir)
+    query = event.pattern_match.group(1)
+    download_dir = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, query)
+    
+    if not os.path.isdir(download_dir):
+        os.makedirs(download_dir)
+    
     input_url = "https://bots.shrimadhavuk.me/search/"
     headers = {"USER-AGENT": "UseTGBot"}
-    url_lst = []
-    async with aiohttp.ClientSession() as requests:
-        data = {
-            "q": zedthon,
-            "app_id": ZELZAL_APP_ID,
-            "p": "GoogleImages"
-        }
-        reponse = await requests.get(
-            input_url,
-            params=data,
-            headers=headers
-        )
-        response = await reponse.json()
-        for result in response["results"]:
-            if len(url_lst) > 9:
-                break
-            caption = result.get("description")
-            image_url = result.get("url")
-            image_req_set = await requests.get(image_url)
-            image_file_name = str(time.time()) + "" + guess_extension(
-                image_req_set.headers.get("Content-Type")
-            )
-            image_save_path = os.path.join(
-                wzed_dir,
-                image_file_name
-            )
-            with open(image_save_path, "wb") as f_d:
-                f_d.write(await image_req_set.read())
-            url_lst.append(image_save_path)
-    if not url_lst:
-        await event.edit(f"**- اووبـس .. لم استطـع ايجـاد صـور عـن {zedthon} ؟!**\n**- حـاول مجـدداً واكتـب الكلمـه بشكـل صحيح**")
+    image_paths = []
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {
+                "q": query,
+                "app_id": ZELZAL_APP_ID,
+                "p": "GoogleImages"
+            }
+            response = await session.get(input_url, params=data, headers=headers)
+            result = await response.json()
+            
+            for item in result.get("results", [])[:10]:  # الحد الأقصى 10 صور
+                image_url = item.get("url")
+                if not image_url:
+                    continue
+                
+                try:
+                    async with session.get(image_url) as img_response:
+                        # معالجة نوع المحتوى بشكل آمن
+                        content_type = img_response.headers.get("Content-Type", "image/jpeg")
+                        ext = guess_extension(content_type) or ".jpg"
+                        filename = f"{int(time.time())}{ext}"
+                        filepath = os.path.join(download_dir, filename)
+                        
+                        with open(filepath, "wb") as f:
+                            f.write(await img_response.read())
+                        image_paths.append(filepath)
+                except Exception as e:
+                    print(f"Failed to download image: {e}")
+                    continue
+    
+        if not image_paths:
+            await event.edit(f"**- لم أتمكن من إيجاد صور لـ {query}**")
+            return
+            
+        await event.reply(file=image_paths, parse_mode="html", force_document=True)
+        
+    except Exception as e:
+        await event.edit(f"**حدث خطأ: {str(e)}**")
         return
-    await event.reply(
-        file=url_lst,
-        parse_mode="html",
-        force_document=True
-    )
-    for each_file in url_lst:
-        os.remove(each_file)
-    shutil.rmtree(wzed_dir, ignore_errors=True)
-    end = datetime.now()
-    ms = (end - start).seconds
-    await event.edit(
-        f"**- اكتمـل البحث عـن {zedthon} في {ms} ثانيـه ✓**",
-        link_preview=False
-    )
-    await asyncio.sleep(5)
-    await event.delete()
-
+    finally:
+        # تنظيف الملفات المؤقتة
+        for file in image_paths:
+            try:
+                os.remove(file)
+            except:
+                pass
+        shutil.rmtree(download_dir, ignore_errors=True)
+        
+        end = datetime.now()
+        ms = (end - start).seconds
+        await event.edit(f"**- اكتمل البحث عن {query} في {ms} ثانية ✓**", link_preview=False)
+        await asyncio.sleep(5)
+        await event.delete()
 
 
 @l313l.ar_cmd(pattern="خلفيات (.*)")
@@ -86,60 +91,66 @@ async def _(event):
         return
     start = datetime.now()
     await event.edit("**╮ ❐ جـاري البحث عن خلفيـات  ...𓅫╰**")
-    zedthon = event.pattern_match.group(1)
-    wzed_dir = os.path.join(
-        Config.TMP_DOWNLOAD_DIRECTORY,
-        zedthon
-    )
-    if not os.path.isdir(wzed_dir):
-        os.makedirs(wzed_dir)
+    query = event.pattern_match.group(1)
+    download_dir = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, query)
+    
+    if not os.path.isdir(download_dir):
+        os.makedirs(download_dir)
+    
     input_url = "https://bots.shrimadhavuk.me/search/"
     headers = {"USER-AGENT": "UseTGBot"}
-    url_lst = []
-    async with aiohttp.ClientSession() as requests:
-        data = {
-            "q": zedthon,
-            "app_id": ZELZAL_APP_ID,
-            "p": "GoogleImages"
-        }
-        reponse = await requests.get(
-            input_url,
-            params=data,
-            headers=headers
-        )
-        response = await reponse.json()
-        for result in response["results"]:
-            if len(url_lst) > 9:
-                break
-            caption = result.get("description")
-            image_url = result.get("url")
-            image_req_set = await requests.get(image_url)
-            image_file_name = str(time.time()) + "" + guess_extension(
-                image_req_set.headers.get("Content-Type")
-            )
-            image_save_path = os.path.join(
-                wzed_dir,
-                image_file_name
-            )
-            with open(image_save_path, "wb") as f_d:
-                f_d.write(await image_req_set.read())
-            url_lst.append(image_save_path)
-    if not url_lst:
-        await event.edit(f"**- اووبـس .. لم استطـع ايجـاد خلفيـات عـن {zedthon} ؟!**\n**- حـاول مجـدداً واكتـب الكلمـه بشكـل صحيح**")
+    image_paths = []
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            data = {
+                "q": query + " خلفيات HD",  # إضافة HD للبحث عن خلفيات عالية الجودة
+                "app_id": ZELZAL_APP_ID,
+                "p": "GoogleImages"
+            }
+            response = await session.get(input_url, params=data, headers=headers)
+            result = await response.json()
+            
+            for item in result.get("results", [])[:10]:  # الحد الأقصى 10 صور
+                image_url = item.get("url")
+                if not image_url:
+                    continue
+                
+                try:
+                    async with session.get(image_url) as img_response:
+                        # معالجة نوع المحتوى بشكل آمن
+                        content_type = img_response.headers.get("Content-Type", "image/jpeg")
+                        ext = guess_extension(content_type) or ".jpg"
+                        filename = f"{int(time.time())}{ext}"
+                        filepath = os.path.join(download_dir, filename)
+                        
+                        with open(filepath, "wb") as f:
+                            f.write(await img_response.read())
+                        image_paths.append(filepath)
+                except Exception as e:
+                    print(f"Failed to download image: {e}")
+                    continue
+    
+        if not image_paths:
+            await event.edit(f"**- لم أتمكن من إيجاد خلفيات لـ {query}**")
+            return
+            
+        await event.reply(file=image_paths, parse_mode="html", force_document=True)
+        
+    except Exception as e:
+        await event.edit(f"**حدث خطأ: {str(e)}**")
         return
-    await event.reply(
-        file=url_lst,
-        parse_mode="html",
-        force_document=True
-    )
-    for each_file in url_lst:
-        os.remove(each_file)
-    shutil.rmtree(wzed_dir, ignore_errors=True)
-    end = datetime.now()
-    ms = (end - start).seconds
-    await event.edit(
-        f"**- اكتمـل البحث عـن {zedthon} في {ms} ثانيـه ✓**",
-        link_preview=False
-    )
-    await asyncio.sleep(5)
-    await event.delete()
+    finally:
+        # تنظيف الملفات المؤقتة
+        for file in image_paths:
+            try:
+                os.remove(file)
+            except:
+                pass
+        shutil.rmtree(download_dir, ignore_errors=True)
+        
+        end = datetime.now()
+        ms = (end - start).seconds
+        await event.edit(f"**- اكتمل البحث عن خلفيات {query} في {ms} ثانية ✓**", link_preview=False)
+        await asyncio.sleep(5)
+        await event.delete()

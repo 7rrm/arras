@@ -169,33 +169,56 @@ async def autobio_loop():
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
 
-@l313l.ar_cmd(pattern=f"{PAUTO}$")
+@l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):
+    input_str = event.pattern_match.group(1)
     zed = await edit_or_reply(event, "**• جـارِ تفعيـل البروفايـل الوقتـي ⅏. . .**")
-    downloaded_file_name = await event.client.download_profile_photo(
-        l313l.uid,
-        Config.TMP_DOWNLOAD_DIRECTORY + str(l313l.uid) + ".jpg",
-        download_big=True,
-    )
-    try:
-        media_urls = upload_file(downloaded_file_name)
-    except exceptions.TelegraphException as exc:
-        await zed.edit("**⎉╎خطا : **" + str(exc))
-        os.remove(downloaded_file_name)
+    
+    if input_str:
+        # إذا تم إدخال رابط مباشر
+        if input_str.startswith("http"):
+            addgvar("DIGITAL_PIC", input_str)
+        else:
+            return await zed.edit("**⎉╎يجب إدخال رابط صورة صحيح!**")
     else:
-        os.remove(downloaded_file_name)
-        vinfo = ("https://graph.org{}".format(media_urls[0]))
-        addgvar("DIGITAL_PIC", vinfo)
+        # إذا لم يتم إدخال رابط، نرفع صورة الملف الشخصي
+        downloaded_file_name = await event.client.download_profile_photo(
+            l313l.uid,
+            Config.TMP_DOWNLOAD_DIRECTORY + str(l313l.uid) + ".jpg",
+            download_big=True,
+        )
+        
+        try:
+            # محاولة رفع الصورة
+            media_urls = upload_file(downloaded_file_name)
+            if isinstance(media_urls, list) and len(media_urls) > 0:
+                vinfo = "https://graph.org{}".format(media_urls[0])
+            elif isinstance(media_urls, str):
+                vinfo = media_urls
+            else:
+                return await zed.edit("**⎉╎فشل في رفع الصورة!**")
+                
+            addgvar("DIGITAL_PIC", vinfo)
+        except Exception as exc:
+            await zed.edit(f"**⎉╎خطا في رفع الصورة: {str(exc)}**")
+            os.remove(downloaded_file_name)
+            return
+        finally:
+            if os.path.exists(downloaded_file_name):
+                os.remove(downloaded_file_name)
 
     digitalpfp = gvarstatus("DIGITAL_PIC")
+    if not digitalpfp:
+        return await edit_delete(event, "**- فار الصـورة الوقتيـه غيـر موجـود ؟!**\n**- يمكنك إرسال رابط صورة مع الأمر أو استخدام `.اضف صورة الوقتي`**")
+
     downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
     downloader.start(blocking=False)
     while not downloader.isFinished():
         pass
-    if gvarstatus("DIGITAL_PIC") is None:
-        return await edit_delete(event, "**- فار الصـورة الوقتيـه غيـر موجـود ؟!**\n**- ارسـل صورة ثم قم بالـرد عليهـا بالامـر :**\n\n`.اضف صورة الوقتي`")
-    if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
+        
+    if gvarstatus("digitalpic") == "true":
         return await edit_delete(event, "**⎉╎البروفـايل الوقتـي .. تم تفعيلهـا سابقـاً**")
+        
     addgvar("digitalpic", True)
     await zed.edit("<b>⎉╎تـم بـدء البروفايـل الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف البروفايـل الوقتـي ↶ <a href = https://t.me/zzzvrr/24>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await digitalpicloop()

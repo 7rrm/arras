@@ -31,28 +31,28 @@ LOGS = logging.getLogger(__name__)
 plugin_category = "utils"
 
 
-@l313l.ar_cmd(
-    pattern="المشرفين(?: |$)(.*)",
+@zedub.zed_cmd(
+    pattern="المشرفين(?:\s|$)([\s\S]*)",
     command=("المشرفين", plugin_category),
     info={
-        "header": "لإظهـار قائمـة المشرفيـن  ✪",
-        "description": "⌔︙سيظهـر لك قائمـة المشرفيـن، وإذا ڪنت تستخـدم هـذا الأمـر في مجموعـة عندهـا سيتـم عمـل تـاك لهـم 💡",
+        "header": "To get list of admins.",
+        "description": "Will show you the list of admins and if you use this in group then will tag them.",
         "usage": [
-            "{tr}المشرفيـن +إسم المستخـدم/معرّف المستخـدم> ✪",
-            "{tr}المشرفيـن + في المجموعـة التي تريدهـا> ✪",
+            "{tr}admins <username/userid>",
+            "{tr}admins <in group where you need>",
         ],
-        "examples": "{tr}المشرفين @l313l",
+        "examples": "{tr}المشرفين + معرف او رابط المجموعه",
     },
 )
 async def _(event):
-    "لإظهـار قائمـة المشرفيـن  ✪"
-    mentions = "**᯽︙ مشرفيـن هـذه المجموعـة  ✪**: \n"
+    "To get list of admins."
+    mentions = "**✧︙المشرفـون في ۿذه المجموعه :** \n"
     reply_message = await reply_id(event)
     input_str = event.pattern_match.group(1)
     to_write_chat = await event.get_input_chat()
     chat = None
     if input_str:
-        mentions = f"**⌔︙مشرفيـن فـي → :** {input_str} **مـن المجموعـات ⌂ :** \n"
+        mentions = f"** ⪼ المشرفـون في {input_str} :** \n"
         try:
             chat = await event.client.get_entity(input_str)
         except Exception as e:
@@ -60,13 +60,13 @@ async def _(event):
     else:
         chat = to_write_chat
         if not event.is_group:
-            return await edit_or_reply(event, "**᯽︙ هـذه ليسـت مجموعـة ✕**")
+            return await edit_or_reply(event, "هل أنت متأكد من أن هذه مجموعة؟")
     try:
         async for x in event.client.iter_participants(
             chat, filter=ChannelParticipantsAdmins
         ):
             if not x.deleted and isinstance(x.participant, ChannelParticipantCreator):
-                mentions += "\n - [{}](tg://user?id={}) `{}`".format(
+                mentions += "\n⌔╎ المالك [{}](tg://user?id={}) `{}`".format(
                     x.first_name, x.id, x.id
                 )
         mentions += "\n"
@@ -75,13 +75,12 @@ async def _(event):
         ):
             if x.deleted:
                 mentions += "\n `{}`".format(x.id)
-            else:
-                if isinstance(x.participant, ChannelParticipantAdmin):
-                    mentions += "\n- [{}](tg://user?id={}) `{}`".format(
-                        x.first_name, x.id, x.id
-                    )
+            elif isinstance(x.participant, ChannelParticipantAdmin):
+                mentions += "\n ⪼ [{}](tg://user?id={}) `{}`".format(
+                    x.first_name, x.id, x.id
+                )
     except Exception as e:
-        mentions += " " + str(e) + "\n"
+        mentions += f" {str(e)}" + "\n"
     await event.client.send_message(event.chat_id, mentions, reply_to=reply_message)
     await event.delete()
 

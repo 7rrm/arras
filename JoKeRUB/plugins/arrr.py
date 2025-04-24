@@ -5,8 +5,6 @@ from JoKeRUB import l313l
 from ..core import check_owner
 from ..Config import Config
 
-# الصورة الرئيسية للقائمة
-JEP_IC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 ROE = "**♰ هـذه هي قائمة اوامـر السـورس ♰**"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -21,25 +19,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             buttons = [
                 [Button.inline("البـحـث والتحميـل 🪄", data="search_download_menu")],
             ]
-            if JEP_IC and JEP_IC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(
-                    JEP_IC, text=ROE, buttons=buttons, link_preview=False
-                )
-            elif JEP_IC:
-                result = builder.document(
-                    JEP_IC,
-                    title="JoKeRUB",
-                    text=ROE,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-            else:
-                result = builder.article(
-                    title="JoKeRUB",
-                    text=ROE,
-                    buttons=buttons,
-                    link_preview=False,
-                )
+            result = builder.article(
+                title="JoKeRUB",
+                text=ROE,
+                buttons=buttons,
+                link_preview=False,
+            )
             await event.answer([result] if result else None)
 
     async def show_main_menu(event):

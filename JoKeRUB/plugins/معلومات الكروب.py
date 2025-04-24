@@ -140,53 +140,51 @@ async def zelzal(zed):
 
 
 @l313l.ar_cmd(
-    pattern="الاعضاء(?: |$)(.*)",
+    pattern="الاعضاء(?:\s|$)([\s\S]*)",
     command=("الاعضاء", plugin_category),
     info={
-        "header": "⌔︙لإظهـار قائمـة الأعضـاء 𖤍",
-        "description": "⌔︙سيظهـر لك قائمـة الأعضـاء 𖤍",
-        "note": "⌔︙هناك حـدّ في هـذا، لايمڪنك الحصـول على أڪثر من 10 آلاف عضـو ꉩ",
+        "header": "To get list of users.",
+        "description": "Will show you the list of users.",
+        "note": "There was limitation in this you cant get more 10k users",
         "usage": [
-            "{tr}الأعضاء + إسم المستخـدم/معرّف المستخـدم",
-            "{tr}الأعضاء + في المجموعـة التي تريدهـا",
+            "{tr}users <username/userid>",
+            "{tr}users <in group where you need>",
         ],
     },
 )
 async def get_users(show):
-    "᯽︙ لإظهـار قائمـة الأعضـاء 𖤍"
-    mentions = "**مستخدمين هذه المجموعة**: \n"
+    "To get list of Users."
+    mentions = "**✧╎الأعضـاء فـي هـذه المجموعـة 𓎤:**\n\n"
     await reply_id(show)
-    input_str = show.pattern_match.group(1)
-    if input_str:
-        mentions = "**᯽︙ الأعضاء في {} من المجموعات 𖤍  :** \n".format(input_str)
+    if input_str := show.pattern_match.group(1):
+        mentions = "**✧╎الأعضاء في {} من المجموعات 𓎤:**\n".format(input_str)
         try:
             chat = await show.client.get_entity(input_str)
         except Exception as e:
-            return await edit_delete(show, f"`{str(e)}`", 10)
-    else:
-        if not show.is_group:
-            return await edit_or_reply(show, "**᯽︙ هـذه ليسـت مجموعـة ✕**")
-    catevent = await edit_or_reply(show, "**᯽︙ جـاري سحـب قائمـة معرّفـات الأعضـاء 🝛**")
+            return await edit_delete(show, f"`{e}`", 10)
+    elif not show.is_group:
+        return await edit_or_reply(show, "**✧╎هـذه ليسـت مجموعـة ✕**")
+    zedevent = await edit_or_reply(show, "**✧╎جـارِ سحـب قائمـة معرّفـات الأعضـاء 🝛**")
     try:
         if show.pattern_match.group(1):
             async for user in show.client.iter_participants(chat.id):
                 if user.deleted:
-                    mentions += f"\n**᯽︙ الحسـابات المحذوفـة ⌦** `{user.id}`"
+                    mentions += f"\n**✧╎الحسـابات المحذوفـة ⌦** `{user.id}`"
                 else:
                     mentions += (
-                        f"\n[{user.first_name}](tg://user?id={user.id}) `{user.id}`"
+                        f"\n[{user.first_name}](tg://user?id={user.id}) "
                     )
         else:
             async for user in show.client.iter_participants(show.chat_id):
                 if user.deleted:
-                    mentions += f"\n**᯽︙ الحسـابات المحذوفـة ⌦** `{user.id}`"
+                    mentions += f"\n**✧╎الحسـابات المحذوفـة ⌦** `{user.id}`"
                 else:
                     mentions += (
-                        f"\n[{user.first_name}](tg://user?id={user.id}) `{user.id}`"
+                        f"\n[{user.first_name}](tg://user?id={user.id}) "
                     )
     except Exception as e:
-        mentions += " " + str(e) + "\n"
-    await edit_or_reply(catevent, mentions)
+        mentions += f" {str(e)}" + "\n"
+    await edit_or_reply(zedevent, mentions)
 
 
 @l313l.ar_cmd(

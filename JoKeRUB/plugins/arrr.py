@@ -7,7 +7,7 @@ from ..Config import Config
 
 # الصورة الرئيسية للقائمة
 JEP_IC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
-ROE = "**♰ هـذه هي قائمة اوامـر السـورس  ♰**"
+ROE = "**♰ هـذه هي قائمة اوامـر السـورس ♰**"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -19,32 +19,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("مساعده") and event.query.user_id == bot.uid:
             buttons = [
-                [Button.inline("اوامر الادمن 🧑‍💻", data="ljsjs")],
-                [
-                    Button.inline("اوامر البوت 🤖", data="rozbonsnst"),
-                    Button.inline("الحساب 🆔", data="Jmrssbz"),
-                    Button.inline("المجموعات 👥", data="grsbsbo"),
-                ],
-                [
-                    Button.inline("الصيغ & الجهات ⚡", data="sejbsbsrz"),
-                    Button.inline("الحماية & تلكراف ⚓", data="gbsbrrz"),
-                ],
-                [
-                    Button.inline("اوامر التسلية 💫", data="tslrzbzbsj"),
-                    Button.inline("الترحيبات & الردود 👋", data="r7brsbsbsz"),
-                ],
-                [
-                    Button.inline("اومر المساعدة ✨", data="krrzbsbsnd"),
-                    Button.inline("الملصقات وصور 🌃", data="jrzsbzbzzt"),
-                ],
-                [
-                    Button.inline("التكرار والتنظيف 🚮", data="krrbzbssznd"),
-                    Button.inline("الترفيـه ✨", data="rfhbsbrz"),
-                ],
-                [
-                    Button.inline("الأكستـرا ⚡", data="iierbzbzs"),
-                    Button.inline("الانتحال والتقليد 🗣️", data="uscuxbzbzrz"),
-                ],
+                [Button.inline("البـحـث والتحميـل 🪄", data="ljsjs")],
             ]
             if JEP_IC and JEP_IC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(

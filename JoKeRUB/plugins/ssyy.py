@@ -839,3 +839,124 @@ async def zelzal_insta(event):
             await event.client(DeleteHistoryRequest(1332941342, max_id=0, just_clear=True))
             
 
+@l313l.ar_cmd(
+    pattern="يوتيوب(?: |$)(\d*)? ?([\s\S]*)",
+    command=("يوتيوب", plugin_category),
+    info={
+        "header": "لـ البحـث عـن روابــط بالكلمــه المحــدده علـى يـوتيــوب",
+        "مثــال": [
+            "{tr}يوتيوب + كلمـه",
+            "{tr}يوتيوب + عدد + كلمـه",
+        ],
+    },
+)
+async def you_search(event):
+    "Youtube search command"
+    if event.is_reply and not event.pattern_match.group(2):
+        query = await event.get_reply_message()
+        query = str(query.message)
+    else:
+        query = str(event.pattern_match.group(2))
+    if not query:
+        return await edit_delete(
+            event, "**╮ بالـرد ﮼؏ كلمـٓھہ للبحث أو ضعها مـع الأمـر ... 𓅫╰**"
+        )
+    video_q = await edit_or_reply(event, "**╮ جـارِ البحث ▬▭... ╰**")
+    if event.pattern_match.group(1) != "":
+        lim = int(event.pattern_match.group(1))
+        if lim <= 0:
+            lim = int(10)
+    else:
+        lim = int(10)
+    try:
+        full_response = await ytsearch(query, limit=lim)
+    except Exception as e:
+        return await edit_delete(video_q, str(e), time=10, parse_mode=_format.parse_pre)
+    reply_text = f"**•  اليك عزيزي قائمة بروابط الكلمة اللتي بحثت عنها:**\n`{query}`\n\n**•  النتائج:**\n{full_response}"
+    await edit_or_reply(video_q, reply_text)
+
+
+async def ytdl_down(event, opts, url):
+    ytdl_data = None
+    try:
+        await event.edit("**╮ ❐ يتـم جلـب البيانـات انتظـر قليلاً ...𓅫╰▬▭ **")
+        with YoutubeDL(opts) as ytdl:
+            ytdl_data = ytdl.extract_info(url)
+    except DownloadError as DE:
+        await event.edit(f"`{DE}`")
+    except ContentTooShortError:
+        await event.edit("**- عذرا هذا المحتوى قصير جدا لتنزيله ⚠️**")
+    except GeoRestrictedError:
+        await event.edit(
+            "**- الفيديو غير متاح من موقعك الجغرافي بسبب القيود الجغرافية التي يفرضها موقع الويب ❕**"
+        )
+    except MaxDownloadsReached:
+        await event.edit("**- تم الوصول إلى الحد الأقصى لعدد التنزيلات ❕**")
+    except PostProcessingError:
+        await event.edit("**كان هناك خطأ أثناء المعالجة**")
+    except UnavailableVideoError:
+        await event.edit("**⌔∮عـذراً .. الوسائط غير متوفـره بالتنسيق المطلـوب**")
+    except XAttrMetadataError as XAME:
+        await event.edit(f"`{XAME.code}: {XAME.msg}\n{XAME.reason}`")
+    except ExtractorError:
+        await event.edit("**حدث خطأ أثناء استخراج المعلومات يرجى وضعها بشكل صحيح ⚠️**")
+    except Exception as e:
+        await event.edit(f"**Error : **\n__{e}__")
+    return ytdl_data
+
+
+async def fix_attributes(
+    path, info_dict: dict, supports_streaming: bool = False, round_message: bool = False
+) -> list:
+    """Avoid multiple instances of an attribute."""
+    new_attributes = []
+    video = False
+    audio = False
+
+    uploader = info_dict.get("uploader", "Unknown artist")
+    duration = int(info_dict.get("duration", 0))
+    suffix = path.suffix[1:]
+    if supports_streaming and suffix != "mp4":
+        supports_streaming = True
+
+    attributes, mime_type = get_attributes(path)
+    if suffix == "mp3":
+        title = str(info_dict.get("title", info_dict.get("id", "Unknown title")))
+        audio = types.DocumentAttributeAudio(
+            duration=duration, voice=None, title=title, performer=uploader
+        )
+    elif suffix == "mp4":
+        width = int(info_dict.get("width", 0))
+        height = int(info_dict.get("height", 0))
+        for attr in attributes:
+            if isinstance(attr, types.DocumentAttributeVideo):
+                duration = duration or attr.duration
+                width = width or attr.w
+                height = height or attr.h
+                break
+        video = types.DocumentAttributeVideo(
+            duration=duration,
+            w=width,
+            h=height,
+            round_message=round_message,
+            supports_streaming=supports_streaming,
+        )
+
+    if audio and isinstance(audio, types.DocumentAttributeAudio):
+        new_attributes.append(audio)
+    if video and isinstance(video, types.DocumentAttributeVideo):
+        new_attributes.append(video)
+
+    new_attributes.extend(
+        attr
+        for attr in attributes
+        if (
+            isinstance(attr, types.DocumentAttributeAudio)
+            and not audio
+            or not isinstance(attr, types.DocumentAttributeAudio)
+            and not video
+            or not isinstance(attr, types.DocumentAttributeAudio)
+            and not isinstance(attr, types.DocumentAttributeVideo)
+        )
+    )
+    return new_attributes, mime_type

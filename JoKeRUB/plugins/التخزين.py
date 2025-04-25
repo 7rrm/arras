@@ -1,6 +1,7 @@
 import asyncio
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
+from telethon import events
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
 from ..Config import Config
@@ -20,6 +21,7 @@ class LOG_CHATS:
         self.NEWPM = None
         self.COUNT = 0
         self.STORED_MESSAGES = {}  # لتخزين الرسائل المحولة
+        self.ORIGINAL_MESSAGES = {}  # لتخزين محتوى الرسائل الأصلية
 
 LOG_CHATS_ = LOG_CHATS()
 
@@ -62,8 +64,9 @@ async def monito_p_m_s(event):
                     forwarded_msg = await event.client.forward_messages(
                         Config.PM_LOGGER_GROUP_ID, event.message, silent=True
                     )
-                    # تخزين الرسالة المحولة للرد عليها لاحقاً عند التعديل
+                    # تخزين الرسالة المحولة والرسالة الأصلية
                     LOG_CHATS_.STORED_MESSAGES[event.message.id] = forwarded_msg.id
+                    LOG_CHATS_.ORIGINAL_MESSAGES[event.message.id] = event.message.text
                 LOG_CHATS_.COUNT += 1
             except Exception as e:
                 LOGS.error(f"Error: {e}")
@@ -78,27 +81,33 @@ async def handle_edited_messages(event):
     if not sender.bot:
         chat = await event.get_chat()
         if not no_log_pms_sql.is_approved(chat.id) and chat.id != 777000:
-            # البحث عن الرسالة الأصلية في مجموعة التخزين
-            original_msg_id = event.message.id
-            if original_msg_id in LOG_CHATS_.STORED_MESSAGES:
-                storage_msg_id = LOG_CHATS_.STORED_MESSAGES[original_msg_id]
-                try:
-                    # الرد على الرسالة الأصلية في مجموعة التخزين
-                    reply_msg = await event.client.send_message(
-                        Config.PM_LOGGER_GROUP_ID,
-                        f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
-                        f"**🎟┊الايـدي :** `{sender.id}`\n"
-                        f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
-                        f"**قام بتعديل رسالة إلى:**\n"
-                        f"{event.message.message}",
-                        reply_to=storage_msg_id
-                    )
-                    # تحويل الرسالة المعدلة إلى مجموعة التخزين
-                    await event.client.forward_messages(
-                        Config.PM_LOGGER_GROUP_ID, event.message, silent=True
-                    )
-                except Exception as e:
-                    LOGS.error(f"Error handling edited message: {e}")
+            # التحقق مما إذا كانت الرسالة قد تم تعديلها فعلاً
+            original_text = LOG_CHATS_.ORIGINAL_MESSAGES.get(event.message.id, "")
+            if original_text and original_text != event.message.text:
+                # البحث عن الرسالة الأصلية في مجموعة التخزين
+                if event.message.id in LOG_CHATS_.STORED_MESSAGES:
+                    storage_msg_id = LOG_CHATS_.STORED_MESSAGES[event.message.id]
+                    try:
+                        # الرد على الرسالة الأصلية في مجموعة التخزين
+                        reply_msg = await event.client.send_message(
+                            Config.PM_LOGGER_GROUP_ID,
+                            f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
+                            f"**🎟┊الايـدي :** `{sender.id}`\n"
+                            f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
+                            f"**✏┊قام بـتعديل رسالة مـن :**\n"
+                            f"`{original_text}`\n\n"
+                            f"**إلـى:**\n"
+                            f"`{event.message.text}`",
+                            reply_to=storage_msg_id
+                        )
+                        # تحويل الرسالة المعدلة إلى مجموعة التخزين
+                        await event.client.forward_messages(
+                            Config.PM_LOGGER_GROUP_ID, event.message, silent=True
+                        )
+                    except Exception as e:
+                        LOGS.error(f"Error handling edited message: {e}")
+
+# باقي الأوامر تبقى كما هي...
 
 @l313l.ar_cmd(
     pattern="خزن(?:\s|$)([\s\S]*)",

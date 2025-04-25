@@ -83,6 +83,7 @@ async def is_admin(event, user):
     except:
         is_mod = False
     return is_mod
+	
 
 @l313l.ar_cmd(
     pattern="قفل(?: |$)(.*)",

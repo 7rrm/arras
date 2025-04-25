@@ -118,6 +118,8 @@ async def _(event):
     peer_id = event.chat_id
     zed_id = event.chat_id
     chat_per = (await event.get_chat()).default_banned_rights
+    is_general = "عام" in input_str
+    input_str = input_str.replace(" عام", "").strip()
     if input_str in ("الدردشه", "الدردشة", "الصور", "الملصقات", "المتحركه", "المتحركة", "المتحركات" "الفيديو", "الصوت", "البصمات", "الكل"):
         msg = chat_per.send_messages
         media = chat_per.send_media
@@ -186,7 +188,10 @@ async def _(event):
         )
         try:
             await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=lock_rights))
-            return await edit_or_reply(event, f"**◆╎تـم قفـل {what} بنجـاح ✅ .**")
+            if is_general:
+                return await edit_or_reply(event, f"**◆╎تـم قفـل {what} لـلجميـع (المشرفين والأعضاء) بنجـاح ✅ .**")
+            else:
+                return await edit_or_reply(event, f"**◆╎تـم قفـل {what} للأعضاء فقط بنجـاح ✅ .**")
         except BaseException as e:
             return await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
     if input_str == "البوتات":

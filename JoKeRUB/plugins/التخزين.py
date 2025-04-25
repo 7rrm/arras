@@ -56,10 +56,14 @@ Config.PM_LOGGER_GROUP_ID,
                             )
                         )
                     LOG_CHATS_.COUNT = 0
-                LOG_CHATS_.NEWPM = await event.client.send_message(
-                    Config.PM_LOGGER_GROUP_ID,
-                    f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)} **- قام بـ إرسـال رسـالة جـديـده** \n**🎟┊الايـدي :** `{chat.id}`",
-                )
+                # في دالة monito_p_m_s الأصلية، عدل السطر الذي يرسل الرسالة الأصلية ليصبح:
+LOG_CHATS_.NEWPM = await event.client.send_message(
+    Config.PM_LOGGER_GROUP_ID,
+    f"user.id: {chat.id}\n"  # هذه العلامة للبحث لاحقاً
+    f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
+    f"**🎟┊الايـدي :** `{chat.id}`",
+)
+
             try:
                 if event.message:
                     await event.client.forward_messages(
@@ -69,6 +73,51 @@ Config.PM_LOGGER_GROUP_ID,
             except Exception as e:
                 LOGS.warn(str(e))
        
+@l313l.ar_cmd(incoming=True, edited=True)
+async def handle_edited_messages(event):
+    # التحقق من أن الرسالة معدلة وأنها ليست من بوت
+    if event.is_private and not (await event.get_sender()).bot:
+        chat = await event.get_chat()
+        if not no_log_pms_sql.is_approved(chat.id) and chat.id != 777000:
+            if Config.PM_LOGGER_GROUP_ID == -100:
+                return
+            
+            # البحث عن الرسالة الأصلية في كروب التخزين
+            async for msg in event.client.iter_messages(
+                Config.PM_LOGGER_GROUP_ID,
+                search=f"user.id: {chat.id}",
+                limit=1
+            ):
+                if msg.text and f"user.id: {chat.id}" in msg.text:
+                    original_msg = msg
+                    break
+            else:
+                return
+            
+            # إعداد بيانات المستخدم
+            sender = await event.get_sender()
+            user_info = (
+                f"المستخدم: {_format.mentionuser(sender.first_name, sender.id)}\n"
+                f"الايدي: `{sender.id}`\n"
+                f"اليوزر: @{sender.username if sender.username else 'لا يوجد'}\n\n"
+                f"قام بتعديل رسالة:\n"
+                f"`{event.text}`"
+            )
+            
+            # الرد على الرسالة الأصلية بالمعلومات الجديدة
+            await event.client.send_message(
+                Config.PM_LOGGER_GROUP_ID,
+                user_info,
+                reply_to=original_msg.id
+            )
+            
+            # إعادة توجيه الرسالة المعدلة
+            await event.client.forward_messages(
+                Config.PM_LOGGER_GROUP_ID,
+                event.message,
+                silent=True
+            )
+            
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):

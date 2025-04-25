@@ -149,31 +149,32 @@ async def lock_unlock_cmd(event):
 
         # بناء إعدادات الحظر/الإلغاء حسب نوع القفل/الفتح
         if lock_type in ("الدردشه", "الدردشة"):
-            lock_rights = ChatBannedRights(send_messages=True)
-            unlock_rights = ChatBannedRights(send_messages=False)
+            lock_rights = ChatBannedRights(until_date=None, send_messages=True)
+            unlock_rights = ChatBannedRights(until_date=None, send_messages=False)
             what = "الدردشة"
         elif lock_type in ("الميديا", "الصور", "الفيديو", "الصوت"):
-            lock_rights = ChatBannedRights(send_media=True)
-            unlock_rights = ChatBannedRights(send_media=False)
+            lock_rights = ChatBannedRights(until_date=None, send_media=True)
+            unlock_rights = ChatBannedRights(until_date=None, send_media=False)
             what = "الوسائط"
         elif lock_type == "الروابط":
-            lock_rights = ChatBannedRights(embed_links=True)
-            unlock_rights = ChatBannedRights(embed_links=False)
+            lock_rights = ChatBannedRights(until_date=None, embed_links=True)
+            unlock_rights = ChatBannedRights(until_date=None, embed_links=False)
             what = "الروابط"
         elif lock_type == "الملصقات":
-            lock_rights = ChatBannedRights(send_stickers=True)
-            unlock_rights = ChatBannedRights(send_stickers=False)
+            lock_rights = ChatBannedRights(until_date=None, send_stickers=True)
+            unlock_rights = ChatBannedRights(until_date=None, send_stickers=False)
             what = "الملصقات"
         elif lock_type == "التوجيه":
-            lock_rights = ChatBannedRights(forward_messages=True)
-            unlock_rights = ChatBannedRights(forward_messages=False)
+            lock_rights = ChatBannedRights(until_date=None, forward_messages=True)
+            unlock_rights = ChatBannedRights(until_date=None, forward_messages=False)
             what = "التوجيه"
         elif lock_type == "الانلاين":
-            lock_rights = ChatBannedRights(send_inline=True)
-            unlock_rights = ChatBannedRights(send_inline=False)
+            lock_rights = ChatBannedRights(until_date=None, send_inline=True)
+            unlock_rights = ChatBannedRights(until_date=None, send_inline=False)
             what = "الانلاين"
         elif lock_type == "الكل":
             lock_rights = ChatBannedRights(
+                until_date=None,
                 send_messages=True,
                 send_media=True,
                 send_stickers=True,
@@ -182,6 +183,7 @@ async def lock_unlock_cmd(event):
                 embed_links=True,
             )
             unlock_rights = ChatBannedRights(
+                until_date=None,
                 send_messages=False,
                 send_media=False,
                 send_stickers=False,
@@ -207,7 +209,8 @@ async def lock_unlock_cmd(event):
 
     except Exception as e:
         await edit_or_reply(event, f"**◆╎حدث خطأ أثناء تنفيذ الأمر:**\n`{e}`")
-	
+	    
+
 
 @l313l.ar_cmd(pattern="(المميز تفعيل|قفل المميز)")
 async def lock_premium(event):

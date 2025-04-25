@@ -73,9 +73,7 @@ async def monito_p_m_s(event):
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=True, forword=None)
 async def handle_edited_messages(event):
-    if Config.PM_LOGGER_GROUP_ID == -100:
-        return
-    if gvarstatus("PMLOG") and gvarstatus("PMLOG") == "false":
+    if Config.PM_LOGGER_GROUP_ID == -100 and not BOTLOG:
         return
     sender = await event.get_sender()
     if not sender.bot:
@@ -84,30 +82,45 @@ async def handle_edited_messages(event):
             # التحقق مما إذا كانت الرسالة قد تم تعديلها فعلاً
             original_text = LOG_CHATS_.ORIGINAL_MESSAGES.get(event.message.id, "")
             if original_text and original_text != event.message.text:
-                # البحث عن الرسالة الأصلية في مجموعة التخزين
-                if event.message.id in LOG_CHATS_.STORED_MESSAGES:
-                    storage_msg_id = LOG_CHATS_.STORED_MESSAGES[event.message.id]
+                # إرسال إلى مجموعة التخزين أولاً (إذا كانت مفعلة)
+                if Config.PM_LOGGER_GROUP_ID != -100:
+                    if event.message.id in LOG_CHATS_.STORED_MESSAGES:
+                        storage_msg_id = LOG_CHATS_.STORED_MESSAGES[event.message.id]
+                        try:
+                            await event.client.send_message(
+                                Config.PM_LOGGER_GROUP_ID,
+                                f"#الـتـعديـل\n\n"
+                                f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
+                                f"**🎟┊الايـدي :** `{sender.id}`\n"
+                                f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
+                                f"**✏┊قام بـتعديل رسالة مـن :**\n"
+                                f"`{original_text}`\n\n"
+                                f"**إلـى:**\n"
+                                f"`{event.message.text}`",
+                                reply_to=storage_msg_id
+                            )
+                            await event.client.forward_messages(
+                                Config.PM_LOGGER_GROUP_ID, event.message, silent=True
+                            )
+                        except Exception as e:
+                            LOGS.error(f"Error sending to storage group: {e}")
+
+                # ثم إرسال إلى مجموعة السجل (إذا كانت مفعلة)
+                if BOTLOG and BOTLOG_CHATID:
                     try:
-                        # الرد على الرسالة الأصلية في مجموعة التخزين
-                        reply_msg = await event.client.send_message(
-                            Config.PM_LOGGER_GROUP_ID,
+                        await event.client.send_message(
+                            BOTLOG_CHATID,
+                            f"#الـتـعديـل\n\n"
                             f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
                             f"**🎟┊الايـدي :** `{sender.id}`\n"
                             f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
                             f"**✏┊قام بـتعديل رسالة مـن :**\n"
                             f"`{original_text}`\n\n"
                             f"**إلـى:**\n"
-                            f"`{event.message.text}`",
-                            reply_to=storage_msg_id
-                        )
-                        # تحويل الرسالة المعدلة إلى مجموعة التخزين
-                        await event.client.forward_messages(
-                            Config.PM_LOGGER_GROUP_ID, event.message, silent=True
+                            f"`{event.message.text}`"
                         )
                     except Exception as e:
-                        LOGS.error(f"Error handling edited message: {e}")
-
-# باقي الأوامر تبقى كما هي...
+                        LOGS.error(f"Error sending to log group: {e}")
 
 @l313l.ar_cmd(
     pattern="خزن(?:\s|$)([\s\S]*)",

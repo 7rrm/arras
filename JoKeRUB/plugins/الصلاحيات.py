@@ -232,6 +232,7 @@ async def _(event):
             return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`\n**⤶╎لعـرض اوامـر القفـل والفتـح ارسـل** `.م7`")
 
         return await edit_or_reply(event, "**◆╎عـذࢪاً عـزيـزي .. لايمكنك قفـل اي شي هنـا ... **")
+	    
 
 @l313l.ar_cmd(
     pattern="فتح(?: |$)(.*)",

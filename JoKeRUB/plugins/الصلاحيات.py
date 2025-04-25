@@ -84,6 +84,7 @@ async def is_admin(event, user):
         is_mod = False
     return is_mod
 
+
 @l313l.ar_cmd(
     pattern="قفل(?: |$)(.*)",
     command=("قفل", plugin_category),
@@ -99,6 +100,13 @@ async def _(event):
         return
     if event.fwd_from:
         return
+    
+    # تعريف المتغيرات الأساسية
+    msg = None
+    media = None
+    sticker = None
+    gif = None
+    what = ""
     
     input_str = event.pattern_match.group(1)
     peer_id = event.chat_id
@@ -168,24 +176,31 @@ async def _(event):
         update_lock(event.chat_id, "voice", True)
         update_lock(event.chat_id, "audio", True)
     else:
-        return await edit_or_reply(event, "**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
+        return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
     
-    lock_rights = ChatBannedRights(
-        until_date=None,
-        send_messages=msg,
-        send_media=media,
-        send_stickers=sticker,
-        send_gifs=gif,
-    )
-    
-    try:
-        await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=lock_rights))
+    # فقط إذا كان الأمر يتطلب ChatBannedRights
+    if what in ["الدردشـه", "الصـور والفيديـو والصـوت", "الملصقـات", "المتحركـات"]:
+        lock_rights = ChatBannedRights(
+            until_date=None,
+            send_messages=msg,
+            send_media=media,
+            send_stickers=sticker,
+            send_gifs=gif,
+        )
+        
+        try:
+            await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=lock_rights))
+            msg_text = f"**◆╎تـم قفـل {what} بنجـاح ✅ .**"
+            if is_public:
+                msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
+            await edit_or_reply(event, msg_text)
+        except Exception as e:
+            await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
+    else:
         msg_text = f"**◆╎تـم قفـل {what} بنجـاح ✅ .**"
         if is_public:
             msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
         await edit_or_reply(event, msg_text)
-    except Exception as e:
-        await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
 
 
 @l313l.ar_cmd(
@@ -203,6 +218,13 @@ async def _(event):
         return
     if event.fwd_from:
         return
+    
+    # تعريف المتغيرات الأساسية
+    msg = None
+    media = None
+    sticker = None
+    gif = None
+    what = ""
     
     input_str = event.pattern_match.group(1)
     peer_id = event.chat_id
@@ -272,24 +294,33 @@ async def _(event):
         update_lock(event.chat_id, "voice", False)
         update_lock(event.chat_id, "audio", False)
     else:
-        return await edit_or_reply(event, "**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
+        return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
     
-    unlock_rights = ChatBannedRights(
-        until_date=None,
-        send_messages=msg,
-        send_media=media,
-        send_stickers=sticker,
-        send_gifs=gif,
-    )
-    
-    try:
-        await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=unlock_rights))
+    # فقط إذا كان الأمر يتطلب ChatBannedRights
+    if what in ["الدردشـه", "الصـور والفيديـو والصـوت", "الملصقـات", "المتحركـات"]:
+        unlock_rights = ChatBannedRights(
+            until_date=None,
+            send_messages=msg,
+            send_media=media,
+            send_stickers=sticker,
+            send_gifs=gif,
+        )
+        
+        try:
+            await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=unlock_rights))
+            msg_text = f"**◆╎تـم فتـح {what} بنجـاح ✅ .**"
+            if is_public:
+                msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
+            await edit_or_reply(event, msg_text)
+        except Exception as e:
+            await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
+    else:
         msg_text = f"**◆╎تـم فتـح {what} بنجـاح ✅ .**"
         if is_public:
             msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
         await edit_or_reply(event, msg_text)
-    except Exception as e:
-        await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
+	    
+
 	    
 
 @l313l.ar_cmd(pattern="(المميز تفعيل|قفل المميز)")

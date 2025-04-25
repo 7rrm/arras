@@ -90,215 +90,300 @@ async def is_admin(event, user):
     info={
         "header": "اوامــر قفـل الحمـاية الخـاصه بـ المجمـوعـات",
         "الوصـف": "اوامـر ذكيـه لـ قفـل / فتـح حمـاية المجمـوعـات بالمسـح والطـرد والتقييـد لـ اول مـره فقـط ع سـورس زدثــون",
+        "الاوامـر": {
+            "الدردشه": "- لـ قفـل ارسـال الرسـائل فقـط",
+            "الميديا": "- لـ قفـل ارسـال الوسـائط",
+            "الدخول": "- لـ قفـل دخـول الاعضـاء",
+            "الفارسيه": "- لـ قفـل الفـارسيـه",
+            "الفشار": "- لـ قفـل الفشـار والسـب",
+            "المعرفات": "- لـ قفـل ارسـال المعـرفات",
+            "الانلاين": "- لـ قفـل انـلاين البـوتـات",
+            "البوتات": "- لـ قفـل اضـافة البـوتـات",
+            "الاضافه": "- لـ قفـل اضـافة الاعضـاء",
+            "التوجيه": "- لـ قفـل التـوجيـه",
+            "الروابط": "- لـ قفـل ارسـال الروابـط",
+            "الكل": "- لـ قفـل كـل الاوامـر",
+        },
         "الاسـتخـدام": "{tr}قفل + الامــر",
     },
+    #groups_only=True,
     require_admin=True,
 )
 async def _(event):
     if not event.is_group:
-        return
+        return #await edit_or_reply(event, "**ايا مطـي! ، هـذه ليست مجموعـة لقفـل الأشيـاء**")
     if event.fwd_from:
         return
-    
-    # تعريف المتغيرات الأساسية
-    msg = None
-    media = None
-    sticker = None
-    gif = None
-    what = ""
-    
     input_str = event.pattern_match.group(1)
     peer_id = event.chat_id
+    zed_id = event.chat_id
     chat_per = (await event.get_chat()).default_banned_rights
-    
-    # التحقق من وجود "عام"
-    is_public = "عام" in input_str
-    if is_public:
-        input_str = input_str.replace("عام", "").strip()
-    
-    if input_str == "الدردشة" or input_str == "الدردشه":
-        msg = True
-        what = "الدردشـه"
-    elif input_str == "الصور" or input_str == "الفيديو" or input_str == "الصوت":
-        media = True
-        what = "الصـور والفيديـو والصـوت"
-    elif input_str == "الملصقات":
-        sticker = True
-        what = "الملصقـات"
-    elif input_str == "المتحركه":
-        gif = True
-        what = "المتحركـات"
-    elif input_str == "البوتات":
-        update_lock(event.chat_id, "bots", True)
-        what = "البوتـات"
-    elif input_str == "المعرفات":
-        update_lock(event.chat_id, "button", True)
-        what = "المعرفـات"
-    elif input_str == "الدخول":
-        update_lock(event.chat_id, "location", True)
-        what = "الدخـول"
-    elif input_str == "الفارسيه":
-        update_lock(event.chat_id, "egame", True)
-        what = "الفارسيـه"
-    elif input_str == "الاضافه":
-        update_lock(event.chat_id, "contact", True)
-        what = "الإضافـة"
-    elif input_str == "التوجيه":
-        update_lock(event.chat_id, "forward", True)
-        what = "التوجيـه"
-    elif input_str == "الميديا":
-        update_lock(event.chat_id, "game", True)
-        what = "الميديـا"
-    elif input_str == "الانلاين":
-        update_lock(event.chat_id, "inline", True)
-        what = "الانلايـن"
-    elif input_str == "الفشار":
-        update_lock(event.chat_id, "rtl", True)
-        what = "الفشـار"
-    elif input_str == "الروابط":
-        update_lock(event.chat_id, "url", True)
-        what = "الروابـط"
-    elif input_str == "الكل":
-        what = "الكـل"
-        update_lock(event.chat_id, "bots", True)
-        update_lock(event.chat_id, "game", True)
-        update_lock(event.chat_id, "forward", True)
-        update_lock(event.chat_id, "egame", True)
-        update_lock(event.chat_id, "rtl", True)
-        update_lock(event.chat_id, "url", True)
-        update_lock(event.chat_id, "contact", True)
-        update_lock(event.chat_id, "location", True)
-        update_lock(event.chat_id, "button", True)
-        update_lock(event.chat_id, "inline", True)
-        update_lock(event.chat_id, "video", True)
-        update_lock(event.chat_id, "sticker", True)
-        update_lock(event.chat_id, "voice", True)
-        update_lock(event.chat_id, "audio", True)
-    else:
-        return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
-    
-    # فقط إذا كان الأمر يتطلب ChatBannedRights
-    if what in ["الدردشـه", "الصـور والفيديـو والصـوت", "الملصقـات", "المتحركـات"]:
+    if input_str in ("الدردشه", "الدردشة", "الصور", "الملصقات", "المتحركه", "المتحركة", "المتحركات" "الفيديو", "الصوت", "البصمات", "الكل"):
+        msg = chat_per.send_messages
+        media = chat_per.send_media
+        sticker = chat_per.send_stickers
+        gif = chat_per.send_gifs
+        gamee = chat_per.send_games
+        ainline = chat_per.send_inline
+        embed_link = chat_per.embed_links
+        gpoll = chat_per.send_polls
+        adduser = chat_per.invite_users
+        cpin = chat_per.pin_messages
+        changeinfo = chat_per.change_info
+        if input_str == "الدردشة" or input_str == "الدردشه":
+            if msg:
+                return await edit_or_reply(event, "**◆╎تـم قفـل الدردشـه بنجـاح ✅ .**")
+            msg = True
+            what = "الدردشـه"
+        elif input_str == "الصور" or input_str == "الفيديو" or input_str == "الصوت" or input_str == "البصمات":
+            if media:
+                return await edit_or_reply(event, "**◆╎الوسائـط مغلقـه بالفعـل سابقـاً ☑️ .**")
+            media = True
+            what = "الصـور والفيديـو والصـوت"
+        elif input_str == "الملصقات":
+            if sticker:
+                return await edit_or_reply(event, "**◆╎الملصقـات مغلقـه بالفعـل سابقـاً ☑️ .**")
+            sticker = True
+            what = "الملصقـات"
+        elif input_str == "المتحركه":
+            if gif:
+                return await edit_or_reply(event, "**◆╎المتحركـات مغلقـه بالفعـل سابقـاً ☑️ .**")
+            gif = True
+            what = "المتحركـات"
+        elif input_str == "الكل":
+            msg = None
+            media = True
+            sticker = True
+            gif = True
+            what = "الكـل"
+            update_lock(zed_id, "bots", True)
+            update_lock(zed_id, "game", True)
+            update_lock(zed_id, "forward", True)
+            update_lock(zed_id, "egame", True)
+            update_lock(zed_id, "rtl", True)
+            update_lock(zed_id, "url", True)
+            update_lock(zed_id, "contact", True)
+            update_lock(zed_id, "location", True)
+            update_lock(zed_id, "button", True)
+            update_lock(zed_id, "inline", True)
+            update_lock(zed_id, "video", True)
+            update_lock(zed_id, "sticker", True)
+            update_lock(zed_id, "voice", True)
+            update_lock(zed_id, "audio", True)
         lock_rights = ChatBannedRights(
             until_date=None,
             send_messages=msg,
             send_media=media,
             send_stickers=sticker,
             send_gifs=gif,
+            send_games=gamee,
+            send_inline=ainline,
+            send_polls=gpoll,
+            embed_links=embed_link,
+            invite_users=adduser,
+            pin_messages=cpin,
+            change_info=changeinfo,
         )
-        
         try:
             await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=lock_rights))
-            msg_text = f"**◆╎تـم قفـل {what} بنجـاح ✅ .**"
-            if is_public:
-                msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
-            await edit_or_reply(event, msg_text)
-        except Exception as e:
-            await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
-    else:
-        msg_text = f"**◆╎تـم قفـل {what} بنجـاح ✅ .**"
-        if is_public:
-            msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
-        await edit_or_reply(event, msg_text)
-
-@l313l.on(events.NewMessage(incoming=True))
-async def handle_messages(event):
-    if not event.is_group:
+            return await edit_or_reply(event, f"**◆╎تـم قفـل {what} بنجـاح ✅ .**")
+        except BaseException as e:
+            return await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
+    if input_str == "البوتات":
+        update_lock(zed_id, "bots", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة الطـرد والتحذيـر .**".format(input_str))
+    if input_str == "المعرفات":
+        update_lock(zed_id, "button", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر .**".format(input_str))
+    if input_str == "الدخول":
+        update_lock(zed_id, "location", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة الطـرد والتحذيـر .**".format(input_str))
+    if input_str == "الفارسيه" or input_str == "دخول الايران":
+        update_lock(zed_id, "egame", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر .**".format(input_str))
+    if input_str == "الاضافه":
+        update_lock(zed_id, "contact", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة الطـرد والتحذيـر .**".format(input_str))
+    if input_str == "التوجيه":
+        update_lock(zed_id, "forward", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر .**".format(input_str))
+    if input_str == "الميديا":
+        update_lock(zed_id, "game", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح بالتقييـد والتحذيـر .**".format(input_str))
+    if input_str == "تعديل الميديا":
+        update_lock(zed_id, "document", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح بالتقييـد والتحذيـر •**".format(input_str))
+    if input_str == "الانلاين":
+        update_lock(zed_id, "inline", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+    if input_str == "الفشار":
+        update_lock(zed_id, "rtl", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+    if input_str == "الروابط":
+        update_lock(zed_id, "url", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+    if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
+        update_lock(zed_id, "audio", True)
+        return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة تنزيـل المشـرف الخـائن •**".format(input_str))
+    if input_str == "المميز":
         return
-    
-    chat_id = event.chat_id
-    sender = await event.get_sender()
-    message_text = event.message.text or ""
-    message_media = event.message.media
-    message_sticker = isinstance(message_media, types.Document) and "sticker" in message_media.mime_type
-    message_gif = isinstance(message_media, types.Document) and "gif" in message_media.mime_type
-    message_photo = isinstance(message_media, types.Photo)
-    message_video = isinstance(message_media, types.Document) and "video" in message_media.mime_type
-    message_audio = isinstance(message_media, types.Document) and "audio" in message_media.mime_type
-    message_voice = isinstance(message_media, types.Document) and "voice" in message_media.mime_type
-    
-    # قفل الروابط
-    if is_locked(chat_id, "url") and "http" in message_text:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الروابـط هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الدردشة
-    if is_locked(chat_id, "chat") and message_text:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الرسـائل هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الصور
-    if is_locked(chat_id, "photo") and message_photo:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الصـور هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الملصقات
-    if is_locked(chat_id, "sticker") and message_sticker:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الملصقـات هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل المتحركات (GIF)
-    if is_locked(chat_id, "gif") and message_gif:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال المتحركـات هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الفيديو
-    if is_locked(chat_id, "video") and message_video:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الفيديـو هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الصوت
-    if is_locked(chat_id, "audio") and message_audio:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الصـوت هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل البصمات
-    if is_locked(chat_id, "voice") and message_voice:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال البصمـات هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل التوجيه
-    if is_locked(chat_id, "forward") and event.message.fwd_from:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع التوجيـه هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-    
-    # قفل الانلاين
-    if is_locked(chat_id, "inline") and event.message.via_bot:
-        try:
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع استخـدام الانلايـن هنـا ⚠️•**", link_preview=False)
-        except Exception as e:
-            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
-		
+    else:
+        if input_str:
+            return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`\n**⤶╎لعـرض اوامـر القفـل والفتـح ارسـل** `.م7`")
 
+        return await edit_or_reply(event, "**◆╎عـذࢪاً عـزيـزي .. لايمكنك قفـل اي شي هنـا ... **")
 
+@l313l.ar_cmd(
+    pattern="فتح(?: |$)(.*)",
+    command=("فتح", plugin_category),
+    info={
+        "header": "اوامــر فتـح الحمـاية الخـاصه بـ المجمـوعـات",
+        "الوصـف": "اوامـر ذكيـه لـ قفـل / فتـح حمـاية المجمـوعـات بالمسـح والطـرد والتقييـد لـ اول مـره فقـط ع سـورس زدثــون",
+        "الاوامـر": {
+            "الدردشه": "- لـ فتـح ارسـال الرسـائل فقـط",
+            "الميديا": "- لـ فتـح ارسـال الوسـائط",
+            "الدخول": "- لـ فتـح دخـول الاعضـاء",
+            "الفارسيه": "- لـ فتـح الفـارسيـه",
+            "الفشار": "- لـ فتـح الفشـار والسـب",
+            "المعرفات": "- لـ فتـح ارسـال المعـرفات",
+            "الانلاين": "- لـ فتـح انـلاين البـوتـات",
+            "البوتات": "- لـ فتـح اضـافة البـوتـات",
+            "الاضافه": "- لـ فتـح اضـافة الاعضـاء",
+            "التوجيه": "- لـ فتـح التـوجيـه",
+            "الروابط": "- لـ فتـح ارسـال الروابـط",
+            "الكل": "- لـ فتـح كـل الاوامـر",
+        },
+        "الاسـتخـدام": "{tr}فتح + الامــر",
+    },
+    #groups_only=True,
+    require_admin=True,
+)
+async def _(event):
+    if not event.is_group:
+        return #await edit_or_reply(event, "**ايا مطـي! ، هـذه ليست مجموعـة لقفـل الأشيـاء**")
+    if event.fwd_from:
+        return
+    input_str = event.pattern_match.group(1)
+    peer_id = event.chat_id
+    zed_id = event.chat_id
+    chat_per = (await event.get_chat()).default_banned_rights
+    if input_str in ("الدردشه", "الدردشة", "الصور", "الملصقات", "المتحركه", "المتحركة", "المتحركات" "الفيديو", "الصوت", "البصمات", "الكل"):
+        msg = chat_per.send_messages
+        media = chat_per.send_media
+        sticker = chat_per.send_stickers
+        gif = chat_per.send_gifs
+        gamee = chat_per.send_games
+        ainline = chat_per.send_inline
+        gpoll = chat_per.send_polls
+        embed_link = chat_per.embed_links
+        adduser = chat_per.invite_users
+        cpin = chat_per.pin_messages
+        changeinfo = chat_per.change_info
+        if input_str == "الدردشة" or input_str == "الدردشه":
+            if not msg:
+                return await edit_or_reply(event, "**◆╎الدردشـة غيـر مغلقـه اسـاسـاً ☑️ .**")
+            msg = False
+            what = "الدردشـه"
+        elif input_str == "الصور" or input_str == "الفيديو" or input_str == "الصوت" or input_str == "البصمات":
+            if not media:
+                return await edit_or_reply(event, "**◆╎الوسائـط غيـر مغلقـه اسـاسـاً ☑️ .**")
+            media = False
+            what = "الصـور والفيديـو والصـوت"
+        elif input_str == "الملصقات":
+            if not sticker:
+                return await edit_or_reply(event, "**◆╎الملصقـات غيـر مغلقـه اسـاسـاً ☑️ .**")
+            sticker = False
+            what = "الملصقـات"
+        elif input_str == "المتحركه":
+            if not gif:
+                return await edit_or_reply(event, "**◆╎المتحركـات غيـر مغلقـه اسـاسـاً ☑️ .**")
+            gif = False
+            what = "المتحركـات"
+        elif input_str == "الكل":
+            msg = False
+            media = False
+            sticker = False
+            gif = False
+            what = "الكـل"
+            update_lock(zed_id, "bots", False)
+            update_lock(zed_id, "game", False)
+            update_lock(zed_id, "forward", False)
+            update_lock(zed_id, "egame", False)
+            update_lock(zed_id, "rtl", False)
+            update_lock(zed_id, "url", False)
+            update_lock(zed_id, "contact", False)
+            update_lock(zed_id, "location", False)
+            update_lock(zed_id, "button", False)
+            update_lock(zed_id, "inline", False)
+            update_lock(zed_id, "video", False)
+            update_lock(zed_id, "sticker", False)
+            update_lock(zed_id, "voice", False)
+            update_lock(zed_id, "audio", False)
+        unlock_rights = ChatBannedRights(
+            until_date=None,
+            send_messages=msg,
+            send_media=media,
+            send_stickers=sticker,
+            send_gifs=gif,
+            send_games=gamee,
+            send_inline=ainline,
+            send_polls=gpoll,
+            embed_links=embed_link,
+            invite_users=adduser,
+            pin_messages=cpin,
+            change_info=changeinfo,
+        )
+        try:
+            await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=unlock_rights))
+            return await edit_or_reply(event, f"**◆╎تـم فتـح {what} بنجـاح ✅ .**")
+        except BaseException as e:
+            return await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
+    if input_str == "البوتات":
+        update_lock(zed_id, "bots", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الدخول":
+        update_lock(zed_id, "location", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الاضافه":
+        update_lock(zed_id, "contact", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "التوجيه":
+        update_lock(zed_id, "forward", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الفارسيه" or input_str == "دخول الايران":
+        update_lock(zed_id, "egame", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الفشار":
+        update_lock(zed_id, "rtl", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الروابط":
+        update_lock(zed_id, "url", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الميديا":
+        update_lock(zed_id, "game", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "تعديل الميديا":
+        update_lock(zed_id, "document", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "المعرفات":
+        update_lock(zed_id, "button", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "الانلاين":
+        update_lock(zed_id, "inline", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
+        update_lock(zed_id, "audio", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح {} بنجـاح ✅ .**\n\n**⤶╎وتعطيـل مانـع التفليـش .**".format(input_str))
+    if input_str == "المميز":
+        return
+    if input_str == "الفارسيه":
+        update_lock(zed_id, "egame", False)
+        return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
+    else:
+        if input_str:
+            return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`\n**⎉╎لعـرض اوامـر القفـل والفتـح ارسـل** `.م7`")
+
+        return await edit_or_reply(event, "**◆╎عـذࢪاً عـزيـزي .. لايمكنك اعـادة فتـح اي شي هنـا ...**")
 
 @l313l.ar_cmd(pattern="(المميز تفعيل|قفل المميز)")
 async def lock_premium(event):

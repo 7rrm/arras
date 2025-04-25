@@ -64,7 +64,7 @@ async def delete_it(event):
                 await msg_src.delete()
                 if BOTLOG:
                     await event.client.send_message(
-                        BOTLOG_CHATID, "#الـمسـح \n ᯽︙ تـم حـذف الـرسالة بـنجاح"
+                        BOTLOG_CHATID, "#الـمسـح \n ⌔︙ تـم حـذف الـرسالة بـنجاح"
                     )
             except rpcbaseerrors.BadRequestError:
                 if BOTLOG:
@@ -74,14 +74,14 @@ async def delete_it(event):
                     )
         elif input_str:
             if not input_str.startswith("var"):
-                await edit_or_reply(event, "᯽︙ عـذرا الـرسالة غيـر موجـودة")
+                await edit_or_reply(event, "✧︙ عـذرا الـرسالة غيـر موجـودة")
         else:
             try:
                 await msg_src.delete()
                 await event.delete()
                 if BOTLOG:
                     await event.client.send_message(
-                        BOTLOG_CHATID, "#الـمسـح \n ᯽︙ تـم حـذف الـرسالة بـنجاح"
+                        BOTLOG_CHATID, "#الـمسـح \n ⌔︙ تـم حـذف الـرسالة بـنجاح"
                     )
             except rpcbaseerrors.BadRequestError:
                 await edit_or_reply(event, "↜︙ عـذرا الـرسالة لا استـطيع حـذفها")
@@ -214,7 +214,7 @@ async def fastpurger(event):  # sourcery no-metrics
                     elif ty == "كلمه":
                         error += f"\n᯽︙ الاضافه خـطأ"
                     else:
-                        error += f"\n\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة "
+                        error += f"\n\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة "
             else:
                 count += 1
                 async for msg in event.client.iter_messages(
@@ -267,9 +267,9 @@ async def fastpurger(event):  # sourcery no-metrics
                 if msgs:
                     await event.client.delete_messages(chat, msgs)
             else:
-                error += f"\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة "
+                error += f"\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة "
         elif input_str:
-            error += f"\n᯽︙ `.تنظيف {input_str}` الامـر خـطأ يـرجى الكتابة بـشكل صحيح"
+            error += f"\n ✧︙ `.تنظيف {input_str}` الامـر خـطأ يـرجى الكتابة بـشكل صحيح"
         elif p_type is not None:
             for ty in p_type:
                 if ty in purgetype:
@@ -286,7 +286,7 @@ async def fastpurger(event):  # sourcery no-metrics
                     if msgs:
                         await event.client.delete_messages(chat, msgs)
                 else:
-                    error += f"\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة"
+                    error += f"\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة"
         else:
             async for msg in event.client.iter_messages(
                 chat, min_id=event.reply_to_msg_id - 1
@@ -313,9 +313,9 @@ async def fastpurger(event):  # sourcery no-metrics
                     if msgs:
                         await event.client.delete_messages(chat, msgs)
                 elif ty == "الكتابه":
-                    error += f"\n᯽︙ لا تستطـيع استـخدام امر التنظيف عبر البحث مع الاضافه"
+                    error += f"\n ✧︙ لا تستطـيع استـخدام امر التنظيف عبر البحث مع الاضافه"
                 else:
-                    error += f"\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة "
+                    error += f"\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة "
         elif p_type == "كلمه":
             try:
                 cont, inputstr = input_str.split(" ")
@@ -345,7 +345,7 @@ async def fastpurger(event):  # sourcery no-metrics
             if msgs:
                 await event.client.delete_messages(chat, msgs)
         else:
-            error += f"\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة "
+            error += f"\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة "
     elif p_type is not None:
         for ty in p_type:
             if ty in purgetype:
@@ -360,9 +360,9 @@ async def fastpurger(event):  # sourcery no-metrics
                 if msgs:
                     await event.client.delete_messages(chat, msgs)
             elif ty == "كلمه":
-                error += f"\n᯽︙ لا تستطـيع استـخدام امر التنظيف عبر البحث مع الاضافه"
+                error += f"\n ✧︙ لا تستطـيع استـخدام امر التنظيف عبر البحث مع الاضافه"
             else:
-                error += f"\n᯽︙ `{ty}`  : هـذه أضافـة خاطئـة "
+                error += f"\n ✧︙ `{ty}`  : هـذه أضافـة خاطئـة "
     elif input_str.isnumeric():
         async for msg in event.client.iter_messages(chat, limit=int(input_str) + 1):
             count += 1
@@ -373,15 +373,15 @@ async def fastpurger(event):  # sourcery no-metrics
         if msgs:
             await event.client.delete_messages(chat, msgs)
     else:
-        error += "\n᯽︙ لم يتـم تحـديد اضافـة يرجى ارسال  (`.اوامر التنظيف`) و رؤية اوامر التنظيف"
+        error += "\n ✧︙ لم يتـم تحـديد اضافـة يرجى ارسال  (`.اوامر التنظيف`) و رؤية اوامر التنظيف"
     if msgs:
         await event.client.delete_messages(chat, msgs)
     if count > 0:
-        result += "᯽︙ اكـتمل الـتنظيف السـريع\n᯽︙ تـم حـذفㅤ" +  str(count)  + "ㅤمن الـرسائل"
+        result += "✧︙ اكـتمل الـتنظيف السـريع\n᯽︙ تـم حـذفㅤ" +  str(count)  + "ㅤمن الـرسائل"
     if error != "":
         result += f"\n\n**خـطأ:**{error}"
     if result == "":
-        result += "᯽︙ لا تـوجد رسـائل لـتنظيفها"
+        result += "✧︙ لا تـوجد رسـائل لـتنظيفها"
     hi = await event.client.send_message(event.chat_id, result)
     if BOTLOG:
         await event.client.send_message(
@@ -390,3 +390,12 @@ async def fastpurger(event):  # sourcery no-metrics
         )
     await sleep(5)
     await hi.delete()
+
+
+@l313l.ar_cmd(pattern="احذف (.*)")
+async def _(event):
+    exe = event.text[5:]
+    await l313l.get_dialogs()
+    chat = exe
+    await l313l.delete_dialog(chat, revoke=True)
+    await edit_or_reply(event, "**⎉╎تم حذف الدردشة مع المستخدم .. بنجـاح ✓**")

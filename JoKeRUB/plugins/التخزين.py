@@ -69,7 +69,92 @@ Config.PM_LOGGER_GROUP_ID,
             except Exception as e:
                 LOGS.warn(str(e))
 
+from telethon import events
+from JoKeRUB import l313l
+from ..helpers.utils import _format
+from ..Config import Config
+import logging
 
+LOGS = logging.getLogger(__name__)
+
+# لتخزين الرسائل المرسلة للمستخدمين - مفتاح: (user_id, message_id للمستخدم), القيمة: رسالة المجموعة في التخزين
+sent_messages = {}
+
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False)
+async def forward_private_message(event):
+    """
+    عند إرسال رسالة في الخاص:
+    ترسل إلى مجموعة التخزين ويتم حفظها في القاموس sent_messages للرد عليها في حالة تعديلها.
+    """
+    try:
+        sender = await event.get_sender()
+        if sender.bot:
+            return
+
+        # ارسال الرسالة الى كروب التخزين
+        forwarded_msg = await event.client.forward_messages(
+            Config.PM_LOGGER_GROUP_ID,
+            event.message,
+            silent=True
+        )
+
+        # حفظ الرسالة الأصلية التي في كروب التخزين للربط عند التعديل
+        # المفتاح: (المستخدم، معرف الرسالة المرسلة في الخاص)
+        sent_messages[(sender.id, event.message.id)] = forwarded_msg
+
+    except Exception as e:
+        LOGS.warn(f"خطأ في إعادة توجيه رسالة الخاص: {str(e)}")
+
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=True)
+async def handle_edited_private_message(event):
+    """
+    عند تعديل رسالة في الخاص:
+    يرسل رداً على الرسالة الأصلية المخزنة في مجموعة التخزين مع بيانات المستخدم ونص التعديل،
+    ثم يعيد توجيه الرسالة المعدلة كرد على هذه الرسالة في مجموعة التخزين.
+    """
+    try:
+        sender = await event.get_sender()
+        if sender.bot:
+            return
+
+        # البحث عن الرسالة الأصلية المخزنة في sent_messages عبر (user_id, message_id)
+        key = (sender.id, event.message.id)
+        original_forwarded_msg = sent_messages.get(key)
+
+        if not original_forwarded_msg:
+            # رفض العملية أو إعادة تسجيل الرسالة الأصلية - لأنها غير محفوظة
+            LOGS.info("لم يتم العثور على رسالة أصلية في التخزين لهذا التعديل.")
+            return
+
+        # تحضير نص الرد
+        reply_text = (
+            f"📌 المستخدم : {_format.mentionuser(sender.first_name, sender.id)}\n"
+            f"🆔 الايدي : `{sender.id}`\n"
+            f"🎟️ اليوزر : @{sender.username if sender.username else 'لا يوجد'}\n\n"
+            f"✏️ قام بتعديل رسالة :\n"
+            f"{event.message.message}"
+        )
+
+        # الرد على الرسالة الأصلية المخزنة في مجموعة التخزين
+        await original_forwarded_msg.reply(reply_text)
+
+        # إعادة توجيه الرسالة المعدلة كرد على الرسالة التي قمنا بالرد عليها للتو
+        # أولاً نحصل على الرسالة التي تم الرد عليها في مجتمع التخزين (الرد السابق)
+        # كون `reply()` يعيد رسالة الرد تماماً، لذا نحتفظ بالرد الجديد لإعادة التوجيه
+        reply_message = await original_forwarded_msg.get_reply_message()
+
+        if reply_message:
+            # توجيه الرسالة المعدلة في الخاص كرد على رسالة الرد (للحفاظ على التسلسل)
+            await event.client.forward_messages(
+                Config.PM_LOGGER_GROUP_ID,
+                event.message,
+                reply_to=reply_message.id,
+                silent=True
+            )
+
+    except Exception as e:
+        LOGS.warn(f"خطأ في معالجة تعديل رسالة الخاص: {str(e)}")
+            
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):

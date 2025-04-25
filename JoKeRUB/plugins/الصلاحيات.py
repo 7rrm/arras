@@ -84,7 +84,6 @@ async def is_admin(event, user):
         is_mod = False
     return is_mod
 
-
 @l313l.ar_cmd(
     pattern="قفل(?: |$)(.*)",
     command=("قفل", plugin_category),
@@ -202,126 +201,104 @@ async def _(event):
             msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
         await edit_or_reply(event, msg_text)
 
-
-@l313l.ar_cmd(
-    pattern="فتح(?: |$)(.*)",
-    command=("فتح", plugin_category),
-    info={
-        "header": "اوامــر فتـح الحمـاية الخـاصه بـ المجمـوعـات",
-        "الوصـف": "اوامـر ذكيـه لـ قفـل / فتـح حمـاية المجمـوعـات بالمسـح والطـرد والتقييـد لـ اول مـره فقـط ع سـورس زدثــون",
-        "الاسـتخـدام": "{tr}فتح + الامــر",
-    },
-    require_admin=True,
-)
-async def _(event):
+@l313l.on(events.NewMessage(incoming=True))
+async def handle_messages(event):
     if not event.is_group:
         return
-    if event.fwd_from:
-        return
     
-    # تعريف المتغيرات الأساسية
-    msg = None
-    media = None
-    sticker = None
-    gif = None
-    what = ""
+    chat_id = event.chat_id
+    sender = await event.get_sender()
+    message_text = event.message.text or ""
+    message_media = event.message.media
+    message_sticker = isinstance(message_media, types.Document) and "sticker" in message_media.mime_type
+    message_gif = isinstance(message_media, types.Document) and "gif" in message_media.mime_type
+    message_photo = isinstance(message_media, types.Photo)
+    message_video = isinstance(message_media, types.Document) and "video" in message_media.mime_type
+    message_audio = isinstance(message_media, types.Document) and "audio" in message_media.mime_type
+    message_voice = isinstance(message_media, types.Document) and "voice" in message_media.mime_type
     
-    input_str = event.pattern_match.group(1)
-    peer_id = event.chat_id
-    chat_per = (await event.get_chat()).default_banned_rights
-    
-    # التحقق من وجود "عام"
-    is_public = "عام" in input_str
-    if is_public:
-        input_str = input_str.replace("عام", "").strip()
-    
-    if input_str == "الدردشة" or input_str == "الدردشه":
-        msg = False
-        what = "الدردشـه"
-    elif input_str == "الصور" or input_str == "الفيديو" or input_str == "الصوت":
-        media = False
-        what = "الصـور والفيديـو والصـوت"
-    elif input_str == "الملصقات":
-        sticker = False
-        what = "الملصقـات"
-    elif input_str == "المتحركه":
-        gif = False
-        what = "المتحركـات"
-    elif input_str == "البوتات":
-        update_lock(event.chat_id, "bots", False)
-        what = "البوتـات"
-    elif input_str == "المعرفات":
-        update_lock(event.chat_id, "button", False)
-        what = "المعرفـات"
-    elif input_str == "الدخول":
-        update_lock(event.chat_id, "location", False)
-        what = "الدخـول"
-    elif input_str == "الفارسيه":
-        update_lock(event.chat_id, "egame", False)
-        what = "الفارسيـه"
-    elif input_str == "الاضافه":
-        update_lock(event.chat_id, "contact", False)
-        what = "الإضافـة"
-    elif input_str == "التوجيه":
-        update_lock(event.chat_id, "forward", False)
-        what = "التوجيـه"
-    elif input_str == "الميديا":
-        update_lock(event.chat_id, "game", False)
-        what = "الميديـا"
-    elif input_str == "الانلاين":
-        update_lock(event.chat_id, "inline", False)
-        what = "الانلايـن"
-    elif input_str == "الفشار":
-        update_lock(event.chat_id, "rtl", False)
-        what = "الفشـار"
-    elif input_str == "الروابط":
-        update_lock(event.chat_id, "url", False)
-        what = "الروابـط"
-    elif input_str == "الكل":
-        what = "الكـل"
-        update_lock(event.chat_id, "bots", False)
-        update_lock(event.chat_id, "game", False)
-        update_lock(event.chat_id, "forward", False)
-        update_lock(event.chat_id, "egame", False)
-        update_lock(event.chat_id, "rtl", False)
-        update_lock(event.chat_id, "url", False)
-        update_lock(event.chat_id, "contact", False)
-        update_lock(event.chat_id, "location", False)
-        update_lock(event.chat_id, "button", False)
-        update_lock(event.chat_id, "inline", False)
-        update_lock(event.chat_id, "video", False)
-        update_lock(event.chat_id, "sticker", False)
-        update_lock(event.chat_id, "voice", False)
-        update_lock(event.chat_id, "audio", False)
-    else:
-        return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`")
-    
-    # فقط إذا كان الأمر يتطلب ChatBannedRights
-    if what in ["الدردشـه", "الصـور والفيديـو والصـوت", "الملصقـات", "المتحركـات"]:
-        unlock_rights = ChatBannedRights(
-            until_date=None,
-            send_messages=msg,
-            send_media=media,
-            send_stickers=sticker,
-            send_gifs=gif,
-        )
-        
+    # قفل الروابط
+    if is_locked(chat_id, "url") and "http" in message_text:
         try:
-            await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=unlock_rights))
-            msg_text = f"**◆╎تـم فتـح {what} بنجـاح ✅ .**"
-            if is_public:
-                msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
-            await edit_or_reply(event, msg_text)
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الروابـط هنـا ⚠️•**", link_preview=False)
         except Exception as e:
-            await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
-    else:
-        msg_text = f"**◆╎تـم فتـح {what} بنجـاح ✅ .**"
-        if is_public:
-            msg_text += "\n**⎉╎علـى الجميـع (الأعضـاء + المشـرفين)**"
-        await edit_or_reply(event, msg_text)
-	    
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الدردشة
+    if is_locked(chat_id, "chat") and message_text:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الرسـائل هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الصور
+    if is_locked(chat_id, "photo") and message_photo:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الصـور هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الملصقات
+    if is_locked(chat_id, "sticker") and message_sticker:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الملصقـات هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل المتحركات (GIF)
+    if is_locked(chat_id, "gif") and message_gif:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال المتحركـات هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الفيديو
+    if is_locked(chat_id, "video") and message_video:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الفيديـو هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الصوت
+    if is_locked(chat_id, "audio") and message_audio:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال الصـوت هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل البصمات
+    if is_locked(chat_id, "voice") and message_voice:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع ارسـال البصمـات هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل التوجيه
+    if is_locked(chat_id, "forward") and event.message.fwd_from:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع التوجيـه هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+    
+    # قفل الانلاين
+    if is_locked(chat_id, "inline") and event.message.via_bot:
+        try:
+            await event.delete()
+            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{sender.first_name}](tg://user?id={sender.id})  \n⌔╎**يُمنـع استخـدام الانلايـن هنـا ⚠️•**", link_preview=False)
+        except Exception as e:
+            await event.reply(f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .** \n`{e}`")
+		
 
-	    
+
 
 @l313l.ar_cmd(pattern="(المميز تفعيل|قفل المميز)")
 async def lock_premium(event):

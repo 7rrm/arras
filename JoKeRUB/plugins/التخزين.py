@@ -69,6 +69,36 @@ Config.PM_LOGGER_GROUP_ID,
             except Exception as e:
                 LOGS.warn(str(e))
 
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=True)
+async def log_edited_private_messages(event):
+    """
+    Function to catch edited private messages and log the original and edited content in the storage group.
+    """
+    try:
+        # Retrieve the original message (only available for edited messages)
+        original_message = await event.get_reply_message()
+        sender = await event.get_sender()
+
+        # Ensure the sender is not a bot
+        if not sender.bot:
+            # Prepare the log message
+            log_text = (
+                f"**✏️┊قام المستخدم في الخاص بتعديل رسالة:**\n"
+                f"**👤┊المستخدم :** {_format.mentionuser(sender.first_name, sender.id)}\n"
+                f"**🆔┊الايـدي :** `{sender.id}`\n\n"
+                f"**📂┊الرسالة الأصلية :**\n```{original_message.message if original_message else 'غير متوفرة'}```\n\n"
+                f"**📤┊الرسالة المعدلة :**\n```{event.message.message}```"
+            )
+
+            # Forward the log to the storage group
+            await event.client.send_message(
+                Config.PM_LOGGER_GROUP_ID,
+                log_text,
+                parse_mode="markdown",
+            )
+    except Exception as e:
+        LOGS.warn(f"Error in log_edited_private_messages: {str(e)}")
+        
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):

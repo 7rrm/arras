@@ -83,7 +83,6 @@ async def is_admin(event, user):
     except:
         is_mod = False
     return is_mod
-	
 
 @l313l.ar_cmd(
     pattern="قفل(?: |$)(.*)",
@@ -119,8 +118,6 @@ async def _(event):
     peer_id = event.chat_id
     zed_id = event.chat_id
     chat_per = (await event.get_chat()).default_banned_rights
-    is_general = "عام" in input_str
-    input_str = input_str.replace(" عام", "").strip()
     if input_str in ("الدردشه", "الدردشة", "الصور", "الملصقات", "المتحركه", "المتحركة", "المتحركات" "الفيديو", "الصوت", "البصمات", "الكل"):
         msg = chat_per.send_messages
         media = chat_per.send_media
@@ -189,10 +186,7 @@ async def _(event):
         )
         try:
             await event.client(EditChatDefaultBannedRightsRequest(peer=peer_id, banned_rights=lock_rights))
-            if is_general:
-                return await edit_or_reply(event, f"**◆╎تـم قفـل {what} لـلجميـع (المشرفين والأعضاء) بنجـاح ✅ .**")
-            else:
-                return await edit_or_reply(event, f"**◆╎تـم قفـل {what} للأعضاء فقط بنجـاح ✅ .**")
+            return await edit_or_reply(event, f"**◆╎تـم قفـل {what} بنجـاح ✅ .**")
         except BaseException as e:
             return await edit_or_reply(event, f"**◆╎عـذࢪاً  عـزيـزي ..**\n**⤶╎لا املك صـلاحيات هنـا .**")
     if input_str == "البوتات":
@@ -238,44 +232,6 @@ async def _(event):
             return await edit_or_reply(event, f"**◆╎عذراً لايـوجـد امـر بـ اسـم :** `{input_str}`\n**⤶╎لعـرض اوامـر القفـل والفتـح ارسـل** `.م7`")
 
         return await edit_or_reply(event, "**◆╎عـذࢪاً عـزيـزي .. لايمكنك قفـل اي شي هنـا ... **")
-
-
-@l313l.on(events.NewMessage(incoming=True))
-async def handle_messages(event):
-    if not event.is_group:
-        return
-    chat = await event.get_chat()
-    if not chat.admin_rights and not chat.creator:
-        return
-    zed_id = event.chat_id
-    user = await event.get_sender()
-    is_admin_user = await is_admin(event, user.id)
-    if is_locked(zed_id, "sticker") and event.message.sticker:
-        if not is_admin_user or "عام" in gvarstatus("lock_sticker"):
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{user.first_name}](tg://user?id={user.id})  \n⌔╎**يُمنـع ارسـال الملصقـات هنـا ⚠️•**", link_preview=False)
-    if is_locked(zed_id, "url") and "http" in event.message.text:
-        if not is_admin_user or "عام" in gvarstatus("lock_url"):
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{user.first_name}](tg://user?id={user.id})  \n⌔╎**يُمنـع ارسـال الروابـط هنـا ⚠️•**", link_preview=False)
-    if is_locked(zed_id, "inline") and event.message.via_bot:
-        if not is_admin_user or "عام" in gvarstatus("lock_inline"):
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{user.first_name}](tg://user?id={user.id})  \n⌔╎**يُمنـع استخـدام الانلايـن في هذه المجموعـة ⚠️•**", link_preview=False)
-    if is_locked(zed_id, "forward") and event.fwd_from:
-        if not is_admin_user or "عام" in gvarstatus("lock_forward"):
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{user.first_name}](tg://user?id={user.id})  \n⌔╎**يُمنـع التوجيـه هنـا ⚠️•**", link_preview=False)
-    if is_locked(zed_id, "game") and event.message.media:
-        if not is_admin_user or "عام" in gvarstatus("lock_game"):
-            await event.delete()
-            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**عـذࢪاً** [{user.first_name}](tg://user?id={user.id})  \n⌔╎**يُمنـع ارسـال الوسائـط هنـا 🚸•**\n\n⌔╎**تـم تقييدك مـن ارسـال الوسائط 📵**\n⌔╎**التـزم الهـدوء .. تستطـيع ارسـال الرسـائل فقـط..**", link_preview=False)
-            await event.client(
-                EditBannedRequest(
-                    event.chat_id, event.sender_id, ANTI_DDDD_ZEDTHON_MODE
-                )
-	    )
-		
 
 @l313l.ar_cmd(
     pattern="فتح(?: |$)(.*)",

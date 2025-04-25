@@ -1,8 +1,8 @@
 import asyncio
-
+from telethon.tl.functions.channels import CreateChannelRequest
+from telethon.tl.functions.messages import ExportChatInviteRequest
 from JoKeRUB import l313l
 from JoKeRUB.core.logger import logging
-
 from ..Config import Config
 from ..core.managers import edit_delete
 from ..helpers.tools import media_type
@@ -12,22 +12,19 @@ from ..sql_helper.globals import addgvar, gvarstatus
 from . import BOTLOG, BOTLOG_CHATID
 
 LOGS = logging.getLogger(__name__)
-
 plugin_category = "البوت"
-
 
 class LOG_CHATS:
     def __init__(self):
         self.RECENT_USER = None
         self.NEWPM = None
         self.COUNT = 0
-
+        self.STORED_MESSAGES = {}  # لتخزين الرسائل المحولة
 
 LOG_CHATS_ = LOG_CHATS()
 
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
-async def monito_p_m_s(event):  # sourcery no-metrics
+async def monito_p_m_s(event):
     if Config.PM_LOGGER_GROUP_ID == -100:
         return
     if gvarstatus("PMLOG") and gvarstatus("PMLOG") == "false":
@@ -46,120 +43,96 @@ async def monito_p_m_s(event):  # sourcery no-metrics
                                     " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
                                 )
                             )
-                        except BaseException as er:
-                            print(f"صار خطأ\n{er}")
+                        except Exception as er:
+                            LOGS.error(f"Error: {er}")
                     else:
                         await event.client.send_message(
-Config.PM_LOGGER_GROUP_ID,
+                            Config.PM_LOGGER_GROUP_ID,
                             LOG_CHATS_.NEWPM.text.replace(
                                 " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
                             )
                         )
                     LOG_CHATS_.COUNT = 0
-                # في دالة monito_p_m_s الأصلية، عدل السطر الذي يرسل الرسالة الأصلية ليصبح:
-LOG_CHATS_.NEWPM = await event.client.send_message(
-    Config.PM_LOGGER_GROUP_ID,
-    f"user.id: {chat.id}\n"  # هذه العلامة للبحث لاحقاً
-    f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
-    f"**🎟┊الايـدي :** `{chat.id}`",
-)
-
+                LOG_CHATS_.NEWPM = await event.client.send_message(
+                    Config.PM_LOGGER_GROUP_ID,
+                    f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)} **- قام بـ إرسـال رسـالة جـديـده** \n**🎟┊الايـدي :** `{chat.id}`",
+                )
             try:
                 if event.message:
+                    forwarded_msg = await event.client.forward_messages(
+                        Config.PM_LOGGER_GROUP_ID, event.message, silent=True
+                    )
+                    # تخزين الرسالة المحولة للرد عليها لاحقاً عند التعديل
+                    LOG_CHATS_.STORED_MESSAGES[event.message.id] = forwarded_msg.id
+                LOG_CHATS_.COUNT += 1
+            except Exception as e:
+                LOGS.error(f"Error: {e}")
+
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=True, forword=None)
+async def handle_edited_messages(event):
+    if Config.PM_LOGGER_GROUP_ID == -100:
+        return
+    if gvarstatus("PMLOG") and gvarstatus("PMLOG") == "false":
+        return
+    sender = await event.get_sender()
+    if not sender.bot:
+        chat = await event.get_chat()
+        if not no_log_pms_sql.is_approved(chat.id) and chat.id != 777000:
+            # البحث عن الرسالة الأصلية في مجموعة التخزين
+            original_msg_id = event.message.id
+            if original_msg_id in LOG_CHATS_.STORED_MESSAGES:
+                storage_msg_id = LOG_CHATS_.STORED_MESSAGES[original_msg_id]
+                try:
+                    # الرد على الرسالة الأصلية في مجموعة التخزين
+                    reply_msg = await event.client.send_message(
+                        Config.PM_LOGGER_GROUP_ID,
+                        f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
+                        f"**🎟┊الايـدي :** `{sender.id}`\n"
+                        f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
+                        f"**قام بتعديل رسالة إلى:**\n"
+                        f"{event.message.message}",
+                        reply_to=storage_msg_id
+                    )
+                    # تحويل الرسالة المعدلة إلى مجموعة التخزين
                     await event.client.forward_messages(
                         Config.PM_LOGGER_GROUP_ID, event.message, silent=True
                     )
-                LOG_CHATS_.COUNT += 1
-            except Exception as e:
-                LOGS.warn(str(e))
-       
-@l313l.ar_cmd(incoming=True, edited=True)
-async def handle_edited_messages(event):
-    # التحقق من أن الرسالة معدلة وأنها ليست من بوت
-    if event.is_private and not (await event.get_sender()).bot:
-        chat = await event.get_chat()
-        if not no_log_pms_sql.is_approved(chat.id) and chat.id != 777000:
-            if Config.PM_LOGGER_GROUP_ID == -100:
-                return
-            
-            # البحث عن الرسالة الأصلية في كروب التخزين
-            async for msg in event.client.iter_messages(
-                Config.PM_LOGGER_GROUP_ID,
-                search=f"user.id: {chat.id}",
-                limit=1
-            ):
-                if msg.text and f"user.id: {chat.id}" in msg.text:
-                    original_msg = msg
-                    break
-            else:
-                return
-            
-            # إعداد بيانات المستخدم
-            sender = await event.get_sender()
-            user_info = (
-                f"المستخدم: {_format.mentionuser(sender.first_name, sender.id)}\n"
-                f"الايدي: `{sender.id}`\n"
-                f"اليوزر: @{sender.username if sender.username else 'لا يوجد'}\n\n"
-                f"قام بتعديل رسالة:\n"
-                f"`{event.text}`"
-            )
-            
-            # الرد على الرسالة الأصلية بالمعلومات الجديدة
-            await event.client.send_message(
-                Config.PM_LOGGER_GROUP_ID,
-                user_info,
-                reply_to=original_msg.id
-            )
-            
-            # إعادة توجيه الرسالة المعدلة
-            await event.client.forward_messages(
-                Config.PM_LOGGER_GROUP_ID,
-                event.message,
-                silent=True
-            )
-            
+                except Exception as e:
+                    LOGS.error(f"Error handling edited message: {e}")
 
-@l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
-async def log_tagged_messages(event):
-    hmm = await event.get_chat()
-    from .afk import AFK_
-
-    if gvarstatus("GRPLOG") and gvarstatus("GRPLOG") == "false":
-        return
-    if (
-        (no_log_pms_sql.is_approved(hmm.id))
-        or (Config.PM_LOGGER_GROUP_ID == -100)
-        or ("on" in AFK_.USERAFK_ON)
-        or (await event.get_sender() and (await event.get_sender()).bot)
-    ):
-        return
-    full = None
-    try:
-        full = await event.client.get_entity(event.message.from_id)
-    except Exception as e:
-        LOGS.info(str(e))
-    messaget = None
-    try:
-        messaget = await media_type(event)
-    except BaseException:
-        messaget = None
-    resalt = f"#التــاكــات\n\n<b>⌔┊الكــروب : </b><code>{hmm.title}</code>"
-    if full is not None:
-        resalt += (
-            f"\n\n<b>⌔┊المـرسـل : </b> {_format.htmlmentionuser(full.first_name , full.id)}"
-        )
-    if messaget is not None:
-        resalt += f"\n\n<b>⌔┊رسـالـة ميـديـا : </b><code>{messaget}</code>"
+@l313l.ar_cmd(
+    pattern="خزن(?:\s|$)([\s\S]*)",
+    command=("خزن", plugin_category),
+    info={
+        "header": "لحفظ الرسالة في مجموعة التخزين",
+        "الاسـتخـدام": [
+            "{tr}خزن",
+        ],
+    },
+)
+async def log(log_text):
+    "لحفظ الرسالة في مجموعة التخزين"
+    if BOTLOG:
+        if log_text.reply_to_msg_id:
+            reply_msg = await log_text.get_reply_message()
+            forwarded_msg = await reply_msg.forward_to(BOTLOG_CHATID)
+            # تخزين معرف الرسالة المحولة
+            LOG_CHATS_.STORED_MESSAGES[reply_msg.id] = forwarded_msg.id
+        elif log_text.pattern_match.group(1):
+            user = f"#التخــزين / ايـدي الدردشــه : {log_text.chat_id}\n\n"
+            textx = user + log_text.pattern_match.group(1)
+            await log_text.client.send_message(BOTLOG_CHATID, textx)
+        else:
+            await log_text.edit("**⌔┊بالــرد على اي رسـاله لحفظهـا في كـروب التخــزين**")
+            return
+        await log_text.edit("**⌔┊تـم الحفـظ في كـروب التخـزين .. بنجـاح ✓**")
     else:
-        resalt += f"\n\n<b>⌔┊الرســالـه : </b>{event.message.message}"
-    resalt += f"\n\n<b>⌔┊رابـط الرسـاله : </b><a href = 'https://t.me/c/{hmm.id}/{event.message.id}'> link</a>"
-    if not event.is_private:
-        await event.client.send_message(
-            Config.PM_LOGGER_GROUP_ID,
-            resalt,
-            parse_mode="html",
-            link_preview=False,
-        )
+        await log_text.edit("**⌔┊عـذراً .. هـذا الامـر يتطلـب تفعيـل فـار التخـزين اولاً**")
+    await asyncio.sleep(2)
+    await log_text.delete()
+
+# باقي الأوامر (تفعيل التخزين، تعطيل التخزين، تخزين الخاص، تخزين الكروبات)
+# تبقى كما هي دون تغيير
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
 
@@ -237,36 +210,6 @@ async def monitor_messages(event):
         print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
 
 @l313l.ar_cmd(
-    pattern="خزن(?:\s|$)([\s\S]*)",
-    command=("خزن", plugin_category),
-    info={
-        "header": "To log the replied message to bot log group so you can check later.",
-        "الاسـتخـدام": [
-            "{tr}خزن",
-        ],
-    },
-)
-async def log(log_text):
-    "To log the replied message to bot log group"
-    if BOTLOG:
-        if log_text.reply_to_msg_id:
-            reply_msg = await log_text.get_reply_message()
-            await reply_msg.forward_to(BOTLOG_CHATID)
-        elif log_text.pattern_match.group(1):
-            user = f"#التخــزين / ايـدي الدردشــه : {log_text.chat_id}\n\n"
-            textx = user + log_text.pattern_match.group(1)
-            await log_text.client.send_message(BOTLOG_CHATID, textx)
-        else:
-            await log_text.edit("**⌔┊بالــرد على اي رسـاله لحفظهـا في كـروب التخــزين**")
-            return
-        await log_text.edit("**⌔┊تـم الحفـظ في كـروب التخـزين .. بنجـاح ✓**")
-    else:
-        await log_text.edit("**⌔┊عـذراً .. هـذا الامـر يتطلـب تفعيـل فـار التخـزين اولاً**")
-    await asyncio.sleep(2)
-    await log_text.delete()
-
-
-@l313l.ar_cmd(
     pattern="تفعيل التخزين$",
     command=("تفعيل التخزين", plugin_category),
     info={
@@ -285,7 +228,6 @@ async def set_no_log_p_m(event):
             await edit_delete(
                 event, "**⌔┊تـم تفعيـل التخـزين لهـذه الدردشـه .. بنجـاح ✓**", 5
             )
-
 
 @l313l.ar_cmd(
     pattern="تعطيل التخزين$",
@@ -306,7 +248,6 @@ async def set_no_log_p_m(event):
             await edit_delete(
                 event, "**⌔┊تـم تعطيـل التخـزين لهـذه الدردشـه .. بنجـاح ✓**", 5
             )
-
 
 @l313l.ar_cmd(
     pattern="تخزين الخاص (تفعيل|تعطيل)$",
@@ -344,7 +285,6 @@ async def set_pmlog(event):
         await event.edit("**- تـم تفعيـل تخـزين رسـائل الخـاص .. بنجـاح✓**")
     else:
         await event.edit("**- تخزين الخاص بالفعـل معطـل ✓**")
-
 
 @l313l.ar_cmd(
     pattern="تخزين الكروبات (تفعيل|تعطيل)$",

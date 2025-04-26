@@ -636,67 +636,62 @@ async def Hussein(event):
         
 @l313l.ar_cmd(pattern="مغادرة القنوات")
 async def hussein(event):
-    # طلب التأكيد أولاً
+    # إنشاء زر للتأكيد
+    buttons = [
+        [Button.inline("نعم ✅", data="confirm_yes"),
+        Button.inline("لا ❌", data="confirm_no")]
+    ]
+    
     confirmation = await event.reply(
-        "**⚠️| هل أنت متأكد من مغادرة جميع القنوات؟**\n"
-        "• سيتم استثناء:\n"
+        "**⚠️| تأكيد مغادرة القنوات**\n"
+        "• سيتم مغادرة جميع القنوات ما عدا:\n"
         "- القنوات المؤرشفة\n"
         "- القنوات التي تديرها\n\n"
-        "**أرسل 『 نعم 』للمتابعة**\n"
-        "أو 『 لا 』للإلغاء"
+        "اضغط على زر 'نعم' للمتابعة",
+        buttons=buttons
     )
-    
-    try:
-        # استخدام نظام المحادثة بشكل صحيح
-        def check_response(m):
-            return m.sender_id == event.sender_id and m.chat_id == event.chat_id
-        
-        response = await event.client.wait_for(
-            'message',
-            timeout=30,
-            check=check_response
-        )
-        
-        if response.text.lower() != 'نعم':
-            return await confirmation.edit("**✕ | تم الإلغاء**")
-            
-    except asyncio.TimeoutError:
-        return await confirmation.edit("**✕ | تم الإلغاء بسبب انتهاء الوقت**")
-    except Exception as e:
-        return await confirmation.edit(f"**حدث خطأ:**\n```{str(e)}```")
 
-    processing_msg = await event.reply("**᯽︙ جارِ مغادرة القنوات...**")
-    kept_channels = []
-    left_channels = 0
-    
-    try:
-        async for dialog in event.client.iter_dialogs():
-            if not dialog.is_channel:
-                continue
+    # تعريف معالج الأزرار
+    @bot.on(events.CallbackQuery(data="confirm_yes"))
+    async def confirm_handler(event):
+        await event.answer("جارِ المعالجة...")
+        await confirmation.edit("**᯽︙ جارِ مغادرة القنوات...**")
+        
+        kept_channels = []
+        left_channels = 0
+        
+        try:
+            async for dialog in event.client.iter_dialogs():
+                if not dialog.is_channel:
+                    continue
+                    
+                entity = dialog.entity
                 
-            entity = dialog.entity
+                if (dialog.archived or 
+                    getattr(entity, 'creator', False) or 
+                    getattr(entity, 'admin_rights', False)):
+                    kept_channels.append(entity.title)
+                    continue
+                    
+                try:
+                    await event.client.delete_dialog(entity.id)
+                    left_channels += 1
+                    await asyncio.sleep(0.5)
+                except Exception as e:
+                    print(f"خطأ في مغادرة {entity.title}: {str(e)}")
+                    
+            result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
+            if kept_channels:
+                result_msg += f"\n\n**القنوات المحتفظ بها:**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
+            await confirmation.edit(result_msg, buttons=None)
             
-            # استثناء القنوات:
-            if (dialog.archived or 
-                getattr(entity, 'creator', False) or 
-                getattr(entity, 'admin_rights', False)):
-                kept_channels.append(entity.title)
-                continue
-                
-            try:
-                await event.client.delete_dialog(entity.id)
-                left_channels += 1
-                await asyncio.sleep(0.5)
-            except Exception as e:
-                print(f"خطأ في مغادرة {entity.title}: {str(e)}")
-                
-        result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
-        if kept_channels:
-            result_msg += f"\n\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
-        await processing_msg.edit(result_msg)
-            
-    except Exception as e:
-        await processing_msg.edit(f"**حدث خطأ غير متوقع:**\n```{str(e)}```")
+        except Exception as e:
+            await confirmation.edit(f"**حدث خطأ:**\n```{str(e)}```", buttons=None)
+
+    @bot.on(events.CallbackQuery(data="confirm_no"))
+    async def cancel_handler(event):
+        await event.answer("تم الإلغاء")
+        await confirmation.edit("**✕ | تم إلغاء العملية**", buttons=None)
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):

@@ -640,19 +640,30 @@ async def hussein(event):
         "• سيتم استثناء:\n"
         "- القنوات المؤرشفة\n"
         "- القنوات التي تديرها\n\n"
-        "**أرسل 『 نعم 』للمتابعة**"
+        "**أرسل 『 نعم 』للمتابعة**\n"
+        "أو 『 لا 』للإلغاء"
     )
     
     try:
-        # التصحيح: استخدام telethon's Conversation بدلاً من wait_for
-        async with event.client.conversation(event.chat_id, timeout=30) as conv:
-            response = await conv.get_response()
-            if response.text != 'نعم':
-                return await confirmation.edit("**✕ | تم الإلغاء**")
+        # استخدام نظام المحادثة بشكل صحيح
+        def check_response(m):
+            return m.sender_id == event.sender_id and m.chat_id == event.chat_id
+        
+        response = await event.client.wait_for(
+            'message',
+            timeout=30,
+            check=check_response
+        )
+        
+        if response.text.lower() != 'نعم':
+            return await confirmation.edit("**✕ | تم الإلغاء**")
+            
     except asyncio.TimeoutError:
         return await confirmation.edit("**✕ | تم الإلغاء بسبب انتهاء الوقت**")
+    except Exception as e:
+        return await confirmation.edit(f"**حدث خطأ:**\n```{str(e)}```")
 
-    await confirmation.edit("**᯽︙ جارِ مغادرة القنوات...**")
+    processing_msg = await event.reply("**᯽︙ جارِ مغادرة القنوات...**")
     kept_channels = []
     left_channels = 0
     
@@ -664,11 +675,9 @@ async def hussein(event):
             entity = dialog.entity
             
             # استثناء القنوات:
-            # 1. المؤرشفة
-            # 2. أنت منشئها أو لديك صلاحيات إدارية
             if (dialog.archived or 
-                entity.creator or 
-                entity.admin_rights):
+                getattr(entity, 'creator', False) or 
+                getattr(entity, 'admin_rights', False)):
                 kept_channels.append(entity.title)
                 continue
                 
@@ -681,11 +690,11 @@ async def hussein(event):
                 
         result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
         if kept_channels:
-            result_msg += f"\n\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:10])
-        await event.edit(result_msg)
+            result_msg += f"\n\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
+        await processing_msg.edit(result_msg)
             
     except Exception as e:
-        await event.edit(f"**حدث خطأ غير متوقع:**\n```{str(e)}```")
+        await processing_msg.edit(f"**حدث خطأ غير متوقع:**\n```{str(e)}```")
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):

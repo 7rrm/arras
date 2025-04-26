@@ -9,8 +9,7 @@ import random
 from datetime import datetime
 import time
 from telethon.tl import types
-from telethon import Button, events, version
-from telethon.events import CallbackQuery
+
 from telethon.tl.types import Channel, Chat, User, ChannelParticipantsAdmins
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.errors.rpcerrorlist import ChannelPrivateError
@@ -636,62 +635,38 @@ async def Hussein(event):
         
 @l313l.ar_cmd(pattern="مغادرة القنوات")
 async def hussein(event):
-    # إنشاء زر للتأكيد
-    buttons = [
-        [Button.inline("نعم ✅", data="confirm_yes"),
-        Button.inline("لا ❌", data="confirm_no")]
-    ]
+    processing_msg = await event.edit("**᯽︙ جارِ مغادرة القنوات...**")
+    kept_channels = []
+    left_channels = 0
     
-    confirmation = await event.reply(
-        "**⚠️| تأكيد مغادرة القنوات**\n"
-        "• سيتم مغادرة جميع القنوات ما عدا:\n"
-        "- القنوات المؤرشفة\n"
-        "- القنوات التي تديرها\n\n"
-        "اضغط على زر 'نعم' للمتابعة",
-        buttons=buttons
-    )
-
-    # تعريف معالج الأزرار
-    @bot.on(events.CallbackQuery(data="confirm_yes"))
-    async def confirm_handler(event):
-        await event.answer("جارِ المعالجة...")
-        await confirmation.edit("**᯽︙ جارِ مغادرة القنوات...**")
-        
-        kept_channels = []
-        left_channels = 0
-        
-        try:
-            async for dialog in event.client.iter_dialogs():
-                if not dialog.is_channel:
-                    continue
-                    
-                entity = dialog.entity
+    try:
+        async for dialog in event.client.iter_dialogs():
+            if not dialog.is_channel:
+                continue
                 
-                if (dialog.archived or 
-                    getattr(entity, 'creator', False) or 
-                    getattr(entity, 'admin_rights', False)):
-                    kept_channels.append(entity.title)
-                    continue
-                    
-                try:
-                    await event.client.delete_dialog(entity.id)
-                    left_channels += 1
-                    await asyncio.sleep(0.5)
-                except Exception as e:
-                    print(f"خطأ في مغادرة {entity.title}: {str(e)}")
-                    
-            result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
-            if kept_channels:
-                result_msg += f"\n\n**القنوات المحتفظ بها:**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
-            await confirmation.edit(result_msg, buttons=None)
+            entity = dialog.entity
             
-        except Exception as e:
-            await confirmation.edit(f"**حدث خطأ:**\n```{str(e)}```", buttons=None)
-
-    @bot.on(events.CallbackQuery(data="confirm_no"))
-    async def cancel_handler(event):
-        await event.answer("تم الإلغاء")
-        await confirmation.edit("**✕ | تم إلغاء العملية**", buttons=None)
+            # استثناء القنوات المؤرشفة أو الإدارية
+            if (dialog.archived or 
+                getattr(entity, 'creator', False) or 
+                getattr(entity, 'admin_rights', False)):
+                kept_channels.append(entity.title)
+                continue
+                
+            try:
+                await event.client.delete_dialog(entity.id)
+                left_channels += 1
+                await asyncio.sleep(0.5)  # تأخير لتجنب الحظر
+            except Exception as e:
+                print(f"خطأ في مغادرة {entity.title}: {str(e)}")
+                
+        result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
+        if kept_channels:
+            result_msg += f"\n\n**القنوات المحتفظ بها:**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
+        await processing_msg.edit(result_msg)
+            
+    except Exception as e:
+        await processing_msg.edit(f"**حدث خطأ:**\n```{str(e)}```")
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):

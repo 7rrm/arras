@@ -672,16 +672,30 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب ...**")
-    result = await event.client(GetContactsRequest(0))
-    bots = [user for user in result.users if user.bot]
-    for bot in bots:
+    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب مع استثناء الأرشيف...**")
+    
+    # جلب جميع الدردشات
+    dialogs = await event.client.get_dialogs(
+        ignore_migrated=True,
+        archived=True  # لجلب الأرشيف أيضاً
+    )
+    
+    # تصفية البوتات فقط
+    bots_dialogs = [dialog for dialog in dialogs if dialog.is_user and dialog.entity.bot]
+    
+    for dialog in bots_dialogs:
         try:
-            await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
+            # إذا كانت المحادثة غير مؤرشفة
+            if not dialog.archived:
+                await event.client(DeleteHistoryRequest(
+                    peer=dialog.entity,
+                    max_id=0,
+                    just_clear=True
+                ))
         except Exception as e:
             print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
-    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات بنجاح ✓ **")
     
+    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات (باستثناء الأرشيف) بنجاح ✓ **")
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

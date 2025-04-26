@@ -672,30 +672,30 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ حذف جميع محادثات البوتات في الحساب مع استثناء الأرشيف...**")
-    result = await event.client(GetContactsRequest(0))
-    bots = [user for user in result.users if user.bot]
+    await event.edit("**᯽︙ جارٍ تصفية محادثات البوتات...**")
     
-    for bot in bots:
+    # جلب قائمة جميع الدردشات
+    dialogs = await event.client.get_dialogs()
+    
+    # تصفية البوتات مع استثناء الأرشيف
+    bots_to_clear = []
+    for dialog in dialogs:
+        if dialog.is_user and dialog.entity.bot and not dialog.archived:
+            bots_to_clear.append(dialog.entity)
+    
+    # حذف محادثات البوتات المحددة
+    for bot in bots_to_clear:
         try:
-            # التحقق مما إذا كانت المحادثة في الأرشيف قبل الحذف
-            dialog = await event.client(GetDialogsRequest(
-                offset_date=None,
-                offset_id=0,
-                offset_peer=InputPeerEmpty(),
-                limit=1,
-                hash=0,
-                exclude_pinned=True
+            await event.client(DeleteHistoryRequest(
+                peer=bot.id,
+                max_id=0,
+                just_clear=True
             ))
-            
-            is_archived = any(dialog.peer.user_id == bot.id for dialog in dialog.dialogs if dialog.folder_id)
-            
-            if not is_archived:
-                await event.client(DeleteHistoryRequest(bot.id, max_id=0, just_clear=True))
         except Exception as e:
-            print(f"حدث خطأ أثناء حذف محادثات البوت: {e}")
+            print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
     
-    await event.edit("**᯽︙ تم حذف جميع محادثات البوتات (باستثناء الأرشيف) بنجاح ✓ **")
+    await event.edit(f"**᯽︙ تم الانتهاء! \nتم مسح {len(bots_to_clear)} محادثة بوت \n(لم يتم مسح البوتات المؤرشفة)**")
+
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

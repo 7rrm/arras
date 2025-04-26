@@ -644,12 +644,11 @@ async def hussein(event):
     )
     
     try:
-        # انتظار رد المستخدم لمدة 30 ثانية
-        response = await event.client.wait_for(
-            'message',
-            timeout=30,
-            check=lambda m: m.sender_id == event.sender_id and m.text == 'نعم'
-        )
+        # التصحيح: استخدام telethon's Conversation بدلاً من wait_for
+        async with event.client.conversation(event.chat_id, timeout=30) as conv:
+            response = await conv.get_response()
+            if response.text != 'نعم':
+                return await confirmation.edit("**✕ | تم الإلغاء**")
     except asyncio.TimeoutError:
         return await confirmation.edit("**✕ | تم الإلغاء بسبب انتهاء الوقت**")
 
@@ -676,17 +675,14 @@ async def hussein(event):
             try:
                 await event.client.delete_dialog(entity.id)
                 left_channels += 1
-                await asyncio.sleep(0.5)  # تقليل الضغط على السيرفر
+                await asyncio.sleep(0.5)
             except Exception as e:
                 print(f"خطأ في مغادرة {entity.title}: {str(e)}")
                 
-        if left_channels > 0:
-            result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**\n"
-            if kept_channels:
-                result_msg += f"\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:10])  # عرض أول 10 فقط لتجنب طول الرسالة
-            await event.edit(result_msg)
-        else:
-            await event.edit("**✧︙ لا توجد قنوات لمغادرتها**")
+        result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
+        if kept_channels:
+            result_msg += f"\n\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:10])
+        await event.edit(result_msg)
             
     except Exception as e:
         await event.edit(f"**حدث خطأ غير متوقع:**\n```{str(e)}```")

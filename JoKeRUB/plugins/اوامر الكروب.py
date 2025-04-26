@@ -632,6 +632,8 @@ async def Hussein(event):
         else:
             response = "**᯽︙ يُرجى تحديد معرف القناة أو المجموعة مع الخروج يامطوري ❤️**"
 
+from telethon.tl.types import Channel, Chat
+
 @l313l.ar_cmd(pattern="مغادرة القنوات")
 async def hussein(event):
     processing_msg = await event.edit("**᯽︙ جارِ تصفية القنوات فقط...**")
@@ -642,8 +644,12 @@ async def hussein(event):
         async for dialog in event.client.iter_dialogs():
             entity = dialog.entity
             
-            # فلترة دقيقة للقنوات فقط (ليست مجموعات)
-            if not (isinstance(entity, Channel) or not entity.broadcast):
+            # التحقق من أن الكائن قناة وليس مجموعة
+            if not isinstance(entity, Channel):
+                continue
+                
+            # التحقق من أن القناة ليست مجموعة (supergroup)
+            if getattr(entity, 'megagroup', False):
                 continue
                 
             # الاستثناءات
@@ -656,7 +662,7 @@ async def hussein(event):
             try:
                 await event.client.delete_dialog(entity.id)
                 left += 1
-                await asyncio.sleep(0.7)  # زيادة التأخير
+                await asyncio.sleep(0.7)
             except Exception as e:
                 print(f"خطأ في {entity.title}: {e}")
 

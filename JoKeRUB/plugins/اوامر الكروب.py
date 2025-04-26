@@ -9,6 +9,8 @@ import random
 from datetime import datetime
 import time
 from telethon.tl import types
+from telethon import Button, events, version
+from telethon.events import CallbackQuery
 from telethon.tl.types import Channel, Chat, User, ChannelParticipantsAdmins
 from telethon.tl.functions.channels import GetFullChannelRequest
 from telethon.errors.rpcerrorlist import ChannelPrivateError

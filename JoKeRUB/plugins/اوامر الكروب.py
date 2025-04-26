@@ -633,30 +633,63 @@ async def Hussein(event):
         #await event.reply(response)
         
 @l313l.ar_cmd(pattern="مغادرة القنوات")
-async def Hussein (event):
-    await event.edit("**᯽︙ جارِ مغادرة جميع القنوات الموجوده في حسابك ...**")
-    gr = []
-    dd = []
-    num = 0
+async def hussein(event):
+    # طلب التأكيد أولاً
+    confirmation = await event.reply(
+        "**⚠️| هل أنت متأكد من مغادرة جميع القنوات؟**\n"
+        "• سيتم استثناء:\n"
+        "- القنوات المؤرشفة\n"
+        "- القنوات التي تديرها\n\n"
+        "**أرسل 『 نعم 』للمتابعة**"
+    )
+    
+    try:
+        # انتظار رد المستخدم لمدة 30 ثانية
+        response = await event.client.wait_for(
+            'message',
+            timeout=30,
+            check=lambda m: m.sender_id == event.sender_id and m.text == 'نعم'
+        )
+    except asyncio.TimeoutError:
+        return await confirmation.edit("**✕ | تم الإلغاء بسبب انتهاء الوقت**")
+
+    await confirmation.edit("**᯽︙ جارِ مغادرة القنوات...**")
+    kept_channels = []
+    left_channels = 0
+    
     try:
         async for dialog in event.client.iter_dialogs():
-         entity = dialog.entity
-         if isinstance(entity, Channel) and entity.broadcast:
-             gr.append(entity.id)
-             if entity.creator or entity.admin_rights:
-                 dd.append(entity.id)
-        dd.append(1527835100)
-        for group in gr:
-            if group not in dd:
-                await l313l.delete_dialog(group)
-                num += 1
-                await sleep(1)
-        if num >=1:
-            await event.edit(f"**᯽︙ تم المغادرة من {num} قناة بنجاح ✓**")
+            if not dialog.is_channel:
+                continue
+                
+            entity = dialog.entity
+            
+            # استثناء القنوات:
+            # 1. المؤرشفة
+            # 2. أنت منشئها أو لديك صلاحيات إدارية
+            if (dialog.archived or 
+                entity.creator or 
+                entity.admin_rights):
+                kept_channels.append(entity.title)
+                continue
+                
+            try:
+                await event.client.delete_dialog(entity.id)
+                left_channels += 1
+                await asyncio.sleep(0.5)  # تقليل الضغط على السيرفر
+            except Exception as e:
+                print(f"خطأ في مغادرة {entity.title}: {str(e)}")
+                
+        if left_channels > 0:
+            result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**\n"
+            if kept_channels:
+                result_msg += f"\n**القنوات المحتفظ بها ({len(kept_channels)}):**\n" + "\n".join(f"- {name}" for name in kept_channels[:10])  # عرض أول 10 فقط لتجنب طول الرسالة
+            await event.edit(result_msg)
         else:
-            await event.edit("**᯽︙ ليس لديك قنوات في حسابك لمغادرتها !**")
-    except BaseException as er:
-     await event.reply(f"حدث خطأ\n{er}\n{entity}")
+            await event.edit("**✧︙ لا توجد قنوات لمغادرتها**")
+            
+    except Exception as e:
+        await event.edit(f"**حدث خطأ غير متوقع:**\n```{str(e)}```")
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):
@@ -694,7 +727,7 @@ async def Hussein(event):
         except Exception as e:
             print(f"حدث خطأ أثناء حذف محادثات البوت {bot.id}: {e}")
     
-    await event.edit(f"**᯽︙ تم الانتهاء! \nتم مسح {len(bots_to_clear)} محادثة بوت \n(لم يتم مسح البوتات المؤرشفة)**")
+    await event.edit(f"**✧︙ تم الانتهاء! \nتم مسح `{len(bots_to_clear)}` محادثة بوت \n(لم يتم مسح البوتات المؤرشفة)**")
 
 lastResponse = None
 async def process_gpt(question):

@@ -631,42 +631,42 @@ async def Hussein(event):
                 response = "خطأ في العثور على القناة. يرجى التأكد من المعرف الصحيح"
         else:
             response = "**᯽︙ يُرجى تحديد معرف القناة أو المجموعة مع الخروج يامطوري ❤️**"
-        #await event.reply(response)
-        
+
 @l313l.ar_cmd(pattern="مغادرة القنوات")
 async def hussein(event):
-    processing_msg = await event.edit("**᯽︙ جارِ مغادرة القنوات...**")
-    kept_channels = []
-    left_channels = 0
+    processing_msg = await event.edit("**᯽︙ جارِ تصفية القنوات فقط...**")
+    kept = []
+    left = 0
     
     try:
         async for dialog in event.client.iter_dialogs():
-            if not dialog.is_channel:
-                continue
-                
             entity = dialog.entity
             
-            # استثناء القنوات المؤرشفة أو الإدارية
+            # فلترة دقيقة للقنوات فقط (ليست مجموعات)
+            if not (isinstance(entity, Channel) or not entity.broadcast):
+                continue
+                
+            # الاستثناءات
             if (dialog.archived or 
                 getattr(entity, 'creator', False) or 
                 getattr(entity, 'admin_rights', False)):
-                kept_channels.append(entity.title)
+                kept.append(entity.title)
                 continue
                 
             try:
                 await event.client.delete_dialog(entity.id)
-                left_channels += 1
-                await asyncio.sleep(0.5)  # تأخير لتجنب الحظر
+                left += 1
+                await asyncio.sleep(0.7)  # زيادة التأخير
             except Exception as e:
-                print(f"خطأ في مغادرة {entity.title}: {str(e)}")
-                
-        result_msg = f"**✓ | تم المغادرة من {left_channels} قناة**"
-        if kept_channels:
-            result_msg += f"\n\n**القنوات المحتفظ بها:**\n" + "\n".join(f"- {name}" for name in kept_channels[:5])
-        await processing_msg.edit(result_msg)
-            
+                print(f"خطأ في {entity.title}: {e}")
+
+        result = f"**✓ | تم مغادرة {left} قناة**"
+        if kept:
+            result += f"\n\n**المحتفظ بها ({len(kept)}):**\n" + "\n".join(f"- {n}" for n in kept[:7])
+        await processing_msg.edit(result)
+        
     except Exception as e:
-        await processing_msg.edit(f"**حدث خطأ:**\n```{str(e)}```")
+        await processing_msg.edit(f"**خطأ:**\n`{str(e)}`")
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):

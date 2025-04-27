@@ -950,7 +950,7 @@ async def handle_messages(event):
                 sender = await event.get_sender()
                 sender_name = sender.first_name
                 aljoker_message = gvarstatus("aljoker_message") or f"⌔︙صاحب الحساب قافل خاصة"
-                default_caption = f"✧︙عَـذرا عزيـزي: {sender_name}\n{aljoker_message}\n**⌔︙مدة الغياب:** `{aljoker_time}`"
+                default_caption = f"✧︙عَـذرا عزيـزي: `{sender_name}`\n{aljoker_message}\n⌔︙**مدة الغياب:** `{aljoker_time}`"
                 aljoker_url = gvarstatus("aljoker_url") or "https://graph.org/file/0008b63a963990babffb6-98486757e7f0357820.jpg"
                 await l313l.send_file(sender_id, aljoker_url, caption=default_caption)
                 aljoker_Menu.add(sender_id)

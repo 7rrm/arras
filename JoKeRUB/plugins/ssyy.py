@@ -585,6 +585,63 @@ async def _(event): #Code by T.me/zzzzl1l
     except Exception as e:
         print(e)
 
+async def fix_attributes(
+    path, info_dict: dict, supports_streaming: bool = False, round_message: bool = False
+) -> list:
+    """Avoid multiple instances of an attribute."""
+    new_attributes = []
+    video = False
+    audio = False
+
+    uploader = info_dict.get("uploader", "Unknown artist")
+    duration = int(info_dict.get("duration", 0))
+    suffix = path.suffix[1:]
+    if supports_streaming and suffix != "mp4":
+        supports_streaming = True
+
+    attributes, mime_type = get_attributes(path)
+    if suffix == "mp3":
+        title = str(info_dict.get("title", info_dict.get("id", "Unknown title")))
+        audio = types.DocumentAttributeAudio(
+            duration=duration, voice=None, title=title, performer=uploader
+        )
+    elif suffix == "mp4":
+        width = int(info_dict.get("width", 0))
+        height = int(info_dict.get("height", 0))
+        for attr in attributes:
+            if isinstance(attr, types.DocumentAttributeVideo):
+                duration = duration or attr.duration
+                width = width or attr.w
+                height = height or attr.h
+                break
+        video = types.DocumentAttributeVideo(
+            duration=duration,
+            w=width,
+            h=height,
+            round_message=round_message,
+            supports_streaming=supports_streaming,
+        )
+
+    if audio and isinstance(audio, types.DocumentAttributeAudio):
+        new_attributes.append(audio)
+    if video and isinstance(video, types.DocumentAttributeVideo):
+        new_attributes.append(video)
+
+    new_attributes.extend(
+        attr
+        for attr in attributes
+        if (
+            isinstance(attr, types.DocumentAttributeAudio)
+            and not audio
+            or not isinstance(attr, types.DocumentAttributeAudio)
+            and not video
+            or not isinstance(attr, types.DocumentAttributeAudio)
+            and not isinstance(attr, types.DocumentAttributeVideo)
+        )
+    )
+    return new_attributes, mime_type
+
+
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
     command=("تحميل صوت", plugin_category),
@@ -624,7 +681,7 @@ async def download_audio(event):
         if not _fpath:
             return await edit_delete(zedevent, "__Unable to upload file__")
         await zedevent.edit(
-            f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...╰**:\
+            f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
             \n**{vid_data['title']}***"
         )
         attributes, mime_type = get_attributes(str(_fpath))
@@ -667,6 +724,7 @@ async def download_audio(event):
         for _path in [_fpath, thumb_pic]:
             os.remove(_path)
     await zedevent.delete()
+    
 
 @l313l.ar_cmd(
     pattern="تحميل فيديو(?: |$)(.*)",

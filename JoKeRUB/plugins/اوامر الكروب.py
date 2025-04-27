@@ -647,8 +647,8 @@ from telethon.tl.types import Channel, Chat
 @l313l.ar_cmd(pattern="مغادرة القنوات")
 async def hussein(event):
     processing_msg = await event.edit("**᯽︙ جارِ تصفية القنوات فقط...**")
-    kept = []
-    left = 0
+    kept_count = 0  # عداد للقنوات المحتفظ بها
+    left = 0  # عداد للقنوات التي تم مغادرتها
     
     try:
         async for dialog in event.client.iter_dialogs():
@@ -666,7 +666,7 @@ async def hussein(event):
             if (dialog.archived or 
                 getattr(entity, 'creator', False) or 
                 getattr(entity, 'admin_rights', False)):
-                kept.append(entity.title)
+                kept_count += 1  # نزيد العداد فقط دون حفظ الاسم
                 continue
                 
             try:
@@ -677,12 +677,13 @@ async def hussein(event):
                 print(f"خطأ في {entity.title}: {e}")
 
         result = f"**✓ | تم مغادرة {left} قناة**"
-        if kept:
-            result += f"\n\n**المحتفظ بها ({len(kept)}):**\n" + "\n".join(f"- {n}" for n in kept[:7])
+        if kept_count > 0:
+            result += f"\n**✓ | تم الاحتفاظ بــ {kept_count} قناة** (كنت مشرفًا فيها أو محفوظة في الأرشيف)"
         await processing_msg.edit(result)
         
     except Exception as e:
         await processing_msg.edit(f"**خطأ:**\n`{str(e)}`")
+        
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):

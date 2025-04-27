@@ -256,7 +256,7 @@ async def _(event):
                     )
             except MessageNotModifiedError:
                 pass
-    await catevent.edit(f"᯽︙ الغاء حظر :__{succ}/{total} في الدردشه {chat.title}__")
+    await catevent.edit(f"✧︙ الغاء حظر :__{succ}/{total} في الدردشه {chat.title}__")
 
 # Ported by ©[NIKITA](t.me/kirito6969) and ©[EYEPATCH](t.me/NeoMatrix90)
 @l313l.ar_cmd(
@@ -273,17 +273,17 @@ async def rm_deletedacc(show):
     "To check deleted accounts and clean"
     con = show.pattern_match.group(1).lower()
     del_u = 0
-    del_status = "᯽︙  لم يتم العثور على حسابات متروكه او حسابات محذوفة الكروب نظيف"
+    del_status = "✧︙  لم يتم العثور على حسابات متروكه او حسابات محذوفة الكروب نظيف"
     if con != "اطردهم":
         event = await edit_or_reply(
-            show, "᯽︙  يتم البحث عن حسابات محذوفة او حسابات متروكة انتظر"
+            show, "✧︙  يتم البحث عن حسابات محذوفة او حسابات متروكة انتظر"
         )
         async for user in show.client.iter_participants(show.chat_id):
             if user.deleted:
                 del_u += 1
                 await sleep(0.5)
         if del_u > 0:
-            del_status = f"᯽︙ تـم العـثور : **{del_u}** على حسابات محذوفة ومتروكه في هذه الدردشه من الحسابات في هذه الدردشه,\
+            del_status = f"✧︙ تـم العـثور : **{del_u}** على حسابات محذوفة ومتروكه في هذه الدردشه من الحسابات في هذه الدردشه,\
                            \nاطردهم بواسطه  `.المحذوفين اطردهم`"
         await event.edit(del_status)
         return
@@ -294,7 +294,7 @@ async def rm_deletedacc(show):
         await edit_delete(show, "أنا لسـت مشرف هـنا", 5)
         return
     event = await edit_or_reply(
-        show, "᯽︙ جاري حذف الحسابات المحذوفة"
+        show, "✧︙ جاري حذف الحسابات المحذوفة"
     )
     del_u = 0
     del_a = 0
@@ -305,7 +305,7 @@ async def rm_deletedacc(show):
                 await sleep(0.5)
                 del_u += 1
             except ChatAdminRequiredError:
-                await edit_delete(event, "᯽︙  ليس لدي صلاحيات الحظر هنا", 5)
+                await edit_delete(event, "✧︙  ليس لدي صلاحيات الحظر هنا", 5)
                 return
             except UserAdminInvalidError:
                 del_a += 1
@@ -327,7 +327,7 @@ async def rm_deletedacc(show):
 async def banall(event):
      chat_id = event.chat_id
      if event.is_private:
-         return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+         return await edit_or_reply(event, "** ✧︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
      msg = "حظر"
      is_admin = False
      try:
@@ -389,7 +389,7 @@ async def muteall(event):
 async def kickall(event):
      chat_id = event.chat_id
      if event.is_private:
-         return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+         return await edit_or_reply(event, "** ✧︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
      msg = "طرد"
      is_admin = False
      try:
@@ -633,14 +633,14 @@ async def Hussein(event):
             try:
                 entity = await l313l.get_entity(channel_username)
                 if isinstance(entity, Channel) and entity.creator or entity.admin_rights:
-                    response = "**᯽︙ لا يمكنك الخروج من هذه القناة. أنت مشرف أو مالك فيها!**"
+                    response = "**✧︙ لا يمكنك الخروج من هذه القناة. أنت مشرف أو مالك فيها!**"
                 else:
                     await l313l(LeaveChannelRequest(channel_username))
-                    response = "**᯽︙ تم الخروج من القناة بنجاح!**"
+                    response = "**✧︙ تم الخروج من القناة بنجاح!**"
             except ValueError:
                 response = "خطأ في العثور على القناة. يرجى التأكد من المعرف الصحيح"
         else:
-            response = "**᯽︙ يُرجى تحديد معرف القناة أو المجموعة مع الخروج يامطوري ❤️**"
+            response = "**✧︙ يُرجى تحديد معرف القناة أو المجموعة مع الخروج يامطوري ❤️**"
 
 from telethon.tl.types import Channel, Chat
 
@@ -678,7 +678,7 @@ async def hussein(event):
 
         result = f"**✓ | تم مغادرة {left} قناة**"
         if kept_count > 0:
-            result += f"\n**✓ | تم الاحتفاظ بــ {kept_count} قناة** (كنت مشرفًا فيها أو محفوظة في الأرشيف)"
+            result += f"\n**✧ | تم الاحتفاظ بــ {kept_count} قناة** (كنت مشرفًا فيها أو محفوظة في الأرشيف)"
         await processing_msg.edit(result)
         
     except Exception as e:
@@ -687,7 +687,7 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية الخاص")
 async def hussein(event):
-    await event.edit("**᯽︙ جارِ حذف جميع الرسائل الخاصة الموجودة في حسابك ...**")
+    await event.edit("**✧︙ جارِ حذف جميع الرسائل الخاصة الموجودة في حسابك ...**")
     dialogs = await event.client.get_dialogs()
     for dialog in dialogs:
         if dialog.is_user:
@@ -771,7 +771,7 @@ async def zelzal_gpt(event):
     question = event.pattern_match.group(1)
     zzz = await event.get_reply_message()
     if not question and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⎉╎مثـــال :**\n`.ار من هو مكتشف الجاذبية الارضية`")
+        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⌔╎مثـــال :**\n`.ار من هو مكتشف الجاذبية الارضية`")
     if not question and event.reply_to_msg_id and zzz.text: 
         question = zzz.text
     if not event.reply_to_msg_id: 
@@ -779,7 +779,7 @@ async def zelzal_gpt(event):
     if question == "مسح" or question == "حذف":
         lastResponse.pop(0)
         return await edit_or_reply(event, "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ار + سؤالك) لـ البـدء من جديد**")
-    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.زد مسح` ) **لـ بدء موضوع جديد**")
+    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.ار مسح` ) **لـ بدء موضوع جديد**")
     answer = await process_gpt(question)
     if answer:
         await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
@@ -929,7 +929,7 @@ async def handle_new_message(event):
             sender = await event.get_sender()
             aljoker_entity = await l313l.get_entity(sender.id)
             aljoker_profile = f"[{aljoker_entity.first_name}](tg://user?id={aljoker_entity.id})"
-            explanation_message = f"**᯽︙ تم تقييد {aljoker_profile} من إرسال الرسائل بسبب تفعيله نشر التلقائي**"
+            explanation_message = f"**✧︙ تم تقييد {aljoker_profile} من إرسال الرسائل بسبب تفعيله نشر التلقائي**"
             await event.reply(explanation_message)
             del message_counts[user_id]
         except ChatAdminRequiredError:
@@ -955,14 +955,14 @@ async def joker5a9(event: Message):
     global afk_start_time
     addgvar("5a9_dis", True)
     afk_start_time = datetime.now()
-    await event.edit('**᯽︙ تم قفل الخاص بنجاح الان لا احد يمكنهُ مراسلتك**')
+    await event.edit('**✧︙ تم قفل الخاص بنجاح الان لا احد يمكنهُ مراسلتك**')
 @l313l.ar_cmd(pattern="الخاص تفعيل")
 async def joker5a9(event: Message):
     global afk_start_time
     delgvar("5a9_dis")
     afk_start_time = None
     aljoker_Menu.clear()
-    await event.edit('**᯽︙ تم تفعيل الخاص بنجاح الان يمكنهم مراسلتك**')
+    await event.edit('**✧︙ تم تفعيل الخاص بنجاح الان يمكنهم مراسلتك**')
 def aljoker_waqt():
     global afk_start_time
     if afk_start_time:

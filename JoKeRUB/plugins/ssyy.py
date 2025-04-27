@@ -587,6 +587,18 @@ async def _(event): #Code by T.me/zzzzl1l
 
 
 
+async def get_ytthumb(video_id):
+    thumb_path = os.path.join(Config.TEMP_DIR, f"{video_id}.jpg")
+    for quality in ['maxresdefault', 'hqdefault', 'mqdefault', 'sddefault']:
+        thumb_url = f"https://i.ytimg.com/vi/{video_id}/{quality}.jpg"
+        try:
+            await download_file(thumb_url, thumb_path)
+            if os.path.exists(thumb_path) and os.path.getsize(thumb_path) > 0:
+                return thumb_path
+        except:
+            continue
+    return None
+
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
     command=("تحميل صوت", plugin_category),
@@ -607,7 +619,6 @@ async def download_audio(event):
     zedevent = await edit_or_reply(event, "**⌔╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
     reply_to_id = await reply_id(event)
     
-    # إعدادات متقدمة لتحميل الصوت مع التعامل مع الكوكيز
     audio_opts = {
         'format': 'bestaudio/best',
         'addmetadata': True,
@@ -627,77 +638,87 @@ async def download_audio(event):
         'cookiefile': get_cookies_file(),
         'ignoreerrors': True,
         'retries': 3,
-        'fragment-retries': 3,
-        'skip-unavailable-fragments': True,
-        'extract_flat': 'in_playlist',
     }
     
     for url in urls:
         try:
-            # محاولة التحميل مع الكوكيز أولاً
+            # إنشاء مجلد مؤقت لكل عملية تحميل
+            download_folder = os.path.join(Config.TEMP_DIR, str(time()))
+            os.makedirs(download_folder, exist_ok=True)
+            
+            # تعديل مسار الإخراج ليكون في المجلد المؤقت
+            audio_opts['outtmpl'] = os.path.join(download_folder, '%(id)s.%(ext)s')
+            
             with YoutubeDL(audio_opts) as ydl:
-                vid_data = ydl.extract_info(url, download=False)
-                startTime = time()
-                ydl.process_info(vid_data)
-            
-            # البحث عن الملف المحمل
-            audio_file = None
-            for f in os.listdir(Config.TEMP_DIR):
-                if f.startswith(vid_data.get('id', '')) and f.endswith('.mp3'):
-                    audio_file = os.path.join(Config.TEMP_DIR, f)
-                    break
-            
-            if not audio_file:
-                return await edit_delete(zedevent, "**حدث خطأ أثناء تحويل الصوت**")
-            
-            await zedevent.edit(f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\n**{vid_data.get('title', url)}**")
-            
-            # رفع الملف
-            attributes, mime_type = get_attributes(audio_file)
-            ul = io.open(audio_file, 'rb')
-            
-            # الحصول على صورة المصغرة
-            thumb_pic = await get_ytthumb(vid_data.get('id', url))
-            if thumb_pic:
-                thumb_pic = await event.client.upload_file(thumb_pic)
-            
-            uploaded = await event.client.fast_upload_file(
-                file=ul,
-                progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                    progress(
-                        d, t, zedevent, startTime,
-                        "trying to upload",
-                        file_name=os.path.basename(audio_file),
-                    )
-                ),
-            )
-            ul.close()
-            
-            media = types.InputMediaUploadedDocument(
-                file=uploaded,
-                mime_type=mime_type,
-                attributes=attributes,
-                force_file=False,
-                thumb=thumb_pic,
-            )
-            
-            await event.client.send_file(
-                event.chat_id,
-                file=media,
-                caption=f"<b>File Name : </b><code>{vid_data.get('title', os.path.basename(audio_file))}</code>",
-                supports_streaming=True,
-                reply_to=reply_to_id,
-                parse_mode="html",
-            )
-            
-            # تنظيف الملفات المؤقتة
-            os.remove(audio_file)
-            if thumb_pic and os.path.exists(thumb_pic):
-                os.remove(thumb_pic)
+                vid_data = ydl.extract_info(url, download=True)
+                video_id = vid_data.get('id', url.split('=')[-1])
+                
+                # البحث عن الملف المحمل
+                audio_file = None
+                thumb_file = None
+                for f in os.listdir(download_folder):
+                    if f.endswith('.mp3'):
+                        audio_file = os.path.join(download_folder, f)
+                    elif f.endswith(('.jpg', '.webp')):
+                        thumb_file = os.path.join(download_folder, f)
+                
+                if not audio_file:
+                    return await edit_delete(zedevent, "**حدث خطأ أثناء تحويل الصوت**")
+                
+                await zedevent.edit(f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\n**{vid_data.get('title', url)}**")
+                
+                # الحصول على صورة المصغرة (مع معالجة الأخطاء)
+                if not thumb_file:
+                    thumb_file = await get_ytthumb(video_id)
+                
+                # رفع الملف
+                attributes, mime_type = get_attributes(audio_file)
+                ul = io.open(audio_file, 'rb')
+                
+                uploaded = await event.client.fast_upload_file(
+                    file=ul,
+                    progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
+                        progress(
+                            d, t, zedevent, time(),
+                            "trying to upload",
+                            file_name=os.path.basename(audio_file),
+                        )
+                    ),
+                )
+                ul.close()
+                
+                # رفع الصورة المصغرة إذا وجدت
+                uploaded_thumb = None
+                if thumb_file and os.path.exists(thumb_file):
+                    try:
+                        uploaded_thumb = await event.client.upload_file(thumb_file)
+                    except:
+                        pass
+                
+                media = types.InputMediaUploadedDocument(
+                    file=uploaded,
+                    mime_type=mime_type,
+                    attributes=attributes,
+                    force_file=False,
+                    thumb=uploaded_thumb,
+                )
+                
+                await event.client.send_file(
+                    event.chat_id,
+                    file=media,
+                    caption=f"<b>File Name : </b><code>{vid_data.get('title', os.path.basename(audio_file))}</code>",
+                    supports_streaming=True,
+                    reply_to=reply_to_id,
+                    parse_mode="html",
+                )
+                
+                # تنظيف الملفات المؤقتة
+                shutil.rmtree(download_folder, ignore_errors=True)
                 
         except Exception as e:
             await zedevent.edit(f"**حدث خطأ أثناء التحميل:**\n`{str(e)}`")
-            return
+            shutil.rmtree(download_folder, ignore_errors=True)
+            continue
     
     await zedevent.delete()
     

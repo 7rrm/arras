@@ -419,13 +419,13 @@ async def kickall(event):
 @l313l.ar_cmd(pattern="الغاء التفليش")
 async def ca_sp(event):
   if not event.chat_id in spam_chats:
-    return await edit_or_reply(event, "** ᯽︙ 🤷🏻 لا يوجد طرد او حظر او كتم لأيقافه**")
+    return await edit_or_reply(event, "** ✧︙ 🤷🏻 لا يوجد طرد او حظر او كتم لأيقافه**")
   else:
     try:
       spam_chats.remove(event.chat_id)
     except:
       pass
-    return await edit_or_reply(event, "** ᯽︙ تم الغاء العملية بنجاح ✓**")
+    return await edit_or_reply(event, "** ✧︙ تم الغاء العملية بنجاح ✓**")
 @l313l.ar_cmd(
     pattern="احصائيات الاعضاء ?([\s\S]*)",
     command=("احصائيات الاعضاء", plugin_category),
@@ -472,7 +472,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusLastMonth):
@@ -482,7 +482,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusLastWeek):
@@ -492,7 +492,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if isinstance(i.status, UserStatusOffline):
@@ -510,7 +510,7 @@ async def _(event):  # sourcery no-metrics
             if "q" in input_str:
                 status, e = await ban_user(event.chat_id, i, rights)
                 if not status:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
                 else:
@@ -522,7 +522,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
         if i.bot:
@@ -542,7 +542,7 @@ async def _(event):  # sourcery no-metrics
                 if status:
                     c += 1
                 else:
-                    await et.edit("᯽︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙ احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
         elif i.status is None:
             n += 1
@@ -573,43 +573,53 @@ async def _(event):  # sourcery no-metrics
             p, d, y, m, w, o, q, r, b, n
         )
     )
-##Reda is here 
-
 
 @l313l.ar_cmd(pattern="مغادرة الكروبات")
-async def Reda (event):
-    await event.edit("**᯽︙ جارِ مغادرة جميع الكروبات الموجوده في حسابك ...**")
-    gr = []
-    dd = []
-    num = 0
+async def reda_groups(event):
+    await event.edit("**✧︙ جارِ مغادرة جميع الكروبات...**")
+    kept_count = 0  # عداد للكروبات المحتفظ بها (بدون تخزين الأسماء)
+    left_groups = 0  # عداد للكروبات التي تم مغادرتها
+    
     try:
         async for dialog in event.client.iter_dialogs():
-         entity = dialog.entity
-         if isinstance(entity, Channel) and not entity.megagroup:
-             continue
-         elif (
-            isinstance(entity, Channel)
-            and entity.megagroup
-            or not isinstance(entity, Channel)
-            and not isinstance(entity, User)
-            and isinstance(entity, Chat)
-            ):
-                 gr.append(entity.id)
-                 if entity.creator or entity.admin_rights:
-                  dd.append(entity.id)
-        dd.append(188653089)
-        dd.append(1629927549)
-        for group in gr:
-            if group not in dd:
-                await l313l.delete_dialog(group)
-                num += 1
-                await sleep(1)
-        if num >=1:
-            await event.edit(f"**᯽︙ تم المغادرة من {num} كروب بنجاح ✓**")
+            entity = dialog.entity
+            
+            # تحديد الكروبات فقط (تجاهل الدردشات الخاصة)
+            if isinstance(entity, Channel) and entity.megagroup:
+                is_group = True
+            elif isinstance(entity, Chat) and not isinstance(entity, User):
+                is_group = True
+            else:
+                continue
+            
+            # الكروبات التي لن يتم مغادرتها (الاستثناءات):
+            # - المحفوظة في الأرشيف
+            # - أنت منشئ الكروب
+            # - لديك صلاحية أدمن
+            if (dialog.archived or 
+                getattr(entity, 'creator', False) or 
+                getattr(entity, 'admin_rights', False)):
+                kept_count += 1  # فقط نزيد العداد دون حفظ اسم الكروب
+                continue
+                
+            try:
+                await event.client.delete_dialog(entity.id)  # مغادرة الكروب
+                left_groups += 1
+                await asyncio.sleep(0.7)  # تأخير لتفادي الحظر
+            except Exception as e:
+                print(f"خطأ في مغادرة {entity.title}: {str(e)}")
+                
+        if left_groups >= 1:
+            result = f"**✓︙ تم المغادرة من {left_groups} كروب**\n"
+            if kept_count > 0:
+                result += f"**✧︙ تم الاحتفاظ بــ {kept_count} كروب (كنت مشرفًا فيها أو محفوظة في الأرشيف)**"
+            await event.edit(result)
         else:
-            await event.edit("**᯽︙ ليس لديك كروبات في حسابك لمغادرتها !**")
-    except BaseException as er:
-     await event.reply(f"حدث خطأ\n{er}\n{entity}")
+            await event.edit("**✧︙ لا توجد كروبات لمغادرتها**")
+            
+    except Exception as e:
+        await event.edit(f"**حدث خطأ:**\n```{str(e)}```")
+        
 
 DevJoker = [5427469031]
 @l313l.on(events.NewMessage(incoming=True))

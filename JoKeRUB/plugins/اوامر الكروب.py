@@ -500,7 +500,7 @@ async def _(event):  # sourcery no-metrics
             if "o" in input_str:
                 status, e = await ban_user(event.chat_id, i, rights)
                 if not status:
-                    await et.edit("᯽︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
+                    await et.edit("✧︙  احتاج الى صلاحيات المشرفين للقيام بهذا الامر ")
                     e.append(str(e))
                     break
                 else:
@@ -699,7 +699,7 @@ async def hussein(event):
 
 @l313l.ar_cmd(pattern="تصفية البوتات")
 async def Hussein(event):
-    await event.edit("**᯽︙ جارٍ تصفية محادثات البوتات...**")
+    await event.edit("**✧︙ جارٍ تصفية محادثات البوتات...**")
     
     # جلب قائمة جميع الدردشات
     dialogs = await event.client.get_dialogs()
@@ -848,19 +848,19 @@ async def Hussein(event):
             sender = await event.get_sender()
             aljoker_entity = await l313l.get_entity(sender.id)
             aljoker_profile = f"[{aljoker_entity.first_name}](tg://user?id={aljoker_entity.id})"
-            await event.reply(f"**᯽︙ عذرًا {aljoker_profile}، يُرجى عدم إرسال الرسائل التي تحتوي على إيموجي المُميز**")
+            await event.reply(f"**✧︙ عذرًا {aljoker_profile}، يُرجى عدم إرسال الرسائل التي تحتوي على إيموجي المُميز**")
 @l313l.ar_cmd(pattern="المميز تفعيل")
 async def disable_emoji_blocker(event):
     global Ya_Hussein
     Ya_Hussein = True
     active_joker.append(event.chat_id)
-    await event.edit("**᯽︙ ✓ تم تفعيل امر منع الايموجي المُميز بنجاح**")
+    await event.edit("**✧︙ ✓ تم تفعيل امر منع الايموجي المُميز بنجاح**")
 @l313l.ar_cmd(pattern="المميز تعطيل")
 async def disable_emoji_blocker(event):
     global Ya_Hussein
     Ya_Hussein = False
     active_joker.remove(event.chat_id)
-    await event.edit("**᯽︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
+    await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
 
 remove_admins_aljoker = {}
 #الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
@@ -876,7 +876,7 @@ async def Hussein(event):
                     if (now - remove_admins_aljoker[user_id]).seconds < 60:
                         admin_info = await event.client.get_entity(user_id)
                         joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                        await event.reply(f"**᯽︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
+                        await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
                         await event.client.edit_admin(chat, user_id, change_info=False)
                     remove_admins_aljoker.pop(user_id)
                     remove_admins_aljoker[user_id] = now
@@ -900,13 +900,13 @@ async def enable_code(event):
     global Ya_Abbas
     Ya_Abbas = True
     enabled_groups.append(event.chat_id)
-    await event.edit("**᯽︙ ✓ تم تفعيل امر منع النشر التلقائي بنجاح**")
+    await event.edit("**✧︙ ✓ تم تفعيل امر منع النشر التلقائي بنجاح**")
 @l313l.ar_cmd(pattern="النشر تفعيل")
 async def disable_code(event):
     global Ya_Abbas
     Ya_Abbas = False
     enabled_groups.remove(event.chat_id)
-    await event.edit("**᯽︙ تم تعطيل امر منع النشر التلقائي بنجاح ✓ **")
+    await event.edit("**✧︙ تم تعطيل امر منع النشر التلقائي بنجاح ✓ **")
 
 @l313l.on(events.NewMessage)
 async def handle_new_message(event):
@@ -937,6 +937,7 @@ async def handle_new_message(event):
             await event.reply(explanation_message)
 aljoker_Menu = set()
 afk_start_time = datetime.now()
+
 @l313l.on(events.NewMessage)
 async def handle_messages(event):
     if gvarstatus("5a9_dis"):
@@ -946,16 +947,21 @@ async def handle_messages(event):
             await event.delete()
             if sender_id not in aljoker_Menu:
                 aljoker_time = aljoker_waqt()
-                aljoker_message = gvarstatus("aljoker_message") or f"صاحب الحساب قافل خاصة"
+                sender = await event.get_sender()
+                sender_name = sender.first_name
+                aljoker_message = gvarstatus("aljoker_message") or f"⌔︙صاحب الحساب قافل خاصة"
+                default_caption = f"✧︙عَـذرا عزيـزي: {sender_name}\n{aljoker_message}\n**⌔︙مدة الغياب:** `{aljoker_time}`"
                 aljoker_url = gvarstatus("aljoker_url") or "https://graph.org/file/0008b63a963990babffb6-98486757e7f0357820.jpg"
-                await l313l.send_file(sender_id, aljoker_url, caption=f'**{aljoker_message}**\n**مدة الغياب:** `{aljoker_time}`')
+                await l313l.send_file(sender_id, aljoker_url, caption=default_caption)
                 aljoker_Menu.add(sender_id)
+
 @l313l.ar_cmd(pattern="الخاص تعطيل")
 async def joker5a9(event: Message):
     global afk_start_time
     addgvar("5a9_dis", True)
     afk_start_time = datetime.now()
     await event.edit('**✧︙ تم قفل الخاص بنجاح الان لا احد يمكنهُ مراسلتك**')
+
 @l313l.ar_cmd(pattern="الخاص تفعيل")
 async def joker5a9(event: Message):
     global afk_start_time
@@ -963,6 +969,7 @@ async def joker5a9(event: Message):
     afk_start_time = None
     aljoker_Menu.clear()
     await event.edit('**✧︙ تم تفعيل الخاص بنجاح الان يمكنهم مراسلتك**')
+
 def aljoker_waqt():
     global afk_start_time
     if afk_start_time:
@@ -979,12 +986,16 @@ def aljoker_waqt():
         else:
             return f"{minutes} دقيقة {seconds} ثانية" if minutes > 0 else f"{seconds} ثانية"
     return "N/A"
+
 points = {}
 is_game_started = False
 is_word_sent = False
 word = ''
+
 async def get_bot_entity():
     return await l313l.get_entity('me')
+    
+
 
 @l313l.ar_cmd(pattern="اسرع")
 async def handle_start(event):

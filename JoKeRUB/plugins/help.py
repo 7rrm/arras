@@ -1,8 +1,18 @@
+import re
 from telethon import Button, events
 from telethon.tl.functions.users import GetUsersRequest
 
 from . import l313l
 from ..Config import Config
+
+# تعريف ديكوراتور التحقق من المالك
+def check_owner(func):
+    async def wrapper(event):
+        if event.sender_id == l313l.uid:
+            return await func(event)
+        else:
+            await event.answer("عذرًا، هذا الأمر متاح فقط للمالك!", alert=True)
+    return wrapper
 
 @l313l.ar_cmd(pattern="مساعده")
 async def help(event):
@@ -65,6 +75,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
             await event.answer([result] if result else None)
 
+# جميع معالجات الأزرار كما هي في الكود الأصلي
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"kdownload")))
 @check_owner
 async def zed_help(event):
@@ -110,7 +121,52 @@ async def zed_help(event):
                 ],
                 [Button.inline("رجوع", data="ZEDHELP")],
             ],
-        link_preview=False)
+            link_preview=False)
     except Exception:
         await event.answer(zelzal, cache_time=0, alert=True)
-        
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"ZEDHELP")))
+@check_owner
+async def _(event):
+    butze = [
+        [Button.inline("البـحـث والتحميـل 🪄", data="kdownload")],
+        [
+            Button.inline("السـورس 🌐", data="botvr"),
+            Button.inline("الحساب 🚹", data="acccount"),
+        ],
+        [
+            Button.inline("الإذاعـة 🏟️", data="broadcastz"),
+        ],
+        [
+            Button.inline("الكلايـش & التخصيص 🪁", data="kalaysh"),
+        ],
+        [
+            Button.inline("المجمـوعـة 2⃣", data="groupv2"),
+            Button.inline("المجمـوعـة 1⃣", data="groupv1"),
+        ],
+        [
+            Button.inline("حماية المجموعات 🛗", data="grouppro"),
+        ],
+        [
+            Button.inline("التسليـه & التحشيش 🎃", data="funzed"),
+        ],
+        [
+            Button.inline("المرفقـات 🪁", data="extras"),
+            Button.inline("الادوات 💡", data="toolzed"),
+        ],
+        [
+            Button.inline("الفـارات 🎈", data="varszed"),
+        ],
+        [
+            Button.inline("الذكـاء الاصطنـاعـي 🛸", data="ZEDAI"),
+        ],
+        [
+            Button.inline("السوبـرات 🎡", data="superzzz"),
+            Button.inline("التجميـع 🛗", data="pointzzz"),
+        ],
+    ]
+    await event.edit(HELP, buttons=butze, link_preview=False)
+
+# يمكنك إضافة باقي معالجات الأزرار هنا بنفس الطريقة
+# مثل botvr, acccount, broadcastz, kalaysh, groupv2, groupv1, grouppro, funzed, extras, toolzed, varszed, ZEDAI, superzzz, pointzzz
+# وكل المعالجات الأخرى التي كانت في الكود الأصلي

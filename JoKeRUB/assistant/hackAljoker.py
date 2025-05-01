@@ -7,6 +7,7 @@ from JoKeRUB.utils import admin_cmd
 import asyncio
 from ..Config import Config
 import os, asyncio, re
+import shutil
 from os import system
 from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon import TelegramClient as tg

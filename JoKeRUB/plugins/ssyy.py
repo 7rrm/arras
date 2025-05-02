@@ -464,80 +464,77 @@ import os
 import requests
 import yt_dlp
 from youtube_search import YoutubeSearch
+from telethon import events
 import random
 import glob
-from ..core.managers import edit_or_reply
-from ..helpers.functions import remove_if_exists
 
-# متغيرات التحكم
+# متغيرات التفعيل
 search_enabled = True
 my_id = 5427469031  # استبدل بمعرفك
 
-# دالة الكوكيز الأصلية
+# دالة الحصول على ملف الكوكيز من الكود السابق
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
+    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
-        raise FileNotFoundError("No .txt files found in karar folder")
-    return random.choice(txt_files)
+        raise FileNotFoundError("No .txt files found in the cookies folder.")
+    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
-# الأوامر الجديدة بنظام ar_cmd
-@l313l.ar_cmd(pattern="تفعيل بحث$")
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
     global search_enabled
     if event.sender_id == my_id:
         search_enabled = True
-        await edit_or_reply(event, "**✓ تم تفعيل البحث بنجاح!**")
+        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
+    else:
+        await event.delete()
 
-@l313l.ar_cmd(pattern="تعطيل بحث$")
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
     global search_enabled
     if event.sender_id == my_id:
         search_enabled = False
-        await edit_or_reply(event, "**✗ تم تعطيل البحث بنجاح!**")
+        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
+    else:
+        await event.delete()
 
-# الكود الأصلي المعدل
-@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
+@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
     global search_enabled
     
-    if not search_enabled and event.sender_id != my_id:
-        return await edit_or_reply(event, "**⛔ البحث معطل حالياً**")
+    # التحقق من التفعيل إذا كان المستخدم ليس أنا
+    if event.sender_id != my_id and not search_enabled:
+        await event.reply("**⛔ البحث معطل حالياً**")
+        return
     
-    reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
-    else:
-        return await edit_or_reply(event, "**✧╎يجب تحديد اسم الأغنية**\nمثال: `.بحث أغنية الحب`")
+    query = event.pattern_match.group(1)
+    if not query:
+        return await event.reply("**⚠️ يرجى تحديد اسم الأغنية**\nمثال: `.بحث أغنية الحب`")
     
-    msg = await edit_or_reply(event, "**🔍 جاري البحث عن الأغنية...**")
+    msg = await event.reply("**🔍 جاري البحث عن الأغنية...**")
     
     try:
+        # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
+        # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-            'format': 'bestaudio[ext=m4a]',
+            'format': 'bestaudio/best',
             'outtmpl': '%(title)s.%(ext)s',
             'quiet': True,
             'no_warnings': True,
-            'cookiefile': cookies_file,
+            'cookiefile': cookies_file,  # استخدام ملف الكوكيز
             'extract_flat': True,
         }
         
+        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             return await msg.edit("**❌ لم يتم العثور على نتائج**")
         
         video_url = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"][:40]
+        title = results[0]["title"]
         duration = results[0]["duration"]
-        thumbnail = results[0]["thumbnails"][0]
-        thumb_name = f"{title}.jpg"
-        
-        thumb = requests.get(thumbnail, allow_redirects=True)
-        open(thumb_name, "wb").write(thumb.content)
         
         await msg.edit("**⬇️ جاري التحميل...**")
         
@@ -550,9 +547,7 @@ async def search_song(event):
                 event.chat_id,
                 filename,
                 caption=f"**🎵 {title}**\n**⏳ المدة: {duration}**",
-                thumb=thumb_name,
-                reply_to=event.reply_to_msg_id,
-                supports_streaming=True
+                reply_to=event.id
             )
             
     except Exception as e:
@@ -561,8 +556,6 @@ async def search_song(event):
         try:
             if 'filename' in locals() and os.path.exists(filename):
                 os.remove(filename)
-            if 'thumb_name' in locals() and os.path.exists(thumb_name):
-                os.remove(thumb_name)
         except:
             pass
         await msg.delete()

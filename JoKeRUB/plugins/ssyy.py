@@ -508,9 +508,9 @@ async def search_song(event):
     
     query = event.pattern_match.group(1)
     if not query:
-        return await event.reply("**⚠️ يرجى تحديد اسم الأغنية**\nمثال: `.بحث أغنية الحب`")
+        return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
     
-    msg = await event.reply("**🔍 جاري البحث عن الأغنية...**")
+    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
         # الحصول على ملف الكوكيز
@@ -531,23 +531,23 @@ async def search_song(event):
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
-            return await msg.edit("**❌ لم يتم العثور على نتائج**")
+            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
         video_url = f"https://youtube.com{results[0]['url_suffix']}"
         title = results[0]["title"]
         duration = results[0]["duration"]
         
-        await msg.edit("**⬇️ جاري التحميل...**")
+        await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-            await msg.edit("**📤 جاري الرفع...**")
+            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
             await event.client.send_file(
                 event.chat_id,
                 filename,
-                caption=f"**🎵 {title}**\n**⏳ المدة: {duration}**",
+                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}`",
                 reply_to=event.id
             )
             

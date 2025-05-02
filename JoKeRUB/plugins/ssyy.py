@@ -518,13 +518,15 @@ async def search_song(event):
         cookies_file = get_cookies_file()
         
         # إعدادات yt-dlp مع الكوكيز
-        ydl_opts = {
-            'format': 'bestaudio/best',
-            'outtmpl': '%(title)s.%(ext)s',
-            'quiet': True,
-            'no_warnings': True,
-            'cookiefile': cookies_file,  # استخدام ملف الكوكيز
-            'extract_flat': True,
+        ydl_ops = {
+        "format": "bestaudio[ext=m4a]",
+        "keepvideo": True,
+        "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quite": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
         }
         
         # البحث في اليوتيوب

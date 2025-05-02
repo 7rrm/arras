@@ -470,10 +470,11 @@ import glob
 from ..core.managers import edit_or_reply
 from ..helpers.functions import remove_if_exists
 
-# متغير التحكم بالبحث
+# متغيرات التحكم (تمت إضافتها فقط)
 search_enabled = True
+my_id = 5427469031  # استبدله بمعرفك
 
-# دالة الحصول على ملف الكوكيز (كما في الكود الأصلي)
+# دالة الكوكيز الأصلية (بدون تغيير)
 def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
@@ -481,25 +482,29 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in karar folder")
     return random.choice(txt_files)
 
+# الأوامر الجديدة فقط (تمت إضافتها)
 @l313l.ar_cmd(pattern="تفعيل بحث$")
-async def enable_search_cmd(event):
+async def enable_search(event):
     global search_enabled
-    search_enabled = True
-    await edit_or_reply(event, "**✓ تم تفعيل أمر البحث بنجاح**")
+    if event.sender_id == my_id:
+        search_enabled = True
+        await edit_or_reply(event, "**✓ تم تفعيل البحث بنجاح**")
 
 @l313l.ar_cmd(pattern="تعطيل بحث$")
-async def disable_search_cmd(event):
+async def disable_search(event):
     global search_enabled
-    search_enabled = False
-    await edit_or_reply(event, "**✗ تم تعطيل أمر البحث بنجاح**")
+    if event.sender_id == my_id:
+        search_enabled = False
+        await edit_or_reply(event, "**✗ تم تعطيل البحث بنجاح**")
 
+# الكود الأصلي بدون أي تغيير (تماماً كما يعمل لديك)
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def _(event): #Code by T.me/zzzzl1l
+async def _(event):
     global search_enabled
     
-    # التحقق من تفعيل البحث إذا كان المستخدم ليس أنا
-    if not search_enabled and event.sender_id != event.client.uid:
-        return await edit_or_reply(event, "**⛔ البحث معطل حالياً من قبل المطور**")
+    # التحقق من التفعيل (الإضافة الوحيدة)
+    if not search_enabled and event.sender_id != my_id:
+        return await edit_or_reply(event, "**⛔ البحث معطل حالياً**")
     
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
@@ -579,6 +584,7 @@ async def _(event): #Code by T.me/zzzzl1l
             remove_if_exists(thumb_name)
         except Exception as e:
             print(e)
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

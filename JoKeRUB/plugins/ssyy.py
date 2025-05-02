@@ -504,7 +504,6 @@ async def search_song(event):
     
     # التحقق من التفعيل إذا كان المستخدم ليس أنا
     if event.sender_id != my_id and not search_enabled:
-        await event.reply("**⛔ البحث معطل حالياً**")
         return
     
     query = event.pattern_match.group(1)
@@ -519,15 +518,15 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": True,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
-        "quite": True,
-        "no_warnings": True,
-        "cookiefile" : get_cookies_file(),
+    "format": "bestaudio[ext=m4a]",  # يختار الصوت الأفضل والأسرع (m4a)
+    "keepvideo": False,              # لا يحتفظ بالفيديو لتوفير المساحة
+    "geo_bypass": True,              # يتجاوز القيود الجغرافية
+    "outtmpl": "%(title)s.%(ext)s",  # اسم الملف
+    "quiet": True,                   # لا يظهر تفاصيل غير ضرورية
+    "no_warnings": True,             # لا يعرض تحذيرات
+    "cookiefile": cookies_file,      # يستعمل الكوكيز
         }
+        
         
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()

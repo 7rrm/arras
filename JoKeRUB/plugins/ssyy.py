@@ -460,100 +460,95 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-# إضافة متغير لتخزين حالة البحث (يجب وضعه في بداية الملف مع المتغيرات العامة)
-search_status = True
+import random
+from telethon import events
+import os
+import requests
+from yt_dlp import YoutubeDL
+from youtube_search import YoutubeSearch
 
-@l313l.ar_cmd(pattern="تفعيل بحث$")
+# متغير لتخزين حالة البحث
+search_enabled = False
+
+# معرف المستخدم الخاص بك
+my_id = 5427469031  # استبدل بمعرفك الفعلي
+
+# أمر تفعيل البحث
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    global search_status
-    if event.is_private:
-        return await edit_or_reply(event, "**⚠️ هذا الأمر لا يعمل في الدردشات الخاصة!**")
-    search_status = True
-    await edit_or_reply(event, "**✓ تم تفعيل البحث بنجاح، يمكن الآن للآخرين استخدام أمر البحث**")
-
-@l313l.ar_cmd(pattern="تعطيل بحث$")
-async def disable_search(event):
-    global search_status
-    if event.is_private:
-        return await edit_or_reply(event, "**⚠️ هذا الأمر لا يعمل في الدردشات الخاصة!**")
-    search_status = False
-    await edit_or_reply(event, "**✗ تم تعطيل البحث بنجاح، لا يمكن للآخرين استخدام أمر البحث الآن**")
-
-@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def search_song(event):
-    global search_status
+    global search_enabled
     
-    # التحقق من أن الأمر ليس في دردشة خاصة
-    if event.is_private:
-        return await edit_or_reply(event, "**⚠️ هذا الأمر لا يعمل في الدردشات الخاصة!**")
-    
-    # التحقق من صلاحيات المستخدم إذا كان البحث معطلاً
-    if not search_status and event.sender_id != event.client.uid:
-        return await edit_or_reply(event, "**⛔ البحث معطل حالياً من قبل المالك**")
-    
-    reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
+    if event.sender_id == my_id:
+        search_enabled = True
+        await event.reply("**✓ تم تفعيل البحث بنجاح! الآن يمكن للآخرين استخدام أمر البحث**")
     else:
-        return await edit_or_reply(event, "**✧╎ يرجى تحديد اسم الأغنية للبحث\nمثال:** `.بحث اسم الأغنية`")
+        return
+
+# أمر تعطيل البحث
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
+async def disable_search(event):
+    global search_enabled
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الأغنية... 🎧♥️╰**")
+    if event.sender_id == my_id:
+        search_enabled = False
+        await event.reply("**✗ تم تعطيل البحث بنجاح! الآن لا يمكن للآخرين استخدام أمر البحث**")
+    else:
+        return
+
+# أمر البحث
+@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
+async def search_song(event):
+    global search_enabled
     
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": True,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
-        "quiet": True,
-        "no_warnings": True,
-        "cookiefile": get_cookies_file(),
-    }
+    # إذا كان المرسل ليس أنا والبحث معطل
+    if event.sender_id != my_id and not search_enabled:
+        return
+    
+    query = event.pattern_match.group(1)
+    if not query:
+        return await event.reply("**⚠️ يرجى تحديد اسم الأغنية للبحث**\nمثال: `.بحث اسم الأغنية`")
+    
+    msg = await event.reply("**🔍 جاري البحث عن الأغنية...**")
     
     try:
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
-            return await zedevent.edit("**❌ لم يتم العثور على نتائج، يرجى المحاولة باسم آخر**")
+            return await msg.edit("**❌ لم يتم العثور على نتائج**")
         
         link = f"https://youtube.com{results[0]['url_suffix']}"
         title = results[0]["title"][:40]
-        thumbnail = results[0]["thumbnails"][0]
-        thumb_name = f"{title}.jpg"
-        thumb = requests.get(thumbnail, allow_redirects=True)
-        open(thumb_name, "wb").write(thumb.content)
         duration = results[0]["duration"]
-
-        await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
         
-        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=False)
-            audio_file = ydl.prepare_filename(info_dict)
-            ydl.process_info(info_dict)
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'outtmpl': '%(title)s.%(ext)s',
+            'quiet': True,
+            'no_warnings': True,
+        }
+        
+        await msg.edit("**⬇️ جاري التحميل...**")
+        
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(link, download=False)
+            filename = ydl.prepare_filename(info)
+            ydl.process_info(info)
             
-        await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
-        
-        await event.client.send_file(
-            event.chat_id,
-            audio_file,
-            caption=f"**🎧 الأغنية:** `{title}`\n**🕒 المدة:** `{duration}`",
-            thumb=thumb_name,
-            supports_streaming=True,
-            reply_to=event.reply_to_msg_id,
-        )
-        
+            await msg.edit("**📤 جاري الرفع...**")
+            await event.client.send_file(
+                event.chat_id,
+                filename,
+                caption=f"**🎵 {title}**\n**⏳ المدة: {duration}**",
+                reply_to=event.id
+            )
+            
     except Exception as e:
-        await zedevent.edit(f"**❌ حدث خطأ أثناء البحث:**\n`{str(e)}`")
-        if event.client.uid == event.sender_id:
-            await event.client.send_message(event.chat_id, "**⚠️ يرجى التواصل مع المطور @Lx5x5 لحل المشكلة**")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
         try:
-            os.remove(audio_file)
-            os.remove(thumb_name)
+            os.remove(filename)
         except:
             pass
-        await zedevent.delete()
+        await msg.delete()
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

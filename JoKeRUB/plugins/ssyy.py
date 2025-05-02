@@ -518,7 +518,7 @@ async def search_song(event):
         cookies_file = get_cookies_file()
         
         # إعدادات yt-dlp مع الكوكيز
-        ydl_ops = {
+        ydl_opts = {
         "format": "bestaudio[ext=m4a]",
         "keepvideo": True,
         "prefer_ffmpeg": False,

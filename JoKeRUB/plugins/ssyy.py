@@ -576,7 +576,6 @@ async def _(event):
         except Exception as e:
             print(e)
 
-
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()
@@ -940,4 +939,3 @@ async def zelzal_insta(event):
             await zed.delete()
             await asyncio.sleep(2)
             await event.client(DeleteHistoryRequest(1332941342, max_id=0, just_clear=True))
-

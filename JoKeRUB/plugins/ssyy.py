@@ -547,7 +547,7 @@ async def search_song(event):
             await event.client.send_file(
                 event.chat_id,
                 filename,
-                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده: {duration}**",
+                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}ٔ`",
                 reply_to=event.id
             )
             

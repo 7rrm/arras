@@ -521,7 +521,7 @@ async def search_song(event):
     "format": "bestaudio[ext=m4a]",  # يختار الصوت الأفضل والأسرع (m4a)
     "keepvideo": False,              # لا يحتفظ بالفيديو لتوفير المساحة
     "geo_bypass": True,              # يتجاوز القيود الجغرافية
-    "outtmpl": "%(title)s.%(ext)s",  # اسم الملف
+    "outtmpl": "a R R a S 🎧.%(ext)s",  # اسم الملف
     "quiet": True,                   # لا يظهر تفاصيل غير ضرورية
     "no_warnings": True,             # لا يعرض تحذيرات
     "cookiefile": cookies_file,      # يستعمل الكوكيز

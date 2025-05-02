@@ -460,8 +460,30 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
+
+youtube_search_enabled = False
+
+@l313l.ar_cmd(pattern="تفعيل يوتيوب$")
+async def enable_youtube_search(event):
+    global youtube_search_enabled
+    youtube_search_enabled = True
+    await edit_or_reply(event, "**⎉╎تم تفعيل البحث عن اليوتيوب للجميع بنجاح ✓**")
+
+@l313l.ar_cmd(pattern="تعطيل يوتيوب$")
+async def disable_youtube_search(event):
+    global youtube_search_enabled
+    youtube_search_enabled = False
+    await edit_or_reply(event, "**⎉╎تم تعطيل البحث عن اليوتيوب للجميع بنجاح ✓**")
+
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def _(event): #Code by T.me/zzzzl1l
+async def _(event):
+    global youtube_search_enabled
+    # التحقق إذا كان البحث معمول من قبل المستخدم أو من شخص آخر
+    is_owner = event.sender_id == event.client.uid
+    
+    if not is_owner and not youtube_search_enabled:
+        return
+    
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
@@ -469,6 +491,7 @@ async def _(event): #Code by T.me/zzzzl1l
         query = reply.message
     else:
         return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎بحث + اسـم المقطـع الصـوتي**")
+    
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️╰**")
     ydl_ops = {
         "format": "bestaudio[ext=m4a]",
@@ -478,8 +501,9 @@ async def _(event): #Code by T.me/zzzzl1l
         "outtmpl": "%(title)s.%(ext)s",
         "quite": True,
         "no_warnings": True,
-        "cookiefile" : get_cookies_file(),
+        "cookiefile": get_cookies_file(),
     }
+    
     try:
         results = YoutubeSearch(query, max_results=1).to_dict()
         link = f"https://youtube.com{results[0]['url_suffix']}"
@@ -487,28 +511,19 @@ async def _(event): #Code by T.me/zzzzl1l
         thumbnail = results[0]["thumbnails"][0]
         thumb_name = f"{title}.jpg"
         thumb = requests.get(thumbnail, allow_redirects=True)
-        try:
-            open(thumb_name, "wb").write(thumb.content)
-        except Exception:
-            thumb_name = None
-            pass
+        open(thumb_name, "wb").write(thumb.content)
         duration = results[0]["duration"]
-
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
         return
+    
     await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
     try:
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info_dict = ydl.extract_info(link, download=False)
             audio_file = ydl.prepare_filename(info_dict)
             ydl.process_info(info_dict)
-        host = str(info_dict["uploader"])
-        secmul, dur, dur_arr = 1, 0, duration.split(":")
-        for i in range(len(dur_arr) - 1, -1, -1):
-            dur += int(float(dur_arr[i])) * secmul
-            secmul *= 60
+        
         await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
@@ -518,17 +533,14 @@ async def _(event): #Code by T.me/zzzzl1l
             thumb=thumb_name,
         )
         await zedevent.delete()
-    except ChatSendMediaForbiddenError as err: # Code By T.me/zzzzl1l
-        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا ؟!**")
-        LOGS.error(str(err))
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
+    
     try:
-        remove_if_exists(audio_file)
-        remove_if_exists(thumb_name)
-    except Exception as e:
-        print(e)
+        os.remove(audio_file)
+        os.remove(thumb_name)
+    except:
+        pass
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

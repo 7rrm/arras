@@ -460,96 +460,102 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-# متغير لتخزين حالة تفعيل اليوتيوب للجميع
-youtube_search_enabled = False
 
-@l313l.ar_cmd(pattern="تفعيل يوتيوب$")
-async def enable_youtube_search(event):
-    global youtube_search_enabled
-    youtube_search_enabled = True
-    await edit_or_reply(event, "**⎉╎تم تفعيل البحث عن اليوتيوب للجميع بنجاح ✓**")
+# إضافة متغير لتخزين حالة البحث
+search_enabled = True
 
-@l313l.ar_cmd(pattern="تعطيل يوتيوب$")
-async def disable_youtube_search(event):
-    global youtube_search_enabled
-    youtube_search_enabled = False
-    await edit_or_reply(event, "**⎉╎تم تعطيل البحث عن اليوتيوب للجميع بنجاح ✓**")
+@l313l.ar_cmd(pattern="تفعيل بحث")
+async def enable_search(event):
+    global search_enabled
+    search_enabled = True
+    await edit_or_reply(event, "**✓ تم تفعيل البحث بنجاح، يمكن الآن للآخرين استخدام أمر البحث**")
+
+@l313l.ar_cmd(pattern="تعطيل بحث")
+async def disable_search(event):
+    global search_enabled
+    search_enabled = False
+    await edit_or_reply(event, "**✗ تم تعطيل البحث بنجاح، لا يمكن للآخرين استخدام أمر البحث الآن**")
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def youtube_search(event):
-    global youtube_search_enabled
-    # التحقق من صلاحيات المستخدم
-    if not youtube_search_enabled and event.sender_id != event.client.uid:
-        return
+async def _(event):
+    global search_enabled
     
-    query = event.pattern_match.group(1)
-    if not query:
-        reply = await event.get_reply_message()
-        if reply and reply.text:
-            query = reply.text
-        else:
-            return await edit_or_reply(event, "**✧╎يجب كتابة اسم الأغنية مع الأمر أو الرد على نص يحتوي على اسم الأغنية**")
+    # التحقق من صلاحيات المستخدم
+    if not search_enabled and event.sender_id != event.client.uid:
+        return await edit_or_reply(event, "**⚠️ البحث معطل حالياً، يرجى الانتظار حتى يتم تفعيله**")
+    
+    reply = await event.get_reply_message()
+    if event.pattern_match.group(1):
+        query = event.pattern_match.group(1)
+    elif reply and reply.message:
+        query = reply.message
+    else:
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎بحث + اسـم المقطـع الصـوتي**")
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️╰**")
     
+    # باقي كود البحث الأصلي...
+    ydl_ops = {
+        "format": "bestaudio[ext=m4a]",
+        "keepvideo": True,
+        "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quite": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
+    }
+    
     try:
-        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        if not results:
-            return await zedevent.edit(SONG_NOT_FOUND)
-        
-        video_url = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"]
-        duration = results[0]["duration"]
+        link = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"][:40]
         thumbnail = results[0]["thumbnails"][0]
-        
-        # تحميل الصورة المصغرة
-        thumb_file = f"{title}.jpg"
-        with open(thumb_file, "wb") as f:
-            f.write(requests.get(thumbnail).content)
-        
-        # خيارات التنزيل
-        ydl_opts = {
-            "format": "bestaudio/best",
-            "outtmpl": f"{title}.mp3",
-            "quiet": True,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "192",
-            }],
-        }
-        
-        await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
-        
-        # التنزيل
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(video_url, download=True)
-            audio_file = f"{title}.mp3"
-        
-        # الإرسال
+        thumb_name = f"{title}.jpg"
+        thumb = requests.get(thumbnail, allow_redirects=True)
+        try:
+            open(thumb_name, "wb").write(thumb.content)
+        except Exception:
+            thumb_name = None
+            pass
+        duration = results[0]["duration"]
+
+    except Exception as e:
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
+        return
+    
+    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+    try:
+        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
+            info_dict = ydl.extract_info(link, download=False)
+            audio_file = ydl.prepare_filename(info_dict)
+            ydl.process_info(info_dict)
+        host = str(info_dict["uploader"])
+        secmul, dur, dur_arr = 1, 0, duration.split(":")
+        for i in range(len(dur_arr) - 1, -1, -1):
+            dur += int(float(dur_arr[i])) * secmul
+            secmul *= 60
         await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
             audio_file,
-            caption=f"**✧╎العنوان:** `{title}`\n**✧╎المدة:** `{duration}`",
-            thumb=thumb_file,
-            supports_streaming=True,
+            force_document=False,
+            caption=f"**✧╎البحث :** `{title}`",
+            thumb=thumb_name,
         )
-        
-        # التنظيف
-        os.remove(audio_file)
-        os.remove(thumb_file)
         await zedevent.delete()
-        
+    except ChatSendMediaForbiddenError as err:
+        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا ؟!**")
+        LOGS.error(str(err))
     except Exception as e:
-        await zedevent.edit(f"**حدث خطأ أثناء البحث:**\n`{str(e)}`")
-        try:
-            os.remove(audio_file)
-            os.remove(thumb_file)
-        except:
-            pass
-
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await l313l.send_message(event.chat_id, "**- تَـواصل مع المـطور لحل المَشكلةة ، @Lx5x5 .**")
+    try:
+        remove_if_exists(audio_file)
+        remove_if_exists(thumb_name)
+    except Exception as e:
+        print(e)
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

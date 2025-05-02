@@ -470,40 +470,31 @@ import glob
 from ..core.managers import edit_or_reply
 from ..helpers.functions import remove_if_exists
 
-# متغيرات التحكم (تمت إضافتها فقط)
-search_enabled = True
-my_id = 5427469031  # استبدله بمعرفك
+# الجزء المضاف فقط (بدون تغيير أي شيء آخر)
+search_active = True  # true يعني البحث مفعل
+my_id = 5427469031    # استبدل بمعرفك
 
-# دالة الكوكيز الأصلية (بدون تغيير)
-def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
-    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
-    if not txt_files:
-        raise FileNotFoundError("No .txt files found in karar folder")
-    return random.choice(txt_files)
-
-# الأوامر الجديدة فقط (تمت إضافتها)
 @l313l.ar_cmd(pattern="تفعيل بحث$")
 async def enable_search(event):
-    global search_enabled
+    global search_active
     if event.sender_id == my_id:
-        search_enabled = True
+        search_active = True
         await edit_or_reply(event, "**✓ تم تفعيل البحث بنجاح**")
 
 @l313l.ar_cmd(pattern="تعطيل بحث$")
 async def disable_search(event):
-    global search_enabled
+    global search_active
     if event.sender_id == my_id:
-        search_enabled = False
+        search_active = False
         await edit_or_reply(event, "**✗ تم تعطيل البحث بنجاح**")
 
-# الكود الأصلي بدون أي تغيير (تماماً كما يعمل لديك)
+# الكود الأصلي تماماً كما يعمل لديك (بدون أي تغيير)
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def _(event):
-    global search_enabled
+    global search_active
     
     # التحقق من التفعيل (الإضافة الوحيدة)
-    if not search_enabled and event.sender_id != my_id:
+    if not search_active and event.sender_id != my_id:
         return await edit_or_reply(event, "**⛔ البحث معطل حالياً**")
     
     reply = await event.get_reply_message()

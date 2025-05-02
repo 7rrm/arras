@@ -469,7 +469,6 @@ import random
 import glob
 
 # متغيرات التفعيل
-search_enabled = True
 my_id = 5427469031  # استبدل بمعرفك
 
 # دالة الحصول على ملف الكوكيز من الكود السابق
@@ -480,33 +479,38 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
+search_enabled = {}
+
+# تفعيل البحث مع رسالة تأكيد
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = True
-        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
-    else:
-        await event.delete()
+    if event.sender_id == my_id:  # للمطور فقط
+        search_enabled[event.chat_id] = True
+        if event.is_private:
+            await event.reply("**✓ تم تفعيل البحث في هذه المحادثة الخاصة!**")
+        else:
+            await event.reply("**✓ تم تفعيل البحث في هذه المجموعة!**")
 
+# تعطيل البحث مع رسالة تأكيد
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = False
-        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
-    else:
-        await event.delete()
+    if event.sender_id == my_id:  # للمطور فقط
+        search_enabled[event.chat_id] = False
+        if event.is_private:
+            await event.reply("**✗ تم تعطيل البحث في هذه المحادثة الخاصة!**")
+        else:
+            await event.reply("**✗ تم تعطيل البحث في هذه المجموعة!**")
 
+# البحث صامت عند التعطيل
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    global search_enabled
-    
-    # التحقق من التفعيل إذا كان المستخدم ليس أنا
-    if event.sender_id != my_id and not search_enabled:
+    # إذا كان معطلاً → لا شيء يحدث (صمت)
+    if not search_enabled.get(event.chat_id, False):
         return
     
-    query = event.pattern_match.group(1)
+    # إذا كان مفعلاً → تنفيذ البحث
+    try:
+        query = event.pattern_match.group(1)
     if not query:
         return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
     

@@ -460,78 +460,87 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-import random
-from telethon import events
 import os
 import requests
-from yt_dlp import YoutubeDL
+import yt_dlp
 from youtube_search import YoutubeSearch
+from telethon import events
+import random
+import glob
 
-# متغير لتخزين حالة البحث
-search_enabled = False
+# متغيرات التفعيل
+search_enabled = True
+my_id = 5427469031  # استبدل بمعرفك
 
-# معرف المستخدم الخاص بك
-my_id = 5427469031  # استبدل بمعرفك الفعلي
+# دالة الحصول على ملف الكوكيز من الكود السابق
+def get_cookies_file():
+    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    if not txt_files:
+        raise FileNotFoundError("No .txt files found in the cookies folder.")
+    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
-# أمر تفعيل البحث
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
     global search_enabled
-    
     if event.sender_id == my_id:
         search_enabled = True
-        await event.reply("**✓ تم تفعيل البحث بنجاح! الآن يمكن للآخرين استخدام أمر البحث**")
+        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
     else:
-        return
+        await event.delete()
 
-# أمر تعطيل البحث
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
     global search_enabled
-    
     if event.sender_id == my_id:
         search_enabled = False
-        await event.reply("**✗ تم تعطيل البحث بنجاح! الآن لا يمكن للآخرين استخدام أمر البحث**")
+        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
     else:
-        return
+        await event.delete()
 
-# أمر البحث
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
     global search_enabled
     
-    # إذا كان المرسل ليس أنا والبحث معطل
+    # التحقق من التفعيل إذا كان المستخدم ليس أنا
     if event.sender_id != my_id and not search_enabled:
+        await event.reply("**⛔ البحث معطل حالياً**")
         return
     
     query = event.pattern_match.group(1)
     if not query:
-        return await event.reply("**⚠️ يرجى تحديد اسم الأغنية للبحث**\nمثال: `.بحث اسم الأغنية`")
+        return await event.reply("**⚠️ يرجى تحديد اسم الأغنية**\nمثال: `.بحث أغنية الحب`")
     
     msg = await event.reply("**🔍 جاري البحث عن الأغنية...**")
     
     try:
-        results = YoutubeSearch(query, max_results=1).to_dict()
-        if not results:
-            return await msg.edit("**❌ لم يتم العثور على نتائج**")
+        # الحصول على ملف الكوكيز
+        cookies_file = get_cookies_file()
         
-        link = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"][:40]
-        duration = results[0]["duration"]
-        
+        # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': '%(title)s.%(ext)s',
             'quiet': True,
             'no_warnings': True,
+            'cookiefile': cookies_file,  # استخدام ملف الكوكيز
+            'extract_flat': True,
         }
+        
+        # البحث في اليوتيوب
+        results = YoutubeSearch(query, max_results=1).to_dict()
+        if not results:
+            return await msg.edit("**❌ لم يتم العثور على نتائج**")
+        
+        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"]
+        duration = results[0]["duration"]
         
         await msg.edit("**⬇️ جاري التحميل...**")
         
-        with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(link, download=False)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-            ydl.process_info(info)
             
             await msg.edit("**📤 جاري الرفع...**")
             await event.client.send_file(
@@ -545,7 +554,8 @@ async def search_song(event):
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
         try:
-            os.remove(filename)
+            if 'filename' in locals() and os.path.exists(filename):
+                os.remove(filename)
         except:
             pass
         await msg.delete()

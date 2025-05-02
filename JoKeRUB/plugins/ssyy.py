@@ -460,7 +460,7 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-
+# متغير لتخزين حالة تفعيل اليوتيوب للجميع
 youtube_search_enabled = False
 
 @l313l.ar_cmd(pattern="تفعيل يوتيوب$")
@@ -476,71 +476,80 @@ async def disable_youtube_search(event):
     await edit_or_reply(event, "**⎉╎تم تعطيل البحث عن اليوتيوب للجميع بنجاح ✓**")
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def _(event):
+async def youtube_search(event):
     global youtube_search_enabled
-    # التحقق إذا كان البحث معمول من قبل المستخدم أو من شخص آخر
-    is_owner = event.sender_id == event.client.uid
-    
-    if not is_owner and not youtube_search_enabled:
+    # التحقق من صلاحيات المستخدم
+    if not youtube_search_enabled and event.sender_id != event.client.uid:
         return
     
-    reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
-    else:
-        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎بحث + اسـم المقطـع الصـوتي**")
+    query = event.pattern_match.group(1)
+    if not query:
+        reply = await event.get_reply_message()
+        if reply and reply.text:
+            query = reply.text
+        else:
+            return await edit_or_reply(event, "**✧╎يجب كتابة اسم الأغنية مع الأمر أو الرد على نص يحتوي على اسم الأغنية**")
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️╰**")
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": True,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
-        "quite": True,
-        "no_warnings": True,
-        "cookiefile": get_cookies_file(),
-    }
     
     try:
+        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        link = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"][:40]
-        thumbnail = results[0]["thumbnails"][0]
-        thumb_name = f"{title}.jpg"
-        thumb = requests.get(thumbnail, allow_redirects=True)
-        open(thumb_name, "wb").write(thumb.content)
-        duration = results[0]["duration"]
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        return
-    
-    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
-    try:
-        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=False)
-            audio_file = ydl.prepare_filename(info_dict)
-            ydl.process_info(info_dict)
+        if not results:
+            return await zedevent.edit(SONG_NOT_FOUND)
         
+        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"]
+        duration = results[0]["duration"]
+        thumbnail = results[0]["thumbnails"][0]
+        
+        # تحميل الصورة المصغرة
+        thumb_file = f"{title}.jpg"
+        with open(thumb_file, "wb") as f:
+            f.write(requests.get(thumbnail).content)
+        
+        # خيارات التنزيل
+        ydl_opts = {
+            "format": "bestaudio/best",
+            "outtmpl": f"{title}.mp3",
+            "quiet": True,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
+        }
+        
+        await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+        
+        # التنزيل
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(video_url, download=True)
+            audio_file = f"{title}.mp3"
+        
+        # الإرسال
         await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
             audio_file,
-            force_document=False,
-            caption=f"**✧╎البحث :** `{title}`",
-            thumb=thumb_name,
+            caption=f"**✧╎العنوان:** `{title}`\n**✧╎المدة:** `{duration}`",
+            thumb=thumb_file,
+            supports_streaming=True,
         )
-        await zedevent.delete()
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-    
-    try:
+        
+        # التنظيف
         os.remove(audio_file)
-        os.remove(thumb_name)
-    except:
-        pass
+        os.remove(thumb_file)
+        await zedevent.delete()
+        
+    except Exception as e:
+        await zedevent.edit(f"**حدث خطأ أثناء البحث:**\n`{str(e)}`")
+        try:
+            os.remove(audio_file)
+            os.remove(thumb_file)
+        except:
+            pass
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

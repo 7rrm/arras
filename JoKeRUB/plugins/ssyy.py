@@ -542,7 +542,7 @@ async def search_song(event):
     "http_chunk_size": 1048576,  # حجم أكبر للقطع
     "extract_flat": True,
     "cookiefile": cookies_file,
-    "outtmpl": "temp_audio.%(ext)s"  # اسم ملف أبسط
+    "outtmpl": "a R R a S 🎧.%(ext)s"  # اسم ملف أبسط
         }
         
         # البحث في اليوتيوب

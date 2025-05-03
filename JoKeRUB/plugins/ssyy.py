@@ -469,41 +469,53 @@ import random
 import glob
 
 # متغيرات التفعيل
-search_enabled = True
-my_id = 5427469031  # استبدل بمعرفك
+search_settings = {
+    'global_private': False,  # البحث في المحادثات الخاصة
+    'enabled_groups': set(),  # المجموعات المفعل فيها البحث
+    'my_id': 5427469031  # استبدل بمعرفك
+}
 
-# دالة الحصول على ملف الكوكيز من الكود السابق
+# دالة الحصول على ملف الكوكيز
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
+    folder_path = f"{os.getcwd()}/karar"
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
         raise FileNotFoundError("No .txt files found in the cookies folder.")
-    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
+    return random.choice(txt_files)
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-async def enable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = True
-        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
-    else:
-        await event.delete()
+async def enable_group_search(event):
+    if event.sender_id == search_settings['my_id']:
+        if event.is_private:
+            search_settings['global_private'] = True
+            await event.reply("**✓ تم تفعيل البحث في جميع المحادثات الخاصة!**")
+        else:
+            chat_id = event.chat_id
+            search_settings['enabled_groups'].add(chat_id)
+            await event.reply("**✓ تم تفعيل البحث في هذه المجموعة!**")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-async def disable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = False
-        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
-    else:
-        await event.delete()
+async def disable_group_search(event):
+    if event.sender_id == search_settings['my_id']:
+        if event.is_private:
+            search_settings['global_private'] = False
+            await event.reply("**✗ تم تعطيل البحث في المحادثات الخاصة!**")
+        else:
+            chat_id = event.chat_id
+            if chat_id in search_settings['enabled_groups']:
+                search_settings['enabled_groups'].remove(chat_id)
+                await event.reply("**✗ تم تعطيل البحث في هذه المجموعة!**")
+            else:
+                await event.reply("**البحث غير مفعل في هذه المجموعة أصلاً!**")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    global search_enabled
+    # التحقق من التفعيل في المحادثات الخاصة
+    if event.is_private and not search_settings['global_private']:
+        return
     
-    # التحقق من التفعيل إذا كان المستخدم ليس أنا
-    if event.sender_id != my_id and not search_enabled:
+    # التحقق من التفعيل في المجموعات
+    if not event.is_private and event.chat_id not in search_settings['enabled_groups']:
         return
     
     query = event.pattern_match.group(1)
@@ -518,15 +530,14 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    "format": "bestaudio[ext=m4a]",  # يختار الصوت الأفضل والأسرع (m4a)
-    "keepvideo": False,              # لا يحتفظ بالفيديو لتوفير المساحة
-    "geo_bypass": True,              # يتجاوز القيود الجغرافية
-    "outtmpl": "a R R a s 🎧.%(ext)s",  # اسم الملف
-    "quiet": True,                   # لا يظهر تفاصيل غير ضرورية
-    "no_warnings": True,             # لا يعرض تحذيرات
-    "cookiefile": cookies_file,      # يستعمل الكوكيز
+            "format": "bestaudio[ext=m4a]",
+            "keepvideo": False,
+            "geo_bypass": True,
+            "outtmpl": "a R R a s 🎧.%(ext)s",
+            "quiet": True,
+            "no_warnings": True,
+            "cookiefile": cookies_file,
         }
-        
         
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()

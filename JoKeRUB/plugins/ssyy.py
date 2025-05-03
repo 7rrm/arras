@@ -468,12 +468,6 @@ from telethon import events
 import random
 import glob
 
-# متغيرات التفعيل
-search_settings = {
-    'global_private': False,  # البحث في المحادثات الخاصة
-    'enabled_groups': set(),  # المجموعات المفعل فيها البحث
-    'my_id': 5427469031  # استبدل بمعرفك
-}
 
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
@@ -483,40 +477,48 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
+# إعدادات التحكم
+search_settings = {
+    'enabled_private': False,  # للدردشات الخاصة
+    'enabled_groups': {},     # للمجموعات {group_id: True/False}
+    'admin_id': 5427469031    # أي دي المطور
+}
+
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-async def enable_group_search(event):
-    if event.sender_id == search_settings['my_id']:
-        if event.is_private:
-            search_settings['global_private'] = True
-            await event.reply("**✓ تم تفعيل البحث في جميع المحادثات الخاصة!**")
-        else:
-            chat_id = event.chat_id
-            search_settings['enabled_groups'].add(chat_id)
-            await event.reply("**✓ تم تفعيل البحث في هذه المجموعة!**")
+async def enable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        search_settings['enabled_private'] = True
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    else:
+        search_settings['enabled_groups'][event.chat_id] = True
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-async def disable_group_search(event):
-    if event.sender_id == search_settings['my_id']:
-        if event.is_private:
-            search_settings['global_private'] = False
-            await event.reply("**✗ تم تعطيل البحث في المحادثات الخاصة!**")
-        else:
-            chat_id = event.chat_id
-            if chat_id in search_settings['enabled_groups']:
-                search_settings['enabled_groups'].remove(chat_id)
-                await event.reply("**✗ تم تعطيل البحث في هذه المجموعة!**")
-            else:
-                await event.reply("**البحث غير مفعل في هذه المجموعة أصلاً!**")
+async def disable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        search_settings['enabled_private'] = False
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    else:
+        search_settings['enabled_groups'][event.chat_id] = False
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    # التحقق من التفعيل في المحادثات الخاصة
-    if event.is_private and not search_settings['global_private']:
-        return
-    
-    # التحقق من التفعيل في المجموعات
-    if not event.is_private and event.chat_id not in search_settings['enabled_groups']:
-        return
+    # التحقق من الصلاحيات
+    if event.sender_id == search_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
+    elif event.is_private:
+        if not search_settings['enabled_private']:
+            return
+    else:
+        if not search_settings['enabled_groups'].get(event.chat_id, False):
+            return
     
     query = event.pattern_match.group(1)
     if not query:

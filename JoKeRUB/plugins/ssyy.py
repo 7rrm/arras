@@ -548,7 +548,7 @@ async def search_song(event):
     "no_warnings": True,
     "geo_bypass": True,
     "cookiefile": cookies_file,
-    "outtmpl": "temp_music.%(ext)s"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+    "outtmpl": "a R R a S 🎧.%(ext)s"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
         }
         
         # البحث في اليوتيوب

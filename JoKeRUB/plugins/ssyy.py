@@ -530,13 +530,17 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-            "format": "bestaudio[ext=m4a]",
-            "keepvideo": False,
-            "geo_bypass": True,
-            "outtmpl": "a R R a s 🎧.%(ext)s",
-            "quiet": True,
-            "no_warnings": True,
-            "cookiefile": cookies_file,
+    "format": "bestaudio[filesize<10M][ext=m4a]",  # تحديد حجم صغير ونوع م4ا
+    "socket_timeout": 10,  # تقليل وقت الانتظار
+    "noplaylist": True,  # تجنب القوائم
+    "quiet": True,
+    "no_warnings": True,
+    "geo_bypass": True,
+    "source_address": "0.0.0.0",
+    "http_chunk_size": 1048576,  # حجم أكبر للقطع
+    "extract_flat": True,
+    "cookiefile": cookies_file,
+    "outtmpl": "temp_audio.%(ext)s"  # اسم ملف أبسط
         }
         
         # البحث في اليوتيوب

@@ -475,13 +475,14 @@ search_settings = {
     'enabled_private': False,
     'enabled_groups': {},
     'admin_id': 5427469031,
-    'max_workers': 4
+    'max_workers': 4  # عدد المسارات المتوازية للتنزيل
 }
 
-# إنشاء مجلد مؤقت
+# إنشاء مجلد مؤقت إذا لم يكن موجوداً
 TEMP_DIR = "temp_downloads"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+# تنفيذ المهام الثقيلة في خيوط منفصلة
 executor = ThreadPoolExecutor(max_workers=search_settings['max_workers'])
 
 def get_cookies_file():
@@ -502,7 +503,7 @@ def download_audio(video_url, cookies_file):
     ydl_opts = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
         "socket_timeout": 3,
-        "http_chunk_size": 8388608,
+        "http_chunk_size": 8388608,  # 8MB chunks for faster download
         "noplaylist": True,
         "extract_flat": True,
         "fragment_retries": 1,
@@ -512,21 +513,22 @@ def download_audio(video_url, cookies_file):
         "geo_bypass": True,
         "cookiefile": cookies_file,
         "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s"),
-        "external_downloader": "aria2c",
-        "external_downloader_args": ["-x16", "-s16", "-k5M"]
+        "external_downloader": "aria2c",  # أسرع downloader إذا كان مثبتاً
+        "external_downloader_args": ["-x16", "-s16", "-k5M"]  # 16 اتصال متوازي
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=True)
         return ydl.prepare_filename(info)
 
-# الحل: ديكوراتور معدل يتوافق مع Telethon
+# تعريف ديكوراتور ar_cmd المتوافق مع Telethon
 def ar_cmd(func):
     async def wrapper(client, event):
+        # يمكنك إضافة أي تحقق إضافي هنا قبل تنفيذ الدالة
         return await func(event)
     return wrapper
 
-# تطبيق الديكوراتورات بالترتيب الصحيح
+# الأوامر مع تطبيق الديكوراتورات
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 @ar_cmd
 async def enable_search(event):
@@ -556,8 +558,9 @@ async def disable_search(event):
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 @ar_cmd
 async def search_song(event):
+    # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
-        pass
+        pass  # المطور مسموح له دائماً
     elif event.is_private:
         if not search_settings['enabled_private']:
             return
@@ -573,6 +576,7 @@ async def search_song(event):
     start_time = time.time()
     
     try:
+        # البحث بشكل متوازي
         cookies_file = await run_in_thread(get_cookies_file)
         results = await run_in_thread(search_youtube, query)
         
@@ -585,16 +589,18 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
+        # التنزيل بشكل متوازي
         filename = await run_in_thread(download_audio, video_url, cookies_file)
         
+        # الرفع
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f} ثانية`",
             reply_to=event.id,
-            part_size_kb=1024,
-            workers=8
+            part_size_kb=1024,  # حجم قطع الرفع (1MB)
+            workers=8  # عدد عمليات الرفع المتوازية
         )
         
     except Exception as e:

@@ -461,75 +461,113 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
         os.remove(path)
 
 import os
-import requests
 import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon import events
 import random
 import glob
+import time
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
-# متغيرات التفعيل
-search_enabled = True
-my_id = 5427469031  # استبدل بمعرفك
+# إعدادات التحكم
+search_settings = {
+    'enabled_private': False,
+    'enabled_groups': {},
+    'admin_id': 5427469031,
+    'max_workers': 4  # عدد المسارات المتوازية للتنزيل
+}
 
-# دالة الحصول على ملف الكوكيز من الكود السابق
+# إنشاء مجلد مؤقت إذا لم يكن موجوداً
+TEMP_DIR = "temp_downloads"
+os.makedirs(TEMP_DIR, exist_ok=True)
+
+# تنفيذ المهام الثقيلة في خيوط منفصلة
+executor = ThreadPoolExecutor(max_workers=search_settings['max_workers'])
+
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
+    folder_path = f"{os.getcwd()}/karar"
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
         raise FileNotFoundError("No .txt files found in the cookies folder.")
-    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
+    return random.choice(txt_files)
+
+async def run_in_thread(func, *args):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(executor, func, *args)
+
+def search_youtube(query):
+    return YoutubeSearch(query, max_results=1).to_dict()
+
+def download_audio(video_url, cookies_file):
+    ydl_opts = {
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "socket_timeout": 3,
+        "http_chunk_size": 8388608,  # 8MB chunks for faster download
+        "noplaylist": True,
+        "extract_flat": True,
+        "fragment_retries": 1,
+        "retries": 1,
+        "quiet": True,
+        "no_warnings": True,
+        "geo_bypass": True,
+        "cookiefile": cookies_file,
+        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s"),
+        "external_downloader": "aria2c",  # أسرع downloader إذا كان مثبتاً
+        "external_downloader_args": ["-x16", "-s16", "-k5M"]  # 16 اتصال متوازي
+    }
+    
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(video_url, download=True)
+        return ydl.prepare_filename(info)
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = True
-        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        search_settings['enabled_private'] = True
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
     else:
-        await event.delete()
+        search_settings['enabled_groups'][event.chat_id] = True
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
-    global search_enabled
-    if event.sender_id == my_id:
-        search_enabled = False
-        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        search_settings['enabled_private'] = False
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
     else:
-        await event.delete()
+        search_settings['enabled_groups'][event.chat_id] = False
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    global search_enabled
-    
-    # التحقق من التفعيل إذا كان المستخدم ليس أنا
-    if event.sender_id != my_id and not search_enabled:
-        return
+    if event.sender_id == search_settings['admin_id']:
+        pass
+    elif event.is_private:
+        if not search_settings['enabled_private']:
+            return
+    else:
+        if not search_settings['enabled_groups'].get(event.chat_id, False):
+            return
     
     query = event.pattern_match.group(1)
     if not query:
         return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    start_time = time.time()
     
     try:
-        # الحصول على ملف الكوكيز
-        cookies_file = get_cookies_file()
+        # البحث بشكل متوازي
+        cookies_file = await run_in_thread(get_cookies_file)
+        results = await run_in_thread(search_youtube, query)
         
-        # إعدادات yt-dlp مع الكوكيز
-        ydl_opts = {
-    "format": "bestaudio[ext=m4a]",  # يختار الصوت الأفضل والأسرع (m4a)
-    "keepvideo": False,              # لا يحتفظ بالفيديو لتوفير المساحة
-    "geo_bypass": True,              # يتجاوز القيود الجغرافية
-    "outtmpl": "a R R a s 🎧.%(ext)s",  # اسم الملف
-    "quiet": True,                   # لا يظهر تفاصيل غير ضرورية
-    "no_warnings": True,             # لا يعرض تحذيرات
-    "cookiefile": cookies_file,      # يستعمل الكوكيز
-        }
-        
-        
-        # البحث في اليوتيوب
-        results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -539,20 +577,23 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
-            
-            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-            await event.client.send_file(
-                event.chat_id,
-                filename,
-                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}ٔ`",
-                reply_to=event.id
-            )
-            
+        # التنزيل بشكل متوازي
+        filename = await run_in_thread(download_audio, video_url, cookies_file)
+        
+        # الرفع
+        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+        upload_start = time.time()
+        await event.client.send_file(
+            event.chat_id,
+            filename,
+            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f} ثانية`",
+            reply_to=event.id,
+            part_size_kb=1024,  # حجم قطع الرفع (1MB)
+            workers=8  # عدد عمليات الرفع المتوازية
+        )
+        
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:
         try:
             if 'filename' in locals() and os.path.exists(filename):

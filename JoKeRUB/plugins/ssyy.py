@@ -532,19 +532,17 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # 1. إعدادات التنسيق الذكية (السرعة + الجودة)
-    "format": "bestaudio[ext=m4a][filesize<15M]/bestaudio[ext=webm][filesize<15M]/bestaudio/best",
+    # 1. إعدادات التنسيق (m4a أولاً ثم أي تنسيق بدون تحويل)
+    "format": "bestaudio[ext=m4a]/bestaudio/best",
     
-    # 2. إعدادات الشبكة فائقة السرعة
-    "http_chunk_size": 8388608,  # 8MB (أقصى حجم للقطع)
-    "socket_timeout": 3,         # 3 ثوانٍ فقط للانتظار
+    # 2. إعدادات السرعة القصوى (مُحسّنة)
+    "http_chunk_size": 8388608,  # 8MB (أقصى سرعة آمنة)
+    "socket_timeout": 4,         # 4 ثوانٍ (توازن مثالي)
     "concurrent_fragment_downloads": 3,  # 3 اتصالات متوازية
-    "source_address": "0.0.0.0", # أفضل أداء للشبكة
     
-    # 3. تحسينات الأداء القصوى
+    # 3. إعدادات تجنب الأخطاء
     "noplaylist": True,
     "extract_flat": True,
-    "noresizebuffer": True,     # تعطيل ضبط الذاكرة المؤقت
     "fragment_retries": 1,      # إعادة محاولة سريعة
     "retries": 2,               # محاولات إضافية
     
@@ -554,12 +552,11 @@ async def search_song(event):
     "geo_bypass": True,
     
     # 5. إدارة الملفات
-    "outtmpl": "dl_%(id)s.%(ext)s",  # اسم ملف مختصر
+    "outtmpl": "audio_temp.%(ext)s",  # اسم ملف بسيط
     "cookiefile": cookies_file,
     
-    # 6. معالجة الأخطاء الذكية
-    "ignoreerrors": True,
-    "skip_unavailable_fragments": True
+    # 6. تعطيل التحويل التلقائي
+    "postprocessors": []  # تأكيد تعطيل أي تحويل
         }
     
     

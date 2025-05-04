@@ -535,34 +535,22 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # 1. إعدادات التنسيق (الأولوية لـ m4a بدون تحويل)
-    "format": "bestaudio[ext=m4a][filesize<15M]/bestaudio/best",
-    
-    # 2. إعدادات الشبكة المتطورة
-    "http_chunk_size": 10485760,  # 10MB (أقصى حجم آمن لهيروكو)
-    "socket_timeout": 8,          # وقت انتظار أطول لتعويض بطء هيروكو
-    "concurrent_fragment_downloads": 4,  # 4 اتصالات متوازية (الحد الآمن)
-    
-    # 3. تحسينات هيروكو الخاصة
-    "outtmpl": "/tmp/ytdl_%(id)s.%(ext)s",  # المسار المؤقت الرسمي
+    # أولوية لـ m4a، ثم أي تنسيق متاح
+    "format": "bestaudio[ext=m4a]/bestaudio/best",
+# إعدادات السرعة القصوى
+    "socket_timeout": 5,  # وقت انتظار أقل
+    "http_chunk_size": 4194304,  # 4MB - قطع أكبر للتحميل السريع
     "noplaylist": True,
     "extract_flat": True,
-    "geo_bypass": True,
+    "fragment_retries": 2,
+    "retries": 2,
     
-    # 4. إدارة الأخطاء
-    "retries": 3,
-    "fragment_retries": 3,
-    "skip_unavailable_fragments": True,
-    
-    # 5. إعدادات التخفيض
+    # إعدادات التخفيض
     "quiet": True,
     "no_warnings": True,
-    "noprogress": True,
-    
-    # 6. إعدادات إضافية
+    "geo_bypass": True,
     "cookiefile": cookies_file,
-    "allow_multiple_video_streams": False,
-    "allow_multiple_audio_streams": False
+    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
         }
         
         
@@ -589,7 +577,6 @@ async def search_song(event):
             
         # عملية الرفع
         upload_start = time.time()
-        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,

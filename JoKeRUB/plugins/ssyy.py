@@ -535,7 +535,8 @@ async def search_song(event):
     # أولوية لـ m4a، ثم أي تنسيق متاح
     "format": "bestaudio[ext=m4a]/bestaudio/best",
     
-    ydl_opts = {
+    
+        ydl_opts = {
     # 1. أولويات التنسيق (الأسرع أولاً)
     "format": "bestaudio[ext=m4a][filesize<8M]/bestaudio[ext=webm][filesize<8M]/bestaudio/best",
     
@@ -558,7 +559,6 @@ async def search_song(event):
     "outtmpl": "tmp.%(ext)s",    # اسم ملف مختصر جداً
     "cookiefile": cookies_file   # يستخدم الكوكيز لتسريع الوصول
         }
-        
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:

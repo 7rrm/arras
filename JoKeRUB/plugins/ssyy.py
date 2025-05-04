@@ -468,66 +468,49 @@ from telethon import events
 import random
 import glob
 
+# متغيرات التفعيل
+search_enabled = True
+my_id = 5427469031  # استبدل بمعرفك
 
-# دالة الحصول على ملف الكوكيز
+# دالة الحصول على ملف الكوكيز من الكود السابق
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
+    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
         raise FileNotFoundError("No .txt files found in the cookies folder.")
-    return random.choice(txt_files)
-
-# إعدادات التحكم
-search_settings = {
-    'enabled_private': False,  # للدردشات الخاصة
-    'enabled_groups': {},     # للمجموعات {group_id: True/False}
-    'admin_id': 5427469031    # أي دي المطور
-}
+    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        search_settings['enabled_private'] = True
-        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    global search_enabled
+    if event.sender_id == my_id:
+        search_enabled = True
+        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
     else:
-        search_settings['enabled_groups'][event.chat_id] = True
-        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+        await event.delete()
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        search_settings['enabled_private'] = False
-        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    global search_enabled
+    if event.sender_id == my_id:
+        search_enabled = False
+        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
     else:
-        search_settings['enabled_groups'][event.chat_id] = False
-        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
-
-import time  # أضف هذه المكتبة في الأعلى مع باقي الـimports
+        await event.delete()
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not search_settings['enabled_private']:
-            return
-    else:
-        if not search_settings['enabled_groups'].get(event.chat_id, False):
-            return
+    global search_enabled
+    
+    # التحقق من التفعيل إذا كان المستخدم ليس أنا
+    if event.sender_id != my_id and not search_enabled:
+        return
     
     query = event.pattern_match.group(1)
     if not query:
         return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    start_time = time.time()  # بداية حساب الوقت
     
     try:
         # الحصول على ملف الكوكيز
@@ -535,30 +518,18 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
-    
-    # إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+    "format": "bestaudio[ext=m4a]",  # يختار الصوت الأفضل والأسرع (m4a)
+    "keepvideo": False,              # لا يحتفظ بالفيديو لتوفير المساحة
+    "geo_bypass": True,              # يتجاوز القيود الجغرافية
+    "outtmpl": "a R R a s 🎧.%(ext)s",  # اسم الملف
+    "quiet": True,                   # لا يظهر تفاصيل غير ضرورية
+    "no_warnings": True,             # لا يعرض تحذيرات
+    "cookiefile": cookies_file,      # يستعمل الكوكيز
         }
         
         
         # البحث في اليوتيوب
-        search_start = time.time()
         results = YoutubeSearch(query, max_results=1).to_dict()
-        search_time = time.time() - search_start
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -568,27 +539,20 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
-        download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        download_time = time.time() - download_start
             
-        # عملية الرفع
-        upload_start = time.time()
-        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-        await event.client.send_file(
-            event.chat_id,
-            filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
-            reply_to=event.id
-        )
-        upload_time = time.time() - upload_start
-            
+            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+            await event.client.send_file(
+                event.chat_id,
+                filename,
+                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}ٔ`",
+                reply_to=event.id
+            )
             
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
         try:
             if 'filename' in locals() and os.path.exists(filename):

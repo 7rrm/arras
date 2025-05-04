@@ -508,6 +508,8 @@ async def disable_search(event):
         search_settings['enabled_groups'][event.chat_id] = False
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
+import time  # أضف هذه المكتبة في الأعلى مع باقي الـimports
+
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
     # التحقق من الصلاحيات
@@ -525,6 +527,7 @@ async def search_song(event):
         return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    start_time = time.time()  # بداية حساب الوقت
     
     try:
         # الحصول على ملف الكوكيز
@@ -532,37 +535,25 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # 1. إعدادات التنسيق (m4a أولاً ثم أي تنسيق بدون تحويل)
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-    
-    # 2. إعدادات السرعة القصوى (مُحسّنة)
-    "http_chunk_size": 8388608,  # 8MB (أقصى سرعة آمنة)
-    "socket_timeout": 4,         # 4 ثوانٍ (توازن مثالي)
-    "concurrent_fragment_downloads": 3,  # 3 اتصالات متوازية
-    
-    # 3. إعدادات تجنب الأخطاء
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 1,      # إعادة محاولة سريعة
-    "retries": 2,               # محاولات إضافية
-    
-    # 4. إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    
-    # 5. إدارة الملفات
-    "outtmpl": "audio_temp.%(ext)s",  # اسم ملف بسيط
-    "cookiefile": cookies_file,
-    
-    # 6. تعطيل التحويل التلقائي
-    "postprocessors": []  # تأكيد تعطيل أي تحويل
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "http_chunk_size": 8388608,
+            "socket_timeout": 4,
+            "concurrent_fragment_downloads": 3,
+            "noplaylist": True,
+            "extract_flat": True,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "outtmpl": "audio_temp.%(ext)s",
+            "cookiefile": cookies_file,
+            "postprocessors": []
         }
-    
-    
         
         # البحث في اليوتيوب
+        search_start = time.time()
         results = YoutubeSearch(query, max_results=1).to_dict()
+        search_time = time.time() - search_start
+        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -572,20 +563,27 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
+        # عملية التحميل
+        download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
+        download_time = time.time() - download_start
             
-            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-            await event.client.send_file(
-                event.chat_id,
-                filename,
-                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}ٔ`",
-                reply_to=event.id
-            )
+        # عملية الرفع
+        upload_start = time.time()
+        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+        await event.client.send_file(
+            event.chat_id,
+            filename,
+            caption=f"**✧╎البحث:** `{title}`\n**⌔╎المدة:** `{duration}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية",
+            reply_to=event.id
+        )
+        upload_time = time.time() - upload_start
+            
             
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:
         try:
             if 'filename' in locals() and os.path.exists(filename):

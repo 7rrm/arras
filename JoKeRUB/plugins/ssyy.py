@@ -512,25 +512,14 @@ def download_audio(video_url, cookies_file):
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": cookies_file,
-        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s"),
-        "external_downloader": "aria2c",  # أسرع downloader إذا كان مثبتاً
-        "external_downloader_args": ["-x16", "-s16", "-k5M"]  # 16 اتصال متوازي
+        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s")
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=True)
         return ydl.prepare_filename(info)
 
-# تعريف ديكوراتور ar_cmd المتوافق مع Telethon
-def ar_cmd(func):
-    async def wrapper(client, event):
-        # يمكنك إضافة أي تحقق إضافي هنا قبل تنفيذ الدالة
-        return await func(event)
-    return wrapper
-
-# الأوامر مع تطبيق الديكوراتورات
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-@ar_cmd
 async def enable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
@@ -543,7 +532,6 @@ async def enable_search(event):
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-@ar_cmd
 async def disable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
@@ -556,7 +544,6 @@ async def disable_search(event):
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
-@ar_cmd
 async def search_song(event):
     # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
@@ -600,7 +587,7 @@ async def search_song(event):
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f} ثانية`",
             reply_to=event.id,
             part_size_kb=1024,  # حجم قطع الرفع (1MB)
-            workers=8  # عدد عمليات الرفع المتوازية
+            workers=4  # عدد عمليات الرفع المتوازية
         )
         
     except Exception as e:

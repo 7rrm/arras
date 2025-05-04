@@ -539,7 +539,7 @@ async def search_song(event):
     "format": "bestaudio[ext=m4a]/bestaudio/best",
 # إعدادات السرعة القصوى
     "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 8388608,  # 4MB - قطع أكبر للتحميل السريع
+    "http_chunk_size": 6291456,  # 6MB - قطع أكبر للتحميل السريع
     "noplaylist": True,
     "extract_flat": True,
     "fragment_retries": 2,

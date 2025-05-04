@@ -535,20 +535,28 @@ async def search_song(event):
     # أولوية لـ m4a، ثم أي تنسيق متاح
     "format": "bestaudio[ext=m4a]/bestaudio/best",
     
-    # إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 4194304,  # 4MB - قطع أكبر للتحميل السريع
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
+    ydl_opts = {
+    # 1. أولويات التنسيق (الأسرع أولاً)
+    "format": "bestaudio[ext=m4a][filesize<8M]/bestaudio[ext=webm][filesize<8M]/bestaudio/best",
     
-    # إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.%(ext)s"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+    # 2. إعدادات السرعة القصوى
+    "http_chunk_size": 8388608,  # 8MB - أكبر حجم للقطع (يقلل الطلبات)
+    "socket_timeout": 3,         # أقل وقت انتظار (3 ثوانٍ فقط)
+    "concurrent_fragment_downloads": 3,  # تحميل متوازي (3 قطع في نفس الوقت)
+    
+    # 3. إلغاء العمليات غير الضرورية
+    "noplaylist": True,          # يتجاهل قوائم التشغيل
+    "extract_flat": True,        # لا يحلل القوائم
+    "noresizebuffer": True,      # يعطل ضبط حجم الذاكرة المؤقت
+    
+    # 4. إعدادات التخفيض
+    "quiet": True,               # لا يظهر تفاصيل
+    "no_warnings": True,         # يتجاهل التحذيرات
+    "geo_bypass": True,          # يتجاوز القيود الجغرافية
+    
+    # 5. ملفات مؤقتة
+    "outtmpl": "tmp.%(ext)s",    # اسم ملف مختصر جداً
+    "cookiefile": cookies_file   # يستخدم الكوكيز لتسريع الوصول
         }
         
         # البحث في اليوتيوب

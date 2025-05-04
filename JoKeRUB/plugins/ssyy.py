@@ -468,58 +468,21 @@ import random
 import glob
 import time
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 # إعدادات التحكم
 search_settings = {
     'enabled_private': False,
     'enabled_groups': {},
-    'admin_id': 5427469031,
-    'max_workers': 4  # عدد المسارات المتوازية للتنزيل
+    'admin_id': 5427469031
 }
 
-# إنشاء مجلد مؤقت إذا لم يكن موجوداً
-TEMP_DIR = "temp_downloads"
-os.makedirs(TEMP_DIR, exist_ok=True)
-
-# تنفيذ المهام الثقيلة في خيوط منفصلة
-executor = ThreadPoolExecutor(max_workers=search_settings['max_workers'])
-
+# دالة الحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
-
-async def run_in_thread(func, *args):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(executor, func, *args)
-
-def search_youtube(query):
-    return YoutubeSearch(query, max_results=1).to_dict()
-
-def download_audio(video_url, cookies_file):
-    ydl_opts = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "socket_timeout": 3,
-        "http_chunk_size": 8388608,  # 8MB chunks for faster download
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 1,
-        "retries": 1,
-        "quiet": True,
-        "no_warnings": True,
-        "geo_bypass": True,
-        "cookiefile": cookies_file,
-        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s"),
-        "external_downloader": "aria2c",  # أسرع downloader إذا كان مثبتاً
-        "external_downloader_args": ["-x16", "-s16", "-k5M"]  # 16 اتصال متوازي
-    }
-    
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(video_url, download=True)
-        return ydl.prepare_filename(info)
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
@@ -546,9 +509,10 @@ async def disable_search(event):
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
-async def search_song(event):
+async def search_song(event):  # تم تعديل الدالة لتأخذ معطى واحد فقط (event)
+    # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
-        pass
+        pass  # المطور مسموح له دائماً
     elif event.is_private:
         if not search_settings['enabled_private']:
             return
@@ -564,10 +528,27 @@ async def search_song(event):
     start_time = time.time()
     
     try:
-        # البحث بشكل متوازي
-        cookies_file = await run_in_thread(get_cookies_file)
-        results = await run_in_thread(search_youtube, query)
+        # الحصول على ملف الكوكيز
+        cookies_file = get_cookies_file()
         
+        # إعدادات yt-dlp مع الكوكيز (محسنة للسرعة)
+        ydl_opts = {
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 3,
+            "http_chunk_size": 8388608,  # 8MB chunks
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 1,
+            "retries": 1,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "downloads/%(title)s.%(ext)s"
+        }
+        
+        # البحث في اليوتيوب
+        results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -577,21 +558,22 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # التنزيل بشكل متوازي
-        filename = await run_in_thread(download_audio, video_url, cookies_file)
-        
+        # التنزيل
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            filename = ydl.prepare_filename(info)
+            
         # الرفع
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-        upload_start = time.time()
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f} ثانية`",
             reply_to=event.id,
-            part_size_kb=1024,  # حجم قطع الرفع (1MB)
-            workers=8  # عدد عمليات الرفع المتوازية
+            part_size_kb=1024,
+            workers=8
         )
-        
+            
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:

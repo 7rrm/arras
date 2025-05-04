@@ -535,22 +535,34 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-    "socket_timeout": 5,
-    "http_chunk_size": 10485760,  # 10MB (زيادة حجم القطع لتحميل أسرع)
+    # 1. إعدادات التنسيق (الأولوية لـ m4a بدون تحويل)
+    "format": "bestaudio[ext=m4a][filesize<15M]/bestaudio/best",
+    
+    # 2. إعدادات الشبكة المتطورة
+    "http_chunk_size": 10485760,  # 10MB (أقصى حجم آمن لهيروكو)
+    "socket_timeout": 8,          # وقت انتظار أطول لتعويض بطء هيروكو
+    "concurrent_fragment_downloads": 4,  # 4 اتصالات متوازية (الحد الآمن)
+    
+    # 3. تحسينات هيروكو الخاصة
+    "outtmpl": "/tmp/ytdl_%(id)s.%(ext)s",  # المسار المؤقت الرسمي
     "noplaylist": True,
     "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
+    "geo_bypass": True,
+    
+    # 4. إدارة الأخطاء
+    "retries": 3,
+    "fragment_retries": 3,
+    "skip_unavailable_fragments": True,
+    
+    # 5. إعدادات التخفيض
     "quiet": True,
     "no_warnings": True,
-    "geo_bypass": True,
+    "noprogress": True,
+    
+    # 6. إعدادات إضافية
     "cookiefile": cookies_file,
-    "outtmpl": "temp_audio.m4a",  # اسم ملف مؤقت قصير
-    "external_downloader": "aria2c",  # استخدام aria2c لتحميل أسرع (إن كان مثبتاً)
-    "external_downloader_args": ["-j", "8", "-x", "8", "-s", "8"],  # 8 اتصالات متوازية
-    "concurrent_fragment_downloads": True,  # تنزيل القطع المتعددة بشكل متزامن
-    "noprogress": True  # إخفاء شريط التقدم لتقليل الحمل
+    "allow_multiple_video_streams": False,
+    "allow_multiple_audio_streams": False
         }
         
         

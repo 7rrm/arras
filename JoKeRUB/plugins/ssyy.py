@@ -532,27 +532,34 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # 1. أولويات التنسيق (الأسرع أولاً)
-    "format": "bestaudio[ext=m4a][filesize<8M]/bestaudio[ext=webm][filesize<8M]/bestaudio/best",
+    # 1. إعدادات التنسيق الذكية (السرعة + الجودة)
+    "format": "bestaudio[ext=m4a][filesize<15M]/bestaudio[ext=webm][filesize<15M]/bestaudio/best",
     
-    # 2. إعدادات السرعة القصوى
-    "http_chunk_size": 8388608,  # 8MB - أكبر حجم للقطع (يقلل الطلبات)
-    "socket_timeout": 3,         # أقل وقت انتظار (3 ثوانٍ فقط)
-    "concurrent_fragment_downloads": 3,  # تحميل متوازي (3 قطع في نفس الوقت)
+    # 2. إعدادات الشبكة فائقة السرعة
+    "http_chunk_size": 8388608,  # 8MB (أقصى حجم للقطع)
+    "socket_timeout": 3,         # 3 ثوانٍ فقط للانتظار
+    "concurrent_fragment_downloads": 3,  # 3 اتصالات متوازية
+    "source_address": "0.0.0.0", # أفضل أداء للشبكة
     
-    # 3. إلغاء العمليات غير الضرورية
-    "noplaylist": True,          # يتجاهل قوائم التشغيل
-    "extract_flat": True,        # لا يحلل القوائم
-    "noresizebuffer": True,      # يعطل ضبط حجم الذاكرة المؤقت
+    # 3. تحسينات الأداء القصوى
+    "noplaylist": True,
+    "extract_flat": True,
+    "noresizebuffer": True,     # تعطيل ضبط الذاكرة المؤقت
+    "fragment_retries": 1,      # إعادة محاولة سريعة
+    "retries": 2,               # محاولات إضافية
     
     # 4. إعدادات التخفيض
-    "quiet": True,               # لا يظهر تفاصيل
-    "no_warnings": True,         # يتجاهل التحذيرات
-    "geo_bypass": True,          # يتجاوز القيود الجغرافية
+    "quiet": True,
+    "no_warnings": True,
+    "geo_bypass": True,
     
-    # 5. ملفات مؤقتة
-    "outtmpl": "tmp.%(ext)s",    # اسم ملف مختصر جداً
-    "cookiefile": cookies_file   # يستخدم الكوكيز لتسريع الوصول
+    # 5. إدارة الملفات
+    "outtmpl": "dl_%(id)s.%(ext)s",  # اسم ملف مختصر
+    "cookiefile": cookies_file,
+    
+    # 6. معالجة الأخطاء الذكية
+    "ignoreerrors": True,
+    "skip_unavailable_fragments": True
         }
     
     

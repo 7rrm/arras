@@ -463,7 +463,6 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
 import os
 import yt_dlp
 from youtube_search import YoutubeSearch
-from telethon import events
 import random
 import glob
 import time
@@ -475,14 +474,13 @@ search_settings = {
     'enabled_private': False,
     'enabled_groups': {},
     'admin_id': 5427469031,
-    'max_workers': 4  # عدد المسارات المتوازية للتنزيل
+    'max_workers': 4
 }
 
-# إنشاء مجلد مؤقت إذا لم يكن موجوداً
+# إنشاء مجلد مؤقت
 TEMP_DIR = "temp_downloads"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# تنفيذ المهام الثقيلة في خيوط منفصلة
 executor = ThreadPoolExecutor(max_workers=search_settings['max_workers'])
 
 def get_cookies_file():
@@ -503,7 +501,7 @@ def download_audio(video_url, cookies_file):
     ydl_opts = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
         "socket_timeout": 3,
-        "http_chunk_size": 8388608,  # 8MB chunks for faster download
+        "http_chunk_size": 8388608,
         "noplaylist": True,
         "extract_flat": True,
         "fragment_retries": 1,
@@ -512,14 +510,14 @@ def download_audio(video_url, cookies_file):
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": cookies_file,
-        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s")
+        "outtmpl": os.path.join(TEMP_DIR, "audio_%(id)s.%(ext)s"),
     }
     
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(video_url, download=True)
         return ydl.prepare_filename(info)
 
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
+@l313l.ar_cmd(pattern="^\.تفعيل بحث$")
 async def enable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
@@ -531,7 +529,7 @@ async def enable_search(event):
         search_settings['enabled_groups'][event.chat_id] = True
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
+@l313l.ar_cmd(pattern="^\.تعطيل بحث$")
 async def disable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
@@ -543,11 +541,10 @@ async def disable_search(event):
         search_settings['enabled_groups'][event.chat_id] = False
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
-@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
+@l313l.ar_cmd(pattern="^\.بحث (.*)")
 async def search_song(event):
-    # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
+        pass
     elif event.is_private:
         if not search_settings['enabled_private']:
             return
@@ -563,7 +560,6 @@ async def search_song(event):
     start_time = time.time()
     
     try:
-        # البحث بشكل متوازي
         cookies_file = await run_in_thread(get_cookies_file)
         results = await run_in_thread(search_youtube, query)
         
@@ -576,18 +572,16 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # التنزيل بشكل متوازي
         filename = await run_in_thread(download_audio, video_url, cookies_file)
         
-        # الرفع
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f} ثانية`",
             reply_to=event.id,
-            part_size_kb=1024,  # حجم قطع الرفع (1MB)
-            workers=4  # عدد عمليات الرفع المتوازية
+            part_size_kb=1024,
+            workers=4
         )
         
     except Exception as e:

@@ -535,31 +535,22 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # 1. إعدادات التنسيق (الأسرع أولاً)
-    "format": "bestaudio[ext=m4a][filesize<25M]/bestaudio[ext=webm][filesize<25M]/bestaudio/best",
-    
-    # 2. إعدادات الشبكة المميزة (تستغل موارد المدفوع)
-    "http_chunk_size": 12582912,  # 12MB (قطع كبيرة للسرعات العالية)
-    "concurrent_fragment_downloads": 4,  # 4 اتصالات متوازية
-    "socket_timeout": 8,          # وقت أطول للتحميلات الكبيرة
-    "buffersize": 131072,         # 128KB buffer (للاستفادة من الذاكرة الإضافية)
-    
-    # 3. إعدادات الخصوصية والأداء
+    # أولوية لـ m4a، ثم أي تنسيق متاح
+    "format": "bestaudio[ext=m4a]/bestaudio/best",
+# إعدادات السرعة القصوى
+    "socket_timeout": 5,  # وقت انتظار أقل
+    "http_chunk_size": 4194304,  # 4MB - قطع أكبر للتحميل السريع
     "noplaylist": True,
     "extract_flat": True,
-    "noresizebuffer": True,
-    "outtmpl": "/tmp/%(id)s.%(ext)s",
+    "fragment_retries": 2,
+    "retries": 2,
     
-    # 4. إعدادات التخفيض
+    # إعدادات التخفيض
     "quiet": True,
     "no_warnings": True,
     "geo_bypass": True,
     "cookiefile": cookies_file,
-    
-    # 5. معالجة الأخطاء
-    "retries": 5,
-    "fragment_retries": 3,
-    "skip_unavailable_fragments": True
+    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
         }
         
         # البحث في اليوتيوب
@@ -589,7 +580,7 @@ async def search_song(event):
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧╎البحث:** `{title}`\n**⌔╎المدة:** `{duration}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية",
+            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
             reply_to=event.id
         )
         upload_time = time.time() - upload_start

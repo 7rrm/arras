@@ -110,6 +110,8 @@ def to_text(pic, api):
     finally:
         os.remove(pic)
 
+#اراس
+
 @l313l.ar_cmd(pattern="استخرج(?:\s|$)([\s\S]*)",
                command=("استخرج", plugin_category),
               )

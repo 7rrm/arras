@@ -1390,35 +1390,29 @@ async def start_round(event):
         player = game_sessions[chat_id]['players'][player_id]
         
         try:
-            # انتظار إجابة اللاعب
-            answer_event = await l313l.wait_for(
-                events.NewMessage(
-                    from_id=player_id,
-                    chat_id=chat_id,
-                    pattern=f'^{chosen_letter}.*'
-                ),
-                timeout=time_limit
-            )
-            
-            answer = answer_event.text.strip()
-            
-            # التحقق من الإجابة
-            if not answer.startswith(chosen_letter):
-                await answer_event.reply("❌ الإجابة يجب أن تبدأ بالحرف المطلوب!")
-                continue
-            
-            # للفئات المحددة (حيوان، نبات، فاكهه) نتحقق من القائمة
-            if chosen_category in ['حيوان', 'نبات', 'فاكهه']:
-                if answer.lower() not in [word.lower() for word in game_words[chosen_category]]:
-                    await answer_event.reply(f"❌ {answer} ليست من فئة {chosen_category} المعروفة!")
+            # استخدام events.NewMessage مباشرة
+            async with l313l.conversation(event.chat_id, timeout=time_limit) as conv:
+                await conv.send_message(f"@{player['username']} دورك الآن! اكتب إجابة تبدأ بحرف {chosen_letter} لفئة {chosen_category}")
+                answer_msg = await conv.get_response()
+                answer = answer_msg.text.strip()
+                
+                # التحقق من الإجابة
+                if not answer.startswith(chosen_letter):
+                    await answer_msg.reply("❌ الإجابة يجب أن تبدأ بالحرف المطلوب!")
                     continue
-            
-            # إجابة صحيحة
-            game_sessions[chat_id]['scores'][player_id] += 1
-            await answer_event.reply(f"✅ إجابة صحيحة! +1 نقطة لـ {player['name']}")
-            
+                
+                # للفئات المحددة (حيوان، نبات، فاكهه) نتحقق من القائمة
+                if chosen_category in ['حيوان', 'نبات', 'فاكهه']:
+                    if answer.lower() not in [word.lower() for word in game_words[chosen_category]]:
+                        await answer_msg.reply(f"❌ {answer} ليست من فئة {chosen_category} المعروفة!")
+                        continue
+                
+                # إجابة صحيحة
+                game_sessions[chat_id]['scores'][player_id] += 1
+                await answer_msg.reply(f"✅ إجابة صحيحة! +1 نقطة لـ {player['name']}")
+                
         except asyncio.TimeoutError:
-            await l313l.send_message(chat_id, f"⏰ انتهى وقت {player['name']} بدون إجابة!")
+            await event.reply(f"⏰ انتهى وقت {player['name']} بدون إجابة!")
     
     # عرض النقاط بعد كل جولة
     scores_text = "\n".join(
@@ -1430,8 +1424,7 @@ async def start_round(event):
         ))
     )
     
-    await l313l.send_message(
-        chat_id,
+    await event.reply(
         f"🏆 **نتيجة الجولة {current_round}**\n\n{scores_text}"
     )
     
@@ -1473,8 +1466,7 @@ async def end_game(event):
         ))
     )
     
-    await l313l.send_message(
-        chat_id,
+    await event.reply(
         f"🏆 **النتائج النهائية**\n\n{scores_text}\n\n"
         "شكراً للجميع على المشاركة! 🎮"
     )

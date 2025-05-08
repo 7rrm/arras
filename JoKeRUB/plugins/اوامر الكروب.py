@@ -1269,3 +1269,239 @@ async def zed(event):
         await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed5})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee5}) ", link_preview=False)
         delgvar("Z_AKM")
         return
+
+
+from telethon import events
+import random
+import asyncio
+
+# قوائم الكلمات للعبة
+game_words = {
+    'جماد': [],  # سيتم قبول أي إجابة
+    'حيوان': ['أسد', 'نمر', 'فيل', 'زرافة', 'قرد', 'كلب', 'قطة', 'حصان', 'بقرة', 'دجاجة', 'تمساح', 'ثعبان', 'عقرب', 'نحلة', 'دب', 'ذئب', 'ضبع', 'غزال', 'قنفذ', 'فراشة'],
+    'نبات': ['شجرة', 'وردة', 'خيار', 'طماطم', 'بصل', 'ثوم', 'نعناع', 'ريحان', 'زعتر', 'خس', 'كرنب', 'قرع', 'فطر', 'صبار', 'نخيل'],
+    'فاكهه': ['تفاح', 'موز', 'برتقال', 'عنب', 'فراولة', 'مانجو', 'بطيخ', 'شمام', 'خوخ', 'كمثرى', 'توت', 'أناناس', 'كيوي', 'رمان', 'جوافة'],
+    'اسماء': []  # سيتم قبول أي إجابة
+}
+
+game_sessions = {}
+
+@l313l.ar_cmd(pattern="بدء اللعبة")
+async def start_game(event):
+    chat_id = event.chat_id
+    if chat_id in game_sessions:
+        await event.edit("⚠️ هناك لعبة نشطة بالفعل في هذه المجموعة!")
+        return
+    
+    game_sessions[chat_id] = {
+        'active': False,
+        'players': {},
+        'current_round': 0,
+        'scores': {},
+        'used_letters': []
+    }
+    
+    await event.edit("🎮 **تم بدء لعبة جماد، حيوان، نبات، فاكهه، أسماء!**\n\n"
+                    "📝 القواعد:\n"
+                    "1. سأختار حرف وفئة عشوائية\n"
+                    "2. كل لاعب يجب أن يذكر كلمة من الفئة تبدأ بالحرف المحدد\n"
+                    "3. لكل جولة وقت مختلف (5 ثواني ثم 4 ثم 3)\n"
+                    "4. أول 10 أشخاص يكتبون 'اشترك' سيلعبون\n\n"
+                    "اكتب 'اشترك' للمشاركة!")
+
+@l313l.on(events.NewMessage(pattern='اشترك'))
+async def register_player(event):
+    chat_id = event.chat_id
+    if chat_id not in game_sessions:
+        return
+    
+    if game_sessions[chat_id]['active']:
+        await event.reply("⚠️ اللعبة بالفعل جارية!")
+        return
+    
+    user = await event.get_sender()
+    if user.id in game_sessions[chat_id]['players']:
+        await event.reply("⚠️ أنت مسجل بالفعل في اللعبة!")
+        return
+    
+    if len(game_sessions[chat_id]['players']) >= 10:
+        await event.reply("⚠️ وصل عدد اللاعبين إلى الحد الأقصى (10 لاعبين)!")
+        return
+    
+    game_sessions[chat_id]['players'][user.id] = {
+        'name': user.first_name,
+        'username': user.username
+    }
+    game_sessions[chat_id]['scores'][user.id] = 0
+    
+    await event.reply(f"✅ تم تسجيل {user.first_name} في اللعبة! ({len(game_sessions[chat_id]['players'])}/10)")
+
+@l313l.ar_cmd(pattern="تم")
+async def start_round(event):
+    chat_id = event.chat_id
+    if chat_id not in game_sessions:
+        await event.edit("⚠️ لا يوجد لعبة نشطة! اكتب 'بدء اللعبة' لبدء لعبة جديدة")
+        return
+    
+    if len(game_sessions[chat_id]['players']) < 2:
+        await event.edit("⚠️ تحتاج إلى لاعبين على الأقل لبدء اللعبة!")
+        return
+    
+    game_sessions[chat_id]['active'] = True
+    game_sessions[chat_id]['current_round'] += 1
+    current_round = game_sessions[chat_id]['current_round']
+    
+    # تحديد وقت الجولة
+    if current_round == 1:
+        time_limit = 5
+    elif current_round == 2:
+        time_limit = 4
+    else:
+        time_limit = 3
+    
+    # اختيار حرف عشوائي (أ-ي) غير مستخدم من قبل
+    arabic_letters = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 
+                     'س', 'ش', 'ص', 'ض', 'ط', 'ظ', 'ع', 'غ', 'ف', 'ق', 'ك', 
+                     'ل', 'م', 'ن', 'ه', 'و', 'ي']
+    unused_letters = [letter for letter in arabic_letters if letter not in game_sessions[chat_id]['used_letters']]
+    
+    if not unused_letters:
+        await end_game(event)
+        return
+    
+    chosen_letter = random.choice(unused_letters)
+    game_sessions[chat_id]['used_letters'].append(chosen_letter)
+    
+    # اختيار فئة عشوائية
+    chosen_category = random.choice(list(game_words.keys()))
+    
+    # اختيار لاعب عشوائي لم يلعب بعد في هذه الجولة
+    players = list(game_sessions[chat_id]['players'].keys())
+    random.shuffle(players)
+    
+    await event.edit(f"🏁 **بدأت الجولة {current_round}**\n"
+                    f"⏱ وقت الإجابة: {time_limit} ثواني\n"
+                    f"🔤 الحرف: {chosen_letter}\n"
+                    f"📌 الفئة: {chosen_category}\n\n"
+                    f"أول لاعب: @{game_sessions[chat_id]['players'][players[0]]['username']}")
+    
+    # بدء الجولة لكل اللاعبين
+    for player_id in players:
+        player = game_sessions[chat_id]['players'][player_id]
+        
+        try:
+            # انتظار إجابة اللاعب
+            answer_event = await l313l.wait_for(
+                events.NewMessage(
+                    from_id=player_id,
+                    chat_id=chat_id,
+                    pattern=f'^{chosen_letter}.*'
+                ),
+                timeout=time_limit
+            )
+            
+            answer = answer_event.text.strip()
+            
+            # التحقق من الإجابة
+            if not answer.startswith(chosen_letter):
+                await answer_event.reply("❌ الإجابة يجب أن تبدأ بالحرف المطلوب!")
+                continue
+            
+            # للفئات المحددة (حيوان، نبات، فاكهه) نتحقق من القائمة
+            if chosen_category in ['حيوان', 'نبات', 'فاكهه']:
+                if answer.lower() not in [word.lower() for word in game_words[chosen_category]]:
+                    await answer_event.reply(f"❌ {answer} ليست من فئة {chosen_category} المعروفة!")
+                    continue
+            
+            # إجابة صحيحة
+            game_sessions[chat_id]['scores'][player_id] += 1
+            await answer_event.reply(f"✅ إجابة صحيحة! +1 نقطة لـ {player['name']}")
+            
+        except asyncio.TimeoutError:
+            await l313l.send_message(chat_id, f"⏰ انتهى وقت {player['name']} بدون إجابة!")
+    
+    # عرض النقاط بعد كل جولة
+    scores_text = "\n".join(
+        f"{i+1}. {player['name']}: {game_sessions[chat_id]['scores'][player_id]} نقطة"
+        for i, player_id in enumerate(sorted(
+            game_sessions[chat_id]['scores'],
+            key=lambda x: game_sessions[chat_id]['scores'][x],
+            reverse=True
+        ))
+    )
+    
+    await l313l.send_message(
+        chat_id,
+        f"🏆 **نتيجة الجولة {current_round}**\n\n{scores_text}"
+    )
+    
+    # إذا كانت الجولة الثالثة، ننهي اللعبة
+    if current_round >= 3:
+        await end_game(event)
+
+async def end_game(event):
+    chat_id = event.chat_id
+    if chat_id not in game_sessions:
+        return
+    
+    # تحديد الفائز/الفائزين
+    max_score = max(game_sessions[chat_id]['scores'].values())
+    winners = [
+        player_id for player_id, score in game_sessions[chat_id]['scores'].items()
+        if score == max_score
+    ]
+    
+    if len(winners) == 1:
+        winner = game_sessions[chat_id]['players'][winners[0]]
+        await event.edit(f"🎉 **الفائز هو {winner['name']} بنتيجة {max_score} نقطة!**")
+    else:
+        # إذا كان هناك تعادل، نختار فائز عشوائي
+        winner_id = random.choice(winners)
+        winner = game_sessions[chat_id]['players'][winner_id]
+        await event.edit(
+            f"🎉 **تعادل عدة لاعبين بنتيجة {max_score} نقاط!\n"
+            f"الفائز بالقرعة هو {winner['name']}!**"
+        )
+    
+    # عرض النتائج النهائية
+    scores_text = "\n".join(
+        f"{i+1}. {player['name']}: {score} نقطة"
+        for i, (player_id, score) in enumerate(sorted(
+            game_sessions[chat_id]['scores'].items(),
+            key=lambda x: x[1],
+            reverse=True
+        ))
+    )
+    
+    await l313l.send_message(
+        chat_id,
+        f"🏆 **النتائج النهائية**\n\n{scores_text}\n\n"
+        "شكراً للجميع على المشاركة! 🎮"
+    )
+    
+    # مسح بيانات الجلسة
+    del game_sessions[chat_id]
+
+@l313l.ar_cmd(pattern="خطأ")
+async def wrong_answer(event):
+    if not event.is_reply:
+        await event.edit("⚠️ يجب الرد على الرسالة التي تريد تصحيحها!")
+        return
+    
+    reply_msg = await event.get_reply_message()
+    chat_id = event.chat_id
+    
+    if chat_id not in game_sessions:
+        await event.edit("⚠️ لا يوجد لعبة نشطة!")
+        return
+    
+    player_id = reply_msg.sender_id
+    if player_id not in game_sessions[chat_id]['players']:
+        await event.edit("⚠️ هذا الشخص ليس مشاركاً في اللعبة!")
+        return
+    
+    # خصم النقطة
+    game_sessions[chat_id]['scores'][player_id] = max(0, game_sessions[chat_id]['scores'][player_id] - 1)
+    player_name = game_sessions[chat_id]['players'][player_id]['name']
+    
+    await event.edit(f"❌ تم تصحيح الإجابة وخصم نقطة من {player_name}")

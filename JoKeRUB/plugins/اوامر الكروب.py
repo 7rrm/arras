@@ -1353,11 +1353,11 @@ async def start_round(event):
     
     # تحديد وقت الجولة
     if current_round == 1:
-        time_limit = 5
+        time_limit = 15
     elif current_round == 2:
-        time_limit = 4
+        time_limit = 12
     else:
-        time_limit = 3
+        time_limit = 11
     
     # اختيار حرف عشوائي (أ-ي) غير مستخدم من قبل
     arabic_letters = ['أ', 'ب', 'ت', 'ث', 'ج', 'ح', 'خ', 'د', 'ذ', 'ر', 'ز', 

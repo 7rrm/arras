@@ -1,5 +1,6 @@
 import asyncio
 import math
+import git
 import os
 import heroku3
 import requests
@@ -690,25 +691,39 @@ async def variable(event):
     input_str = event.pattern_match.group(1)
     heroku_var = app.config()
     jep = await edit_or_reply(event, "** جارِ تغير وضع الميوزك ✅ . . .**")
+    
     if input_str == "تفعيل":
         variable = "VCMODE"
         zinfo = "True"
         await asyncio.sleep(1.5)
         if variable in heroku_var:
-            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
+            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**")
         else:
-            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
+            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**")
         heroku_var[variable] = zinfo
+        
     elif input_str == "تعطيل":
         variable = "VCMODE"
         zinfo = "False"
         await asyncio.sleep(1.5)
         if variable in heroku_var:
-            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
+            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**")
         else:
-            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
+            await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**")
         heroku_var[variable] = zinfo
-
+        
+    elif input_str == "تحديث":
+        await jep.edit("**⌔∮ جاري تحديث الميوزك من السورس...**")
+        try:
+            repo = git.Repo()
+            origin = repo.remotes.origin
+            origin.pull()
+            await jep.edit("**⌔∮ تم تحديث الميوزك بنجاح!\n\n❃ جارٍ إعادة تشغيل السورس...**")
+            heroku_var["VCMODE"] = "False"  # تعطيل مؤقت أثناء التحديث
+            await asyncio.sleep(5)
+            heroku_var["VCMODE"] = "True"   # إعادة التفعيل بعد التحديث
+        except Exception as e:
+            await jep.edit(f"**⌔∮ حدث خطأ أثناء التحديث:**\n`{str(e)}`")
 
 @l313l.ar_cmd(pattern="استخدامي$")
 async def dyno_usage(dyno):

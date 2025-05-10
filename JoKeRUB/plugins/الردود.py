@@ -281,3 +281,92 @@ async def on_all_snip_delete(event):
         await edit_or_reply(event, f"**᯽︙ تم حذف الردود في الدردشة الحالية بنجاح ✓**")
     else:
         await edit_or_reply(event, f"᯽︙لا توجد ردود في هذه المجموعة  ")
+
+
+# قائمة رموز التوحيد لكل مجموعة
+UNITY_SYMBOLS = {}
+
+# دالة للحصول على قائمة المجموعات المفعلة للتوحيد
+def get_unity_chats():
+    unity_chats = gvarstatus("UNITY_CHATS")
+    return set(map(int, unity_chats.split(","))) if unity_chats else set()
+
+# دالة للحصول على رمز التوحيد لمجموعة معينة
+def get_unity_symbol(chat_id):
+    return UNITY_SYMBOLS.get(chat_id, "⍣")
+
+# دالة لإضافة مجموعة إلى قائمة المجموعات المفعلة للتوحيد
+def add_unity_chat(chat_id, symbol="⍣"):
+    unity_chats = get_unity_chats()
+    unity_chats.add(chat_id)
+    UNITY_SYMBOLS[chat_id] = symbol
+    addgvar("UNITY_CHATS", ",".join(map(str, unity_chats)))
+
+# دالة لإزالة مجموعة من قائمة المجموعات المفعلة للتوحيد
+def remove_unity_chat(chat_id):
+    unity_chats = get_unity_chats()
+    unity_chats.discard(chat_id)
+    if chat_id in UNITY_SYMBOLS:
+        del UNITY_SYMBOLS[chat_id]
+    if unity_chats:
+        addgvar("UNITY_CHATS", ",".join(map(str, unity_chats)))
+    else:
+        delgvar("UNITY_CHATS")
+
+@l313l.ar_cmd(
+    pattern="تفعيل التوحيد(?:\\s+(.*))?$",
+    command=("تفعيل التوحيد", plugin_category),
+    info={
+        "header": "لتفعيل رسائل التوحيد في المجموعة الحالية",
+        "description": "عند التفعيل، سيقوم البوت بالرد برمز التوحيد عندما يرسل أحد الأعضاء 'توحيد'",
+        "استخدام": [
+            "{tr}تفعيل التوحيد",
+            "{tr}تفعيل التوحيد [الرمز]",
+        ],
+        "أمثلة": [
+            "{tr}تفعيل التوحيد ⍣",
+        ],
+    },
+)
+async def enable_unity(event):
+    "لتفعيل رسائل التوحيد في المجموعة الحالية"
+    chat_id = event.chat_id
+    symbol = event.pattern_match.group(1) or "⍣"
+    add_unity_chat(chat_id, symbol)
+    await edit_or_reply(
+        event, 
+        f"**تم تفعيل التوحيد في هذه المجموعة بنجاح ✓**\n"
+        f"**رمز التوحيد:** `{symbol}`"
+    )
+
+@l313l.ar_cmd(
+    pattern="تعطيل التوحيد$",
+    command=("تعطيل التوحيد", plugin_category),
+    info={
+        "header": "لتعطيل رسائل التوحيد في المجموعة الحالية",
+        "description": "عند التعطيل، لن يرسل البوت رسائل التوحيد في هذه المجموعة",
+        "استخدام": "{tr}تعطيل التوحيد",
+    },
+)
+async def disable_unity(event):
+    "لتعطيل رسائل التوحيد في المجموعة الحالية"
+    chat_id = event.chat_id
+    remove_unity_chat(chat_id)
+    await edit_or_reply(event, "**تم تعطيل التوحيد في هذه المجموعة بنجاح ✓**")
+
+@l313l.ar_cmd(incoming=True)
+async def unity_message(handler):
+    if handler.sender_id == handler.client.uid:
+        return
+    chat_id = handler.chat_id
+    unity_chats = get_unity_chats()
+    if chat_id not in unity_chats:
+        return
+    
+    if handler.raw_text.strip() == "توحيد":
+        symbol = get_unity_symbol(chat_id)
+        response = (
+            f"**التوحيد هوَ  ❬ `{symbol}` ❭ أضغِط للنسَخ .**\n\n"
+            f"`{symbol}`"
+        )
+        await handler.reply(response)

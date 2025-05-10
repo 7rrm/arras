@@ -366,7 +366,6 @@ async def unity_message(handler):
     if handler.raw_text.strip() == "توحيد":
         symbol = get_unity_symbol(chat_id)
         response = (
-            f"**التوحيد هوَ  ❬ `{symbol}` ❭ أضغِط للنسَخ .**\n\n"
-            f"`{symbol}`"
+            f"التوحيد هوَ  ❪ `{symbol}` ❫ أضغِط للنسَخ ."
         )
         await handler.reply(response)

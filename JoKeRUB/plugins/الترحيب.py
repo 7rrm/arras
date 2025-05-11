@@ -307,3 +307,82 @@ async def del_welcome(event):
             event, "__From now on previous welcome message will not be deleted .__"
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
+
+
+from telethon import events, types
+from JoKeRUB import l313l
+from ..core.managers import edit_delete
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+import random
+import asyncio
+
+plugin_category = "utils"
+
+WELCOME_TEXTS = [
+    "**نَـورت**↜  {mention}",
+    "**هُـِݪآإ**↜  {mention}",
+    "**يهُـِݪآإ**↜  {mention}",
+    "**ءنـرت عزيزي**↜  {mention}",
+    "**هَِـلا يڪَِمر**↜  {mention}",
+    "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
+]
+
+@l313l.ar_cmd(
+    pattern="تفعيل_الترحيب$",
+    command=("تفعيل_الترحيب", plugin_category),
+    info={
+        "header": "لتشغيل ميزة الترحيب التلقائي",
+        "usage": "{tr}تفعيل_الترحيب",
+    },
+)
+async def enable_welcome(event):
+    if gvarstatus("welcome_enabled") == "true":
+        return await edit_delete(event, "**✓ الترحيب مفعل بالفعل!**")
+    addgvar("welcome_enabled", "true")
+    await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل_الترحيب$",
+    command=("تعطيل_الترحيب", plugin_category),
+    info={
+        "header": "لإيقاف ميزة الترحيب التلقائي",
+        "usage": "{tr}تعطيل_الترحيب",
+    },
+)
+async def disable_welcome(event):
+    if gvarstatus("welcome_enabled") != "true":
+        return await edit_delete(event, "**✓ الترحيب معطل بالفعل!**")
+    delgvar("welcome_enabled")
+    await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
+
+async def send_welcome(chat_id, user_id, client):
+    try:
+        user = await client.get_entity(user_id)
+        if user.bot:
+            return
+            
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+        await client.send_message(chat_id, welcome_msg)
+    except Exception as e:
+        print(f"Error in welcome: {e}")
+
+@l313l.on(events.ChatAction)
+async def handle_normal_join(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
+        
+    if event.user_joined or event.user_added:
+        await asyncio.sleep(2)
+        await send_welcome(event.chat_id, event.user_id, event.client)
+
+@l313l.on(events.Raw(types.UpdateBotChatInviteRequester))
+async def handle_join_request(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
+        
+    try:
+        await asyncio.sleep(2)
+        await send_welcome(event.chat_id, event.user_id, event.client)
+    except Exception as e:
+        print(f"Join request error: {e}")

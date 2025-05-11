@@ -308,3 +308,56 @@ async def del_welcome(event):
         )
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
+
+from telethon import events
+import random
+from JoKeRUB import l313l
+from ..core.managers import edit_delete
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+
+@l313l.ar_cmd(
+    pattern="تفعيل_الترحيب$",
+    command=("تفعيل_الترحيب", plugin_category),
+    info={
+        "header": "لتشغيل ميزة الترحيب التلقائي بالأعضاء الجدد",
+        "description": "عند التفعيل، سيقوم الحساب بمراقبة أحداث المجموعة والترحيب بالأعضاء الجدد تلقائياً",
+        "usage": "{tr}تفعيل_الترحيب",
+    },
+)
+async def enable_welcome(event):
+    "لتشغيل ميزة الترحيب التلقائي"
+    if gvarstatus("welcome_enabled") == "true":
+        return await edit_delete(event, "**✓ الترحيب مفعل بالفعل**")
+    addgvar("welcome_enabled", "true")
+    await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل_الترحيب$",
+    command=("تعطيل_الترحيب", plugin_category),
+    info={
+        "header": "لإيقاف ميزة الترحيب التلقائي بالأعضاء الجدد",
+        "description": "عند التعطيل، لن يقوم الحساب بالترحيب بالأعضاء الجدد",
+        "usage": "{tr}تعطيل_الترحيب",
+    },
+)
+async def disable_welcome(event):
+    "لإيقاف ميزة الترحيب التلقائي"
+    if gvarstatus("welcome_enabled") != "true":
+        return await edit_delete(event, "**✓ الترحيب معطل بالفعل**")
+    delgvar("welcome_enabled")
+    await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
+
+@l313l.on(events.ChatAction)
+async def welcome_handler(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
+        
+    if event.user_joined or event.user_added:
+        user = await event.get_user()
+        chat = await event.get_chat()
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        
+        welcome_message = random.choice(CUSTOM_WELCOME_MESSAGES).format(mention=mention)
+        await event.reply(welcome_message)
+

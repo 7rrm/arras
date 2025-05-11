@@ -315,6 +315,7 @@ from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import random
+import time
 
 plugin_category = "utils"
 
@@ -356,7 +357,7 @@ async def disable_welcome(event):
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
 @l313l.on(events.ChatAction)
-async def handle_welcome(event):
+async def handle_chat_action(event):
     if not gvarstatus("welcome_enabled") == "true":
         return
     
@@ -365,11 +366,24 @@ async def handle_welcome(event):
         user = await event.get_user()
         if not user.bot:
             await send_welcome(event, user)
+
+@l313l.on(events.Raw(types.UpdateBotChatInviteRequester))
+async def handle_join_request(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
     
-    # لطلبات الانضمام المعتمدة
-    elif hasattr(event, 'user_approved'):
-        user = await event.get_user()
-        await send_welcome(event, user)
+    try:
+        user = await event.client.get_entity(event.user_id)
+        chat = await event.client.get_entity(event.chat_id)
+        
+        # انتظر ثانيتين للتأكد من اكتمال الانضمام
+        await asyncio.sleep(2)
+        
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+        await event.client.send_message(chat.id, welcome_msg)
+    except Exception as e:
+        print(f"Error in join request welcome: {e}")
 
 async def send_welcome(event, user):
     try:

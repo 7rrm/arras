@@ -309,19 +309,15 @@ async def del_welcome(event):
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
 
-from telethon import events
-from telethon.utils import get_display_name
+from telethon import events, types
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import random
-import logging
-from urllib.parse import urlparse, parse_qs
+import asyncio
+import re
 
 plugin_category = "utils"
-
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.WARNING)
 
 WELCOME_TEXTS = [
     "**نَـورت**↜  {mention}",
@@ -332,41 +328,29 @@ WELCOME_TEXTS = [
     "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
 ]
 
-def extract_invite_link(url):
-    """استخراج الرمز من رابط الدعوة"""
-    parsed = urlparse(url)
-    if parsed.netloc == 't.me' or parsed.netloc == 'telegram.me':
-        path = parsed.path.strip('/')
-        if path.startswith('+'):
-            return path[1:]
-    return None
+# تخزين روابط طلبات الانضمام
+JOIN_LINKS = {}
 
 @l313l.ar_cmd(
-    pattern="تفعيل_الترحيب(?:\s|$)([\s\S]*)",
+    pattern="تفعيل_الترحيب(?:\s+(.*))?$",
     command=("تفعيل_الترحيب", plugin_category),
     info={
         "header": "لتشغيل ميزة الترحيب التلقائي مع رابط محدد",
         "usage": "{tr}تفعيل_الترحيب [رابط الدعوة]",
-        "examples": "{tr}تفعيل_الترحيب https://t.me/+5Yj2omG_rKVlZTRh",
     },
 )
 async def enable_welcome(event):
-    "لتشغيل الترحيب التلقائي مع رابط محدد"
-    input_str = event.pattern_match.group(1).strip()
-    
-    if not input_str:
-        return await edit_delete(event, "**⚠️ يجب تحديد رابط الدعوة مع الأمر!**")
-    
-    invite_hash = extract_invite_link(input_str)
-    if not invite_hash:
-        return await edit_delete(event, "**⚠️ الرابط غير صالح! يجب أن يكون رابط دعوة مجموعة.**")
-    
+    link = event.pattern_match.group(1)
     if gvarstatus("welcome_enabled") == "true":
         return await edit_delete(event, "**✓ الترحيب مفعل بالفعل!**")
     
     addgvar("welcome_enabled", "true")
-    addgvar("welcome_invite", invite_hash)
-    await edit_delete(event, f"**✓ تم تفعيل الترحيب بنجاح للرابط:\n{input_str}**")
+    
+    if link and re.match(r'https?://t\.me/\+\w+', link):
+        JOIN_LINKS[event.chat_id] = link
+        await edit_delete(event, f"**✓ تم تفعيل الترحيب بنجاح لهذا الرابط:**\n{link}")
+    else:
+        await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح لجميع الروابط**")
 
 @l313l.ar_cmd(
     pattern="تعطيل_الترحيب$",
@@ -377,37 +361,54 @@ async def enable_welcome(event):
     },
 )
 async def disable_welcome(event):
-    "لإيقاف الترحيب التلقائي"
-    if not gvarstatus("welcome_enabled"):
+    if gvarstatus("welcome_enabled") != "true":
         return await edit_delete(event, "**✓ الترحيب معطل بالفعل!**")
     
     delgvar("welcome_enabled")
-    delgvar("welcome_invite")
+    if event.chat_id in JOIN_LINKS:
+        del JOIN_LINKS[event.chat_id]
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
-@l313l.on(events.ChatAction)
-async def welcome_handler(event):
+async def send_welcome(chat_id, user_id, client):
     try:
-        if not gvarstatus("welcome_enabled") == "true":
+        user = await client.get_entity(user_id)
+        if user.bot:
             return
             
-        if event.user_joined or (event.user_added and not event.created):
-            user = await event.get_user()
-            chat = await event.get_chat()
-            
-            if user.bot or event.is_private:
-                return
-                
-            # الحصول على معلومات الانضمام
-            if hasattr(event.action_message.action, 'invite'):
-                invite = event.action_message.action.invite
-                current_invite = gvarstatus("welcome_invite")
-                
-                if invite and hasattr(invite, 'hash') and str(invite.hash) == current_invite:
-                    mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
-                    welcome_message = random.choice(WELCOME_TEXTS).format(mention=mention)
-                    await event.reply(welcome_message)
-            
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+        await client.send_message(chat_id, welcome_msg)
     except Exception as e:
-        logging.error(f"Error in welcome handler: {e}", exc_info=True)
+        print(f"Error in welcome: {e}")
+
+@l313l.on(events.ChatAction)
+async def handle_chat_action(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
         
+    # للانضمام العادي
+    if event.user_joined or event.user_added:
+        chat_id = event.chat_id
+        if chat_id in JOIN_LINKS:
+            # إذا كان هناك رابط محدد، نتخطى الترحيب هنا
+            return
+            
+        await asyncio.sleep(2)
+        await send_welcome(chat_id, event.user_id, event.client)
+
+@l313l.on(events.Raw(types.UpdateChatParticipant))
+async def handle_join_request(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
+        
+    try:
+        chat_id = event.chat_id
+        if chat_id not in JOIN_LINKS:
+            return
+            
+        # التحقق من أن الحدث هو قبول طلب انضمام
+        if isinstance(event.action, types.ChatParticipantAdmin):
+            await asyncio.sleep(2)
+            await send_welcome(chat_id, event.user_id, event.client)
+    except Exception as e:
+        print(f"Join request error: {e}")

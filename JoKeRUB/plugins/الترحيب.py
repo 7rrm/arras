@@ -355,17 +355,18 @@ async def disable_welcome(event):
     delgvar("welcome_enabled")
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
-async def send_welcome(chat_id, user_id, client):
+async def safe_send_welcome(chat_id, user_id, client):
     try:
         user = await client.get_entity(user_id)
-        if user.bot:
-            return
-            
-        mention = f"[{user.first_name}](tg://user?id={user.id})"
-        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
-        await client.send_message(chat_id, welcome_msg)
+        chat = await client.get_entity(chat_id)
+        
+        if not user.bot:
+            mention = f"[{user.first_name}](tg://user?id={user.id})"
+            welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+            await client.send_message(chat.id, welcome_msg)
     except Exception as e:
         print(f"Error in welcome: {e}")
+        await asyncio.sleep(5)  # إعادة المحاولة بعد تأخير
 
 @l313l.on(events.ChatAction)
 async def handle_normal_join(event):
@@ -373,16 +374,17 @@ async def handle_normal_join(event):
         return
         
     if event.user_joined or event.user_added:
-        await asyncio.sleep(2)
-        await send_welcome(event.chat_id, event.user_id, event.client)
+        await asyncio.sleep(3)
+        await safe_send_welcome(event.chat_id, event.user_id, event.client)
 
-@l313l.on(events.Raw(types.UpdateBotChatInviteRequester))
+@l313l.on(events.Raw(types.UpdateChatParticipant))
 async def handle_join_request(event):
     if not gvarstatus("welcome_enabled") == "true":
         return
         
     try:
-        await asyncio.sleep(2)
-        await send_welcome(event.chat_id, event.user_id, event.client)
+        if isinstance(event.action, types.ChatParticipantAdmin):
+            await asyncio.sleep(3)
+            await safe_send_welcome(event.chat_id, event.user_id, event.client)
     except Exception as e:
         print(f"Join request error: {e}")

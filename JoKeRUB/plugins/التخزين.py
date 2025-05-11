@@ -196,10 +196,13 @@ async def log(log_text):
     await log_text.delete()
 
 
-from ..sql_helper.globals import addgvar, delgvar, gvarstatu
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from . import _format
+
+# لا نستخدم قائمة monitored_users عادية بل نستخدم المتغيرات العامة
+# لا نستخدم متغير monitoring_group_id عادي بل نستخدم المتغيرات العامة
 
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
@@ -208,14 +211,12 @@ async def monitor_user(event):
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
-    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
-    monitored_users = gvarstatu("monitored_users") or ""
-    monitored_users = monitored_users.split(",") if monitored_users else []
-
-    # جلب معرف مجموعة المراقبة من المتغيرات العامة
-    monitoring_group_id = gvarstatu("monitoring_group_id")
+    # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+    monitored_users = gvarstatus("monitored_users") or ""
+    monitored_list = monitored_users.split(",") if monitored_users else []
 
     # إنشاء مجموعة جديدة للمراقبة (إذا لم يتم إنشاؤها مسبقًا)
+    monitoring_group_id = gvarstatus("monitoring_group_id")
     if not monitoring_group_id:
         try:
             result = await event.client(CreateChannelRequest(
@@ -232,9 +233,9 @@ async def monitor_user(event):
             return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
 
     # إضافة المستخدم إلى قائمة المراقبة
-    if target not in monitored_users:
-        monitored_users.append(target)
-        addgvar("monitored_users", ",".join(monitored_users))
+    if target not in monitored_list:
+        monitored_list.append(target)
+        addgvar("monitored_users", ",".join(monitored_list))
         await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
     else:
         await event.edit(f"**⌔┊المستخدم {target} تحت المراقبة بالفعل.**")
@@ -246,49 +247,34 @@ async def unmonitor_user(event):
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID لإيقاف المراقبة**")
 
-    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
-    monitored_users = gvarstatu("monitored_users") or ""
-    monitored_users = monitored_users.split(",") if monitored_users else []
+    # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+    monitored_users = gvarstatus("monitored_users") or ""
+    monitored_list = monitored_users.split(",") if monitored_users else []
 
     # إزالة المستخدم من قائمة المراقبة
-    if target in monitored_users:
-        monitored_users.remove(target)
-        if monitored_users:
-            addgvar("monitored_users", ",".join(monitored_users))
-        else:
-            delgvar("monitored_users")
+    if target in monitored_list:
+        monitored_list.remove(target)
+        addgvar("monitored_users", ",".join(monitored_list))
         await event.edit(f"**⌔┊تم إيقاف مراقبة المستخدم {target}.**")
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
 
-@l313l.ar_cmd(pattern="قائمة المراقبة$")
-async def show_monitored_users(event):
-    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
-    monitored_users = gvarstatu("monitored_users") or ""
-    monitored_users = monitored_users.split(",") if monitored_users else []
-    
-    if not monitored_users:
-        return await event.edit("**⌔┊لا يوجد مستخدمين تحت المراقبة حالياً**")
-    
-    users_list = "\n".join([f"• `{user}`" for user in monitored_users])
-    await event.edit(f"**⌔┊قائمة المستخدمين تحت المراقبة:**\n{users_list}")
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def monitor_messages(event):
     try:
-        sender = await event.get_sender()
-        # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
-        monitored_users = gvarstatu("monitored_users") or ""
-        monitored_users = monitored_users.split(",") if monitored_users else []
+        # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+        monitored_users = gvarstatus("monitored_users") or ""
+        monitored_list = monitored_users.split(",") if monitored_users else []
         
-        # جلب معرف مجموعة المراقبة من المتغيرات العامة
-        monitoring_group_id = gvarstatu("monitoring_group_id")
+        # الحصول على معرف مجموعة المراقبة
+        monitoring_group_id = gvarstatus("monitoring_group_id")
         
-        if not monitoring_group_id:
+        if not monitored_list or not monitoring_group_id:
             return
 
+        sender = await event.get_sender()
         # التحقق من أن المستخدم تحت المراقبة
-        if str(sender.id) in monitored_users or (sender.username and sender.username in monitored_users):
+        if str(sender.id) in monitored_list or (sender.username and sender.username in monitored_list):
             # إعداد الكليشة (الرسالة المخصصة)
             group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
             message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
@@ -304,7 +290,6 @@ async def monitor_messages(event):
             await event.client.send_message(int(monitoring_group_id), message_text, parse_mode="markdown")
     except Exception as e:
         print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")
-
 
 @l313l.ar_cmd(
     pattern="تفعيل التخزين$",

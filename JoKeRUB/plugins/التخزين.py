@@ -218,9 +218,9 @@ async def monitor_user(event):
     if not target:
         return await edit_or_reply(event, "**⌔┊يجب تحديد المستخدم أو الـ ID للمراقبة**")
 
-    # إنشاء مجموعة المراقبة إذا لم تكن موجودة
     if not monitoring_group_id:
         try:
+            # إنشاء كروب المراقبة
             result = await event.client(CreateChannelRequest(
                 title="كروب المراقبة",
                 about="مجموعة لمراقبة رسائل المستخدمين",
@@ -228,19 +228,24 @@ async def monitor_user(event):
             ))
             monitoring_group_id = result.chats[0].id
             addgvar("monitoring_group_id", monitoring_group_id)
-            invite_link = await event.client(ExportChatInviteRequest(monitoring_group_id))
-            await edit_or_reply(event, f"**⌔┊تم إنشاء مجموعة المراقبة: [اضغط هنا]({invite_link.link})**")
+            
+            # إنشاء رابط الدعوة
+            invite = await event.client(ExportChatInviteRequest(monitoring_group_id))
+            await edit_or_reply(
+                event,
+                f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح**\n"
+                f"**⌔┊رابط المجموعة:** [اضغط هنا]({invite.link})"
+            )
         except Exception as e:
             logger.error(f"خطأ في إنشاء المجموعة: {e}")
-            return await edit_or_reply(event, f"**⌔┊خطأ في إنشاء المجموعة: {e}**")
+            return await edit_or_reply(event, f"**⌔┊خطأ في إنشاء المجموعة:** `{e}`")
 
-    # إضافة المستخدم إذا لم يكن موجوداً
     if target not in monitored_users:
         monitored_users.append(target)
         addgvar("monitored_users", json.dumps(monitored_users))
-        await edit_or_reply(event, f"**⌔┊تم بدء مراقبة: {target}**")
+        await edit_or_reply(event, f"**⌔┊تم بدء مراقبة المستخدم:** `{target}`")
     else:
-        await edit_or_reply(event, f"**⌔┊المستخدم {target} تحت المراقبة بالفعل**")
+        await edit_or_reply(event, f"**⌔┊المستخدم** `{target}` **تحت المراقبة بالفعل**")
 
 @l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
 async def unmonitor_user(event):
@@ -290,14 +295,20 @@ async def monitor_messages(event):
             group_title = event.chat.title or "مجموعة غير معروفة"
             message_link = f"https://t.me/c/{event.chat.id}/{event.id}"
             
+            # الكليشة الأصلية المعدلة
             report_msg = (
-    "#المـراقبـه\n\n"
-    f"↜︙الكــروب : {group_title}\n\n"
-    f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
-    f"↜︙الرســالـه : {event.message.message}\n\n"
-    f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
+                "#المـراقبـه\n\n"
+                f"↜︙الكــروب : {group_title}\n\n"
+                f"↜︙المـرسـل : {_format.mentionuser(sender.first_name, sender.id)}\n\n"
+                f"↜︙الرســالـه : {event.text}\n\n"
+                f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})"
             )
-            await event.client.send_message(monitoring_group_id, report_msg)
+            
+            await event.client.send_message(
+                monitoring_group_id,
+                report_msg,
+                link_preview=False
+            )
     except Exception as e:
         logger.error(f"خطأ في المراقبة: {e}")
 

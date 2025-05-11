@@ -196,57 +196,74 @@ async def log(log_text):
     await log_text.delete()
 
 
-# قائمة لتخزين المستخدمين تحت المراقبة
-monitored_users = []
+from ..sql_helper.globals import addgvar, gvarstatus
+from ..sql_helper.monitor_sql import (
+    add_monitored_user,
+    get_all_monitored_users,
+    remove_monitored_user,
+)
 
 # متغير لتخزين معرف مجموعة المراقبة
 monitoring_group_id = None
 
+async def setup_monitoring_group(event):
+    global monitoring_group_id
+    try:
+        result = await event.client(CreateChannelRequest(
+            title="كروب المراقبة",
+            about="مجموعة لمراقبة الرسائل التي يرسلها المستخدمون في المجموعات المشتركة.",
+            megagroup=True
+        ))
+        monitoring_group_id = result.chats[0].id
+        invite_link = await event.client(ExportChatInviteRequest(monitoring_group_id))
+        return invite_link.link
+    except Exception as e:
+        LOGS.error(f"Error creating monitoring group: {str(e)}")
+        return None
+
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
     global monitoring_group_id
-    target = event.pattern_match.group(1)
+    target = event.pattern_match.group(1).strip()
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
+    # إنشاء مجموعة المراقبة إذا لم تكن موجودة
     if monitoring_group_id is None:
-        try:
-            result = await event.client(CreateChannelRequest(
-                title="كروب المراقبة",
-                about="مجموعة لمراقبة الرسائل التي يرسلها المستخدمون في المجموعات المشتركة.",
-                megagroup=True
-            ))
-            monitoring_group_id = result.chats[0].id
-            invite_link = await event.client(ExportChatInviteRequest(monitoring_group_id))
-            await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link.link})**")
-        except Exception as e:
-            return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
+        invite_link = await setup_monitoring_group(event)
+        if not invite_link:
+            return await event.edit("**⌔┊حدث خطأ أثناء إنشاء مجموعة المراقبة**")
+        await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link})**")
 
-    if target not in monitored_users:
-        monitored_users.append(target)
+    # التحقق مما إذا كان المستخدم تحت المراقبة بالفعل
+    if add_monitored_user(target):
         await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
     else:
         await event.edit(f"**⌔┊المستخدم {target} تحت المراقبة بالفعل.**")
 
 @l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
 async def unmonitor_user(event):
-    target = event.pattern_match.group(1)
+    target = event.pattern_match.group(1).strip()
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID لإيقاف المراقبة**")
 
-    if target in monitored_users:
-        monitored_users.remove(target)
+    if remove_monitored_user(target):
         await event.edit(f"**⌔┊تم إيقاف مراقبة المستخدم {target}.**")
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def monitor_messages(event):
+    global monitoring_group_id
     try:
         sender = await event.get_sender()
+        monitored_users = get_all_monitored_users()
+        
+        # التحقق من أن المستخدم تحت المراقبة
         if str(sender.id) in monitored_users or sender.username in monitored_users:
             group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
             message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
+            
             message_text = (
                 "#المـراقبـه\n\n"
                 f"↜︙الكــروب : {group_title}\n\n"
@@ -254,9 +271,29 @@ async def monitor_messages(event):
                 f"↜︙الرســالـه : {event.message.message}\n\n"
                 f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
             )
-            await event.client.send_message(monitoring_group_id, message_text, parse_mode="markdown")
+            
+            if monitoring_group_id is None:
+                monitoring_group_id = int(gvarstatus("MONITORING_GROUP_ID") or 0)
+                if monitoring_group_id == 0:
+                    LOGS.error("Monitoring group not set up")
+                    return
+            
+            await event.client.send_message(
+                monitoring_group_id, 
+                message_text, 
+                parse_mode="html"
+            )
     except Exception as e:
         LOGS.error(f"Error in monitoring: {str(e)}")
+
+# عند بدء التشغيل، جلب جميع المستخدمين تحت المراقبة من قاعدة البيانات
+@l313l.ar_cmd(outgoing=True, pattern="بدء المراقبة$")
+async def start_monitoring(_):
+    global monitoring_group_id
+    monitoring_group_id = int(gvarstatus("MONITORING_GROUP_ID") or 0)
+    monitored_count = len(get_all_monitored_users())
+    LOGS.info(f"Monitoring system started with {monitored_count} users being monitored")
+
 
 @l313l.ar_cmd(
     pattern="تفعيل التخزين$",

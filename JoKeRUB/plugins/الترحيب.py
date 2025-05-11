@@ -327,64 +327,32 @@ WELCOME_TEXTS = [
     "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
 ]
 
-@l313l.ar_cmd(
-    pattern="تفعيل_الترحيب$",
-    command=("تفعيل_الترحيب", plugin_category),
-    info={
-        "header": "لتشغيل ميزة الترحيب التلقائي",
-        "usage": "{tr}تفعيل_الترحيب",
-    },
-)
-async def enable_welcome(event):
-    if gvarstatus("welcome_enabled") == "true":
-        return await edit_delete(event, "**✓ الترحيب مفعل بالفعل!**")
-    addgvar("welcome_enabled", "true")
-    await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح**")
-
-@l313l.ar_cmd(
-    pattern="تعطيل_الترحيب$",
-    command=("تعطيل_الترحيب", plugin_category),
-    info={
-        "header": "لإيقاف ميزة الترحيب التلقائي",
-        "usage": "{tr}تعطيل_الترحيب",
-    },
-)
-async def disable_welcome(event):
-    if gvarstatus("welcome_enabled") != "true":
-        return await edit_delete(event, "**✓ الترحيب معطل بالفعل!**")
-    delgvar("welcome_enabled")
-    await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
-
-async def send_welcome_message(chat_id, user_id, client):
-    try:
-        user = await client.get_entity(user_id)
-        chat = await client.get_entity(chat_id)
-        
-        if not user.bot:
-            mention = f"[{user.first_name}](tg://user?id={user.id})"
-            welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
-            await client.send_message(chat.id, welcome_msg)
-    except Exception as e:
-        print(f"حدث خطأ في الترحيب: {str(e)}")
-
 @l313l.on(events.ChatAction)
-async def handle_chat_join(event):
+async def handle_chat_action(event):
     if not gvarstatus("welcome_enabled") == "true":
         return
     
+    # للانضمام العادي أو الدعوة
     if event.user_joined or event.user_added:
-        await asyncio.sleep(3)  # تأخير 3 ثواني للتأكد من اكتمال الانضمام
-        await send_welcome_message(event.chat_id, event.user_id, event.client)
+        await send_welcome(event.chat_id, event.user_id, event.client)
 
 @l313l.on(events.Raw(types.UpdateChatParticipant))
 async def handle_join_request(event):
     if not gvarstatus("welcome_enabled") == "true":
         return
     
+    # لطلبات الانضمام المعتمدة
+    if isinstance(event.action, types.ChatParticipantAdmin):
+        await send_welcome(event.chat_id, event.user_id, event.client)
+
+async def send_welcome(chat_id, user_id, client):
     try:
-        # التحقق من أن الحدث هو قبول طلب انضمام
-        if isinstance(event.action, types.ChatParticipantAdmin) and event.prev_participant is None:
-            await asyncio.sleep(3)  # تأخير 3 ثواني للتأكد من اكتمال الانضمام
-            await send_welcome_message(event.chat_id, event.user_id, event.client)
+        user = await client.get_entity(user_id)
+        if user.bot:
+            return
+            
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+        await client.send_message(chat_id, welcome_msg)
     except Exception as e:
-        print(f"حدث خطأ في ترحيب طلب الانضمام: {str(e)}")
+        print(f"Error: {e}")

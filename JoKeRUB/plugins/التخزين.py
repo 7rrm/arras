@@ -195,6 +195,9 @@ async def log(log_text):
     await asyncio.sleep(2)
     await log_text.delete()
 
+# باقي الأوامر (تفعيل التخزين، تعطيل التخزين، تخزين الخاص، تخزين الكروبات)
+# تبقى كما هي دون تغيير
+from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
 
 # قائمة لتخزين المستخدمين تحت المراقبة

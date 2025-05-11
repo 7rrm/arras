@@ -197,13 +197,9 @@ async def log(log_text):
 
 
 from ..sql_helper.globals import addgvar, delgvar, gvarstatu
-
-# باقي الاستيرادات
 from telethon.tl.functions.channels import CreateChannelRequest
 from telethon.tl.functions.messages import ExportChatInviteRequest
-
-# لا نحتاج للقائمة والمتغير كمتغيرات عامة بعد الآن
-# سيتم تخزينهم في المتغيرات العامة
+from . import _format
 
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
@@ -212,12 +208,14 @@ async def monitor_user(event):
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
-    # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
     monitored_users = gvarstatu("monitored_users") or ""
     monitored_users = monitored_users.split(",") if monitored_users else []
 
-    # إنشاء مجموعة جديدة للمراقبة (إذا لم يتم إنشاؤها مسبقًا)
+    # جلب معرف مجموعة المراقبة من المتغيرات العامة
     monitoring_group_id = gvarstatu("monitoring_group_id")
+
+    # إنشاء مجموعة جديدة للمراقبة (إذا لم يتم إنشاؤها مسبقًا)
     if not monitoring_group_id:
         try:
             result = await event.client(CreateChannelRequest(
@@ -230,7 +228,7 @@ async def monitor_user(event):
             invite_link = await event.client(ExportChatInviteRequest(int(monitoring_group_id)))
             await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link.link})**")
         except Exception as e:
-            print(f"حدث خطأ أثناء إنشاء المجموعة: {str(e)}")  # Debugging
+            print(f"حدث خطأ أثناء إنشاء المجموعة: {str(e)}")
             return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
 
     # إضافة المستخدم إلى قائمة المراقبة
@@ -248,7 +246,7 @@ async def unmonitor_user(event):
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID لإيقاف المراقبة**")
 
-    # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
     monitored_users = gvarstatu("monitored_users") or ""
     monitored_users = monitored_users.split(",") if monitored_users else []
 
@@ -263,17 +261,32 @@ async def unmonitor_user(event):
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
 
+@l313l.ar_cmd(pattern="قائمة المراقبة$")
+async def show_monitored_users(event):
+    # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+    monitored_users = gvarstatu("monitored_users") or ""
+    monitored_users = monitored_users.split(",") if monitored_users else []
+    
+    if not monitored_users:
+        return await event.edit("**⌔┊لا يوجد مستخدمين تحت المراقبة حالياً**")
+    
+    users_list = "\n".join([f"• `{user}`" for user in monitored_users])
+    await event.edit(f"**⌔┊قائمة المستخدمين تحت المراقبة:**\n{users_list}")
+
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def monitor_messages(event):
     try:
         sender = await event.get_sender()
-        # الحصول على قائمة المستخدمين تحت المراقبة من المتغيرات العامة
+        # جلب قائمة المستخدمين تحت المراقبة من المتغيرات العامة
         monitored_users = gvarstatu("monitored_users") or ""
         monitored_users = monitored_users.split(",") if monitored_users else []
         
-        # الحصول على معرف مجموعة المراقبة
+        # جلب معرف مجموعة المراقبة من المتغيرات العامة
         monitoring_group_id = gvarstatu("monitoring_group_id")
         
+        if not monitoring_group_id:
+            return
+
         # التحقق من أن المستخدم تحت المراقبة
         if str(sender.id) in monitored_users or (sender.username and sender.username in monitored_users):
             # إعداد الكليشة (الرسالة المخصصة)
@@ -290,7 +303,8 @@ async def monitor_messages(event):
             # إرسال الكليشة إلى مجموعة المراقبة
             await event.client.send_message(int(monitoring_group_id), message_text, parse_mode="markdown")
     except Exception as e:
-        print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
+        print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")
+
 
 @l313l.ar_cmd(
     pattern="تفعيل التخزين$",

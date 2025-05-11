@@ -310,7 +310,7 @@ async def del_welcome(event):
 
 
 from telethon import events
-from telethon.utils import get_display_name
+from telethon.tl.types import ChannelParticipantsAdmins
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
@@ -318,7 +318,6 @@ import random
 
 plugin_category = "utils"
 
-# قائمة واحدة لكلا النوعين من الترحيب
 WELCOME_TEXTS = [
     "**نَـورت**↜  {mention}",
     "**هُـِݪآإ**↜  {mention}",
@@ -337,7 +336,6 @@ WELCOME_TEXTS = [
     },
 )
 async def enable_welcome(event):
-    "لتشغيل الترحيب التلقائي"
     if gvarstatus("welcome_enabled") == "true":
         return await edit_delete(event, "**✓ الترحيب مفعل بالفعل!**")
     addgvar("welcome_enabled", "true")
@@ -352,32 +350,31 @@ async def enable_welcome(event):
     },
 )
 async def disable_welcome(event):
-    "لإيقاف الترحيب التلقائي"
     if gvarstatus("welcome_enabled") != "true":
         return await edit_delete(event, "**✓ الترحيب معطل بالفعل!**")
     delgvar("welcome_enabled")
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
 @l313l.on(events.ChatAction)
-async def welcome_handler(event):
+async def handle_welcome(event):
+    if not gvarstatus("welcome_enabled") == "true":
+        return
+    
+    # للانضمام العادي
+    if event.user_joined or event.user_added:
+        user = await event.get_user()
+        if not user.bot:
+            await send_welcome(event, user)
+    
+    # لطلبات الانضمام المعتمدة
+    elif hasattr(event, 'user_approved'):
+        user = await event.get_user()
+        await send_welcome(event, user)
+
+async def send_welcome(event, user):
     try:
-        if not gvarstatus("welcome_enabled") == "true":
-            return
-            
-        # حالة الانضمام العادي
-        if event.user_joined or event.user_added:
-            user = await event.get_user()
-            if user.bot:
-                return
-                
-            mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
-            await event.reply(random.choice(WELCOME_TEXTS).format(mention=mention))
-            
-        # حالة طلب الانضمام المعتمد
-        elif hasattr(event, 'user_approved'):
-            user = await event.get_user()
-            mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
-            await event.reply(random.choice(WELCOME_TEXTS).format(mention=mention))
-            
+        mention = f"[{user.first_name}](tg://user?id={user.id})"
+        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
+        await event.reply(welcome_msg)
     except Exception as e:
-        print(f"Error in welcome handler: {e}")
+        print(f"Error sending welcome message: {e}")

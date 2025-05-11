@@ -309,16 +309,17 @@ async def del_welcome(event):
     await edit_delete(event, "** تم تعطيل الترحيب بنجاح ✓")
 
 
-from telethon import events, types
+from telethon import events
+from telethon.utils import get_display_name
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import random
-import asyncio
-import re
+import asyncio  # أضفنا استيراد asyncio
 
 plugin_category = "utils"
 
+# قائمة بكليشات الترحيب (تم تغيير الاسم إلى WELCOME_TEXTS)
 WELCOME_TEXTS = [
     "**نَـورت**↜  {mention}",
     "**هُـِݪآإ**↜  {mention}",
@@ -328,29 +329,20 @@ WELCOME_TEXTS = [
     "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
 ]
 
-# تخزين روابط طلبات الانضمام
-JOIN_LINKS = {}
-
 @l313l.ar_cmd(
-    pattern="تفعيل_الترحيب(?:\s+(.*))?$",
+    pattern="تفعيل_الترحيب$",
     command=("تفعيل_الترحيب", plugin_category),
     info={
-        "header": "لتشغيل ميزة الترحيب التلقائي مع رابط محدد",
-        "usage": "{tr}تفعيل_الترحيب [رابط الدعوة]",
+        "header": "لتشغيل ميزة الترحيب التلقائي",
+        "usage": "{tr}تفعيل_الترحيب",
     },
 )
 async def enable_welcome(event):
-    link = event.pattern_match.group(1)
+    "لتشغيل الترحيب التلقائي"
     if gvarstatus("welcome_enabled") == "true":
         return await edit_delete(event, "**✓ الترحيب مفعل بالفعل!**")
-    
     addgvar("welcome_enabled", "true")
-    
-    if link and re.match(r'https?://t\.me/\+\w+', link):
-        JOIN_LINKS[event.chat_id] = link
-        await edit_delete(event, f"**✓ تم تفعيل الترحيب بنجاح لهذا الرابط:**\n{link}")
-    else:
-        await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح لجميع الروابط**")
+    await edit_delete(event, "**✓ تم تفعيل الترحيب بنجاح**")
 
 @l313l.ar_cmd(
     pattern="تعطيل_الترحيب$",
@@ -361,54 +353,32 @@ async def enable_welcome(event):
     },
 )
 async def disable_welcome(event):
+    "لإيقاف الترحيب التلقائي"
     if gvarstatus("welcome_enabled") != "true":
         return await edit_delete(event, "**✓ الترحيب معطل بالفعل!**")
-    
     delgvar("welcome_enabled")
-    if event.chat_id in JOIN_LINKS:
-        del JOIN_LINKS[event.chat_id]
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
-async def send_welcome(chat_id, user_id, client):
-    try:
-        user = await client.get_entity(user_id)
-        if user.bot:
-            return
-            
-        mention = f"[{user.first_name}](tg://user?id={user.id})"
-        welcome_msg = random.choice(WELCOME_TEXTS).format(mention=mention)
-        await client.send_message(chat_id, welcome_msg)
-    except Exception as e:
-        print(f"Error in welcome: {e}")
-
 @l313l.on(events.ChatAction)
-async def handle_chat_action(event):
-    if not gvarstatus("welcome_enabled") == "true":
-        return
-        
-    # للانضمام العادي
-    if event.user_joined or event.user_added:
-        chat_id = event.chat_id
-        if chat_id in JOIN_LINKS:
-            # إذا كان هناك رابط محدد، نتخطى الترحيب هنا
-            return
-            
-        await asyncio.sleep(2)
-        await send_welcome(chat_id, event.user_id, event.client)
-
-@l313l.on(events.Raw(types.UpdateChatParticipant))
-async def handle_join_request(event):
-    if not gvarstatus("welcome_enabled") == "true":
-        return
-        
+async def welcome_handler(event):
     try:
-        chat_id = event.chat_id
-        if chat_id not in JOIN_LINKS:
+        if not gvarstatus("welcome_enabled") == "true":
             return
             
-        # التحقق من أن الحدث هو قبول طلب انضمام
-        if isinstance(event.action, types.ChatParticipantAdmin):
-            await asyncio.sleep(2)
-            await send_welcome(chat_id, event.user_id, event.client)
+        if event.user_joined or event.user_added:
+            user = await event.get_user()
+            chat = await event.get_chat()
+            
+            # تجنب الترحيب إذا كان المستخدم بوت
+            if user.bot:
+                return
+                
+            mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
+            welcome_message = random.choice(WELCOME_TEXTS).format(mention=mention)
+            
+            # إضافة تأخير 3 ثواني قبل إرسال الرسالة
+            await asyncio.sleep(3)
+            await event.reply(welcome_message)
+            
     except Exception as e:
-        print(f"Join request error: {e}")
+        print(f"Error in welcome handler: {e}")

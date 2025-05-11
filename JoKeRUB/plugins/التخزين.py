@@ -195,10 +195,6 @@ async def log(log_text):
     await asyncio.sleep(2)
     await log_text.delete()
 
-# باقي الأوامر (تفعيل التخزين، تعطيل التخزين، تخزين الخاص، تخزين الكروبات)
-# تبقى كما هي دون تغيير
-from telethon.tl.functions.channels import CreateChannelRequest
-from telethon.tl.functions.messages import ExportChatInviteRequest
 
 # قائمة لتخزين المستخدمين تحت المراقبة
 monitored_users = []
@@ -208,14 +204,11 @@ monitoring_group_id = None
 
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
-    global monitoring_group_id  # استخدام المتغير العام
-
-    # الحصول على المستخدم أو الـ ID المطلوب مراقبته
+    global monitoring_group_id
     target = event.pattern_match.group(1)
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID للمراقبة**")
 
-    # إنشاء مجموعة جديدة للمراقبة (إذا لم يتم إنشاؤها مسبقًا)
     if monitoring_group_id is None:
         try:
             result = await event.client(CreateChannelRequest(
@@ -227,10 +220,8 @@ async def monitor_user(event):
             invite_link = await event.client(ExportChatInviteRequest(monitoring_group_id))
             await event.edit(f"**⌔┊تم إنشاء مجموعة المراقبة بنجاح: [اضغط هنا للدخول]({invite_link.link})**")
         except Exception as e:
-            print(f"حدث خطأ أثناء إنشاء المجموعة: {str(e)}")  # Debugging
             return await event.edit(f"**⌔┊حدث خطأ أثناء إنشاء المجموعة: {str(e)}**")
 
-    # إضافة المستخدم إلى قائمة المراقبة
     if target not in monitored_users:
         monitored_users.append(target)
         await event.edit(f"**⌔┊تم بدء مراقبة المستخدم {target} في جميع المجموعات المشتركة.**")
@@ -239,12 +230,10 @@ async def monitor_user(event):
 
 @l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
 async def unmonitor_user(event):
-    # الحصول على المستخدم أو الـ ID المطلوب إيقاف مراقبته
     target = event.pattern_match.group(1)
     if not target:
         return await event.edit("**⌔┊يجب عليك تحديد المستخدم أو الـ ID لإيقاف المراقبة**")
 
-    # إزالة المستخدم من قائمة المراقبة
     if target in monitored_users:
         monitored_users.remove(target)
         await event.edit(f"**⌔┊تم إيقاف مراقبة المستخدم {target}.**")
@@ -255,9 +244,7 @@ async def unmonitor_user(event):
 async def monitor_messages(event):
     try:
         sender = await event.get_sender()
-        # التحقق من أن المستخدم تحت المراقبة
         if str(sender.id) in monitored_users or sender.username in monitored_users:
-            # إعداد الكليشة (الرسالة المخصصة)
             group_title = event.chat.title if event.chat.title else "مجموعة غير معروفة"
             message_link = f"https://t.me/c/{event.chat.id}/{event.message.id}"
             message_text = (
@@ -267,11 +254,9 @@ async def monitor_messages(event):
                 f"↜︙الرســالـه : {event.message.message}\n\n"
                 f"↜︙رابـط الرسـاله : [اضغط هنا]({message_link})\n"
             )
-
-            # إرسال الكليشة إلى مجموعة المراقبة
             await event.client.send_message(monitoring_group_id, message_text, parse_mode="markdown")
     except Exception as e:
-        print(f"حدث خطأ أثناء مراقبة الرسائل: {str(e)}")  # Debugging
+        LOGS.error(f"Error in monitoring: {str(e)}")
 
 @l313l.ar_cmd(
     pattern="تفعيل التخزين$",

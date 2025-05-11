@@ -318,7 +318,7 @@ import random
 
 plugin_category = "utils"
 
-# قائمة بكليشات الترحيب (تم تغيير الاسم إلى WELCOME_TEXTS)
+# قائمة واحدة لكلا النوعين من الترحيب
 WELCOME_TEXTS = [
     "**نَـورت**↜  {mention}",
     "**هُـِݪآإ**↜  {mention}",
@@ -364,17 +364,20 @@ async def welcome_handler(event):
         if not gvarstatus("welcome_enabled") == "true":
             return
             
+        # حالة الانضمام العادي
         if event.user_joined or event.user_added:
             user = await event.get_user()
-            chat = await event.get_chat()
-            
-            # تجنب الترحيب إذا كان المستخدم بوت
             if user.bot:
                 return
                 
             mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
-            welcome_message = random.choice(WELCOME_TEXTS).format(mention=mention)
-            await event.reply(welcome_message)
+            await event.reply(random.choice(WELCOME_TEXTS).format(mention=mention))
+            
+        # حالة طلب الانضمام المعتمد
+        elif hasattr(event, 'user_approved'):
+            user = await event.get_user()
+            mention = f"[{get_display_name(user)}](tg://user?id={user.id})"
+            await event.reply(random.choice(WELCOME_TEXTS).format(mention=mention))
             
     except Exception as e:
         print(f"Error in welcome handler: {e}")

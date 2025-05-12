@@ -301,6 +301,26 @@ async def unmonitor_user(event):
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
 
+@l313l.ar_cmd(pattern="حذف مراقبة$")
+async def delete_monitoring(event):
+    # حذف جميع المراقبين من قاعدة البيانات
+    try:
+        SESSION.query(MonitoredUsers).delete()
+        SESSION.commit()
+    except Exception as e:
+        SESSION.rollback()
+        return await event.edit(f"**⌔┊حدث خطأ أثناء حذف المراقبين: {str(e)}**")
+
+    # حذف كروب المراقبة من قاعدة البيانات
+    try:
+        SESSION.query(MonitoringGroup).delete()
+        SESSION.commit()
+    except Exception as e:
+        SESSION.rollback()
+        return await event.edit(f"**⌔┊حدث خطأ أثناء حذف كروب المراقبة: {str(e)}**")
+
+    await event.edit("**⌔┊تم حذف جميع المراقبين وكروب المراقبة بنجاح من قاعدة البيانات**")
+
 # وظيفة مراقبة الرسائل
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def monitor_messages(event):

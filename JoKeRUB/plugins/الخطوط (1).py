@@ -50,13 +50,13 @@ async def handle_text_formatting(event):
     text = event.message.text
     modified = False
     
-    # فصل اليوزرنيمات عن النص العادي
-    parts = re.split(r'(\s+|@\w+)', text)  # يفصل النص واليوزرنيمات
+    # فصل النص إلى أجزاء مع الحفاظ على اليوزرنيمات وعلامات @ المنفردة
+    parts = re.split(r'(\s+|@\w+|@)', text)  # يفصل النص، اليوزرنيمات، وعلامات @ المنفردة
     processed_parts = []
     
     for part in parts:
-        if part.startswith('@') or part.isspace():
-            processed_parts.append(part)  # يترك اليوزرنيمات والمسافات كما هي
+        if part.startswith('@') or part.isspace() or part == '@':
+            processed_parts.append(part)  # يترك اليوزرنيمات، المسافات، وعلامات @ المنفردة كما هي
         else:
             if gvarstatus("bold"):
                 part = f"**{part}**"

@@ -216,8 +216,10 @@ async def add_monitored_user(user):
 async def remove_monitored_user(user):
     users = await get_monitored_users()
     if user in users:
-        users.remove(user)
-        addgvar("monitored_users", ",".join(users))
+        users = [u for u in users if u != user]  # إزالة جميع التواجدات
+        addgvar("monitored_users", str(users))  # حفظ كقائمة Python صالحة
+        return True
+    return False
 
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
 async def monitor_user(event):
@@ -278,14 +280,28 @@ async def unmonitor_user(event):
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
 
-@l313l.ar_cmd(pattern="قائمة المراقبة$")
+@l313l.ar_cmd(pattern="المراقبين$")
 async def list_monitored(event):
     monitored_users = await get_monitored_users()
     if not monitored_users:
         return await event.edit("**⌔┊لا يوجد مستخدمين تحت المراقبة حالياً.**")
     
-    users_list = "\n".join([f"• {user}" for user in monitored_users])
+    # إصلاح العرض ليكون أكثر وضوحاً
+    users_list = "\n".join([f"• `{user}`" for user in monitored_users if user])  # التأكد من أن user ليست فارغة
     await event.edit(f"**⌔┊قائمة المستخدمين تحت المراقبة:**\n{users_list}")
+
+async def get_monitored_users():
+    users = gvarstatus("monitored_users")
+    if users:
+        # معالجة البيانات المخزنة لضمان أنها قائمة صحيحة
+        if users.startswith("[") and users.endswith("]"):
+            import ast
+            try:
+                return ast.literal_eval(users)
+            except:
+                return []
+        return [u.strip() for u in users.split(",") if u.strip()]
+    return []
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)
 async def monitor_messages(event):

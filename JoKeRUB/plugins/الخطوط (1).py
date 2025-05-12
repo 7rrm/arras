@@ -50,26 +50,31 @@ async def handle_text_formatting(event):
     text = event.message.text
     modified = False
     
-    # التحقق من جميع أنواع الخطوط
-    if gvarstatus("bold"):
-        if not text.startswith('.') and '.' not in text[:-1]:
-            text = f"**{text}**"
-            modified = True
-            
-    if gvarstatus("tshwesh") and not modified:
-        text = f"~~{text}~~"
-        modified = True
-        
-    if gvarstatus("ramz") and not modified:
-        text = f"`{text}`"
-        modified = True
-        
-    if gvarstatus("joker") and not modified:
-        text = f"```{text}```"
-        modified = True
-        
+    # فصل اليوزرنيمات عن النص العادي
+    parts = re.split(r'(\s+|@\w+)', text)  # يفصل النص واليوزرنيمات
+    processed_parts = []
+    
+    for part in parts:
+        if part.startswith('@') or part.isspace():
+            processed_parts.append(part)  # يترك اليوزرنيمات والمسافات كما هي
+        else:
+            if gvarstatus("bold"):
+                part = f"**{part}**"
+                modified = True
+            elif gvarstatus("tshwesh"):
+                part = f"~~{part}~~"
+                modified = True
+            elif gvarstatus("ramz"):
+                part = f"`{part}`"
+                modified = True
+            elif gvarstatus("joker"):
+                part = f"```{part}```"
+                modified = True
+            processed_parts.append(part)
+    
     if modified:
+        new_text = ''.join(processed_parts)
         try:
-            await event.edit(text)
+            await event.edit(new_text)
         except:
             pass

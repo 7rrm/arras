@@ -4,7 +4,7 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.managers import edit_delete
 from telethon import functions
 from telethon.errors.rpcerrorlist import MessageIdInvalidError
-import re
+
 # جميع أوامر الخطوط مع التعديل الجديد للخط الغامق
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def bold_toggle(event):
@@ -50,31 +50,26 @@ async def handle_text_formatting(event):
     text = event.message.text
     modified = False
     
-    # فصل النص إلى أجزاء مع الحفاظ على اليوزرنيمات وعلامات @ المنفردة
-    parts = re.split(r'(\s+|@\w+|@)', text)  # يفصل النص، اليوزرنيمات، وعلامات @ المنفردة
-    processed_parts = []
-    
-    for part in parts:
-        if part.startswith('@') or part.isspace() or part == '@':
-            processed_parts.append(part)  # يترك اليوزرنيمات، المسافات، وعلامات @ المنفردة كما هي
-        else:
-            if gvarstatus("bold"):
-                part = f"**{part}**"
-                modified = True
-            elif gvarstatus("tshwesh"):
-                part = f"~~{part}~~"
-                modified = True
-            elif gvarstatus("ramz"):
-                part = f"`{part}`"
-                modified = True
-            elif gvarstatus("joker"):
-                part = f"```{part}```"
-                modified = True
-            processed_parts.append(part)
-    
+    # التحقق من جميع أنواع الخطوط
+    if gvarstatus("bold"):
+        if not text.startswith('.') and '.' not in text[:-1]:
+            text = f"**{text}**"
+            modified = True
+            
+    if gvarstatus("tshwesh") and not modified:
+        text = f"~~{text}~~"
+        modified = True
+        
+    if gvarstatus("ramz") and not modified:
+        text = f"`{text}`"
+        modified = True
+        
+    if gvarstatus("joker") and not modified:
+        text = f"```{text}```"
+        modified = True
+        
     if modified:
-        new_text = ''.join(processed_parts)
         try:
-            await event.edit(new_text)
+            await event.edit(text)
         except:
             pass

@@ -170,8 +170,7 @@ async def handle_edited_messages(event):
     info={
         "header": "لحفظ الرسالة في مجموعة التخزين",
         "الاسـتخـدام": [
-            "{tr}خزن",
-        ],
+            "{tr}خزن        ],
     },
 )
 async def log(log_text):
@@ -203,6 +202,7 @@ from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper import SESSION, BASE
 from sqlalchemy import Column, String
+from sqlalchemy.exc import IntegrityError
 
 # جدول قاعدة البيانات لتخزين المراقبين
 class MonitoredUsers(BASE):
@@ -245,6 +245,11 @@ def get_all_monitored_users():
 
 def set_monitoring_group(group_id):
     try:
+        # حذف أي بيانات سابقة أولاً
+        SESSION.query(MonitoringGroup).delete()
+        SESSION.commit()
+        
+        # إضافة المجموعة الجديدة
         group = MonitoringGroup(group_id)
         SESSION.add(group)
         SESSION.commit()
@@ -254,6 +259,22 @@ def set_monitoring_group(group_id):
 def get_monitoring_group():
     group = SESSION.query(MonitoringGroup).first()
     return group.group_id if group else None
+
+def clear_all_monitoring_data():
+    """حذف جميع بيانات المراقبة من قاعدة البيانات"""
+    try:
+        # حذف جميع المستخدمين المراقبين
+        SESSION.query(MonitoredUsers).delete()
+        
+        # حذف كروب المراقبة
+        SESSION.query(MonitoringGroup).delete()
+        
+        SESSION.commit()
+        return True
+    except Exception as e:
+        SESSION.rollback()
+        print(f"حدث خطأ أثناء حذف بيانات المراقبة: {str(e)}")
+        return False
 
 # أمر المراقبة
 @l313l.ar_cmd(pattern="مراقبة (?:(.*))")
@@ -286,7 +307,7 @@ async def monitor_user(event):
     else:
         await event.edit(f"**⌔┊المستخدم {target} تحت المراقبة بالفعل.**")
 
-# أمر إلغاء المراقبة
+# أمر إلغاء المراقبة لمستخدم معين
 @l313l.ar_cmd(pattern="الغاء مراقبة (?:(.*))")
 async def unmonitor_user(event):
     # الحصول على المستخدم أو الـ ID المطلوب إيقاف مراقبته
@@ -300,6 +321,15 @@ async def unmonitor_user(event):
         await event.edit(f"**⌔┊تم إيقاف مراقبة المستخدم {target}.**")
     else:
         await event.edit(f"**⌔┊المستخدم {target} غير موجود في قائمة المراقبة.**")
+
+# أمر حذف جميع بيانات المراقبة
+@l313l.ar_cmd(pattern="حذف_المراقبة$")
+async def delete_monitoring(event):
+    """حذف جميع بيانات المراقبة من قاعدة البيانات"""
+    if clear_all_monitoring_data():
+        await event.edit("**⌔┊تم حذف جميع بيانات المراقبة بنجاح (كروب المراقبة + المستخدمين المراقبين)**")
+    else:
+        await event.edit("**⌔┊حدث خطأ أثناء محاولة حذف بيانات المراقبة**")
 
 # وظيفة مراقبة الرسائل
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_group, edited=False, forword=None)

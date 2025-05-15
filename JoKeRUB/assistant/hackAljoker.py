@@ -294,34 +294,32 @@ async def start(event):
   if event.sender_id == bot.uid:
       async with bot.conversation(event.chat_id) as x:
         keyboard = [
-    [  
-        Button.inline("A", data="A"), 
-        Button.inline("B", data="B"),
-        Button.inline("C", data="C"),
-        Button.inline("D", data="D"),
-        Button.inline("E", data="E")
+  [  
+    Button.inline("A", data="A"), 
+    Button.inline("B", data="B"),
+    Button.inline("C", data="C"),
+    Button.inline("D", data="D"),
+    Button.inline("E", data="E")
     ],
-    [
-        Button.inline("F", data="F"), 
-        Button.inline("G", data="G"),
-        Button.inline("H", data="H"),
-        Button.inline("I", data="I"),
-        Button.inline("J", data="J")
+  [
+    Button.inline("F", data="F"), 
+    Button.inline("G", data="G"),
+    Button.inline("H", data="H"),
+    Button.inline("I", data="I"),
+    Button.inline("J", data="J"),
     ],
-    [
-        Button.inline("K", data="K"), 
-        Button.inline("L", data="L"),
-        Button.inline("M", data="M"),
-        Button.inline("N", data="N"),
-        Button.inline("O", data="O")  # الزر الجديد
+  [
+    Button.inline("K", data="K"), 
+    Button.inline("L", data="L"),
+    Button.inline("M", data="M"),
+    Button.inline("N", data="N"),
+    Button.inline("O", data="O"),
+    Button.inline("P", data="P"),  # الزر الجديد
+    Button.inline("X", data="X")
     ],
-    [   
-        Button.inline("P", data="P"),
-        Button.inline("X", data="X")
-    ]،
-    [
-        Button.url("المـطور", "https://t.me/Lx5x5")
-    ]
+  [
+    Button.url("المـطور", "https://t.me/Lx5x5")
+  ]
         ]
         await x.send_message(f"اختر ماتريد فعله مع الجلسة \n\n{menu}", buttons=keyboard)
     

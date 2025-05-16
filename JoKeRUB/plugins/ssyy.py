@@ -467,6 +467,7 @@ from youtube_search import YoutubeSearch
 from telethon import events
 import random
 import glob
+import time
 
 
 # دالة الحصول على ملف الكوكيز
@@ -508,9 +509,8 @@ async def disable_search(event):
         search_settings['enabled_groups'][event.chat_id] = False
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
-import time  # أضف هذه المكتبة في الأعلى مع باقي الـimports
 
-@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
+@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
     # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
@@ -522,14 +522,17 @@ async def search_song(event):
         if not search_settings['enabled_groups'].get(event.chat_id, False):
             return
     
-    query = event.pattern_match.group(1)
+    query = event.pattern_match.group(1).strip()
     if not query:
-        return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
+        if event.is_private:  # فقط في الدردشات الخاصة
+            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+        return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     start_time = time.time()  # بداية حساب الوقت
     
     try:
+        # بقية الكود كما هو ...
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         

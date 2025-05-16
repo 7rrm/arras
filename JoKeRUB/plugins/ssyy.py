@@ -524,44 +524,44 @@ async def search_song(event):
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
+        if event.is_private:
             return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    start_time = time.time()  # بداية حساب الوقت
+    start_time = time.time()
     
     try:
-        # بقية الكود كما هو ...
-        # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
-        # إعدادات yt-dlp مع الكوكيز
+        # إعدادات yt-dlp محسنة للسرعة
         ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
-    
-    # إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+            "format": "bestaudio[ext=m4a]/best",
+            "noplaylist": True,
+            "extract_flat": True,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a",
+            # إعدادات السرعة
+            "socket_timeout": 3,
+            "http_chunk_size": 6291456,  # 6MB
+            "retries": 1,
+            "fragment_retries": 1,
+            "extractor_args": {
+                "youtube": {
+                    "skip": ["dash", "hls"],
+                    "player_client": ["android"]
+                }
+            },
+            "postprocessor_args": {
+                "ffmpeg": ["-b:a", "128k"]  # جودة صوت متوسطة للسرعة
+            }
         }
         
-        
-        # البحث في اليوتيوب
-        search_start = time.time()
+        # البحث السريع مع تحديد عدد أقل من النتائج
         results = YoutubeSearch(query, max_results=1).to_dict()
-        search_time = time.time() - search_start
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -571,27 +571,22 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
-        download_start = time.time()
+        # التحميل بدون معلومات كاملة لتسريع العملية
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        download_time = time.time() - download_start
             
-        # عملية الرفع
-        upload_start = time.time()
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
+            supports_streaming=True,  # تمكين البث للبدء السريع
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
             reply_to=event.id
         )
-        upload_time = time.time() - upload_start
-            
             
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
         try:
             if 'filename' in locals() and os.path.exists(filename):

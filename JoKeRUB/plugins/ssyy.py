@@ -536,28 +536,25 @@ async def search_song(event):
         
         # إعدادات yt-dlp محسنة للسرعة
         ydl_opts = {
-            "format": "bestaudio[ext=m4a]/best",
-            "noplaylist": True,
-            "extract_flat": True,
-            "quiet": True,
-            "no_warnings": True,
-            "geo_bypass": True,
-            "cookiefile": cookies_file,
-            "outtmpl": "a R R a S 🎧.m4a",
-            # إعدادات السرعة
-            "socket_timeout": 3,
-            "http_chunk_size": 6291456,  # 6MB
-            "retries": 1,
-            "fragment_retries": 1,
-            "extractor_args": {
-                "youtube": {
-                    "skip": ["dash", "hls"],
-                    "player_client": ["android"]
-                }
-            },
-            "postprocessor_args": {
-                "ffmpeg": ["-b:a", "128k"]  # جودة صوت متوسطة للسرعة
-            }
+    # تغيير إعدادات التنسيق ليكون أكثر مرونة
+    "format": "bestaudio/best",
+    "noplaylist": True,
+    "extract_flat": True,
+    "quiet": True,
+    "no_warnings": True,
+    "geo_bypass": True,
+    "cookiefile": cookies_file,
+    "outtmpl": "a R R a S 🎧.%(ext)s",  # تغيير هنا ليدعم أي امتداد
+    "postprocessors": [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'm4a',  # سيحاول الحصول على m4a أولاً
+        'preferredquality': '128',
+    }],
+    # إعدادات السرعة
+    "socket_timeout": 3,
+    "http_chunk_size": 6291456,  # 6MB
+    "retries": 1,
+    "fragment_retries": 1
         }
         
         # البحث السريع مع تحديد عدد أقل من النتائج

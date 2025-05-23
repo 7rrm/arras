@@ -1024,6 +1024,7 @@ async def handle_winner(event):
                 points_text = '\n'.join([f'{i+1}• {(await l313l.get_entity(participant_id)).first_name}: {participant_points}' for i, (participant_id, participant_points) in enumerate(sorted_points)])
                 await l313l.send_message(event.chat_id, f'الف مبرووووك 🎉 الاعب ( {sender_first_name} ) فاز! \n اصبحت نقاطة: {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
 
+
 import random
 from telethon import events
 
@@ -1040,6 +1041,7 @@ numbers_board = [["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️�
 original_game_board = [["👊"] * 6]
 group_game_status = {}
 points = {}
+allowed_users = [5462630004]  # قائمة المستخدمين المسموح لهم باستخدام اللعبة
 
 async def handle_clue(event):
     global correct_answer, group_game_status
@@ -1055,6 +1057,9 @@ async def handle_clue(event):
 
 @l313l.ar_cmd(pattern="محيبس")
 async def restart_game(event):
+    if event.sender_id not in allowed_users:
+        return await event.reply("⚠️ ليس لديك صلاحية استخدام هذه اللعبة!")
+    
     global group_game_status
     chat_id = event.chat_id
     if chat_id in group_game_status:
@@ -1063,6 +1068,9 @@ async def restart_game(event):
 
 @l313l.on(events.NewMessage(pattern=r'طك (\d+)'))
 async def handle_strike(event):
+    if event.sender_id not in allowed_users:
+        return
+    
     global group_game_status, correct_answer, game_board
     chat_id = event.chat_id
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started'] and event.sender_id == group_game_status[chat_id]['joker_player']:
@@ -1077,6 +1085,9 @@ async def handle_strike(event):
 
 @l313l.on(events.NewMessage(pattern=r'جيب (\d+)'))
 async def handle_guess(event):
+    if event.sender_id not in allowed_users:
+        return
+    
     global group_game_status, correct_answer, game_board, points
     chat_id = event.chat_id
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started'] and event.sender_id == group_game_status[chat_id]['joker_player']:
@@ -1099,6 +1110,9 @@ async def handle_guess(event):
 
 @l313l.on(events.NewMessage(pattern=r'انا'))
 async def handle_incoming_message(event):
+    if event.sender_id not in allowed_users:
+        return
+    
     global group_game_status
     chat_id = event.chat_id
     if chat_id not in group_game_status:
@@ -1119,6 +1133,9 @@ def reset_game(chat_id):
 
 @l313l.ar_cmd(pattern="تصفير")
 async def reset_points(event):
+    if event.sender_id not in allowed_users:
+        return await event.reply("⚠️ ليس لديك صلاحية استخدام هذه الأمر!")
+    
     global points
     points = {}
     await event.edit('**تم تصفير نقاط المشاركين بنجاح!**')

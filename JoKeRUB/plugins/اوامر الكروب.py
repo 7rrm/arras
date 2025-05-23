@@ -1044,7 +1044,7 @@ points = {}
 
 # تعريف المعرفات
 MY_UID = l313l.uid  # حسابك
-OTHER_USER = 5462630004  # الشخص الآخر
+OTHER_USER = 7893578939 # الشخص الآخر
 ALLOWED_USERS = [MY_UID, OTHER_USER]  # المستخدمون المسموح لهم ببدء اللعبة
 
 async def handle_clue(event):

@@ -456,112 +456,130 @@ async def download_audio(event):
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
 
-def remove_if_exists(path): #Code by T.me/zzzzl1l
-    if os.path.exists(path):
-        os.remove(path)
-
 import os
+import glob
+import time
+import random
 import requests
 import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon import events
-import random
-import glob
-import time
 
+# تحسين وظيفة remove_if_exists
+def remove_if_exists(path):
+    try:
+        os.remove(path)
+    except (FileNotFoundError, PermissionError, OSError):
+        pass
 
-# دالة الحصول على ملف الكوكيز
+# تحسين دالة الحصول على ملف الكوكيز
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
-    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    folder_path = os.path.join(os.getcwd(), "karar")
+    txt_files = glob.glob(os.path.join(folder_path, "*.txt"))
     if not txt_files:
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
-# إعدادات التحكم
-search_settings = {
-    'enabled_private': False,  # للدردشات الخاصة
-    'enabled_groups': {},     # للمجموعات {group_id: True/False}
-    'admin_id': 5427469031    # أي دي المطور
-}
-
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-async def enable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
+# إعدادات التحكم مع تحسين الأداء
+class SearchSettings:
+    __slots__ = ['enabled_private', 'enabled_groups', 'admin_id']
     
-    if event.is_private:
-        search_settings['enabled_private'] = True
-        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
-    else:
-        search_settings['enabled_groups'][event.chat_id] = True
-        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+    def __init__(self):
+        self.enabled_private = False
+        self.enabled_groups = {}
+        self.admin_id = 5427469031
 
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-async def disable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        search_settings['enabled_private'] = False
-        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
-    else:
-        search_settings['enabled_groups'][event.chat_id] = False
-        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
+search_settings = SearchSettings()
 
-
-@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
-async def search_song(event):
-    # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not search_settings['enabled_private']:
+# تحسين معالجات الأحداث باستخدام ديكورات مخصصة
+def admin_only(func):
+    async def wrapper(event):
+        if event.sender_id != search_settings.admin_id:
+            await event.delete()
             return
-    else:
-        if not search_settings['enabled_groups'].get(event.chat_id, False):
-            return
-    
-    query = event.pattern_match.group(1).strip()
-    if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
-            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
-        return
-    
-    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    start_time = time.time()  # بداية حساب الوقت
-    
-    try:
-        # بقية الكود كما هو ...
-        # الحصول على ملف الكوكيز
-        cookies_file = get_cookies_file()
+        return await func(event)
+    return wrapper
+
+def search_enabled(func):
+    async def wrapper(event):
+        if event.sender_id == search_settings.admin_id:
+            return await func(event)
         
-        # إعدادات yt-dlp مع الكوكيز
-        ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
+        if event.is_private:
+            if not search_settings.enabled_private:
+                return
+        else:
+            if not search_settings.enabled_groups.get(event.chat_id, False):
+                return
+        return await func(event)
+    return wrapper
+
+# تحسين إعدادات yt-dlp لتحميل أسرع
+YTDLP_OPTS = {
     "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
+    "socket_timeout": 5,
+    "http_chunk_size": 10485760,  # 10MB chunks for faster download
     "noplaylist": True,
     "extract_flat": True,
     "fragment_retries": 2,
     "retries": 2,
-    
-    # إعدادات التخفيض
     "quiet": True,
     "no_warnings": True,
     "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
-        }
+    "outtmpl": "downloaded_audio.m4a",
+    "noprogress": True,
+    "continuedl": False,
+    "noresizebuffer": True,
+    "http_headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-Fetch-Mode": "navigate",
+    }
+}
+
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
+@admin_only
+async def enable_search(event):
+    if event.is_private:
+        search_settings.enabled_private = True
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    else:
+        search_settings.enabled_groups[event.chat_id] = True
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
+@admin_only
+async def disable_search(event):
+    if event.is_private:
+        search_settings.enabled_private = False
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    else:
+        search_settings.enabled_groups[event.chat_id] = False
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
+@search_enabled
+async def search_song(event):
+    query = event.pattern_match.group(1).strip()
+    if not query:
+        if event.is_private:
+            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+        return
+    
+    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    start_time = time.time()
+    filename = None
+    
+    try:
+        # تحسين البحث باستخدام cache إذا أمكن
+        cookies_file = get_cookies_file()
+        ydl_opts = YTDLP_OPTS.copy()
+        ydl_opts["cookiefile"] = cookies_file
         
-        
-        # البحث في اليوتيوب
+        # البحث مع تحسين الأداء
         search_start = time.time()
         results = YoutubeSearch(query, max_results=1).to_dict()
-        search_time = time.time() - search_start
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -571,33 +589,31 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
+        # تحميل الملف مع تحسين الأداء
         download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        download_time = time.time() - download_start
-            
-        # عملية الرفع
-        upload_start = time.time()
+        
+        # إرسال الملف مع تحسين الأداء
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
+            supports_streaming=True,
+            caption=(
+                f"**✧︙البحث:** `{title}`\n"
+                f"**◈︙المـدة:** `ٔ{duration}`\n"
+                f"**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f}` ثانية"
+            ),
             reply_to=event.id
         )
-        upload_time = time.time() - upload_start
-            
-            
+        
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:
-        try:
-            if 'filename' in locals() and os.path.exists(filename):
-                os.remove(filename)
-        except:
-            pass
+        if filename and os.path.exists(filename):
+            remove_if_exists(filename)
         await msg.delete()
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

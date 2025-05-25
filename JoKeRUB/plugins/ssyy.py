@@ -539,7 +539,7 @@ async def search_song(event):
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
     # أولوية لـ m4a، ثم أي تنسيق متاح
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
+    "format": "bestaudio/best",  # سيختار أفضل تنسيق صوتي متاح (حتى لو لم يكن m4a)
 # إعدادات السرعة القصوى
     "socket_timeout": 5,  # وقت انتظار أقل
     "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع

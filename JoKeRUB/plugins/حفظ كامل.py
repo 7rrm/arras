@@ -92,3 +92,78 @@ async def transfer_channel(event):
         await event.edit(f"**✎┊ تم نقل {success} رسالة بنجاح بدءًا من الرسالة المحددة! ✅**")
     except Exception as e:
         await event.edit(f"**✎┊ حدث خطأ: {str(e)}**")
+
+
+import asyncio
+from telethon import events
+from JoKeRUB import l313l
+
+plugin_category = "misc"
+
+@l313l.ar_cmd(
+    pattern="احفظ(?: |$)(.*)",
+    command=("احفظ", plugin_category),
+    info={
+        "header": "جلب رسالة من قناة مقيدة وحفظها في الدردشة الحالية",
+        "description": "يحفظ الرسالة من القنوات المقيدة عن طريق التحميل وإعادة الإرسال",
+        "usage": "{tr}جلب <رابط الرسالة>",
+    },
+)
+async def bypass_restriction(event):
+    input_str = event.pattern_match.group(1).strip()
+    if not input_str:
+        return await event.edit("**✪╎يُرجى تحديد رابـط الرسـالة!**")
+
+    await event.edit("**✪╎جـاري جلـب الرسـالة من القنـاة المقيدة...**")
+
+    try:
+        # الحصول على كائن الرسالة من الرابط
+        if "t.me/" in input_str:
+            parts = input_str.split("/")
+            msg_id = int(parts[-1]) if parts[-1].isdigit() else None
+            if not msg_id:
+                return await event.edit("**✪╎الرابـط غيـر صالـح! تأكـد من وجـود ID الرسـالة في الرابـط.**")
+
+            chat_entity = "/".join(parts[:-1])
+            chat = await l313l.get_entity(chat_entity)
+            msg = await l313l.get_messages(chat, ids=msg_id)
+            
+            if not msg:
+                return await event.edit("**✪╎لا يمكـن العثـور على الرسـالة!**")
+        else:
+            return await event.edit("**✪╎الرابـط غيـر صالـح! استخـدم رابـطًا مثـل `https://t.me/القنـاة/123`**")
+
+        target_chat = event.chat_id  # الدردشة الحالية
+
+        try:
+            # إذا كانت الرسالة نصية فقط
+            if msg.text and not msg.media:
+                await l313l.send_message(target_chat, msg.text)
+                await event.edit("**✪╎تم جلـب النـص بنجـاح ✅**")
+                return
+
+            # إذا كانت الرسالة تحتوي على ميديا
+            if msg.media:
+                # تحميل الميديا
+                media_path = await l313l.download_media(msg.media)
+                caption = msg.text if msg.text else ""
+                
+                # تحديد نوع الميديا
+                if hasattr(msg.media, "photo"):
+                    await l313l.send_file(target_chat, media_path, caption=caption)
+                elif hasattr(msg.media, "document"):
+                    await l313l.send_file(target_chat, media_path, caption=caption)
+                elif hasattr(msg.media, "webpage"):
+                    await l313l.send_message(target_chat, msg.text)
+                else:
+                    await l313l.send_file(target_chat, media_path, caption=caption)
+                
+                await event.edit("**✪╎تم جلـب المحتـوى بنجـاح ✅**")
+                return
+
+        except Exception as e:
+            await event.edit(f"**✪╎خطـأ في جلـب الرسـالة: {str(e)}**")
+            return
+
+    except Exception as e:
+        await event.edit(f"**✪╎حـدث خطـأ: {str(e)}**")

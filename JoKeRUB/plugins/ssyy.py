@@ -529,7 +529,6 @@ async def search_song(event):
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    start_time = time.time()  # بداية حساب الوقت
     
     try:
         # بقية الكود كما هو ...
@@ -538,26 +537,27 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
+    # أولوية لـ m4a، ثم أي تنسيق متاح
     "format": "bestaudio[ext=m4a]/bestaudio/best",
-    "http_chunk_size": 1048576,  # 1MB لكل قطعة (يمكن زيادته إذا كانت الشبكة سريعة)
-    "concurrent_fragment_downloads": 4,  # ⚡ تنزيل بـ 4 قطع متوازية
-    "socket_timeout": 5,
+# إعدادات السرعة القصوى
+    "socket_timeout": 5,  # وقت انتظار أقل
+    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
     "noplaylist": True,
     "extract_flat": True,
-    "retries": 2,
     "fragment_retries": 2,
+    "retries": 2,
+    
+    # إعدادات التخفيض
     "quiet": True,
     "no_warnings": True,
     "geo_bypass": True,
-    "cookiefile": "cookies.txt",
-    "outtmpl": "download.m4a",
+    "cookiefile": cookies_file,
+    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
         }
         
         
         # البحث في اليوتيوب
-        search_start = time.time()
         results = YoutubeSearch(query, max_results=1).to_dict()
-        search_time = time.time() - search_start
         
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
@@ -569,26 +569,22 @@ async def search_song(event):
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
         # عملية التحميل
-        download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        download_time = time.time() - download_start
             
         # عملية الرفع
-        upload_start = time.time()
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
+            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`",
             reply_to=event.id
         )
-        upload_time = time.time() - upload_start
             
             
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
         try:
             if 'filename' in locals() and os.path.exists(filename):

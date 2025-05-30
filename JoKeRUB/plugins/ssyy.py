@@ -538,22 +538,19 @@ async def search_song(event):
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
     "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
+    "http_chunk_size": 1048576,  # 1MB لكل قطعة (يمكن زيادته إذا كانت الشبكة سريعة)
+    "concurrent_fragment_downloads": 4,  # ⚡ تنزيل بـ 4 قطع متوازية
+    "socket_timeout": 5,
     "noplaylist": True,
     "extract_flat": True,
-    "fragment_retries": 2,
     "retries": 2,
-    
-    # إعدادات التخفيض
+    "fragment_retries": 2,
     "quiet": True,
     "no_warnings": True,
     "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+    "cookiefile": "cookies.txt",
+    "outtmpl": "download.m4a",
         }
         
         

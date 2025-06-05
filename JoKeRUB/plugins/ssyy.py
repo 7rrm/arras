@@ -456,10 +456,7 @@ async def download_audio(event):
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
 
-def remove_if_exists(path): #Code by T.me/zzzzl1l
-    if os.path.exists(path):
-        os.remove(path)
-
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
 import requests
 import yt_dlp
@@ -469,6 +466,9 @@ import random
 import glob
 import time
 
+def remove_if_exists(path): #Code by T.me/zzzzl1l
+    if os.path.exists(path):
+        os.remove(path)
 
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
@@ -478,12 +478,21 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
+# دالة لتحميل إعدادات البحث
+def load_search_settings():
+    return {
+        'enabled_private': gvarstatus("search_enabled_private") == "True",
+        'enabled_groups': eval(gvarstatus("search_enabled_groups") or {},
+        'admin_id': 5427469031
+    }
+
 # إعدادات التحكم
-search_settings = {
-    'enabled_private': False,  # للدردشات الخاصة
-    'enabled_groups': {},     # للمجموعات {group_id: True/False}
-    'admin_id': 5427469031    # أي دي المطور
-}
+search_settings = load_search_settings()
+
+# دالة لحفظ الإعدادات
+def save_search_settings():
+    addgvar("search_enabled_private", str(search_settings['enabled_private']))
+    addgvar("search_enabled_groups", str(search_settings['enabled_groups']))
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
@@ -492,9 +501,11 @@ async def enable_search(event):
     
     if event.is_private:
         search_settings['enabled_private'] = True
+        save_search_settings()
         await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
     else:
         search_settings['enabled_groups'][event.chat_id] = True
+        save_search_settings()
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
@@ -504,11 +515,12 @@ async def disable_search(event):
     
     if event.is_private:
         search_settings['enabled_private'] = False
+        save_search_settings()
         await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
     else:
         search_settings['enabled_groups'][event.chat_id] = False
+        save_search_settings()
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
-
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
@@ -531,30 +543,24 @@ async def search_song(event):
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
-        # بقية الكود كما هو ...
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
-    
-    # إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a"
         }
-        
         
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
@@ -582,7 +588,6 @@ async def search_song(event):
             reply_to=event.id
         )
             
-            
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
@@ -592,6 +597,7 @@ async def search_song(event):
         except:
             pass
         await msg.delete()
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

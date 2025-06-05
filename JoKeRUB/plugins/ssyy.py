@@ -480,7 +480,7 @@ def get_cookies_file():
 
 # إعدادات التحكم
 search_settings = {
-    'admin_id': 5427469031    # أي دي المطور
+    'admin_id': l313l.uid    # أي دي المطور
 }
 
 def is_search_enabled(chat_id=None):
@@ -574,7 +574,7 @@ async def search_song(event):
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`",
+            caption=f"**✧︙البحث:** `{title}[:40]`\n**◈︙المـدة:** `ٔ{duration}`",
             reply_to=event.id
         )
             

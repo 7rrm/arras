@@ -50,7 +50,7 @@ async def Hussein(event):
     username = f"@{sender.username}" if sender.username else "لا يوجد"
     
     caption = f"""
-ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ البصمه الذاتيه 🎙
+ᯓ 𝗮𝗥𝗥𝗮𝗦 - حفـظ الصوره الذاتيه 🎙
 ⋆─┄─┄─┄─┄─┄─┄─⋆
 **⌔ مࢪحبـاً .. عـزيـزي 🫂**
 **⌔ تـم حفظ البصمه الذاتية .. تلقائياً ☑️ ❝**

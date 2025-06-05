@@ -456,6 +456,10 @@ async def download_audio(event):
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
 
+def remove_if_exists(path): #Code by T.me/zzzzl1l
+    if os.path.exists(path):
+        os.remove(path)
+
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
 import requests
@@ -466,10 +470,6 @@ import random
 import glob
 import time
 
-def remove_if_exists(path): #Code by T.me/zzzzl1l
-    if os.path.exists(path):
-        os.remove(path)
-
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
@@ -478,21 +478,15 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
-# دالة لتحميل إعدادات البحث
-def load_search_settings():
-    return {
-        'enabled_private': gvarstatus("search_enabled_private") == "True",
-        'enabled_groups': eval(gvarstatus("search_enabled_groups") or {},
-        'admin_id': 5427469031
-    }
-
 # إعدادات التحكم
-search_settings = load_search_settings()
+search_settings = {
+    'admin_id': 5427469031    # أي دي المطور
+}
 
-# دالة لحفظ الإعدادات
-def save_search_settings():
-    addgvar("search_enabled_private", str(search_settings['enabled_private']))
-    addgvar("search_enabled_groups", str(search_settings['enabled_groups']))
+def is_search_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"search_enabled_{chat_id}") == "True"
+    return gvarstatus("search_enabled_private") == "True"
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
@@ -500,12 +494,10 @@ async def enable_search(event):
         return await event.delete()
     
     if event.is_private:
-        search_settings['enabled_private'] = True
-        save_search_settings()
+        addgvar("search_enabled_private", "True")
         await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
     else:
-        search_settings['enabled_groups'][event.chat_id] = True
-        save_search_settings()
+        addgvar(f"search_enabled_{event.chat_id}", "True")
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
@@ -514,12 +506,10 @@ async def disable_search(event):
         return await event.delete()
     
     if event.is_private:
-        search_settings['enabled_private'] = False
-        save_search_settings()
+        delgvar("search_enabled_private")
         await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
     else:
-        search_settings['enabled_groups'][event.chat_id] = False
-        save_search_settings()
+        delgvar(f"search_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
@@ -528,10 +518,10 @@ async def search_song(event):
     if event.sender_id == search_settings['admin_id']:
         pass  # المطور مسموح له دائماً
     elif event.is_private:
-        if not search_settings['enabled_private']:
+        if not is_search_enabled():
             return
     else:
-        if not search_settings['enabled_groups'].get(event.chat_id, False):
+        if not is_search_enabled(event.chat_id):
             return
     
     query = event.pattern_match.group(1).strip()

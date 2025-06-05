@@ -559,7 +559,7 @@ async def search_song(event):
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
         video_url = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"]
+        title = results[0]["title"][:40]
         duration = results[0]["duration"]
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
@@ -574,7 +574,7 @@ async def search_song(event):
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}[:40]`\n**◈︙المـدة:** `ٔ{duration}`",
+            caption=f"**التحميـل ⥃** `{title}`\n**المـدة :** `ٔ{duration}`",
             reply_to=event.id
         )
             

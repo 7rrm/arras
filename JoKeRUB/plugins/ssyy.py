@@ -484,7 +484,7 @@ search_settings = {
 }
 
 # مسار الصورة المصغرة الثابتة
-DEFAULT_THUMB = "l313l/razan/resources/start/Jepthon2.JPEG"
+DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
 
 def is_search_enabled(chat_id=None):
     if chat_id:

@@ -3,6 +3,7 @@ import html
 from datetime import datetime
 from requests import get
 from telethon.tl.functions.photos import GetUserPhotosRequest
+from telethon.tl.types import MessageEntityMentionName
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.utils import get_input_location

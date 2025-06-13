@@ -50,7 +50,7 @@ async def _(event):
     async with event.client.action(event.chat_id, "record-audio"):
         await asyncio.sleep(t)
 
-@l313l.on(admin_cmd(pattern="صورة(?: |$)(.*)"))
+@l313l.on(admin_cmd(pattern="صوره(?: |$)(.*)"))
 async def _(event):
     t = event.pattern_match.group(1)
     if not (t or t.isdigit()):
@@ -84,6 +84,39 @@ async def _(event):
     async with event.client.action(event.chat_id, "record-video"):
         await asyncio.sleep(t)
 
+@l313l.on(admin_cmd(pattern="بث(?: |$)(.*)"))
+async def _(event):
+    t = event.pattern_match.group(1)
+    if not (t or t.isdigit()):
+        t = 100
+    else:
+        try:
+            t = int(t)
+        except BaseException:
+            try:
+                t = await event.ban_time(t)
+            except BaseException:
+                return await event.edit("**- يجب كتابة الوقت بشكل صحيح**")
+    await event.edit(f"**تم تفعيل وضع البث المباشر الوهمي لمدة {t} ثانية**")
+    async with event.client.action(event.chat_id, "broadcast"):
+        await asyncio.sleep(t)
+
+@l313l.on(admin_cmd(pattern="قراءة(?: |$)(.*)"))
+async def _(event):
+    t = event.pattern_match.group(1)
+    if not (t or t.isdigit()):
+        t = 100
+    else:
+        try:
+            t = int(t)
+        except BaseException:
+            try:
+                t = await event.ban_time(t)
+            except BaseException:
+                return await event.edit("**- يجب كتابة الوقت بشكل صحيح**")
+    await event.edit(f"**تم تفعيل وضع القراءة الوهمية لمدة {t} ثانية**")
+    async with event.client.action(event.chat_id, "read"):
+        await asyncio.sleep(t)
 
 @l313l.on(admin_cmd(pattern="لعبة(?: |$)(.*)"))
 async def _(event):

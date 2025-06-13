@@ -50,6 +50,22 @@ async def _(event):
     async with event.client.action(event.chat_id, "record-audio"):
         await asyncio.sleep(t)
 
+@l313l.on(admin_cmd(pattern="صورة(?: |$)(.*)"))
+async def _(event):
+    t = event.pattern_match.group(1)
+    if not (t or t.isdigit()):
+        t = 100
+    else:
+        try:
+            t = int(t)
+        except BaseException:
+            try:
+                t = await event.ban_time(t)
+            except BaseException:
+                return await event.edit("**- يجب كتابة الوقت بشكل صحيح**")
+    await event.edit(f"**تم تفعيل وضع التصوير الوهمي لمدة {t} ثانية**")
+    async with event.client.action(event.chat_id, "photo"):
+        await asyncio.sleep(t)
 
 @l313l.on(admin_cmd(pattern="فيد(?: |$)(.*)"))
 async def _(event):

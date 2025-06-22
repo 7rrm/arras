@@ -559,6 +559,7 @@ async def search_song(event):
             "quiet": True,
             "no_warnings": True,
             "geo_bypass": True,
+            "cookiefile": cookies_file,
             "outtmpl": filename
         }
         

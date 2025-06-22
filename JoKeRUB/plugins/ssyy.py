@@ -9,7 +9,6 @@ from time import time
 import requests
 import random
 import shutil
-import uuid  # أضف هذا في بداية الملف مع بقية الاستيرادات
 from pathlib import Path
 
 import aiohttp
@@ -479,21 +478,28 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
+
 # إعدادات التحكم
 search_settings = {
-    'admin_id': l313l.uid    # أي دي المطور
+    'admin_id': l313l.uid  # أي دي المطور
 }
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
 
+def generate_temp_name():
+    """إنشاء اسم ملف مؤقت عشوائي"""
+    return f"temp_{''.join(random.choices(string.ascii_letters + string.digits, k=8))}.m4a"
+
 def is_search_enabled(chat_id=None):
+    """التحقق من تفعيل البحث"""
     if chat_id:
         return gvarstatus(f"search_enabled_{chat_id}") == "True"
     return gvarstatus("search_enabled_private") == "True"
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
+    """تفعيل أمر البحث"""
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
     
@@ -506,6 +512,7 @@ async def enable_search(event):
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
+    """تعطيل أمر البحث"""
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
     
@@ -518,6 +525,7 @@ async def disable_search(event):
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
+    """وظيفة البحث والتحميل الرئيسية"""
     # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
         pass  # المطور مسموح له دائماً
@@ -530,30 +538,27 @@ async def search_song(event):
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
+        if event.is_private:
             return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    filename = generate_temp_name()
     
     try:
-        # الحصول على ملف الكوكيز
-        cookies_file = get_cookies_file()
-        
-        # إعدادات yt-dlp مع الكوكيز
+        # إعدادات yt-dlp المثالية للسرعة
         ydl_opts = {
             "format": "bestaudio[ext=m4a]/bestaudio/best",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
+            "socket_timeout": 4,
+            "http_chunk_size": 5242880,  # 1MB chunks
             "noplaylist": True,
             "extract_flat": True,
-            "fragment_retries": 2,
             "retries": 2,
+            "fragment_retries": 2,
             "quiet": True,
             "no_warnings": True,
             "geo_bypass": True,
-            "cookiefile": cookies_file,
-            "outtmpl": "%(title)s.m4a"
+            "outtmpl": filename
         }
         
         # البحث في اليوتيوب
@@ -568,26 +573,26 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
+        # التحميل السريع
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-        # عملية الرفع مع الصورة المصغرة الثابتة
+        # الرفع الفوري
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
+            caption=f"**🎧 الأغنية:** `{title}`\n**⏱ المدة:** `{duration}`",
+            thumb=DEFAULT_THUMB,
             reply_to=event.id
         )
             
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
+        await msg.edit(f"**❌ خطأ:**\n`{str(e)}`")
     finally:
         try:
-            if 'filename' in locals() and os.path.exists(filename):
+            if os.path.exists(filename):
                 os.remove(filename)
         except:
             pass

@@ -9,6 +9,7 @@ from time import time
 import requests
 import random
 import shutil
+import string
 from pathlib import Path
 
 import aiohttp

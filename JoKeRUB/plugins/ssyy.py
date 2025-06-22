@@ -517,9 +517,8 @@ async def disable_search(event):
 
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
-    # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
+        pass
     elif event.is_private:
         if not is_search_enabled():
             return
@@ -529,35 +528,31 @@ async def search_song(event):
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
+        if event.is_private:
             return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    filename = f"temp_{uuid.uuid4().hex}.m4a"
     
     try:
-        # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
-        # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
             "format": "bestaudio[ext=m4a]/bestaudio/best",
             "socket_timeout": 5,
-            "http_chunk_size": 5242880,
             "noplaylist": True,
             "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
+            "retries": 3,
+            "fragment_retries": 3,
+            "quiet": False,
+            "no_warnings": False,
             "geo_bypass": True,
             "cookiefile": cookies_file,
-            "outtmpl": "a R R a S.%(ext)s"
+            "outtmpl": filename
         }
         
-        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -567,30 +562,35 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
-            
-        # عملية الرفع مع الصورة المصغرة الثابتة
-        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-        await event.client.send_file(
-            event.chat_id,
-            filename,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
-            reply_to=event.id
-        )
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(video_url, download=True)
+                filename = ydl.prepare_filename(info)
+                
+            if not os.path.exists(filename):
+                raise FileNotFoundError("الملف المحمل غير موجود")
+                
+            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+            await event.client.send_file(
+                event.chat_id,
+                filename,
+                caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
+                thumb=DEFAULT_THUMB,
+                reply_to=event.id
+            )
+                
+        except Exception as e:
+            await msg.edit(f"**❌ حدث خطأ أثناء التحميل:**\n`{str(e)}`")
+            return
             
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
-        try:
-            if 'filename' in locals() and os.path.exists(filename):
-                os.remove(filename)
-        except:
-            pass
+        if 'filename' in locals() and os.path.exists(filename):
+            os.remove(filename)
         await msg.delete()
+        
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

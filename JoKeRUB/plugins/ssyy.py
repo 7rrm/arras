@@ -9,6 +9,7 @@ from time import time
 import requests
 import random
 import shutil
+import uuid  # أضف هذا في بداية الملف مع بقية الاستيرادات
 from pathlib import Path
 
 import aiohttp

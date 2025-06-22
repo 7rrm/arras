@@ -461,15 +461,21 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
-import requests
+import random
+import string
+import glob
 import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon import events
-import random
-import glob
-import time
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+# إعدادات التحكم
+search_settings = {
+    'admin_id': l313l.uid  # أي دي المطور
+}
+
+DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
 
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
@@ -479,28 +485,19 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
-
-# إعدادات التحكم
-search_settings = {
-    'admin_id': l313l.uid  # أي دي المطور
-}
-
-# مسار الصورة المصغرة الثابتة
-DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
-
+# دالة إنشاء اسم ملف مؤقت
 def generate_temp_name():
-    """إنشاء اسم ملف مؤقت عشوائي"""
     return f"temp_{''.join(random.choices(string.ascii_letters + string.digits, k=8))}.m4a"
 
+# دالة التحقق من تفعيل البحث
 def is_search_enabled(chat_id=None):
-    """التحقق من تفعيل البحث"""
     if chat_id:
         return gvarstatus(f"search_enabled_{chat_id}") == "True"
     return gvarstatus("search_enabled_private") == "True"
 
+# أمر تفعيل البحث
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    """تفعيل أمر البحث"""
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
     
@@ -511,9 +508,9 @@ async def enable_search(event):
         addgvar(f"search_enabled_{event.chat_id}", "True")
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
+# أمر تعطيل البحث
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
-    """تعطيل أمر البحث"""
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
     
@@ -524,34 +521,33 @@ async def disable_search(event):
         delgvar(f"search_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
+# أمر البحث الرئيسي
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
-    """وظيفة البحث والتحميل الرئيسية"""
     # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not is_search_enabled():
-            return
-    else:
-        if not is_search_enabled(event.chat_id):
-            return
+    if event.sender_id != search_settings['admin_id']:
+        if event.is_private:
+            if not is_search_enabled():
+                return await event.reply("✗ البحث معطل في الدردشات الخاصة")
+        else:
+            if not is_search_enabled(event.chat_id):
+                return await event.reply("✗ البحث معطل في هذه المجموعة")
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        if event.is_private:
-            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
-        return
-    
+        return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     filename = generate_temp_name()
     
     try:
-        # إعدادات yt-dlp المثالية للسرعة
+        # الحصول على ملف الكوكيز
+        cookies_file = get_cookies_file()
+        
+        # إعدادات yt-dlp
         ydl_opts = {
             "format": "bestaudio[ext=m4a]/bestaudio/best",
-            "socket_timeout": 4,
-            "http_chunk_size": 5242880,  # 1MB chunks
+            "socket_timeout": 5,
             "noplaylist": True,
             "extract_flat": True,
             "retries": 2,
@@ -560,12 +556,12 @@ async def search_song(event):
             "no_warnings": True,
             "geo_bypass": True,
             "cookiefile": cookies_file,
-            "outtmpl": filename
+            "outtmpl": filename,
+            "http_chunk_size": 5242880
         }
         
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
@@ -575,12 +571,12 @@ async def search_song(event):
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # التحميل السريع
+        # التحميل مع الكوكيز
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-        # الرفع الفوري
+        # الإرسال
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
@@ -599,6 +595,7 @@ async def search_song(event):
         except:
             pass
         await msg.delete()
+
         
 
 

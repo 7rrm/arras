@@ -8,6 +8,7 @@ import pathlib
 from time import time
 import requests
 import random
+import shutil
 from pathlib import Path
 
 import aiohttp
@@ -36,6 +37,7 @@ from yt_dlp.utils import (
 from telethon import events
 from telethon.tl import types
 from telethon.utils import get_attributes
+from telethon.tl.functions.messages import DeleteHistoryRequest
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon.tl.functions.contacts import UnblockRequest as unblock
 
@@ -440,7 +442,7 @@ async def download_audio(event):
         await event.client.send_file(
             event.chat_id,
             file=media,
-            caption=f"<b>⎉╎المقطع : </b><code>{vid_data.get('title', os.path.basename(pathlib.Path(_fpath)))}</code>",
+            caption=f"<b>✧╎المقطع : </b><code>{vid_data.get('title', os.path.basename(pathlib.Path(_fpath)))}</code>",
             supports_streaming=True,
             reply_to=reply_to_id,
             parse_mode="html",
@@ -458,76 +460,134 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-#Code by T.me/zzzzl1l
-@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def _(event): #Code by T.me/zzzzl1l
-    reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
-    else:
-        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": True,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
-        "quite": True,
-        "no_warnings": True,
-        "cookiefile" : get_cookies_file(),
-    }
-    try:
-        results = YoutubeSearch(query, max_results=1).to_dict()
-        link = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"][:40]
-        thumbnail = results[0]["thumbnails"][0]
-        thumb_name = f"{title}.jpg"
-        thumb = requests.get(thumbnail, allow_redirects=True)
-        try:
-            open(thumb_name, "wb").write(thumb.content)
-        except Exception:
-            thumb_name = None
-            pass
-        duration = results[0]["duration"]
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+import os
+import requests
+import yt_dlp
+from youtube_search import YoutubeSearch
+from telethon import events
+import random
+import glob
+import time
 
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+# دالة الحصول على ملف الكوكيز
+def get_cookies_file():
+    folder_path = f"{os.getcwd()}/karar"
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    if not txt_files:
+        raise FileNotFoundError("No .txt files found in the cookies folder.")
+    return random.choice(txt_files)
+
+# إعدادات التحكم
+search_settings = {
+    'admin_id': l313l.uid    # أي دي المطور
+}
+
+def is_search_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"search_enabled_{chat_id}") == "True"
+    return gvarstatus("search_enabled_private") == "True"
+
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
+async def enable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        addgvar("search_enabled_private", "True")
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    else:
+        addgvar(f"search_enabled_{event.chat_id}", "True")
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
+async def disable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        delgvar("search_enabled_private")
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    else:
+        delgvar(f"search_enabled_{event.chat_id}")
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
+async def search_song(event):
+    # التحقق من الصلاحيات
+    if event.sender_id == search_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
+    elif event.is_private:
+        if not is_search_enabled():
+            return
+    else:
+        if not is_search_enabled(event.chat_id):
+            return
+    
+    query = event.pattern_match.group(1).strip()
+    if not query:
+        if event.is_private:  # فقط في الدردشات الخاصة
+            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
         return
-    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+    
+    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    
     try:
-        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=False)
-            audio_file = ydl.prepare_filename(info_dict)
-            ydl.process_info(info_dict)
-        host = str(info_dict["uploader"])
-        secmul, dur, dur_arr = 1, 0, duration.split(":")
-        for i in range(len(dur_arr) - 1, -1, -1):
-            dur += int(float(dur_arr[i])) * secmul
-            secmul *= 60
-        await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
+        # الحصول على ملف الكوكيز
+        cookies_file = get_cookies_file()
+        
+        # إعدادات yt-dlp مع الكوكيز
+        ydl_opts = {
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a"
+        }
+        
+        # البحث في اليوتيوب
+        results = YoutubeSearch(query, max_results=1).to_dict()
+        
+        if not results:
+            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
+        
+        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"][:40]
+        duration = results[0]["duration"]
+        
+        await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
+        
+        # عملية التحميل
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            filename = ydl.prepare_filename(info)
+            
+        # عملية الرفع
+        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
-            audio_file,
-            force_document=False,
-            caption=f"**⎉╎البحث :** `{title}`",
-            thumb=thumb_name,
+            filename,
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
+            reply_to=event.id
         )
-        await zedevent.delete()
-    except ChatSendMediaForbiddenError as err: # Code By T.me/zzzzl1l
-        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا ؟!**")
-        LOGS.error(str(err))
+            
     except Exception as e:
-        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
-        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
-    try:
-        remove_if_exists(audio_file)
-        remove_if_exists(thumb_name)
-    except Exception as e:
-        print(e)
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
+    finally:
+        try:
+            if 'filename' in locals() and os.path.exists(filename):
+                os.remove(filename)
+        except:
+            pass
+        await msg.delete()
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
@@ -537,7 +597,7 @@ async def _(event): #Code by T.me/zzzzl1l
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎فيديو + اسـم الفيديـو**")
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**✧╎فيديو + اسـم الفيديـو**")
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن الفيديـو... 🎧♥️╰**")
     ydl_opts = {
         "format": "best",
@@ -575,7 +635,7 @@ async def _(event): #Code by T.me/zzzzl1l
     await event.client.send_file(
         event.chat_id,
         file_name,
-        caption=f"**⎉╎البحث :** `{title}`",
+        caption=f"**✧╎البحث :** `{title}`",
         thumb=preview,
         supports_streaming=True,
     )
@@ -586,9 +646,18 @@ async def _(event): #Code by T.me/zzzzl1l
         print(e)
 
 
-# ================================================================================================ #
-# =========================================ردود الخاص================================================= #
-# ================================================================================================ #
+
+async def get_ytthumb(video_id):
+    thumb_path = os.path.join(Config.TEMP_DIR, f"{video_id}.jpg")
+    for quality in ['maxresdefault', 'hqdefault', 'mqdefault', 'sddefault']:
+        thumb_url = f"https://i.ytimg.com/vi/{video_id}/{quality}.jpg"
+        try:
+            await download_file(thumb_url, thumb_path)
+            if os.path.exists(thumb_path) and os.path.getsize(thumb_path) > 0:
+                return thumb_path
+        except:
+            continue
+    return None
 
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
@@ -606,72 +675,113 @@ async def download_audio(event):
     urls = extractor.find_urls(msg)
     if not urls:
         return await edit_or_reply(event, "**- قـم بادخــال رابـط مع الامـر او بالــرد ع رابـط ليتـم التحميـل**")
+    
     zedevent = await edit_or_reply(event, "**⌔╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
     reply_to_id = await reply_id(event)
+    
+    audio_opts = {
+        'format': 'bestaudio/best',
+        'addmetadata': True,
+        'writethumbnail': True,
+        'prefer_ffmpeg': True,
+        'geo_bypass': True,
+        'nocheckcertificate': True,
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '320',
+        }],
+        'outtmpl': os.path.join(Config.TEMP_DIR, '%(id)s.%(ext)s'),
+        'quiet': True,
+        'logtostderr': False,
+        'no_warnings': True,
+        'cookiefile': get_cookies_file(),
+        'ignoreerrors': True,
+        'retries': 3,
+    }
+    
     for url in urls:
         try:
-            vid_data = YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
-                url, download=False
-            )
-        except ExtractorError:
-            vid_data = {"title": url, "uploader": "Catuserbot", "formats": []}
-        startTime = time()
-        retcode = await _mp3Dl(url=url, starttime=startTime, uid="320")
-        if retcode != 0:
-            return await event.edit(str(retcode))
-        _fpath = ""
-        thumb_pic = None
-        for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
-            if _path.lower().endswith((".jpg", ".png", ".webp")):
-                thumb_pic = _path
-            else:
-                _fpath = _path
-        if not _fpath:
-            return await edit_delete(zedevent, "__Unable to upload file__")
-        await zedevent.edit(
-            f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
-            \n**{vid_data['title']}***"
-        )
-        attributes, mime_type = get_attributes(str(_fpath))
-        ul = io.open(pathlib.Path(_fpath), "rb")
-        if thumb_pic is None:
-            thumb_pic = str(
-                await pool.run_in_thread(download)(
-                    await get_ytthumb(get_yt_video_id(url))
+            # إنشاء مجلد مؤقت لكل عملية تحميل
+            download_folder = os.path.join(Config.TEMP_DIR, str(time()))
+            os.makedirs(download_folder, exist_ok=True)
+            
+            # تعديل مسار الإخراج ليكون في المجلد المؤقت
+            audio_opts['outtmpl'] = os.path.join(download_folder, '%(id)s.%(ext)s')
+            
+            with YoutubeDL(audio_opts) as ydl:
+                vid_data = ydl.extract_info(url, download=True)
+                video_id = vid_data.get('id', url.split('=')[-1])
+                
+                # البحث عن الملف المحمل
+                audio_file = None
+                thumb_file = None
+                for f in os.listdir(download_folder):
+                    if f.endswith('.mp3'):
+                        audio_file = os.path.join(download_folder, f)
+                    elif f.endswith(('.jpg', '.webp')):
+                        thumb_file = os.path.join(download_folder, f)
+                
+                if not audio_file:
+                    return await edit_delete(zedevent, "**حدث خطأ أثناء تحويل الصوت**")
+                
+                await zedevent.edit(f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\n**{vid_data.get('title', url)}**")
+                
+                # الحصول على صورة المصغرة (مع معالجة الأخطاء)
+                if not thumb_file:
+                    thumb_file = await get_ytthumb(video_id)
+                
+                # رفع الملف
+                attributes, mime_type = get_attributes(audio_file)
+                ul = io.open(audio_file, 'rb')
+                
+                uploaded = await event.client.fast_upload_file(
+                    file=ul,
+                    progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
+                        progress(
+                            d, t, zedevent, time(),
+                            "trying to upload",
+                            file_name=os.path.basename(audio_file),
+                        )
+                    ),
                 )
-            )
-        uploaded = await event.client.fast_upload_file(
-            file=ul,
-            progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                progress(
-                    d,
-                    t,
-                    zedevent,
-                    startTime,
-                    "trying to upload",
-                    file_name=os.path.basename(pathlib.Path(_fpath)),
+                ul.close()
+                
+                # رفع الصورة المصغرة إذا وجدت
+                uploaded_thumb = None
+                if thumb_file and os.path.exists(thumb_file):
+                    try:
+                        uploaded_thumb = await event.client.upload_file(thumb_file)
+                    except:
+                        pass
+                
+                media = types.InputMediaUploadedDocument(
+                    file=uploaded,
+                    mime_type=mime_type,
+                    attributes=attributes,
+                    force_file=False,
+                    thumb=uploaded_thumb,
                 )
-            ),
-        )
-        ul.close()
-        media = types.InputMediaUploadedDocument(
-            file=uploaded,
-            mime_type=mime_type,
-            attributes=attributes,
-            force_file=False,
-            thumb=await event.client.upload_file(thumb_pic) if thumb_pic else None,
-        )
-        await event.client.send_file(
-            event.chat_id,
-            file=media,
-            caption=f"<b>File Name : </b><code>{vid_data.get('title', os.path.basename(pathlib.Path(_fpath)))}</code>",
-            supports_streaming=True,
-            reply_to=reply_to_id,
-            parse_mode="html",
-        )
-        for _path in [_fpath, thumb_pic]:
-            os.remove(_path)
+                
+                await event.client.send_file(
+                    event.chat_id,
+                    file=media,
+                    caption=f"<b>File Name : </b><code>{vid_data.get('title', os.path.basename(audio_file))}</code>",
+                    supports_streaming=True,
+                    reply_to=reply_to_id,
+                    parse_mode="html",
+                )
+                
+                # تنظيف الملفات المؤقتة
+                shutil.rmtree(download_folder, ignore_errors=True)
+                
+        except Exception as e:
+            await zedevent.edit(f"**حدث خطأ أثناء التحميل:**\n`{str(e)}`")
+            shutil.rmtree(download_folder, ignore_errors=True)
+            continue
+    
     await zedevent.delete()
+    
 
 @l313l.ar_cmd(
     pattern="تحميل فيديو(?: |$)(.*)",
@@ -743,309 +853,102 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
-# ================================================================================================ #
-# =========================================ردود الخاص================================================= #
-# ================================================================================================ #
-import re
-import datetime
-from asyncio import sleep
-
-from telethon import events
-from telethon.utils import get_display_name
-
-from . import l313l
-from ..core.logger import logging
-from ..core.managers import edit_delete, edit_or_reply
-from ..sql_helper import pmpermit_sql as pmpermit_sql
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..sql_helper.pasmat_sql import (
-    add_pasmat,
-    get_pasmats,
-    remove_all_pasmats,
-    remove_pasmat,
-)
-from ..sql_helper.pmrad_sql import (
-    add_pmrad,
-    get_pmrads,
-    remove_all_pmrads,
-    remove_pmrad,
-)
-from . import BOTLOG, BOTLOG_CHATID
-
-plugin_category = "الخدمات"
-LOGS = logging.getLogger(__name__)
-
-
-ZelzalMeMe_cmd = (
-    "𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - اوامـر البصمـات 🎙](t.me/ZThon) 𓆪\n\n"
-    "**✾╎قائـمه اوامـر ردود البصمات والميديا العامـه🎙:**\n\n"
-    "**⎞𝟏⎝** `.بصمه`\n"
-    "**•• ⦇الامـر + كلمـة الـرد بالـرد ع بصمـه او ميديـا⦈ لـ اضـافة رد بصمـه عـام**\n\n"
-    "**⎞𝟐⎝** `.حذف بصمه`\n"
-    "**•• ⦇الامـر + كلمـة البصمـه⦈ لـ حـذف رد بصمـه محـدد**\n\n"
-    "**⎞𝟑⎝** `.بصماتي`\n"
-    "**•• لـ عـرض قائمـة بـ جميـع بصمـاتك المضـافـه**\n\n"
-    "**⎞𝟒⎝** `.حذف بصماتي`\n"
-    "**•• لـ حـذف جميـع بصمـاتك المضافـه**\n\n"
-    "\n 𓆩 [𝙎𝙊𝙐𝙍𝘾𝞝 𝙕𝞝𝘿](t.me/ZThon) 𓆪"
-)
-
-
-# Copyright (C) 2022 Zed-Thon . All Rights Reserved
-@l313l.ar_cmd(pattern="البصمات")
-async def cmd(zelzallll):
-    await edit_or_reply(zelzallll, ZelzalMeMe_cmd)
-
-async def reply_id(event):
-    reply_to_id = None
-    if event.reply_to_msg_id:
-        reply_to_id = event.reply_to_msg_id
-    return reply_to_id
-
-@l313l.on(admin_cmd(incoming=True))
-async def filter_incoming_handler(event):
-    name = event.raw_text
-    repl = await reply_id(event)
-    filters = get_pasmats(l313l.uid)
-    if not filters:
-        return
-    for trigger in filters:
-        if name == trigger.keyword:
-            file_media = None
-            filter_msg = None
-            if trigger.f_mesg_id:
-                msg_o = await event.client.get_messages(
-                    entity=BOTLOG_CHATID, ids=int(trigger.f_mesg_id)
-                )
-                file_media = msg_o.media
-                filter_msg = msg_o.message
-                link_preview = True
-            elif trigger.reply:
-                filter_msg = trigger.reply
-                link_preview = False
-            try:
-                await event.client.send_file(
-                    event.chat_id,
-                    file=file_media,
-                    link_preview=link_preview,
-                    reply_to=repl,
-                )
-                await event.delete()
-            except BaseException:
-                return
-
-@l313l.ar_cmd(pattern="بصمه (.*)")
-async def add_new_meme(event):
-    keyword = event.pattern_match.group(1)
-    string = event.text.partition(keyword)[2]
-    msg = await event.get_reply_message()
-    msg_id = None
-    if msg and msg.media and not string:
-        if BOTLOG:
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                f"**⪼ البصمـات 🔊 :**\
-                \n**⪼ تم حفـظ البصمـه بـ اسم {keyword}**\n**⪼ لـ قائمـه بصماتك .. بنجـاح ✅**\n**⪼ لـ تصفـح قائمـة بصماتك ارسـل (.بصماتي) 📑**",
-            )
-            msg_o = await event.client.forward_messages(
-                entity=BOTLOG_CHATID,
-                messages=msg,
-                from_peer=event.chat_id,
-                silent=True,
-            )
-            msg_id = msg_o.id
-        else:
-            await edit_or_reply(
-                event,
-                "**❈╎يتطلب اضافة البصمات تعيين كـروب السجـل اولاً ..**\n**❈╎لاضافـة كـروب السجـل**\n**❈╎اتبـع الشـرح ⇚** https://t.me/zzzvrr/13",
-            )
-            return
-    elif msg and msg.text and not string:
-        return await edit_or_reply(event, "**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**")
-    elif not string:
-        return await edit_or_reply(event, "**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**")
+@l313l.ar_cmd(pattern="انستا(?: |$)(.*)")
+async def zelzal_insta(event):
+    link = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    if not link and reply:
+        link = reply.text
+    if not link:
+        return await edit_delete(event, "**- ارسـل (.انستا) + رابـط او بالـرد ع رابـط**", 10)
+    if "instagram.com" not in link:
+        return await edit_delete(event, "**- احتـاج الـى رابــط من الانستـا .. للتحميــل ؟!**", 10)
+    if link.startswith("https://instagram"):
+        link = link.replace("https://instagram", "https://www.instagram")
+    if link.startswith("http://instagram"):
+        link = link.replace("http://instagram", "http://www.instagram")
+    if "/reel/" in link:
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا (ريلـز) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+    elif "/tv/" in link:
+        cap_zzz = f"<b>✧╎تم تحميـل بث انستـا (Tv) .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
+    elif "/stories/" in link:
+        cap_zzz = f"<b>✧╎تم تحميـل ستـوري انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة سورس آراس </b>"
     else:
-        return await edit_or_reply(event, "**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**")
-    success = "**⪼تم {} البصمـه بـ اسم {} .. بنجـاح ✅**"
-    if add_pasmat(str(l313l.uid), keyword, string, msg_id) is True:
-        return await edit_or_reply(event, success.format("اضافة", keyword))
-    remove_pasmat(str(l313l.uid), keyword)
-    if add_pasmat(str(l313l.uid), keyword, string, msg_id) is True:
-        return await edit_or_reply(event, success.format("تحديث", keyword))
-    await edit_or_reply(event, "**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**")
-
-
-@l313l.ar_cmd(pattern="بصماتي$")
-async def on_meme_list(event):
-    OUT_STR = "**⪼ لا يوجـد لديك بصمـات محفوظـه ❌**\n\n**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**"
-    filters = get_pasmats(l313l.uid)
-    for filt in filters:
-        if OUT_STR == "**⪼ لا يوجـد لديك بصمـات محفوظـه ❌**\n\n**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**":
-            OUT_STR = "𓆩 𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - قائمـة بصمـاتك المضـافـة 🔊𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        OUT_STR += "🎙 `{}`\n".format(filt.keyword)
-    await edit_or_reply(
-        event,
-        OUT_STR,
-        caption="**⧗╎قائمـة بصمـاتك المضـافـه🔊**",
-        file_name="filters.text",
-    )
-
-
-@l313l.ar_cmd(pattern="مسح بصمه(?: |$)(.*)")
-async def remove_a_meme(event):
-    filt = event.pattern_match.group(1)
-    if not remove_pasmat(l313l.uid, filt):
-        await event.edit("**- ❝ البصمـه ↫** {} **غيـر موجـوده ⁉️**".format(filt))
-    else:
-        await event.edit("**- ❝ البصمـه ↫** {} **تم حذفهـا بنجاح ☑️**".format(filt))
-
-
-@l313l.ar_cmd(pattern="حذف بصماتي$")
-async def on_all_meme_delete(event):
-    filters = get_pasmats(l313l.uid)
-    if filters:
-        remove_all_pasmats(l313l.uid)
-        await edit_or_reply(event, "**⪼ تم حـذف جميـع بصمـاتك .. بنجـاح ✅**")
-    else:
-        OUT_STR = "**⪼ لا يوجـد لديك بصمـات محفوظـه ❌**\n\n**⪼ ارسـل (** `.بصمه` **) + اسم البصمـه**\n**⪼بالـرد ع بصمـه او مقطـع صـوتـي 🔊**\n**⪼ لاضافتهـا لـ قائمـة بصماتك 🧾**"
-        await edit_or_reply(event, OUT_STR)
-
-# ================================================================================================ #
-# =========================================ردود الخاص================================================= #
-# ================================================================================================ #
-
-@l313l.on(admin_cmd(incoming=True))
-async def filter_incoming_handler(event):
-    if not event.is_private:
-        return
-    if event.sender_id == event.client.uid:
-        return
-    name = event.raw_text
-    filters = get_pmrads(l313l.uid)
-    if not filters:
-        return
-    a_user = await event.get_sender()
-    chat = await event.get_chat()
-    me = await event.client.get_me()
-    title = None
-    #participants = await event.client.get_participants(chat)
-    count = None
-    mention = f"[{a_user.first_name}](tg://user?id={a_user.id})"
-    my_mention = f"[{me.first_name}](tg://user?id={me.id})"
-    first = a_user.first_name
-    last = a_user.last_name
-    fullname = f"{first} {last}" if last else first
-    username = f"@{a_user.username}" if a_user.username else mention
-    userid = a_user.id
-    my_first = me.first_name
-    my_last = me.last_name
-    my_fullname = f"{my_first} {my_last}" if my_last else my_first
-    my_username = f"@{me.username}" if me.username else my_mention
-    for trigger in filters:
-        pattern = f"( |^|[^\\w]){re.escape(trigger.keyword)}( |$|[^\\w])"
-        if re.search(pattern, name, flags=re.IGNORECASE):
-            file_media = None
-            filter_msg = None
-            if trigger.f_mesg_id:
-                msg_o = await event.client.get_messages(
-                    entity=BOTLOG_CHATID, ids=int(trigger.f_mesg_id)
-                )
-                file_media = msg_o.media
-                filter_msg = msg_o.message
-                link_preview = True
-            elif trigger.reply:
-                filter_msg = trigger.reply
-                link_preview = False
-            await event.reply(
-                filter_msg.format(
-                    mention=mention,
-                    first=first,
-                    last=last,
-                    fullname=fullname,
-                    username=username,
-                    userid=userid,
-                    my_first=my_first,
-                    my_last=my_last,
-                    my_fullname=my_fullname,
-                    my_username=my_username,
-                    my_mention=my_mention,
-                ),
-                file=file_media,
-                link_preview=link_preview,
+        cap_zzz = f"<b>✧╎تم تحميـل مقطـع انستـا .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n ✧╎تم التحميـل بواسطـة آراس </b>"
+    chat = "@story_repost_bot"
+    zed = await edit_or_reply(event, "** ⌔╎جـارِ التحميل من الانستـا .. انتظر قليلا ▬▭**")
+    async with borg.conversation(chat) as conv:
+        try:
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            zedthon = await conv.get_response()
+            await borg.send_file(
+                event.chat_id,
+                zedthon,
+                caption=cap_zzz,
+                parse_mode="html",
             )
-
-@l313l.ar_cmd(pattern="اضف تلقائي (.*)")
-async def add_new_meme(event):
-    keyword = event.pattern_match.group(1)
-    string = event.text.partition(keyword)[2]
-    msg = await event.get_reply_message()
-    msg_id = None
-    if msg and msg.media and not string:
-        if BOTLOG:
-            await event.client.send_message(
-                BOTLOG_CHATID,
-                f"**⪼ ردودك التلقائيـه خـاص 🗣 :**\
-                \n**⪼ تم حفـظ الـرد التلقـائـي بـ اسم {keyword}**\n**⪼ لـ قائمـه ردودك التلقائيـه .. بنجـاح ✅**\n**⪼ لـ تصفـح قائمـة ردودك التلقائيـه ارسـل (.ردود الخاص) 📑**",
+            await zed.delete()
+            await asyncio.sleep(2)
+            await event.client(DeleteHistoryRequest(2036153627, max_id=0, just_clear=True))
+        except YouBlockedUserError:
+            await l313l(unblock("story_repost_bot"))
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            zedthon = await conv.get_response()
+            await borg.send_file(
+                event.chat_id,
+                zedthon,
+                caption=cap_zzz,
+                parse_mode="html",
             )
-            msg_o = await event.client.forward_messages(
-                entity=BOTLOG_CHATID,
-                messages=msg,
-                from_peer=event.chat_id,
-                silent=True,
+            await zed.delete()
+            await asyncio.sleep(2)
+            await event.client(DeleteHistoryRequest(2036153627, max_id=0, just_clear=True))
+            
+
+@l313l.ar_cmd(pattern="تيك(?: |$)(.*)")
+async def zelzal_insta(event):
+    link = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    if not link and reply:
+        link = reply.text
+    if not link:
+        return await edit_delete(event, "**- ارسـل (.تيك) + رابـط او بالـرد ع رابـط**", 10)
+    if "tiktok.com" not in link:
+        return await edit_delete(event, "**- احتـاج الـى رابــط من تيـك تـوك .. للتحميــل ؟!**", 10)
+    cap_zzz = f"<b>✧╎تم تحميـل مـن تيـك تـوك .. بنجـاح ☑️\n ⌔╎الرابـط 🖇: <code>{link}</code>\n✧╎تم التحميـل بواسطـة سورس آراس </b>"
+    chat = "@downloader_tiktok_bot"
+    zed = await edit_or_reply(event, "**✧╎جـارِ التحميل من تيـك تـوك .. انتظر قليلا ▬▭**")
+    async with borg.conversation(chat) as conv:
+        try:
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            zedthon = await conv.get_response()
+            await borg.send_file(
+                event.chat_id,
+                zedthon,
+                caption=cap_zzz,
+                parse_mode="html",
             )
-            msg_id = msg_o.id
-        else:
-            await edit_or_reply(
-                event,
-                "**❈╎يتطلب اضافة الـردود التلقـائـيـه تعيين كـروب السجـل اولاً ..**\n**❈╎لاضافـة كـروب السجـل**\n**❈╎اتبـع الشـرح ⇚** https://t.me/zzzvrr/13",
+            await zed.delete()
+            await asyncio.sleep(2)
+            await event.client(DeleteHistoryRequest(1332941342, max_id=0, just_clear=True))
+        except YouBlockedUserError:
+            await l313l(unblock("downloader_tiktok_bot"))
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            zedthon = await conv.get_response()
+            await borg.send_file(
+                event.chat_id,
+                zedthon,
+                caption=cap_zzz,
+                parse_mode="html",
             )
-            return
-    elif msg and msg.text and not string:
-        string = msg.text
-    elif not string:
-        return await edit_or_reply(event, "**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا ??**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**")
-    else:
-        return await edit_or_reply(event, "**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**")
-    success = "**⪼تم {} الـرد التلقـائـي بـ اسم {} .. بنجـاح ✅**"
-    if add_pmrad(str(l313l.uid), keyword, string, msg_id) is True:
-        return await edit_or_reply(event, success.format("اضافة", keyword))
-    remove_pmrad(str(l313l.uid), keyword)
-    if add_pmrad(str(l313l.uid), keyword, string, msg_id) is True:
-        return await edit_or_reply(event, success.format("تحديث", keyword))
-    await edit_or_reply(event, "**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**")
-
-
-@l313l.ar_cmd(pattern="ردود الخاص$")
-async def on_meme_list(event):
-    OUT_STR = "**⪼ لا يوجـد لديك ردود تلقائيـه لـ الخـاص ❌**\n\n**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**"
-    filters = get_pmrads(l313l.uid)
-    for filt in filters:
-        if OUT_STR == "**⪼ لا يوجـد لديك ردود تلقائيـه لـ الخـاص ❌**\n\n**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**":
-            OUT_STR = "𓆩 𝗦𝗼𝘂𝗿𝗰𝗲 𝗭𝗧𝗵𝗼𝗻 - ردودك التلقـائيـه خـاص 🗣𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        OUT_STR += "🎙 `{}`\n".format(filt.keyword)
-    await edit_or_reply(
-        event,
-        OUT_STR,
-        caption="**⧗╎قائمـة ردودك التلقـائـيـه خـاص المضـافـه🗣**",
-        file_name="filters.text",
-    )
-
-
-@l313l.ar_cmd(pattern="حذف تلقائي(?: |$)(.*)")
-async def remove_a_meme(event):
-    filt = event.pattern_match.group(1)
-    if not remove_pmrad(l313l.uid, filt):
-        await event.edit("**- ❝ الـرد التلقـائـي ↫** {} **غيـر موجـود ⁉️**".format(filt))
-    else:
-        await event.edit("**- ❝ الـرد التلقـائـي ↫** {} **تم حذفه .. بنجاح ☑️**".format(filt))
-
-
-@l313l.ar_cmd(pattern="حذف ردود الخاص$")
-async def on_all_meme_delete(event):
-    filters = get_pmrads(l313l.uid)
-    if filters:
-        remove_all_pmrads(l313l.uid)
-        await edit_or_reply(event, "**⪼ تم حـذف جميـع ردودك التلقـائـيـه خـاص .. بنجـاح ✅**")
-    else:
-        OUT_STR = "**⪼ لا يوجـد لديك ردود تلقائيـه لـ الخـاص ❌**\n\n**⪼ ارسـل (** `.اضف تلقائي` **) + كلمـة الـرد**\n**⪼بالـرد ع جملـة او ميديـا 🗣**\n**⪼ لاضافتهـا لـ قائمـة ردودك التلقائيـه 🧾**"
-        await edit_or_reply(event, OUT_STR)
+            await zed.delete()
+            await asyncio.sleep(2)
+            await event.client(DeleteHistoryRequest(1332941342, max_id=0, just_clear=True))

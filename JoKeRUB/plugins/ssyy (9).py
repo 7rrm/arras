@@ -539,9 +539,12 @@ async def search_song(event):
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
+        # إنشاء مجلد التحميل إذا لم يكن موجوداً
+        os.makedirs("downloads", exist_ok=True)
+        
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "format": "bestaudio[ext=m4a]",
             "socket_timeout": 5,
             "http_chunk_size": 5242880,
             "noplaylist": True,
@@ -552,7 +555,11 @@ async def search_song(event):
             "no_warnings": True,
             "geo_bypass": True,
             "cookiefile": cookies_file,
-            "outtmpl": "a R R a S 🎧.m4a"
+            "outtmpl": "downloads/%(title)s.%(ext)s",
+            "postprocessors": [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'm4a',
+            }]
         }
         
         # البحث في اليوتيوب
@@ -571,15 +578,26 @@ async def search_song(event):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
+            # تغيير الامتداد إلى .m4a
+            filename = os.path.splitext(filename)[0] + ".m4a"
             
+            # التحقق من وجود الملف
+            if not os.path.exists(filename):
+                raise FileNotFoundError("Failed to download the file.")
+        
         # عملية الرفع مع الصورة المصغرة الثابتة
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
-            reply_to=event.id
+            thumb=DEFAULT_THUMB if os.path.exists(DEFAULT_THUMB) else None,
+            reply_to=event.id,
+            attributes=[types.DocumentAttributeAudio(
+                duration=int(duration.split(':')[0])*60 + int(duration.split(':')[1]),
+                title=title,
+                performer="YouTube"
+            )]
         )
             
     except Exception as e:
@@ -591,6 +609,8 @@ async def search_song(event):
         except:
             pass
         await msg.delete()
+    
+
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

@@ -460,7 +460,6 @@ def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
 import requests
 import yt_dlp
@@ -468,77 +467,50 @@ from youtube_search import YoutubeSearch
 from telethon import events
 import random
 import glob
-import time
 
+# متغيرات التفعيل
+search_enabled = True
+my_id = 5427469031  # استبدل بمعرفك
+
+# دالة الحصول على ملف الكوكيز من الكود السابق
 def get_cookies_file():
-    """الحصول على ملف كوكيز عشوائي"""
-    folder_path = os.path.join(os.getcwd(), "karar")
-    if not os.path.exists(folder_path):
-        raise FileNotFoundError("مجلد الكوكيز غير موجود")
-    
-    txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
+    folder_path = f"{os.getcwd()}/karar"  # مسار مجلد الكوكيز كما في الكود السابق
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
-        raise FileNotFoundError("لا توجد ملفات كوكيز")
-    
-    return os.path.join(folder_path, random.choice(txt_files))
-
-# إعدادات التحكم
-search_settings = {
-    'admin_id': l313l.uid    # أي دي المطور
-}
-
-# مسار الصورة المصغرة الثابتة
-DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
-
-def is_search_enabled(chat_id=None):
-    if chat_id:
-        return gvarstatus(f"search_enabled_{chat_id}") == "True"
-    return gvarstatus("search_enabled_private") == "True"
+        raise FileNotFoundError("No .txt files found in the cookies folder.")
+    return random.choice(txt_files)  # اختيار ملف كوكيز عشوائي
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        addgvar("search_enabled_private", "True")
-        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    global search_enabled
+    if event.sender_id == my_id:
+        search_enabled = True
+        await event.reply("**✓ تم تفعيل البحث بنجاح!**")
     else:
-        addgvar(f"search_enabled_{event.chat_id}", "True")
-        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+        await event.delete()
 
 @l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        delgvar("search_enabled_private")
-        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    global search_enabled
+    if event.sender_id == my_id:
+        search_enabled = False
+        await event.reply("**✗ تم تعطيل البحث بنجاح!**")
     else:
-        delgvar(f"search_enabled_{event.chat_id}")
-        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
+        await event.delete()
 
-@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
+@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
 async def search_song(event):
-    # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not is_search_enabled():
-            return
-    else:
-        if not is_search_enabled(event.chat_id):
-            return
+    global search_enabled
     
-    query = event.pattern_match.group(1).strip()
-    if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
-            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+    # التحقق من التفعيل إذا كان المستخدم ليس أنا
+    if event.sender_id != my_id and not search_enabled:
         return
     
+    query = event.pattern_match.group(1)
+    if not query:
+        return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
+    
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    filename = None
     
     try:
         # الحصول على ملف الكوكيز
@@ -555,52 +527,38 @@ async def search_song(event):
     "cookiefile": cookies_file,      # يستعمل الكوكيز
         }
         
+        
         # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
         video_url = f"https://youtube.com{results[0]['url_suffix']}"
-        title = results[0]["title"][:40]
+        title = results[0]["title"]
         duration = results[0]["duration"]
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-            # التأكد من أن الملف موجود
-            if not os.path.exists(filename):
-                raise FileNotFoundError("فشل في تحميل الملف")
-            
-            # التأكد من أن الصورة المصغرة موجودة
-            thumb = DEFAULT_THUMB if os.path.exists(DEFAULT_THUMB) else None
-            
-        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
-        await event.client.send_file(
-            event.chat_id,
-            filename,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=thumb,  # استخدام الصورة المصغرة إذا كانت موجودة
-            reply_to=event.id,
-            attributes=[types.DocumentAttributeAudio(
-                duration=int(duration.split(':')[0])*60 + int(duration.split(':')[1]),
-                title=title,
-                performer="YouTube"
-            )]
-        )
+            await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+            await event.client.send_file(
+                event.chat_id,
+                filename,
+                caption=f"**✧╎البحث :** `{title}`\n**⌔╎المُـده:** `{duration}ٔ`",
+                reply_to=event.id
+            )
             
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
-        if filename and os.path.exists(filename):
-            try:
+        try:
+            if 'filename' in locals() and os.path.exists(filename):
                 os.remove(filename)
-            except:
-                pass
+        except:
+            pass
         await msg.delete()
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

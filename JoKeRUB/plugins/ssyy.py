@@ -455,7 +455,8 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-def remove_if_exists(path):
+
+def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
@@ -469,13 +470,17 @@ import random
 import glob
 import time
 
-# دالة الحصول على ملف الكوكيز
 def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
-    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    """الحصول على ملف كوكيز عشوائي"""
+    folder_path = os.path.join(os.getcwd(), "karar")
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError("مجلد الكوكيز غير موجود")
+    
+    txt_files = [f for f in os.listdir(folder_path) if f.endswith('.txt')]
     if not txt_files:
-        raise FileNotFoundError("No .txt files found in the cookies folder.")
-    return random.choice(txt_files)
+        raise FileNotFoundError("لا توجد ملفات كوكيز")
+    
+    return os.path.join(folder_path, random.choice(txt_files))
 
 # إعدادات التحكم
 search_settings = {
@@ -538,27 +543,31 @@ async def search_song(event):
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
-        # إعدادات yt-dlp المعدلة
+        # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-            "format": "bestaudio[ext=m4a]",
-            "outtmpl": "temp_audio.m4a",  # اسم ملف مبسط
-            "quiet": False,  # لرؤية الأخطاء
-            "no_warnings": False,
-            "cookiefile": cookies_file,
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
             "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
             "geo_bypass": True,
-            "verbose": True  # لعرض تفاصيل التنزيل
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a"
         }
         
-        # البحث في اليوتيوب بطريقة أكثر دقة
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(f"ytsearch:{query}", download=False)
-            if not info.get('entries'):
-                return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
-            
-            video_url = info['entries'][0]['url']
-            title = info['entries'][0].get('title', 'بدون عنوان')[:40]
-            duration = info['entries'][0].get('duration', 'غير معروف')
+        # البحث في اليوتيوب
+        results = YoutubeSearch(query, max_results=1).to_dict()
+        
+        if not results:
+            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
+        
+        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"][:40]
+        duration = results[0]["duration"]
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
@@ -567,17 +576,13 @@ async def search_song(event):
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-        # التحقق من وجود الملف قبل الإرسال
-        if not os.path.exists(filename):
-            raise FileNotFoundError("الملف الصوتي غير موجود بعد التحميل!")
-            
         # عملية الرفع مع الصورة المصغرة الثابتة
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,
+            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
             reply_to=event.id
         )
             

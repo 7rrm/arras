@@ -31,15 +31,8 @@ SONG_SEARCH_STRING = "جاري البحث، انتظر قليلاً..."
 SONG_NOT_FOUND = "عذرًا، لم أتمكن من العثور على الأغنية"
 SONG_SENDING_STRING = "جارٍ التحميل والإرسال..."
 # =========================================================== #
-
-import os
-import random
-from functools import lru_cache
-
-# إضافة ذاكرة تخزين مؤقت لملفات الكوكيز
-@lru_cache(maxsize=1)
-def get_cookies_files_list():
-    """الحصول على قائمة ملفات الكوكيز مع التخزين المؤقت"""
+def get_cookies_file():
+    """الحصول على ملف كوكيز عشوائي"""
     folder_path = os.path.join(os.getcwd(), "karar")
     if not os.path.exists(folder_path):
         raise FileNotFoundError("مجلد الكوكيز غير موجود")
@@ -48,16 +41,10 @@ def get_cookies_files_list():
     if not txt_files:
         raise FileNotFoundError("لا توجد ملفات كوكيز")
     
-    return txt_files
-
-def get_cookies_file():
-    """الحصول على ملف كوكيز عشوائي مع تحسين الأداء"""
-    txt_files = get_cookies_files_list()
-    folder_path = os.path.join(os.getcwd(), "karar")
     return os.path.join(folder_path, random.choice(txt_files))
 
 @l313l.ar_cmd(
-    pattern="بحث(?:\s|$)([\s\S]*)",
+    pattern="بحث(?:\s|$)([\s\S]*)",  # تم إزالة خيار 320
     command=("بحث", plugin_category),
     info={
         "header": "للبحث عن الأغاني من يوتيوب بجودة متوسطة (128k)",
@@ -66,7 +53,7 @@ def get_cookies_file():
     },
 )
 async def song_search(event):
-    """للبحث عن الأغاني بجودة 128k فقط مع تحسين الأداء"""
+    """للبحث عن الأغاني بجودة 128k فقط"""
     reply_to_id = await reply_id(event)
     reply = await event.get_reply_message()
     query = event.pattern_match.group(1) or (reply.message if reply else None)
@@ -75,51 +62,55 @@ async def song_search(event):
         return await edit_or_reply(event, "⚠️ يرجى تحديد اسم الأغنية")
 
     catevent = await edit_or_reply(event, SONG_SEARCH_STRING)
-    file_path = None
     
     try:
         cookie_file = get_cookies_file()
         
-        # دمج إعدادات البحث والتنزيل لتجنب تكرار الكود
+        # إعدادات البحث
         ydl_opts = {
             'cookiefile': cookie_file,
             'extract_flat': True,
             'quiet': True,
-            'format': 'bestaudio[ext=m4a]',
-            'outtmpl': os.path.join("temp", '%(title)s.%(ext)s'),
-            'ext': 'm4a',
         }
         
-        os.makedirs("temp", exist_ok=True)
-        
         with YoutubeDL(ydl_opts) as ydl:
-            # البحث والتنزيل في خطوة واحدة
-            results = ydl.extract_info(f"ytsearch1:{query}", download=True)
+            results = ydl.extract_info(f"ytsearch:{query}", download=False)
             if not results.get('entries'):
                 return await catevent.edit(SONG_NOT_FOUND)
                 
-            video_info = results['entries'][0]
-            title = video_info.get('title', 'بدون عنوان')
-            file_path = ydl.prepare_filename(video_info).replace('.webm', '.mp3')
+            video_url = results['entries'][0]['url']
+            title = results['entries'][0].get('title', 'بدون عنوان')
             
-            await catevent.edit(SONG_SENDING_STRING)
-            await event.client.send_file(
-                event.chat_id,
-                file_path,
-                caption=f"🎵 {title}",
-                reply_to=reply_to_id,
-                supports_streaming=True,
-            )
+        # إعدادات التنزيل (جودة 128k ثابتة)
+        ydl_opts = {
+            'cookiefile': cookie_file,
+            'format': 'bestaudio[ext=m4a]',
+# احذف 'postprocessors' إذا كنت تريد m4a مباشرةً,
+            'outtmpl': os.path.join("temp", '%(title)s.%(ext)s'),
+            'ext': 'm4a',
+            'quiet': True,
+        }
+        
+        os.makedirs("temp", exist_ok=True)
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            file_path = ydl.prepare_filename(info).replace('.webm', '.mp3')
             
+        await catevent.edit(SONG_SENDING_STRING)
+        await event.client.send_file(
+            event.chat_id,
+            file_path,
+            caption=f"🎵 ٕ{title}",
+            reply_to=reply_to_id,
+            supports_streaming=True,
+        )
+        
     except Exception as e:
         await catevent.edit(f"❌ خطأ: {str(e)}")
         LOGS.error(f"Song search error: {e}")
     finally:
-        if file_path and os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except:
-                pass
+        if 'file_path' in locals() and os.path.exists(file_path):
+            os.remove(file_path)
         await catevent.delete()
 
 

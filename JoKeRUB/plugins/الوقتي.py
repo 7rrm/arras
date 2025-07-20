@@ -6,7 +6,6 @@ import time
 import urllib3
 import base64
 import requests
-#from datetime import datetime
 from datetime import datetime as dt
 from pytz import timezone
 
@@ -59,23 +58,22 @@ async def digitalpicloop():
     i = 0
     while DIGITALPICSTART:
         if not os.path.exists(digitalpic_path):
-            digitalpfp = gvarstatus("DIGITAL_PIC") #Code by T.me/zzzzl1l
+            digitalpfp = gvarstatus("DIGITAL_PIC")
             downloader = SmartDL(digitalpfp, digitalpic_path, progress_bar=False)
             downloader.start(blocking=False)
             while not downloader.isFinished():
                 pass
-        zedfont = gvarstatus("DEFAULT_PIC") if gvarstatus("DEFAULT_PIC") else "zelz/helpers/styles/Papernotes.ttf" #Code by T.me/zzzzl1l
+        zedfont = gvarstatus("DEFAULT_PIC") if gvarstatus("DEFAULT_PIC") else "zelz/helpers/styles/Papernotes.ttf"
         shutil.copy(digitalpic_path, autophoto_path)
         Image.open(autophoto_path)
         TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
         ZTZone = dt.now(timezone(TIME_ZONE))
         ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        #current_time = dt.now().strftime("%I:%M")
         img = Image.open(autophoto_path)
         drawn_text = ImageDraw.Draw(img)
-        fnt = ImageFont.truetype(f"{zedfont}", 35) #Code by T.me/zzzzl1l
-        drawn_text.text((140, 70), ZT, font=fnt, fill=(280, 280, 280)) #Code by T.me/zzzzl1l
+        fnt = ImageFont.truetype(f"{zedfont}", 35)
+        drawn_text.text((140, 70), ZT, font=fnt, fill=(280, 280, 280))
         img.save(autophoto_path)
         file = await l313l.upload_file(autophoto_path)
         try:
@@ -93,11 +91,8 @@ async def digitalpicloop():
             return
         DIGITALPICSTART = gvarstatus("digitalpic") == "true"
 
-
 async def autoname_loop():
     while AUTONAMESTART := gvarstatus("autoname") == "true":
-        #DM = time.strftime("%d-%m-%y")
-        #HM = time.strftime("%I:%M")
         TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
         ZTZone = dt.now(timezone(TIME_ZONE))
         ZTime = ZTZone.strftime('%H:%M')
@@ -107,7 +102,7 @@ async def autoname_loop():
               namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬" 
               namefont = namerzfont[normzltext.index(normal)]
               ZT = ZT.replace(normal, namefont)
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺" #Code by T.me/zzzzl1l
+        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
         name = f"{ZT}{ZEDT}"
         LOGS.info(name)
         try:
@@ -118,6 +113,51 @@ async def autoname_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTONAMESTART = gvarstatus("autoname") == "true"
 
+async def auto2name_loop():
+    while AUTO2NAMESTART := gvarstatus("auto2name") == "true":
+        TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
+        ZTZone = dt.now(timezone(TIME_ZONE))
+        ZTime = ZTZone.strftime('%H:%M')
+        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+        for normal in ZT:
+            if normal in normzltext:
+              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬" 
+              namefont = namerzfont[normzltext.index(normal)]
+              ZT = ZT.replace(normal, namefont)
+        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺 "
+        name = f"{ZEDT}{ZT}"
+        LOGS.info(name)
+        try:
+            await l313l(functions.account.UpdateProfileRequest(last_name=name))
+        except FloodWaitError as ex:
+            LOGS.warning(str(ex))
+            await asyncio.sleep(ex.seconds)
+        await asyncio.sleep(CHANGE_TIME)
+        AUTO2NAMESTART = gvarstatus("auto2name") == "true"
+
+async def autobio_loop():
+    AUTOBIOSTART = gvarstatus("autobio") == "true"
+    while AUTOBIOSTART:
+        TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
+        ZTZone = dt.now(timezone(TIME_ZONE))
+        ZTime = ZTZone.strftime('%H:%M')
+        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+        for normal in ZT:
+            if normal in normzltext:
+              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
+              namefont = namerzfont[normzltext.index(normal)]
+              ZT = ZT.replace(normal, namefont)
+        DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "‏{وَتَوَكَّلْ عَلَى اللَّهِ ۚ وَكَفَىٰ بِاللَّهِ وَكِيلًا}"
+        bio = f"{DEFAULTUSERBIO} ⏐ {ZT}" 
+        LOGS.info(bio)
+        try:
+            await l313l(functions.account.UpdateProfileRequest(about=bio))
+        except FloodWaitError as ex:
+            LOGS.warning(str(ex))
+            await asyncio.sleep(ex.seconds)
+        await asyncio.sleep(CHANGE_TIME)
+        AUTOBIOSTART = gvarstatus("autobio") == "true"
+
 async def autochannel_loop():
     while AUTOCHANNELSTART := gvarstatus("autochannel") == "true":
         TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
@@ -125,7 +165,6 @@ async def autochannel_loop():
         ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
         
-        # تطبيق الزخارف على الوقت
         for normal in ZT:
             if normal in normzltext:
                 namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
@@ -148,60 +187,9 @@ async def autochannel_loop():
             await asyncio.sleep(ex.seconds)
         except Exception as e:
             LOGS.error(f"حدث خطأ أثناء تحديث القناة: {str(e)}")
-            delgvar("autochannel")  # إيقاف الخدمة عند الخطأ
+            delgvar("autochannel")
         
         await asyncio.sleep(CHANGE_TIME)
-
-async def auto2name_loop(): #Code by T.me/zzzzl1l
-    while AUTO2NAMESTART := gvarstatus("auto2name") == "true":
-        #DM = time.strftime("%d-%m-%y")
-        #HM = time.strftime("%I:%M")
-        TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
-        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        for normal in ZT:
-            if normal in normzltext:
-              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬" 
-              namefont = namerzfont[normzltext.index(normal)]
-              ZT = ZT.replace(normal, namefont)
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺 " #Code by T.me/zzzzl1l
-        name = f"{ZEDT}{ZT}"
-        LOGS.info(name)
-        try:
-            await l313l(functions.account.UpdateProfileRequest(last_name=name))
-        except FloodWaitError as ex:
-            LOGS.warning(str(ex))
-            await asyncio.sleep(ex.seconds)
-        await asyncio.sleep(CHANGE_TIME)
-        AUTO2NAMESTART = gvarstatus("auto2name") == "true"
-
-
-async def autobio_loop():
-    AUTOBIOSTART = gvarstatus("autobio") == "true"
-    while AUTOBIOSTART:
-        #DMY = time.strftime("%d.%m.%Y")
-        #HM = time.strftime("%I:%M")
-        TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
-        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        for normal in ZT:
-            if normal in normzltext:
-              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
-              namefont = namerzfont[normzltext.index(normal)]
-              ZT = ZT.replace(normal, namefont)
-        DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "‏{وَتَوَكَّلْ عَلَى اللَّهِ ۚ وَكَفَىٰ بِاللَّهِ وَكِيلًا}" #Code by T.me/zzzzl1l
-        bio = f"{DEFAULTUSERBIO} ⏐ {ZT}" 
-        LOGS.info(bio)
-        try:
-            await l313l(functions.account.UpdateProfileRequest(about=bio))
-        except FloodWaitError as ex:
-            LOGS.warning(str(ex))
-            await asyncio.sleep(ex.seconds)
-        await asyncio.sleep(CHANGE_TIME)
-        AUTOBIOSTART = gvarstatus("autobio") == "true"
-
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):
@@ -209,13 +197,11 @@ async def _(event):
     zed = await edit_or_reply(event, "**• جـارِ تفعيـل البروفايـل الوقتـي ⅏. . .**")
     
     if input_str:
-        # إذا تم إدخال رابط مباشر
         if input_str.startswith("http"):
             addgvar("DIGITAL_PIC", input_str)
         else:
             return await zed.edit("**⎉╎يجب إدخال رابط صورة صحيح!**")
     else:
-        # إذا لم يتم إدخال رابط، نرفع صورة الملف الشخصي
         downloaded_file_name = await event.client.download_profile_photo(
             l313l.uid,
             Config.TMP_DOWNLOAD_DIRECTORY + str(l313l.uid) + ".jpg",
@@ -223,7 +209,6 @@ async def _(event):
         )
         
         try:
-            # محاولة رفع الصورة
             media_urls = upload_file(downloaded_file_name)
             if isinstance(media_urls, list) and len(media_urls) > 0:
                 vinfo = "https://graph.org{}".format(media_urls[0])
@@ -257,34 +242,6 @@ async def _(event):
     await zed.edit("<b>⎉╎تـم بـدء البروفايـل الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف البروفايـل الوقتـي ↶ <a href = https://t.me/zzzvrr/24>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await digitalpicloop()
 
-@l313l.ar_cmd(pattern=f"{CAUTO}$")
-async def _(event):
-    if gvarstatus("autochannel") == "true":
-        return await edit_delete(event, "**⎉╎القناة التلقائية مفعلة بالفعل!**")
-    
-    if not event.is_channel:
-        return await edit_delete(event, "**⎉╎يجب استخدام هذا الأمر داخل القناة المراد التحكم بها!**")
-    
-    # الحصول على معلومات القناة
-    try:
-        chat = await event.get_chat()
-        if not chat:
-            return await edit_delete(event, "**⎉╎حدث خطأ في جلب معلومات القناة!**")
-            
-        # التحقق من صلاحيات البوت
-        participant = await l313l.get_permissions(event.chat_id, 'me')
-        if not participant.is_admin or not participant.change_info:
-            return await edit_delete(event, "**⎉╎ليس لدي صلاحية تغيير معلومات القناة!**")
-            
-        addgvar("AUTO_CHANNEL_ID", str(event.chat_id))
-        addgvar("autochannel", "true")
-        
-        await edit_delete(event, "**⎉╎تم تفعيل القناة التلقائية لهذه القناة بنجاح ✓**")
-        await autochannel_loop()
-        
-    except Exception as e:
-        await edit_delete(event, f"**⎉╎حدث خطأ: {str(e)}**")
-
 @l313l.ar_cmd(pattern=f"{NAUTO}$")
 async def _(event):
     if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
@@ -307,9 +264,8 @@ async def _(event):
     await zzz.edit("<b>⎉╎تـم بـدء الاسـم الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف الاسـم الوقتـي ↶ <a href = https://t.me/zzzvrr/23>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await autoname_loop()
 
-
 @l313l.ar_cmd(pattern=f"{NAAUTO}$")
-async def _(event): #Code by T.me/zzzzl1l
+async def _(event):
     if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
         delgvar("autoname")
     if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
@@ -318,7 +274,6 @@ async def _(event): #Code by T.me/zzzzl1l
     addgvar("auto2name", True)
     await zzz.edit("<b>⎉╎تـم بـدء الاسـم الوقتـي²🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف الاسـم الوقتـي ↶ <a href = https://t.me/zzzvrr/23>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await auto2name_loop()
-
 
 @l313l.ar_cmd(pattern=f"{BAUTO}$")
 async def _(event):
@@ -330,24 +285,49 @@ async def _(event):
     await edit_delete(event, "**⎉╎تـم بـدء الـنبذة الوقتيـه .. بنجـاح ✓**")
     await autobio_loop()
 
+@l313l.ar_cmd(pattern=f"{CAUTO}$")
+async def _(event):
+    if gvarstatus("autochannel") == "true":
+        return await edit_delete(event, "**⎉╎القناة التلقائية مفعلة بالفعل!**")
+    
+    if not event.is_channel:
+        return await edit_delete(event, "**⎉╎يجب استخدام هذا الأمر داخل القناة المراد التحكم بها!**")
+    
+    try:
+        chat = await event.get_chat()
+        if not chat:
+            return await edit_delete(event, "**⎉╎حدث خطأ في جلب معلومات القناة!**")
+            
+        participant = await l313l.get_permissions(event.chat_id, 'me')
+        if not participant.is_admin or not participant.change_info:
+            return await edit_delete(event, "**⎉╎ليس لدي صلاحية تغيير معلومات القناة!**")
+            
+        addgvar("AUTO_CHANNEL_ID", str(event.chat_id))
+        addgvar("autochannel", "true")
+        
+        await edit_delete(event, "**⎉╎تم تفعيل القناة التلقائية لهذه القناة بنجاح ✓**")
+        await autochannel_loop()
+        
+    except Exception as e:
+        await edit_delete(event, f"**⎉╎حدث خطأ: {str(e)}**")
 
 @l313l.ar_cmd(
     pattern="الغاء(?: |$)(.*)",
     command=("الغاء", plugin_category),
     info={
-        "header": "To stop the functions of autoprofile",
-        "description": "If you want to stop autoprofile functions then use this cmd.",
+        "header": "لإيقاف وظائف البروفايل التلقائي",
+        "description": "لإيقاف وظائف البروفايل التلقائي",
         "options": {
-            "digitalpfp": "To stop difitalpfp",
-            "autoname": "To stop autoname",
-            "autobio": "To stop autobio",
+            "digitalpfp": "لإيقاف البروفايل التلقائي",
+            "autoname": "لإيقاف الاسم التلقائي",
+            "autobio": "لإيقاف البايو التلقائي",
+            "autochannel": "لإيقاف القناة التلقائية"
         },
-        "usage": "{tr}end <option>",
-        "examples": ["{tr}end autopic"],
+        "usage": "{tr}الغاء <option>",
+        "examples": ["{tr}الغاء البروفايل"],
     },
 )
-async def _(event):  # sourcery no-metrics
-    "To stop the functions of autoprofile plugin"
+async def _(event):
     input_str = event.pattern_match.group(1)
     if input_str == "البروفايل تلقائي" or input_str == "البروفايل" or input_str == "البروفايل التلقائي" or input_str == "الصوره الوقتيه" or input_str == "الصورة الوقتية":
         if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
@@ -367,7 +347,7 @@ async def _(event):  # sourcery no-metrics
                 functions.account.UpdateProfileRequest(first_name=DEFAULTUSER, last_name='.')
             )
             return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي .. بنجـاح ✓**")
-        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true": #Code by T.me/zzzzl1l
+        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
             delgvar("auto2name")
             await event.client(
                 functions.account.UpdateProfileRequest(last_name='.')
@@ -383,25 +363,30 @@ async def _(event):  # sourcery no-metrics
             )
             return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
         return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
-
+    if input_str == "القناة تلقائي" or input_str == "قناة تلقائية" or input_str == "قناة وقتيه":
+        if gvarstatus("autochannel") == "true":
+            delgvar("autochannel")
+            delgvar("AUTO_CHANNEL_ID")
+            return await edit_delete(event, "**⎉╎تم إيقاف القناة التلقائية بنجاح ✓**")
+        return await edit_delete(event, "**⎉╎القناة التلقائية غير مفعلة أصلاً!**")
 
 @l313l.ar_cmd(
     pattern="ايقاف(?: |$)(.*)",
     command=("ايقاف", plugin_category),
     info={
-        "header": "To stop the functions of autoprofile",
-        "description": "If you want to stop autoprofile functions then use this cmd.",
+        "header": "لإيقاف وظائف البروفايل التلقائي",
+        "description": "لإيقاف وظائف البروفايل التلقائي",
         "options": {
-            "digitalpfp": "To stop difitalpfp",
-            "autoname": "To stop autoname",
-            "autobio": "To stop autobio",
+            "digitalpfp": "لإيقاف البروفايل التلقائي",
+            "autoname": "لإيقاف الاسم التلقائي",
+            "autobio": "لإيقاف البايو التلقائي",
+            "autochannel": "لإيقاف القناة التلقائية"
         },
-        "usage": "{tr}end <option>",
-        "examples": ["{tr}end autopic"],
+        "usage": "{tr}ايقاف <option>",
+        "examples": ["{tr}ايقاف البروفايل"],
     },
 )
-async def _(event):  # sourcery no-metrics
-    "To stop the functions of autoprofile plugin"
+async def _(event):
     input_str = event.pattern_match.group(1)
     if input_str == "البروفايل تلقائي" or input_str == "البروفايل" or input_str == "البروفايل التلقائي" or input_str == "الصوره الوقتيه" or input_str == "الصورة الوقتية":
         if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
@@ -421,117 +406,11 @@ async def _(event):  # sourcery no-metrics
                 functions.account.UpdateProfileRequest(first_name=DEFAULTUSER, last_name='.')
             )
             return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي .. بنجـاح ✓**")
-        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true": #Code by T.me/zzzzl1l
+        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
             delgvar("auto2name")
             await event.client(
-                functions.account.UpdateProfileRequest(last_name='.')
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
-    if input_str == "البايو تلقائي" or input_str == "البايو" or input_str == "البايو التلقائي" or input_str == "البايو الوقتي" or input_str == "النبذه الوقتيه" or input_str == "النبذة الوقتية" or input_str == "بايو الوقتي" or input_str == "نبذه الوقتي":
-        if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
-            delgvar("autobio")
-            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @ZedThon"
-            await event.client(
-                functions.account.UpdateProfileRequest(about=DEFAULTUSERBIO)
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
-    # في قسم أوامر الإيقاف:
-elif input_str == "القناة تلقائي" or input_str == "قناة تلقائية" or input_str == "قناة وقتيه":
-    if gvarstatus("autochannel") == "true":
-        delgvar("autochannel")
-        delgvar("AUTO_CHANNEL_ID")  # حذف معرف القناة أيضاً
-        return await edit_delete(event, "**⎉╎تم إيقاف القناة التلقائية بنجاح ✓**")
-    return await edit_delete(event, "**⎉╎القناة التلقائية غير مفعلة أصلاً!**")
+               
 
-
-@l313l.ar_cmd(
-    pattern="انهاء(?: |$)(.*)",
-    command=("انهاء", plugin_category),
-    info={
-        "header": "To stop the functions of autoprofile",
-        "description": "If you want to stop autoprofile functions then use this cmd.",
-        "options": {
-            "digitalpfp": "To stop difitalpfp",
-            "autoname": "To stop autoname",
-            "autobio": "To stop autobio",
-        },
-        "usage": "{tr}end <option>",
-        "examples": ["{tr}end autopic"],
-    },
-)
-async def _(event):  # sourcery no-metrics
-    "To stop the functions of autoprofile plugin"
-    input_str = event.pattern_match.group(1)
-    if input_str == "البروفايل تلقائي" or input_str == "البروفايل" or input_str == "البروفايل التلقائي" or input_str == "الصوره الوقتيه" or input_str == "الصورة الوقتية":
-        if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
-            delgvar("digitalpic")
-            await event.client(
-                functions.photos.DeletePhotosRequest(
-                    await event.client.get_profile_photos("me", limit=1)
-                )
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف البروفـايل الوقتـي .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎البروفـايل الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
-    if input_str == "الاسم تلقائي" or input_str == "الاسم" or input_str == "الاسم التلقائي" or input_str == "الاسم الوقتي" or input_str == "اسم الوقتي" or input_str == "اسم وقتي" or input_str == "اسم تلقائي":
-        if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
-            delgvar("autoname")
-            DEFAULTUSER = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
-            await event.client(
-                functions.account.UpdateProfileRequest(first_name=DEFAULTUSER, last_name='.')
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي .. بنجـاح ✓**")
-        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true": #Code by T.me/zzzzl1l
-            delgvar("auto2name")
-            await event.client(
-                functions.account.UpdateProfileRequest(last_name='.')
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
-    if input_str == "الاسم تلقائي2" or input_str == "الاسم التلقائي2" or input_str == "الاسم الوقتي2" or input_str == "اسم الوقتي2" or input_str == "اسم وقتي2" or input_str == "اسم تلقائي2":
-        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true": #Code by T.me/zzzzl1l
-            delgvar("auto2name")
-            await event.client(
-                functions.account.UpdateProfileRequest(last_name='.')
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
-    if input_str == "البايو تلقائي" or input_str == "البايو" or input_str == "البايو التلقائي" or input_str == "البايو الوقتي" or input_str == "النبذه الوقتيه" or input_str == "النبذة الوقتية" or input_str == "بايو الوقتي" or input_str == "نبذه الوقتي":
-        if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
-            delgvar("autobio")
-            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @Lx5x5"
-            await event.client(
-                functions.account.UpdateProfileRequest(about=DEFAULTUSERBIO)
-            )
-            return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
-        return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
-    END_CMDS = [
-        "البروفايل تلقائي",
-        "الصوره الوقتيه",
-        "الاسم تلقائي",
-        "الاسم الوقتي",
-        "اسم تلقائي",
-        "اسم وقتي",
-        "البايو تلقائي",
-        "البايو الوقتي",
-        "النبذه الوقتيه",
-        "البروفايل",
-        "الاسم",
-        "البايو",
-    ]
-    if input_str not in END_CMDS:
-        await edit_delete(
-            event,
-            f"{input_str} is invalid end command.Mention clearly what should i end.",
-            parse_mode=_format.parse_pre,
-        )
-
-
-l313l.loop.create_task(digitalpicloop())
-l313l.loop.create_task(autoname_loop())
-l313l.loop.create_task(auto2name_loop())
-l313l.loop.create_task(autobio_loop())
 
 
 # ================================================================================================ #

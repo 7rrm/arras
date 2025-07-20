@@ -44,6 +44,7 @@ NAUTO = gvarstatus("Z_NAUTO") or "(الاسم تلقائي|الاسم الوقت
 NAAUTO = gvarstatus("Z_NAAUTO") or "(الاسم تلقائي2|الاسم الوقتي2|اسم وقتي2|اسم تلقائي2)"
 PAUTO = gvarstatus("Z_PAUTO") or "(البروفايل تلقائي|الصوره الوقتيه|الصورة الوقتية|صوره وقتيه|البروفايل)"
 BAUTO = gvarstatus("Z_BAUTO") or "(البايو تلقائي|البايو الوقتي|بايو وقتي|نبذه وقتيه|النبذه الوقتيه)"
+CAUTO = gvarstatus("Z_CAUTO") or "(القناة تلقائي|قناة تلقائية|قناة وقتيه)"
 
 extractor = URLExtract()
 telegraph = Telegraph()
@@ -117,6 +118,39 @@ async def autoname_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTONAMESTART = gvarstatus("autoname") == "true"
 
+async def autochannel_loop():
+    while AUTOCHANNELSTART := gvarstatus("autochannel") == "true":
+        TIME_ZONE = gvarstatus("T_Z") if gvarstatus("T_Z") else Config.TZ
+        ZTZone = dt.now(timezone(TIME_ZONE))
+        ZTime = ZTZone.strftime('%H:%M')
+        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+        
+        # تطبيق الزخارف على الوقت
+        for normal in ZT:
+            if normal in normzltext:
+                namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
+                namefont = namerzfont[normzltext.index(normal)]
+                ZT = ZT.replace(normal, namefont)
+        
+        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
+        channel_name = f"{ZT}{ZEDT}"
+        
+        try:
+            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))
+            await l313l(functions.channels.EditTitleRequest(
+                channel=channel_id,
+                title=channel_name
+            ))
+            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
+            
+        except FloodWaitError as ex:
+            LOGS.warning(f"انتظر {ex.seconds} ثانية قبل المحاولة مرة أخرى")
+            await asyncio.sleep(ex.seconds)
+        except Exception as e:
+            LOGS.error(f"حدث خطأ أثناء تحديث القناة: {str(e)}")
+            delgvar("autochannel")  # إيقاف الخدمة عند الخطأ
+        
+        await asyncio.sleep(CHANGE_TIME)
 
 async def auto2name_loop(): #Code by T.me/zzzzl1l
     while AUTO2NAMESTART := gvarstatus("auto2name") == "true":
@@ -222,6 +256,34 @@ async def _(event):
     addgvar("digitalpic", True)
     await zed.edit("<b>⎉╎تـم بـدء البروفايـل الوقتـي🝛 .. بنجـاح ✓</b>\n<b>⎉╎زخـارف البروفايـل الوقتـي ↶ <a href = https://t.me/zzzvrr/24>⦇  اضـغـط هنــا  ⦈</a> </b>", parse_mode="html", link_preview=False)
     await digitalpicloop()
+
+@l313l.ar_cmd(pattern=f"{CAUTO}$")
+async def _(event):
+    if gvarstatus("autochannel") == "true":
+        return await edit_delete(event, "**⎉╎القناة التلقائية مفعلة بالفعل!**")
+    
+    if not event.is_channel:
+        return await edit_delete(event, "**⎉╎يجب استخدام هذا الأمر داخل القناة المراد التحكم بها!**")
+    
+    # الحصول على معلومات القناة
+    try:
+        chat = await event.get_chat()
+        if not chat:
+            return await edit_delete(event, "**⎉╎حدث خطأ في جلب معلومات القناة!**")
+            
+        # التحقق من صلاحيات البوت
+        participant = await l313l.get_permissions(event.chat_id, 'me')
+        if not participant.is_admin or not participant.change_info:
+            return await edit_delete(event, "**⎉╎ليس لدي صلاحية تغيير معلومات القناة!**")
+            
+        addgvar("AUTO_CHANNEL_ID", str(event.chat_id))
+        addgvar("autochannel", "true")
+        
+        await edit_delete(event, "**⎉╎تم تفعيل القناة التلقائية لهذه القناة بنجاح ✓**")
+        await autochannel_loop()
+        
+    except Exception as e:
+        await edit_delete(event, f"**⎉╎حدث خطأ: {str(e)}**")
 
 @l313l.ar_cmd(pattern=f"{NAUTO}$")
 async def _(event):
@@ -375,7 +437,13 @@ async def _(event):  # sourcery no-metrics
             )
             return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
         return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
-
+    # في قسم أوامر الإيقاف:
+elif input_str == "القناة تلقائي" or input_str == "قناة تلقائية" or input_str == "قناة وقتيه":
+    if gvarstatus("autochannel") == "true":
+        delgvar("autochannel")
+        delgvar("AUTO_CHANNEL_ID")  # حذف معرف القناة أيضاً
+        return await edit_delete(event, "**⎉╎تم إيقاف القناة التلقائية بنجاح ✓**")
+    return await edit_delete(event, "**⎉╎القناة التلقائية غير مفعلة أصلاً!**")
 
 
 @l313l.ar_cmd(

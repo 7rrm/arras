@@ -409,6 +409,99 @@ async def _(event):
         if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
             delgvar("auto2name")
             await event.client(
+                functions.account.UpdateProfileRequest(last_name='.')
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
+    if input_str == "البايو تلقائي" or input_str == "البايو" or input_str == "البايو التلقائي" or input_str == "البايو الوقتي" or input_str == "النبذه الوقتيه" or input_str == "النبذة الوقتية" or input_str == "بايو الوقتي" or input_str == "نبذه الوقتي":
+        if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
+            delgvar("autobio")
+            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @ZedThon"
+            await event.client(
+                functions.account.UpdateProfileRequest(about=DEFAULTUSERBIO)
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
+    if input_str == "القناة تلقائي" or input_str == "قناة تلقائية" or input_str == "قناة وقتيه":
+        if gvarstatus("autochannel") == "true":
+            delgvar("autochannel")
+            delgvar("AUTO_CHANNEL_ID")
+            return await edit_delete(event, "**⎉╎تم إيقاف القناة التلقائية بنجاح ✓**")
+        return await edit_delete(event, "**⎉╎القناة التلقائية غير مفعلة أصلاً!**")
+
+@l313l.ar_cmd(
+    pattern="انهاء(?: |$)(.*)",
+    command=("انهاء", plugin_category),
+    info={
+        "header": "لإيقاف وظائف البروفايل التلقائي",
+        "description": "لإيقاف وظائف البروفايل التلقائي",
+        "options": {
+            "digitalpfp": "لإيقاف البروفايل التلقائي",
+            "autoname": "لإيقاف الاسم التلقائي",
+            "autobio": "لإيقاف البايو التلقائي",
+            "autochannel": "لإيقاف القناة التلقائية"
+        },
+        "usage": "{tr}انهاء <option>",
+        "examples": ["{tr}انهاء البروفايل"],
+    },
+)
+async def _(event):
+    input_str = event.pattern_match.group(1)
+    if input_str == "البروفايل تلقائي" or input_str == "البروفايل" or input_str == "البروفايل التلقائي" or input_str == "الصوره الوقتيه" or input_str == "الصورة الوقتية":
+        if gvarstatus("digitalpic") is not None and gvarstatus("digitalpic") == "true":
+            delgvar("digitalpic")
+            await event.client(
+                functions.photos.DeletePhotosRequest(
+                    await event.client.get_profile_photos("me", limit=1)
+                )
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف البروفـايل الوقتـي .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎البروفـايل الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
+    if input_str == "الاسم تلقائي" or input_str == "الاسم" or input_str == "الاسم التلقائي" or input_str == "الاسم الوقتي" or input_str == "اسم الوقتي" or input_str == "اسم وقتي" or input_str == "اسم تلقائي":
+        if gvarstatus("autoname") is not None and gvarstatus("autoname") == "true":
+            delgvar("autoname")
+            DEFAULTUSER = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
+            await event.client(
+                functions.account.UpdateProfileRequest(first_name=DEFAULTUSER, last_name='.')
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي .. بنجـاح ✓**")
+        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
+            delgvar("auto2name")
+            await event.client(
+                functions.account.UpdateProfileRequest(last_name='.')
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
+    if input_str == "الاسم تلقائي2" or input_str == "الاسم التلقائي2" or input_str == "الاسم الوقتي2" or input_str == "اسم الوقتي2" or input_str == "اسم وقتي2" or input_str == "اسم تلقائي2":
+        if gvarstatus("auto2name") is not None and gvarstatus("auto2name") == "true":
+            delgvar("auto2name")
+            await event.client(
+                functions.account.UpdateProfileRequest(last_name='.')
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف الاسـم الوقتـي² .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎الاسـم الوقتـي .. غيـر مفعـل اصـلاً ؟!**")
+    if input_str == "البايو تلقائي" or input_str == "البايو" or input_str == "البايو التلقائي" or input_str == "البايو الوقتي" or input_str == "النبذه الوقتيه" or input_str == "النبذة الوقتية" or input_str == "بايو الوقتي" or input_str == "نبذه الوقتي":
+        if gvarstatus("autobio") is not None and gvarstatus("autobio") == "true":
+            delgvar("autobio")
+            DEFAULTUSERBIO = gvarstatus("DEFAULT_BIO") or "الحمد الله على كل شئ - @Lx5x5"
+            await event.client(
+                functions.account.UpdateProfileRequest(about=DEFAULTUSERBIO)
+            )
+            return await edit_delete(event, "**⎉╎تم إيقـاف النبـذه الوقتيـه .. بنجـاح ✓**")
+        return await edit_delete(event, "**⎉╎النبـذه الوقتيـه .. غيـر مفعـله اصـلاً ؟!**")
+    if input_str == "القناة تلقائي" or input_str == "قناة تلقائية" or input_str == "قناة وقتيه":
+        if gvarstatus("autochannel") == "true":
+            delgvar("autochannel")
+            delgvar("AUTO_CHANNEL_ID")
+            return await edit_delete(event, "**⎉╎تم إيقاف القناة التلقائية بنجاح ✓**")
+        return await edit_delete(event, "**⎉╎القناة التلقائية غير مفعلة أصلاً!**")
+
+l313l.loop.create_task(digitalpicloop())
+l313l.loop.create_task(autoname_loop())
+l313l.loop.create_task(auto2name_loop())
+l313l.loop.create_task(autobio_loop())
+l313l.loop.create_task(autochannel_loop())
+
                
 
 

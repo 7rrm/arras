@@ -483,6 +483,9 @@ search_settings = {
     'admin_id': l313l.uid    # أي دي المطور
 }
 
+# مسار الصورة المصغرة الثابتة
+DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
+
 def is_search_enabled(chat_id=None):
     if chat_id:
         return gvarstatus(f"search_enabled_{chat_id}") == "True"
@@ -569,12 +572,13 @@ async def search_song(event):
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-        # عملية الرفع
+        # عملية الرفع مع الصورة المصغرة الثابتة
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
+            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
             reply_to=event.id
         )
             

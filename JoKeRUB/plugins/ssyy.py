@@ -538,6 +538,7 @@ async def search_song(event):
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    filename = None
     
     try:
         # الحصول على ملف الكوكيز
@@ -576,26 +577,36 @@ async def search_song(event):
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
             
-        # عملية الرفع مع الصورة المصغرة الثابتة
+            # التأكد من أن الملف موجود
+            if not os.path.exists(filename):
+                raise FileNotFoundError("فشل في تحميل الملف")
+            
+            # التأكد من أن الصورة المصغرة موجودة
+            thumb = DEFAULT_THUMB if os.path.exists(DEFAULT_THUMB) else None
+            
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
-            reply_to=event.id
+            thumb=thumb,  # استخدام الصورة المصغرة إذا كانت موجودة
+            reply_to=event.id,
+            attributes=[types.DocumentAttributeAudio(
+                duration=int(duration.split(':')[0])*60 + int(duration.split(':')[1]),
+                title=title,
+                performer="YouTube"
+            )]
         )
             
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
-        try:
-            if 'filename' in locals() and os.path.exists(filename):
+        if filename and os.path.exists(filename):
+            try:
                 os.remove(filename)
-        except:
-            pass
+            except:
+                pass
         await msg.delete()
-
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

@@ -456,20 +456,6 @@ async def download_audio(event):
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
 
-def remove_if_exists(path): #Code by T.me/zzzzl1l
-    if os.path.exists(path):
-        os.remove(path)
-
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-import os
-import requests
-import yt_dlp
-from youtube_search import YoutubeSearch
-from telethon import events
-import random
-import glob
-import time
-
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
@@ -478,119 +464,80 @@ def get_cookies_file():
         raise FileNotFoundError("No .txt files found in the cookies folder.")
     return random.choice(txt_files)
 
-# إعدادات التحكم
-search_settings = {
-    'admin_id': l313l.uid    # أي دي المطور
-}
+def remove_if_exists(path): #Code by T.me/zzzzl1l
+    if os.path.exists(path):
+        os.remove(path)
 
-# مسار الصورة المصغرة الثابتة
-DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
-
-def is_search_enabled(chat_id=None):
-    if chat_id:
-        return gvarstatus(f"search_enabled_{chat_id}") == "True"
-    return gvarstatus("search_enabled_private") == "True"
-
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-async def enable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        addgvar("search_enabled_private", "True")
-        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+#Code by T.me/zzzzl1l
+@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
+async def _(event): #Code by T.me/zzzzl1l
+    reply = await event.get_reply_message()
+    if event.pattern_match.group(1):
+        query = event.pattern_match.group(1)
+    elif reply and reply.message:
+        query = reply.message
     else:
-        addgvar(f"search_enabled_{event.chat_id}", "True")
-        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
-
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-async def disable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        delgvar("search_enabled_private")
-        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
-    else:
-        delgvar(f"search_enabled_{event.chat_id}")
-        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
-
-@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
-async def search_song(event):
-    # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not is_search_enabled():
-            return
-    else:
-        if not is_search_enabled(event.chat_id):
-            return
-    
-    query = event.pattern_match.group(1).strip()
-    if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
-            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
-        return
-    
-    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    
+        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
+    ydl_ops = {
+        "format": "bestaudio[ext=m4a]",
+        "keepvideo": True,
+        "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quite": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
+    }
     try:
-        # الحصول على ملف الكوكيز
-        cookies_file = get_cookies_file()
-        
-        # إعدادات yt-dlp مع الكوكيز
-        ydl_opts = {
-            "format": "bestaudio[ext=m4a]/bestaudio/best",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
-            "noplaylist": True,
-            "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
-            "geo_bypass": True,
-            "cookiefile": cookies_file,
-            "outtmpl": "temp_audio.m4a"
-        }
-        
-        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
-        
-        if not results:
-            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
-        
-        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        link = f"https://youtube.com{results[0]['url_suffix']}"
         title = results[0]["title"][:40]
+        thumbnail = results[0]["thumbnails"][0]
+        thumb_name = f"{title}.jpg"
+        thumb = requests.get(thumbnail, allow_redirects=True)
+        try:
+            open(thumb_name, "wb").write(thumb.content)
+        except Exception:
+            thumb_name = None
+            pass
         duration = results[0]["duration"]
-        
-        await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
-        
-        # عملية التحميل
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
-            
-        # عملية الرفع مع الصورة المصغرة الثابتة
-        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+
+    except Exception as e:
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+        return
+    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+    try:
+        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
+            info_dict = ydl.extract_info(link, download=False)
+            audio_file = ydl.prepare_filename(info_dict)
+            ydl.process_info(info_dict)
+        host = str(info_dict["uploader"])
+        secmul, dur, dur_arr = 1, 0, duration.split(":")
+        for i in range(len(dur_arr) - 1, -1, -1):
+            dur += int(float(dur_arr[i])) * secmul
+            secmul *= 60
+        await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
-            filename,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
-            reply_to=event.id
+            audio_file,
+            force_document=False,
+            caption=f"**⎉╎البحث :** `{title}`",
+            thumb=thumb_name,
         )
-            
+        await zedevent.delete()
+    except ChatSendMediaForbiddenError as err: # Code By T.me/zzzzl1l
+        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا ؟!**")
+        LOGS.error(str(err))
     except Exception as e:
-        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
-    finally:
-        try:
-            if 'filename' in locals() and os.path.exists(filename):
-                os.remove(filename)
-        except:
-            pass
-        await msg.delete()
+        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ :** `{str(e)}`")
+        await l313l.send_message(event.chat_id, "**- استخدم امر التحميل البديـل**\n**- ارسـل (.تحميل + اسم المقطع الصوتي)**")
+    try:
+        remove_if_exists(audio_file)
+        remove_if_exists(thumb_name)
+    except Exception as e:
+        print(e)
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

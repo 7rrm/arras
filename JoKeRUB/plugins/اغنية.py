@@ -85,13 +85,10 @@ async def song_search(event):
         # إعدادات التنزيل (جودة 128k ثابتة)
         ydl_opts = {
             'cookiefile': cookie_file,
-            'format': 'bestaudio/best',
+            'format': 'bestaudio[ext=m4a]',
+# احذف 'postprocessors' إذا كنت تريد m4a مباشرةً,
             'outtmpl': os.path.join("temp", '%(title)s.%(ext)s'),
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '128k',  # جودة ثابتة
-            }],
+            'ext': 'm4a',
             'quiet': True,
         }
         

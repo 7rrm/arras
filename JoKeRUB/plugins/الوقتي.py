@@ -177,18 +177,20 @@ async def autochannel_loop():
         try:
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))
             
-            # 1. تغيير اسم القناة أولاً
+            # 1. تغيير اسم القناة بدون silent (لأنه غير مدعوم)
             await l313l(functions.channels.EditTitleRequest(
                 channel=channel_id,
-                title=channel_name,
-                silent=True
+                title=channel_name
             ))
             
-            # 2. جلب آخر رسالة في القناة وحذفها إذا كانت إشعار تغيير الاسم
+            # 2. حذف إشعار تغيير الاسم
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if "تغيير" in message.text or "اسم القناة" in message.text:
-                    await message.delete()
-                    LOGS.info("تم حذف إشعار تغيير اسم القناة")
+                    try:
+                        await message.delete()
+                        LOGS.info("تم حذف إشعار تغيير اسم القناة")
+                    except Exception as e:
+                        LOGS.error(f"فشل في حذف الإشعار: {str(e)}")
             
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
             
@@ -200,6 +202,7 @@ async def autochannel_loop():
             delgvar("autochannel")
         
         await asyncio.sleep(CHANGE_TIME)
+
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

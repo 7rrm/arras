@@ -556,7 +556,7 @@ async def search_song(event):
             "no_warnings": True,
             "geo_bypass": True,
             "cookiefile": cookies_file,
-            "outtmpl": "a R R a S 🎧.m4a"
+            "outtmpl": "%(title)s.%(ext)s"
         }
         
         # البحث في اليوتيوب

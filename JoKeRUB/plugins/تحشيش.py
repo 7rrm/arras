@@ -86,16 +86,27 @@ async def permalink(mention):
     my_mention = f"[{me.first_name}](tg://user?id={me.id})"
     await edit_or_reply(mention, f"✧︙ المستخدم [{JoKeRUB}](tg://user?id={user.id}) \n**✧︙ تـم رفعـه قرد واعطائه موزة 🐒🍌 بواسطة :** {my_mention}")
 
-@l313l.on(admin_cmd(pattern="رفع بكلبي(?:\s|$)([\s\S]*)"))
-async def permalink(mention):
-    user_info = await get_user_from_event(mention)
-    if not user_info:
+@l313l.ar_cmd(pattern="رفع بكلبي(?: |$)(.*)")
+async def permalink(malath):
+    user, custom = await get_user_from_event(malath)
+    if not user:
         return
-    user = user_info[0] if isinstance(user_info, tuple) else user_info
-    JoKeRUB = user.first_name.replace("\u2060", "") if user.first_name else user.username
-    me = await mention.client.get_me()
-    my_mention = f"[{me.first_name}](tg://user?id={me.id})"
-    await edit_or_reply(mention, f"**✧︙ المستخدم** [{JoKeRUB}](tg://user?id={user.id}) \n**✧︙ تـم رفعـه بكلـبك 🤍 بواسطة :** {my_mention} \n**✧︙ انت حبي الابدي 😍**")
+    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    await edit_or_reply(
+        malath,
+        f"**✾╎المستخـدم**  [{JoKeRUB}](tg://user?id={user.id}) \n**✾╎تـم رفعـه بڪلبك 🖤**",
+    )
+    
+@l313l.ar_cmd(pattern="رفع بقلبي(?: |$)(.*)")
+async def permalink(malath):
+    user, custom = await get_user_from_event(malath)
+    if not user:
+        return
+    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    await edit_or_reply(
+        malath,
+        f"**✾╎المستخـدم ** [{JoKeRUB}](tg://user?id={user.id}) \n**✾╎تـم رفعـه بــ قلبـك .. نبـضك والوريـد 🖤**",
+    )
 
 @l313l.on(admin_cmd(pattern="رفع مطي(?:\s|$)([\s\S]*)"))
 async def permalink(mention):

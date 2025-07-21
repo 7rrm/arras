@@ -109,6 +109,30 @@ async def permalink(mention):
     my_mention = f"[{me.first_name}](tg://user?id={me.id})"
     await edit_or_reply(mention, f"**✾╎المستخـدم**  [{JoKeRUB}](tg://user?id={user.id}) \n**✾╎تـم رفعـه بڪلبك 🖤**",
                        )
+
+@l313l.on(admin_cmd(pattern="رفع عسل(?:\s|$)([\s\S]*)"))
+async def permalink(mention):
+    user_info = await get_user_from_event(mention)
+    if not user_info:
+        return
+    user = user_info[0] if isinstance(user_info, tuple) else user_info
+    JoKeRUB = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    me = await mention.client.get_me()
+    my_mention = f"[{me.first_name}](tg://user?id={me.id})"
+    await edit_or_reply(mention, f"**✾╎المستخـدم ** [{JoKeRUB}](tg://user?id={user.id}) \n**✾╎تـم رفعـه عَـسل الكَـروب 🍯 .**",
+                       )
+
+@l313l.on(admin_cmd(pattern="رفع كمر(?:\s|$)([\s\S]*)"))
+async def permalink(mention):
+    user_info = await get_user_from_event(mention)
+    if not user_info:
+        return
+    user = user_info[0] if isinstance(user_info, tuple) else user_info
+    JoKeRUB = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    me = await mention.client.get_me()
+    my_mention = f"[{me.first_name}](tg://user?id={me.id})"
+    await edit_or_reply(mention, f"**✾╎المستخـدم ** [{JoKeRUB}](tg://user?id={user.id}) \n**✾╎تـم رفعـه كَـمـر الكَروب 🌝 .**",
+                       )
     
 @l313l.on(admin_cmd(pattern="رفع مطي(?:\s|$)([\s\S]*)"))
 async def permalink(mention):

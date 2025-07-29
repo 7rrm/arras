@@ -458,10 +458,11 @@ import os
 import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
+from telethon.tl.types import DocumentAttributeAudio
 
-# مسار الصورة المصغرة الثابتة
+# الإعدادات الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
-DEFAULT_ARTIST = "@Lx5x5"  # 
+DEFAULT_ARTIST = "@Lx5x5"  # المؤدي الثابت
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -476,9 +477,9 @@ async def yt_audio_search(event):
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
+        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
     
     # إعدادات yt-dlp
     ydl_ops = {
@@ -509,13 +510,8 @@ async def yt_audio_search(event):
         title = results[0]["title"][:40]
         duration = results[0]["duration"]
         
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل في البحث** \n**- الخطأ:** `{str(e)}`")
-        return
-    
-    await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
-    
-    try:
+        await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+        
         # التحميل باستخدام yt-dlp
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info_dict = ydl.extract_info(link, download=False)
@@ -525,15 +521,13 @@ async def yt_audio_search(event):
             os.rename(audio_file, "a R R a S 🎧.m4a")
             audio_file = "a R R a S 🎧.m4a"
             
-        await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
-        
-        # إرسال الملف باستخدام الصورة الثابتة
+        # إرسال الملف مع إضافة معلومات المؤدي فقط
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
-            thumb=DEFAULT_THUMBNAIL,  # هنا نستخدم الصورة الثابتة
+            caption=f"**⎉╎البحث:** `{title}`\n**⎉╎المدة:** `{duration}`",
+            thumb=DEFAULT_THUMBNAIL,
             attributes=[
                 DocumentAttributeAudio(
                     performer=DEFAULT_ARTIST  # فقط إضافة المؤدي

@@ -453,11 +453,6 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-import os
-import requests
-import yt_dlp
-from youtube_search import YoutubeSearch
-from telethon.errors import ChatSendMediaForbiddenError
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -476,31 +471,25 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
     
-    # إعدادات yt-dlp المعدلة حسب طلبك
+    # إعدادات yt-dlp
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "socket_timeout": 5,
-        "http_chunk_size": 5242880,  # 5MB
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 2,
-        "retries": 2,
-        "quiet": True,
-        "no_warnings": True,
-        "geo_bypass": True,
-        "cookiefile": get_cookies_file(),
-        "outtmpl": "a R R a S 🎧.m4a",  # اسم الملف كما تريد
+        "format": "bestaudio[ext=m4a]",
         "keepvideo": False,
         "prefer_ffmpeg": False,
+        "geo_bypass": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "quiet": True,
+        "no_warnings": True,
+        "cookiefile": get_cookies_file(),
     }
     
     try:
-        # البحث باستخدام YoutubeSearch
+        # البحث باستخدام YoutubeSearch (الصاني) - الأسرع
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
             
-        # استخراج رابط الفيديو الصحيح
+        # استخراج رابط الفيديو الصحيح (بدون قوائم تشغيل)
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
         title = results[0]["title"][:40]
@@ -511,6 +500,7 @@ async def yt_audio_search(event):
         thumb = requests.get(thumbnail, allow_redirects=True)
         open(thumb_name, "wb").write(thumb.content)
         
+        # معلومات المدة
         duration = results[0]["duration"]
         
     except Exception as e:
@@ -525,10 +515,6 @@ async def yt_audio_search(event):
             info_dict = ydl.extract_info(link, download=False)
             audio_file = ydl.prepare_filename(info_dict)
             ydl.process_info(info_dict)
-            
-            # تغيير اسم الملف إلى الاسم المطلوب
-            os.rename(audio_file, "a R R a S 🎧.m4a")
-            audio_file = "a R R a S 🎧.m4a"
             
         await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
         
@@ -551,7 +537,6 @@ async def yt_audio_search(event):
         # تنظيف الملفات المؤقتة
         remove_if_exists(audio_file)
         remove_if_exists(thumb_name)
-
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

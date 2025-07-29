@@ -483,7 +483,7 @@ async def yt_audio_search(event):
             "quiet": True,
             "no_warnings": True,
             "geo_bypass": True,
-            "cookiefile": cookies_file,
+            "cookiefile": get_cookies_file(),
             "outtmpl": "a R R a S 🎧.m4a"
     }
     

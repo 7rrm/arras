@@ -518,7 +518,7 @@ async def yt_audio_search(event):
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
         title = results[0]["title"][:40]
-        duration = results[0]["duration"]
+        duration_str = results[0]["duration"]
         duration = parse_duration(duration_str)
         
     except Exception as e:

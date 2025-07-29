@@ -462,7 +462,7 @@ from telethon.tl.types import DocumentAttributeAudio
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
-DEFAULT_ARTIST = "@Lx5x5"  # 
+DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "  # 
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -504,7 +504,6 @@ async def yt_audio_search(event):
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": get_cookies_file(),
-        "outtmpl": "a R R a S 🎧.m4a",
         "keepvideo": False,
         "prefer_ffmpeg": False,
     }

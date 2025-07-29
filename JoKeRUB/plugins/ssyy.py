@@ -453,6 +453,13 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
+import os
+import yt_dlp
+from youtube_search import YoutubeSearch
+from telethon.errors import ChatSendMediaForbiddenError
+
+# مسار الصورة المصغرة الثابتة
+DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -467,47 +474,44 @@ async def yt_audio_search(event):
     elif reply and reply.message:
         query = reply.message
     else:
-        return await edit_or_reply(event, "**⎉╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     # إعدادات yt-dlp
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": False,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "socket_timeout": 5,
+        "http_chunk_size": 5242880,
+        "noplaylist": True,
+        "extract_flat": True,
+        "fragment_retries": 2,
+        "retries": 2,
         "quiet": True,
         "no_warnings": True,
+        "geo_bypass": True,
         "cookiefile": get_cookies_file(),
+        "outtmpl": "a R R a S 🎧.m4a",
+        "keepvideo": False,
+        "prefer_ffmpeg": False,
     }
     
     try:
-        # البحث باستخدام YoutubeSearch (الصاني) - الأسرع
+        # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
             
-        # استخراج رابط الفيديو الصحيح (بدون قوائم تشغيل)
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
         title = results[0]["title"][:40]
-        thumbnail = results[0]["thumbnails"][0]
-        thumb_name = f"{title}.jpg"
-        
-        # تحميل الصورة المصغرة
-        thumb = requests.get(thumbnail, allow_redirects=True)
-        open(thumb_name, "wb").write(thumb.content)
-        
-        # معلومات المدة
         duration = results[0]["duration"]
         
     except Exception as e:
         await zedevent.edit(f"**- فشـل في البحث** \n**- الخطأ:** `{str(e)}`")
         return
     
-    await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
+    await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
         # التحميل باستخدام yt-dlp
@@ -516,15 +520,18 @@ async def yt_audio_search(event):
             audio_file = ydl.prepare_filename(info_dict)
             ydl.process_info(info_dict)
             
-        await zedevent.edit("**╮ جـارِ الرفـع ▬▬ . . .🎧♥️╰**")
+            os.rename(audio_file, "a R R a S 🎧.m4a")
+            audio_file = "a R R a S 🎧.m4a"
+            
+        await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         
-        # إرسال الملف الصوتي
+        # إرسال الملف باستخدام الصورة الثابتة
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**⎉╎البحث:** `{title}`\n**⎉╎المدة:** `{duration}`",
-            thumb=thumb_name,
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
+            thumb=DEFAULT_THUMBNAIL,  # هنا نستخدم الصورة الثابتة
         )
         
         await zedevent.delete()
@@ -534,9 +541,8 @@ async def yt_audio_search(event):
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
-        # تنظيف الملفات المؤقتة
         remove_if_exists(audio_file)
-        remove_if_exists(thumb_name)
+
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

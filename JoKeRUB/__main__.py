@@ -13,7 +13,6 @@ from .utils import (
     mybot,
     startupmessage,
     verifyLoggerGroup,
-    saves,
 )
 
 LOGS = logging.getLogger("JoKeRUB")

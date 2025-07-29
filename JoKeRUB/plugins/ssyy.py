@@ -38,6 +38,7 @@ from telethon.tl import types
 from telethon.utils import get_attributes
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon.tl.functions.contacts import UnblockRequest as unblock
+from telethon.tl.types import DocumentAttributeAudio
 
 from ..Config import Config
 from ..core import pool
@@ -460,6 +461,7 @@ from telethon.errors import ChatSendMediaForbiddenError
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
+DEFAULT_ARTIST = "@Lx5x5"  # 
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -532,6 +534,11 @@ async def yt_audio_search(event):
             force_document=False,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
             thumb=DEFAULT_THUMBNAIL,  # هنا نستخدم الصورة الثابتة
+            attributes=[
+                DocumentAttributeAudio(
+                    performer=DEFAULT_ARTIST  # فقط إضافة المؤدي
+                )
+            ]
         )
         
         await zedevent.delete()

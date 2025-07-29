@@ -472,15 +472,19 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ؏ـن المقطـٓع الصٓوتـي... 🎧♥️╰**")
     
     # إعدادات yt-dlp
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "keepvideo": False,
-        "prefer_ffmpeg": False,
-        "geo_bypass": True,
-        "outtmpl": "%(title)s.%(ext)s",
-        "quiet": True,
-        "no_warnings": True,
-        "cookiefile": get_cookies_file(),
+    ydl_opts = {
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a"
     }
     
     try:

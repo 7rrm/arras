@@ -468,6 +468,16 @@ def remove_if_exists(path):
     if os.path.exists(path):
         os.remove(path)
 
+def parse_duration(duration_str):
+    """تحويل المدة من mm:ss إلى ثواني"""
+    try:
+        parts = list(map(int, duration_str.split(':')))
+        if len(parts) == 2:
+            return parts[0] * 60 + parts[1]
+        return 0
+    except:
+        return 0
+
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
     # الحصول على الاستعلام من الرسالة
@@ -508,7 +518,8 @@ async def yt_audio_search(event):
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
         title = results[0]["title"][:40]
-        duration = results[0]["duration"]
+        duration_str = results[0]["duration"]
+        duration = parse_duration(duration_str)
         
         await zedevent.edit("**╮ جـارِ التحميل ▬▭ . . .🎧♥️╰**")
         
@@ -521,16 +532,18 @@ async def yt_audio_search(event):
             os.rename(audio_file, "a R R a S 🎧.m4a")
             audio_file = "a R R a S 🎧.m4a"
             
-        # إرسال الملف مع إضافة معلومات المؤدي فقط
+        # إرسال الملف مع إضافة معلومات المؤدي والمدة الإجبارية
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**⎉╎البحث:** `{title}`\n**⎉╎المدة:** `{duration}`",
+            caption=f"**⎉╎البحث:** `{title}`\n**⎉╎المدة:** `{duration_str}`",
             thumb=DEFAULT_THUMBNAIL,
             attributes=[
                 DocumentAttributeAudio(
-                    performer=DEFAULT_ARTIST  # فقط إضافة المؤدي
+                    duration=duration,  # المدة مطلوبة
+                    performer=DEFAULT_ARTIST,  # المؤدي الثابت
+                    title=title  # العنوان (اختياري)
                 )
             ]
         )

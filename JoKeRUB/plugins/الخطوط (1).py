@@ -1,46 +1,30 @@
 from telethon import events
 from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..sql_helper.globals import gvarstatus
 from ..core.managers import edit_delete
-from telethon import functions
-from telethon.errors.rpcerrorlist import MessageIdInvalidError
+from telethon.errors import MessageIdInvalidError
+import re
 
-# جميع أوامر الخطوط مع التعديل الجديد للخط الغامق
-@l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
-async def bold_toggle(event):
-    if not gvarstatus("bold"):
-        addgvar("bold", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط الغامق بنجاح ✓**")
-    else:
-        delgvar("bold")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط الغامق ✓**")
-
-@l313l.on(admin_cmd(pattern="(خط المشطوب|خط مشطوب)"))
-async def strikethrough_toggle(event):
-    if not gvarstatus("tshwesh"):
-        addgvar("tshwesh", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط المشطوب ✓**")
-    else:
-        delgvar("tshwesh")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط المشطوب ✓**")
-
-@l313l.on(admin_cmd(pattern="(خط رمز|خط الرمز)"))
-async def monospace_toggle(event):
-    if not gvarstatus("ramz"):
-        addgvar("ramz", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط الرمز ✓**")
-    else:
-        delgvar("ramz")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط الرمز ✓**")
-
-@l313l.on(admin_cmd(pattern="(خط الجوكر|خط جوكر)"))
-async def joker_toggle(event):
-    if not gvarstatus("joker"):
-        addgvar("joker", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط الجوكر ✓**")
-    else:
-        delgvar("joker")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**")
+async def apply_formatting(text, format_type):
+    """تطبيق التنسيق على النص مع تجاهل الإيموجي المميز"""
+    # فصل النص عن الإيموجي المميز (باستخدام تعبير منتظم)
+    parts = re.split(r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])', text)
+    
+    formatted_text = ""
+    for part in parts:
+        if part.strip():  # إذا كان الجزء نصًا وليس فراغًا
+            if format_type == "bold":
+                formatted_text += f"**{part}**"
+            elif format_type == "strikethrough":
+                formatted_text += f"~~{part}~~"
+            elif format_type == "monospace":
+                formatted_text += f"`{part}`"
+            elif format_type == "joker":
+                formatted_text += f"```{part}```"
+        else:
+            formatted_text += part  # إذا كان إيموجي، نضيفه كما هو
+    
+    return formatted_text
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
@@ -49,31 +33,26 @@ async def handle_text_formatting(event):
         
     text = event.message.text
     modified = False
+    formatted_text = text
     
-    # تجاهل الرسائل التي تحتوي على إيموجي مميز
-    if "Premium" in text:  # يمكنك تعديل الشرط حسب ما يناسبك
-        return
-    
-    # التحقق من جميع أنواع الخطوط
+    # التحقق من نوع التنسيق المطلوب
     if gvarstatus("bold"):
-        if not text.startswith('.') and '.' not in text[:-1]:
-            text = f"**{text}**"
-            modified = True
-            
-    if gvarstatus("tshwesh") and not modified:
-        text = f"~~{text}~~"
+        formatted_text = await apply_formatting(text, "bold")
         modified = True
-        
-    if gvarstatus("ramz") and not modified:
-        text = f"`{text}`"
+    elif gvarstatus("tshwesh"):
+        formatted_text = await apply_formatting(text, "strikethrough")
         modified = True
-        
-    if gvarstatus("joker") and not modified:
-        text = f"```{text}```"
+    elif gvarstatus("ramz"):
+        formatted_text = await apply_formatting(text, "monospace")
+        modified = True
+    elif gvarstatus("joker"):
+        formatted_text = await apply_formatting(text, "joker")
         modified = True
         
     if modified:
         try:
-            await event.edit(text)
-        except:
+            await event.edit(formatted_text)
+        except MessageIdInvalidError:
             pass
+        except Exception as e:
+            print(f"Error: {e}")

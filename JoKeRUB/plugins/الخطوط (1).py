@@ -70,6 +70,9 @@ async def handle_text_formatting(event):
         
     if modified:
         try:
-            await event.edit(text)
-        except:
+            # إرسال النص المعدل مع الحفاظ على الإيموجي المميز
+            await event.edit(text, parse_mode='markdown')
+        except MessageIdInvalidError:
             pass
+        except Exception as e:
+            print(f"Error editing message: {e}")

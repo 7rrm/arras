@@ -42,6 +42,8 @@ async def joker_toggle(event):
         delgvar("joker")
         await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**")
 
+from telethon.utils import is_emoji
+
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
     if not event.message.text or event.message.media:
@@ -49,6 +51,10 @@ async def handle_text_formatting(event):
         
     text = event.message.text
     modified = False
+    
+    # إذا كان النص يحتوي على إيموجي مميز، لا تطبق أي تنسيق (تجنبًا للمشكلة)
+    if any(is_emoji(c) and getattr(c, 'premium', False) for c in text):
+        return
     
     # التحقق من جميع أنواع الخطوط
     if gvarstatus("bold"):
@@ -70,8 +76,11 @@ async def handle_text_formatting(event):
         
     if modified:
         try:
-            # إرسال النص المعدل مع الحفاظ على الإيموجي المميز
-            await event.edit(text, parse_mode='markdown')
+            # جرب وضع 'html' أولاً، ثم 'markdown' إذا فشل
+            try:
+                await event.edit(text, parse_mode='html')
+            except:
+                await event.edit(text, parse_mode='markdown')
         except MessageIdInvalidError:
             pass
         except Exception as e:

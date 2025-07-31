@@ -5,7 +5,7 @@ from ..core.managers import edit_delete
 from telethon import functions
 from telethon.errors.rpcerrorlist import MessageIdInvalidError
 
-# جميع أوامر الخطوط مع التعديل الجديد للخط الغامق
+# أوامر التفعيل/الإيقاف (تبقى كما هي بدون تغيير)
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def bold_toggle(event):
     if not gvarstatus("bold"):
@@ -42,8 +42,6 @@ async def joker_toggle(event):
         delgvar("joker")
         await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**")
 
-from telethon.utils import is_emoji
-
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
     if not event.message.text or event.message.media:
@@ -51,37 +49,42 @@ async def handle_text_formatting(event):
         
     text = event.message.text
     modified = False
+    formatting_applied = False
     
-    # إذا كان النص يحتوي على إيموجي مميز، لا تطبق أي تنسيق (تجنبًا للمشكلة)
-    if any(is_emoji(c) and getattr(c, 'premium', False) for c in text):
-        return
+    # حفظ الإيموجي المميز قبل التنسيق
+    original_entities = event.message.entities or event.message.raw_text_entities
     
-    # التحقق من جميع أنواع الخطوط
+    # تطبيق التنسيقات حسب الأولوية
     if gvarstatus("bold"):
-        if not text.startswith('.') and '.' not in text[:-1]:
-            text = f"**{text}**"
-            modified = True
-            
-    if gvarstatus("tshwesh") and not modified:
+        text = f"**{text}**"
+        modified = True
+        formatting_applied = True
+        
+    elif gvarstatus("tshwesh"):
         text = f"~~{text}~~"
         modified = True
+        formatting_applied = True
         
-    if gvarstatus("ramz") and not modified:
+    elif gvarstatus("ramz"):
         text = f"`{text}`"
         modified = True
+        formatting_applied = True
         
-    if gvarstatus("joker") and not modified:
+    elif gvarstatus("joker"):
         text = f"```{text}```"
         modified = True
+        formatting_applied = True
         
     if modified:
         try:
-            # جرب وضع 'html' أولاً، ثم 'markdown' إذا فشل
-            try:
-                await event.edit(text, parse_mode='html')
-            except:
-                await event.edit(text, parse_mode='markdown')
+            # إذا كان هناك تنسيق ولكن النص يحتوي على كيانات (مثل إيموجي مميز)
+            if original_entities and formatting_applied:
+                # إرسال الرسالة بدون parse_mode للحفاظ على الكيانات الأصلية
+                await event.edit(text, parse_mode=None)
+            else:
+                # إرسال الرسالة مع التنسيق العادي
+                await event.edit(text)
         except MessageIdInvalidError:
             pass
         except Exception as e:
-            print(f"Error editing message: {e}")
+            print(f"خطأ في تعديل الرسالة: {e}")

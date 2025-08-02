@@ -461,7 +461,12 @@ from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
-# ------------------ الجزء الأصلي (بدون تغيير) ------------------
+# إعدادات التحكم (تم نقلها من الكود الثاني)
+search_settings = {
+    'admin_id': l313l.uid  # أي دي المطور تلقائياً
+}
+
+# بقية الإعدادات الأصلية بدون تغيير
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
 DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
@@ -477,47 +482,46 @@ def parse_duration(duration_str):
         return 0
     except:
         return 0
-# ------------------ النهاية الجزء الأصلي ------------------
 
-# إضافة: التحقق من المطور (أنت)
-def is_admin(user_id):
-    return user_id == (await event.client.get_me()).id  # تأكد من أن هذا يعيد أي دي المطور الصحيح
-
-# نظام التفعيل/التعطيل المحدث
+# نظام التفعيل/التعطيل المعدل (مطابق للكود الثاني)
 @l313l.ar_cmd(pattern="تفعيل بحث$")
 async def enable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
     if event.is_private:
         addgvar("search_enabled_private", "True")
-        await event.edit("**✓ تم تفعيل البحث في الخاص للجميع**")
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
     else:
         addgvar(f"search_enabled_{event.chat_id}", "True")
-        await event.edit("**✓ تم تفعيل البحث في هذه المجموعة**")
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.ar_cmd(pattern="تعطيل بحث$")
 async def disable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
     if event.is_private:
         delgvar("search_enabled_private")
-        await event.edit("**✗ تم تعطيل البحث في الخاص**")
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
     else:
         delgvar(f"search_enabled_{event.chat_id}")
-        await event.edit("**✗ تم تعطيل البحث في هذه المجموعة**")
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 def is_search_allowed(event):
-    # أنت (المطور) مسموح لك دائماً
-    if is_admin(event.sender_id):
+    # المطور مسموح له دائماً
+    if event.sender_id == search_settings['admin_id']:
         return True
-    # الأعضاء العاديين يخضعون للتفعيل
+    # التحقق من التفعيل
     if event.is_private:
         return gvarstatus("search_enabled_private") == "True"
     return gvarstatus(f"search_enabled_{event.chat_id}") == "True"
 
-# الكود الأصلي مع تعديل شرط التحقق فقط
+# الكود الأصلي بدون أي تعديلات (باستثناء إضافة شرط التحقق)
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
     if not is_search_allowed(event):
-        return await event.delete() if event.is_group else await event.edit("**✗ البحث معطل!**")
-    
-    # ... باقي الكود الأصلي تماماً كما هو ...
+        return
     
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
@@ -531,7 +535,7 @@ async def yt_audio_search(event):
     
     ydl_ops = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # سيستخدم معرف الفيديو كاسم للملف
+        "outtmpl": "%(id)s.%(ext)s",
         "socket_timeout": 5,
         "http_chunk_size": 5242880,
         "noplaylist": True,
@@ -566,7 +570,7 @@ async def yt_audio_search(event):
     try:
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info_dict = ydl.extract_info(link, download=True)
-            audio_file = ydl.prepare_filename(info_dict)  # سيتم استخدام الاسم التلقائي
+            audio_file = ydl.prepare_filename(info_dict)
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         
@@ -594,8 +598,6 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
-
-
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

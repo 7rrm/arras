@@ -490,7 +490,7 @@ def is_search_enabled(chat_id=None):
         return gvarstatus(f"search_enabled_{chat_id}") == "True"
     return gvarstatus("search_enabled_private") == "True"
 
-@l313l.ar_cmd(pattern="تفعيل بحث$")
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
 async def enable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()
@@ -502,7 +502,7 @@ async def enable_search(event):
         addgvar(f"search_enabled_{event.chat_id}", "True")
         await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
-@l313l.ar_cmd(pattern="تعطيل بحث$")
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
 async def disable_search(event):
     if event.sender_id != search_settings['admin_id']:
         return await event.delete()

@@ -459,6 +459,7 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
+from ..sql_helper.globals import get_cookies_file, addgvar, delgvar, gvarstatus
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
@@ -478,9 +479,40 @@ def parse_duration(duration_str):
     except:
         return 0
 
+# دالة التحقق من تفعيل البحث مع استثناء للمطور
+def is_search_enabled(chat_id=None, user_id=None):
+    # المطور l313l.uid يمكنه البحث دائماً
+    if user_id == l313l.uid:
+        return True
+    if chat_id:
+        return gvarstatus(f"search_enabled_{chat_id}") == "True"
+    return gvarstatus("search_enabled_global") == "True"
+
+@l313l.ar_cmd(pattern="تفعيل بحث$")
+async def enable_search(event):
+    if event.is_private:
+        addgvar("search_enabled_global", "True")
+        await edit_or_reply(event, "**✓ تم تفعيل البحث في جميع الدردشات**")
+    else:
+        addgvar(f"search_enabled_{event.chat_id}", "True")
+        await edit_or_reply(event, "**✓ تم تفعيل البحث في هذه المجموعة**")
+
+@l313l.ar_cmd(pattern="تعطيل بحث$")
+async def disable_search(event):
+    if event.is_private:
+        delgvar("search_enabled_global")
+        await edit_or_reply(event, "**✗ تم تعطيل البحث في جميع الدردشات**")
+    else:
+        delgvar(f"search_enabled_{event.chat_id}")
+        await edit_or_reply(event, "**✗ تم تعطيل البحث في هذه المجموعة**")
+
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # الحصول على الاستعلام من الرسالة
+    # التحقق من تفعيل البحث مع استثناء للمطور
+    if not is_search_enabled(event.chat_id, event.sender_id):
+        return await edit_or_reply(event, "**✗ البحث معطل حالياً في هذه الدردشة**")
+
+    # بقية الكود الأصلي بدون تغيير
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
@@ -491,10 +523,9 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    # إعدادات yt-dlp (مطابقة للكود الثاني)
     ydl_ops = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
+        "outtmpl": "%(id)s.%(ext)s",
         "socket_timeout": 5,
         "http_chunk_size": 5242880,
         "noplaylist": True,
@@ -510,7 +541,6 @@ async def yt_audio_search(event):
     }
     
     try:
-        # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
@@ -528,21 +558,19 @@ async def yt_audio_search(event):
     await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
-        # التحميل باستخدام yt-dlp (مثل الكود الثاني)
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
-            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
+            info_dict = ydl.extract_info(link, download=True)
+            audio_file = ydl.prepare_filename(info_dict)
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         
-        # إرسال الملف مع الرد على الرسالة الأصلية (مثل الكود الثاني)
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
             thumb=DEFAULT_THUMBNAIL,
-            reply_to=event.reply_to_msg_id or event.id,  # الرد على الرسالة الأصلية
+            reply_to=event.reply_to_msg_id or event.id,
             attributes=[
                 DocumentAttributeAudio(
                     duration=duration,
@@ -560,6 +588,7 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

@@ -459,10 +459,11 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
-DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "  # 
+DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -478,9 +479,34 @@ def parse_duration(duration_str):
     except:
         return 0
 
+@l313l.ar_cmd(pattern="تفعيل بحث$")
+async def enable_search(event):
+    if event.is_private:
+        addgvar("search_enabled_private", "True")
+        await event.edit("**✓ تم تفعيل البحث في الدردشات الخاصة**")
+    else:
+        addgvar(f"search_enabled_{event.chat_id}", "True")
+        await event.edit("**✓ تم تفعيل البحث في هذه المجموعة**")
+
+@l313l.ar_cmd(pattern="تعطيل بحث$")
+async def disable_search(event):
+    if event.is_private:
+        delgvar("search_enabled_private")
+        await event.edit("**✗ تم تعطيل البحث في الدردشات الخاصة**")
+    else:
+        delgvar(f"search_enabled_{event.chat_id}")
+        await event.edit("**✗ تم تعطيل البحث في هذه المجموعة**")
+
+def is_search_enabled(event):
+    if event.is_private:
+        return gvarstatus("search_enabled_private") == "True"
+    return gvarstatus(f"search_enabled_{event.chat_id}") == "True"
+
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # الحصول على الاستعلام من الرسالة
+    if not is_search_enabled(event):
+        return await event.edit("**✗ البحث معطل في هذه الدردشة!**")
+    
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
@@ -491,9 +517,9 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    # إعدادات yt-dlp
     ydl_ops = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "outtmpl": "%(id)s.%(ext)s",  # سيستخدم معرف الفيديو كاسم للملف
         "socket_timeout": 5,
         "http_chunk_size": 5242880,
         "noplaylist": True,
@@ -509,7 +535,6 @@ async def yt_audio_search(event):
     }
     
     try:
-        # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
@@ -527,29 +552,24 @@ async def yt_audio_search(event):
     await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
-        # التحميل باستخدام yt-dlp
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=False)
-            audio_file = ydl.prepare_filename(info_dict)
-            ydl.process_info(info_dict)
-            
-            os.rename(audio_file, "a R R a S 🎧.m4a")
-            audio_file = "a R R a S 🎧.m4a"
+            info_dict = ydl.extract_info(link, download=True)
+            audio_file = ydl.prepare_filename(info_dict)  # سيتم استخدام الاسم التلقائي
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         
-        # إرسال الملف باستخدام الصورة الثابتة
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
-            thumb=DEFAULT_THUMBNAIL, # هنا نستخدم الصورة الثابتة
+            thumb=DEFAULT_THUMBNAIL,
+            reply_to=event.reply_to_msg_id or event.id,
             attributes=[
                 DocumentAttributeAudio(
-                    duration=duration,  # المدة مطلوبة
-                    performer=DEFAULT_ARTIST,  # المؤدي الثابت
-                    title=title  # العنوان (اختياري)
+                    duration=duration,
+                    performer=DEFAULT_ARTIST,
+                    title=title
                 )
             ]
         )

@@ -479,40 +479,54 @@ def parse_duration(duration_str):
     except:
         return 0
 
-# دالة التحقق من تفعيل البحث مع استثناء للمطور
-def is_search_enabled(chat_id=None, user_id=None):
-    # المطور l313l.uid يمكنه البحث دائماً
-    if user_id == l313l.uid:
-        return True
+# إعدادات التحكم
+search_settings = {
+    'admin_id': l313l.uid  # أي دي المطور
+}
+
+# دالة التحقق من تفعيل البحث
+def is_search_enabled(chat_id=None):
     if chat_id:
         return gvarstatus(f"search_enabled_{chat_id}") == "True"
-    return gvarstatus("search_enabled_global") == "True"
+    return gvarstatus("search_enabled_private") == "True"
 
 @l313l.ar_cmd(pattern="تفعيل بحث$")
 async def enable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
     if event.is_private:
-        addgvar("search_enabled_global", "True")
-        await edit_or_reply(event, "**✓ تم تفعيل البحث في جميع الدردشات**")
+        addgvar("search_enabled_private", "True")
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
     else:
         addgvar(f"search_enabled_{event.chat_id}", "True")
-        await edit_or_reply(event, "**✓ تم تفعيل البحث في هذه المجموعة**")
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
 
 @l313l.ar_cmd(pattern="تعطيل بحث$")
 async def disable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
     if event.is_private:
-        delgvar("search_enabled_global")
-        await edit_or_reply(event, "**✗ تم تعطيل البحث في جميع الدردشات**")
+        delgvar("search_enabled_private")
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
     else:
         delgvar(f"search_enabled_{event.chat_id}")
-        await edit_or_reply(event, "**✗ تم تعطيل البحث في هذه المجموعة**")
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # التحقق من تفعيل البحث مع استثناء للمطور
-    if not is_search_enabled(event.chat_id, event.sender_id):
-        return await edit_or_reply(event, "**✗ البحث معطل حالياً في هذه الدردشة**")
+    # التحقق من الصلاحيات
+    if event.sender_id == search_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
+    elif event.is_private:
+        if not is_search_enabled():
+            return await event.reply("**✗ البحث معطل حالياً في الدردشات الخاصة**")
+    else:
+        if not is_search_enabled(event.chat_id):
+            return await event.reply("**✗ البحث معطل حالياً في هذه المجموعة**")
 
-    # بقية الكود الأصلي بدون تغيير
+    # بقية الكود الأصلي
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)

@@ -459,7 +459,6 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
-from ..sql_helper.globals import get_cookies_file, addgvar, delgvar, gvarstatus
 
 # مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
@@ -479,54 +478,9 @@ def parse_duration(duration_str):
     except:
         return 0
 
-# إعدادات التحكم
-search_settings = {
-    'admin_id': l313l.uid  # أي دي المطور
-}
-
-# دالة التحقق من تفعيل البحث
-def is_search_enabled(chat_id=None):
-    if chat_id:
-        return gvarstatus(f"search_enabled_{chat_id}") == "True"
-    return gvarstatus("search_enabled_private") == "True"
-
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
-async def enable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        addgvar("search_enabled_private", "True")
-        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
-    else:
-        addgvar(f"search_enabled_{event.chat_id}", "True")
-        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
-
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
-async def disable_search(event):
-    if event.sender_id != search_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        delgvar("search_enabled_private")
-        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
-    else:
-        delgvar(f"search_enabled_{event.chat_id}")
-        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
-
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # التحقق من الصلاحيات
-    if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not is_search_enabled():
-            return await event.reply("**✗ البحث معطل حالياً في الدردشات الخاصة**")
-    else:
-        if not is_search_enabled(event.chat_id):
-            return await event.reply("**✗ البحث معطل حالياً في هذه المجموعة**")
-
-    # بقية الكود الأصلي
+    # الحصول على الاستعلام من الرسالة
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
@@ -539,7 +493,7 @@ async def yt_audio_search(event):
     
     ydl_ops = {
         "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",
+        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
         "socket_timeout": 5,
         "http_chunk_size": 5242880,
         "noplaylist": True,
@@ -555,6 +509,7 @@ async def yt_audio_search(event):
     }
     
     try:
+        # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
@@ -573,18 +528,17 @@ async def yt_audio_search(event):
     
     try:
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)
-            audio_file = ydl.prepare_filename(info_dict)
+            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
+            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
-        
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
             thumb=DEFAULT_THUMBNAIL,
-            reply_to=event.reply_to_msg_id or event.id,
+            reply_to=event.reply_to_msg_id or event.id,  # الرد على الرسالة الأصلية
             attributes=[
                 DocumentAttributeAudio(
                     duration=duration,

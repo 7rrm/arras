@@ -461,7 +461,7 @@ from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
-# مسار الصورة المصغرة الثابتة
+# ------------------ الجزء الأصلي (بدون تغيير) ------------------
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
 DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
@@ -470,7 +470,6 @@ def remove_if_exists(path):
         os.remove(path)
 
 def parse_duration(duration_str):
-    """تحويل المدة من mm:ss إلى ثواني"""
     try:
         parts = list(map(int, duration_str.split(':')))
         if len(parts) == 2:
@@ -478,12 +477,18 @@ def parse_duration(duration_str):
         return 0
     except:
         return 0
+# ------------------ النهاية الجزء الأصلي ------------------
 
+# إضافة: التحقق من المطور (أنت)
+def is_admin(user_id):
+    return user_id == (await event.client.get_me()).id  # تأكد من أن هذا يعيد أي دي المطور الصحيح
+
+# نظام التفعيل/التعطيل المحدث
 @l313l.ar_cmd(pattern="تفعيل بحث$")
 async def enable_search(event):
     if event.is_private:
         addgvar("search_enabled_private", "True")
-        await event.edit("**✓ تم تفعيل البحث في الدردشات الخاصة**")
+        await event.edit("**✓ تم تفعيل البحث في الخاص للجميع**")
     else:
         addgvar(f"search_enabled_{event.chat_id}", "True")
         await event.edit("**✓ تم تفعيل البحث في هذه المجموعة**")
@@ -492,20 +497,27 @@ async def enable_search(event):
 async def disable_search(event):
     if event.is_private:
         delgvar("search_enabled_private")
-        await event.edit("**✗ تم تعطيل البحث في الدردشات الخاصة**")
+        await event.edit("**✗ تم تعطيل البحث في الخاص**")
     else:
         delgvar(f"search_enabled_{event.chat_id}")
         await event.edit("**✗ تم تعطيل البحث في هذه المجموعة**")
 
-def is_search_enabled(event):
+def is_search_allowed(event):
+    # أنت (المطور) مسموح لك دائماً
+    if is_admin(event.sender_id):
+        return True
+    # الأعضاء العاديين يخضعون للتفعيل
     if event.is_private:
         return gvarstatus("search_enabled_private") == "True"
     return gvarstatus(f"search_enabled_{event.chat_id}") == "True"
 
+# الكود الأصلي مع تعديل شرط التحقق فقط
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    if not is_search_enabled(event):
-        return await event.edit("**✗ البحث معطل في هذه الدردشة!**")
+    if not is_search_allowed(event):
+        return await event.delete() if event.is_group else await event.edit("**✗ البحث معطل!**")
+    
+    # ... باقي الكود الأصلي تماماً كما هو ...
     
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):

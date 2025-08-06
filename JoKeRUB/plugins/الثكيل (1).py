@@ -345,7 +345,7 @@ async def break_word_on_trigger(event):
             return
             
         text_to_search = event.raw_text.split(break_trigger_text)[-1]
-        delay = 2
+        delay = 0
     
     # البحث عن الأقواس {} أو ()
     match = re.search(r'[{(]([^})]+)[})]', text_to_search)

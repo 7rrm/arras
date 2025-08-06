@@ -121,7 +121,7 @@ async def kickme(leave):
     await leave.edit("غادر")
     
     # إرسال رسالة جديدة بالرد على الرسالة الحالية (بعد التعديل)
-    await leave.reply("حسنا سأغادر المجموعة جَـاو")
+    await leave.reply("**- حسنا سأغادر المجموعة جَـاو .**")
     
     # طرد المستخدم من المجموعة (اختياري)
     await leave.client.kick_participant(leave.chat_id, "me")

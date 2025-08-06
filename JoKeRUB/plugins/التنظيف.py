@@ -141,78 +141,7 @@ async def Hussein(event):
     await smsg.delete()
 
 
-@l313l.ar_cmd(
-    pattern="مسح رسائله(?:\s|$)([\s\S]*)",
-    command=("مسح رسائله", plugin_category),
-    info={
-        "header": "حذف جميع رسائل المستخدم في الدردشة",
-        "description": "يحذف كل رسائل الشخص بالرد عليه أو ذكر يوزره",
-        "usage": [
-            "{tr}مسح رسائله + بالرد على المستخدم",
-            "{tr}مسح رسائله + @يوزر",
-        ],
-        "examples": [
-            "{tr}مسح رسائله @username",
-            "{tr}مسح رسائله (بالرد على رسالة)",
-        ],
-    },
-)
-async def purge_user_messages(event):
-    "حذف جميع رسائل المستخدم المحدد"
-    # التحقق من أن الأمر ليس في الدردشة الخاصة
-    if event.is_private:
-        return await event.edit("**⚠️ هذا الأمر يعمل فقط في المجموعات!**")
 
-    reply = await event.get_reply_message()
-    input_str = event.pattern_match.group(1).strip()
-    target_user = None
-
-    # تحديد المستهدف
-    if reply:
-        target_user = reply.sender_id
-    elif input_str:
-        if input_str.startswith("@"):
-            try:
-                target_user = (await event.client.get_entity(input_str)).id
-            except Exception as e:
-                return await event.edit(f"**❌ خطأ:** لا يمكن العثور على المستخدم!\n`{e}`")
-        else:
-            return await event.edit("**❌ يجب كتابة اليوزر مثل:** `@username`")
-    else:
-        return await event.edit("**❌ يجب الرد على الشخص أو كتابة يوزره!**")
-
-    # بدء عملية الحذف
-    count = 0
-    start_msg = await event.edit("**⏳ جاري حذف الرسائل...**")
-    
-    async for message in event.client.iter_messages(
-        event.chat_id,
-        from_user=target_user,
-    ):
-        try:
-            await message.delete()
-            count += 1
-        except:
-            continue
-
-    # إرسال نتيجة الحذف
-    result_msg = await event.edit(
-        f"**✅ تم الانتهاء من الحذف**\n"
-        f"تم حذف `{count}` رسالة لـ [هذا المستخدم](tg://user?id={target_user})"
-    )
-    
-    # إرسال إلى سجل البوت (إذا كان مفعلاً)
-    if BOTLOG:
-        await event.client.send_message(
-            BOTLOG_CHATID,
-            f"#حذف_رسائل_مستخدم\n"
-            f"- الدردشة: `{event.chat_id}`\n"
-            f- العدد: `{count}`\n"
-            f"- المستخدم: `{target_user}`"
-        )
-    
-    await sleep(5)
-    await result_msg.delete()
 
 
 # TODO: only sticker messages.

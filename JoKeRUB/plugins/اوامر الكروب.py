@@ -103,6 +103,7 @@ async def remoteaccess(event):
         await event.edit("تم ارسال الرساله الى الرابط الذي وضعتة")
     except BaseException:
         await event.edit("** عذرا هذا ليست مجموعة **")
+
 @l313l.ar_cmd(
     pattern="اطردني$",
     command=("اطردني", plugin_category),
@@ -116,8 +117,20 @@ async def remoteaccess(event):
 )
 async def kickme(leave):
     "to leave the group."
-    await leave.edit("᯽︙  حسنا سأغادر المجموعه وداعا ")
+    # تعديل الرسالة إلى "غادر"
+    await leave.edit("غادر")
+    
+    # إرسال رسالة جديدة بالرد على الرسالة المعدلة
+    reply_msg = await leave.get_reply_message()  # الحصول على الرسالة المعدلة
+    await leave.client.send_message(
+        leave.chat_id,
+        "حسنا سأغادر المجموعة جَـاو",
+        reply_to=reply_msg.id,  # الرد على الرسالة المعدلة
+    )
+    
+    # طرد المستخدم من المجموعة (اختياري)
     await leave.client.kick_participant(leave.chat_id, "me")
+
 
 @l313l.ar_cmd(
     pattern="تفليش بالطرد$",

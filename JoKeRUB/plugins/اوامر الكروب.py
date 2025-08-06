@@ -120,17 +120,11 @@ async def kickme(leave):
     # تعديل الرسالة إلى "غادر"
     await leave.edit("غادر")
     
-    # إرسال رسالة جديدة بالرد على الرسالة المعدلة
-    reply_msg = await leave.get_reply_message()  # الحصول على الرسالة المعدلة
-    await leave.client.send_message(
-        leave.chat_id,
-        "حسنا سأغادر المجموعة جَـاو",
-        reply_to=reply_msg.id,  # الرد على الرسالة المعدلة
-    )
+    # إرسال رسالة جديدة بالرد على الرسالة الحالية (بعد التعديل)
+    await leave.reply("حسنا سأغادر المجموعة جَـاو")
     
     # طرد المستخدم من المجموعة (اختياري)
     await leave.client.kick_participant(leave.chat_id, "me")
-
 
 @l313l.ar_cmd(
     pattern="تفليش بالطرد$",

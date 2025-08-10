@@ -35,7 +35,6 @@ async def on_plug_in_callback_query_handler(event):
             ids = [userid, myid, zzz.id]
             
             if event.query.user_id in ids:
-                # إذا كان المستخدم مسموحًا له برؤية الهمسة
                 encrypted_tcxt = message["text"]
                 
                 # الحصول على معلومات المستخدم الذي فتح الهمسة
@@ -57,21 +56,21 @@ async def on_plug_in_callback_query_handler(event):
                     [Button.switch_inline("اضغط للرد", query=f"secret {user_id} \nرد على الهمسة", same_peer=True)]
                 ]
                 
-                # تحرير الرسالة الأصلية لتظهر التحديثات
+                # إرسال تنبيه بالمحتوى أولاً
+                await event.answer(encrypted_tcxt, alert=True)
+                
+                # ثم تحرير الرسالة الأصلية
                 try:
                     await event.edit(
                         text=updated_text,
                         buttons=buttons
                     )
-                except:
-                    pass
+                except Exception as e:
+                    print(f"Error editing message: {e}")
                     
-                reply_pop_up_alert = encrypted_tcxt
             else:
-                reply_pop_up_alert = "مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓"
+                await event.answer("مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓", alert=True)
         except KeyError:
-            reply_pop_up_alert = "- عـذراً .. الهمسة ليست موجهة لك !!"
+            await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", alert=True)
     else:
-        reply_pop_up_alert = "- عـذراً .. هذه الرسـالة لم تعد موجـوده ."
-    
-    await event.answer(reply_pop_up_alert, cache_time=0, alert=True)
+        await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", alert=True)

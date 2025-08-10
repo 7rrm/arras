@@ -1,80 +1,82 @@
 import json
 import os
 import re
-from telethon import Button, events
+from telethon import Button
+from telethon.events import CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
+
 from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
+from ..core.logger import logging
+
+LOGS = logging.getLogger(__name__)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"secret_(.*)")))
-async def on_plug_in_callback_query_handler(event):
-    # الحصول على البيانات الأساسية
-    timestamp = event.pattern_match.group(1).decode("UTF-8")
-    uzerid = gvarstatus("hmsa_id")
-    ussr = int(uzerid) if uzerid.isdigit() else uzerid
-    myid = Config.OWNER_ID
-    
+async def on_whisper_callback(event):
     try:
-        target_user = await l313l.get_entity(ussr)
-    except ValueError:
-        target_user = await l313l(GetUsersRequest(ussr))
-    
-    user_id = int(uzerid)
-    file_name = f"./JoKeRUB/{user_id}.txt"
-    
-    if not os.path.exists(file_name):
-        return await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده.", cache_time=0, alert=True)
-    
-    try:
-        with open(file_name, "r+") as file:
-            jsondata = json.load(file)
-            message_data = jsondata.get(timestamp)
+        timestamp = event.pattern_match.group(1).decode("UTF-8")
+        target_id = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else None
+        
+        if not target_id:
+            return await event.answer("⚠️ لم يتم تعيين مستلم للهمسة", alert=True)
+        
+        file_path = f"./JoKeRUB/{target_id}.txt"
+        
+        if not os.path.exists(file_path):
+            return await event.answer("❌ ملف الهمسات غير موجود", alert=True)
+        
+        with open(file_path, "r+") as file:
+            whispers = json.load(file)
+            whisper_data = whispers.get(timestamp)
             
-            if not message_data:
-                return await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
-                
-            userid = message_data["userid"]
-            ids = [userid, myid, target_user.id]
+            if not whisper_data:
+                return await event.answer("❌ الهمسة غير موجودة أو منتهية الصلاحية", alert=True)
             
-            if event.query.user_id not in ids:
-                return await event.answer("مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓", cache_time=0, alert=True)
+            user_id = event.query.user_id
+            authorized_users = [target_id, Config.OWNER_ID] + Config.SUDO_USERS
+            
+            if user_id not in authorized_users:
+                return await event.answer("🚫 ليس لديك صلاحية لرؤية هذه الهمسة", alert=True)
             
             # عرض محتوى الهمسة
-            await event.answer(message_data["text"], cache_time=0, alert=True)
+            await event.answer(whisper_data["text"], alert=True)
             
-            # إذا كان المستخدم هو المرسل إليه ولم تقرأ بعد
-            if event.query.user_id == userid and not message_data.get("read", False):
+            # إذا كان المستخدم هو المرسل إليه الرئيسي ولم تقرأ بعد
+            if user_id == target_id and not whisper_data.get("read", False):
                 # تحديث حالة القراءة
-                message_data["read"] = True
-                jsondata[timestamp] = message_data
+                whisper_data["read"] = True
+                whispers[timestamp] = whisper_data
+                
+                # تحديث الملف
                 file.seek(0)
-                json.dump(jsondata, file, indent=4)
+                json.dump(whispers, file, indent=4)
                 file.truncate()
                 
                 # تحرير الرسالة الأصلية
-                new_text = (
-                    f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n"
-                    f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-                    f"⌔╎تم قراءة الهمسة من قبل {target_user.first_name}\n"
-                    f"⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-                )
-                
-                new_buttons = [
-                    [Button.switch_inline("اضغـط للـرد", query=f"secret {myid} \nهلو", same_peer=True)]
-                ]
-                
                 try:
-                    await event.client.edit_message(
-                        event.chat_id,
-                        event.message_id,
+                    target_user = await l313l.get_entity(target_id)
+                    target_name = target_user.first_name
+                    
+                    new_text = (
+                        f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n"
+                        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+                        f"⌔╎تم قراءة الهمسة من قبل {target_name}\n"
+                        f"⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+                    )
+                    
+                    new_buttons = [
+                        [Button.switch_inline("اضغـط للـرد", query=f"secret {target_id} ", same_peer=True)]
+                    ]
+                    
+                    await event.edit(
                         text=new_text,
                         buttons=new_buttons,
                         link_preview=False
                     )
-                except Exception as e:
-                    LOGS.error(f"فشل في تعديل الرسالة: {e}")
-
+                except Exception as edit_error:
+                    LOGS.error(f"فشل في تعديل الرسالة: {edit_error}")
+                    
     except Exception as e:
-        LOGS.error(f"حدث خطأ: {e}")
-        await event.answer("- حدث خطأ أثناء معالجة الهمسة", cache_time=0, alert=True)
+        LOGS.error(f"خطأ في معالجة الهمسة: {e}")
+        await event.answer("⚠️ حدث خطأ أثناء معالجة الهمسة", alert=True)

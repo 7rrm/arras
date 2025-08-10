@@ -45,44 +45,32 @@ async def on_whisper_callback(event):
         if event.query.user_id not in allowed_users:
             return await event.answer("🔒 هذه الهمسة ليست لك!", alert=True)
 
-        # عرض المحتوى للمستخدم
+        # إظهار الهمسة أولاً
         await event.answer(whisper_data["text"], alert=True)
 
-        # إذا كان المستخدم هو المرسل إليه (وليست للمالك أو السودو)
-        if event.query.user_id == whisper_data["userid"] and event.query.user_id not in [Config.OWNER_ID] + Config.SUDO_USERS:
-            # نص الرسالة بعد القراءة
+        # ثم تعديل الرسالة الأصلية (فقط للمرسل إليه)
+        if event.query.user_id == whisper_data["userid"]:
             read_text = (
                 f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n"
                 f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-                f"✅ تم قراءة الهمسة من قبل: {receiver.first_name}\n"
-                f"⏰ في: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n"
-                f"✉️ المحتوى: {whisper_data['text']}"
+                f"✅ تم القراءة بواسطة: {receiver.first_name}\n"
+                f"⏰ في: {datetime.now().strftime('%Y-%m-%d %H:%M')}"
             )
             
-            # الأزرار الجديدة (زر الرد فقط)
             new_buttons = [
-                [Button.switch_inline("↩️ رد على الهمسة", query=f"secret {whisper_owner} \nرد: ", same_peer=True)]
+                [Button.switch_inline("↩️ رد", query=f"secret {whisper_owner} \nرد: ", same_peer=True)]
             ]
             
             try:
-                await event.client(EditMessageRequest(
-                    peer=await event.get_input_chat(),
-                    id=event.query.msg_id,
-                    message=read_text,
+                await event.client.edit_message(
+                    entity=await event.get_input_chat(),
+                    message=event.query.msg_id,
+                    text=read_text,
                     buttons=new_buttons
-                ))
+                )
             except Exception as e:
                 LOGS.error(f"Error editing message: {e}")
-                # محاولة بدون أزرار إذا فشلت
-                try:
-                    await event.client(EditMessageRequest(
-                        peer=await event.get_input_chat(),
-                        id=event.query.msg_id,
-                        message=read_text
-                    ))
-                except Exception as e2:
-                    LOGS.error(f"Error in simple edit: {e2}")
 
-    except Exception as main_error:
-        LOGS.error(f"Error in whisper callback: {main_error}")
-        await event.answer("⚠
+    except Exception as e:
+        LOGS.error(f"Error in callback: {e}")
+        await event.answer("⚠️ حدث خطأ", alert=True)

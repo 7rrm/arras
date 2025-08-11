@@ -40,7 +40,6 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(os.path.basename(__name__))
 
-# المتغيرات
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
@@ -52,7 +51,6 @@ mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
 ddd = "💌"
-arras = "⌔╎تم قراءة الهمسة ✅"
 Zel_Uid = l313l.uid
 
 async def get_user_from_event(event):
@@ -79,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event):
+async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
@@ -96,6 +94,7 @@ async def zzz_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
+    global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5**")
     user = event.pattern_match.group(1)
@@ -112,6 +111,10 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()

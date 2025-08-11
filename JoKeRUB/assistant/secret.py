@@ -4,7 +4,8 @@ import re
 
 from telethon.events import CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.functions.messages import UpdateInlineBotMessageRequest
+from telethon.tl.functions.messages import EditMessageRequest
+from telethon import Button
 
 from JoKeRUB import l313l
 from ..Config import Config
@@ -35,23 +36,22 @@ async def on_plug_in_callback_query_handler(event):
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
                 
-                # تحديث حالة القراءة
-                jsondata[f"{timestamp}"]["read"] = True
-                json.dump(jsondata, open(file_name, "w"))
-                
-                # تحديث الرسالة الأصلية
-                try:
-                    await l313l(UpdateInlineBotMessageRequest(
-                        peer=await event.get_input_chat(),
-                        id=event.message_id,
-                        text=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة مـقروءـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zzz.first_name}\n⌔╎تم قراءتها ✅",
-                        buttons=[
-                            [Button.inline("تم قراءة الهمسة ✅", data=f"read_{timestamp}")],
-                            [Button.switch_inline("اضغـط للـرد", query=f"secret {user_id} \nهلو", same_peer=True)]
-                        ]
-                    ))
-                except Exception as e:
-                    LOGS.error(f"Error updating message: {e}")
+                # تحديث حالة القراءة إذا كان المستخدم هو المستقبل
+                if event.query.user_id == userid and not message.get("read", False):
+                    message["read"] = True
+                    jsondata[f"{timestamp}"] = message
+                    json.dump(jsondata, open(file_name, "w"))
+                    
+                    # تحرير الرسالة الأصلية
+                    try:
+                        await l313l(EditMessageRequest(
+                            peer=event.query.peer,
+                            id=event.query.msg_id,
+                            message=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zzz.first_name}\n⌔╎تم قراءة الهمسة ✅",
+                            buttons=[Button.switch_inline("اضغـط للـرد", query=f"secret {userid} \nهلو", same_peer=True)]
+                        ))
+                    except Exception as e:
+                        LOGS.error(f"Error editing message: {e}")
                 
                 reply_pop_up_alert = encrypted_tcxt
             else:
@@ -62,8 +62,3 @@ async def on_plug_in_callback_query_handler(event):
         reply_pop_up_alert = "- عـذراً .. هذه الرسـالة لم تعد موجـوده ."
     
     await event.answer(reply_pop_up_alert, cache_time=0, alert=True)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"read_(.*)")))
-async def on_read_callback_query_handler(event):
-    timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
-    await event.answer("✅ تم قراءة الهمسة مسبقاً", cache_time=0, alert=True)

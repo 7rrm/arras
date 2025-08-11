@@ -24,6 +24,7 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
+# المتغيرات المعدلة
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
@@ -36,6 +37,7 @@ bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎أضغـط الـزر بالأسفـل ⚓\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
 ddd = "💌"
 bbb = None
+arras = "⌔╎تم قراءة الهمسة ✅"  # المتغير الجديد
 
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
@@ -100,14 +102,14 @@ async def inline_handler(event):
                 str(timestamp): {
                     "userid": user_list,
                     "text": query,
-                    "read": False
+                    "read": False  # إضافة حالة القراءة
                 }
             }
             
-            text_message = f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+            text_message = f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n{dss}"
             
             buttons = [
-                [Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                [Button.inline(fmm, data=f"{scc}_{timestamp}")],
                 [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]
             ]
             

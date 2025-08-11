@@ -4,60 +4,33 @@ import re
 
 from telethon.events import CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.functions.messages import EditMessageRequest
-from telethon import Button
 
 from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 
+# Updated by ZThon <https://t.me/ZThon>
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"secret_(.*)")))
 async def on_plug_in_callback_query_handler(event):
     timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
     uzerid = gvarstatus("hmsa_id")
     ussr = int(uzerid) if uzerid.isdigit() else uzerid
     myid = Config.OWNER_ID
-    
     try:
         zzz = await l313l.get_entity(ussr)
     except ValueError:
         zzz = await l313l(GetUsersRequest(ussr))
-    
+    #user_id = event.query.user_id
     user_id = int(uzerid)
     file_name = f"./JoKeRUB/{user_id}.txt"
-    
     if os.path.exists(file_name):
         jsondata = json.load(open(file_name))
         try:
             message = jsondata[f"{timestamp}"]
             userid = message["userid"]
             ids = [userid, myid, zzz.id]
-            
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
-                
-                # تحديث حالة القراءة إذا كان المستخدم هو المستقبل
-                if event.query.user_id == userid and not message.get("read", False):
-                    message["read"] = True
-                    jsondata[f"{timestamp}"] = message
-                    json.dump(jsondata, open(file_name, "w"))
-                    
-                    # تحرير الرسالة الأصلية
-                    try:
-                        if zzz.username:
-                            receiver = f"@{zzz.username}"
-                        else:
-                            receiver = f"[{zzz.first_name}](tg://user?id={zzz.id})"
-                            
-                        await l313l(EditMessageRequest(
-                            peer=event.query.peer,
-                            id=event.query.msg_id,
-                            message=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {receiver}\n{arras}",
-                            buttons=[Button.switch_inline(bmm, query=f"secret {userid} \nهلو", same_peer=True)]
-                        ))
-                    except Exception as e:
-                        LOGS.error(f"Error editing message: {e}")
-                
                 reply_pop_up_alert = encrypted_tcxt
             else:
                 reply_pop_up_alert = "مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓"
@@ -65,5 +38,4 @@ async def on_plug_in_callback_query_handler(event):
             reply_pop_up_alert = "- عـذراً .. الهمسة ليست موجهة لك !!"
     else:
         reply_pop_up_alert = "- عـذراً .. هذه الرسـالة لم تعد موجـوده ."
-    
     await event.answer(reply_pop_up_alert, cache_time=0, alert=True)

@@ -44,11 +44,16 @@ async def on_plug_in_callback_query_handler(event):
                     
                     # تحرير الرسالة الأصلية
                     try:
+                        if zzz.username:
+                            receiver = f"@{zzz.username}"
+                        else:
+                            receiver = f"[{zzz.first_name}](tg://user?id={zzz.id})"
+                            
                         await l313l(EditMessageRequest(
                             peer=event.query.peer,
                             id=event.query.msg_id,
-                            message=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zzz.first_name}\n⌔╎تم قراءة الهمسة ✅",
-                            buttons=[Button.switch_inline("اضغـط للـرد", query=f"secret {userid} \nهلو", same_peer=True)]
+                            message=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {receiver}\n{arras}",
+                            buttons=[Button.switch_inline(bmm, query=f"secret {userid} \nهلو", same_peer=True)]
                         ))
                     except Exception as e:
                         LOGS.error(f"Error editing message: {e}")

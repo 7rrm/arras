@@ -1,57 +1,120 @@
 import json
+import math
 import os
-from telethon import Button
+import aiohttp
+import requests
+import random
+import re
+import time
+from uuid import uuid4
+import sys
+import asyncio
+from validators.url import url
+from subprocess import run as runapp
+from datetime import datetime
+from pySmartDL import SmartDL
+from pathlib import Path
+from platform import python_version
+from telethon import Button, functions, events, types, custom
+from telethon.errors import QueryIdInvalidError
+from telethon.events import CallbackQuery, InlineQuery
+from telethon.utils import get_display_name
+from telethon.tl.types import InputMessagesFilterDocument
+from telethon.tl.types import MessageEntityMentionName
+from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
-from . import l313l
-from ..sql_helper.globals import gvarstatus, delgvar, addgvar
-from ..helpers import get_user_from_event
-from ..Config import Config
-from ..core.managers import edit_or_reply
+from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
+from telethon.tl.functions.messages import SetInlineBotResultsRequest
 
-async def zzz_info(zthon_user, event):
-    try:
-        FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
-        first_name = zthon_user.first_name or "مستخدم"
-        full_name = FullUser.private_forward_name or first_name
-        user_id = zthon_user.id
-        username = f"@{zthon_user.username}" if zthon_user.username else None
-        return user_id, full_name, username
-    except Exception as e:
-        return None, None, None
+from . import l313l
+from ..Config import Config
+from ..helpers.functions import rand_key
+from ..core.logger import logging
+from ..core.managers import edit_delete, edit_or_reply
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..helpers.utils import reply_id, _format
+from . import media_type, progress
+from ..utils import Zed_Dev, load_module, remove_plugin
+from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
+from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
+
+LOGS = logging.getLogger(os.path.basename(__name__))
+
+scc = "secret"
+hmm = "همسـة"
+ymm = "يستطيـع"
+fmm = "فتـح الهمسـه 🗳"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+hss = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - **همسـة سـريـه** 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+nmm = "همسـه سريـه"
+mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
+bmm = "اضغـط للـرد"
+ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ddd = "💌"
+Zel_Uid = l313l.uid
+
+async def get_user_from_event(event):
+    if event.reply_to_msg_id:
+        previous_message = await event.get_reply_message()
+        user_object = await event.client.get_entity(previous_message.sender_id)
+    else:
+        user = event.pattern_match.group(1)
+        if user.isnumeric():
+            user = int(user)
+        if event.message.entities:
+            probable_user_mention_entity = event.message.entities[0]
+            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
+                user_id = probable_user_mention_entity.user_id
+                user_obj = await event.client.get_entity(user_id)
+                return user_obj
+        if isinstance(user, int) or user.startswith("@"):
+            user_obj = await event.client.get_entity(user)
+            return user_obj
+        try:
+            user_object = await event.client.get_entity(user)
+        except (TypeError, ValueError) as err:
+            await event.edit(str(err))
+            return None
+    return user_object
+
+async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
+    FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
+    first_name = zthon_user.first_name
+    full_name = FullUser.private_forward_name
+    user_id = zthon_user.id
+    username = zthon_user.username
+    first_name = (
+        first_name.replace("\u2060", "")
+        if first_name
+        else None
+    )
+    full_name = full_name or first_name
+    username = "@{}".format(username) if username else "None"
+    return user_id, full_name, username
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
-    # الحصول على المستخدم المستهدف
+    global bbb
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5**")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⎉╎يجب الرد على الشخص أو كتابة معرفه**")
-    
+        return
+    zthon_user = await get_user_from_event(event)
     try:
-        zthon_user = await get_user_from_event(event)
         user_id, full_name, username = await zzz_info(zthon_user, event)
-        
-        if not user_id:
-            return await edit_or_reply(event, "**⎉╎لم يتم العثور على المستخدم**")
-        
-        # تحديث متغيرات الهمسة
-        delgvar("hmsa_id")
-        delgvar("hmsa_name")
-        delgvar("hmsa_user")
-        
-        addgvar("hmsa_id", str(user_id))
-        addgvar("hmsa_name", full_name)
-        addgvar("hmsa_user", username or f"[{full_name}](tg://user?id={user_id})")
-        
-        # إنشاء زر الهمسة
-        button = [[Button.switch_inline("اضـغـط هنـا", query=f"secret {user_id}", same_peer=True)]]
-        
-        # إرسال الرسالة
-        await event.client.send_message(
-            event.chat_id,
-            f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه**\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎اضغـط الزر بالاسفـل لارسال همسة لـ** {username or full_name}",
-            buttons=button
-        )
-        await event.delete()
-        
-    except Exception as e:
-        await edit_or_reply(event, f"**⎉╎حدث خطأ: {str(e)}**")
+    except (AttributeError, TypeError):
+        return
+    delgvar("hmsa_id")
+    delgvar("hmsa_name")
+    delgvar("hmsa_user")
+    addgvar("hmsa_id", user_id)
+    addgvar("hmsa_name", full_name)
+    addgvar("hmsa_user", username)
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    await response[0].click(event.chat_id)
+    await event.delete()

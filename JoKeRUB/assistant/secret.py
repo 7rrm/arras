@@ -38,6 +38,9 @@ async def on_plug_in_callback_query_handler(event):
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
                 
+                # عرض الهمسة في رسالة منبثقة للجميع
+                await event.answer(encrypted_tcxt, cache_time=0, alert=True)
+                
                 # فقط المستقبل يمكنه تحديث حالة القراءة
                 if event.query.user_id in idlist and not message.get("read", False):
                     message["read"] = True
@@ -58,8 +61,6 @@ async def on_plug_in_callback_query_handler(event):
                     except Exception as e:
                         LOGS.error(f"Error editing message: {e}")
                 
-                # إظهار الهمسة في popup للجميع (المرسل والمستقبل والمالك)
-                await event.answer(encrypted_tcxt, cache_time=0, alert=True)
             else:
                 await event.answer("مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓", cache_time=0, alert=True)
         except KeyError:

@@ -1,10 +1,10 @@
+
 import json
 import os
 import re
 
 from telethon.events import CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.functions.messages import EditMessageRequest
 from telethon import Button
 
 from JoKeRUB import l313l
@@ -17,15 +17,12 @@ async def on_plug_in_callback_query_handler(event):
     uzerid = gvarstatus("hmsa_id")
     ussr = int(uzerid) if uzerid.isdigit() else uzerid
     myid = Config.OWNER_ID
-    
     try:
         zzz = await l313l.get_entity(ussr)
     except ValueError:
         zzz = await l313l(GetUsersRequest(ussr))
-    
     user_id = int(uzerid)
     file_name = f"./JoKeRUB/{user_id}.txt"
-    
     if os.path.exists(file_name):
         jsondata = json.load(open(file_name))
         try:
@@ -34,33 +31,22 @@ async def on_plug_in_callback_query_handler(event):
             # دعم الحالات لو userid قائمة أو رقم
             idlist = userid if isinstance(userid, list) else [userid]
             ids = idlist + [myid, zzz.id]
-            
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
-                
-                # عرض الهمسة في رسالة منبثقة للجميع
-                await event.answer(encrypted_tcxt, cache_time=0, alert=True)
-                
-                # فقط المستقبل يمكنه تحديث حالة القراءة
-                if event.query.user_id in idlist and not message.get("read", False):
-                    message["read"] = True
-                    jsondata[f"{timestamp}"] = message
-                    json.dump(jsondata, open(file_name, "w"))
-                    
-                    # تحرير الرسالة الأصلية
-                    new_text = (
-                        "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه 📠\n"
-                        "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-                        f"⌔╎الهمسـة لـ {zzz.first_name}\n"
-                        "⌔╎تم قراءة الهمسة ✅"
-                    )
-                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {user_id} \nهلو", same_peer=True)]]
-                    
-                    try:
-                        await event.edit(new_text, buttons=btn, link_preview=False)
-                    except Exception as e:
-                        LOGS.error(f"Error editing message: {e}")
-                
+                # --- تبديل الرسالة الحالية بالنص الجديد ----
+                new_text = (
+                    "تم قراءه الهمسه ✓\n\n"
+                    "💬: " + encrypted_tcxt
+                )
+                # فقط زر الرد كما تريد
+                btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {user_id} \nهلو", same_peer=True)]]
+                try:
+                    await event.edit(new_text, buttons=btn, link_preview=False)
+                    # اختياريًا تظهر أيضاً رسالة popup لصاحبها
+                    await event.answer("تم عرض الهمسة بنجاح ✅", cache_time=0, alert=True)
+                except Exception:
+                    # إذا الرسالة غير قابلة للتعديل (inline history فارغ)، رد popup فقط
+                    await event.answer(encrypted_tcxt, cache_time=0, alert=True)
             else:
                 await event.answer("مطـي الهمسـه مـو الك 🧑🏻‍🦯🦓", cache_time=0, alert=True)
         except KeyError:

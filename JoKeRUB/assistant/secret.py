@@ -32,7 +32,7 @@ async def on_plug_in_callback_query_handler(event):
         try:
             message = jsondata[f"{timestamp}"]
             userid = message["userid"]
-            sender_id = message.get("sender_id", myid)  # معرف المرسل
+            sender_id = message.get("sender_id", myid)
             idlist = userid if isinstance(userid, list) else [userid]
             ids = idlist + [myid, zzz.id, sender_id]
             
@@ -48,15 +48,15 @@ async def on_plug_in_callback_query_handler(event):
                     jsondata[f"{timestamp}"] = message
                     json.dump(jsondata, open(file_name, "w"))
                     
-                    # الحصول على معلومات المرسل
+                    # إنشاء منشن للمستقبل (الذي ضغط على الزر)
                     try:
-                        sender = await l313l.get_entity(sender_id)
-                        sender_name = get_display_name(sender)
+                        receiver = await l313l.get_entity(event.query.user_id)
+                        receiver_name = f"[{get_display_name(receiver)}](tg://user?id={event.query.user_id})"
                     except:
-                        sender_name = "المستخدم"
+                        receiver_name = "المستخدم"
                     
                     # تحرير الرسالة الأصلية
-                    new_text = f"تم قراءة الهمسة (بواسطة {sender_name})"
+                    new_text = f"تم قراءة الهمسة (بواسطة {receiver_name})"
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]

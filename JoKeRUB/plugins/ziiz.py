@@ -40,6 +40,7 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(os.path.basename(__name__))
 
+# النصوص الثابتة
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
@@ -49,72 +50,107 @@ hss = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - **همسـة سـ
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎أضغـط الـزر بالأسفـل ⚓\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
 ddd = "💌"
-Zel_Uid = l313l.uid
 
-async def get_user_from_event(event):
-    if event.reply_to_msg_id:
-        previous_message = await event.get_reply_message()
-        user_object = await event.client.get_entity(previous_message.sender_id)
+@l313l.tgbot.on(InlineQuery)
+async def inline_handler(event):
+    builder = event.builder
+    query_user_id = event.query.user_id
+    
+    # الحصول على بيانات المستخدم الهدف
+    user_id = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else None
+    full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
+    
+    # إنشاء رابط المنشن
+    zelzal = f"[{full_name}](tg://user?id={user_id})" if user_id and full_name else None
+    
+    # التحقق من صلاحيات المستخدم
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+        malathid = Config.OWNER_ID
+    elif query_user_id == user_id:
+        malathid = user_id
     else:
-        user = event.pattern_match.group(1)
-        if user.isnumeric():
-            user = int(user)
-        if event.message.entities:
-            probable_user_mention_entity = event.message.entities[0]
-            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                user_obj = await event.client.get_entity(user_id)
-                return user_obj
-        if isinstance(user, int) or user.startswith("@"):
-            user_obj = await event.client.get_entity(user)
-            return user_obj
-        try:
-            user_object = await event.client.get_entity(user)
-        except (TypeError, ValueError) as err:
-            await event.edit(str(err))
-            return None
-    return user_object
+        malathid = None
 
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
-    FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
-    first_name = zthon_user.first_name
-    full_name = FullUser.private_forward_name
-    user_id = zthon_user.id
-    username = zthon_user.username
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else None
-    )
-    full_name = full_name or first_name
-    username = "@{}".format(username) if username else "None"
-    return user_id, full_name, username
-
-@l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repozedub(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @Lx5x5**")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS or query_user_id == user_id:
+        # معالجة الأمر secret
+        inf = re.compile("secret (.*) (.*)")
+        match2 = re.findall(inf, event.text)
+        
+        if match2:
+            query = event.text[7:]
+            info_type = [hmm, ymm, fmm]
+            
+            # فصل المستخدمين عن النص
+            if "|" in query:
+                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
+                users = iris.split(" ")
+            else:
+                user, query = query.split(" ", 1)
+                users = [user]
+            
+            # بناء قائمة المستخدمين
+            user_list = []
+            zilzal = ""
+            
+            for user in users:
+                usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
+                try:
+                    u = await l313l.get_entity(usr)
+                except ValueError:
+                    u = await l313l(GetUsersRequest(usr))
+                
+                # إضافة منشن للمستخدم
+                zilzal += f"[{u.first_name}](tg://user?id={u.id}) "
+                user_list.append(u.id)
+            
+            zilzal = zilzal.strip()
+            
+            # حفظ الرسالة
+            timestamp = int(time.time() * 2)
+            new_msg = {str(timestamp): {"userid": user_list, "text": query}}
+            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
+            
+            try:
+                jsondata = json.load(open(old_msg))
+                jsondata.update(new_msg)
+            except Exception:
+                jsondata = new_msg
+                
+            with open(old_msg, "w") as f:
+                json.dump(jsondata, f)
+            
+            # إنشاء زر الرد
+            buttons = [
+                [Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]
+            ]
+            
+            result = builder.article(
+                title=f"{hmm} {zilzal}",
+                description=f"{dss}",
+                text=f"{hss} {zilzal} \n**{dss}**",
+                buttons=buttons,
+                link_preview=False,
+            )
+            await event.answer([result] if result else None)
+        
+        # معالجة الأمر zelzal
+        elif event.text.lower() == "zelzal":
+            if user_id:
+                bbb = [Button.switch_inline(
+                    "اضغـط هنـا", 
+                    query=f"secret {user_id} \nهلو", 
+                    same_peer=True
+                )]
+                
+                results = [builder.article(
+                    title=nmm,
+                    description=mnn,
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    buttons=bbb,
+                    link_preview=False,
+                )]
+                
+                await event.answer(results)

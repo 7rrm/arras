@@ -37,7 +37,6 @@ ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـر
 ddd = "💌"
 bbb = None
 
-# Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
@@ -54,13 +53,13 @@ async def inline_handler(event):
     zelzal = None
     if gvarstatus("hmsa_user"):
         zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         malathid = Config.OWNER_ID
     elif query_user_id == user_id:
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -93,13 +92,15 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                      [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='md'  # إضافة وضع التحليل Markdown
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -109,7 +110,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]
             else:
                 return
             results = []
@@ -120,6 +121,7 @@ async def inline_handler(event):
                     text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='md'  # إضافة وضع التحليل Markdown
                 ),
             )
             await event.answer(results)
@@ -156,13 +158,15 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                      [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='md'  # إضافة وضع التحليل Markdown
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -172,7 +176,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]
             else:
                 return
             results = []
@@ -183,6 +187,7 @@ async def inline_handler(event):
                     text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='md'  # إضافة وضع التحليل Markdown
                 ),
             )
             await event.answer(results)

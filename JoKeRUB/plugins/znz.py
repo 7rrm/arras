@@ -56,7 +56,7 @@ async def inline_handler(event):
         if username.startswith("@"):
             zelzal = gvarstatus("hmsa_user")
         else:
-            zelzal = f"@{gvarstatus('hmsa_user')}"  # تم التعديل هنا لإضافة @ مباشرة
+            zelzal = f"@{username}" if username else f"[{full_name}](tg://user?id={user_id})"
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         malathid = Config.OWNER_ID
     elif query_user_id == user_id:
@@ -84,12 +84,16 @@ async def inline_handler(event):
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
                 if u.username:
-                    zilzal += f"@{u.username}"
+                    zilzal += f"@{u.username} "
+                    # إرسال إشعار المنشن الفعلي
+                    try:
+                        await l313l.send_message(u.id, f"لديك رسالة سرية من {zelzal}")
+                    except Exception as e:
+                        LOGS.error(f"Failed to send mention notification: {e}")
                 else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id}) "
                 user_list.append(u.id)
-                zilzal += " "
-            zilzal = zilzal[:-1]
+            zilzal = zilzal.strip()
             old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
             try:
                 jsondata = json.load(open(old_msg))
@@ -99,7 +103,8 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                      [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -150,12 +155,16 @@ async def inline_handler(event):
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
                 if u.username:
-                    zilzal += f"@{u.username}"
+                    zilzal += f"@{u.username} "
+                    # إرسال إشعار المنشن الفعلي
+                    try:
+                        await l313l.send_message(u.id, f"لديك رسالة سرية من {zelzal}")
+                    except Exception as e:
+                        LOGS.error(f"Failed to send mention notification: {e}")
                 else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id}) "
                 user_list.append(u.id)
-                zilzal += " "
-            zilzal = zilzal[:-1]
+            zilzal = zilzal.strip()
             old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
             try:
                 jsondata = json.load(open(old_msg))
@@ -165,7 +174,8 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],
+                      [Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",

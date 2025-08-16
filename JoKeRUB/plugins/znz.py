@@ -37,6 +37,7 @@ ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـر
 ddd = "💌"
 bbb = None
 
+# Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
@@ -51,15 +52,15 @@ async def inline_handler(event):
     full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
     username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
     zelzal = None
-    if gvarstatus("hmsa_id"):
+    if gvarstatus("hmsa_user"):
         zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         malathid = Config.OWNER_ID
     elif query_user_id == user_id:
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:

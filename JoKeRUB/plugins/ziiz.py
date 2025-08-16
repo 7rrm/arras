@@ -53,10 +53,13 @@ async def inline_handler(event):
     username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
     zelzal = None
     if gvarstatus("hmsa_user"):
-        zelzal = f"[{full_name}](tg://user?id={user_id})"
+        if username.startswith("@"):
+            zelzal = gvarstatus("hmsa_user")
+        else:
+            zelzal = f"[{full_name}](tg://user?id={user_id})"
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         malathid = Config.OWNER_ID
-    elif query_user_id == user_id:
+    elif query_user_id == user_id: #or query_user_id == int(user_id):
         malathid = user_id
     else:
         malathid = None
@@ -80,7 +83,10 @@ async def inline_handler(event):
                     u = await l313l.get_entity(usr)
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
-                zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                if u.username:
+                    zilzal += f"@{u.username}"
+                else:
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
@@ -92,7 +98,7 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }
+            }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
@@ -123,7 +129,7 @@ async def inline_handler(event):
                 ),
             )
             await event.answer(results)
-    elif query_user_id == user_id:
+    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -143,7 +149,10 @@ async def inline_handler(event):
                     u = await l313l.get_entity(usr)
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
-                zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                if u.username:
+                    zilzal += f"@{u.username}"
+                else:
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
@@ -155,7 +164,7 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }
+            }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",

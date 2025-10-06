@@ -560,6 +560,7 @@ async def search_song(event):
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
+        # تصحيح السطر هنا:
         video_url = f"<https://youtube.com{results>[0]['url_suffix']}"
         title = results[0]["title"][:40]
         duration = results[0]["duration"]
@@ -595,7 +596,7 @@ async def search_song(event):
             pass
         await msg.delete()
         
-
+        
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

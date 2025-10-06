@@ -454,11 +454,6 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-def remove_if_exists(path): #Code by T.me/zzzzl1l
-    if os.path.exists(path):
-        os.remove(path)
-
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import os
 import requests
 import yt_dlp
@@ -467,6 +462,12 @@ from telethon import events
 import random
 import glob
 import time
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+# دالة حذف ملف إن وجد
+def remove_if_exists(path): #Code by T.me/zzzzl1l
+    if os.path.exists(path):
+        os.remove(path)
 
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
@@ -537,20 +538,20 @@ async def search_song(event):
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
-        # إعدادات yt-dlp مع الكوكيز
+        # أساسيات إعداد yt-dlp بدون outtmpl لتجنب مشاكل في الاسم
         ydl_opts = {
             "format": "bestaudio[ext=m4a]/bestaudio/best",
             "socket_timeout": 5,
             "http_chunk_size": 5242880,
             "noplaylist": True,
-            "extract_flat": True,
+            "extract_flat": False,  # نحتاج لتحميل فعلي وليس فقط المعلومات
             "fragment_retries": 2,
             "retries": 2,
             "quiet": True,
             "no_warnings": True,
             "geo_bypass": True,
             "cookiefile": cookies_file,
-            "outtmpl": "a R R a S 🎧.m4a"
+            # إزالة outtmpl هنا ليأخذ الاسم الافتراضي
         }
         
         # البحث في اليوتيوب
@@ -559,24 +560,28 @@ async def search_song(event):
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
-        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        video_url = f"<https://youtube.com{results>[0]['url_suffix']}"
         title = results[0]["title"][:40]
         duration = results[0]["duration"]
         
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # عملية التحميل
+        # عملية التحميل باستخدام yt-dlp مع حفظ اسم الملف الذي تم تحميله
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-            
-        # عملية الرفع مع الصورة المصغرة الثابتة
+        
+        # التأكد أن الملف موجود
+        if not os.path.exists(filename):
+            return await msg.edit("❌ فشل التحميل: الملف غير موجود بعد التنزيل.")
+        
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+        # رفع الملف مع استخدام الصورة المصغرة الثابتة
         await event.client.send_file(
             event.chat_id,
             filename,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
-            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
+            thumb=DEFAULT_THUMB,
             reply_to=event.id
         )
             
@@ -589,6 +594,7 @@ async def search_song(event):
         except:
             pass
         await msg.delete()
+        
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

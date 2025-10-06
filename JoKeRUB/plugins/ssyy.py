@@ -454,74 +454,140 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-import os
-import yt_dlp
-from youtube_search import YoutubeSearch
-from telethon.errors import ChatSendMediaForbiddenError
-from telethon.tl.types import DocumentAttributeAudio
-
-# مسار الصورة المصغرة الثابتة
-DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
-DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
-
-def remove_if_exists(path):
+def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
 
-def parse_duration(duration_str):
-    """تحويل المدة من mm:ss إلى ثواني"""
-    try:
-        parts = list(map(int, duration_str.split(':')))
-        if len(parts) == 2:
-            return parts[0] * 60 + parts[1]
-        return 0
-    except:
-        return 0
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+import os
+import requests
+import yt_dlp
+from youtube_search import YoutubeSearch
+from telethon import events
+import random
+import glob
+import time
 
-# دمج أفضل الممارسات من الكودين:
-@l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def optimized_search(event):
+# دالة الحصول على ملف الكوكيز
+def get_cookies_file():
+    folder_path = f"{os.getcwd()}/karar"
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    if not txt_files:
+        raise FileNotFoundError("No .txt files found in the cookies folder.")
+    return random.choice(txt_files)
+
+# إعدادات التحكم
+search_settings = {
+    'admin_id': l313l.uid    # أي دي المطور
+}
+
+# مسار الصورة المصغرة الثابتة
+DEFAULT_THUMB = "l313l/razan/resources/start/ssyy.JPEG"
+
+def is_search_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"search_enabled_{chat_id}") == "True"
+    return gvarstatus("search_enabled_private") == "True"
+
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
+async def enable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        addgvar("search_enabled_private", "True")
+        await event.reply("✓ تم تفعيل البحث في جميع الدردشات الخاصة")
+    else:
+        addgvar(f"search_enabled_{event.chat_id}", "True")
+        await event.reply(f"✓ تم تفعيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل بحث$'))
+async def disable_search(event):
+    if event.sender_id != search_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        delgvar("search_enabled_private")
+        await event.reply("✗ تم تعطيل البحث في الدردشات الخاصة")
+    else:
+        delgvar(f"search_enabled_{event.chat_id}")
+        await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
+async def search_song(event):
+    # التحقق من الصلاحيات
+    if event.sender_id == search_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
+    elif event.is_private:
+        if not is_search_enabled():
+            return
+    else:
+        if not is_search_enabled(event.chat_id):
+            return
+    
     query = event.pattern_match.group(1).strip()
     if not query:
-        return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+        if event.is_private:  # فقط في الدردشات الخاصة
+            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+        return
     
-    msg = await event.reply("**╮ جـارِ البحث ... 🎧♥️ ╰**")
-    
-    ydl_opts = {
-        "format": "bestaudio[ext=m4a]",
-        "outtmpl": "%(id)s.%(ext)s",
-        "socket_timeout": 3,  # أقل وقت انتظار
-        "noplaylist": True,
-        "quiet": True,
-        "no_warnings": True,
-    }
+    msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
-        # البحث السريع
+        # الحصول على ملف الكوكيز
+        cookies_file = get_cookies_file()
+        
+        # إعدادات yt-dlp مع الكوكيز
+        ydl_opts = {
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "a R R a S 🎧.m4a"
+        }
+        
+        # البحث في اليوتيوب
         results = YoutubeSearch(query, max_results=1).to_dict()
+        
         if not results:
-            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰")
+            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
         
         video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        title = results[0]["title"][:40]
+        duration = results[0]["duration"]
         
-        # التحميل المباشر
+        await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
+        
+        # عملية التحميل
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        
-        # الإرسال الفوري
+            
+        # عملية الرفع مع الصورة المصغرة الثابتة
+        await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**🎵 {results[0]['title'][:40]}**",
-            thumb=DEFAULT_THUMB,
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `ٔ{duration}`",
+            thumb=DEFAULT_THUMB,  # هنا نستخدم الصورة الثابتة
             reply_to=event.id
         )
-        
+            
     except Exception as e:
-        await msg.edit(f"**❌ خطأ:** `{str(e)}`")
+        await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
     finally:
-        remove_if_exists(filename)
+        try:
+            if 'filename' in locals() and os.path.exists(filename):
+                os.remove(filename)
+        except:
+            pass
         await msg.delete()
 
 

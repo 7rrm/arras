@@ -491,19 +491,21 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    ydl_opts = {
-            "format": "bestaudio[ext=m4a]/bestaudio/best",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
-            "noplaylist": True,
-            "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
-            "geo_bypass": True,
-            "cookiefile": cookies_file,
-            "outtmpl": "%(title)s.m4a"
+    ydl_ops = {
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
+        "socket_timeout": 5,
+        "http_chunk_size": 5242880,
+        "noplaylist": True,
+        "extract_flat": True,
+        "fragment_retries": 2,
+        "retries": 2,
+        "quiet": True,
+        "no_warnings": True,
+        "geo_bypass": True,
+        "cookiefile": get_cookies_file(),
+        "keepvideo": False,
+        "prefer_ffmpeg": False,
     }
     
     try:
@@ -525,9 +527,9 @@ async def yt_audio_search(event):
     await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
+        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
+            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
+            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(

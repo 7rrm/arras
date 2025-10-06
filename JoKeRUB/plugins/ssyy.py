@@ -456,11 +456,10 @@ async def download_audio(event):
 # ================================================================================================ #
 import os
 import yt_dlp
-from youtube_search import YoutubeSearch
+import io
 from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
 
-# مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
 DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
@@ -469,93 +468,70 @@ def remove_if_exists(path):
         os.remove(path)
 
 def parse_duration(duration_str):
-    """تحويل المدة من mm:ss إلى ثواني"""
     try:
         parts = list(map(int, duration_str.split(':')))
-        if len(parts) == 2:
-            return parts[0] * 60 + parts[1]
-        return 0
+        return parts[0] * 60 + parts[1] if len(parts) == 2 else 0
     except:
         return 0
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # الحصول على الاستعلام من الرسالة
     reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
-    else:
+    query = event.pattern_match.group(1) or (reply.message if reply else None)
+    if not query:
         return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
-    
+
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
-        "socket_timeout": 5,
-        "http_chunk_size": 5242880,
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 2,
-        "retries": 2,
+
+    ydl_opts = {
+        "format": "bestaudio/best",
         "quiet": True,
-        "no_warnings": True,
         "geo_bypass": True,
-        "cookiefile": get_cookies_file(),
-        "keepvideo": False,
-        "prefer_ffmpeg": False,
+        "noplaylist": True,
+        "socket_timeout": 5,
+        "nocheckcertificate": True,
+        "outtmpl": "%(title)s.%(ext)s",
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "m4a",
+            "preferredquality": "5",
+        }],
     }
-    
+
     try:
-        # البحث باستخدام YoutubeSearch
-        results = YoutubeSearch(query, max_results=1).to_dict()
-        if not results:
-            raise Exception("لم يتم العثور على نتائج")
-            
-        video_id = results[0]['id']
-        link = f"https://youtu.be/{video_id}"
-        title = results[0]["title"][:40]
-        duration_str = results[0]["duration"]
-        duration = parse_duration(duration_str)
-        
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل في البحث** \n**- الخطأ:** `{str(e)}`")
-        return
-    
-    await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
-    
-    try:
-        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
-            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
-            
+        # ابحث وحمّل في خطوة واحدة (أسرع من YoutubeSearch)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(f"ytsearch1:{query}", download=True)["entries"][0]
+
+        title = info.get("title", "Unknown")[:50]
+        duration = info.get("duration", 0)
+        file_path = ydl.prepare_filename(info).rsplit(".", 1)[0] + ".m4a"
+
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
+
         await event.client.send_file(
             event.chat_id,
-            audio_file,
-            force_document=False,
+            file_path,
             caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
             thumb=DEFAULT_THUMBNAIL,
-            reply_to=event.reply_to_msg_id or event.id,  # الرد على الرسالة الأصلية
             attributes=[
                 DocumentAttributeAudio(
                     duration=duration,
                     performer=DEFAULT_ARTIST,
                     title=title
                 )
-            ]
+            ],
+            force_document=False,
+            reply_to=event.reply_to_msg_id or event.id
         )
-        
+
         await zedevent.delete()
-        
     except ChatSendMediaForbiddenError:
         await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا**")
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
-        remove_if_exists(audio_file)
+        remove_if_exists(file_path)
 
 
         

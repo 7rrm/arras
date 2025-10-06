@@ -478,84 +478,51 @@ def parse_duration(duration_str):
     except:
         return 0
 
+# دمج أفضل الممارسات من الكودين:
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
-async def yt_audio_search(event):
-    # الحصول على الاستعلام من الرسالة
-    reply = await event.get_reply_message()
-    if event.pattern_match.group(1):
-        query = event.pattern_match.group(1)
-    elif reply and reply.message:
-        query = reply.message
-    else:
-        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**\n**⎉╎بحث + اسـم المقطـع الصـوتي**")
+async def optimized_search(event):
+    query = event.pattern_match.group(1).strip()
+    if not query:
+        return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    msg = await event.reply("**╮ جـارِ البحث ... 🎧♥️ ╰**")
     
-    ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
-        "socket_timeout": 5,
-        "http_chunk_size": 5242880,
+    ydl_opts = {
+        "format": "bestaudio[ext=m4a]",
+        "outtmpl": "%(id)s.%(ext)s",
+        "socket_timeout": 3,  # أقل وقت انتظار
         "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 2,
-        "retries": 2,
         "quiet": True,
         "no_warnings": True,
-        "geo_bypass": True,
-        "cookiefile": get_cookies_file(),
-        "keepvideo": False,
-        "prefer_ffmpeg": False,
     }
     
     try:
-        # البحث باستخدام YoutubeSearch
+        # البحث السريع
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
-            raise Exception("لم يتم العثور على نتائج")
-            
-        video_id = results[0]['id']
-        link = f"https://youtu.be/{video_id}"
-        title = results[0]["title"][:40]
-        duration_str = results[0]["duration"]
-        duration = parse_duration(duration_str)
+            return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰")
         
-    except Exception as e:
-        await zedevent.edit(f"**- فشـل في البحث** \n**- الخطأ:** `{str(e)}`")
-        return
-    
-    await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
-    
-    try:
-        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
-            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
-            
-        await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
+        video_url = f"https://youtube.com{results[0]['url_suffix']}"
+        
+        # التحميل المباشر
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            filename = ydl.prepare_filename(info)
+        
+        # الإرسال الفوري
         await event.client.send_file(
             event.chat_id,
-            audio_file,
-            force_document=False,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
-            thumb=DEFAULT_THUMBNAIL,
-            reply_to=event.reply_to_msg_id or event.id,  # الرد على الرسالة الأصلية
-            attributes=[
-                DocumentAttributeAudio(
-                    duration=duration,
-                    performer=DEFAULT_ARTIST,
-                    title=title
-                )
-            ]
+            filename,
+            caption=f"**🎵 {results[0]['title'][:40]}**",
+            thumb=DEFAULT_THUMB,
+            reply_to=event.id
         )
         
-        await zedevent.delete()
-        
-    except ChatSendMediaForbiddenError:
-        await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا**")
     except Exception as e:
-        await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
+        await msg.edit(f"**❌ خطأ:** `{str(e)}`")
     finally:
-        remove_if_exists(audio_file)
+        remove_if_exists(filename)
+        await msg.delete()
 
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")

@@ -495,7 +495,7 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    ydl_ops_extreme = {
+    ydl_ops = {
     # 🏎️ التنسيق - أسرع ما يمكن
     "format": "worstaudio[ext=m4a]",
     

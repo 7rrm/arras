@@ -496,42 +496,18 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-    # 🏎️ التنسيق - أسرع ما يمكن
-    "format": "worstaudio[ext=m4a]",
-    
-    # 🏎️ اتصال فائق السرعة
-    "socket_timeout": 1,
-    "http_chunk_size": 52428800,  # 50MB - قطع ضخمة
-    "fragment_retries": 0,
-    "retries": 0,
-    "skip_unavailable_fragments": True,
-    "abort_on_unavailable_fragment": True,
-    "hls_prefer_native": False,   # استخدام ffmpeg أسرع
-    
-    # 🏎️ تحسينات أداء قصوى
-    "noplaylist": True,
-    "extract_flat": "discard",    # تجاهل المعلومات الإضافية
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "keepvideo": False,
-    "noprogress": True,
-    "no_color": True,
-    "ignoreerrors": True,
-    "no_overwrites": True,
-    "writethumbnail": False,      # لا صور مصغرة
-    "writeinfojson": False,       # لا معلومات إضافية
-    "writesubtitles": False,      # لا ترجمات
-    "writeautomaticsub": False,   # لا ترجمات تلقائية
-    
-    # 🏎️ التخزين والأسماء
-    "outtmpl": "%(id)s.%(ext)s",
-    "cookiefile": get_cookies_file(),
-    
-    # 🏎️ استخراج صوت فوري
-    "extractaudio": True,
-    "audioformat": "m4a", 
-    "audioquality": "0",          # أقل جودة ممكنة
+            "format":"worstaudio[ext=m4a]",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": get_cookies_file(),
+            "outtmpl": "%(id)s.%(ext)s"
     }
     
     try:

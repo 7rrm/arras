@@ -455,7 +455,6 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-
 def remove_if_exists(path): #Code by T.me/zzzzl1l
     if os.path.exists(path):
         os.remove(path)
@@ -467,6 +466,7 @@ from youtube_search import YoutubeSearch
 from telethon import events
 import random
 import glob
+import time
 
 
 # دالة الحصول على ملف الكوكيز
@@ -508,9 +508,8 @@ async def disable_search(event):
         search_settings['enabled_groups'][event.chat_id] = False
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
-import time  # أضف هذه المكتبة في الأعلى مع باقي الـimports
 
-@l313l.on(events.NewMessage(pattern=r'^\.بحث (.*)'))
+@l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
     # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
@@ -522,37 +521,43 @@ async def search_song(event):
         if not search_settings['enabled_groups'].get(event.chat_id, False):
             return
     
-    query = event.pattern_match.group(1)
+    query = event.pattern_match.group(1).strip()
     if not query:
-        return await event.reply("**╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰**")
+        if event.is_private:  # فقط في الدردشات الخاصة
+            return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
+        return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     start_time = time.time()  # بداية حساب الوقت
+    
+    filename = None  # تعريف المتغير مسبقاً
     
     try:
         # الحصول على ملف الكوكيز
         cookies_file = get_cookies_file()
         
+        # إنشاء اسم ملف فريد لتجنب التعارض
+        timestamp = int(time.time())
+        filename = f"downloads/song_{timestamp}.m4a"
+        
+        # التأكد من وجود مجلد التحميلات
+        os.makedirs("downloads", exist_ok=True)
+        
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-    # أولوية لـ m4a، ثم أي تنسيق متاح
-    "format": "bestaudio[ext=m4a]/bestaudio/best",
-# إعدادات السرعة القصوى
-    "socket_timeout": 5,  # وقت انتظار أقل
-    "http_chunk_size": 5242880,  # 6MB - قطع أكبر للتحميل السريع
-    "noplaylist": True,
-    "extract_flat": True,
-    "fragment_retries": 2,
-    "retries": 2,
-    
-    # إعدادات التخفيض
-    "quiet": True,
-    "no_warnings": True,
-    "geo_bypass": True,
-    "cookiefile": cookies_file,
-    "outtmpl": "a R R a S 🎧.m4a"  # اسم ملف ثابت مع الاحتفاظ بالامتداد
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": filename  # استخدام اسم الملف الفريد
         }
-        
         
         # البحث في اليوتيوب
         search_start = time.time()
@@ -571,31 +576,40 @@ async def search_song(event):
         # عملية التحميل
         download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(video_url, download=True)
-            filename = ydl.prepare_filename(info)
+            ydl.download([video_url])
         download_time = time.time() - download_start
+        
+        # التحقق من وجود الملف بعد التحميل
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"الملف {filename} غير موجود بعد التحميل")
             
         # عملية الرفع
         upload_start = time.time()
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+        
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
+            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f}` ثانية",
             reply_to=event.id
         )
         upload_time = time.time() - upload_start
             
-            
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:
+        # تنظيف الملفات المؤقتة
         try:
-            if 'filename' in locals() and os.path.exists(filename):
+            if filename and os.path.exists(filename):
                 os.remove(filename)
+        except Exception as e:
+            print(f"Error deleting file: {e}")
+        
+        try:
+            await msg.delete()
         except:
             pass
-        await msg.delete()
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

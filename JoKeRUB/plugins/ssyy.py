@@ -570,7 +570,7 @@ async def search_song(event):
         
         # عملية التحميل
         download_start = time.time()
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
         download_time = time.time() - download_start

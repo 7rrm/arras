@@ -469,14 +469,18 @@ def remove_if_exists(path):
         os.remove(path)
 
 def parse_duration(duration_str):
-    """تحويل المدة من mm:ss إلى ثواني"""
+    """تحويل المدة من mm:ss إلى ثواني وتنسيق للعرض"""
     try:
         parts = list(map(int, duration_str.split(':')))
         if len(parts) == 2:
-            return parts[0] * 60 + parts[1]
-        return 0
+            seconds = parts[0] * 60 + parts[1]
+            # تنسيق المدة إلى دقائق وثواني
+            minutes = seconds // 60
+            remaining_seconds = seconds % 60
+            return seconds, f"{minutes:02d}:{remaining_seconds:02d}"
+        return 0, "00:00"
     except:
-        return 0
+        return 0, "00:00"
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
@@ -492,20 +496,18 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
-        "socket_timeout": 5,
-        "http_chunk_size": 5242880,
+        "format": "bestaudio[ext=m4a]",
+        "outtmpl": "%(id)s.%(ext)s",
+        "socket_timeout": 3,
         "noplaylist": True,
         "extract_flat": True,
-        "fragment_retries": 2,
-        "retries": 2,
+        "fragment_retries": 1,
+        "retries": 1,
         "quiet": True,
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": get_cookies_file(),
         "keepvideo": False,
-        "prefer_ffmpeg": False,
     }
     
     try:
@@ -516,9 +518,9 @@ async def yt_audio_search(event):
             
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
-        title = results[0]["title"][:40]
+        title = results[0]["title"]
         duration_str = results[0]["duration"]
-        duration = parse_duration(duration_str)
+        duration_seconds, formatted_duration = parse_duration(duration_str)
         
     except Exception as e:
         await zedevent.edit(f"**- فشـل في البحث** \n**- الخطأ:** `{str(e)}`")
@@ -528,20 +530,20 @@ async def yt_audio_search(event):
     
     try:
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)  # download=True مثل الكود الثاني
-            audio_file = ydl.prepare_filename(info_dict)  # لا يوجد إعادة تسمية
+            info_dict = ydl.extract_info(link, download=True)
+            audio_file = ydl.prepare_filename(info_dict)
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛:-** `{duration}`",
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛 :-** `{formatted_duration}`",
             thumb=DEFAULT_THUMBNAIL,
-            reply_to=event.reply_to_msg_id or event.id,  # الرد على الرسالة الأصلية
+            reply_to=event.reply_to_msg_id or event.id,
             attributes=[
                 DocumentAttributeAudio(
-                    duration=duration,
+                    duration=duration_seconds,
                     performer=DEFAULT_ARTIST,
                     title=title
                 )
@@ -556,7 +558,7 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
-        
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

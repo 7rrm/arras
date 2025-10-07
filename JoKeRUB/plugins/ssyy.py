@@ -496,7 +496,7 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "format":"bestaudio/best",
             "socket_timeout": 5,
             "http_chunk_size": 5242880,
             "noplaylist": True,

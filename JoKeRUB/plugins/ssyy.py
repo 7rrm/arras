@@ -455,8 +455,7 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-
-def remove_if_exists(path): #Code by T.me/zzzzl1l
+def remove_if_exists(path):
     if os.path.exists(path):
         os.remove(path)
 
@@ -469,7 +468,6 @@ import random
 import glob
 import time
 
-
 # دالة الحصول على ملف الكوكيز
 def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
@@ -480,9 +478,9 @@ def get_cookies_file():
 
 # إعدادات التحكم
 search_settings = {
-    'enabled_private': False,  # للدردشات الخاصة
-    'enabled_groups': {},     # للمجموعات {group_id: True/False}
-    'admin_id': 5427469031    # أي دي المطور
+    'enabled_private': False,
+    'enabled_groups': {},
+    'admin_id': 5427469031
 }
 
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل بحث$'))
@@ -509,12 +507,10 @@ async def disable_search(event):
         search_settings['enabled_groups'][event.chat_id] = False
         await event.reply(f"✗ تم تعطيل البحث في هذه المجموعة")
 
-
 @l313l.on(events.NewMessage(pattern=r'^\.بحث(?: |$)(.*)'))
 async def search_song(event):
-    # التحقق من الصلاحيات
     if event.sender_id == search_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
+        pass
     elif event.is_private:
         if not search_settings['enabled_private']:
             return
@@ -524,40 +520,39 @@ async def search_song(event):
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
+        if event.is_private:
             return await event.reply("╮ ❐ يرجى تحديد اسم الأغنية للبحث ...𓅫╰")
         return
     
     msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    start_time = time.time()  # بداية حساب الوقت
+    start_time = time.time()
     
     try:
-        # بقية الكود كما هو ...
-        # الحصول على ملف الكوكيز
-        
-        # إعدادات yt-dlp مع الكوكيز
+        # إعدادات yt-dlp المصححة
         ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio/best",
-        "outtmpl": "%(id)s.%(ext)s",  # نفس الكود الثاني
-        "socket_timeout": 5,
-        "http_chunk_size": 5242880,
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 2,
-        "retries": 2,
-        "quiet": True,
-        "no_warnings": True,
-        "geo_bypass": True,
-        "cookies_file": get_cookies_file(),
-        "keepvideo": False,
-        "prefer_ffmpeg": False,
+            "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "outtmpl": "%(id)s.%(ext)s",
+            "socket_timeout": 10,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": False,  # تغيير من True إلى False لتمكين التحميل
+            "fragment_retries": 3,
+            "retries": 3,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookies_file": get_cookies_file(),
+            "keepvideo": False,
+            "prefer_ffmpeg": False,
+            "postprocessors": [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'm4a',
+                'preferredquality': '192',
+            }],
         }
         
-        
         # البحث في اليوتيوب
-        search_start = time.time()
         results = YoutubeSearch(query, max_results=1).to_dict()
-        search_time = time.time() - search_start
         
         if not results:
             return await msg.edit("╮ ❐ لم يتم العثور على نتائج !!╰**")
@@ -569,33 +564,52 @@ async def search_song(event):
         await msg.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
         # عملية التحميل
-        download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
-        download_time = time.time() - download_start
+            # تغيير الامتداد إلى m4a إذا كان مختلفاً
+            if not filename.endswith('.m4a'):
+                base_name = os.path.splitext(filename)[0]
+                filename = base_name + '.m4a'
             
-        # عملية الرفع
-        upload_start = time.time()
+        # التأكد من وجود الملف
+        if not os.path.exists(filename):
+            # محاولة العثور على الملف بامتداد مختلف
+            base_name = os.path.splitext(filename)[0]
+            for ext in ['.m4a', '.mp3', '.webm', '.mp4']:
+                possible_file = base_name + ext
+                if os.path.exists(possible_file):
+                    filename = possible_file
+                    break
+            else:
+                raise FileNotFoundError("لم يتم إنشاء ملف الصوت")
+        
         await msg.edit("╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰")
+        
+        # إرسال الملف
         await event.client.send_file(
             event.chat_id,
             filename,
-            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق ** `{time.time()-start_time:.1f}` ثانية",
+            caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f}` ثانية",
             reply_to=event.id
         )
-        upload_time = time.time() - upload_start
-            
             
     except Exception as e:
         await msg.edit(f"**❌ حدث خطأ:**\n`{str(e)}`\n**⏱️ الوقت المستغرق:** {time.time()-start_time:.1f} ثانية")
     finally:
+        # تنظيف الملفات المؤقتة
         try:
-            if 'filename' in locals() and os.path.exists(filename):
-                os.remove(filename)
-        except:
-            pass
+            if 'filename' in locals():
+                remove_if_exists(filename)
+                # تنظيف أي ملفات أخرى قد تكون created
+                base_name = os.path.splitext(filename)[0] if 'filename' in locals() else None
+                if base_name:
+                    for ext in ['.m4a', '.mp3', '.webm', '.mp4', '.part']:
+                        remove_if_exists(base_name + ext)
+        except Exception as e:
+            print(f"Error cleaning files: {e}")
         await msg.delete()
+
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

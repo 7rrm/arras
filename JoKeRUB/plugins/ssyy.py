@@ -474,7 +474,8 @@ def get_cookies_file():
     folder_path = f"{os.getcwd()}/karar"
     txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
     if not txt_files:
-        raise FileNotFoundError("No .txt files found in the cookies folder.")
+        print("No .txt files found in the cookies folder.")
+        return None
     return random.choice(txt_files)
 
 # إعدادات التحكم
@@ -538,26 +539,29 @@ async def search_song(event):
         
         # إنشاء اسم ملف فريد لتجنب التعارض
         timestamp = int(time.time())
-        filename = f"downloads/song_{timestamp}.m4a"
+        filename = f"downloads/song_{timestamp}.%(ext)s"
         
         # التأكد من وجود مجلد التحميلات
         os.makedirs("downloads", exist_ok=True)
         
         # إعدادات yt-dlp مع الكوكيز
         ydl_opts = {
-            "format": "bestaudio[ext=m4a]/bestaudio/best",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
+            "format": "bestaudio[ext=m4a]/bestaudio[ext=mp3]/bestaudio/best",
+            "socket_timeout": 30,
+            "http_chunk_size": 10485760,
             "noplaylist": True,
-            "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
+            "extract_flat": False,  # تغيير إلى False لتحميل المعلومات الكاملة
+            "fragment_retries": 3,
+            "retries": 3,
+            "quiet": False,  # تغيير إلى False لرؤية الأخطاء
+            "no_warnings": False,  # تغيير إلى False لرؤية التحذيرات
             "geo_bypass": True,
-            "cookiefile": cookies_file,
-            "outtmpl": filename  # استخدام اسم الملف الفريد
+            "outtmpl": filename,  # استخدام اسم الملف الفريد
         }
+        
+        # إضافة الكوكيز إذا وجدت
+        if cookies_file and os.path.exists(cookies_file):
+            ydl_opts["cookiefile"] = cookies_file
         
         # البحث في اليوتيوب
         search_start = time.time()
@@ -576,12 +580,46 @@ async def search_song(event):
         # عملية التحميل
         download_start = time.time()
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([video_url])
+            try:
+                # الحصول على المعلومات أولاً
+                info = ydl.extract_info(video_url, download=False)
+                actual_filename = ydl.prepare_filename(info)
+                
+                # الآن قم بالتحميل
+                ydl.download([video_url])
+                
+            except Exception as e:
+                await msg.edit(f"**❌ خطأ في التحميل:**\n`{str(e)}`")
+                return
+                
         download_time = time.time() - download_start
         
-        # التحقق من وجود الملف بعد التحميل
-        if not os.path.exists(filename):
-            raise FileNotFoundError(f"الملف {filename} غير موجود بعد التحميل")
+        # البحث عن الملف المحمل فعلياً
+        actual_filename = None
+        for file in os.listdir("downloads"):
+            if file.startswith(f"song_{timestamp}"):
+                actual_filename = f"downloads/{file}"
+                break
+        
+        if not actual_filename or not os.path.exists(actual_filename):
+            # إذا لم نجد الملف بالاسم المتوقع، نبحث عن أي ملف صوتي حديث
+            audio_files = []
+            for file in os.listdir("downloads"):
+                if file.endswith(('.m4a', '.mp3', '.webm', '.opus')):
+                    file_path = f"downloads/{file}"
+                    # التحقق من وقت التعديل (ملفات تم إنشاؤها حديثاً)
+                    if time.time() - os.path.getmtime(file_path) < 60:  # خلال آخر دقيقة
+                        audio_files.append(file_path)
+            
+            if audio_files:
+                actual_filename = audio_files[0]
+            else:
+                raise FileNotFoundError(f"لم يتم العثور على الملف المحمل في مجلد downloads")
+        
+        # التحقق من حجم الملف
+        file_size = os.path.getsize(actual_filename)
+        if file_size == 0:
+            raise ValueError("الملف المحمل فارغ (حجم 0 بايت)")
             
         # عملية الرفع
         upload_start = time.time()
@@ -589,7 +627,7 @@ async def search_song(event):
         
         await event.client.send_file(
             event.chat_id,
-            filename,
+            actual_filename,
             caption=f"**✧︙البحث:** `{title}`\n**◈︙المـدة:** `ٔ{duration}`\n**◈︙الـوقت المستغـرق:** `{time.time()-start_time:.1f}` ثانية",
             reply_to=event.id
         )
@@ -600,10 +638,20 @@ async def search_song(event):
     finally:
         # تنظيف الملفات المؤقتة
         try:
-            if filename and os.path.exists(filename):
-                os.remove(filename)
+            if actual_filename and os.path.exists(actual_filename):
+                os.remove(actual_filename)
         except Exception as e:
             print(f"Error deleting file: {e}")
+        
+        # تنظيف أي ملفات أخرى في مجلد downloads قديمة
+        try:
+            for file in os.listdir("downloads"):
+                file_path = f"downloads/{file}"
+                # حذف الملفات الأقدم من 5 دقائق
+                if os.path.isfile(file_path) and (time.time() - os.path.getmtime(file_path)) > 300:
+                    os.remove(file_path)
+        except:
+            pass
         
         try:
             await msg.delete()

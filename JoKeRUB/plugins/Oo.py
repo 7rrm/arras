@@ -47,7 +47,7 @@ from ..helpers import progress, reply_id
 from ..helpers.functions import delete_conv, name_dl, song_dl, video_dl, yt_search
 from ..helpers.functions.utube import _mp3Dl, get_yt_video_id, get_ytthumb, ytsearch
 from ..helpers.tools import media_type
-from ..helpers.utils import _format, reply_id, _zedutils
+from ..helpers.utils import _format, reply_id, _catutils
 from . import BOTLOG, BOTLOG_CHATID, l313l
 
 BASE_YT_URL = "https://www.youtube.com/watch?v="
@@ -449,7 +449,7 @@ async def download_audio(event):
             os.remove(_path)
     await zedevent.delete()
 
-
+'''
 @l313l.ar_cmd(
     pattern="يوتيوب(?: |$)(\\d*)? ?([\\s\\S]*)",
     command=("يوتيوب", plugin_category),
@@ -485,6 +485,8 @@ async def yt_search(event):
         return await edit_delete(video_q, str(e), time=10, parse_mode=_format.parse_pre)
     reply_text = f"**⎉╎اليك عزيزي قائمة بروابط الكلمة اللتي بحثت عنها:**\n`{query}`\n\n**⎉╎النتائج:**\n{full_response}"
     await edit_or_reply(video_q, reply_text)
+
+    '''
 
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
@@ -627,7 +629,7 @@ async def _(event): #Code by T.me/zzzzl1l
 # ================================================================================================ #
 # =========================================ردود الخاص================================================= #
 # ================================================================================================ #
-
+'''
 @l313l.ar_cmd(
     pattern="ابحث(?:\ع|$)([\s\S]*)",
     command=("ابحث", plugin_category),
@@ -705,7 +707,7 @@ async def shazamcmd(event):
     await zedevent.delete()
     if delete:
         await delete_conv(event, chat, purgeflag)
-'''
+
 
 # Code by T.me/zzzzl1l
 @zedub.zed_cmd(pattern=".ff(?:\s|$)([\s\S]*)")
@@ -737,7 +739,7 @@ async def zelzal_song(event):
         )
         await zzevent.delete()
         await delete_conv(event, chat, purgeflag)
-'''
+        
 
 @l313l.ar_cmd(
     pattern="يوتيوب(?: |$)(\d*)? ?([\s\S]*)",
@@ -1018,7 +1020,7 @@ async def download_video(event):
 # ================================================================================================ #
 # =========================================ردود الخاص================================================= #
 # ================================================================================================ #
-'''
+
 import re
 import datetime
 from asyncio import sleep

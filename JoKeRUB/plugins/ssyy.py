@@ -460,7 +460,6 @@ from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
 from telethon.tl.types import DocumentAttributeAudio
 
-# مسار الصورة المصغرة الثابتة
 DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
 DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
@@ -469,7 +468,6 @@ def remove_if_exists(path):
         os.remove(path)
 
 def parse_duration(duration_str):
-    """تحويل المدة من mm:ss إلى ثواني وتنسيق للعرض"""
     try:
         parts = list(map(int, duration_str.split(':')))
         if len(parts) == 2:
@@ -483,7 +481,6 @@ def parse_duration(duration_str):
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # الحصول على الاستعلام من الرسالة
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
         query = event.pattern_match.group(1)
@@ -494,30 +491,24 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    # إعدادات مُحسَّنة للسرعة
+    # إعدادات محسنة للأداء
     ydl_ops = {
         "format": "bestaudio[ext=m4a]",
         "outtmpl": "%(id)s.%(ext)s",
-        "socket_timeout": 2,  # تقليل وقت الانتظار
+        "socket_timeout": 8,
         "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 0,  # إزالة إعادة المحاولة
-        "retries": 0,  # إزالة إعادة المحاولة
+        "extract_flat": False,  # تغيير لـ False لتحسين الأداء
+        "fragment_retries": 3,
+        "retries": 3,
         "quiet": True,
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": get_cookies_file(),
         "keepvideo": False,
         "noprogress": True,  # إخفاء شريط التقدم
-        "no_color": True,  # إزالة الألوان
-        "http_chunk_size": 10485760,  # زيادة حجم القطع
-        "extractaudio": True,  # استخراج الصوت فقط
-        "audioformat": "m4a",  # تنسيق محدد
-        "ignoreerrors": True,  # تجاهل الأخطاء البسيطة
     }
     
     try:
-        # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
             raise Exception("لم يتم العثور على نتائج")
@@ -535,13 +526,14 @@ async def yt_audio_search(event):
     await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
-        # استخدام extract_info بدون تحميل أولي
+        # استخدام extract_info مع download=True مباشرة
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            # الحصول على المعلومات أولاً
-            info = ydl.extract_info(link, download=False)
-            # ثم التحميل الفعلي
-            ydl.download([link])
-            audio_file = f"{video_id}.m4a"
+            info_dict = ydl.extract_info(link, download=True)
+            audio_file = ydl.prepare_filename(info_dict)
+            
+            # إذا كان الملف غير موجود، حاول مع امتداد m4a
+            if not os.path.exists(audio_file):
+                audio_file = f"{video_id}.m4a"
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(

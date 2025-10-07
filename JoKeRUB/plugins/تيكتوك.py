@@ -15,10 +15,10 @@ import base64
 from JoKeRUB import l313l 
 #from ..Config import Config
 #By Reda
-@l313l.ar_cmd(pattern="تك")
+@l313l.ar_cmd(pattern="تيك")
 async def tiktok_dl(event):
     ms = event.message.message
-    ms = ms.replace(".تك", "")
+    ms = ms.replace(".تيك", "")
     if event:
             if ("https://tiktok.com/" in ms or "https://vm.tiktok.com/" in ms):
                 await event.message.delete()

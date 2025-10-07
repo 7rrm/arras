@@ -474,7 +474,6 @@ def parse_duration(duration_str):
         parts = list(map(int, duration_str.split(':')))
         if len(parts) == 2:
             seconds = parts[0] * 60 + parts[1]
-            # تنسيق المدة إلى دقائق وثواني
             minutes = seconds // 60
             remaining_seconds = seconds % 60
             return seconds, f"{minutes:02d}:{remaining_seconds:02d}"
@@ -495,19 +494,26 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
+    # إعدادات مُحسَّنة للسرعة
     ydl_ops = {
         "format": "bestaudio[ext=m4a]",
         "outtmpl": "%(id)s.%(ext)s",
-        "socket_timeout": 3,
+        "socket_timeout": 2,  # تقليل وقت الانتظار
         "noplaylist": True,
         "extract_flat": True,
-        "fragment_retries": 1,
-        "retries": 1,
+        "fragment_retries": 0,  # إزالة إعادة المحاولة
+        "retries": 0,  # إزالة إعادة المحاولة
         "quiet": True,
         "no_warnings": True,
         "geo_bypass": True,
         "cookiefile": get_cookies_file(),
         "keepvideo": False,
+        "noprogress": True,  # إخفاء شريط التقدم
+        "no_color": True,  # إزالة الألوان
+        "http_chunk_size": 10485760,  # زيادة حجم القطع
+        "extractaudio": True,  # استخراج الصوت فقط
+        "audioformat": "m4a",  # تنسيق محدد
+        "ignoreerrors": True,  # تجاهل الأخطاء البسيطة
     }
     
     try:
@@ -529,16 +535,20 @@ async def yt_audio_search(event):
     await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
     
     try:
+        # استخدام extract_info بدون تحميل أولي
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
-            info_dict = ydl.extract_info(link, download=True)
-            audio_file = ydl.prepare_filename(info_dict)
+            # الحصول على المعلومات أولاً
+            info = ydl.extract_info(link, download=False)
+            # ثم التحميل الفعلي
+            ydl.download([link])
+            audio_file = f"{video_id}.m4a"
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛 :-** `{formatted_duration}`",
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛 ⥂** `{formatted_duration}`",
             thumb=DEFAULT_THUMBNAIL,
             reply_to=event.reply_to_msg_id or event.id,
             attributes=[

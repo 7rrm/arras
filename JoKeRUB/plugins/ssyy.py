@@ -78,7 +78,7 @@ def get_cookies_file():
 
 
 video_opts = {
-    "format": "best",
+    "format": "bestvideo+bestaudio/best[height<=720]",
     "addmetadata": True,
     "key": "FFmpegMetadata",
     "writethumbnail": True,
@@ -89,11 +89,11 @@ video_opts = {
         {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
         {"key": "FFmpegMetadata"},
     ],
-    "outtmpl": "zed_ytv.mp4",
+    "outtmpl": "zed_ytv.%(ext)s",  # تغيير مهم
     "logtostderr": False,
     "quiet": True,
     "no_warnings": True,
-    "cookiefile" : get_cookies_file(),
+    "cookiefile": get_cookies_file(),
 }
 
 

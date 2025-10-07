@@ -458,6 +458,11 @@ import os
 import yt_dlp
 from youtube_search import YoutubeSearch
 from telethon.errors import ChatSendMediaForbiddenError
+from telethon.tl.types import DocumentAttributeAudio
+
+# مسار الصورة المصغرة الثابتة
+DEFAULT_THUMBNAIL = "l313l/razan/resources/start/ssyy.JPEG"
+DEFAULT_ARTIST = "𓏺 ᥲRRᥲS . @Lx5x5 "
 
 def remove_if_exists(path):
     if os.path.exists(path):
@@ -491,20 +496,18 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]",
-        "outtmpl": "%(id)s.%(ext)s",
-        "socket_timeout": 3,
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 1,
-        "retries": 1,
-        "quiet": True,
-        "no_warnings": True,
-        "geo_bypass": True,
-        "cookiefile": get_cookies_file(),
-        "keepvideo": False,
-        "writethumbnail": False,  # عدم تحميل الصورة المصغرة
-        "noprogress": True,  # إخفاء شريط التقدم
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": cookies_file,
+            "outtmpl": "%(id)s.%(ext)s"
     }
     
     try:
@@ -531,15 +534,20 @@ async def yt_audio_search(event):
             audio_file = ydl.prepare_filename(info_dict)
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
-        
-        # إرسال الملف بدون ميتاداتا وصورة مصغرة
         await event.client.send_file(
             event.chat_id,
             audio_file,
             force_document=False,
-            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛 ⥂** `{formatted_duration}`",
-            # تم إزالة thumb و attributes
+            caption=f"**S𝑜𝑛𝑔N𝑎𝑚𝑒 ⥂** `{title}`\n**D𝑢𝑟𝑎𝑡𝑖𝑜𝑛 :-** `{formatted_duration}`",
+            thumb=DEFAULT_THUMBNAIL,
             reply_to=event.reply_to_msg_id or event.id,
+            attributes=[
+                DocumentAttributeAudio(
+                    duration=duration_seconds,
+                    performer=DEFAULT_ARTIST,
+                    title=title
+                )
+            ]
         )
         
         await zedevent.delete()
@@ -550,7 +558,6 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
-
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

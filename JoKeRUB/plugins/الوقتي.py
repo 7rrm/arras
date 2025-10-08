@@ -161,31 +161,42 @@ async def autobio_loop():
 
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"  # اختر المنطقة الزمنية
+        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
         ZTZone = dt.now(timezone(TIME_ZONE))
         ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+        
+        # زخرفة الأرقام
+        normzltext = "1234567890"
         for normal in ZT:
             if normal in normzltext:
-              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬" 
-              namefont = namerzfont[normzltext.index(normal)]
-              ZT = ZT.replace(normal, namefont)
+                namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
+                namefont = namerzfont[normzltext.index(normal)]
+                ZT = ZT.replace(normal, namefont)
+        
         ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
         channel_name = f"{ZT}{ZEDT}"
 
         try:  
-            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
-            # تغيير اسم القناة  
+            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))
+            
+            # الحصول على آخر رسالة قبل التغيير
+            last_message_id = None
+            async for message in l313l.iter_messages(channel_id, limit=1):
+                last_message_id = message.id
+                break
+            
+            # تغيير اسم القناة
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
                 title=channel_name  
             ))  
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
             
-            # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(2)  # انتظار قليل لضمان إرسال الرسالة
-            async for message in l313l.iter_messages(channel_id, limit=1):
-                if message.action and hasattr(message.action, 'title'):
+            # حذف رسالة الإشعار الجديدة
+            await asyncio.sleep(2)  # انتظار ظهور الرسالة
+            async for message in l313l.iter_messages(channel_id, limit=5):
+                if message.id > last_message_id and message.action:
                     await message.delete()
                     LOGS.info("تم حذف رسالة الإشعار")
                     break
@@ -193,8 +204,7 @@ async def autochannel_loop():
         except Exception as e:  
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
           
-        await asyncio.sleep(CHANGE_TIME)  # تكرار كل فترة زمنية محددة
-
+        await asyncio.sleep(CHANGE_TIME)
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

@@ -4,6 +4,7 @@ from ..core.managers import edit_or_reply
 from telethon import events
 import aiohttp
 import re
+from bs4 import BeautifulSoup
 
 TIKTOK_API = "https://www.tikwm.com/api/"
 INSTAGRAM_API = "https://snapinsta.io/action.php"  # 𝑨𝑺𝑯𝑬𝑸 𝑨𝑳𝑺𝑨𝑴𝑻 𝒀𝑨𝑴𝑬𝑵𝑻𝑯𝑶𝑵
@@ -46,11 +47,8 @@ async def tiktok_download(event):
         await zed.edit(f"❌ خطأ: {str(e)}")
 
 
-import re
-import aiohttp
-from bs4 import BeautifulSoup
 
-@l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
+@l313l.ar_cmd(pattern=r"انستا(?:\s+|$)(.*)")
 async def insta_download(event):
     reply = await event.get_reply_message()
     link = event.pattern_match.group(1).strip() or (reply.text.strip() if reply else "")
@@ -86,7 +84,7 @@ async def insta_download(event):
                 else:
                     title = "Instagram Video"
 
-        caption_text = f"تم التحميـل ⥂ ({title})"
+        caption_text = f"**تم التحميـل ⥂** (`{title}`)"
 
         await event.client.send_file(
             event.chat_id,

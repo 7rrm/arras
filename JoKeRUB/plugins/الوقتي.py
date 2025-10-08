@@ -158,10 +158,12 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
+
+
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"  # اختر المنطقة الزمنية
-        ZTZone = dt.now(timezone(TIME_ZONE))
+        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
+        ZTZone = dt.now(timezone.utc).astimezone(timezone(TIME_ZONE))
         ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
         ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
@@ -169,17 +171,24 @@ async def autochannel_loop():
 
         try:
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))
+
             # تغيير اسم القناة
             await l313l(functions.channels.EditTitleRequest(
                 channel=channel_id,
                 title=channel_name
             ))
+
+            # حذف إشعار تغيير الاسم
+            async for message in l313l.iter_messages(channel_id, limit=1):
+                if "تم تغيير اسم القناة" in (message.message or ""):
+                    await message.delete()
+
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
+
         except Exception as e:
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")
-        
-        await asyncio.sleep(CHANGE_TIME)  # تكرار كل فترة زمنية محددة
-        
+
+        await asyncio.sleep(CHANGE_TIME)
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

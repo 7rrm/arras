@@ -46,7 +46,11 @@ async def tiktok_download(event):
         await zed.edit(f"❌ خطأ: {str(e)}")
 
 
-@l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
+import re
+import aiohttp
+from bs4 import BeautifulSoup
+
+@l313l.ar_cmd(pattern=r"انستا(?:\s+|$)(.*)")
 async def insta_download(event):
     reply = await event.get_reply_message()
     link = event.pattern_match.group(1).strip() or (reply.text.strip() if reply else "")
@@ -66,22 +70,26 @@ async def insta_download(event):
                     return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
                 data = await resp.json()
 
-        video_url = data.get("post_video_url")
-        thumb_url = data.get("post_video_thumbnail")
-        
-        # الحصول على عنوان المنشور إذا كان متوفراً
-        caption_text = data.get("caption", "فيديو إنستقرام")
-        # تقليل طول العنوان إذا كان طويلاً
-        if caption_text and len(caption_text) > 100:
-            caption_text = caption_text[:100] + "..."
+            video_url = data.get("post_video_url")
+            thumb_url = data.get("post_video_thumbnail")
 
-        if not video_url:
-            return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
+            if not video_url:
+                return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
+
+            # جلب عنوان الفيديو من صفحة الإنستقرام
+            async with session.get(link) as resp_html:
+                if resp_html.status == 200:
+                    html = await resp_html.text()
+                    soup = BeautifulSoup(html, "html.parser")
+                    og_title = soup.find("meta", property="og:title")
+                    title = og_title["content"] if og_title else "Instagram Video"
+                else:
+                    title = "Instagram Video"
 
         await event.client.send_file(
             event.chat_id,
             video_url,
-            caption=f"**{caption_text}**\n\n[➧ 𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)",
+            caption=title,
             thumb=thumb_url if thumb_url else None
         )
 
@@ -89,3 +97,4 @@ async def insta_download(event):
 
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
+        

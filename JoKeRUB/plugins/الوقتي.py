@@ -165,12 +165,6 @@ TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"  # اختر المنطقة الز
 ZTZone = dt.now(timezone(TIME_ZONE))
 ZTime = ZTZone.strftime('%H:%M')
 ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-for normal in ZT:
-            if normal in normzltext:
-              namerzfont = gvarstatus("ZI_FN") or "𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵𝟬"
-              namefont = namerzfont[normzltext.index(normal)]
-              ZT = ZT.replace(normal, namefont)
-                
 ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
 channel_name = f"{ZT}{ZEDT}"
 

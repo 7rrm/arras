@@ -46,9 +46,6 @@ async def tiktok_download(event):
         await zed.edit(f"❌ خطأ: {str(e)}")
 
 
-import re
-import aiohttp
-
 @l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
 async def insta_download(event):
     reply = await event.get_reply_message()
@@ -60,39 +57,35 @@ async def insta_download(event):
     zed = await edit_or_reply(event, "⏳ جاري التحميل من إنستقرام...")
 
     try:
-        # أسرع API مباشر
-        video_url = await fastest_instagram_api(link)
-        
-        if not video_url:
-            return await zed.edit("⚠️ لم أستطع تحميل الفيديو.")
+        api_url = "https://insta.savetube.me/downloadPostVideo"
+        payload = {"url": link}
 
-        # إرسال الفيديو
+        async with aiohttp.ClientSession() as session:
+            async with session.post(api_url, json=payload) as resp:
+                if resp.status != 200:
+                    return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
+                data = await resp.json()
+
+        video_url = data.get("post_video_url")
+        thumb_url = data.get("post_video_thumbnail")
+        
+        # الحصول على عنوان المنشور إذا كان متوفراً
+        caption_text = data.get("caption", "فيديو إنستقرام")
+        # تقليل طول العنوان إذا كان طويلاً
+        if caption_text and len(caption_text) > 100:
+            caption_text = caption_text[:100] + "..."
+
+        if not video_url:
+            return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
+
         await event.client.send_file(
             event.chat_id,
             video_url,
-            caption="**𝑶𝑲📥𝑰𝑵𝑺𝑻𝑨𝑮𝑹𝑨𝑴**\n[➧𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)",
-            supports_streaming=True
+            caption=f"**{caption_text}**\n\n[➧ 𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)",
+            thumb=thumb_url if thumb_url else None
         )
 
         await zed.delete()
 
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
-
-async def fastest_instagram_api(link):
-    """أسرع API لتحميل الإنستجرام"""
-    try:
-        # استخدم هذا API - الأسرع والأكثر استقراراً
-        api_url = "https://api.savetube.be/api/instagram"
-        params = {"url": link}
-        
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
-            async with session.get(api_url, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    return data.get("url")
-                    
-    except Exception as e:
-        print(f"API Error: {e}")
-        
-    return None

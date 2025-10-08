@@ -48,8 +48,6 @@ async def tiktok_download(event):
 
 import re
 import aiohttp
-from telethon import events
-from telethon.tl.types import MessageMediaPhoto
 
 @l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
 async def insta_download(event):
@@ -62,19 +60,11 @@ async def insta_download(event):
     zed = await edit_or_reply(event, "⏳ جاري التحميل من إنستقرام...")
 
     try:
-        # محاولة API الأول
-        video_url = await try_api_1(link)
+        # أسرع API مباشر
+        video_url = await fastest_instagram_api(link)
         
-        # إذا فشل الأول، جرب API الثاني
         if not video_url:
-            video_url = await try_api_2(link)
-            
-        # إذا فشل الثاني، جرب الطريقة بدون API
-        if not video_url:
-            video_url = await try_no_api(link)
-
-        if not video_url:
-            return await zed.edit("⚠️ لم أستطع تحميل الفيديو من أي مصدر.")
+            return await zed.edit("⚠️ لم أستطع تحميل الفيديو.")
 
         # إرسال الفيديو
         await event.client.send_file(
@@ -89,77 +79,20 @@ async def insta_download(event):
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
 
-async def try_api_1(link):
-    """API سريع من SaveTube"""
+async def fastest_instagram_api(link):
+    """أسرع API لتحميل الإنستجرام"""
     try:
-        api_url = "https://api.savefrom.app/api/convert"
-        data = {
-            "url": link
-        }
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(api_url, data=data) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    if "url" in data:
-                        return data["url"]
-    except:
-        pass
-    return None
-
-async def try_api_2(link):
-    """API بديل"""
-    try:
-        api_url = "https://insta-downloader.vercel.app/download"
+        # استخدم هذا API - الأسرع والأكثر استقراراً
+        api_url = "https://api.savetube.be/api/instagram"
         params = {"url": link}
         
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=10)) as session:
             async with session.get(api_url, params=params) as resp:
                 if resp.status == 200:
                     data = await resp.json()
-                    return data.get("video_url") or data.get("url")
-    except:
-        pass
-    return None
-
-async def try_no_api(link):
-    """طريقة بدون API باستخدام مواقع بديلة"""
-    try:
-        # استخدام ddinstagram كبديل
-        modified_url = link.replace("instagram.com", "ddinstagram.com")
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.get(modified_url) as resp:
-                if resp.status == 200:
-                    html = await resp.text()
+                    return data.get("url")
                     
-                    # البحث عن رابط الفيديو في HTML
-                    import re
-                    video_pattern = r'"video_url":"(https?://[^"]+\.mp4[^"]*)"'
-                    matches = re.findall(video_pattern, html)
-                    
-                    if matches:
-                        return matches[0].replace('\\u0026', '&')
-    except:
-        pass
-    return None
-
-# إذا أردت استخدام RapidAPI (يتطلب حساب مجاني)
-async def try_rapidapi(link):
-    """RapidAPI (يتطلب مفتاح API)"""
-    try:
-        api_url = "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index"
-        params = {"url": link}
-        headers = {
-            "X-RapidAPI-Key": "your_rapidapi_key_here",  # احصل عليه من rapidapi.com
-            "X-RapidAPI-Host": "instagram-downloader-download-instagram-videos-stories.p.rapidapi.com"
-        }
+    except Exception as e:
+        print(f"API Error: {e}")
         
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, headers=headers, params=params) as resp:
-                if resp.status == 200:
-                    data = await resp.json()
-                    return data.get("media")
-    except:
-        pass
     return None

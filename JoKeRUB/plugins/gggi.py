@@ -165,7 +165,6 @@ async def zzz_info(zthon_user, event):
     ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
     return ZThon
 
-
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
@@ -192,10 +191,19 @@ async def fetch_info(replied_user, event):
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
     
-    # إضافة متغيرات الهدايا بشكل آمن
-    gifts_sent_count = 0
-    gifts_received_count = 0
-    gift_level = "لا يوجـد 🎁"
+    # الحصول على عدد الهدايا الفعلية
+    try:
+        # محاولة الحصول على معلومات الهدايا من المستخدم
+        user_full = await event.client(GetFullUserRequest(user_id))
+        premium_gifts = getattr(user_full, 'premium_gifts', None)
+        
+        if premium_gifts:
+            gifts_count = len(premium_gifts)
+        else:
+            gifts_count = 0
+    except Exception as e:
+        gifts_count = 0
+        LOGS.error(f"Error getting gifts count: {e}")
     
     #zid = int(gvarstatus("ZThon_Vip"))
     if zilzal == True or user_id in zelzal:
@@ -251,7 +259,6 @@ async def fetch_info(replied_user, event):
         zelzzz = "غنبله  💣"
     else:
         zelzzz = "نار وشرر  🏆"
-        
 ################# Dev ZilZal #################
     if user_id in zelzal: 
         rotbat = "مطـور السـورس 𓄂" 
@@ -269,7 +276,7 @@ async def fetch_info(replied_user, event):
     if gvarstatus("ZID_TEMPLATE") is None:
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
-                caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس آراس </b>"
+                caption = f"<b>✦ مـعلومـات المسـتخـدم سـورس زدثــون </b>"
                 caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
                 caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
                 caption += f'<a href="emoji/6325684673145997914">❤️</a>'
@@ -295,13 +302,10 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n"
-                # إضافة قسم الهدايا
-                caption += f"<b>{ZEDM}الهدايـا المرسلة ⤎</b>  {gifts_sent_count} 🎁\n"
-                caption += f"<b>{ZEDM}الهدايـا المستلمة ⤎</b>  {gifts_received_count} 🎁\n"
-                caption += f"<b>{ZEDM}مستوى الهدايـا ⤎</b>  {gift_level}\n"
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -329,12 +333,9 @@ async def fetch_info(replied_user, event):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n"
-                # إضافة قسم الهدايا
-                caption += f"<b>{ZEDM}الهدايـا المرسلة ⤎</b>  {gifts_sent_count} 🎁\n"
-                caption += f"<b>{ZEDM}الهدايـا المستلمة ⤎</b>  {gifts_received_count} 🎁\n"
-                caption += f"<b>{ZEDM}مستوى الهدايـا ⤎</b>  {gift_level}\n"
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -354,12 +355,9 @@ async def fetch_info(replied_user, event):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+            caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n"
-            # إضافة قسم الهدايا
-            caption += f"<b>{ZEDM}الهدايـا المرسلة ⤎</b>  {gifts_sent_count} 🎁\n"
-            caption += f"<b>{ZEDM}الهدايـا المستلمة ⤎</b>  {gifts_received_count} 🎁\n"
-            caption += f"<b>{ZEDM}مستوى الهدايـا ⤎</b>  {gift_level}\n"
+            caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
             caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -375,18 +373,16 @@ async def fetch_info(replied_user, event):
             zpre=zpre,
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
+            zgft=gifts_count,  # إضافة متغير الهدايا
             zmsg=zzz,
             ztmg=zelzzz,
-            zgsent=gifts_sent_count,
-            zgreceived=gifts_received_count,
-            zglevel=gift_level,
             zcom=common_chat,
             zsnc=zzzsinc,
             zbio=user_bio,
         )
     return photo, caption
 
-
+                    
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),

@@ -1,65 +1,85 @@
 
-#Reda
-import asyncio 
-import shutil
-import requests
-from requests.exceptions import JSONDecodeError
-import json
-import os
+from .. import l313l
+from ..core.managers import edit_or_reply
+from telethon import events
+import aiohttp
 import re
-from bs4 import BeautifulSoup as bs
-import time
-from datetime import timedelta
-import math
-import base64
-from JoKeRUB import l313l 
-#from ..Config import Config
-#By Reda
-@l313l.ar_cmd(pattern="تيك")
-async def tiktok_dl(event):
-    ms = event.message.message
-    ms = ms.replace(".تيك", "")
-    if event:
-            if ("https://tiktok.com/" in ms or "https://vm.tiktok.com/" in ms):
-                await event.message.delete()
-                a = await l313l.send_message(event.chat_id, 'يجري البحث عن الملف..')
-                link = ms.strip()
-                try:
-                    response = requests.get(f"https://godownloader.com/api/tiktok-no-watermark-free?url={link}&key=godownloader.com")
-                    data = response.json()
-                    #print(data)
-                    video_link = data["video_no_watermark"]
-                    response = requests.get(video_link)
-                    video_data = response.content
-                    directory = str(round(time.time()))
-                    filename = str(int(time.time()))+'.mp4'
-                    os.mkdir(directory)
-                    video_filename = f"{directory}/{filename}"
-                    with open(video_filename, "wb") as file:
-                        file.write(video_data)
-                
-                except JSONDecodeError:
-                    return await a.edit("الرابط غير صحيح تأكد منه!")
-                except Exception as er:
-                    if 'video_no_watermark' in str(er):
-                        return await a.edit("**رابط الفيديو غير صحيح تأكد منه واعد المحاولة**")
-                    return await a.edit(f"حدث خطأ قم بتوجيه الرسالة الى مطوري @rd0r0\n{er}")
-            
-            
-                
-                await a.edit(f' يجري التحميل للخادم..!\n'
-                   f' يجري الرفع للتلجرام⏳__')
-                start = time.time()
-                title = "فيديو"
-                filesize_bytes = os.path.getsize(video_filename)
-                filesize = filesize_bytes / (1024 * 1024)
-                catid = await reply_id(event.message)
-                await l313l.send_file(
-                   event.chat_id, f"{directory}/{filename}", reply_to=catid,     force_document=False,     caption=f"**الملف : ** {filename}\n**الحجم :**     {round(filesize, 1)} MB"
-                 )
-        
-                await a.delete()
-     
-                shutil.rmtree(directory)
-    #else:
-       # return None
+
+TIKTOK_API = "https://www.tikwm.com/api/"
+INSTAGRAM_API = "https://snapinsta.io/action.php"  # 𝑨𝑺𝑯𝑬𝑸 𝑨𝑳𝑺𝑨𝑴𝑻 𝒀𝑨𝑴𝑬𝑵𝑻𝑯𝑶𝑵
+
+async def fetch_data(url, params=None, method="GET", data=None, return_json=True):
+    async with aiohttp.ClientSession() as session:
+        if method == "GET":
+            async with session.get(url, params=params) as resp:
+                return await (resp.json() if return_json else resp.text())
+        else:
+            async with session.post(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"}) as resp:
+                return await (resp.json() if return_json else resp.text())
+
+@l313l.ar_cmd(pattern="تيك(?:\s+|$)(.*)")
+async def tiktok_download(event):
+    reply = await event.get_reply_message()
+    link = event.pattern_match.group(1) or (reply.text if reply else "")
+
+    if not link or "tiktok.com" not in link:
+        return await edit_or_reply(event, "📌 أرسل رابط تيك توك بعد الأمر أو بالرد على الرابط.")
+
+    zed = await edit_or_reply(event, "⏳ جاري التحميل من تيك توك...")
+    try:
+        data = await fetch_data(TIKTOK_API, method="POST", data={"url": link}, return_json=True)
+
+        if data.get("code") != 0:
+            return await zed.edit("⚠️ لم أستطع جلب الفيديو، تأكد من الرابط.")
+
+        result = data["data"]
+
+        if result.get("play"):
+            await event.client.send_file(event.chat_id, result["play"], caption="**𝑶𝑲✅𝑻𝑰𝑲 𝑻𝑶𝑲**\n[➧𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)")
+
+        if result.get("images"):
+            for img in result["images"]:
+                await event.client.send_file(event.chat_id, img, caption="📸 صورة من تيك توك")
+
+        await zed.delete()
+    except Exception as e:
+        await zed.edit(f"❌ خطأ: {str(e)}")
+
+
+@l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
+async def insta_download(event):
+    reply = await event.get_reply_message()
+    link = event.pattern_match.group(1).strip() or (reply.text.strip() if reply else "")
+
+    if not link or not re.search(r"(instagram\.com|instagr\.am)", link):
+        return await edit_or_reply(event, "📌 أرسل رابط إنستقرام بعد الأمر أو بالرد على الرابط.")
+
+    zed = await edit_or_reply(event, "⏳ جاري التحميل من إنستقرام...")
+
+    try:
+        api_url = "https://insta.savetube.me/downloadPostVideo"
+        payload = {"url": link}
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(api_url, json=payload) as resp:
+                if resp.status != 200:
+                    return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
+                data = await resp.json()
+
+        video_url = data.get("post_video_url")
+        thumb_url = data.get("post_video_thumbnail")
+
+        if not video_url:
+            return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
+
+        await event.client.send_file(
+            event.chat_id,
+            video_url,
+            caption= "**𝑶𝑲📥𝑰𝑵𝑺𝑻𝑨𝑮𝑹𝑨𝑴**\n[➧𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)",
+            thumb=thumb_url if thumb_url else None
+        )
+
+        await zed.delete()
+
+    except Exception as e:
+        await zed.edit(f"❌ خطأ: {str(e)}")

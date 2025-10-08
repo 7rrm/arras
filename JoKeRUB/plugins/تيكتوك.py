@@ -6,8 +6,8 @@ import aiohttp
 import re
 from bs4 import BeautifulSoup
 
+
 TIKTOK_API = "https://www.tikwm.com/api/"
-INSTAGRAM_API = "https://snapinsta.io/action.php"  # 𝑨𝑺𝑯𝑬𝑸 𝑨𝑳𝑺𝑨𝑴𝑻 𝒀𝑨𝑴𝑬𝑵𝑻𝑯𝑶𝑵
 
 async def fetch_data(url, params=None, method="GET", data=None, return_json=True):
     async with aiohttp.ClientSession() as session:
@@ -34,17 +34,29 @@ async def tiktok_download(event):
             return await zed.edit("⚠️ لم أستطع جلب الفيديو، تأكد من الرابط.")
 
         result = data["data"]
+        title = result.get("title") or "TikTok Video"
+
+        caption_text = f"تم التحميـل ⥂ ({title})"
 
         if result.get("play"):
-            await event.client.send_file(event.chat_id, result["play"], caption="**𝑶𝑲✅𝑻𝑰𝑲 𝑻𝑶𝑲**\n[➧𝙎𝙊𝙐𝙍𝘾𝙀 𝙔𝘼𝙈𝙀𝙉𝙏𝙃𝙊𝙉](https://t.me/YamenThon)")
+            await event.client.send_file(
+                event.chat_id,
+                result["play"],
+                caption=caption_text
+            )
 
         if result.get("images"):
             for img in result["images"]:
-                await event.client.send_file(event.chat_id, img, caption="📸 صورة من تيك توك")
+                await event.client.send_file(
+                    event.chat_id,
+                    img,
+                    caption="📸 صورة من تيك توك"
+                )
 
         await zed.delete()
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
+        
 
 
 

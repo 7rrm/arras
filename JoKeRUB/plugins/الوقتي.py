@@ -158,7 +158,7 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
-async def auto_update_channel_name():
+async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
         TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"  # اختر المنطقة الزمنية
         ZTZone = dt.now(timezone(TIME_ZONE))

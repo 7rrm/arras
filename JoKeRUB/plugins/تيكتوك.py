@@ -50,7 +50,7 @@ import re
 import aiohttp
 from bs4 import BeautifulSoup
 
-@l313l.ar_cmd(pattern=r"انستا(?:\s+|$)(.*)")
+@l313l.ar_cmd(pattern=r"اانستا(?:\s+|$)(.*)")
 async def insta_download(event):
     reply = await event.get_reply_message()
     link = event.pattern_match.group(1).strip() or (reply.text.strip() if reply else "")
@@ -86,10 +86,12 @@ async def insta_download(event):
                 else:
                     title = "Instagram Video"
 
+        caption_text = f"تم التحميـل ⥂ ({title})"
+
         await event.client.send_file(
             event.chat_id,
             video_url,
-            caption=title,
+            caption=caption_text,
             thumb=thumb_url if thumb_url else None
         )
 

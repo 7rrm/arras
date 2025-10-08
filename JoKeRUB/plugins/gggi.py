@@ -185,7 +185,6 @@ async def fetch_info(replied_user, event):
     full_name = f"{first_name} {last_name}" if last_name else first_name
     common_chat = FullUser.common_chats_count
     username = replied_user.username
-    username_display = f"@{username}" if username else "لا يـوجـد"
     user_bio = FullUser.about
     is_bot = replied_user.bot
     restricted = replied_user.restricted

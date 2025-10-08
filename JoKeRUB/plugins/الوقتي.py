@@ -170,13 +170,21 @@ async def autochannel_loop():
 
         try:  
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
-            # تغيير اسم القناة بدون إشعار
+            # تغيير اسم القناة  
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
-                title=channel_name,
-                silent=True  # هذا الوسيط يمنع ظهور الإشعار
+                title=channel_name  
             ))  
-            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")  
+            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
+            
+            # حذف رسالة الإشعار بعد التغيير
+            await asyncio.sleep(2)  # انتظار قليل لضمان إرسال الرسالة
+            async for message in l313l.iter_messages(channel_id, limit=1):
+                if message.action and hasattr(message.action, 'title'):
+                    await message.delete()
+                    LOGS.info("تم حذف رسالة الإشعار")
+                    break
+                    
         except Exception as e:  
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
           

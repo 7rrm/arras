@@ -36,7 +36,7 @@ async def tiktok_download(event):
         result = data["data"]
         title = result.get("title") or "TikTok Video"
 
-        caption_text = f"تم التحميـل ⥂ ({title})"
+        caption_text = f"**تم التحميـل ⥂** {title}"
 
         if result.get("play"):
             await event.client.send_file(
@@ -96,7 +96,7 @@ async def insta_download(event):
                 else:
                     title = "Instagram Video"
 
-        caption_text = f"**تم التحميـل ⥂** (`{title}`)"
+        caption_text = f"**تم التحميـل ⥂** `{title}`"
 
         await event.client.send_file(
             event.chat_id,

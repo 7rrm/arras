@@ -191,21 +191,37 @@ async def fetch_info(replied_user, event):
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
     
-    # الحصول على عدد الهدايا الفعلية
+    # الحصول على عدد الهدايا الفعلية - الطريقة الصحيحة
+    gifts_count = 0
     try:
-        # محاولة الحصول على معلومات الهدايا من المستخدم
-        user_full = await event.client(GetFullUserRequest(user_id))
-        premium_gifts = getattr(user_full, 'premium_gifts', None)
-        
-        if premium_gifts:
-            gifts_count = len(premium_gifts)
-        else:
-            gifts_count = 0
+        # محاولة الحصول على الهدايا من خلال الرسائل المحفوظة أو القنوات الخاصة
+        # هذه طريقة بديلة حيث أن تيليجرام لا يوفر واجهة مباشرة لعدد الهدايا
+        async for message in event.client.iter_messages('me', search='🎁'):
+            if message.text and 'هدية' in message.text and str(user_id) in message.text:
+                gifts_count += 1
     except Exception as e:
-        gifts_count = 0
         LOGS.error(f"Error getting gifts count: {e}")
     
-    #zid = int(gvarstatus("ZThon_Vip"))
+    # محاولة بديلة: استخدام بوت الهدايا الرسمي
+    try:
+        async with event.client.conversation('@PremiumBot') as conv:
+            await conv.send_message('/start')
+            response = await conv.get_response()
+            await conv.send_message('/mygifts')
+            response = await conv.get_response()
+            # تحليل الرد للحصول على عدد الهدايا
+            if 'هدية' in response.text or 'gift' in response.text.lower():
+                import re
+                numbers = re.findall(r'\d+', response.text)
+                if numbers:
+                    gifts_count = int(numbers[0])
+    except Exception as e:
+        LOGS.error(f"Error getting gifts from PremiumBot: {e}")
+    
+    # إذا لم نتمكن من الحصول على العدد، نعرض "غير معروف"
+    gifts_display = str(gifts_count) if gifts_count > 0 else "غير معروف"
+    
+    # باقي الكود كما هو...
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
     else:
@@ -237,7 +253,6 @@ async def fetch_info(replied_user, event):
         if first_name
         else ("هذا المستخدم ليس له اسم أول")
     )
-    #full_name = full_name or first_name
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
@@ -259,7 +274,7 @@ async def fetch_info(replied_user, event):
         zelzzz = "غنبله  💣"
     else:
         zelzzz = "نار وشرر  🏆"
-################# Dev ZilZal #################
+
     if user_id in zelzal: 
         rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
@@ -268,11 +283,11 @@ async def fetch_info(replied_user, event):
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
-################# Dev ZilZal #################
-    #zid = int(gvarstatus("ZThon_Vip"))
+
     ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " 
     ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" 
+    
     if gvarstatus("ZID_TEMPLATE") is None:
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
@@ -302,7 +317,7 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_display}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -333,7 +348,7 @@ async def fetch_info(replied_user, event):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_display}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -355,7 +370,7 @@ async def fetch_info(replied_user, event):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-            caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_count}  🎁\n"
+            caption += f"<b>{ZEDM}الهدايــا  ⤎</b>  {gifts_display}  🎁\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
@@ -373,7 +388,7 @@ async def fetch_info(replied_user, event):
             zpre=zpre,
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
-            zgft=gifts_count,  # إضافة متغير الهدايا
+            zgft=gifts_display,  # إضافة متغير الهدايا
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,

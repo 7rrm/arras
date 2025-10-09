@@ -389,8 +389,9 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
-    # إضافة خيار التشويش إذا كان مفعل
+    # التحقق من حالة التشويش للصورة
     is_spoiler = gvarstatus("cllear")
+    spoiler_enabled = is_spoiler and is_spoiler == "on"
     
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
@@ -402,7 +403,7 @@ async def who(event):
                 force_document=False,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html"),
-                spoiler=is_spoiler  # إضافة خاصية التشويش هنا
+                spoiler=spoiler_enabled  # إضافة خاصية إخفاء الصورة هنا
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -419,7 +420,7 @@ async def who(event):
                 force_document=False,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("markdown"),
-                spoiler=is_spoiler  # إضافة خاصية التشويش هنا
+                spoiler=spoiler_enabled  # إضافة خاصية إخفاء الصورة هنا
             )
             if not photo.startswith("http"):
                 os.remove(photo)

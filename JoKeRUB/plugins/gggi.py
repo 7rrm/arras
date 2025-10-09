@@ -89,6 +89,26 @@ class CustomParseMode:
                 entities[i] = types.MessageEntityTextUrl(e.offset, e.length, 'spoiler')
         return html.unparse(text, entities)
 
+from telethon.tl.functions.payments import GetStarGiftsRequest
+from telethon.tl.types import InputUserSelf
+
+async def get_user_gifts_count(event, user_id):
+    """الحصول على عدد هدايا النجوم للشخص"""
+    try:
+        # الحصول على هدايا المستخدم
+        result = await event.client(GetStarGiftsRequest(
+            peer=await event.client.get_input_entity(user_id),
+            offset="",
+            limit=100  # الحد الأقصى للهدايا
+        ))
+        
+        # عدد الهدايا هو عدد العناصر في القائمة
+        gifts_count = len(result.gifts) if hasattr(result, 'gifts') else 0
+        return gifts_count
+        
+    except Exception as e:
+        print(f"Error getting gifts: {e}")
+        return 0
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -179,6 +199,7 @@ async def fetch_info(replied_user, event):
         dc_id = replied_user.photo.dc_id
     
     user_id = replied_user.id
+    gifts_count = await get_user_gifts_count(event, user_id)
     zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
     last_name = replied_user.last_name
@@ -288,6 +309,8 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                # في قسم الـ caption مع باقي المعلومات
+                caption += f"<b>{ZEDM}الهدايـا ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -318,6 +341,8 @@ async def fetch_info(replied_user, event):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                # في قسم الـ caption مع باقي المعلومات
+                caption += f"<b>{ZEDM}الهدايـا ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -339,6 +364,8 @@ async def fetch_info(replied_user, event):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+            # في قسم الـ caption مع باقي المعلومات
+            caption += f"<b>{ZEDM}الهدايـا ⤎</b>  {gifts_count}  🎁\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
@@ -361,6 +388,7 @@ async def fetch_info(replied_user, event):
             zcom=common_chat,
             zsnc=zzzsinc,
             zbio=user_bio,
+            zgft=gifts_count,
         )
     return photo, caption
 

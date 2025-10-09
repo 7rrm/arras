@@ -395,14 +395,16 @@ async def who(event):
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
             await event.client.send_file(
-                event.chat_id,
-                photo,
-                caption=caption,
-                link_preview=False,
-                force_document=False,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
+    event.chat_id,
+    photo,
+    caption=f"> {caption}",  # يجعل الكليشة داخل اقتباس
+    spoiler=True,             # يجعل الصورة تُرسل بإخفاء تشويش تيليجرام
+    link_preview=False,
+    force_document=False,
+    reply_to=message_id_to_reply,
+    parse_mode=CustomParseMode("html"),
             )
+            
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()

@@ -12,6 +12,7 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions import payments
+from telethon.tl.functions.payments import GetUserStarGiftsRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
@@ -120,9 +121,16 @@ async def get_user_from_event(event):
 
 async def fetch_gifts_count(user_id, event):
     try:
-        gifts = await event.client(payments.GetSavedStarGiftsRequest())
-        return len(gifts.gifts) if gifts.gifts else 0
-    except Exception:
+        # جلب هدايا مستخدم معين
+        gifts_result = await event.client(GetUserStarGiftsRequest(
+            user_id=user_id,
+            offset="",
+            limit=100
+        ))
+        return gifts_result.count if hasattr(gifts_result, 'count') else len(gifts_result.gifts) if hasattr(gifts_result, 'gifts') else 0
+    except Exception as e:
+        # في حالة الخصوصية المغلقة أو خطأ آخر
+        print(f"خطأ في جلب الهدايا: {e}")
         return 0
 
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l

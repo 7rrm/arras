@@ -95,11 +95,10 @@ from telethon.tl.types import InputUserSelf
 async def get_user_gifts_count(event, user_id):
     """الحصول على عدد هدايا النجوم للشخص"""
     try:
-        # الحصول على هدايا المستخدم
+        # الطريقة الصحيحة - بدون peer
         result = await event.client(GetStarGiftsRequest(
-            peer=await event.client.get_input_entity(user_id),
             offset="",
-            limit=100  # الحد الأقصى للهدايا
+            limit=100
         ))
         
         # عدد الهدايا هو عدد العناصر في القائمة

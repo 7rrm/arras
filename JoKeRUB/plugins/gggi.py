@@ -12,8 +12,6 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.functions.payments import GetSavedStarGiftsRequest
-from telethon.errors import RpcError
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
@@ -119,48 +117,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def get_gift_count(client, peer_entity):
-    """
-    يحاول جلب عدد الهدايا الحقيقية (Saved Star Gifts) للـ peer_entity.
-    يرجع 0 عند الفشل أو عند عدم إمكانية الوصول.
-    """
-    try:
-        # نحاول تحويل الـ entity إلى InputPeer صالح
-        try:
-            input_peer = await client.get_input_entity(peer_entity)
-        except Exception:
-            # محاولة بديلة: لو أعطينا id فقط، نجيب الـ entity ثم ندخله
-            try:
-                ent = await client.get_entity(peer_entity)
-                input_peer = await client.get_input_entity(ent)
-            except Exception:
-                # لا نستطيع تحويل الـ peer => نعيد 0
-                LOGS.warning(f"get_gift_count: failed to get input_entity for {peer_entity}")
-                return 0
-
-        # نطلب النتائج (limit يمكن تغييره إذا لزم)
-        try:
-            res = await client(GetSavedStarGiftsRequest(peer=input_peer, offset='', limit=100))
-        except TypeError:
-            # fall-back لو توقيع الدالة يختلف في نسخ Telethon القديمة
-            res = await client(functions.payments.GetSavedStarGiftsRequest(peer=input_peer, offset='', limit=100))
-        except RpcError as e:
-            LOGS.warning(f"GetSavedStarGiftsRequest RPCError for {getattr(peer_entity,'id',peer_entity)}: {e!r}")
-            return 0
-
-        # نحاول قراءة الحقل count أو طول القائمة gifts
-        count = getattr(res, "count", None)
-        if count is None:
-            gifts = getattr(res, "gifts", None) or []
-            count = len(gifts)
-        return int(count or 0)
-    except RpcError as e:
-        LOGS.warning(f"GetSavedStarGiftsRequest RPCError (outer) for {peer_entity}: {e!r}")
-        return 0
-    except Exception as e:
-        LOGS.exception(f"Unexpected error in get_gift_count for {peer_entity}: {e}")
-        return 0
-
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     headers = {
         'Host': 'restore-access.indream.app',
@@ -223,10 +179,6 @@ async def fetch_info(replied_user, event):
         dc_id = replied_user.photo.dc_id
     
     user_id = replied_user.id
-    # حاول جلب عدد الهدايا الحقيقية، ولكن لا توقف التنفيذ لو فشل
-    gift_count = 0
-    with contextlib.suppress(Exception):
-    gift_count = await get_gift_count(event.client, replied_user)
     zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
     last_name = replied_user.last_name
@@ -338,7 +290,6 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{ZEDM}الهـدايا  ⤎</b>  {gift_count} 🎁\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
@@ -368,7 +319,6 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-                caption += f"<b>{ZEDM}الهـدايا  ⤎</b>  {gift_count} 🎁\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
@@ -390,7 +340,6 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-            caption += f"<b>{ZEDM}الهـدايا  ⤎</b>  {gift_count} 🎁\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
@@ -407,7 +356,6 @@ async def fetch_info(replied_user, event):
             zpre=zpre,
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
-            zgift=gift_count,
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,

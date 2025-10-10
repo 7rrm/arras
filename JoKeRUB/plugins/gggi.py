@@ -319,7 +319,8 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count} "
+                caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 

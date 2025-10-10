@@ -133,7 +133,39 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     zelzal_date = response['data']['date']
     return zelzal_date
 
+from telethon.tl.functions.payments import GetSavedStarGiftsRequest
+from telethon.tl.types.payments import SavedStarGifts, StarGift, StarGiftUnique
+from telethon.tl.types import PeerUser
+from telethon.utils import get_input_user
 
+MAX_COUNT_GIFTS = 64
+
+async def get_gifts_count(account_id: int, user_id: int) -> dict:
+    """
+    يحصل على عدد هدايا المستخدم
+    """
+    try:
+        client = l313l  # استخدام البوت الحالي
+        
+        request = GetSavedStarGiftsRequest(
+            peer=get_input_user(await client.get_input_entity(PeerUser(user_id=user_id))),
+            offset='',
+            limit=MAX_COUNT_GIFTS
+        )
+        response: SavedStarGifts = await client(request)
+        
+        return {
+            'total_count': response.count,
+            'can_show_all': response.count <= MAX_COUNT_GIFTS,
+            'gifts_list': response.gifts if response.count <= MAX_COUNT_GIFTS else []
+        }
+    except Exception as e:
+        return {
+            'total_count': 0,
+            'can_show_all': False,
+            'error': str(e)
+        }
+        
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
@@ -544,3 +576,51 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
+
+@l313l.ar_cmd(
+    pattern="هداية(?: |$)(.*)",
+    command=("هداية", plugin_category),
+    info={
+        "header": "عـرض عدد هدايا المستخدم",
+        "الاستـخـدام": " {tr}هداية بالـرد او {tr}هداية + معـرف/ايـدي الشخص",
+    },
+)
+async def show_gifts_count(event):
+    "عرض عدد هدايا المستخدم"
+    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    
+    zed = await edit_or_reply(event, "**🎁 جـارِ جلب معـلومـات الهـدايـا...**")
+    
+    # الحصول على المستخدم
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم أو كتابة المعرف/الايدي**")
+    
+    try:
+        # جلب معلومات الهدايا
+        gifts_info = await get_gifts_count(event.client, replied_user.id)
+        
+        if 'error' in gifts_info:
+            return await edit_or_reply(zed, f"**❌ خطأ في جلب الهدايا:** {gifts_info['error']}")
+        
+        total_count = gifts_info['total_count']
+        can_show_all = gifts_info['can_show_all']
+        
+        # بناء الرسالة
+        user_name = replied_user.first_name or replied_user.username or "المستخدم"
+        message = f"**🎁 معـلومـات هـدايا {user_name}**\n\n"
+        message += f"**• العـدد الإجمالي:** {total_count} هدية\n"
+        
+        if total_count > MAX_COUNT_GIFTS:
+            message += f"**• ملاحظة:** لديه أكثر من {MAX_COUNT_GIFTS} هدية 🎉\n"
+            message += f"**• يمكن عرض:** {MAX_COUNT_GIFTS} هدية فقط\n"
+        elif total_count == 0:
+            message += "**• الحالة:** لا يوجد هدايا 🎁"
+        else:
+            message += f"**• الحالة:** يمكن عرض جميع الهدايا ✅"
+        
+        await zed.edit(message)
+        
+    except Exception as e:
+        await edit_or_reply(zed, f"**❌ حدث خطأ:** {str(e)}")

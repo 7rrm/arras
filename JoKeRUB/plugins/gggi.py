@@ -594,23 +594,37 @@ async def show_gifts_count(event):
     
     zed = await edit_or_reply(event, "**🎁 جـارِ جلب معـلومـات الهـدايـا...**")
     
-    # الحصول على المستخدم
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم أو كتابة المعرف/الايدي**")
+    # الحصول على المستخدم من الرسالة المردود عليها
+    if not event.reply_to_msg_id:
+        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم**")
     
     try:
+        reply_message = await event.get_reply_message()
+        user_id = reply_message.sender_id
+        
+        # التحقق من أن المرسل ليس قناة
+        if not isinstance(user_id, int):
+            return await edit_or_reply(zed, "**❌ لا يمكن جلب هدايا القنوات**")
+        
+        # محاولة جلب معلومات المستخدم
+        try:
+            user = await event.client.get_entity(user_id)
+            user_name = user.first_name or "المستخدم"
+        except:
+            user_name = "المستخدم"
+        
         # جلب معلومات الهدايا
-        gifts_info = await get_gifts_count(event.client, replied_user.id)
+        gifts_info = await get_gifts_count(event.client, user_id)
         
         if 'error' in gifts_info:
-            return await edit_or_reply(zed, f"**❌ خطأ في جلب الهدايا:** {gifts_info['error']}")
+            error_msg = gifts_info['error']
+            if "Could not find" in error_msg or "entity" in error_msg:
+                return await edit_or_reply(zed, "**❌ لا يمكن الوصول إلى معلومات هدايا هذا المستخدم**\n**⚠️ قد يكون المستخدم غير موجود أو البوت محظور**")
+            return await edit_or_reply(zed, f"**❌ خطأ في جلب الهدايا:** {error_msg}")
         
         total_count = gifts_info['total_count']
-        can_show_all = gifts_info['can_show_all']
         
         # بناء الرسالة
-        user_name = replied_user.first_name or replied_user.username or "المستخدم"
         message = f"**🎁 معـلومـات هـدايا {user_name}**\n\n"
         message += f"**• العـدد الإجمالي:** `{total_count}` هدية\n"
         
@@ -625,4 +639,35 @@ async def show_gifts_count(event):
         await zed.edit(message)
         
     except Exception as e:
-        await edit_or_reply(zed, f"**❌ حدث خطأ:** {str(e)}")
+        error_msg = str(e)
+        if "Could not find" in error_msg or "entity" in error_msg:
+            await edit_or_reply(zed, "**❌ لا يمكن الوصول إلى معلومات هذا المستخدم**\n**⚠️ تأكد أن البوت يعرف المستخدم وليس محظور منه**")
+        else:
+            await edit_or_reply(zed, f"**❌ حدث خطأ غير متوقع:** {error_msg}")
+
+@l313l.ar_cmd(pattern="هداية2$")
+async def simple_gifts_test(event):
+    """إصفح مبسط لاختبار الأمر"""
+    if not event.reply_to_msg_id:
+        return await edit_or_reply(event, "**⚠️ يرجى الرد على المستخدم**")
+    
+    zed = await edit_or_reply(event, "**🎁 جـارِ الاختبار...**")
+    
+    try:
+        reply = await event.get_reply_message()
+        user_id = reply.sender_id
+        
+        # استخدام طريقة أبسط
+        user = await event.client.get_entity(user_id)
+        
+        # محاولة مباشرة
+        result = await event.client(GetSavedStarGiftsRequest(
+            peer=await event.client.get_input_entity(user_id),
+            offset='',
+            limit=100
+        ))
+        
+        await zed.edit(f"**🎁 عدد هدايا {user.first_name}:** `{result.count}`")
+        
+    except Exception as e:
+        await zed.edit(f"**❌ فشل الاختبار:** {str(e)}")

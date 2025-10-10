@@ -167,18 +167,16 @@ async def zzz_info(zthon_user, event):
     return ZThon
 
 
-            
 async def get_user_gifts_count(event, user_id):
-    """دالة مبسطة وخالية من الأخطاء"""
+    """دالة مصححة تماماً"""
     try:
         from telethon.tl.functions.payments import GetSavedStarGiftsRequest
         
-        # استخدام أبسط شكل ممكن
+        # الحل: تحويل user_id إلى string
         result = await event.client(GetSavedStarGiftsRequest(
-            peer=user_id,  # ✅ استخدام user_id مباشرة
+            peer=str(user_id),  # ✅ تحويل إلى string
             offset=0,
             limit=100
-            # ❌ إزالة جميع المعلمات الإضافية التي تسبب الخطأ
         ))
         
         if hasattr(result, 'gifts') and result.gifts:
@@ -190,7 +188,8 @@ async def get_user_gifts_count(event, user_id):
             
     except Exception as e:
         LOGS.error(f"❌ خطأ في جلب الهدايا: {e}")
-        return 0
+        return 0        
+
 
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""

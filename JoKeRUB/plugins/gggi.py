@@ -403,68 +403,68 @@ async def fetch_info(replied_user, event):
 from telethon.tl.types import MessageEntityBlockquote
 from telethon.tl.types import InputMediaPhoto
 
-from telethon.tl.types import InputMediaUploadedPhoto
-
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
+    info={
+        "header": "امـر مختصـر لـ عـرض معلومـات الشخـص",
+        "الاستـخـدام": " {tr}ا بالـرد او {tr}ا + معـرف/ايـدي الشخص",
+    },
 )
 async def who(event):
     "Gets info of an user"
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
-    
     zed = await edit_or_reply(event, "⇆")
+    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
+        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     replied_user = await get_user_from_event(event)
-    
     try:
         photo, caption = await fetch_info(replied_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+    message_id_to_reply = event.message.reply_to_msg_id
+    if not message_id_to_reply:
+        message_id_to_reply = None
     
+    # إضافة الاقتباس مع الحفاظ على الإيموجي
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
-    try:
-        # إذا كانت الصورة مسار ملف، نحتاج لتحميلها أولاً
-        if not photo.startswith("http"):
-            # رفع الصورة مع spoiler
-            uploaded = await event.client.upload_file(photo)
-            
-            # إرسال الصورة مع spoiler باستخدام الرسالة العادية
-            await event.client.send_message(
+    if gvarstatus("ZID_TEMPLATE") is None:
+        try:
+            await event.client.send_file(
                 event.chat_id,
-                file=uploaded,
-                spoiler=True
+                photo,
+                caption=quoted_caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("html"),# استخدام CustomParseMode
+                spoiler=True  #
             )
-        else:
-            # إذا كانت رابط، تحميل ثم إرسال
-            import requests
-            response = requests.get(photo)
-            temp_file = "temp_photo.jpg"
-            with open(temp_file, 'wb') as f:
-                f.write(response.content)
-            
-            uploaded = await event.client.upload_file(temp_file)
-            await event.client.send_message(
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+    else:
+        try:
+            await event.client.send_file(
                 event.chat_id,
-                file=uploaded,
-                spoiler=True
+                photo,
+                caption=quoted_caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
+                spoiler=True  #
             )
-            os.remove(temp_file)
-        
-        # إرسال المعلومات
-        await event.client.send_message(
-            event.chat_id,
-            quoted_caption,
-            parse_mode=CustomParseMode("html"),
-        )
-        
-        if not photo.startswith("http"):
-            os.remove(photo)
-        await zed.delete()
-        
-    except Exception as e:
-        await zed.edit(f"**خطأ:** {str(e)}")
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

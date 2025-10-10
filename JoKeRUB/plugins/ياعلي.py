@@ -366,79 +366,93 @@ async def removef(event):
     else:
         return await edit_delete(event, "**✾╎عـذراً .. الاشتـراك الاجبـاري غيـر مفعـل هنـا**")
 
-from telethon.tl.functions.messages import SetChatWallPaperRequest
+from telethon.tl.functions.account import UploadWallPaperRequest, SaveWallPaperRequest
 from telethon.tl.types import InputWallPaper, WallPaperSettings
-from telethon.tl.types import InputDocument, DocumentAttributeFilename
 import requests
 import os
 
-async def set_blurred_wallpaper_auto(client, peer):
+async def set_shared_blurred_wallpaper(client, peer):
     """
-    إصفح مبسط باستخدام خلفية افتراضية من التيليجرام
+    تعيين خلفية مشتركة مرئية من الطرفين
     """
     try:
-        # استخدام خلفية افتراضية من التيليجرام مع ضبابية
+        # رابط الصورة
+        wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
+        
+        # تحميل الصورة
+        response = requests.get(wallpaper_url)
+        if response.status_code != 200:
+            return False
+        
+        # حفظ مؤقت
+        temp_file = "shared_wallpaper.jpg"
+        with open(temp_file, 'wb') as f:
+            f.write(response.content)
+        
+        # رفع الخلفية إلى حسابك
+        upload_result = await client(UploadWallPaperRequest(
+            file=await client.upload_file(temp_file),
+            mime_type="image/jpeg",
+            settings=WallPaperSettings(
+                blur=True,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
+        
+        # حفظ الخلفية في حسابك
+        await client(SaveWallPaperRequest(
+            wallpaper=InputWallPaper(
+                id=upload_result.id,
+                access_hash=upload_result.access_hash
+            ),
+            unsave=False
+        ))
+        
+        # تعيين الخلفية للدردشة الحالية
         await client(SetChatWallPaperRequest(
             peer=peer,
             wallpaper=InputWallPaper(
-                id=123456789,  # ID خلفية افتراضية
-                access_hash=123456789
+                id=upload_result.id,
+                access_hash=upload_result.access_hash
             ),
             settings=WallPaperSettings(
                 blur=True,
                 motion=False,
-                background_color=0x1E1E1E,  # لون رمادي غامق
-                intensity=60
+                background_color=0x000000,
+                intensity=50
             )
         ))
         
-        print("✅ تم تعيين الخلفية الضبابية بنجاح")
+        os.remove(temp_file)
+        print("✅ تم تعيين الخلفية المشتركة بنجاح")
         return True
         
     except Exception as e:
-        print(f"❌ خطأ: {e}")
-        
-        # محاولة بديلة باستخدام لون خلفية فقط
-        try:
-            await client(SetChatWallPaperRequest(
-                peer=peer,
-                wallpaper=InputWallPaper(
-                    id=0,
-                    access_hash=0
-                ),
-                settings=WallPaperSettings(
-                    blur=False,
-                    motion=False,
-                    background_color=0x1E1E1E,  # لون خلفية
-                    intensity=0
-                )
-            ))
-            return True
-        except:
-            return False
-        
+        print(f"❌ خطأ في الخلفية المشتركة: {e}")
+        return False
+
 @l313l.on(events.NewMessage(incoming=True))
-async def auto_wallpaper_on_private_message(event):
+async def auto_shared_wallpaper(event):
     """
-    تعيين خلفية تلقائية مع ضبابية عند استقبال رسالة خاصة
+    تعيين خلفية مشتركة تلقائياً
     """
-    # التحقق من أن المرسل ليس البوت نفسه
     if event.sender_id == (await event.client.get_me()).id:
         return
     
-    # التحقق من أن الرسالة في دردشة خاصة
     if event.is_private:
         try:
-            print(f"🔄 محاولة تعيين خلفية لـ {event.sender_id}")
-            success = await set_blurred_wallpaper_auto(
+            print(f"🔄 محاولة تعيين خلفية مشتركة لـ {event.sender_id}")
+            success = await set_shared_blurred_wallpaper(
                 event.client, 
                 await event.get_input_chat()
             )
             
             if success:
-                print(f"✅ تم تعيين خلفية ضبابية لـ {event.sender_id}")
+                print(f"✅ تم تعيين خلفية مشتركة لـ {event.sender_id}")
             else:
-                print(f"❌ فشل تعيين خلفية لـ {event.sender_id}")
+                print(f"❌ فشل تعيين خلفية مشتركة لـ {event.sender_id}")
                 
         except Exception as e:
-            print(f"❌ خطأ في الخلفية التلقائية: {e}")
+            print(f"❌ خطأ في الخلفية المشتركة: {e}")

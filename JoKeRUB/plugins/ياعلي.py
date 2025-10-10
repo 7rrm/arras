@@ -373,64 +373,53 @@ import os
 
 async def set_shared_blurred_wallpaper(client, peer):
     """
-    تعيين خلفية مشتركة مرئية من الطرفين
+    طريقة أبسط للخلفية المشتركة
     """
     try:
-        # رابط الصورة
+        # إرسال الصورة كرسالة أولاً
         wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
         
-        # تحميل الصورة
         response = requests.get(wallpaper_url)
         if response.status_code != 200:
             return False
         
-        # حفظ مؤقت
-        temp_file = "shared_wallpaper.jpg"
+        temp_file = "temp_shared.jpg"
         with open(temp_file, 'wb') as f:
             f.write(response.content)
         
-        # رفع الخلفية إلى حسابك
-        upload_result = await client(UploadWallPaperRequest(
-            file=await client.upload_file(temp_file),
-            mime_type="image/jpeg",
-            settings=WallPaperSettings(
-                blur=True,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
-            )
-        ))
+        # إرسال الصورة للدردشة
+        message = await client.send_file(
+            peer,
+            temp_file,
+            caption="🎨 جاري تعيين الخلفية المشتركة..."
+        )
         
-        # حفظ الخلفية في حسابك
-        await client(SaveWallPaperRequest(
-            wallpaper=InputWallPaper(
-                id=upload_result.id,
-                access_hash=upload_result.access_hash
-            ),
-            unsave=False
-        ))
+        # استخدام الصورة المرسلة كخلفية
+        if message.media:
+            doc = message.media.document
+            await client(SetChatWallPaperRequest(
+                peer=peer,
+                wallpaper=InputWallPaper(
+                    id=doc.id,
+                    access_hash=doc.access_hash
+                ),
+                settings=WallPaperSettings(
+                    blur=True,
+                    motion=False,
+                    background_color=0x000000,
+                    intensity=60
+                )
+            ))
         
-        # تعيين الخلفية للدردشة الحالية
-        await client(SetChatWallPaperRequest(
-            peer=peer,
-            wallpaper=InputWallPaper(
-                id=upload_result.id,
-                access_hash=upload_result.access_hash
-            ),
-            settings=WallPaperSettings(
-                blur=True,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
-            )
-        ))
-        
+        # حذف الرسالة والملف المؤقت
+        await message.delete()
         os.remove(temp_file)
-        print("✅ تم تعيين الخلفية المشتركة بنجاح")
+        
+        print("✅ تم تعيين الخلفية المشتركة")
         return True
         
     except Exception as e:
-        print(f"❌ خطأ في الخلفية المشتركة: {e}")
+        print(f"❌ خطأ: {e}")
         return False
 
 @l313l.on(events.NewMessage(incoming=True))

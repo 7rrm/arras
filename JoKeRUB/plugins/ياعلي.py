@@ -367,55 +367,66 @@ async def removef(event):
         return await edit_delete(event, "**✾╎عـذراً .. الاشتـراك الاجبـاري غيـر مفعـل هنـا**")
 
 from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, InputDocument
+from telethon.tl.types import InputWallPaper, WallPaperSettings
+from telethon.tl.types import InputDocument, DocumentAttributeFilename
 import requests
 import os
 
-
 async def set_blurred_wallpaper_auto(client, peer):
     """
-    طريقة بديلة لتعيين الخلفية
+    تعيين الخلفية مع ضبابية تلقائياً لأي شخص يراسلك
     """
     try:
+        # رابط الصورة الثابت
         wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
         
-        # تحميل الصورة
+        # تحميل الصورة من الرابط
         response = requests.get(wallpaper_url)
         if response.status_code != 200:
+            print("❌ فشل في تحميل الصورة")
             return False
         
-        # حفظ مؤقت
-        temp_file = "temp_wall.jpg"
+        # حفظ الصورة مؤقتاً
+        temp_file = "temp_wallpaper.jpg"
         with open(temp_file, 'wb') as f:
             f.write(response.content)
         
-        # محاولة برفع الصورة كملف وسائط أولاً
-        message = await client.send_file(peer, temp_file)
+        # رفع الصورة كملف وسائط أولاً
+        message = await client.send_file(
+            peer,
+            temp_file,
+            caption="جاري تعيين الخلفية..."
+        )
         
-        # ثم استخدام SetChatWallPaperRequest
+        # الحصول على معلومات الملف المرفوع
+        document = message.media.document
+        
+        # استخدام InputWallPaper مع معلومات الملف الصحيحة
         await client(SetChatWallPaperRequest(
             peer=peer,
             wallpaper=InputWallPaper(
-                id=0,
-                access_hash=0
+                id=document.id,
+                access_hash=document.access_hash
             ),
             settings=WallPaperSettings(
-                blur=True,
+                blur=True,        # ✅ تفعيل الضبابية
                 motion=False,
                 background_color=0x000000,
-                intensity=70
+                intensity=50      # ✅ شدة الضبابية
             )
         ))
         
         # حذف الرسالة المؤقتة والملف
         await message.delete()
         os.remove(temp_file)
+        
+        print("✅ تم تعيين الخلفية بنجاح")
         return True
         
     except Exception as e:
-        print(f"❌ خطأ: {e}")
+        print(f"❌ خطأ في تعيين الخلفية: {e}")
         return False
-
+        
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_wallpaper_on_private_message(event):
     """

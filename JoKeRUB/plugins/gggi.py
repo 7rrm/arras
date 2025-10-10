@@ -166,41 +166,30 @@ async def zzz_info(zthon_user, event):
     ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
     return ZThon
 
+
+            
 async def get_user_gifts_count(event, user_id):
-    """دالة محسنة لجلب عدد هدايا المستخدم"""
+    """دالة مبسطة وخالية من الأخطاء"""
     try:
         from telethon.tl.functions.payments import GetSavedStarGiftsRequest
         
-        # الحصول على كيان المستخدم
-        user_entity = await event.client.get_input_entity(user_id)
-        
-        # استخدام الطريقة الصحيحة من التوثيق
+        # استخدام أبسط شكل ممكن
         result = await event.client(GetSavedStarGiftsRequest(
-            peer=user_entity,
-            offset=0,           # تصحيح: يجب أن يكون رقم
-            limit=100,
-            exclude_unsaved=False,    # تضمين غير المحفوظة
-            exclude_saved=False,      # تضمين المحفوظة  
-            exclude_unlimited=False,  # تضمين غير المحدودة
-            exclude_unique=False,     # تضمين الفريدة
-            sort_by_value=True,       # ترتيب حسب القيمة
-            exclude_upgradable=False, # تضمين القابلة للترقية
-            exclude_unupgradable=False, # تضمين غير القابلة للترقية
-            collection_id=0           # كل المجموعات
+            peer=user_id,  # ✅ استخدام user_id مباشرة
+            offset=0,
+            limit=100
+            # ❌ إزالة جميع المعلمات الإضافية التي تسبب الخطأ
         ))
         
-        # حساب عدد الهدايا
         if hasattr(result, 'gifts') and result.gifts:
             gifts_count = len(result.gifts)
             LOGS.info(f"🎁 تم العثور على {gifts_count} هدية للمستخدم {user_id}")
             return gifts_count
         else:
-            LOGS.info(f"ℹ️ لا توجد هدايا للمستخدم {user_id}")
             return 0
             
     except Exception as e:
         LOGS.error(f"❌ خطأ في جلب الهدايا: {e}")
-        # في حالة الخطأ، نعيد 0 بدلاً من التسبب في تعطل البوت
         return 0
 
 async def fetch_info(replied_user, event):

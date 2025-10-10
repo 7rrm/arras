@@ -368,7 +368,7 @@ async def removef(event):
 
 
 from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings
+from telethon.tl.types import InputWallPaper, WallPaperSettings, InputWallPaperUploaded
 import requests
 
 async def set_blurred_wallpaper_auto(client, peer):
@@ -389,21 +389,24 @@ async def set_blurred_wallpaper_auto(client, peer):
         with open(temp_file, 'wb') as f:
             f.write(response.content)
         
-        # رفع الصورة كملف
-        uploaded_file = await client.upload_file(temp_file)
-        
-        # تعيين الخلفية مع ضبابية
-        await client(SetChatWallPaperRequest(
+        # رفع الصورة مباشرة باستخدام InputWallPaperUploaded
+        result = await client(SetChatWallPaperRequest(
             peer=peer,
-            wallpaper=InputWallPaper(
-                id=uploaded_file.id,
-                access_hash=uploaded_file.access_hash
+            wallpaper=InputWallPaperUploaded(
+                file=await client.upload_file(temp_file),
+                mime_type="image/jpeg",
+                settings=WallPaperSettings(
+                    blur=True,        # ✅ تفعيل الضبابية
+                    motion=False,
+                    background_color=0x000000,
+                    intensity=70      # ✅ شدة الضبابية
+                )
             ),
             settings=WallPaperSettings(
-                blur=True,        # ✅ تفعيل الضبابية
+                blur=True,
                 motion=False,
                 background_color=0x000000,
-                intensity=70      # ✅ شدة الضبابية (من 0 إلى 100)
+                intensity=70
             )
         ))
         
@@ -414,7 +417,6 @@ async def set_blurred_wallpaper_auto(client, peer):
     except Exception as e:
         print(f"خطأ في تعيين الخلفية: {e}")
         return False
-
 
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_wallpaper_on_private_message(event):

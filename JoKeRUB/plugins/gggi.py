@@ -170,11 +170,11 @@ async def zzz_info(zthon_user, event):
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
-    saved_gifts = await event.client(GetSavedStarGiftsRequest())
-    number_of_gifts = len(saved_gifts.gifts)  # عدد 
     replied_user_profile_photos = await event.client(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
+    saved_gifts = await event.client(GetSavedStarGiftsRequest())
+    number_of_gifts = len(saved_gifts.gifts)  # عدد 
     replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
     dc_id = "Can't get dc id"
     with contextlib.suppress(AttributeError):

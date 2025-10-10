@@ -406,74 +406,44 @@ from telethon.tl.types import InputMediaPhoto
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
-    info={
-        "header": "امـر مختصـر لـ عـرض معلومـات الشخـص",
-        "الاستـخـدام": " {tr}ا بالـرد او {tr}ا + معـرف/ايـدي الشخص",
-    },
 )
 async def who(event):
     "Gets info of an user"
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    
     zed = await edit_or_reply(event, "⇆")
-    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
-        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     replied_user = await get_user_from_event(event)
+    
     try:
         photo, caption = await fetch_info(replied_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
     
-    # إضافة الاقتباس للكليشة
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
-    if gvarstatus("ZID_TEMPLATE") is None:
-        try:
-            # أولاً: إرسال الصورة مع Spoiler
-            photo_message = await event.client.send_file(
-                event.chat_id,
-                photo,
-                spoiler=True,  # ✅ Spoiler للصورة
-                force_document=False,
-            )
-            
-            # ثانياً: إرسال المعلومات كرسالة منفصلة
-            await event.client.send_message(
-                event.chat_id,
-                quoted_caption,
-                reply_to=photo_message.id,  # الرد على الصورة
-                parse_mode=CustomParseMode("html"),
-            )
-            
-            if not photo.startswith("http"):
-                os.remove(photo)
-            await zed.delete()
-            
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
-    else:
-        try:
-            # نفس الطريقة للقالب المخصص
-            photo_message = await event.client.send_file(
-                event.chat_id,
-                photo,
-                spoiler=True,  # ✅ Spoiler للصورة
-                force_document=False,
-            )
-            
-            await event.client.send_message(
-                event.chat_id,
-                quoted_caption,
-                reply_to=photo_message.id,
-                parse_mode=CustomParseMode("html"),
-            )
-            
-            if not photo.startswith("http"):
-                os.remove(photo)
-            await zed.delete()
-            
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+    try:
+        # إرسال الصورة مع Spoiler فقط (بدون caption)
+        await event.client.send_file(
+            event.chat_id,
+            photo,
+            spoiler=True,  # ✅ هذا سيعمل الآن
+            force_document=False,
+        )
+        
+        # إرسال المعلومات في رسالة منفصلة
+        await event.client.send_message(
+            event.chat_id,
+            quoted_caption,
+            parse_mode=CustomParseMode("html"),
+        )
+        
+        if not photo.startswith("http"):
+            os.remove(photo)
+        await zed.delete()
+        
+    except Exception as e:
+        await zed.edit(f"**خطأ:** {str(e)}")
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

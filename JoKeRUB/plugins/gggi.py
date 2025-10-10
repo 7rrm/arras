@@ -168,15 +168,24 @@ from telethon.tl.types.stars import StarsStatus
 
 async def get_user_level(client, user_id: int) -> int:
     """
-    الحصول على المستوى الحقيقي من Telegram
+    الحصول على المستوى - نسخة آمنة
     """
     try:
+        # المحاولة الأولى: GetStarsStatusRequest
         user_entity = await client.get_input_entity(user_id)
         request = GetStarsStatusRequest(peer=user_entity)
-        response: StarsStatus = await client(request)
+        response = await client(request)
         return response.level
-    except Exception:
-        return 1  # مستوى افتراضي إذا حدث خطأ
+    except Exception as e:
+        try:
+            # المحاولة الثانية: حساب المستوى من الهدايا
+            gifts_info = await get_gifts_count(client, user_id)
+            gifts_count = gifts_info['total_count']
+            level = min(gifts_count // 5 + 1, 50)
+            return level
+        except:
+            # المستوى الافتراضي
+            return 1
         
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user

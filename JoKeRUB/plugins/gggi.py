@@ -134,25 +134,27 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     return zelzal_date
 
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
-from telethon.tl.types.payments import SavedStarGifts, StarGift, StarGiftUnique
+from telethon.tl.types.payments import SavedStarGifts
 from telethon.tl.types import PeerUser
 from telethon.utils import get_input_user
 
 MAX_COUNT_GIFTS = 64
 
-async def get_gifts_count(account_id: int, user_id: int) -> dict:
+async def get_gifts_count(client, user_id: int) -> dict:
     """
     يحصل على عدد هدايا المستخدم
     """
     try:
-        client = l313l  # استخدام البوت الحالي
+        # الحصول على كيان المستخدم
+        user_entity = await client.get_input_entity(PeerUser(user_id=user_id))
         
         request = GetSavedStarGiftsRequest(
-            peer=get_input_user(await client.get_input_entity(PeerUser(user_id=user_id))),
+            peer=get_input_user(user_entity),
             offset='',
             limit=MAX_COUNT_GIFTS
         )
-        response: SavedStarGifts = await client(request)
+        
+        response = await client(request)
         
         return {
             'total_count': response.count,
@@ -610,11 +612,11 @@ async def show_gifts_count(event):
         # بناء الرسالة
         user_name = replied_user.first_name or replied_user.username or "المستخدم"
         message = f"**🎁 معـلومـات هـدايا {user_name}**\n\n"
-        message += f"**• العـدد الإجمالي:** {total_count} هدية\n"
+        message += f"**• العـدد الإجمالي:** `{total_count}` هدية\n"
         
         if total_count > MAX_COUNT_GIFTS:
-            message += f"**• ملاحظة:** لديه أكثر من {MAX_COUNT_GIFTS} هدية 🎉\n"
-            message += f"**• يمكن عرض:** {MAX_COUNT_GIFTS} هدية فقط\n"
+            message += f"**• ملاحظة:** لديه أكثر من `{MAX_COUNT_GIFTS}` هدية 🎉\n"
+            message += f"**• يمكن عرض:** `{MAX_COUNT_GIFTS}` هدية فقط\n"
         elif total_count == 0:
             message += "**• الحالة:** لا يوجد هدايا 🎁"
         else:

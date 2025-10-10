@@ -230,6 +230,10 @@ async def fetch_info(replied_user, event):
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
     #zid = int(gvarstatus("ZThon_Vip"))
+    if gifts_count > 0:
+        gifts_display = f"{gifts_count} 🎁"
+    else:
+        gifts_display = "لا يـوجـد 🎁"
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
     else:

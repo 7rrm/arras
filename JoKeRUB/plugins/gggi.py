@@ -162,7 +162,15 @@ async def get_gifts_count(client, user_id: int) -> dict:
             'can_show_all': False,
             'error': "لا يمكن الوصول إلى الهدايا"
         }
-        
+
+async def calculate_user_level(gifts_count: int) -> int:
+    """
+    حساب مستوى المستخدم بناءً على عدد الهدايا
+    """
+    # معادلة بسيطة: كل 5 هدايا = مستوى 1
+    level = min(gifts_count // 5 + 1, 50)  # مستوى من 1 إلى 50 كحد أقصى
+    return level
+    
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
@@ -260,6 +268,7 @@ async def fetch_info(replied_user, event):
     zzz = zmsg.total
     gifts_info = await get_gifts_count(event.client, user_id)
     gifts_count = gifts_info['total_count']
+    user_level = await calculate_user_level(gifts_count)
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -324,6 +333,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                    caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n"
@@ -354,6 +364,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                    caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n"
@@ -376,6 +387,7 @@ async def fetch_info(replied_user, event):
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
             caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
             caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n"
@@ -396,6 +408,7 @@ async def fetch_info(replied_user, event):
             zsnc=zzzsinc,
             zbio=user_bio,
             zgft=gifts_count,
+            zlvl=user_level,
         )
     return photo, caption
 

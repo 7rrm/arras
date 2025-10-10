@@ -15,7 +15,6 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
-from telethon.tl.functions.payments import GetSavedStarGiftsRequest
 from telethon.extensions import markdown, html
 #from .xtelethonimport CustomParseMode  # TODO: Call the class from custom module
 from . import l313l
@@ -166,33 +165,6 @@ async def zzz_info(zthon_user, event):
     ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
     return ZThon
 
-async def get_user_gifts_count(event, user_id):
-    """دالة محسنة مع معالجة الكيان"""
-    try:
-        from telethon.tl.functions.payments import GetSavedStarGiftsRequest
-        
-        # الحصول على كيان المستخدم أولاً
-        user_entity = await event.client.get_entity(user_id)
-        
-        # استخدام الكيان الحقيقي
-        result = await event.client(GetSavedStarGiftsRequest(
-            peer=user_entity,  # ✅ استخدام الكيان وليس ID
-            offset=0,
-            limit=100
-        ))
-        
-        if hasattr(result, 'gifts') and result.gifts:
-            gifts_count = len(result.gifts)
-            LOGS.info(f"🎁 تم العثور على {gifts_count} هدية للمستخدم {user_id}")
-            return gifts_count
-        else:
-            return 0
-            
-    except Exception as e:
-        LOGS.error(f"❌ خطأ في جلب الهدايا: {e}")
-        return 0
-
-
 
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
@@ -208,7 +180,6 @@ async def fetch_info(replied_user, event):
     
     user_id = replied_user.id
     zelzal_sinc = await fetch_zelzal(user_id)
-    gifts_count = await get_user_gifts_count(event, user_id)
     first_name = replied_user.first_name
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name
@@ -221,10 +192,6 @@ async def fetch_info(replied_user, event):
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
     #zid = int(gvarstatus("ZThon_Vip"))
-    if gifts_count > 0:
-        gifts_display = f"{gifts_count} 🎁"
-    else:
-        gifts_display = "لا يـوجـد 🎁"
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
     else:
@@ -316,7 +283,6 @@ async def fetch_info(replied_user, event):
                 if zilzal == True:
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم</b>"
                     caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
-                    caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_display}\n"
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
@@ -348,7 +314,6 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
                 if zilzal == True:
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
-                    caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_display}\n"
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
@@ -370,7 +335,6 @@ async def fetch_info(replied_user, event):
             caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
             if zilzal == True:
                 caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
-                caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_display}\n"
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
@@ -397,7 +361,6 @@ async def fetch_info(replied_user, event):
             zcom=common_chat,
             zsnc=zzzsinc,
             zbio=user_bio,
-            zgifts=gifts_count,
         )
     return photo, caption
 

@@ -583,3 +583,19 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
+
+@l313l.ar_cmd(pattern="تست$")
+async def spoiler_test(event):
+    """اختبار Spoiler"""
+    # اختبار بإرسال صورة مع spoiler
+    test_photo = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
+    
+    try:
+        await event.client.send_message(
+            event.chat_id,
+            file=test_photo,
+            spoiler=True
+        )
+        await event.edit("✅ تم إرسال الصورة مع Spoiler")
+    except Exception as e:
+        await event.edit(f"❌ فشل: {e}")

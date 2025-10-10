@@ -410,6 +410,7 @@ async def fetch_info(replied_user, event):
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
             zgft=gifts_count,
+            zlvl=user_level,
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,

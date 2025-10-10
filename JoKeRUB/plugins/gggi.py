@@ -547,6 +547,7 @@ async def comming(event):
 
 
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
+from telethon import functions
 
 @l313l.ar_cmd(
     pattern="عدد_الهدايا(?:\s|$)([\s\S]*)",

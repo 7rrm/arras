@@ -137,6 +137,9 @@ from telethon.tl.functions.payments import GetSavedStarGiftsRequest
 from telethon.tl.types import PeerUser
 from telethon.utils import get_input_user
 
+from telethon.tl.functions.stars import GetStarsStatusRequest
+from telethon.tl.types.stars import StarsStatus
+
 async def get_gifts_count(client, user_id: int) -> dict:
     """
     يحصل على عدد هدايا المستخدم
@@ -163,13 +166,36 @@ async def get_gifts_count(client, user_id: int) -> dict:
             'error': "لا يمكن الوصول إلى الهدايا"
         }
 
-async def calculate_user_level(gifts_count: int) -> int:
+async def get_user_stars_status(client, user_id: int) -> dict:
     """
-    حساب مستوى المستخدم بناءً على عدد الهدايا
+    الحصول على المستوى الحقيقي وإحصائيات النجوم من Telegram
     """
-    # معادلة بسيطة: كل 5 هدايا = مستوى 1
-    level = min(gifts_count // 5 + 1, 50)  # مستوى من 1 إلى 50 كحد أقصى
-    return level
+    try:
+        user_entity = await client.get_input_entity(user_id)
+        
+        request = GetStarsStatusRequest(peer=user_entity)
+        response: StarsStatus = await client(request)
+        
+        return {
+            'level': response.level,
+            'current_stars': response.current_stars,
+            'total_stars': response.total_stars,
+            'next_level_stars': response.next_level_stars,
+            'stars_received': response.stars_received,
+            'stars_given': response.stars_given,
+            'has_active_stars_subscription': response.has_active_stars_subscription
+        }
+    except Exception as e:
+        return {
+            'level': 1,
+            'current_stars': 0,
+            'total_stars': 0,
+            'next_level_stars': 0,
+            'stars_received': 0,
+            'stars_given': 0,
+            'has_active_stars_subscription': False,
+            'error': str(e)
+        }
     
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
@@ -268,7 +294,10 @@ async def fetch_info(replied_user, event):
     zzz = zmsg.total
     gifts_info = await get_gifts_count(event.client, user_id)
     gifts_count = gifts_info['total_count']
-    user_level = await calculate_user_level(gifts_count)
+    stars_status = await get_user_stars_status(event.client, user_id)
+    user_level = stars_status['level']
+    current_stars = stars_status['current_stars']
+    total_stars = stars_status['total_stars']
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -333,6 +362,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                    caption += f"<b>{ZEDM}النجوم     ⤎</b>  {current_stars}  ⭐\n"
                     caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -364,6 +394,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                    caption += f"<b>{ZEDM}النجوم     ⤎</b>  {current_stars}  ⭐\n"
                     caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -387,6 +418,7 @@ async def fetch_info(replied_user, event):
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}النجوم     ⤎</b>  {current_stars}  ⭐\n"
                 caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
             caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 

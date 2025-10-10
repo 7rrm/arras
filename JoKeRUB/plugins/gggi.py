@@ -11,8 +11,6 @@ from requests import get
 from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty
 from telethon.tl.functions.photos import GetUserPhotosRequest
-from telethon.tl.functions import payments
-from telethon.tl.functions.payments import GetUserStarGiftsRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
@@ -119,20 +117,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def fetch_gifts_count(user_id, event):
-    try:
-        # جلب هدايا مستخدم معين
-        gifts_result = await event.client(GetUserStarGiftsRequest(
-            user_id=user_id,
-            offset="",
-            limit=100
-        ))
-        return gifts_result.count if hasattr(gifts_result, 'count') else len(gifts_result.gifts) if hasattr(gifts_result, 'gifts') else 0
-    except Exception as e:
-        # في حالة الخصوصية المغلقة أو خطأ آخر
-        print(f"خطأ في جلب الهدايا: {e}")
-        return 0
-
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     headers = {
         'Host': 'restore-access.indream.app',
@@ -203,7 +187,6 @@ async def fetch_info(replied_user, event):
     username = replied_user.username
     user_bio = FullUser.about
     is_bot = replied_user.bot
-    gifts_count = await fetch_gifts_count(user_id, event)
     restricted = replied_user.restricted
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
@@ -307,8 +290,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"\n<b>{ZEDM}عدد الهدايا ⤎ </b> {gifts_count}\n"
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n"
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
@@ -337,7 +319,6 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-                caption += f"\n<b>{ZEDM}عدد الهدايا ⤎ </b> {gifts_count}\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
@@ -359,7 +340,6 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
-            caption += f"\n<b>{ZEDM}عدد الهدايا ⤎ </b> {gifts_count}\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
                 caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
@@ -377,7 +357,6 @@ async def fetch_info(replied_user, event):
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
             zmsg=zzz,
-            zgifts=gifts_count,
             ztmg=zelzzz,
             zcom=common_chat,
             zsnc=zzzsinc,

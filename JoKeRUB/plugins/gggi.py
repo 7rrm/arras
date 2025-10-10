@@ -548,7 +548,8 @@ async def comming(event):
 
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
 
-@l313l.ar_cmd(
+        
+        @l313l.ar_cmd(
     pattern="هدايه(?:\s|$)([\s\S]*)",
     command=("هدايه", plugin_category),
     info={
@@ -566,12 +567,37 @@ async def get_star_gifts(event):
     
     zed = await edit_or_reply(event, "**🎁 جـارِ جلب معلومـات الهـدايا ...**")
     
-    # الحصول على المستخدم
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(zed, "**⚠️ يـجب الـرد على شـخص او كـتابة معـرف/ايـدي الشـخص**")
-    
     try:
+        # الحصول على المستخدم بطريقة أكثر أماناً
+        replied_user = None
+        if event.reply_to_msg_id:
+            reply_message = await event.get_reply_message()
+            if reply_message and reply_message.sender_id:
+                try:
+                    replied_user = await event.client.get_entity(reply_message.sender_id)
+                except Exception as e:
+                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+        else:
+            input_str = event.pattern_match.group(1).strip()
+            if not input_str:
+                # إذا لم يتم تحديد مستخدم، استخدام المرسل
+                replied_user = await event.client.get_entity(event.sender_id)
+            else:
+                try:
+                    if input_str.isdigit():
+                        # إذا كان أيدي رقمي
+                        replied_user = await event.client.get_entity(int(input_str))
+                    elif input_str.startswith('@'):
+                        # إذا كان يوزر
+                        replied_user = await event.client.get_entity(input_str)
+                    else:
+                        return await edit_or_reply(zed, "**⚠️ يـجب استخـدام ايـدي رقـمي او معـرف يـبدأ ب @**")
+                except Exception as e:
+                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+        
+        if not replied_user:
+            return await edit_or_reply(zed, "**⚠️ لم يتـم العثور على المستخدم**")
+        
         # استخدام دالة GetSavedStarGiftsRequest
         result = await event.client(functions.payments.GetSavedStarGiftsRequest(
             peer=replied_user.id,
@@ -621,12 +647,12 @@ async def get_star_gifts(event):
             if total_gifts > 0:
                 message += f"\n**🎯 آخر الهدايا:**\n"
                 for i, gift in enumerate(result.gifts[:3]):  # عرض أول 3 هدايا
-                    if hasattr(gift, 'title'):
+                    if hasattr(gift, 'title') and gift.title:
                         gift_name = gift.title
                     else:
                         gift_name = f"هدية {i+1}"
                     
-                    if hasattr(gift, 'value'):
+                    if hasattr(gift, 'value') and gift.value:
                         message += f"**{i+1}.** {gift_name} - `{gift.value}` نجمه\n"
                     else:
                         message += f"**{i+1}.** {gift_name}\n"
@@ -642,6 +668,8 @@ async def get_star_gifts(event):
             error_msg = "**❌ لا يمـكن الوصـول إلى معلـومـات هـدايا هـذا المسـتخدم**"
         elif "CHAT_ADMIN_REQUIRED" in str(e):
             error_msg = "**❌ تحتـاج إلى صلاحيـات الإدارة في هذه الدردشة**"
+        elif "Could not find the input entity" in str(e):
+            error_msg = "**❌ لا يمـكن العثور على هذا المستخدم في قاعدة البيانات**"
         
         await zed.edit(error_msg)
 
@@ -664,12 +692,35 @@ async def get_detailed_gifts(event):
     
     zed = await edit_or_reply(event, "**🎁 جـارِ جلب تفاصيل الهـدايا ...**")
     
-    # الحصول على المستخدم
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(zed, "**⚠️ يـجب الـرد على شـخص او كـتابة معـرف/ايـدي الشـخص**")
-    
     try:
+        # الحصول على المستخدم بطريقة أكثر أماناً
+        replied_user = None
+        if event.reply_to_msg_id:
+            reply_message = await event.get_reply_message()
+            if reply_message and reply_message.sender_id:
+                try:
+                    replied_user = await event.client.get_entity(reply_message.sender_id)
+                except Exception as e:
+                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+        else:
+            input_str = event.pattern_match.group(1).strip()
+            if not input_str:
+                # إذا لم يتم تحديد مستخدم، استخدام المرسل
+                replied_user = await event.client.get_entity(event.sender_id)
+            else:
+                try:
+                    if input_str.isdigit():
+                        replied_user = await event.client.get_entity(int(input_str))
+                    elif input_str.startswith('@'):
+                        replied_user = await event.client.get_entity(input_str)
+                    else:
+                        return await edit_or_reply(zed, "**⚠️ يـجب استخـدام ايـدي رقـمي او معـرف يـبدأ ب @**")
+                except Exception as e:
+                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+        
+        if not replied_user:
+            return await edit_or_reply(zed, "**⚠️ لم يتـم العثور على المستخدم**")
+        
         # جلب الهدايا مع تفاصيل أكثر
         result = await event.client(functions.payments.GetSavedStarGiftsRequest(
             peer=replied_user.id,
@@ -719,4 +770,8 @@ async def get_detailed_gifts(event):
             await zed.edit(f"**❌ لا توجـد هـدايا نـجوم لـ {replied_user.first_name}**")
             
     except Exception as e:
-        await zed.edit(f"**⚠️ حـدث خـطأ:** {str(e)}")
+        error_msg = f"**⚠️ حـدث خـطأ:** {str(e)}"
+        if "Could not find the input entity" in str(e):
+            error_msg = "**❌ لا يمـكن العثور على هذا المستخدم في قاعدة البيانات**"
+        
+        await zed.edit(error_msg)

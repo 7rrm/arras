@@ -117,23 +117,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def fetch_gifts_count(client, user_id):
-    """جلب عدد الهدايا الخاصة بالمستخدم"""
-    result = await client(functions.payments.GetSavedStarGiftsRequest(
-        peer=user_id,
-        offset='',
-        limit=100,
-        exclude_unsaved=True,
-        exclude_saved=True,
-        exclude_unlimited=True,
-        exclude_unique=True,
-        sort_by_value=True,
-        exclude_upgradable=True,
-        exclude_unupgradable=True,
-        collection_id=42
-    ))
-    return len(result.gifts)  # 
-
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     headers = {
         'Host': 'restore-access.indream.app',
@@ -561,24 +544,3 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-@l313l.ar_cmd(
-    pattern="هدايا(?: |$)(.*)",
-    command=("هدايا", plugin_category),
-    info={
-        "header": "جلب عدد الهدايا الخاصة بالمستخدم",
-        "الاستخدام": "{tr}هدايا بالرد أو + معرف/أي دي الشخص",
-    },
-)
-async def get_gifts(event):
-    """يأخذ اسم المستخدم أو المعرف ويعيد عدد الهدايا الخاصة به"""
-    replied_user = await get_user_from_event(event)  # الحصول على المستخدم من الرد أو المعرف
-    if not replied_user:
-        return await edit_or_reply(event, "**⚠️ يرجى الرد على المستخدم أو إدخال معرف صحيح**", time=10)
-    
-    user_id = replied_user.id  # الحصول على ID المستخدم
-
-    # جلب عدد الهدايا
-    gifts_count = await fetch_gifts_count(event.client, user_id)
-
-    # إرسال عدد الهدايا
-    await edit_or_reply(event, f"**عدد الهدايا الخاصة بـ {replied_user.first_name}: {gifts_count}**")

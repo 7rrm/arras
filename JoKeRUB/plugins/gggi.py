@@ -28,9 +28,6 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from . import BOTLOG, BOTLOG_CHATID, spamwatch
 
-# بعد الاستيرادات الحالية أضف:
-from telethon.tl.functions.payments import GetSavedStarGiftsRequest
-from telethon.errors import RPCError
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
 
@@ -136,27 +133,7 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     zelzal_date = response['data']['date']
     return zelzal_date
 
-async def get_user_gifts_count(event, user_id):
-    """دالة لجلب عدد هدايا النجوم للمستخدم"""
-    try:
-        # جلب هدايا النجوم للمستخدم
-        result = await event.client(GetSavedStarGiftsRequest(
-            stars=True,
-            gifts=True,
-            peers=[]
-        ))
-        
-        # حساب عدد الهدايا
-        gifts_count = len(result.gifts) if hasattr(result, 'gifts') else 0
-        return gifts_count
-        
-    except RPCError as e:
-        LOGS.error(f"خطأ في جلب الهدايا: {e}")
-        return 0
-    except Exception as e:
-        LOGS.error(f"خطأ غير متوقع: {e}")
-        return 0
-        
+
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
@@ -188,6 +165,7 @@ async def zzz_info(zthon_user, event):
     ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
     return ZThon
 
+
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
@@ -213,10 +191,6 @@ async def fetch_info(replied_user, event):
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
-    
-    # 🔥 إضافة عدد الهدايا هنا
-    gifts_count = await get_user_gifts_count(event, user_id)
-    
     #zid = int(gvarstatus("ZThon_Vip"))
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
@@ -313,8 +287,6 @@ async def fetch_info(replied_user, event):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
-                # 🔥 إضافة سطر عدد الهدايا هنا
-                caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
@@ -345,8 +317,6 @@ async def fetch_info(replied_user, event):
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
-                # 🔥 إضافة سطر عدد الهدايا هنا
-                caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -368,8 +338,6 @@ async def fetch_info(replied_user, event):
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
-            # 🔥 إضافة سطر عدد الهدايا هنا
-            caption += f"<b>{ZEDM}الهدايــا   ⤎</b>  {gifts_count}  🎁\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -393,10 +361,9 @@ async def fetch_info(replied_user, event):
             zcom=common_chat,
             zsnc=zzzsinc,
             zbio=user_bio,
-            zgifts=gifts_count,  # 🔥 إضافة متغير الهدايا للقالب المخصص
         )
     return photo, caption
-     
+
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),

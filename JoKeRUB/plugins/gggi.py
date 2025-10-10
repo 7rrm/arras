@@ -117,7 +117,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def fetch_gifts_count(user_id):
+async def fetch_gifts_count(client, user_id):
     """جلب عدد الهدايا الخاصة بالمستخدم"""
     result = await client(functions.payments.GetSavedStarGiftsRequest(
         peer=user_id,
@@ -132,7 +132,7 @@ async def fetch_gifts_count(user_id):
         exclude_unupgradable=True,
         collection_id=42
     ))
-    return len(result.gifts)  # إرجاع عدد الهدايا
+    return len(result.gifts)  # 
 
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     headers = {
@@ -578,7 +578,7 @@ async def get_gifts(event):
     user_id = replied_user.id  # الحصول على ID المستخدم
 
     # جلب عدد الهدايا
-    gifts_count = await fetch_gifts_count(user_id)
+    gifts_count = await fetch_gifts_count(event.client, user_id)
 
     # إرسال عدد الهدايا
     await edit_or_reply(event, f"**عدد الهدايا الخاصة بـ {replied_user.first_name}: {gifts_count}**")

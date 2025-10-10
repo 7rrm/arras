@@ -395,6 +395,7 @@ async def fetch_info(replied_user, event):
             zcom=common_chat,
             zsnc=zzzsinc,
             zbio=user_bio,
+            zgft=gifts_count,
         )
     return photo, caption
 

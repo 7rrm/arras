@@ -162,6 +162,21 @@ async def get_gifts_count(client, user_id: int) -> dict:
             'can_show_all': False,
             'error': "لا يمكن الوصول إلى الهدايا"
         }
+
+from telethon.tl.functions.stars import GetStarsStatusRequest
+from telethon.tl.types.stars import StarsStatus
+
+async def get_user_level(client, user_id: int) -> int:
+    """
+    الحصول على المستوى الحقيقي من Telegram
+    """
+    try:
+        user_entity = await client.get_input_entity(user_id)
+        request = GetStarsStatusRequest(peer=user_entity)
+        response: StarsStatus = await client(request)
+        return response.level
+    except Exception:
+        return 1  # مستوى افتراضي إذا حدث خطأ
         
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
@@ -260,6 +275,7 @@ async def fetch_info(replied_user, event):
     zzz = zmsg.total
     gifts_info = await get_gifts_count(event.client, user_id)
     gifts_count = gifts_info['total_count']
+    user_level = await get_user_level(event.client, user_id)
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -320,6 +336,7 @@ async def fetch_info(replied_user, event):
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -351,6 +368,7 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -373,6 +391,7 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+            caption += f"<b>{ZEDM}المستوى    ⤎</b>  {user_level}  📊\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 

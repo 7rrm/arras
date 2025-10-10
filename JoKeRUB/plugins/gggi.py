@@ -401,6 +401,7 @@ async def fetch_info(replied_user, event):
     return photo, caption
 
 from telethon.tl.types import MessageEntityBlockquote
+from telethon.tl.types import InputMediaPhoto
 
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
@@ -438,7 +439,8 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
+                parse_mode=CustomParseMode("html"),# استخدام CustomParseMode
+                spoiler=True  #
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -455,6 +457,7 @@ async def who(event):
                 force_document=False,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
+                spoiler=True  #
             )
             if not photo.startswith("http"):
                 os.remove(photo)

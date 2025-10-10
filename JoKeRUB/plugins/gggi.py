@@ -423,45 +423,55 @@ async def who(event):
         photo, caption = await fetch_info(replied_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
-    message_id_to_reply = event.message.reply_to_msg_id
-    if not message_id_to_reply:
-        message_id_to_reply = None
     
     # إضافة الاقتباس للكليشة
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
-            await event.client.send_file(
+            # أولاً: إرسال الصورة مع Spoiler
+            photo_message = await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=quoted_caption,
-                link_preview=False,
+                spoiler=True,  # ✅ Spoiler للصورة
                 force_document=False,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
-                spoiler=True  # ✅ إضافة Spoiler للصورة
             )
+            
+            # ثانياً: إرسال المعلومات كرسالة منفصلة
+            await event.client.send_message(
+                event.chat_id,
+                quoted_caption,
+                reply_to=photo_message.id,  # الرد على الصورة
+                parse_mode=CustomParseMode("html"),
+            )
+            
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
+            
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
     else:
         try:
-            await event.client.send_file(
+            # نفس الطريقة للقالب المخصص
+            photo_message = await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=quoted_caption,
-                link_preview=False,
+                spoiler=True,  # ✅ Spoiler للصورة
                 force_document=False,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
-                spoiler=True  # ✅ إضافة Spoiler للصورة
             )
+            
+            await event.client.send_message(
+                event.chat_id,
+                quoted_caption,
+                reply_to=photo_message.id,
+                parse_mode=CustomParseMode("html"),
+            )
+            
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
+            
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 

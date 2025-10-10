@@ -134,38 +134,33 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     return zelzal_date
 
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
-from telethon.tl.types.payments import SavedStarGifts
 from telethon.tl.types import PeerUser
 from telethon.utils import get_input_user
-
-MAX_COUNT_GIFTS = 64
 
 async def get_gifts_count(client, user_id: int) -> dict:
     """
     يحصل على عدد هدايا المستخدم
     """
     try:
-        # الحصول على كيان المستخدم
         user_entity = await client.get_input_entity(PeerUser(user_id=user_id))
         
         request = GetSavedStarGiftsRequest(
             peer=get_input_user(user_entity),
             offset='',
-            limit=MAX_COUNT_GIFTS
+            limit=100
         )
         
         response = await client(request)
         
         return {
             'total_count': response.count,
-            'can_show_all': response.count <= MAX_COUNT_GIFTS,
-            'gifts_list': response.gifts if response.count <= MAX_COUNT_GIFTS else []
+            'can_show_all': response.count <= 100,
         }
-    except Exception as e:
+    except Exception:
         return {
             'total_count': 0,
             'can_show_all': False,
-            'error': str(e)
+            'error': "لا يمكن الوصول إلى الهدايا"
         }
         
 async def zzz_info(zthon_user, event):
@@ -263,6 +258,8 @@ async def fetch_info(replied_user, event):
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) 
     zzz = zmsg.total
+    gifts_info = await get_gifts_count(event.client, user_id)
+    gifts_count = gifts_info['total_count']
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -322,6 +319,7 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -352,6 +350,7 @@ async def fetch_info(replied_user, event):
                     if zilzal == True or user_id in zelzal:
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+                caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -373,6 +372,7 @@ async def fetch_info(replied_user, event):
                 if zilzal == True or user_id in zelzal:
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
+            caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
@@ -390,6 +390,7 @@ async def fetch_info(replied_user, event):
             zpre=zpre,
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
+            zgft=gifts_count,
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,
@@ -578,96 +579,3 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-
-@l313l.ar_cmd(
-    pattern="هداية(?: |$)(.*)",
-    command=("هداية", plugin_category),
-    info={
-        "header": "عـرض عدد هدايا المستخدم",
-        "الاستـخـدام": " {tr}هداية بالـرد او {tr}هداية + معـرف/ايـدي الشخص",
-    },
-)
-async def show_gifts_count(event):
-    "عرض عدد هدايا المستخدم"
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
-    
-    zed = await edit_or_reply(event, "**🎁 جـارِ جلب معـلومـات الهـدايـا...**")
-    
-    # الحصول على المستخدم من الرسالة المردود عليها
-    if not event.reply_to_msg_id:
-        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم**")
-    
-    try:
-        reply_message = await event.get_reply_message()
-        user_id = reply_message.sender_id
-        
-        # التحقق من أن المرسل ليس قناة
-        if not isinstance(user_id, int):
-            return await edit_or_reply(zed, "**❌ لا يمكن جلب هدايا القنوات**")
-        
-        # محاولة جلب معلومات المستخدم
-        try:
-            user = await event.client.get_entity(user_id)
-            user_name = user.first_name or "المستخدم"
-        except:
-            user_name = "المستخدم"
-        
-        # جلب معلومات الهدايا
-        gifts_info = await get_gifts_count(event.client, user_id)
-        
-        if 'error' in gifts_info:
-            error_msg = gifts_info['error']
-            if "Could not find" in error_msg or "entity" in error_msg:
-                return await edit_or_reply(zed, "**❌ لا يمكن الوصول إلى معلومات هدايا هذا المستخدم**\n**⚠️ قد يكون المستخدم غير موجود أو البوت محظور**")
-            return await edit_or_reply(zed, f"**❌ خطأ في جلب الهدايا:** {error_msg}")
-        
-        total_count = gifts_info['total_count']
-        
-        # بناء الرسالة
-        message = f"**🎁 معـلومـات هـدايا {user_name}**\n\n"
-        message += f"**• العـدد الإجمالي:** `{total_count}` هدية\n"
-        
-        if total_count > MAX_COUNT_GIFTS:
-            message += f"**• ملاحظة:** لديه أكثر من `{MAX_COUNT_GIFTS}` هدية 🎉\n"
-            message += f"**• يمكن عرض:** `{MAX_COUNT_GIFTS}` هدية فقط\n"
-        elif total_count == 0:
-            message += "**• الحالة:** لا يوجد هدايا 🎁"
-        else:
-            message += f"**• الحالة:** يمكن عرض جميع الهدايا ✅"
-        
-        await zed.edit(message)
-        
-    except Exception as e:
-        error_msg = str(e)
-        if "Could not find" in error_msg or "entity" in error_msg:
-            await edit_or_reply(zed, "**❌ لا يمكن الوصول إلى معلومات هذا المستخدم**\n**⚠️ تأكد أن البوت يعرف المستخدم وليس محظور منه**")
-        else:
-            await edit_or_reply(zed, f"**❌ حدث خطأ غير متوقع:** {error_msg}")
-
-@l313l.ar_cmd(pattern="هداية2$")
-async def simple_gifts_test(event):
-    """إصفح مبسط لاختبار الأمر"""
-    if not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⚠️ يرجى الرد على المستخدم**")
-    
-    zed = await edit_or_reply(event, "**🎁 جـارِ الاختبار...**")
-    
-    try:
-        reply = await event.get_reply_message()
-        user_id = reply.sender_id
-        
-        # استخدام طريقة أبسط
-        user = await event.client.get_entity(user_id)
-        
-        # محاولة مباشرة
-        result = await event.client(GetSavedStarGiftsRequest(
-            peer=await event.client.get_input_entity(user_id),
-            offset='',
-            limit=100
-        ))
-        
-        await zed.edit(f"**🎁 عدد هدايا {user.first_name}:** `{result.count}`")
-        
-    except Exception as e:
-        await zed.edit(f"**❌ فشل الاختبار:** {str(e)}")

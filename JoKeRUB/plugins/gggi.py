@@ -427,7 +427,7 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
-    # إضافة الاقتباس مع الحفاظ على الإيموجي
+    # إضافة الاقتباس للكليشة
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
     if gvarstatus("ZID_TEMPLATE") is None:
@@ -439,8 +439,8 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),# استخدام CustomParseMode
-                spoiler=True  #
+                parse_mode=CustomParseMode("html"),
+                spoiler=True  # ✅ إضافة Spoiler للصورة
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -456,15 +456,14 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
-                spoiler=True  #
+                parse_mode=CustomParseMode("html"),
+                spoiler=True  # ✅ إضافة Spoiler للصورة
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
-
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

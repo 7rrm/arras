@@ -400,6 +400,8 @@ async def fetch_info(replied_user, event):
         )
     return photo, caption
 
+from telethon.tl.types import MessageEntityBlockquote
+
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
@@ -410,11 +412,6 @@ async def fetch_info(replied_user, event):
 )
 async def who(event):
     "Gets info of an user"
-    #if gvarstatus("ZThon_Vip") is not None or Zel_Uid in Zed_Dev:
-        #input_str = event.pattern_match.group(1)
-        #reply = event.reply_to_msg_id
-        #if not input_str and not reply:
-            #return
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
     zed = await edit_or_reply(event, "⇆")
@@ -428,8 +425,10 @@ async def who(event):
     message_id_to_reply = event.message.reply_to_msg_id
     if not message_id_to_reply:
         message_id_to_reply = None
+    
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
+            # إرسال مع كيان الاقتباس
             await event.client.send_file(
                 event.chat_id,
                 photo,
@@ -438,6 +437,7 @@ async def who(event):
                 force_document=False,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html"),
+                formatting_entities=[MessageEntityBlockquote(offset=0, length=len(caption))]
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -460,7 +460,6 @@ async def who(event):
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
-
 
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")

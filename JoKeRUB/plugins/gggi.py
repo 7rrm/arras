@@ -402,6 +402,7 @@ async def fetch_info(replied_user, event):
 
 from telethon.tl.types import MessageEntityBlockquote
 
+
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
@@ -426,41 +427,42 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
+    # إضافة الاقتباس باستخدام HTML
+    quoted_caption = f"<blockquote>{caption}</blockquote>"
+    
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
-            # إرسال مع كيان الاقتباس
             await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=caption,
+                caption=quoted_caption,  # الكليشة مع اقتباس HTML
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),
-                formatting_entities=[MessageEntityBlockquote(offset=0, length=len(caption))]
+                parse_mode='html',  # تأكد من استخدام html
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("html"))
+            # للرسائل النصية أيضاً
+            await zed.edit(quoted_caption, parse_mode='html')
     else:
         try:
             await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=caption,
+                caption=quoted_caption,  # الكليشة مع اقتباس HTML
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("markdown"),
+                parse_mode='html',  # تأكد من استخدام html
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(caption, parse_mode=CustomParseMode("markdown"))
-
+            await zed.edit(quoted_caption, parse_mode='html')
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

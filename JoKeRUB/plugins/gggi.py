@@ -548,184 +548,51 @@ async def comming(event):
 
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
 
-        
-        @l313l.ar_cmd(
-    pattern="هدايه(?:\s|$)([\s\S]*)",
-    command=("هدايه", plugin_category),
+@l313l.ar_cmd(
+    pattern="عدد_الهدايا(?:\s|$)([\s\S]*)",
+    command=("عدد_الهدايا", plugin_category),
     info={
-        "header": "لـ عـرض عدد هدايا النجوم للمستخدم",
+        "header": "لـ عـرض عـدد هـدايا الـنجـوم للمستخدم",
         "الاستـخـدام": [
-            "{tr}هدايه + بالـرد على الشخص",
-            "{tr}هدايه + معـرف/ايـدي الشخص",
+            "{tr}عدد_الهدايا + بالـرد على الشخص",
+            "{tr}عدد_الهدايا + معـرف/ايـدي الشخص",
         ],
     },
 )
-async def get_star_gifts(event):
-    "Gets the number of star gifts for a user"
+async def get_gifts_count_cmd(event):
+    "عرض عدد هدايا النجوم للمستخدم"
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
     
-    zed = await edit_or_reply(event, "**🎁 جـارِ جلب معلومـات الهـدايا ...**")
+    zed = await edit_or_reply(event, "**🎁 جـارِ عـدد الهـدايا ...**")
     
     try:
-        # الحصول على المستخدم بطريقة أكثر أماناً
+        # الحصول على المستخدم
         replied_user = None
         if event.reply_to_msg_id:
             reply_message = await event.get_reply_message()
             if reply_message and reply_message.sender_id:
-                try:
-                    replied_user = await event.client.get_entity(reply_message.sender_id)
-                except Exception as e:
-                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+                replied_user = await event.client.get_entity(reply_message.sender_id)
         else:
             input_str = event.pattern_match.group(1).strip()
             if not input_str:
-                # إذا لم يتم تحديد مستخدم، استخدام المرسل
                 replied_user = await event.client.get_entity(event.sender_id)
             else:
-                try:
-                    if input_str.isdigit():
-                        # إذا كان أيدي رقمي
-                        replied_user = await event.client.get_entity(int(input_str))
-                    elif input_str.startswith('@'):
-                        # إذا كان يوزر
-                        replied_user = await event.client.get_entity(input_str)
-                    else:
-                        return await edit_or_reply(zed, "**⚠️ يـجب استخـدام ايـدي رقـمي او معـرف يـبدأ ب @**")
-                except Exception as e:
-                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
+                if input_str.isdigit():
+                    replied_user = await event.client.get_entity(int(input_str))
+                elif input_str.startswith('@'):
+                    replied_user = await event.client.get_entity(input_str)
+                else:
+                    return await edit_or_reply(zed, "**⚠️ يـجب استخـدام ايـدي رقـمي او معـرف يـبدأ ب @**")
         
         if not replied_user:
             return await edit_or_reply(zed, "**⚠️ لم يتـم العثور على المستخدم**")
         
-        # استخدام دالة GetSavedStarGiftsRequest
+        # جلب الهدايا
         result = await event.client(functions.payments.GetSavedStarGiftsRequest(
             peer=replied_user.id,
             offset="",
             limit=100,
-            exclude_unsaved=False,
-            exclude_saved=False,
-            exclude_unlimited=False,
-            exclude_unique=False,
-            sort_by_value=True,
-            exclude_upgradable=False,
-            exclude_unupgradable=False,
-            collection_id=0
-        ))
-        
-        # معالجة النتيجة
-        if hasattr(result, 'gifts') and result.gifts:
-            total_gifts = len(result.gifts)
-            
-            # حساب الهدايا المحفوظة وغير المحفوظة
-            saved_gifts = sum(1 for gift in result.gifts if hasattr(gift, 'saved') and gift.saved)
-            unsaved_gifts = total_gifts - saved_gifts
-            
-            # الحصول على معلومات إضافية عن الهدايا
-            premium_gifts = sum(1 for gift in result.gifts if hasattr(gift, 'premium') and gift.premium)
-            unique_gifts = sum(1 for gift in result.gifts if hasattr(gift, 'unique') and gift.unique)
-            
-            # إنشاء الرسالة
-            user_name = replied_user.first_name or "مستخدم"
-            username = f"@{replied_user.username}" if replied_user.username else "لا يوجد"
-            
-            message = f"**🎁 معلـومـات هـدايا الـنجـوم لـ {user_name}**\n\n"
-            message += f"**• الاسم:** [{user_name}](tg://user?id={replied_user.id})\n"
-            message += f"**• اليوزر:** {username}\n"
-            message += f"**• الأيدي:** `{replied_user.id}`\n\n"
-            message += f"**📊 إحصائيات الهدايا:**\n"
-            message += f"**- العدد الكلي:** `{total_gifts}` هدية\n"
-            message += f"**- المحفوظة:** `{saved_gifts}` هدية\n"
-            message += f"**- غير المحفوظة:** `{unsaved_gifts}` هدية\n"
-            
-            if premium_gifts > 0:
-                message += f"**- البريميوم:** `{premium_gifts}` هدية\n"
-            if unique_gifts > 0:
-                message += f"**- الفريدة:** `{unique_gifts}` هدية\n"
-            
-            # إضافة معلومات عن الهدايا إذا كانت موجودة
-            if total_gifts > 0:
-                message += f"\n**🎯 آخر الهدايا:**\n"
-                for i, gift in enumerate(result.gifts[:3]):  # عرض أول 3 هدايا
-                    if hasattr(gift, 'title') and gift.title:
-                        gift_name = gift.title
-                    else:
-                        gift_name = f"هدية {i+1}"
-                    
-                    if hasattr(gift, 'value') and gift.value:
-                        message += f"**{i+1}.** {gift_name} - `{gift.value}` نجمه\n"
-                    else:
-                        message += f"**{i+1}.** {gift_name}\n"
-            
-            await zed.edit(message)
-            
-        else:
-            await zed.edit(f"**❌ لا توجـد هـدايا نـجوم لـ {replied_user.first_name}**")
-            
-    except Exception as e:
-        error_msg = f"**⚠️ حـدث خـطأ:** {str(e)}"
-        if "PEER_ID_INVALID" in str(e):
-            error_msg = "**❌ لا يمـكن الوصـول إلى معلـومـات هـدايا هـذا المسـتخدم**"
-        elif "CHAT_ADMIN_REQUIRED" in str(e):
-            error_msg = "**❌ تحتـاج إلى صلاحيـات الإدارة في هذه الدردشة**"
-        elif "Could not find the input entity" in str(e):
-            error_msg = "**❌ لا يمـكن العثور على هذا المستخدم في قاعدة البيانات**"
-        
-        await zed.edit(error_msg)
-
-
-@l313l.ar_cmd(
-    pattern="هدايا(?:\s|$)([\s\S]*)",
-    command=("هدايا", plugin_category),
-    info={
-        "header": "لـ عـرض تفاصيل هدايا النجوم بشكل مفصل",
-        "الاستـخـدام": [
-            "{tr}هدايا + بالـرد على الشخص", 
-            "{tr}هدايا + معـرف/ايـدي الشخص",
-        ],
-    },
-)
-async def get_detailed_gifts(event):
-    "Gets detailed information about star gifts"
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
-    
-    zed = await edit_or_reply(event, "**🎁 جـارِ جلب تفاصيل الهـدايا ...**")
-    
-    try:
-        # الحصول على المستخدم بطريقة أكثر أماناً
-        replied_user = None
-        if event.reply_to_msg_id:
-            reply_message = await event.get_reply_message()
-            if reply_message and reply_message.sender_id:
-                try:
-                    replied_user = await event.client.get_entity(reply_message.sender_id)
-                except Exception as e:
-                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
-        else:
-            input_str = event.pattern_match.group(1).strip()
-            if not input_str:
-                # إذا لم يتم تحديد مستخدم، استخدام المرسل
-                replied_user = await event.client.get_entity(event.sender_id)
-            else:
-                try:
-                    if input_str.isdigit():
-                        replied_user = await event.client.get_entity(int(input_str))
-                    elif input_str.startswith('@'):
-                        replied_user = await event.client.get_entity(input_str)
-                    else:
-                        return await edit_or_reply(zed, "**⚠️ يـجب استخـدام ايـدي رقـمي او معـرف يـبدأ ب @**")
-                except Exception as e:
-                    return await edit_or_reply(zed, f"**❌ لا يمـكن العثور على المستخدم: {str(e)}**")
-        
-        if not replied_user:
-            return await edit_or_reply(zed, "**⚠️ لم يتـم العثور على المستخدم**")
-        
-        # جلب الهدايا مع تفاصيل أكثر
-        result = await event.client(functions.payments.GetSavedStarGiftsRequest(
-            peer=replied_user.id,
-            offset="",
-            limit=50,
             exclude_unsaved=False,
             exclude_saved=False,
             exclude_unlimited=False,
@@ -736,42 +603,39 @@ async def get_detailed_gifts(event):
             collection_id=0
         ))
         
-        if hasattr(result, 'gifts') and result.gifts:
-            user_name = replied_user.first_name or "مستخدم"
+        # حساب العدد
+        gifts_count = len(result.gifts) if hasattr(result, 'gifts') else 0
+        
+        # إنشاء الرسالة
+        user_name = replied_user.first_name or "مستخدم"
+        username = f"@{replied_user.username}" if replied_user.username else "لا يوجد"
+        
+        message = f"**🎁 عـدد هـدايا الـنجـوم لـ {user_name}**\n\n"
+        message += f"**• الاسم:** [{user_name}](tg://user?id={replied_user.id})\n"
+        message += f"**• اليوزر:** {username}\n"
+        message += f"**• الأيدي:** `{replied_user.id}`\n\n"
+        message += f"**📦 عدد الهدايا:** `{gifts_count}` هدية\n"
+        
+        if gifts_count > 0:
+            # حساب الإحصائيات
+            saved_gifts = sum(1 for gift in result.gifts if hasattr(gift, 'saved') and gift.saved)
+            premium_gifts = sum(1 for gift in result.gifts if hasattr(gift, 'premium') and gift.premium)
             
-            # إنشاء رسالة مفصلة
-            message = f"**🎁 تفاصيل هـدايا {user_name}**\n\n"
+            message += f"**• المحفوظة:** `{saved_gifts}` هدية\n"
+            message += f"**• البريميوم:** `{premium_gifts}` هدية\n"
             
-            for i, gift in enumerate(result.gifts, 1):
-                message += f"**🎁 الهدية {i}:**\n"
-                
-                if hasattr(gift, 'title') and gift.title:
-                    message += f"   **الاسم:** {gift.title}\n"
-                
-                if hasattr(gift, 'value') and gift.value:
-                    message += f"   **القيمة:** {gift.value} نجمه\n"
-                
-                if hasattr(gift, 'saved'):
-                    status = "محفوظة" if gift.saved else "غير محفوظة"
-                    message += f"   **الحالة:** {status}\n"
-                
-                if hasattr(gift, 'premium') and gift.premium:
-                    message += f"   **النوع:** بريميوم 🌟\n"
-                
-                if hasattr(gift, 'unique') and gift.unique:
-                    message += f"   **النوع:** فريدة 💎\n"
-                
-                message += "   ────────\n"
-            
-            message += f"\n**📈 الإجمالي:** {len(result.gifts)} هدية"
-            
-            await zed.edit(message)
-        else:
-            await zed.edit(f"**❌ لا توجـد هـدايا نـجوم لـ {replied_user.first_name}**")
+            # عرض أقوى هدية (أعلى قيمة)
+            if hasattr(result.gifts[0], 'value') and result.gifts[0].value:
+                max_value_gift = max(result.gifts, key=lambda x: getattr(x, 'value', 0))
+                message += f"**• أقوى هدية:** `{max_value_gift.value}` نجمه\n"
+        
+        await zed.edit(message)
             
     except Exception as e:
         error_msg = f"**⚠️ حـدث خـطأ:** {str(e)}"
         if "Could not find the input entity" in str(e):
-            error_msg = "**❌ لا يمـكن العثور على هذا المستخدم في قاعدة البيانات**"
+            error_msg = "**❌ لا يمـكن العثور على هذا المستخدم**"
+        elif "PEER_ID_INVALID" in str(e):
+            error_msg = "**❌ لا يمـكن الوصـول إلى هـدايا هـذا المسـتخدم**"
         
         await zed.edit(error_msg)

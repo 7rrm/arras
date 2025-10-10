@@ -403,6 +403,8 @@ async def fetch_info(replied_user, event):
 from telethon.tl.types import MessageEntityBlockquote
 from telethon.tl.types import InputMediaPhoto
 
+from telethon.tl.types import InputMediaUploadedPhoto
+
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
@@ -423,15 +425,34 @@ async def who(event):
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
     try:
-        # إرسال الصورة مع Spoiler فقط (بدون caption)
-        await event.client.send_file(
-            event.chat_id,
-            photo,
-            spoiler=True,  # ✅ هذا سيعمل الآن
-            force_document=False,
-        )
+        # إذا كانت الصورة مسار ملف، نحتاج لتحميلها أولاً
+        if not photo.startswith("http"):
+            # رفع الصورة مع spoiler
+            uploaded = await event.client.upload_file(photo)
+            
+            # إرسال الصورة مع spoiler باستخدام الرسالة العادية
+            await event.client.send_message(
+                event.chat_id,
+                file=uploaded,
+                spoiler=True
+            )
+        else:
+            # إذا كانت رابط، تحميل ثم إرسال
+            import requests
+            response = requests.get(photo)
+            temp_file = "temp_photo.jpg"
+            with open(temp_file, 'wb') as f:
+                f.write(response.content)
+            
+            uploaded = await event.client.upload_file(temp_file)
+            await event.client.send_message(
+                event.chat_id,
+                file=uploaded,
+                spoiler=True
+            )
+            os.remove(temp_file)
         
-        # إرسال المعلومات في رسالة منفصلة
+        # إرسال المعلومات
         await event.client.send_message(
             event.chat_id,
             quoted_caption,

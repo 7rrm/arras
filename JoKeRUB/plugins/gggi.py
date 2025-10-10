@@ -402,7 +402,6 @@ async def fetch_info(replied_user, event):
 
 from telethon.tl.types import MessageEntityBlockquote
 
-
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
@@ -427,7 +426,7 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
-    # إضافة الاقتباس باستخدام HTML
+    # إضافة الاقتباس مع الحفاظ على الإيموجي
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
     if gvarstatus("ZID_TEMPLATE") is None:
@@ -435,34 +434,34 @@ async def who(event):
             await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=quoted_caption,  # الكليشة مع اقتباس HTML
+                caption=quoted_caption,
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode='html',  # تأكد من استخدام html
+                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            # للرسائل النصية أيضاً
-            await zed.edit(quoted_caption, parse_mode='html')
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
     else:
         try:
             await event.client.send_file(
                 event.chat_id,
                 photo,
-                caption=quoted_caption,  # الكليشة مع اقتباس HTML
+                caption=quoted_caption,
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode='html',  # تأكد من استخدام html
+                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
             )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode='html')
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

@@ -610,6 +610,7 @@ async def get_stars_level(client, user_id):
             'success': True
         }
     except Exception as e:
+        print(f"Error fetching stars level: {e}")  # طباعة الخطأ
         return {
             'level': 0,
             'current_stars': 0,
@@ -620,15 +621,17 @@ async def get_stars_level(client, user_id):
             'error': str(e)
         }
 
-
 @l313l.ar_cmd(pattern="مستوى(?: |$)(.*)")
 async def stars_level(event):
     """جلب مستوى النجوم للمستخدم"""
     zed = await edit_or_reply(event, "**- جـارِ جلب مستوى النجوم...**")
     
     user_id = event.sender_id if not event.reply_to_msg_id else (await event.get_reply_message()).sender_id
+    print(f"User ID: {user_id}")  # طباعة user_id
 
     stars_info = await get_stars_level(event.client, user_id)
+    
+    print(stars_info)  # طباعة معلومات النجوم
     
     if stars_info['success']:
         await edit_or_reply(zed, f"**🎯 مستوى النجوم:**\n"

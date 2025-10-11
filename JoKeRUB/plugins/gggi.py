@@ -551,6 +551,9 @@ async def permalink(event):
         text = f"[{tag}](tg://user?id={user.id})"
     
     await edit_or_reply(event, text)
+
+# أضف مع المتغيرات الأخرى في الأعلى
+spoil_photo = False  # سيتم التحكم فيها بالإعدادات
     
 @l313l.on(admin_cmd(pattern="(خط التشويش|خط تشويش|تفعيل تشويش|تفعيل التشويش)"))
 async def _(event):
@@ -574,8 +577,33 @@ async def _(event):
         await edit_delete(event, "**⎉╎خـط التشـويش مغعـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش) **")
         return
 
+@l313l.on(admin_cmd(pattern="(تشويش صور|تشويش الصور|تفعيل تشويش صور|تفعيل تشويش الصور)"))
+async def _(event):
+    global spoil_photo
+    if not spoil_photo:
+        spoil_photo = True
+        addgvar("spoil_photo", "on")
+        await edit_delete(event, "**⎉╎تم تفعيـل تشـويش الصـور .. بنجـاح ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش صور) **")
+        return
+    if spoil_photo:
+        await edit_delete(event, "**⎉╎تشـويش الصـور مفعـل .. مسبقـاً ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش صور) **")
+        return
+
+@l313l.on(admin_cmd(pattern="(تعطيل تشويش صور|تعطيل تشويش الصور)"))
+async def _(event):
+    global spoil_photo
+    if spoil_photo:
+        spoil_photo = False
+        delgvar("spoil_photo")
+        await edit_delete(event, "**⎉╎تم تعطيـل تشـويش الصـور .. بنجـاح ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش صور) **")
+        return
+    if not spoil_photo:
+        await edit_delete(event, "**⎉╎تشـويش الصـور معطـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش صور) **")
+        return
+
 @l313l.on(events.NewMessage(outgoing=True))
-async def comming(event):
+async def spoiler_photos(event):
+    # تشويش النص (الكود الحالي)
     if event.message.text and not event.message.media and "." not in event.message.text:
         is_cllear = gvarstatus("cllear")
         if is_cllear:
@@ -583,19 +611,30 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-
-@l313l.ar_cmd(pattern="تست$")
-async def spoiler_test(event):
-    """اختبار Spoiler"""
-    # اختبار بإرسال صورة مع spoiler
-    test_photo = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
     
-    try:
-        await event.client.send_message(
-            event.chat_id,
-            file=test_photo,
-            spoiler=True
-        )
-        await event.edit("✅ تم إرسال الصورة مع Spoiler")
-    except Exception as e:
-        await event.edit(f"❌ فشل: {e}")
+    # تشويش الصور (الجديد)
+    if event.message.media and hasattr(event.message.media, 'photo'):
+        spoil_photo = gvarstatus("spoil_photo")
+        if spoil_photo:
+            try:
+                # حذف الرسالة الأصلية وإعادة إرسالها مع spoiler
+                await event.delete()
+                
+                # إعادة إرسال الصورة مع spoiler في النص
+                if event.message.text:
+                    await event.client.send_file(
+                        event.chat_id,
+                        event.message.media,
+                        caption=f"‹  **[{event.message.text}](spoiler)**  ›",
+                        parse_mode=CustomParseMode("markdown")
+                    )
+                else:
+                    await event.client.send_file(
+                        event.chat_id,
+                        event.message.media,
+                        caption="‹  **[𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈](spoiler)**  ›",
+                        parse_mode=CustomParseMode("markdown")
+                    )
+                    
+            except Exception as e:
+                print(f"خطأ في تشويش الصور: {e}")

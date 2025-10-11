@@ -414,50 +414,71 @@ from telethon.tl.types import InputMediaUploadedPhoto
 )
 async def who(event):
     "Gets info of an user"
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
-    
     zed = await edit_or_reply(event, "⇆")
+    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
+        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     replied_user = await get_user_from_event(event)
-    
     try:
         photo, caption = await fetch_info(replied_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+    message_id_to_reply = event.message.reply_to_msg_id
+    if not message_id_to_reply:
+        message_id_to_reply = None
     
-    # إذا لم توجد صورة، أرسل المعلومات فقط
-    if not photo:
-        await zed.edit(caption, parse_mode=CustomParseMode("html"))
-        return
+    # إضافة الاقتباس مع الحفاظ على الإيموجي
+    quoted_caption = f"<blockquote>{caption}</blockquote>"
     
-    try:
-        # محاولة التشويش أولاً - إذا كان مدعوم
-        await event.client.send_file(
-            event.chat_id,
-            photo,
-            caption=caption,
-            spoiler=True,  # ✅ التشويش
-            link_preview=False,
-            force_document=False,
-            parse_mode=CustomParseMode("html")
-        )
-        
-    except Exception:
-        # إذا فشل التشويش، أرسل بدون تشويش
-        await event.client.send_file(
-            event.chat_id,
-            photo,
-            caption=caption,
-            link_preview=False,
-            force_document=False,
-            parse_mode=CustomParseMode("html")
-        )
-    
-    # تنظيف الملف إذا كان محلياً
-    if not photo.startswith("http"):
-        os.remove(photo)
-        
-    await zed.delete()
+    if gvarstatus("ZID_TEMPLATE") is None:
+        try:
+            # إذا كانت الصورة مسار ملف
+            if not photo.startswith("http"):
+                # رفع الصورة مع التشويش
+                uploaded_file = await event.client.upload_file(photo)
+                spoiler_media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # ✅ التشويش مفعل
+                )
+                
+                # إرسال رسالة واحدة مع الصورة المشوشة والمعلومات
+                await event.client.send_message(
+                    event.chat_id,
+                    message=quoted_caption,
+                    file=spoiler_media,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html")
+                )
+            
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+            
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+    else:
+        try:
+            # نفس المنطق للقالب المخصص
+            if not photo.startswith("http"):
+                uploaded_file = await event.client.upload_file(photo)
+                spoiler_media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # ✅ التشويش مفعل
+                )
+                
+                await event.client.send_message(
+                    event.chat_id,
+                    message=quoted_caption,
+                    file=spoiler_media,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html")
+                )
+            
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+            
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

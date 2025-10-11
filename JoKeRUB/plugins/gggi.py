@@ -429,7 +429,7 @@ async def who(event):
         message_id_to_reply = None
     
     try:
-        # إرسال الصورة مع التشويش والمعلومات مباشرة
+        # إرسال مباشر بدون تحميل إضافي - أسرع طريقة
         await event.client.send_file(
             event.chat_id,
             photo,
@@ -437,14 +437,14 @@ async def who(event):
             link_preview=False,
             force_document=False,
             reply_to=message_id_to_reply,
-            parse_mode=CustomParseMode("html"),
-            spoiler=True  # ✅ التشويش فقط
+            parse_mode=CustomParseMode("html")
         )
         if not photo.startswith("http"):
             os.remove(photo)
         await zed.delete()
     except (TypeError, ChatSendMediaForbiddenError):
         await zed.edit(caption, parse_mode=CustomParseMode("html"))
+
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

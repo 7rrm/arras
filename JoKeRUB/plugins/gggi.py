@@ -627,58 +627,47 @@ async def get_user_stars_level(client, user_id):
         }
 
 
-@l313l.ar_cmd(
-    pattern="مستوى$",
-    command=("مستوى", plugin_category),
-)
-async def stars_level_command(event):
-    """عرض مستوى ونجوم المستخدم"""
+@l313l.ar_cmd(pattern="مستوى$")
+async def userbot_stars_level(event):
+    """عرض مستوى النجوم لليوزر بوت"""
+    
+    zed = await edit_or_reply(event, "**🎯 جـاري جلب معلومـات النجوم...**")
+    
     try:
-        zed = await edit_or_reply(event, "**🎯 جـاري جلب المعلومـات...**")
+        # جلب معلومات النجوم
+        result = await event.client(GetStarsStatusRequest(
+            peer=await event.client.get_input_entity("me")
+        ))
         
-        # التحقق من أن البوت في الدردشة
-        try:
-            await event.client.get_entity(event.chat_id)
-        except Exception:
-            return await zed.edit("**❌ البوت ليس في هذه الدردشة**")
+        # التحقق من السماح الفعلي
+        me = await event.client.get_me()
+        message = f"**🎯 معلومات النجوم لـ {me.first_name}**\n\n"
         
-        # الحصول على المستخدم
-        replied_user = await get_user_from_event(event)
-        if not replied_user:
-            return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم**")
+        # إضافة السماح المتاحة فقط
+        if hasattr(result, 'balance'):
+            message += f"**• الرصيد:** {result.balance} ⭐\n"
         
-        # جلب معلومات المستوى
-        stars_info = await get_user_stars_level(event.client, replied_user.id)
+        if hasattr(result, 'current_stars'):
+            message += f"**• النجوم الحالية:** {result.current_stars} ⭐\n"
+            
+        if hasattr(result, 'total_stars'):
+            message += f"**• الإجمالي:** {result.total_stars} 💫\n"
+            
+        if hasattr(result, 'stars_received'):
+            message += f"**• المستلمة:** {result.stars_received} 🎁\n"
+            
+        if hasattr(result, 'stars_given'):
+            message += f"**• المُهداة:** {result.stars_given} 🎀\n"
         
-        if not stars_info['success']:
-            return await edit_or_reply(zed, f"**❌ لا يمكن جلب المستوى:** {stars_info['error']}")
+        # إذا لم يكن هناك مستوى، نضيف رسالة
+        if not hasattr(result, 'level'):
+            message += f"**• المستوى:** غير متاح 📊\n"
+        else:
+            message += f"**• المستوى:** {result.level} 📊\n"
         
-        # بناء الرسالة
-        user_name = replied_user.first_name or "المستخدم"
-        message = (
-            f"**🎯 مستوى النجوم لـ {user_name}**\n\n"
-            f"**• المستوى الحالي:** {stars_info['level']} 📊\n"
-            f"**• النجوم المتاحة:** {stars_info['current_stars']} ⭐\n"
-            f"**• الإجمالي المكتسب:** {stars_info['total_stars']} 💫\n"
-            f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
-        )
+        message += f"\n**🤖 نوع الحساب:** UserBot"
         
         await zed.edit(message)
         
     except Exception as e:
-        await event.reply(f"**❌ حدث خطأ:** {str(e)}")
-        
-@l313l.ar_cmd(pattern="ستارز$")
-async def simple_stars_test(event):
-    """اختبار بسيط للمستوى"""
-    try:
-        # جلب مستوى المستخدم الحالي
-        result = await event.client(GetStarsStatusRequest(peer=InputPeerSelf()))
-        
-        await event.edit(
-            f"**⭐ نجومك:** {result.current_stars}\n"
-            f"**📊 مستواك:** {result.level}\n"
-            f"**💫 الإجمالي:** {result.total_stars}"
-        )
-    except Exception as e:
-        await event.edit(f"**❌ فشل:** {str(e)}")
+        await zed.edit(f"**❌ لا يمكن جلب المعلومات:** {str(e)}")

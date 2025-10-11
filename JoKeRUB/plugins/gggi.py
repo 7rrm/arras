@@ -593,37 +593,200 @@ async def comming(event):
             except MessageIdInvalidError:
                 pass
 
-from telethon import events
-from ..services.telegram_stars_service import TelegramStarsService  # تأكد من استيراد الخدمة الصحيحة
+from telethon.tl.functions.payments import GetStarsStatusRequest
+from telethon.tl.types import InputPeerUser
+
+async def get_user_stars_level(client, user_id: int) -> dict:
+    """
+    الحصول على مستوى المستخدم في نظام النجوم باستخدام API التليجرام
+    """
+    try:
+        # إنشاء كائن المستخدم المدخل
+        user_entity = await client.get_input_entity(user_id)
+        
+        # إرسال طلب الحصول على حالة النجوم
+        request = GetStarsStatusRequest(
+            peer=user_entity
+        )
+        
+        # تنفيذ الطلب
+        response = await client(request)
+        
+        # معالجة الاستجابة
+        if hasattr(response, 'level'):
+            level = response.level
+            current_stars = response.current_stars
+            required_stars = response.required_stars
+            
+            # حساب النسبة المئوية للتقدم
+            progress_percentage = int((current_stars / required_stars) * 100) if required_stars > 0 else 0
+            
+            # تحديد الرتبة بناء على المستوى
+            rank = await determine_rank(level)
+            
+            # تحديد مكافأة المستوى التالي
+            next_bonus = await get_next_level_bonus(level + 1)
+            
+            return {
+                'level': level,
+                'current_stars': current_stars,
+                'required_stars': required_stars,
+                'progress_percentage': progress_percentage,
+                'total_stars_earned': getattr(response, 'total_stars_earned', current_stars),
+                'stars_spent': getattr(response, 'stars_spent', 0),
+                'rank': rank,
+                'next_level_bonus': next_bonus,
+                'raw_response': response  # حفظ الاستجابة الكاملة للاستخدام المستقبلي
+            }
+        else:
+            # في حالة عدم وجود بيانات، نعيد القيم الافتراضية
+            return await get_default_level_data()
+            
+    except Exception as e:
+        LOGS.error(f"Error getting stars level for user {user_id}: {str(e)}")
+        return await get_default_level_data()
+
+async def determine_rank(level: int) -> str:
+    """تحديد الرتبة بناء على المستوى"""
+    ranks = {
+        1: "مبتدئ 🎯",
+        2: "متفائل ✨",
+        3: "نشط ⚡", 
+        4: "متميز 🌟",
+        5: "محترف 🏆",
+        6: "خبير 🎖️",
+        7: "أسطورة 🐉",
+        8: "بطل 💪",
+        9: "ماستر 🥇",
+        10: "إمبراطور 👑"
+    }
+    
+    if level <= 10:
+        return ranks.get(level, "مبتدئ 🎯")
+    elif level <= 20:
+        return "نخبة 🚀"
+    elif level <= 30:
+        return "أسطوري 🌌"
+    else:
+        return "إلهي ⚡"
+
+async def get_next_level_bonus(next_level: int) -> str:
+    """الحصول على مكافأة المستوى التالي"""
+    bonuses = {
+        2: "مزايا تصوير متقدمة",
+        3: "مشاركة ملفات أكبر",
+        5: "محادثات جماعية متقدمة",
+        10: "رموز تعبيرية مخصصة",
+        15: "خلفيات حصرية",
+        20: "بوتات مخصصة"
+    }
+    
+    return bonuses.get(next_level, "مزايا إضافية وحصرية")
+
+async def get_default_level_data() -> dict:
+    """البيانات الافتراضية في حالة الخطأ"""
+    return {
+        'level': 1,
+        'current_stars': 0,
+        'required_stars': 1000,
+        'progress_percentage': 0,
+        'total_stars_earned': 0,
+        'stars_spent': 0,
+        'rank': "مبتدئ 🎯",
+        'next_level_bonus': "بدء النظام"
+    }
+
 
 @l313l.ar_cmd(
     pattern="مستوى(?: |$)(.*)",
     command=("مستوى", plugin_category),
     info={
-        "header": "لـ جلب مستوى النجوم للمستخدم",
-        "الاستخدام": "{tr}مستوى بالرد على المستخدم أو {tr}مستوى <معرف/اي دي>",
+        "header": "عـرض مسـتوى المسـتخدم في نظـام النجـوم",
+        "الاستـخـدام": " {tr}مستوى بالـرد او {tr}مستوى + معـرف/ايـدي الشخص",
     },
 )
-async def stars_level(event):
-    """جلب مستوى النجوم للمستخدم"""
-    zed = await edit_or_reply(event, "**- جـارِ جلب مستوى النجوم...**")
-    user = await get_user_from_event(event)  # احصل على المستخدم من الحدث
-    if not user:  # تحقق مما إذا كان المستخدم موجودًا
-        return await edit_or_reply(zed, "**- لـم أستطع العثــور على الشخــص؟!**")
+async def get_stars_level(event):
+    "عرض مستوى المستخدم في نظام النجوم"
+    zed = await edit_or_reply(event, "**⇆ جـارِ جلب معلومـات المسـتوى...**")
+    
+    # الحصول على المستخدم
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+    
+    user_id = replied_user.id
+    first_name = replied_user.first_name or "مستخدم"
+    username = f"@{replied_user.username}" if replied_user.username else "لا يـوجـد"
+    
+    try:
+        # الحصول على بيانات المستوى من API التليجرام
+        level_data = await get_user_stars_level(event.client, user_id)
+        
+        # بناء رسالة المستوى
+        level_message = await build_level_message(level_data, user_id, first_name, username)
+        
+        await zed.edit(level_message, parse_mode=CustomParseMode("html"))
+        
+    except Exception as e:
+        LOGS.error(f"Error in stars level command: {str(e)}")
+        await zed.edit(f"**❌ خطأ في جلب بيانات المستوى:** `{str(e)}`")
 
-    # استدعاء خدمة الحصول على مستوى النجوم
-    stars_info = await TelegramStarsService.get_stars_balance(user.id)
-    if stars_info and stars_info.get('success'):
-        level = stars_info.get('level', 'غير متوفر')
-        current_stars = stars_info.get('current_stars', 'غير متوفر')
-        total_stars = stars_info.get('total_stars', 'غير متوفر')
+async def build_level_message(level_data: dict, user_id: int, first_name: str, username: str) -> str:
+    """بناء رسالة عرض المستوى"""
+    
+    level = level_data['level']
+    current_stars = level_data['current_stars']
+    required_stars = level_data['required_stars']
+    progress_percentage = level_data['progress_percentage']
+    total_stars = level_data['total_stars_earned']
+    stars_spent = level_data['stars_spent']
+    rank = level_data['rank']
+    next_bonus = level_data['next_level_bonus']
+    
+    # شريط التقدم
+    progress_bar = await create_progress_bar(progress_percentage)
+    
+    # تنسيق الأرقام
+    current_stars_fmt = f"{current_stars:,}"
+    required_stars_fmt = f"{required_stars:,}"
+    total_stars_fmt = f"{total_stars:,}"
+    stars_spent_fmt = f"{stars_spent:,}"
+    
+    # بناء الرسالة
+    message = f'<b>𓄂  مسـتوى المسـتخدم في نظـام النجـوم  𓄂</b>\n'
+    message += f'<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n'
+    
+    message += f'<b>𓄂 الاسـم    ⤎ </b>'
+    message += f'<a href="tg://user?id={user_id}">{first_name}</a>\n'
+    message += f'<b>𓄂 اليـوزر    ⤎  {username}</b>\n'
+    message += f'<b>𓄂 الايـدي    ⤎ </b> <code>{user_id}</code>\n\n'
+    
+    message += f'<b>𓄂 المسـتوى الحالي ⤎  {level} 🎯</b>\n'
+    message += f'<b>𓄂 الرتبـة        ⤎  {rank} 🏅</b>\n\n'
+    
+    message += f'<b>𓄂 النجـوم المجموعة ⤎  {total_stars_fmt} ⭐</b>\n'
+    message += f'<b>𓄂 النجـوم المنفقة  ⤎  {stars_spent_fmt} 💫</b>\n'
+    message += f'<b>𓄂 الرصيد الحالي   ⤎  {current_stars_fmt} ✨</b>\n\n'
+    
+    message += f'<b>𓄂 التقدم للـمستوى {level + 1} ⤎</b>\n'
+    message += f'<code>{progress_bar}</code>\n'
+    message += f'<b>𓄂 {current_stars_fmt} / {required_stars_fmt} ⭐</b>\n'
+    message += f'<b>𓄂 {progress_percentage}% مكتمل</b>\n\n'
+    
+    message += f'<b>𓄂 مـزايـا المسـتوى القـادم ⤎</b>\n'
+    message += f'<b>𓄂 {next_bonus}</b>\n\n'
+    
+    message += f'<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n'
+    message += f'<b>𓄂  زدثــون - ZThon  𓄂</b>'
+    
+    return message
 
-        response_message = (
-            f"**🎯 مستوى النجوم لـ {user.first_name}:**\n"
-            f"**• المستوى:** {level}\n"
-            f"**• النجوم الحالية:** {current_stars}\n"
-            f"**• الإجمالي:** {total_stars}\n"
-        )
-        await edit_or_reply(zed, response_message)
-    else:
-        return await edit_or_reply(zed, f"**❌ لا يمكن جلب مستوى النجوم:** {stars_info.get('error', 'خطأ غير معروف')}")
+async def create_progress_bar(percentage: int, length: int = 10) -> str:
+    """إنشاء شريط تقدم"""
+    filled_blocks = int((percentage / 100) * length)
+    empty_blocks = length - filled_blocks
+    
+    filled = '█' * filled_blocks
+    empty = '░' * empty_blocks
+    
+    return f'{filled}{empty}'

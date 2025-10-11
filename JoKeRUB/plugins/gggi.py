@@ -428,23 +428,80 @@ async def who(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
-    try:
-        # إرسال مباشر بدون تحميل إضافي - أسرع طريقة
-        await event.client.send_file(
-            event.chat_id,
-            photo,
-            caption=caption,
-            link_preview=False,
-            force_document=False,
-            reply_to=message_id_to_reply,
-            parse_mode=CustomParseMode("html")
-        )
-        if not photo.startswith("http"):
-            os.remove(photo)
-        await zed.delete()
-    except (TypeError, ChatSendMediaForbiddenError):
-        await zed.edit(caption, parse_mode=CustomParseMode("html"))
-
+    # إضافة الاقتباس مع الحفاظ على الإيموجي
+    quoted_caption = f"<blockquote>{caption}</blockquote>"
+    
+    if gvarstatus("ZID_TEMPLATE") is None:
+        try:
+            # إذا كانت الصورة مسار ملف
+            if not photo.startswith("http"):
+                # رفع الصورة مع التشويش
+                uploaded_file = await event.client.upload_file(photo)
+                spoiler_media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # ✅ التشويش مفعل
+                )
+                
+                # إرسال رسالة واحدة مع الصورة المشوشة والمعلومات
+                await event.client.send_message(
+                    event.chat_id,
+                    message=quoted_caption,
+                    file=spoiler_media,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html")
+                )
+            else:
+                # إذا كانت رابط، استخدم الطريقة العادية بدون تشويش
+                await event.client.send_file(
+                    event.chat_id,
+                    photo,
+                    caption=quoted_caption,
+                    link_preview=False,
+                    force_document=False,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html"),
+                )
+            
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+            
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+    else:
+        try:
+            # نفس المنطق للقالب المخصص
+            if not photo.startswith("http"):
+                uploaded_file = await event.client.upload_file(photo)
+                spoiler_media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # ✅ التشويش مفعل
+                )
+                
+                await event.client.send_message(
+                    event.chat_id,
+                    message=quoted_caption,
+                    file=spoiler_media,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html")
+                )
+            else:
+                await event.client.send_file(
+                    event.chat_id,
+                    photo,
+                    caption=quoted_caption,
+                    link_preview=False,
+                    force_document=False,
+                    reply_to=message_id_to_reply,
+                    parse_mode=CustomParseMode("html"),
+                )
+            
+            if not photo.startswith("http"):
+                os.remove(photo)
+            await zed.delete()
+            
+        except (TypeError, ChatSendMediaForbiddenError):
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
 async def zelzalll(event):

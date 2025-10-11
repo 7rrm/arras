@@ -593,3 +593,49 @@ async def comming(event):
             except MessageIdInvalidError:
                 pass
 
+from telethon.tl.functions.payments import GetStarsStatusRequest
+
+async def get_stars_level(client, user_id):
+    """جلب مستوى النجوم للمستخدم"""
+    try:
+        user_entity = await client.get_input_entity(user_id)
+        result = await client(GetStarsStatusRequest(peer=user_entity))
+        
+        return {
+            'level': result.level,
+            'current_stars': result.current_stars,
+            'total_stars': result.total_stars,
+            'stars_received': result.stars_received,
+            'stars_given': result.stars_given,
+            'success': True
+        }
+    except Exception as e:
+        return {
+            'level': 0,
+            'current_stars': 0,
+            'total_stars': 0,
+            'stars_received': 0,
+            'stars_given': 0,
+            'success': False,
+            'error': str(e)
+        }
+
+
+@l313l.ar_cmd(pattern="مستوى(?: |$)(.*)")
+async def stars_level(event):
+    """جلب مستوى النجوم للمستخدم"""
+    zed = await edit_or_reply(event, "**- جـارِ جلب مستوى النجوم...**")
+    
+    user_id = event.sender_id if not event.reply_to_msg_id else (await event.get_reply_message()).sender_id
+
+    stars_info = await get_stars_level(event.client, user_id)
+    
+    if stars_info['success']:
+        await edit_or_reply(zed, f"**🎯 مستوى النجوم:**\n"
+                                  f"**• المستوى:** {stars_info['level']}\n"
+                                  f"**• النجوم الحالية:** {stars_info['current_stars']}\n"
+                                  f"**• الإجمالي:** {stars_info['total_stars']}\n"
+                                  f"**• النجوم المستلمة:** {stars_info['stars_received']}\n"
+                                  f"**• النجوم الممنوحة:** {stars_info['stars_given']}")
+    else:
+        await edit_or_reply(zed, f"**❌ لا يمكن جلب مستوى النجوم:** {stars_info['error']}")

@@ -439,8 +439,7 @@ async def who(event):
                 link_preview=False,
                 force_document=False,
                 reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),# استخدام CustomParseMode
-                spoiler=True  #
+                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -457,7 +456,6 @@ async def who(event):
                 force_document=False,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
-                spoiler=True  #
             )
             if not photo.startswith("http"):
                 os.remove(photo)
@@ -583,95 +581,3 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-
-from telethon.tl.types import InputMediaUploadedPhoto
-
-async def upload_photo_with_spoiler(client, photo_path):
-    """
-    رفع صورة مع تأثير التشويش
-    """
-    try:
-        # رفع الصورة
-        uploaded_file = await client.upload_file(photo_path)
-        
-        # إنشاء وسائط الصورة مع التشويش
-        input_media = InputMediaUploadedPhoto(
-            file=uploaded_file,
-            spoiler=True  # ✅ تفعيل التشويش
-        )
-        
-        return input_media
-    except Exception as e:
-        print(f"خطأ في رفع الصورة: {e}")
-        return None
-
-@l313l.on(admin_cmd(pattern="(تشويش صور|تشويش الصور|تفعيل تشويش صور|تفعيل تشويش الصور)"))
-async def enable_photo_spoiler(event):
-    is_spoiler = gvarstatus("photo_spoiler")
-    if not is_spoiler:
-        addgvar("photo_spoiler", "on")
-        await edit_delete(event, "**⎉╎تم تفعيـل تشـويش الصـور .. بنجـاح ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش صور) **")
-        return
-    if is_spoiler:
-        await edit_delete(event, "**⎉╎تشـويش الصـور مفعـل .. مسبقـاً ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل تشويش صور) **")
-        return
-
-@l313l.on(admin_cmd(pattern="(تعطيل تشويش صور|تعطيل تشويش الصور)"))
-async def disable_photo_spoiler(event):
-    is_spoiler = gvarstatus("photo_spoiler")
-    if is_spoiler:
-        delgvar("photo_spoiler")
-        await edit_delete(event, "**⎉╎تم تعطيـل تشـويش الصـور .. بنجـاح ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش صور) **")
-        return
-    if not is_spoiler:
-        await edit_delete(event, "**⎉╎تشـويش الصـور معطـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل تشويش صور) **")
-        return
-
-
-@l313l.on(events.NewMessage(outgoing=True))
-async def auto_photo_spoiler(event):
-    # تشويش النص (الكود الحالي)
-    if event.message.text and not event.message.media and "." not in event.message.text:
-        is_cllear = gvarstatus("cllear")
-        if is_cllear:
-            try:
-                await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
-            except MessageIdInvalidError:
-                pass
-    
-    # تشويش الصور (الجديد)
-    if event.message.media and hasattr(event.message.media, 'photo'):
-        is_spoiler = gvarstatus("photo_spoiler")
-        if is_spoiler:
-            try:
-                # تحميل الصورة المرسلة
-                photo_path = await event.message.download_media()
-                
-                # رفع الصورة مع التشويش
-                spoiler_media = await upload_photo_with_spoiler(event.client, photo_path)
-                
-                if spoiler_media:
-                    # حذف الرسالة الأصلية
-                    await event.delete()
-                    
-                    # إرسال الصورة مع التشويش
-                    if event.message.text:
-                        await event.client.send_message(
-                            event.chat_id,
-                            message=event.message.text,
-                            file=spoiler_media
-                        )
-                    else:
-                        await event.client.send_message(
-                            event.chat_id,
-                            file=spoiler_media
-                        )
-                
-                # تنظيف الملف المؤقت
-                if os.path.exists(photo_path):
-                    os.remove(photo_path)
-                    
-            except Exception as e:
-                print(f"خطأ في تشويش الصورة: {e}")
-
-

@@ -592,3 +592,78 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
+
+from telethon.tl.functions.payments import GetStarsStatusRequest
+from telethon.tl.types import InputPeerSelf, InputPeerUser
+import time
+
+
+async def get_user_stars_level(client, user_id):
+    """
+    جلب مستوى ونجوم المستخدم
+    """
+    try:
+        # المحاولة الأولى: المستخدم نفسه
+        if user_id == (await client.get_me()).id:
+            result = await client(GetStarsStatusRequest(peer=InputPeerSelf()))
+        else:
+            # المحاولة الثانية: مستخدم آخر
+            entity = await client.get_entity(user_id)
+            peer = InputPeerUser(user_id=user_id, access_hash=entity.access_hash)
+            result = await client(GetStarsStatusRequest(peer=peer))
+        
+        return {
+            'success': True,
+            'level': result.level,
+            'current_stars': result.current_stars,
+            'total_stars': result.total_stars,
+            'stars_received': result.stars_received,
+            'stars_given': result.stars_given
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
+@l313l.ar_cmd(
+    pattern="مستوى$",
+    command=("مستوى", plugin_category),
+    info={
+        "header": "عـرض مسـتوى ونجـوم المسـتخدم",
+        "الاستـخـدام": " {tr}مستوى بالـرد او {tr}مستوى + معـرف/ايـدي الشخص",
+    },
+)
+async def stars_level_command(event):
+    """عرض مستوى ونجوم المستخدم"""
+    zed = await edit_or_reply(event, "**🎯 جـاري جلب المعلومـات...**")
+    
+    # الحصول على المستخدم
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم أو كتابة المعرف/الايدي**")
+    
+    try:
+        # جلب معلومات المستوى
+        stars_info = await get_user_stars_level(event.client, replied_user.id)
+        
+        if not stars_info['success']:
+            return await edit_or_reply(zed, f"**❌ لا يمكن جلب المستوى:** {stars_info['error']}")
+        
+        # بناء الرسالة
+        user_name = replied_user.first_name or "المستخدم"
+        message = (
+            f"**🎯 مستوى النجوم لـ {user_name}**\n\n"
+            f"**• المستوى الحالي:** {stars_info['level']} 📊\n"
+            f"**• النجوم المتاحة:** {stars_info['current_stars']} ⭐\n"
+            f"**• الإجمالي المكتسب:** {stars_info['total_stars']} 💫\n"
+            f"**• النجوم المستلمة:** {stars_info['stars_received']} 🎁\n"
+            f"**• النجوم المُهداة:** {stars_info['stars_given']} 🎀\n\n"
+            f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
+        )
+        
+        await zed.edit(message)
+        
+    except Exception as e:
+        await edit_or_reply(zed, f"**❌ حدث خطأ غير متوقع:** {str(e)}")

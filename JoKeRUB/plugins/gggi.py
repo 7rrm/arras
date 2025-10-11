@@ -402,6 +402,7 @@ async def fetch_info(replied_user, event):
 
 from telethon.tl.types import MessageEntityBlockquote
 from telethon.tl.types import InputMediaPhoto
+from telethon.tl.types import InputMediaUploadedPhoto
 
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",

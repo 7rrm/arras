@@ -89,15 +89,7 @@ class CustomParseMode:
                 entities[i] = types.MessageEntityTextUrl(e.offset, e.length, 'spoiler')
         return html.unparse(text, entities)
 
-from telethon.tl.functions.contacts import ResolveUsernameRequest
 
-async def get_user_from_fragment(client, username):
-    try:
-        result = await client(ResolveUsernameRequest(username))
-        return result.users[0]
-    except:
-        return None
-        
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
         previous_message = await event.get_reply_message()
@@ -109,17 +101,6 @@ async def get_user_from_event(event):
         if not user:
             self_user = await event.client.get_me()
             user = self_user.id
-
-        if isinstance(user, str) and user.startswith('@'):
-            try:
-                # محاولة ResolveUsername أولاً
-                result = await event.client(ResolveUsernameRequest(user[1:]))
-                user_object = result.users[0]
-                return user_object
-            except:
-                # إذا فشل، حاول الطريقة العادية
-                pass
-                
         if event.message.entities:
             probable_user_mention_entity = event.message.entities[0]
             if isinstance(probable_user_mention_entity, MessageEntityMentionName):

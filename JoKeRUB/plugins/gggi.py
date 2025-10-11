@@ -667,3 +667,18 @@ async def stars_level_command(event):
         
     except Exception as e:
         await edit_or_reply(zed, f"**❌ حدث خطأ غير متوقع:** {str(e)}")
+
+@l313l.ar_cmd(pattern="ستارز$")
+async def simple_stars_test(event):
+    """اختبار بسيط للمستوى"""
+    try:
+        # جلب مستوى المستخدم الحالي
+        result = await event.client(GetStarsStatusRequest(peer=InputPeerSelf()))
+        
+        await event.edit(
+            f"**⭐ نجومك:** {result.current_stars}\n"
+            f"**📊 مستواك:** {result.level}\n"
+            f"**💫 الإجمالي:** {result.total_stars}"
+        )
+    except Exception as e:
+        await event.edit(f"**❌ فشل:** {str(e)}")

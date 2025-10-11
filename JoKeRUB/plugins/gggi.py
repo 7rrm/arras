@@ -623,22 +623,21 @@ async def get_stars_level(client, user_id):
 
 @l313l.ar_cmd(pattern="مستوى(?: |$)(.*)")
 async def stars_level(event):
-    """جلب مستوى النجوم للمستخدم"""
-    zed = await edit_or_reply(event, "**- جـارِ جلب مستوى النجوم...**")
+    """جلب مستوى النجوم وعدد الهدايا للمستخدم"""
+    zed = await edit_or_reply(event, "**- جـارِ جلب المعلومات...**")
     
     user_id = event.sender_id if not event.reply_to_msg_id else (await event.get_reply_message()).sender_id
-    print(f"User ID: {user_id}")  # طباعة user_id
 
     stars_info = await get_stars_level(event.client, user_id)
-    
-    print(stars_info)  # طباعة معلومات النجوم
-    
-    if stars_info['success']:
+    gifts_info = await get_gifts_count(event.client, user_id)
+
+    if stars_info['success'] and gifts_info['total_count'] is not None:
         await edit_or_reply(zed, f"**🎯 مستوى النجوم:**\n"
                                   f"**• المستوى:** {stars_info['level']}\n"
                                   f"**• النجوم الحالية:** {stars_info['current_stars']}\n"
                                   f"**• الإجمالي:** {stars_info['total_stars']}\n"
                                   f"**• النجوم المستلمة:** {stars_info['stars_received']}\n"
-                                  f"**• النجوم الممنوحة:** {stars_info['stars_given']}")
+                                  f"**• النجوم الممنوحة:** {stars_info['stars_given']}\n"
+                                  f"**🎁 عدد الهدايا:** {gifts_info['total_count']}")
     else:
-        await edit_or_reply(zed, f"**❌ لا يمكن جلب مستوى النجوم:** {stars_info['error']}")
+        await edit_or_reply(zed, f"**❌ لا يمكن جلب المعلومات:** {stars_info.get('error', 'غير معروف')}")

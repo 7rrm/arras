@@ -595,13 +595,53 @@ async def comming(event):
 
 from telethon.tl.functions.payments import GetStarsStatusRequest
 
-@l313l.ar_cmd(pattern="ستارز$")
-async def stars_test(event):
-    """اختبار بسيط"""
+async def get_stars_level(client, user_id):
+    """
+    جلب مستوى النجوم للمستخدم
+    """
     try:
-        result = await event.client(GetStarsStatusRequest(
-            peer=await event.client.get_input_entity("me")  # تجربة على نفسك أولاً
-        ))
-        await event.edit(f"✅ المستوى: {result.level}")
+        user_entity = await client.get_input_entity(user_id)
+        result = await client(GetStarsStatusRequest(peer=user_entity))
+        return {
+            'level': result.level,
+            'current_stars': result.current_stars,
+            'total_stars': result.total_stars,
+            'stars_received': result.stars_received,
+            'stars_given': result.stars_given,
+            'success': True
+        }
     except Exception as e:
-        await event.edit(f"❌ فشل: {e}")
+        return {
+            'level': 0,
+            'current_stars': 0,
+            'total_stars': 0,
+            'stars_received': 0,
+            'stars_given': 0,
+            'success': False,
+            'error': str(e)
+        }
+
+@l313l.ar_cmd(pattern="ستارز$")
+async def test_stars(event):
+    """اختبار مستوى النجوم"""
+    try:
+        if not event.reply_to_msg_id:
+            user_id = event.sender_id
+        else:
+            reply = await event.get_reply_message()
+            user_id = reply.sender_id
+        
+        stars_info = await get_stars_level(event.client, user_id)
+        
+        if stars_info['success']:
+            await event.edit(
+                f"**🎯 مستوى النجوم:**\n"
+                f"**• المستوى:** {stars_info['level']}\n"
+                f"**• النجوم:** {stars_info['current_stars']}\n"
+                f"**• الإجمالي:** {stars_info['total_stars']}"
+            )
+        else:
+            await event.edit(f"**❌ لا يمكن جلب المستوى:** {stars_info['error']}")
+            
+    except Exception as e:
+        await event.edit(f"**❌ خطأ:** {e}")

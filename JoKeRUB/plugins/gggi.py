@@ -592,20 +592,3 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-
-from telethon.tl.functions.payments import GetStarsStatusRequest
-
-@l313l.ar_cmd(pattern="مستوى$")
-async def test_level(event):
-    """اختبار بسيط للمستوى"""
-    try:
-        await event.edit("🔄 جاري التحقق...")
-        
-        # محاولة مباشرة
-        me = await event.client.get_me()
-        result = await event.client(GetStarsStatusRequest(peer=me))
-        
-        await event.edit(f"✅ **المستوى:** {result.level} | **النجوم:** {result.current_stars}")
-        
-    except Exception as e:
-        await event.edit(f"❌ **لا يعمل:** {str(e)}")

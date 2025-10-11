@@ -630,21 +630,23 @@ async def get_user_stars_level(client, user_id):
 @l313l.ar_cmd(
     pattern="مستوى$",
     command=("مستوى", plugin_category),
-    info={
-        "header": "عـرض مسـتوى ونجـوم المسـتخدم",
-        "الاستـخـدام": " {tr}مستوى بالـرد او {tr}مستوى + معـرف/ايـدي الشخص",
-    },
 )
 async def stars_level_command(event):
     """عرض مستوى ونجوم المستخدم"""
-    zed = await edit_or_reply(event, "**🎯 جـاري جلب المعلومـات...**")
-    
-    # الحصول على المستخدم
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم أو كتابة المعرف/الايدي**")
-    
     try:
+        zed = await edit_or_reply(event, "**🎯 جـاري جلب المعلومـات...**")
+        
+        # التحقق من أن البوت في الدردشة
+        try:
+            await event.client.get_entity(event.chat_id)
+        except Exception:
+            return await zed.edit("**❌ البوت ليس في هذه الدردشة**")
+        
+        # الحصول على المستخدم
+        replied_user = await get_user_from_event(event)
+        if not replied_user:
+            return await edit_or_reply(zed, "**⚠️ يرجى الرد على المستخدم**")
+        
         # جلب معلومات المستوى
         stars_info = await get_user_stars_level(event.client, replied_user.id)
         
@@ -658,16 +660,14 @@ async def stars_level_command(event):
             f"**• المستوى الحالي:** {stars_info['level']} 📊\n"
             f"**• النجوم المتاحة:** {stars_info['current_stars']} ⭐\n"
             f"**• الإجمالي المكتسب:** {stars_info['total_stars']} 💫\n"
-            f"**• النجوم المستلمة:** {stars_info['stars_received']} 🎁\n"
-            f"**• النجوم المُهداة:** {stars_info['stars_given']} 🎀\n\n"
             f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
         )
         
         await zed.edit(message)
         
     except Exception as e:
-        await edit_or_reply(zed, f"**❌ حدث خطأ غير متوقع:** {str(e)}")
-
+        await event.reply(f"**❌ حدث خطأ:** {str(e)}")
+        
 @l313l.ar_cmd(pattern="ستارز$")
 async def simple_stars_test(event):
     """اختبار بسيط للمستوى"""

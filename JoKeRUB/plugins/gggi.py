@@ -593,25 +593,31 @@ async def comming(event):
             except MessageIdInvalidError:
                 pass
 
-from telethon.tl.functions.stars import GetStarsStatusRequest
+from telethon.tl.functions.payments import GetStarsStatusRequest
 
 @l313l.ar_cmd(pattern="مستوى$")
 async def get_stars_level(event):
     """جلب مستوى النجوم"""
     try:
-        replied_user = await get_user_from_event(event)
-        if not replied_user:
+        # الحصول على المستخدم من الرد
+        if not event.reply_to_msg_id:
             return await event.edit("**⚠️ يرجى الرد على المستخدم**")
         
-        result = await event.client(GetStarsStatusRequest(peer=replied_user))
+        reply = await event.get_reply_message()
+        user_id = reply.sender_id
+        
+        # استخدام GetStarsStatusRequest الصحيح
+        result = await event.client(GetStarsStatusRequest(
+            peer=await event.client.get_input_entity(user_id)
+        ))
         
         await event.edit(
-            f"**🎯 مستوى النجوم لـ {replied_user.first_name}:**\n"
+            f"**🎯 مستوى النجوم:**\n"
             f"**• المستوى:** {result.level}\n"
             f"**• النجوم الحالية:** {result.current_stars}\n"
             f"**• الإجمالي:** {result.total_stars}\n"
-            f"**• المستلمة:** {result.stars_received}\n"
+            f"**• المستلمة:** {result.stars_received}\n" 
             f"**• المعطاة:** {result.stars_given}"
         )
     except Exception as e:
-        await event.edit(f"**❌ خط
+        await event.edit(f"**❌ خطأ:** {e}")

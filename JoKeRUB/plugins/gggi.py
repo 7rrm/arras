@@ -595,29 +595,13 @@ async def comming(event):
 
 from telethon.tl.functions.payments import GetStarsStatusRequest
 
-@l313l.ar_cmd(pattern="مستوى$")
-async def get_stars_level(event):
-    """جلب مستوى النجوم"""
+@l313l.ar_cmd(pattern="ستارز$")
+async def stars_test(event):
+    """اختبار بسيط"""
     try:
-        # الحصول على المستخدم من الرد
-        if not event.reply_to_msg_id:
-            return await event.edit("**⚠️ يرجى الرد على المستخدم**")
-        
-        reply = await event.get_reply_message()
-        user_id = reply.sender_id
-        
-        # استخدام GetStarsStatusRequest الصحيح
         result = await event.client(GetStarsStatusRequest(
-            peer=await event.client.get_input_entity(user_id)
+            peer=await event.client.get_input_entity("me")  # تجربة على نفسك أولاً
         ))
-        
-        await event.edit(
-            f"**🎯 مستوى النجوم:**\n"
-            f"**• المستوى:** {result.level}\n"
-            f"**• النجوم الحالية:** {result.current_stars}\n"
-            f"**• الإجمالي:** {result.total_stars}\n"
-            f"**• المستلمة:** {result.stars_received}\n" 
-            f"**• المعطاة:** {result.stars_given}"
-        )
+        await event.edit(f"✅ المستوى: {result.level}")
     except Exception as e:
-        await event.edit(f"**❌ خطأ:** {e}")
+        await event.edit(f"❌ فشل: {e}")

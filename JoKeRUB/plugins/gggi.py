@@ -406,62 +406,70 @@ from telethon.tl.types import InputMediaPhoto
 @l313l.ar_cmd(
     pattern="ا(?: |$)(.*)",
     command=("ا", plugin_category),
-    info={
-        "header": "امـر مختصـر لـ عـرض معلومـات الشخـص",
-        "الاستـخـدام": " {tr}ا بالـرد او {tr}ا + معـرف/ايـدي الشخص",
-    },
 )
 async def who(event):
     "Gets info of an user"
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in Zed_Dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+    
     zed = await edit_or_reply(event, "⇆")
-    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
-        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
     replied_user = await get_user_from_event(event)
+    
     try:
         photo, caption = await fetch_info(replied_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
-    message_id_to_reply = event.message.reply_to_msg_id
-    if not message_id_to_reply:
-        message_id_to_reply = None
     
-    # إضافة الاقتباس مع الحفاظ على الإيموجي
     quoted_caption = f"<blockquote>{caption}</blockquote>"
     
-    if gvarstatus("ZID_TEMPLATE") is None:
-        try:
-            await event.client.send_file(
-                event.chat_id,
-                photo,
-                caption=quoted_caption,
-                link_preview=False,
-                force_document=False,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
+    try:
+        # دائماً إرسال الصورة مع التشويش في أمر .ا
+        if not photo.startswith("http"):
+            # رفع الصورة مع التشويش
+            uploaded_file = await event.client.upload_file(photo)
+            spoiler_media = InputMediaUploadedPhoto(
+                file=uploaded_file,
+                spoiler=True  # ✅ التشويش مفعل
             )
-            if not photo.startswith("http"):
-                os.remove(photo)
-            await zed.delete()
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
-    else:
-        try:
-            await event.client.send_file(
+            
+            # إرسال الصورة المشوشة
+            await event.client.send_message(
                 event.chat_id,
-                photo,
-                caption=quoted_caption,
-                link_preview=False,
-                force_document=False,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode
+                file=spoiler_media
             )
-            if not photo.startswith("http"):
-                os.remove(photo)
-            await zed.delete()
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
+        else:
+            # إذا كانت رابط، نحمله أولاً
+            import requests
+            response = requests.get(photo)
+            temp_file = "temp_profile.jpg"
+            with open(temp_file, 'wb') as f:
+                f.write(response.content)
+            
+            uploaded_file = await event.client.upload_file(temp_file)
+            spoiler_media = InputMediaUploadedPhoto(
+                file=uploaded_file,
+                spoiler=True  # ✅ التشويش مفعل
+            )
+            
+            await event.client.send_message(
+                event.chat_id,
+                file=spoiler_media
+            )
+            os.remove(temp_file)
+        
+        # إرسال المعلومات
+        await event.client.send_message(
+            event.chat_id,
+            quoted_caption,
+            parse_mode=CustomParseMode("html"),
+        )
+        
+        if not photo.startswith("http"):
+            os.remove(photo)
+        await zed.delete()
+        
+    except Exception as e:
+        await zed.edit(f"**خطأ:** {str(e)}")
 
 
 @l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")

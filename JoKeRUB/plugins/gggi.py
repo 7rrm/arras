@@ -593,81 +593,37 @@ async def comming(event):
             except MessageIdInvalidError:
                 pass
 
-from telethon.tl.functions.payments import GetStarsStatusRequest
-from telethon.tl.types import InputPeerSelf, InputPeerUser
-import time
+from telethon import events
+from ..services.telegram_stars_service import TelegramStarsService  # تأكد من استيراد الخدمة الصحيحة
 
+@l313l.ar_cmd(
+    pattern="مستوى(?: |$)(.*)",
+    command=("مستوى", plugin_category),
+    info={
+        "header": "لـ جلب مستوى النجوم للمستخدم",
+        "الاستخدام": "{tr}مستوى بالرد على المستخدم أو {tr}مستوى <معرف/اي دي>",
+    },
+)
+async def stars_level(event):
+    """جلب مستوى النجوم للمستخدم"""
+    zed = await edit_or_reply(event, "**- جـارِ جلب مستوى النجوم...**")
+    user = await get_user_from_event(event)  # احصل على المستخدم من الحدث
+    if not user:  # تحقق مما إذا كان المستخدم موجودًا
+        return await edit_or_reply(zed, "**- لـم أستطع العثــور على الشخــص؟!**")
 
-async def get_user_stars_level(client, user_id):
-    """
-    جلب مستوى ونجوم المستخدم
-    """
-    try:
-        # المحاولة الأولى: المستخدم نفسه
-        if user_id == (await client.get_me()).id:
-            result = await client(GetStarsStatusRequest(peer=InputPeerSelf()))
-        else:
-            # المحاولة الثانية: مستخدم آخر
-            entity = await client.get_entity(user_id)
-            peer = InputPeerUser(user_id=user_id, access_hash=entity.access_hash)
-            result = await client(GetStarsStatusRequest(peer=peer))
-        
-        return {
-            'success': True,
-            'level': result.level,
-            'current_stars': result.current_stars,
-            'total_stars': result.total_stars,
-            'stars_received': result.stars_received,
-            'stars_given': result.stars_given
-        }
-    except Exception as e:
-        return {
-            'success': False,
-            'error': str(e)
-        }
+    # استدعاء خدمة الحصول على مستوى النجوم
+    stars_info = await TelegramStarsService.get_stars_balance(user.id)
+    if stars_info and stars_info.get('success'):
+        level = stars_info.get('level', 'غير متوفر')
+        current_stars = stars_info.get('current_stars', 'غير متوفر')
+        total_stars = stars_info.get('total_stars', 'غير متوفر')
 
-
-@l313l.ar_cmd(pattern="مستوى$")
-async def userbot_stars_level(event):
-    """عرض مستوى النجوم لليوزر بوت"""
-    
-    zed = await edit_or_reply(event, "**🎯 جـاري جلب معلومـات النجوم...**")
-    
-    try:
-        # جلب معلومات النجوم
-        result = await event.client(GetStarsStatusRequest(
-            peer=await event.client.get_input_entity("me")
-        ))
-        
-        # التحقق من السماح الفعلي
-        me = await event.client.get_me()
-        message = f"**🎯 معلومات النجوم لـ {me.first_name}**\n\n"
-        
-        # إضافة السماح المتاحة فقط
-        if hasattr(result, 'balance'):
-            message += f"**• الرصيد:** {result.balance} ⭐\n"
-        
-        if hasattr(result, 'current_stars'):
-            message += f"**• النجوم الحالية:** {result.current_stars} ⭐\n"
-            
-        if hasattr(result, 'total_stars'):
-            message += f"**• الإجمالي:** {result.total_stars} 💫\n"
-            
-        if hasattr(result, 'stars_received'):
-            message += f"**• المستلمة:** {result.stars_received} 🎁\n"
-            
-        if hasattr(result, 'stars_given'):
-            message += f"**• المُهداة:** {result.stars_given} 🎀\n"
-        
-        # إذا لم يكن هناك مستوى، نضيف رسالة
-        if not hasattr(result, 'level'):
-            message += f"**• المستوى:** غير متاح 📊\n"
-        else:
-            message += f"**• المستوى:** {result.level} 📊\n"
-        
-        message += f"\n**🤖 نوع الحساب:** UserBot"
-        
-        await zed.edit(message)
-        
-    except Exception as e:
-        await zed.edit(f"**❌ لا يمكن جلب المعلومات:** {str(e)}")
+        response_message = (
+            f"**🎯 مستوى النجوم لـ {user.first_name}:**\n"
+            f"**• المستوى:** {level}\n"
+            f"**• النجوم الحالية:** {current_stars}\n"
+            f"**• الإجمالي:** {total_stars}\n"
+        )
+        await edit_or_reply(zed, response_message)
+    else:
+        return await edit_or_reply(zed, f"**❌ لا يمكن جلب مستوى النجوم:** {stars_info.get('error', 'خطأ غير معروف')}")

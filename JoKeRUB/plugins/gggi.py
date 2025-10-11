@@ -596,40 +596,29 @@ async def comming(event):
 from telethon.tl.functions.payments import GetStarsStatusRequest
 
 @l313l.ar_cmd(pattern="مستوى$")
-async def get_stars_level(event):
-    """عرض مستوى النجوم للمستخدم"""
+async def userbot_level(event):
+    """عرض مستوى اليوزر بوت"""
     try:
-        # الحصول على المستخدم المستهدف
-        if event.reply_to_msg_id:
-            reply = await event.get_reply_message()
-            user_id = reply.sender_id
-            user_entity = await event.client.get_input_entity(user_id)
-        else:
-            user_entity = await event.client.get_input_entity("me")
-        
-        # جلب حالة النجوم باستخدام الطريقة الصحيحة [citation:1]
+        # جلب مستوى اليوزر بوت (حسابك الشخصي)
         result = await event.client(GetStarsStatusRequest(
-            peer=user_entity
+            peer=await event.client.get_input_entity("me")
         ))
         
-        # بناء الرسالة
-        if event.reply_to_msg_id:
-            user = await reply.get_sender()
-            user_name = user.first_name or "المستخدم"
-        else:
-            user = await event.client.get_me()
-            user_name = user.first_name or "أنت"
-        
-        message = (
-            f"**🎯 مستوى النجوم لـ {user_name}:**\n\n"
+        await event.edit(
+            f"**🎯 مستوى اليوزر بوت:**\n\n"
             f"**• المستوى الحالي:** {result.level}\n"
-            f"**• عدد النجوم:** {result.current_stars}\n"
+            f"**• النجوم المتاحة:** {result.current_stars}\n"
             f"**• الإجمالي المكتسب:** {result.total_stars}\n"
             f"**• النجوم المستلمة:** {result.stars_received}\n"
-            f"**• النجوم المُهداة:** {result.stars_given}"
+            f"**• النجوم المُهداة:** {result.stars_given}\n\n"
+            f"**🤖 نوع الحساب:** UserBot"
         )
         
-        await event.edit(message)
-        
     except Exception as e:
-        await event.edit(f"**❌ حدث خطأ:** {str(e)}")
+        # إذا فشل جلب المستوى، عرض معلومات بديلة
+        await event.edit(
+            f"**🎯 مستوى اليوزر بوت:**\n\n"
+            f"**• المستوى:** غير متاح ❌\n"
+            f"**• السبب:** {str(e)}\n\n"
+            f"**💡 ملاحظة:** هذه الميزة قد تحتاج تفعيل في منطقتك"
+        )

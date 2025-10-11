@@ -596,29 +596,16 @@ async def comming(event):
 from telethon.tl.functions.payments import GetStarsStatusRequest
 
 @l313l.ar_cmd(pattern="مستوى$")
-async def userbot_level(event):
-    """عرض مستوى اليوزر بوت"""
+async def test_level(event):
+    """اختبار بسيط للمستوى"""
     try:
-        # جلب مستوى اليوزر بوت (حسابك الشخصي)
-        result = await event.client(GetStarsStatusRequest(
-            peer=await event.client.get_input_entity("me")
-        ))
+        await event.edit("🔄 جاري التحقق...")
         
-        await event.edit(
-            f"**🎯 مستوى اليوزر بوت:**\n\n"
-            f"**• المستوى الحالي:** {result.level}\n"
-            f"**• النجوم المتاحة:** {result.current_stars}\n"
-            f"**• الإجمالي المكتسب:** {result.total_stars}\n"
-            f"**• النجوم المستلمة:** {result.stars_received}\n"
-            f"**• النجوم المُهداة:** {result.stars_given}\n\n"
-            f"**🤖 نوع الحساب:** UserBot"
-        )
+        # محاولة مباشرة
+        me = await event.client.get_me()
+        result = await event.client(GetStarsStatusRequest(peer=me))
+        
+        await event.edit(f"✅ **المستوى:** {result.level} | **النجوم:** {result.current_stars}")
         
     except Exception as e:
-        # إذا فشل جلب المستوى، عرض معلومات بديلة
-        await event.edit(
-            f"**🎯 مستوى اليوزر بوت:**\n\n"
-            f"**• المستوى:** غير متاح ❌\n"
-            f"**• السبب:** {str(e)}\n\n"
-            f"**💡 ملاحظة:** هذه الميزة قد تحتاج تفعيل في منطقتك"
-        )
+        await event.edit(f"❌ **لا يعمل:** {str(e)}")

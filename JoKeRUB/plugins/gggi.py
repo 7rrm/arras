@@ -433,84 +433,36 @@ async def who(event):
     
     if gvarstatus("ZID_TEMPLATE") is None:
         try:
-            # إذا كانت الصورة مسار ملف، استخدم التشويش
-            if not photo.startswith("http"):
-                # رفع الصورة مع التشويش
-                uploaded_file = await event.client.upload_file(photo)
-                spoiler_media = InputMediaUploadedPhoto(
-                    file=uploaded_file,
-                    spoiler=True  # ✅ التشويش مفعل
-                )
-                
-                # إرسال الصورة المشوشة
-                photo_message = await event.client.send_message(
-                    event.chat_id,
-                    file=spoiler_media,
-                    reply_to=message_id_to_reply
-                )
-                
-                # إرسال المعلومات كرد على الصورة
-                await event.client.send_message(
-                    event.chat_id,
-                    quoted_caption,
-                    reply_to=photo_message.id,
-                    parse_mode=CustomParseMode("html"),
-                )
-            else:
-                # إذا كانت رابط، استخدم الطريقة العادية
-                await event.client.send_file(
-                    event.chat_id,
-                    photo,
-                    caption=quoted_caption,
-                    link_preview=False,
-                    force_document=False,
-                    reply_to=message_id_to_reply,
-                    parse_mode=CustomParseMode("html"),
-                )
-            
+            await event.client.send_file(
+                event.chat_id,
+                photo,
+                caption=quoted_caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("html"),
+                spoiler=True  # ✅ إضافة التشويش هنا
+            )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
-            
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
     else:
         try:
-            # نفس المنطق للقالب المخصص
-            if not photo.startswith("http"):
-                uploaded_file = await event.client.upload_file(photo)
-                spoiler_media = InputMediaUploadedPhoto(
-                    file=uploaded_file,
-                    spoiler=True  # ✅ التشويش مفعل
-                )
-                
-                photo_message = await event.client.send_message(
-                    event.chat_id,
-                    file=spoiler_media,
-                    reply_to=message_id_to_reply
-                )
-                
-                await event.client.send_message(
-                    event.chat_id,
-                    quoted_caption,
-                    reply_to=photo_message.id,
-                    parse_mode=CustomParseMode("html"),
-                )
-            else:
-                await event.client.send_file(
-                    event.chat_id,
-                    photo,
-                    caption=quoted_caption,
-                    link_preview=False,
-                    force_document=False,
-                    reply_to=message_id_to_reply,
-                    parse_mode=CustomParseMode("html"),
-                )
-            
+            await event.client.send_file(
+                event.chat_id,
+                photo,
+                caption=quoted_caption,
+                link_preview=False,
+                force_document=False,
+                reply_to=message_id_to_reply,
+                parse_mode=CustomParseMode("html"),
+                spoiler=True  # ✅ إضافة التشويش هنا
+            )
             if not photo.startswith("http"):
                 os.remove(photo)
             await zed.delete()
-            
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 

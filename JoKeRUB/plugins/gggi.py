@@ -729,7 +729,7 @@ async def zelzalll(event):
 from telethon.tl.types import MessageEntityCustomEmoji
 
 @l313l.ar_cmd(
-    pattern="جلب_ايموجي$",
+    pattern="ايموجي$",
     command=("جلب_ايموجي", plugin_category),
     info={
         "header": "جلب معرف الإيموجي",

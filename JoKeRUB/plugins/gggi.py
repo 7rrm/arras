@@ -165,36 +165,20 @@ async def get_gifts_count(client, user_id: int) -> dict:
 
 from telethon.tl.functions.users import GetFullUserRequest
 
-async def get_user_rating(client, user_id):
+async def get_user_level(client, user_id):
     """
-    جلب تقييم النجوم والمستوى للمستخدم
+    جلب مستوى المستخدم - بدون قيمة افتراضية
     """
     try:
         full_user = await client(GetFullUserRequest(user_id))
         stars_rating = getattr(full_user.full_user, 'stars_rating', None)
         
         if stars_rating is not None:
-            return {
-                'success': True,
-                'has_rating': True,
-                'level': stars_rating.level,                    # ✅ المستوى
-                'stars': stars_rating.stars,                    # ✅ النجوم
-                'current_level_stars': stars_rating.current_level_stars, # ✅ نجوم المستوى
-                'next_level_stars': stars_rating.next_level_stars,       # ✅ المستوى التالي
-                'raw_data': stars_rating                        # ✅ البيانات الخام
-            }
+            return stars_rating.level  # ✅ إرجاع المستوى الحقيقي
         else:
-            return {
-                'success': True,
-                'has_rating': False,
-                'message': "لا توجد نقاط تقييم"
-            }
-    except Exception as e:
-        return {
-            'success': False,
-            'error': str(e),
-            'message': f"حدث خطأ: {str(e)}"
-        }
+            return None  # ✅ لا يوجد مستوى (بدون قيمة افتراضية)
+    except Exception:
+        return None  # ✅ لا يوجد مستوى (بدون قيمة افتراضية)
         
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
@@ -245,14 +229,6 @@ async def fetch_info(replied_user, event):
     first_name = replied_user.first_name
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name
-    rating_info = await get_user_rating(event.client, user_id)
-    
-    # تحديد الرسالة مرة واحدة
-    if rating_info['success'] and rating_info['has_rating']:
-        level_message = str(rating_info['level'])  # ✅ المستوى الحقيقي
-    else:
-        level_message = rating_info.get('message', 'لا يوجد مستوى')  # ✅ الرسالة الجاهزة
-    
     common_chat = FullUser.common_chats_count
     username = replied_user.username
     user_bio = FullUser.about
@@ -294,6 +270,7 @@ async def fetch_info(replied_user, event):
         else ("هذا المستخدم ليس له اسم أول")
     )
     #full_name = full_name or first_name
+    user_level = await get_user_level(event.client, user_id)
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
@@ -362,7 +339,10 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count} "
                 caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'
-                caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
+                if user_level is not None:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ {user_level} 📊</b>\n"
+            else:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ لا يوجد 🚫</b>\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -394,7 +374,10 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
-                caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
+                if user_level is not None:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ {user_level} 📊</b>\n"
+            else:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ لا يوجد 🚫</b>\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -417,7 +400,10 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
-            caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
+            if user_level is not None:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ {user_level} 📊</b>\n"
+            else:
+                caption += f"<b>{ZEDM}المستــوى   ⤎ لا يوجد 🚫</b>\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
@@ -436,7 +422,7 @@ async def fetch_info(replied_user, event):
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
             zgft=gifts_count,
-            zlvl=level_message,
+            zlvl=user_level if user_level is not None else "لا يوجد",  # أضف هذا
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,

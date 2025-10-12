@@ -49,49 +49,33 @@ async def joker_toggle(event):
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
-    # التحقق من وجود نص في الرسالة
-    if not event.message.text:
+    if not event.message.text or event.message.media or event.message.text.startswith('.'):
         return
     
-    # تجاهل الرسائل التي تحتوي على وسائط (صور/فيديو/إلخ)
-    if event.message.media:
-        return
-        
-    text = event.message.text
-    
-    # تجاهل الأوامر التي تبدأ بنقطة
-    if text.startswith('.'):
-        return
-    
-    # التحقق من وجود نمط تنسيق مفعل
-    format_entity = None
-    
+    format_type = None
     if gvarstatus("bold"):
-        format_entity = MessageEntityBold(offset=0, length=len(text))
+        format_type = MessageEntityBold
     elif gvarstatus("tshwesh"):
-        format_entity = MessageEntityStrike(offset=0, length=len(text))
+        format_type = MessageEntityStrike
     elif gvarstatus("ramz"):
-        format_entity = MessageEntityCode(offset=0, length=len(text))
+        format_type = MessageEntityCode
     elif gvarstatus("joker"):
-        format_entity = MessageEntityPre(offset=0, length=len(text), language="")
+        format_type = lambda: MessageEntityPre(offset=0, length=len(event.message.text), language="")
     
-    # إذا لم يكن هناك تنسيق مفعل، لا تفعل شيء
-    if not format_entity:
+    if not format_type:
         return
     
-    # الحصول على جميع الـ entities الأصلية (بما في ذلك الإيموجيات المخصصة)
-    original_entities = []
-    if event.message.entities:
-        original_entities = list(event.message.entities)
+    entities = list(event.message.entities) if event.message.entities else []
     
-    # دمج entity التنسيق مع الـ entities الأصلية
-    # نضع entity التنسيق أولاً لأنه يغطي كامل النص
-    all_entities = [format_entity] + original_entities
+    # إنشاء entity التنسيق
+    if format_type == MessageEntityPre:
+        format_entity = format_type()
+    else:
+        format_entity = format_type(offset=0, length=len(event.message.text))
+    
+    entities.insert(0, format_entity)
     
     try:
-        # تحديث الرسالة مع الحفاظ على جميع الـ entities
-        await event.edit(text, formatting_entities=all_entities)
-    except Exception as e:
-        # في حالة حدوث خطأ، يمكنك طباعة الخطأ للتشخيص
-        # أو تجاهله بصمت
+        await event.message.edit(event.message.text, formatting_entities=entities, parse_mode=None)
+    except:
         pass

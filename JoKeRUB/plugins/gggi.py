@@ -605,20 +605,51 @@ async def get_stars_level(client, user_id):
         # استدعاء الدالة للحصول على حالة النجوم
         stars_status = await client(GetStarsStatusRequest(peer=input_peer))
         
-        # استرجاع المستوى والرصيد
-        balance = stars_status.balance
-        level = stars_status.level  # تأكد من أن هذه الخاصية موجودة في النتيجة
-        
-        return {
-            'balance': balance,
-            'level': level,
-            'next_level': stars_status.next_level if hasattr(stars_status, 'next_level') else None,
+        # استرجاع البيانات مع التحقق من وجودها
+        result = {
+            'success': True,
+            'balance': getattr(stars_status, 'balance', 0),
+            'current_stars': getattr(stars_status, 'current_stars', 0),
+            'total_stars': getattr(stars_status, 'total_stars', 0),
         }
+        
+        # إضافة level فقط إذا كانت موجودة
+        if hasattr(stars_status, 'level'):
+            result['level'] = stars_status.level
+        
+        # إضافة الحقول الأخرى إذا كانت موجودة
+        optional_fields = ['stars_received', 'stars_given', 'next_level_stars']
+        for field in optional_fields:
+            if hasattr(stars_status, field):
+                result[field] = getattr(stars_status, field)
+        
+        return result
+        
     except Exception as e:
-        return f"حدث خطأ: {str(e)}"
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
-# استخدام الدالة
-# client هو عميل Telethon الذي قمت بإنشائه
-user_id = "username_or_user_id"  # استبدل بـ اسم المستخدم أو معرف المستخدم
-status = await get_stars_level(client, user_id)
-print(status)
+@l313l.ar_cmd(pattern="نجومي$")
+async def my_stars(event):
+    """جلب مستوى النجوم"""
+    try:
+        user_id = event.sender_id
+        stars_info = await get_stars_level(event.client, user_id)
+        
+        if stars_info['success']:
+            message = f"**⭐ معلومات نجومك:**\n"
+            
+            if 'level' in stars_info:
+                message += f"**• المستوى:** {stars_info['level']}\n"
+            
+            message += f"**• الرصيد:** {stars_info['balance']} ⭐\n"
+            message += f"**• الإجمالي:** {stars_info['total_stars']} 💫"
+            
+            await event.edit(message)
+        else:
+            await event.edit(f"**❌ خطأ:** {stars_info['error']}")
+            
+    except Exception as e:
+        await event.edit(f"**❌ حدث خطأ:** {str(e)}")

@@ -726,33 +726,34 @@ async def zelzalll(event):
         await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode="html")
 
 @l313l.ar_cmd(
-    pattern="ايدي_ايموجي (.+)$",  # تعديل النمط لاستقبال الإيموجي
+    pattern="ايموجي$",
     command=("ايدي_ايموجي", plugin_category),
     info={
-        "header": "جلب ايدي الإيموجي البريميوم للمستخدم",
-        "الاستخدام": "{tr}ايدي_ايموجي <emoji_id> بالرد على المستخدم",
+        "header": "جلب ايدي الإيموجي البريميوم",
+        "الاستخدام": "{tr}ايدي_ايموجي بالرد على الإيموجي",
     },
 )
 async def get_emoji_id(event):
-    replied_user = await event.get_reply_message()
-    if not replied_user:
-        return await edit_delete(event, "**⚠️ يرجى الرد على المستخدم**", time=10)
-
-    # استخراج معرف الإيموجي من الأمر
-    emoji_id = event.pattern_match.group(1).strip()  # الحصول على الإيموجي من الأمر
-
+    replied_message = await event.get_reply_message()
+    if not replied_message:
+        return await edit_delete(event, "**⚠️ يرجى الرد على الإيموجي**", time=10)
+    
     try:
-        user = await event.client.get_entity(replied_user.sender_id)
-        if user.premium and user.emoji_status:
-            # يمكنك استخدام المعرف الذي تم توفيره مع الأمر
-            await edit_or_reply(
-                event,
-                f"**🎟 ايدي الإيموجي البريميوم لـ [{user.first_name}](tg://user?id={user.id}):**\n"
-                f"`{emoji_id}`\n"  # استخدام معرف الإيموجي المدخل
-                f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>`"
-            )
+        # استخراج معرف الإيموجي من الرسالة
+        if replied_message.entities:
+            emoji_entity = replied_message.entities[0]  # الحصول على الكيان الأول
+            if isinstance(emoji_entity, types.MessageEntityCustomEmoji):
+                emoji_id = emoji_entity.document_id
+                await edit_or_reply(
+                    event,
+                    f"**🎟 ايدي الإيموجي:**\n"
+                    f"`{emoji_id}`\n"
+                    f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>"
+                )
+            else:
+                await edit_or_reply(event, "**❌ الرد ليس على إيموجي مخصص**")
         else:
-            await edit_or_reply(event, "**❌ هذا المستخدم ليس لديه إيموجي بريميوم**")
+            await edit_or_reply(event, "**❌ لا توجد كائنات في الرسالة**")
     except Exception as e:
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
 

@@ -1,63 +1,62 @@
 from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, InputDocument
+from telethon.tl.types import InputWallPaper, WallPaperSettings
+from telethon.tl.types import InputDocument, DocumentAttributeFilename
 import requests
 import os
 
 async def set_blurred_wallpaper_auto(client, peer):
     """
-    طريقة بديلة لتعيين الخلفية
+    إصفح مبسط باستخدام خلفية افتراضية من التيليجرام
     """
     try:
-        wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
-        
-        # تحميل الصورة
-        response = requests.get(wallpaper_url)
-        if response.status_code != 200:
-            return False
-        
-        # حفظ مؤقت
-        temp_file = "temp_wall.jpg"
-        with open(temp_file, 'wb') as f:
-            f.write(response.content)
-        
-        # محاولة برفع الصورة كملف وسائط أولاً
-        message = await client.send_file(peer, temp_file)
-        
-        # ثم استخدام SetChatWallPaperRequest
+        # استخدام خلفية افتراضية من التيليجرام مع ضبابية
         await client(SetChatWallPaperRequest(
             peer=peer,
             wallpaper=InputWallPaper(
-                id=0,
-                access_hash=0
+                id=123456789,  # ID خلفية افتراضية
+                access_hash=123456789
             ),
             settings=WallPaperSettings(
                 blur=True,
                 motion=False,
-                background_color=0x000000,
-                intensity=70
+                background_color=0x1E1E1E,  # لون رمادي غامق
+                intensity=60
             )
         ))
         
-        # حذف الرسالة المؤقتة والملف
-        await message.delete()
-        os.remove(temp_file)
+        print("✅ تم تعيين الخلفية الضبابية بنجاح")
         return True
         
     except Exception as e:
         print(f"❌ خطأ: {e}")
-        return False
-
+        
+        # محاولة بديلة باستخدام لون خلفية فقط
+        try:
+            await client(SetChatWallPaperRequest(
+                peer=peer,
+                wallpaper=InputWallPaper(
+                    id=0,
+                    access_hash=0
+                ),
+                settings=WallPaperSettings(
+                    blur=False,
+                    motion=False,
+                    background_color=0x1E1E1E,  # لون خلفية
+                    intensity=0
+                )
+            ))
+            return True
+        except:
+            return False
 
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_wallpaper_on_private_message(event):
     """
     تعيين خلفية تلقائية مع ضبابية عند استقبال رسالة خاصة
     """
-    # التحقق من أن المرسل ليس البوت نفسه
     if event.sender_id == (await event.client.get_me()).id:
         return
     
-    # التحقق من أن الرسالة في دردشة خاصة
     if event.is_private:
         try:
             print(f"🔄 محاولة تعيين خلفية لـ {event.sender_id}")

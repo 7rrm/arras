@@ -631,6 +631,7 @@ async def get_stars_level(client, user_id):
             'error': str(e)
         }
 
+
 @l313l.ar_cmd(pattern="نجومي$")
 async def my_stars(event):
     """جلب مستوى النجوم"""

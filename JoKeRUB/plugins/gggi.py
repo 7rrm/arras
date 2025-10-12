@@ -234,16 +234,6 @@ async def fetch_info(replied_user, event):
     replied_user_profile_photos = await event.client(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
-    # أضف هذا: جلب معلومات التقييم
-rating_info = await get_user_rating(event.client, user_id)
-
-# تحديد المستوى والرسالة
-if rating_info['success'] and rating_info['has_rating']:
-    user_level = rating_info['level']  # ✅ المستوى الحقيقي
-    level_message = str(user_level)    # ✅ تحويل المستوى لنص
-else:
-    user_level = None
-    level_message = rating_info['message']  # ✅ استخدام الرسالة الجاهزة "لا توجد نقاط تقييم"
     replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
     dc_id = "Can't get dc id"
     with contextlib.suppress(AttributeError):
@@ -255,6 +245,14 @@ else:
     first_name = replied_user.first_name
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name
+    rating_info = await get_user_rating(event.client, user_id)
+    
+    # تحديد الرسالة مرة واحدة
+    if rating_info['success'] and rating_info['has_rating']:
+        level_message = str(rating_info['level'])  # ✅ المستوى الحقيقي
+    else:
+        level_message = rating_info.get('message', 'لا يوجد مستوى')  # ✅ الرسالة الجاهزة
+    
     common_chat = FullUser.common_chats_count
     username = replied_user.username
     user_bio = FullUser.about
@@ -438,7 +436,7 @@ else:
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
             zgft=gifts_count,
-            zlvl=level_message,  # ✅ استخدام الرسالة الجاهزة
+            zlvl=level_message,
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,

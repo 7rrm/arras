@@ -1,12 +1,5 @@
 from telethon import events
-from telethon.tl.types import (
-    MessageEntityBold, 
-    MessageEntityStrike, 
-    MessageEntityCode, 
-    MessageEntityPre,
-    MessageEntityCustomEmoji
-)
-from telethon.tl.functions.messages import EditMessageRequest
+from telethon.tl.types import MessageEntityBold, MessageEntityStrike, MessageEntityCode, MessageEntityPre
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.managers import edit_delete
@@ -49,65 +42,35 @@ async def joker_toggle(event):
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
-    if not event.message.text:
-        return
-    
-    if event.message.media:
+    if not event.message.text or event.message.media:
         return
         
     text = event.message.text
     
-    if text.startswith('.'):
+    # تجاهل الأوامر
+    if text.startswith('.') or '.' in text[:-1]:
         return
     
-    # تحديد نوع التنسيق المطلوب
-    format_type = None
+    # الحصول على الـ entities الأصلية (تشمل الإيموجيات المخصصة)
+    original_entities = list(event.message.entities or [])
+    
+    # إنشاء entity جديد للتنسيق
+    new_entity = None
     
     if gvarstatus("bold"):
-        format_type = "bold"
+        new_entity = MessageEntityBold(offset=0, length=len(text))
     elif gvarstatus("tshwesh"):
-        format_type = "strike"
+        new_entity = MessageEntityStrike(offset=0, length=len(text))
     elif gvarstatus("ramz"):
-        format_type = "code"
+        new_entity = MessageEntityCode(offset=0, length=len(text))
     elif gvarstatus("joker"):
-        format_type = "pre"
+        new_entity = MessageEntityPre(offset=0, length=len(text), language="")
     
-    if not format_type:
-        return
-    
-    # جمع جميع الـ entities الأصلية
-    entities = []
-    if event.message.entities:
-        entities = list(event.message.entities)
-    
-    # إضافة entity التنسيق في البداية
-    if format_type == "bold":
-        entities.insert(0, MessageEntityBold(offset=0, length=len(text)))
-    elif format_type == "strike":
-        entities.insert(0, MessageEntityStrike(offset=0, length=len(text)))
-    elif format_type == "code":
-        entities.insert(0, MessageEntityCode(offset=0, length=len(text)))
-    elif format_type == "pre":
-        entities.insert(0, MessageEntityPre(offset=0, length=len(text), language=""))
-    
-    try:
-        # استخدام EditMessageRequest مباشرة
-        await event.client(EditMessageRequest(
-            peer=event.chat_id,
-            id=event.message.id,
-            message=text,
-            entities=entities,
-            no_webpage=True
-        ))
-    except Exception as e:
-        # إذا فشل، جرب الطريقة البديلة
+    if new_entity:
+        # دمج الـ entities الجديدة مع القديمة
+        all_entities = [new_entity] + original_entities
+        
         try:
-            await event.client.edit_message(
-                event.chat_id,
-                event.message.id,
-                text,
-                formatting_entities=entities,
-                link_preview=False
-            )
+            await event.edit(text, formatting_entities=all_entities)
         except:
             pass

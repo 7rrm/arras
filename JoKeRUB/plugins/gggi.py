@@ -743,10 +743,15 @@ async def get_emoji_id(event):
         user = await event.client.get_entity(replied_user.sender_id)
         if user.premium and user.emoji_status:
             emoji_id = user.emoji_status.document_id
+            # الحصول على كود الإيموجي لعرضه
+            emoji_entity = user.emoji_status
+            emoji_text = f"<emoji document_id='{emoji_id}'>🌟</emoji>"
+            
             await edit_or_reply(
                 event,
                 f"**🎟 ايدي الإيموجي البريميوم لـ [{user.first_name}](tg://user?id={user.id}):**\n"
-                f"`{emoji_id}`\n"
+                f"**الإيموجي:** {emoji_text}\n"
+                f"**الآيدي:** `{emoji_id}`\n"
                 f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>`"
             )
         else:

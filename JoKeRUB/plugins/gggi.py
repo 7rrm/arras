@@ -602,18 +602,30 @@ async def get_user_stars_rating(client, user_id):
         stars_rating = getattr(full_user.full_user, 'stars_rating', None)
         
         if stars_rating is not None:
+            # حساب النجوم المتبقية بشكل صحيح
+            stars_needed = stars_rating.next_level_stars - stars_rating.current_level_stars
+            
+            # حساب نسبة التقدم بشكل صحيح
+            progress_percentage = (stars_rating.current_level_stars / stars_rating.next_level_stars) * 100
+            
             return {
                 'success': True,
-                'level': stars_rating.level,                          # المستوى
-                'current_level_stars': stars_rating.current_level_stars, # نجوم المستوى الحالي
-                'total_stars': stars_rating.stars,                    # النجوم الإجمالية
-                'next_level_stars': stars_rating.next_level_stars,    # نجوم المستوى التالي
-                'progress_percentage': (stars_rating.current_level_stars / stars_rating.next_level_stars) * 100  # نسبة التقدم
+                'level': stars_rating.level,
+                'current_level_stars': stars_rating.current_level_stars,
+                'total_stars': stars_rating.stars,
+                'next_level_stars': stars_rating.next_level_stars,
+                'stars_needed': stars_needed,  # النجوم المتبقية
+                'progress_percentage': progress_percentage
             }
         else:
             return {
                 'success': True, 
-                'level': 0,
+                'level': 1,
+                'current_level_stars': 0,
+                'total_stars': 0,
+                'next_level_stars': 5000,
+                'stars_needed': 5000,
+                'progress_percentage': 0,
                 'has_rating': False
             }
             
@@ -626,10 +638,6 @@ async def get_user_stars_rating(client, user_id):
 @l313l.ar_cmd(
     pattern="مستوى(?: |$)(.*)",
     command=("مستوى", plugin_category),
-    info={
-        "header": "لـ جلب مسـتوى ونجـوم المسـتخدم",
-        "الاستخدام": "{tr}مستوى <username/userid/reply>",
-    },
 )
 async def stars_level(event):
     zed = await edit_or_reply(event, "**📊 جـاري جلب المسـتوى...**")
@@ -640,9 +648,9 @@ async def stars_level(event):
     
     rating_info = await get_user_stars_rating(event.client, user.id)
     
-    if rating_info['success'] and rating_info['level'] > 0:
-        # حساب النجوم المتبقية للمستوى التالي
-        stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
+    if rating_info['success']:
+        # استخدام النجوم المتبقية المحسوبة مسبقاً
+        stars_needed = rating_info['stars_needed']
         
         # شريط التقدم
         progress_bar = "█" * int(rating_info['progress_percentage'] / 10) + "▒" * (10 - int(rating_info['progress_percentage'] / 10))
@@ -659,4 +667,4 @@ async def stars_level(event):
         
         await zed.edit(message)
     else:
-        await zed.edit(f"**📊 {user.first_name} ليس لديه مستوى بعد**")
+        await zed.edit(f"**❌ خطأ:** {rating_info['error']}")

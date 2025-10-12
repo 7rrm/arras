@@ -1,54 +1,77 @@
-import asyncio
-import contextlib
-import re
-import html
-import shutil
-from io import BytesIO
-import os
-import base64
+from telethon import events
+from telethon.tl.functions.messages import SetChatWallPaperRequest
+from telethon.tl.types import InputWallPaper, WallPaperSettings
 import requests
-from requests import get
-from telethon.tl.functions.messages import ImportChatInviteRequest as Get
-from telethon.tl.types import MessageEntityMentionName, EmojiStatusEmpty, InputWallPaper
-from telethon.tl.functions.photos import GetUserPhotosRequest
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.utils import pack_bot_file_id
-from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
-from telethon import events, types
-from telethon.extensions import markdown, html
-from . import l313l
-from ..Config import Config
-from ..utils import Zed_Vip, Zed_Dev
-from ..helpers import reply_id
-from ..helpers.utils import _format
-from ..core.logger import logging
-from ..core.managers import edit_or_reply, edit_delete
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
-from . import BOTLOG, BOTLOG_CHATID, spamwatch
+import os
 
-plugin_category = "utils"
-LOGS = logging.getLogger(__name__)
-
-# بقية الكود هنا...
+async def set_blurred_wallpaper_auto(client, peer):
+    """
+    تعيين الخلفية مع ضبابية تلقائياً لأي شخص يراسلك
+    """
+    try:
+        # رابط الصورة الثابت
+        wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
+        
+        # تحميل الصورة من الرابط
+        response = requests.get(wallpaper_url)
+        if response.status_code != 200:
+            print("❌ فشل في تحميل الصورة")
+            return False
+        
+        # حفظ الصورة مؤقتاً
+        temp_file = "temp_auto_wallpaper.jpg"
+        with open(temp_file, 'wb') as f:
+            f.write(response.content)
+        
+        # رفع الصورة كملف
+        uploaded_file = await client.upload_file(temp_file)
+        
+        # استخدام InputWallPaper مباشرة
+        await client(SetChatWallPaperRequest(
+            peer=peer,
+            wallpaper=InputWallPaper(
+                id=uploaded_file.id,  # استخدام ID من الصورة المرفوعة حديثاً
+                access_hash=uploaded_file.access_hash
+            ),
+            settings=WallPaperSettings(
+                blur=True,        # ✅ تفعيل الضبابية
+                motion=False,
+                background_color=0x000000,
+                intensity=70      # ✅ شدة الضبابية
+            )
+        ))
+        
+        # حذف الملف المؤقت
+        os.remove(temp_file)
+        print("✅ تم تعيين الخلفية بنجاح")
+        return True
+        
+    except Exception as e:
+        print(f"❌ خطأ في تعيين الخلفية: {e}")
+        return False
 
 @l313l.on(events.NewMessage(incoming=True))
-async def set_wallpaper(event):
-    # تحميل الصورة من الرابط
-    response = requests.get("https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg")
-    image = BytesIO(response.content)
+async def auto_wallpaper_on_private_message(event):
+    """
+    تعيين خلفية تلقائية مع ضبابية عند استقبال رسالة خاصة
+    """
+    # التحقق من أن المرسل ليس البوت نفسه
+    if event.sender_id == (await event.client.get_me()).id:
+        return
     
-    # رفع الصورة إلى Telegram
-    uploaded = await event.client.upload_file(image, file_name="wallpaper.jpg")
-    
-    # تعيين الخلفية مع تأثير ضبابي
-    wallpaper = InputWallPaper(id=1, 
-                                file=InputFile(id=uploaded.id, 
-                                               access_hash=uploaded.access_hash, 
-                                               file_reference=uploaded.file_reference), 
-                                title="My Wallpaper", 
-                                caption="Background with Blur", 
-                                color=None)
-    
-    # تعيين الخلفية للمحادثة
-    await event.client(SetChatWallPaperRequest(event.chat_id, wallpaper, 0))  # 0 تعني عدم استخدام تأثيرات إضافية
+    # التحقق من أن الرسالة في دردشة خاصة
+    if event.is_private:
+        try:
+            print(f"🔄 محاولة تعيين خلفية لـ {event.sender_id}")
+            success = await set_blurred_wallpaper_auto(
+                event.client, 
+                await event.get_input_chat()
+            )
+            
+            if success:
+                print(f"✅ تم تعيين خلفية ضبابية لـ {event.sender_id}")
+            else:
+                print(f"❌ فشل تعيين خلفية لـ {event.sender_id}")
+                
+        except Exception as e:
+            print(f"❌ خطأ في الخلفية التلقائية: {e}")

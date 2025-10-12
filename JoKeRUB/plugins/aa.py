@@ -3,6 +3,7 @@ import contextlib
 import re
 import html
 import shutil
+from io import BytesIO
 import os
 import base64
 import requests

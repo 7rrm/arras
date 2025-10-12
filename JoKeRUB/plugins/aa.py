@@ -50,7 +50,6 @@ async def set_blurred_wallpaper_auto(client, peer):
         return False
 
 
-
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_wallpaper_on_private_message(event):
     """

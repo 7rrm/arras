@@ -596,28 +596,67 @@ async def comming(event):
 
 from telethon.tl.functions.users import GetFullUserRequest
 
-async def get_user_rating(client, user_id):
+async def get_user_stars_rating(client, user_id):
     try:
         full_user = await client(GetFullUserRequest(user_id))
         stars_rating = getattr(full_user.full_user, 'stars_rating', None)
-        return stars_rating if stars_rating is not None else "لا توجد نقاط تقييم"
+        
+        if stars_rating is not None:
+            return {
+                'success': True,
+                'level': stars_rating.level,                          # المستوى
+                'current_level_stars': stars_rating.current_level_stars, # نجوم المستوى الحالي
+                'total_stars': stars_rating.stars,                    # النجوم الإجمالية
+                'next_level_stars': stars_rating.next_level_stars,    # نجوم المستوى التالي
+                'progress_percentage': (stars_rating.current_level_stars / stars_rating.next_level_stars) * 100  # نسبة التقدم
+            }
+        else:
+            return {
+                'success': True, 
+                'level': 0,
+                'has_rating': False
+            }
+            
     except Exception as e:
-        return f"حدث خطأ: {str(e)}"
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 @l313l.ar_cmd(
-    pattern="تقييم(?: |$)(.*)",
-    command=("تقييم", plugin_category),
+    pattern="مستوى(?: |$)(.*)",
+    command=("مستوى", plugin_category),
     info={
-        "header": "لـ جلب نقاط تقييم المستخدم",
-        "الاستخدام": "{tr}تقييم <username/userid/reply>",
+        "header": "لـ جلب مسـتوى ونجـوم المسـتخدم",
+        "الاستخدام": "{tr}مستوى <username/userid/reply>",
     },
 )
-async def rating(event):
+async def stars_level(event):
+    zed = await edit_or_reply(event, "**📊 جـاري جلب المسـتوى...**")
+    
     user = await get_user_from_event(event)
     if not user:
-        return await edit_or_reply(event, "**⚠️ يرجى الرد على المستخدم أو تحديده**")
+        return await zed.edit("**⚠️ يرجى الرد على المستخدم أو تحديده**")
     
-    rating_value = await get_user_rating(event.client, user.id)
-    await edit_or_reply(event, f"**نقاط تقييم {user.first_name}:** {rating_value}")
-
-
+    rating_info = await get_user_stars_rating(event.client, user.id)
+    
+    if rating_info['success'] and rating_info['level'] > 0:
+        # حساب النجوم المتبقية للمستوى التالي
+        stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
+        
+        # شريط التقدم
+        progress_bar = "█" * int(rating_info['progress_percentage'] / 10) + "▒" * (10 - int(rating_info['progress_percentage'] / 10))
+        
+        message = (
+            f"**🎯 مستوى {user.first_name}**\n\n"
+            f"**• المستوى الحالي:** {rating_info['level']} 📊\n"
+            f"**• النجوم الإجمالية:** {rating_info['total_stars']:,} ⭐\n"
+            f"**• تقدم المستوى:** {progress_bar} {rating_info['progress_percentage']:.1f}%\n"
+            f"**• نجوم المستوى:** {rating_info['current_level_stars']:,} / {rating_info['next_level_stars']:,} 💫\n"
+            f"**• المتبقي للمستوى {rating_info['level'] + 1}:** {stars_needed:,} ⭐\n\n"
+            f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
+        )
+        
+        await zed.edit(message)
+    else:
+        await zed.edit(f"**📊 {user.first_name} ليس لديه مستوى بعد**")

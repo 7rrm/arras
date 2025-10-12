@@ -162,6 +162,39 @@ async def get_gifts_count(client, user_id: int) -> dict:
             'can_show_all': False,
             'error': "لا يمكن الوصول إلى الهدايا"
         }
+
+from telethon.tl.functions.users import GetFullUserRequest
+
+async def get_user_rating(client, user_id):
+    """
+    جلب تقييم النجوم والمستوى للمستخدم
+    """
+    try:
+        full_user = await client(GetFullUserRequest(user_id))
+        stars_rating = getattr(full_user.full_user, 'stars_rating', None)
+        
+        if stars_rating is not None:
+            return {
+                'success': True,
+                'has_rating': True,
+                'level': stars_rating.level,                    # ✅ المستوى
+                'stars': stars_rating.stars,                    # ✅ النجوم
+                'current_level_stars': stars_rating.current_level_stars, # ✅ نجوم المستوى
+                'next_level_stars': stars_rating.next_level_stars,       # ✅ المستوى التالي
+                'raw_data': stars_rating                        # ✅ البيانات الخام
+            }
+        else:
+            return {
+                'success': True,
+                'has_rating': False,
+                'message': "لا توجد نقاط تقييم"
+            }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e),
+            'message': f"حدث خطأ: {str(e)}"
+        }
         
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
@@ -201,6 +234,16 @@ async def fetch_info(replied_user, event):
     replied_user_profile_photos = await event.client(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
+    # أضف هذا: جلب معلومات التقييم
+rating_info = await get_user_rating(event.client, user_id)
+
+# تحديد المستوى والرسالة
+if rating_info['success'] and rating_info['has_rating']:
+    user_level = rating_info['level']  # ✅ المستوى الحقيقي
+    level_message = str(user_level)    # ✅ تحويل المستوى لنص
+else:
+    user_level = None
+    level_message = rating_info['message']  # ✅ استخدام الرسالة الجاهزة "لا توجد نقاط تقييم"
     replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
     dc_id = "Can't get dc id"
     with contextlib.suppress(AttributeError):
@@ -321,6 +364,7 @@ async def fetch_info(replied_user, event):
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count} "
                 caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'
+                caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
                 caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
@@ -352,6 +396,7 @@ async def fetch_info(replied_user, event):
                         caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
                 caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
                 caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+                caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
                 caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
                 caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
@@ -374,6 +419,7 @@ async def fetch_info(replied_user, event):
                     caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ</b>\n"
             caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
             caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count}  🎁\n"
+            caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
             caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n"
             caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
             if user_id != (await event.client.get_me()).id: 
@@ -392,6 +438,7 @@ async def fetch_info(replied_user, event):
             zvip=zvip,
             zpic=replied_user_profile_photos_count,
             zgft=gifts_count,
+            zlvl=level_message,  # ✅ استخدام الرسالة الجاهزة
             zmsg=zzz,
             ztmg=zelzzz,
             zcom=common_chat,
@@ -592,102 +639,3 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
-
-
-from telethon.tl.functions.users import GetFullUserRequest
-
-async def get_user_rating(client, user_id):
-    """
-    جلب تقييم النجوم والمستوى للمستخدم
-    """
-    try:
-        full_user = await client(GetFullUserRequest(user_id))
-        stars_rating = getattr(full_user.full_user, 'stars_rating', None)
-        
-        if stars_rating is not None:
-            return {
-                'success': True,
-                'has_rating': True,
-                'level': stars_rating.level,                    # ✅ المستوى
-                'stars': stars_rating.stars,                    # ✅ النجوم
-                'current_level_stars': stars_rating.current_level_stars, # ✅ نجوم المستوى
-                'next_level_stars': stars_rating.next_level_stars,       # ✅ المستوى التالي
-                'raw_data': stars_rating                        # ✅ البيانات الخام
-            }
-        else:
-            return {
-                'success': True,
-                'has_rating': False,
-                'message': "لا توجد نقاط تقييم"
-            }
-    except Exception as e:
-        return {
-            'success': False,
-            'error': str(e),
-            'message': f"حدث خطأ: {str(e)}"
-        }
-
-@l313l.ar_cmd(
-    pattern="تقييم(?: |$)(.*)",
-    command=("تقييم", plugin_category),
-    info={
-        "header": "لـ جلب نقاط تقييم المستخدم",
-        "الاستخدام": "{tr}تقييم <username/userid/reply>",
-    },
-)
-async def rating(event):
-    zed = await edit_or_reply(event, "**📊 جـاري جلب التقييـم...**")
-    
-    user = await get_user_from_event(event)
-    if not user:
-        return await zed.edit("**⚠️ يرجى الرد على المستخدم أو تحديده**")
-    
-    rating_info = await get_user_rating(event.client, user.id)
-    
-    if rating_info['success']:
-        if rating_info['has_rating']:
-            # حساب النجوم المتبقية
-            stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
-            
-            # بناء الرسالة
-            message = (
-                f"**⭐ تقييم {user.first_name}**\n\n"
-                f"**• المستوى:** {rating_info['level']} 📊\n"
-                f"**• النجوم الإجمالية:** {rating_info['stars']:,} ⭐\n"
-                f"**• نجوم المستوى الحالي:** {rating_info['current_level_stars']:,} 💫\n"
-                f"**• نجوم المستوى التالي:** {rating_info['next_level_stars']:,} 🎯\n"
-                f"**• النجوم المتبقية:** {stars_needed:,} ⭐\n\n"
-                f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
-            )
-            await zed.edit(message)
-        else:
-            await zed.edit(f"**📊 {user.first_name} {rating_info['message']}**")
-    else:
-        await zed.edit(f"**❌ {rating_info['message']}**")
-
-
-@l313l.ar_cmd(pattern="ستارز$")
-async def quick_stars(event):
-    """عرض سريع للنجوم"""
-    
-    try:
-        user = await get_user_from_event(event)
-        if not user:
-            user = await event.client.get_me()
-        
-        rating_info = await get_user_rating(event.client, user.id)
-        
-        if rating_info['success'] and rating_info['has_rating']:
-            stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
-            
-            await event.edit(
-                f"**🎯 {user.first_name}:**\n"
-                f"**المستوى {rating_info['level']}**\n"
-                f"**النجوم: {rating_info['stars']:,} ⭐**\n"
-                f"**المتبقي: {stars_needed:,} ⭐**"
-            )
-        else:
-            await event.edit(f"**📊 {user.first_name} ليس لديه تقييم**")
-            
-    except Exception as e:
-        await event.edit(f"**❌ خطأ:** {str(e)}")

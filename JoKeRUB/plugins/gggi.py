@@ -855,20 +855,20 @@ async def get_all_emojis(event):
 
     try:
         # إذا كانت الرسالة تحتوي على رابط حزمة
-        if replied_message.message.startswith("https://t.me/addstickers/"):
-            sticker_set_name = replied_message.message.split("/")[-1]
+        if replied_message.message.startswith("https://t.me/addemoji/"):
+            emoji_set_name = replied_message.message.split("/")[-1]
+            # استدعاء إيموجيات الحزمة باستخدام اسم الحزمة
+            emoji_statuses = await event.client(GetEmojiStatusesRequest())
         elif replied_message.entities:
             # إذا كانت الرسالة تحتوي على إيموجي مخصص
             emoji_entity = replied_message.entities[0]
             if isinstance(emoji_entity, MessageEntityCustomEmoji):
-                sticker_set_name = emoji_entity.document_id  # استخدم معرف الإيموجي كاسم الحزمة
+                emoji_set_name = emoji_entity.document_id  # استخدم معرف الإيموجي كاسم الحزمة
+                emoji_statuses = await event.client(GetEmojiStatusesRequest())
             else:
                 return await edit_delete(event, "**❌ الرد ليس على رابط حزمة أو إيموجي مخصص**", time=10)
         else:
             return await edit_delete(event, "**❌ لا توجد كائنات في الرسالة**", time=10)
-
-        # استدعاء إيموجيات الحزمة
-        emoji_statuses = await event.client(GetEmojiStatusesRequest())
 
         if emoji_statuses:
             emoji_ids = [emoji.document_id for emoji in emoji_statuses]  # جمع معرفات الإيموجيات

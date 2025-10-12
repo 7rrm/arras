@@ -167,7 +167,7 @@ from telethon.tl.functions.users import GetFullUserRequest
 
 async def get_user_rating(client, user_id):
     """
-    جلب تقييم النجوم والمستوى للمستخدم - النسخة المبسطة
+    جلب تقييم النجوم والمستوى - النسخة الأبسط
     """
     try:
         full_user = await client(GetFullUserRequest(user_id))
@@ -176,31 +176,24 @@ async def get_user_rating(client, user_id):
         if stars_rating is not None:
             level = stars_rating.level
             
-            # ✅ قاموس بسيط للمستويات والإيموجيات
-            level_emojis = {
-                1: "5217498259404130179",  # 🎖
-                2: "5217757976076518557",  # ⭐
-                99: "5217498259404130179", # 🎖 (نفس إيموجي المستوى 1)
-                # يمكن إضافة المزيد بسهولة
-            }
-            
-            # ✅ إذا المستوى موجود في القاموس، استخدم الإيموجي
-            if level in level_emojis:
-                level_display = f'<a href="emoji/{level_emojis[level]}">🌟</a>'
+            # ✅ تحقق بسيط من المستويات المميزة
+            if level in [1, 2, 99]:  # ✅ أضف أي مستوى تريد هنا
+                emoji_id = "5217498259404130179" if level in [1, 99] else "5217757976076518557"
+                level_display = f'<a href="emoji/{emoji_id}">🌟</a>'
             else:
-                level_display = str(level)  # ✅ عرض الرقم للمستويات الأخرى
+                level_display = str(level)
             
             return {
                 'success': True,
                 'has_rating': True,
                 'level': level,
-                'level_display': level_display,  # ✅ الإيموجي أو الرقم
+                'level_display': level_display,
             }
         else:
             return {
                 'success': True,
                 'has_rating': False,
-                'level_display': "لا يوجد",  # ✅ بدون تقييم
+                'level_display': "لا يوجد",
             }
     except Exception as e:
         return {

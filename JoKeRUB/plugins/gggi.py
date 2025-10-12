@@ -642,7 +642,7 @@ async def simple_level(event):
     zed = await edit_or_reply(event, "**📊 جـاري جلب المسـتوى...**")
     
     try:
-        user = await get_user_from_event(event)
+        user = await get_user_stars_rating(event)
         if not user:
             user = await event.client.get_me()
         

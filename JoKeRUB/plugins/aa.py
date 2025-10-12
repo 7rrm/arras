@@ -5,48 +5,46 @@ import os
 
 async def set_blurred_wallpaper_auto(client, peer):
     """
-    تعيين الخلفية مع ضبابية تلقائياً لأي شخص يراسلك
+    طريقة بديلة لتعيين الخلفية
     """
     try:
-        # رابط الصورة الثابت
         wallpaper_url = "https://graph.org/file/eff529df26a96f563829a-f6422391f7f002cd3a.jpg"
         
-        # تحميل الصورة من الرابط
+        # تحميل الصورة
         response = requests.get(wallpaper_url)
         if response.status_code != 200:
-            print("❌ فشل في تحميل الصورة")
             return False
         
-        # حفظ الصورة مؤقتاً
-        temp_file = "temp_auto_wallpaper.jpg"
+        # حفظ مؤقت
+        temp_file = "temp_wall.jpg"
         with open(temp_file, 'wb') as f:
             f.write(response.content)
         
-        # رفع الصورة كملف
-        uploaded_file = await client.upload_file(temp_file)
+        # محاولة برفع الصورة كملف وسائط أولاً
+        message = await client.send_file(peer, temp_file)
         
-        # استخدام InputWallPaper مباشرة
+        # ثم استخدام SetChatWallPaperRequest
         await client(SetChatWallPaperRequest(
             peer=peer,
             wallpaper=InputWallPaper(
-                id=0,  # استخدام 0 للصور المرفوعة حديثاً
+                id=0,
                 access_hash=0
             ),
             settings=WallPaperSettings(
-                blur=True,        # ✅ تفعيل الضبابية
+                blur=True,
                 motion=False,
                 background_color=0x000000,
-                intensity=70      # ✅ شدة الضبابية
+                intensity=70
             )
         ))
         
-        # حذف الملف المؤقت
+        # حذف الرسالة المؤقتة والملف
+        await message.delete()
         os.remove(temp_file)
-        print("✅ تم تعيين الخلفية بنجاح")
         return True
         
     except Exception as e:
-        print(f"❌ خطأ في تعيين الخلفية: {e}")
+        print(f"❌ خطأ: {e}")
         return False
 
 

@@ -252,12 +252,9 @@ async def fetch_info(replied_user, event):
     last_name = replied_user.last_name
     full_name = f"{first_name} {last_name}" if last_name else first_name
     rating_info = await get_user_rating(event.client, user_id)
-    
-    # تحديد الرسالة مرة واحدة
-    if rating_info['success'] and rating_info['has_rating']:
-        level_message = str(rating_info['level'])  # ✅ المستوى الحقيقي
-    else:
-        level_message = rating_info.get('message', 'لا يوجد مستوى')  # ✅ الرسالة الجاهزة
+
+# ✅ سطر واحد فقط - استخدم level_display مباشرة
+    level_message = rating_info['level_display']
     
     common_chat = FullUser.common_chats_count
     username = replied_user.username

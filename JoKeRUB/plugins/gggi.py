@@ -725,38 +725,50 @@ async def zelzalll(event):
     except:
         await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode="html")
 
+
+from telethon.tl.types import MessageEntityCustomEmoji
+
 @l313l.ar_cmd(
     pattern="ايموجي$",
-    command=("ايدي_ايموجي", plugin_category),
+    command=("جلب_ايموجي", plugin_category),
     info={
-        "header": "جلب ايدي الإيموجي البريميوم",
-        "الاستخدام": "{tr}ايدي_ايموجي بالرد على الإيموجي",
+        "header": "جلب معرف الإيموجي",
+        "الاستخدام": "{tr}جلب_ايموجي بالرد على الإيموجي",
     },
 )
 async def get_emoji_id(event):
     replied_message = await event.get_reply_message()
     if not replied_message:
         return await edit_delete(event, "**⚠️ يرجى الرد على الإيموجي**", time=10)
-    
+
     try:
-        # استخراج معرف الإيموجي من الرسالة
+        # التحقق مما إذا كانت الرسالة تحتوي على إيموجي مخصص
         if replied_message.entities:
             emoji_entity = replied_message.entities[0]  # الحصول على الكيان الأول
-            if isinstance(emoji_entity, types.MessageEntityCustomEmoji):
-                emoji_id = emoji_entity.document_id
-                await edit_or_reply(
-                    event,
-                    f"**🎟 ايدي الإيموجي:**\n"
-                    f"`{emoji_id}`\n"
-                    f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>"
-                )
+            if isinstance(emoji_entity, MessageEntityCustomEmoji):
+                emoji_id = emoji_entity.document_id  # معرف الإيموجي المدخل
+                
+                # جلب معرف الإيموجي الموجود في حساب المستخدم
+                user = await event.client.get_me()
+                if user.emoji_status:
+                    user_emoji_id = user.emoji_status.document_id
+                    
+                    # إرسال النتائج
+                    await edit_or_reply(
+                        event,
+                        f"🎟 ايدي الإيموجي:\n`{emoji_id}`\n\n"
+                        f"🎟 ايدي الموجود في حسابك:\n`{user_emoji_id}`\n\n"
+                        f"للاستخدام: `<emoji document_id='{emoji_id}'>🌟</emoji>`"
+                    )
+                else:
+                    await edit_or_reply(event, "**❌ لا يوجد إيموجي بريميوم في حسابك**")
             else:
                 await edit_or_reply(event, "**❌ الرد ليس على إيموجي مخصص**")
         else:
             await edit_or_reply(event, "**❌ لا توجد كائنات في الرسالة**")
     except Exception as e:
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
-
+        
 @l313l.ar_cmd(pattern="اسمي$")
 async def permalink(event):
     user = await event.client.get_me()
@@ -822,35 +834,3 @@ async def comming(event):
                 pass
 
 
-from telethon.tl.functions.messages import GetEmojiStatusesRequest
-
-@l313l.ar_cmd(
-    pattern="جلب_ايموجيات$",
-    command=("جلب_ايموجيات", plugin_category),
-    info={
-        "header": "جلب معرفات إيموجيات بريميوم",
-        "الاستخدام": "{tr}جلب_ايموجيات",
-    },
-)
-async def get_premium_emojis(event):
-    await edit_or_reply(event, "**جارٍ جلب الإيموجيات البريميوم...**")  # رسالة تأكيد
-
-    try:
-        # استدعاء إيموجيات البريميوم
-        emojis = await event.client(GetEmojiStatusesRequest())
-        
-        if emojis:
-            emoji_ids = [emoji.document_id for emoji in emojis]  # جمع معرفات الإيموجيات
-            
-            # إرسال النتائج
-            if emoji_ids:
-                await edit_or_reply(
-                    event,
-                    f"**معرفات إيموجيات البريميوم:**\n" + "\n".join([f"`{emoji_id}`" for emoji_id in emoji_ids])
-                )
-            else:
-                await edit_or_reply(event, "**❌ لم يتم العثور على إيموجيات بريميوم**")
-        else:
-            await edit_or_reply(event, "**❌ لم يتم العثور على إيموجيات بريميوم**")
-    except Exception as e:
-        await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")

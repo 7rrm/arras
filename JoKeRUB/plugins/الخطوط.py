@@ -1,11 +1,9 @@
 from telethon import events
+from telethon.tl.types import MessageEntityBold, MessageEntityStrike, MessageEntityCode, MessageEntityPre
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.managers import edit_delete
-from telethon import functions
-from telethon.errors.rpcerrorlist import MessageIdInvalidError
 
-# جميع أوامر الخطوط مع التعديل الجديد للخط الغامق
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def bold_toggle(event):
     if not gvarstatus("bold"):
@@ -48,28 +46,31 @@ async def handle_text_formatting(event):
         return
         
     text = event.message.text
-    modified = False
     
-    # التحقق من جميع أنواع الخطوط
+    # تجاهل الأوامر
+    if text.startswith('.') or '.' in text[:-1]:
+        return
+    
+    # الحصول على الـ entities الأصلية (تشمل الإيموجيات المخصصة)
+    original_entities = list(event.message.entities or [])
+    
+    # إنشاء entity جديد للتنسيق
+    new_entity = None
+    
     if gvarstatus("bold"):
-        if not text.startswith('.') and '.' not in text[:-1]:
-            text = f"**{text}**"
-            modified = True
-            
-    if gvarstatus("tshwesh") and not modified:
-        text = f"~~{text}~~"
-        modified = True
+        new_entity = MessageEntityBold(offset=0, length=len(text))
+    elif gvarstatus("tshwesh"):
+        new_entity = MessageEntityStrike(offset=0, length=len(text))
+    elif gvarstatus("ramz"):
+        new_entity = MessageEntityCode(offset=0, length=len(text))
+    elif gvarstatus("joker"):
+        new_entity = MessageEntityPre(offset=0, length=len(text), language="")
+    
+    if new_entity:
+        # دمج الـ entities الجديدة مع القديمة
+        all_entities = [new_entity] + original_entities
         
-    if gvarstatus("ramz") and not modified:
-        text = f"`{text}`"
-        modified = True
-        
-    if gvarstatus("joker") and not modified:
-        text = f"```{text}```"
-        modified = True
-        
-    if modified:
         try:
-            await event.edit(text)
+            await event.edit(text, formatting_entities=all_entities)
         except:
             pass

@@ -594,3 +594,31 @@ async def comming(event):
                 pass
 
 
+from telethon import TelegramClient
+from telethon.tl.functions.payments import GetStarsStatusRequest
+
+async def get_stars_level(client, user_id):
+    try:
+        # تحويل user_id إلى InputPeer
+        input_peer = await client.get_input_entity(user_id)
+        
+        # استدعاء الدالة للحصول على حالة النجوم
+        stars_status = await client(GetStarsStatusRequest(peer=input_peer))
+        
+        # استرجاع المستوى والرصيد
+        balance = stars_status.balance
+        level = stars_status.level  # تأكد من أن هذه الخاصية موجودة في النتيجة
+        
+        return {
+            'balance': balance,
+            'level': level,
+            'next_level': stars_status.next_level if hasattr(stars_status, 'next_level') else None,
+        }
+    except Exception as e:
+        return f"حدث خطأ: {str(e)}"
+
+# استخدام الدالة
+# client هو عميل Telethon الذي قمت بإنشائه
+user_id = "username_or_user_id"  # استبدل بـ اسم المستخدم أو معرف المستخدم
+status = await get_stars_level(client, user_id)
+print(status)

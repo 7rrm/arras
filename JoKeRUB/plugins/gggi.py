@@ -163,44 +163,28 @@ async def get_gifts_count(client, user_id: int) -> dict:
             'error': "لا يمكن الوصول إلى الهدايا"
         }
 
-from telethon.tl.functions.users import GetFullUserRequest
-
 async def get_user_rating(client, user_id):
-    """
-    جلب تقييم النجوم والمستوى - النسخة الأبسط
-    """
     try:
         full_user = await client(GetFullUserRequest(user_id))
         stars_rating = getattr(full_user.full_user, 'stars_rating', None)
         
-        if stars_rating is not None:
+        if stars_rating:
             level = stars_rating.level
             
-            # ✅ تحقق بسيط من المستويات المميزة
-            if level in [1, 2, 99]:  # ✅ أضف أي مستوى تريد هنا
-                emoji_id = "5217498259404130179" if level in [1, 99] else "5217757976076518557"
-                level_display = f'<a href="emoji/{emoji_id}">🌟</a>'
+            # ⚡ أقصى سرعة - شروط مباشرة
+            if level == 1 or level == 99:
+                level_display = '<a href="emoji/5217498259404130179">🎖</a>'
+            elif level == 2:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
             else:
                 level_display = str(level)
             
-            return {
-                'success': True,
-                'has_rating': True,
-                'level': level,
-                'level_display': level_display,
-            }
+            return {'success': True, 'has_rating': True, 'level': level, 'level_display': level_display}
         else:
-            return {
-                'success': True,
-                'has_rating': False,
-                'level_display': "لا يوجد",
-            }
-    except Exception as e:
-        return {
-            'success': False,
-            'level_display': "خطأ",
-            'error': str(e)
-        }
+            return {'success': True, 'has_rating': False, 'level_display': "لا يوجد"}
+            
+    except Exception:
+        return {'success': False, 'level_display': "خطأ"}
         
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user

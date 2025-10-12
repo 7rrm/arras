@@ -635,36 +635,33 @@ async def get_user_stars_rating(client, user_id):
             'error': str(e)
         }
 
-@l313l.ar_cmd(
-    pattern="مستوى(?: |$)(.*)",
-    command=("مستوى", plugin_category),
-)
-async def stars_level(event):
+@l313l.ar_cmd(pattern="لفل$")
+async def simple_level(event):
+    """عرض مستوى مبسط بدون تعقيد"""
+    
     zed = await edit_or_reply(event, "**📊 جـاري جلب المسـتوى...**")
     
-    user = await get_user_from_event(event)
-    if not user:
-        return await zed.edit("**⚠️ يرجى الرد على المستخدم أو تحديده**")
-    
-    rating_info = await get_user_stars_rating(event.client, user.id)
-    
-    if rating_info['success']:
-        # استخدام النجوم المتبقية المحسوبة مسبقاً
-        stars_needed = rating_info['stars_needed']
+    try:
+        user = await get_user_from_event(event)
+        if not user:
+            user = await event.client.get_me()
         
-        # شريط التقدم
-        progress_bar = "█" * int(rating_info['progress_percentage'] / 10) + "▒" * (10 - int(rating_info['progress_percentage'] / 10))
+        full_user = await event.client(GetFullUserRequest(user.id))
+        stars_rating = getattr(full_user.full_user, 'stars_rating', None)
         
-        message = (
-            f"**🎯 مستوى {user.first_name}**\n\n"
-            f"**• المستوى الحالي:** {rating_info['level']} 📊\n"
-            f"**• النجوم الإجمالية:** {rating_info['total_stars']:,} ⭐\n"
-            f"**• تقدم المستوى:** {progress_bar} {rating_info['progress_percentage']:.1f}%\n"
-            f"**• نجوم المستوى:** {rating_info['current_level_stars']:,} / {rating_info['next_level_stars']:,} 💫\n"
-            f"**• المتبقي للمستوى {rating_info['level'] + 1}:** {stars_needed:,} ⭐\n\n"
-            f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
-        )
+        if stars_rating:
+            message = (
+                f"**🎯 مستوى {user.first_name}**\n\n"
+                f"**• المستوى:** {stars_rating.level} 📊\n"
+                f"**• النجوم:** {stars_rating.stars:,} ⭐\n"
+                f"**• التقدم:** {stars_rating.current_level_stars:,} / {stars_rating.next_level_stars:,} 💫\n"
+                f"**• المتبقي:** {stars_rating.next_level_stars - stars_rating.current_level_stars:,} ⭐\n\n"
+                f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
+            )
+        else:
+            message = f"**📊 {user.first_name} ليس لديه مستوى بعد**"
         
         await zed.edit(message)
-    else:
-        await zed.edit(f"**❌ خطأ:** {rating_info['error']}")
+        
+    except Exception as e:
+        await zed.edit(f"**❌ خطأ:** {str(e)}")

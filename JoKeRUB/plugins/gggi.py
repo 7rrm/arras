@@ -597,6 +597,9 @@ async def comming(event):
 from telethon.tl.functions.users import GetFullUserRequest
 
 async def get_user_rating(client, user_id):
+    """
+    جلب تقييم النجوم والمستوى للمستخدم
+    """
     try:
         full_user = await client(GetFullUserRequest(user_id))
         stars_rating = getattr(full_user.full_user, 'stars_rating', None)
@@ -624,7 +627,6 @@ async def get_user_rating(client, user_id):
             'message': f"حدث خطأ: {str(e)}"
         }
 
-
 @l313l.ar_cmd(
     pattern="تقييم(?: |$)(.*)",
     command=("تقييم", plugin_category),
@@ -644,8 +646,48 @@ async def rating(event):
     
     if rating_info['success']:
         if rating_info['has_rating']:
-            await zed.edit(f"**⭐ نقاط تقييم {user.first_name}:** {rating_info['rating']}")
+            # حساب النجوم المتبقية
+            stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
+            
+            # بناء الرسالة
+            message = (
+                f"**⭐ تقييم {user.first_name}**\n\n"
+                f"**• المستوى:** {rating_info['level']} 📊\n"
+                f"**• النجوم الإجمالية:** {rating_info['stars']:,} ⭐\n"
+                f"**• نجوم المستوى الحالي:** {rating_info['current_level_stars']:,} 💫\n"
+                f"**• نجوم المستوى التالي:** {rating_info['next_level_stars']:,} 🎯\n"
+                f"**• النجوم المتبقية:** {stars_needed:,} ⭐\n\n"
+                f"**𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝘼𝘿𝞝 𝙏𝙀𝙇𝙀𝙂𝙍𝘼𝙈**"
+            )
+            await zed.edit(message)
         else:
-            await zed.edit(f"**📊 {user.first_name} ليس لديه نقاط تقييم بعد**")
+            await zed.edit(f"**📊 {user.first_name} {rating_info['message']}**")
     else:
-        await zed.edit(f"**❌ خطأ:** {rating_info['error']}")
+        await zed.edit(f"**❌ {rating_info['message']}**")
+
+
+@l313l.ar_cmd(pattern="ستارز$")
+async def quick_stars(event):
+    """عرض سريع للنجوم"""
+    
+    try:
+        user = await get_user_from_event(event)
+        if not user:
+            user = await event.client.get_me()
+        
+        rating_info = await get_user_rating(event.client, user.id)
+        
+        if rating_info['success'] and rating_info['has_rating']:
+            stars_needed = rating_info['next_level_stars'] - rating_info['current_level_stars']
+            
+            await event.edit(
+                f"**🎯 {user.first_name}:**\n"
+                f"**المستوى {rating_info['level']}**\n"
+                f"**النجوم: {rating_info['stars']:,} ⭐**\n"
+                f"**المتبقي: {stars_needed:,} ⭐**"
+            )
+        else:
+            await event.edit(f"**📊 {user.first_name} ليس لديه تقييم**")
+            
+    except Exception as e:
+        await event.edit(f"**❌ خطأ:** {str(e)}")

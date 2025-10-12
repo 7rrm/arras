@@ -727,14 +727,24 @@ async def zelzalll(event):
 
 
 @l313l.ar_cmd(
-    pattern="ايدي_ايموجي$",
+    pattern="ايدي_ايموجي(?:\s+([\s\S]*))?$",
     command=("ايدي_ايموجي", plugin_category),
     info={
-        "header": "جلب ايدي الإيموجي البريميوم للمستخدم",
-        "الاستخدام": "{tr}ايدي_ايموجي بالرد على المستخدم",
+        "header": "جلب ايدي الإيموجي البريميوم للمستخدم مع إيموجي مخصص",
+        "الاستخدام": [
+            "{tr}ايدي_ايموجي (بالرد على المستخدم)",
+            "{tr}ايدي_ايموجي + الإيموجي (بالرد على المستخدم)",
+        ],
     },
 )
 async def get_emoji_id(event):
+    # الحصول على الإيموجي من الأمر إذا وجد
+    input_str = event.pattern_match.group(1)
+    custom_emoji = "🌟"  # الإيموجي الافتراضي
+    
+    if input_str and input_str.strip():
+        custom_emoji = input_str.strip()
+    
     replied_user = await event.get_reply_message()
     if not replied_user:
         return await edit_delete(event, "**⚠️ يرجى الرد على المستخدم**", time=10)
@@ -743,22 +753,18 @@ async def get_emoji_id(event):
         user = await event.client.get_entity(replied_user.sender_id)
         if user.premium and user.emoji_status:
             emoji_id = user.emoji_status.document_id
-            # الحصول على كود الإيموجي لعرضه
-            emoji_entity = user.emoji_status
-            emoji_text = f"<emoji document_id='{emoji_id}'>🌟</emoji>"
             
             await edit_or_reply(
                 event,
                 f"**🎟 ايدي الإيموجي البريميوم لـ [{user.first_name}](tg://user?id={user.id}):**\n"
-                f"**الإيموجي:** {emoji_text}\n"
                 f"**الآيدي:** `{emoji_id}`\n"
-                f"**للاستخدام:** `<emoji document_id='{emoji_id}'>🌟</emoji>`"
+                f"**للاستخدام:** `<emoji document_id='{emoji_id}'>{custom_emoji}</emoji>`\n"
+                f"**معاينة:** <emoji document_id='{emoji_id}'>{custom_emoji}</emoji>"
             )
         else:
             await edit_or_reply(event, "**❌ هذا المستخدم ليس لديه إيموجي بريميوم**")
     except Exception as e:
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
-
 
 @l313l.ar_cmd(pattern="اسمي$")
 async def permalink(event):

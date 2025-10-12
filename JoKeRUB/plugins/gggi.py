@@ -822,7 +822,6 @@ async def comming(event):
                 pass
 
 from telethon.tl.functions.messages import GetEmojiStatusesRequest
-from telethon.tl.types import InputPeerUser
 
 @l313l.ar_cmd(
     pattern="جلب_ايموجيات$",
@@ -833,6 +832,8 @@ from telethon.tl.types import InputPeerUser
     },
 )
 async def get_premium_emojis(event):
+    await edit_or_reply(event, "**جارٍ جلب الإيموجيات البريميوم...**")  # رسالة تأكيد قبل بدء العملية
+    
     try:
         # استدعاء إيموجيات البريميوم
         emojis = await event.client(GetEmojiStatusesRequest())

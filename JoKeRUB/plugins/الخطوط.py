@@ -1,9 +1,16 @@
 from telethon import events
-from telethon.tl.types import MessageEntityBold, MessageEntityStrike, MessageEntityCode, MessageEntityPre
+from telethon.tl.types import (
+    MessageEntityBold, 
+    MessageEntityStrike, 
+    MessageEntityCode, 
+    MessageEntityPre,
+    MessageEntityCustomEmoji
+)
 from JoKeRUB import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.managers import edit_delete
 
+# أوامر التفعيل (نفسها كما في الكود السابق)
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
 async def bold_toggle(event):
     if not gvarstatus("bold"):
@@ -42,35 +49,49 @@ async def joker_toggle(event):
 
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_text_formatting(event):
-    if not event.message.text or event.message.media:
+    # التحقق من وجود نص في الرسالة
+    if not event.message.text:
+        return
+    
+    # تجاهل الرسائل التي تحتوي على وسائط (صور/فيديو/إلخ)
+    if event.message.media:
         return
         
     text = event.message.text
     
-    # تجاهل الأوامر
-    if text.startswith('.') or '.' in text[:-1]:
+    # تجاهل الأوامر التي تبدأ بنقطة
+    if text.startswith('.'):
         return
     
-    # الحصول على الـ entities الأصلية (تشمل الإيموجيات المخصصة)
-    original_entities = list(event.message.entities or [])
-    
-    # إنشاء entity جديد للتنسيق
-    new_entity = None
+    # التحقق من وجود نمط تنسيق مفعل
+    format_entity = None
     
     if gvarstatus("bold"):
-        new_entity = MessageEntityBold(offset=0, length=len(text))
+        format_entity = MessageEntityBold(offset=0, length=len(text))
     elif gvarstatus("tshwesh"):
-        new_entity = MessageEntityStrike(offset=0, length=len(text))
+        format_entity = MessageEntityStrike(offset=0, length=len(text))
     elif gvarstatus("ramz"):
-        new_entity = MessageEntityCode(offset=0, length=len(text))
+        format_entity = MessageEntityCode(offset=0, length=len(text))
     elif gvarstatus("joker"):
-        new_entity = MessageEntityPre(offset=0, length=len(text), language="")
+        format_entity = MessageEntityPre(offset=0, length=len(text), language="")
     
-    if new_entity:
-        # دمج الـ entities الجديدة مع القديمة
-        all_entities = [new_entity] + original_entities
-        
-        try:
-            await event.edit(text, formatting_entities=all_entities)
-        except:
-            pass
+    # إذا لم يكن هناك تنسيق مفعل، لا تفعل شيء
+    if not format_entity:
+        return
+    
+    # الحصول على جميع الـ entities الأصلية (بما في ذلك الإيموجيات المخصصة)
+    original_entities = []
+    if event.message.entities:
+        original_entities = list(event.message.entities)
+    
+    # دمج entity التنسيق مع الـ entities الأصلية
+    # نضع entity التنسيق أولاً لأنه يغطي كامل النص
+    all_entities = [format_entity] + original_entities
+    
+    try:
+        # تحديث الرسالة مع الحفاظ على جميع الـ entities
+        await event.edit(text, formatting_entities=all_entities)
+    except Exception as e:
+        # في حالة حدوث خطأ، يمكنك طباعة الخطأ للتشخيص
+        # أو تجاهله بصمت
+        pass

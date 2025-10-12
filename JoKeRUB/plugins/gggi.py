@@ -729,7 +729,7 @@ async def zelzalll(event):
 from telethon.tl.types import MessageEntityCustomEmoji
 
 @l313l.ar_cmd(
-    pattern="ايموجي$",
+    pattern="جلب_ايموجي$",
     command=("جلب_ايموجي", plugin_category),
     info={
         "header": "جلب معرف الإيموجي",
@@ -738,34 +738,36 @@ from telethon.tl.types import MessageEntityCustomEmoji
 )
 async def get_emoji_id(event):
     replied_message = await event.get_reply_message()
+    
+    # الرسالة لعدم الرد على الإيموجي
     if not replied_message:
-        return await edit_delete(event, "**⚠️ يرجى الرد على الإيموجي**", time=10)
-
+        replied_emoji_message = "لم تقم بالرد على إيموجي"
+    else:
+        replied_emoji_message = None  # سيتم تعيينه لاحقًا إذا كان هناك إيموجي
+    
     try:
         # التحقق مما إذا كانت الرسالة تحتوي على إيموجي مخصص
-        if replied_message.entities:
+        if replied_message and replied_message.entities:
             emoji_entity = replied_message.entities[0]  # الحصول على الكيان الأول
             if isinstance(emoji_entity, MessageEntityCustomEmoji):
                 emoji_id = emoji_entity.document_id  # معرف الإيموجي المدخل
+                replied_emoji_message = f"`{emoji_id}`"  # تعيين معرف الإيموجي
                 
-                # جلب معرف الإيموجي الموجود في حساب المستخدم
-                user = await event.client.get_me()
-                if user.emoji_status:
-                    user_emoji_id = user.emoji_status.document_id
-                    
-                    # إرسال النتائج
-                    await edit_or_reply(
-                        event,
-                        f"🎟 ايدي الإيموجي:\n`{emoji_id}`\n\n"
-                        f"🎟 ايدي الموجود في حسابك:\n`{user_emoji_id}`\n\n"
-                        f"للاستخدام: `<emoji document_id='{emoji_id}'>🌟</emoji>`"
-                    )
-                else:
-                    await edit_or_reply(event, "**❌ لا يوجد إيموجي بريميوم في حسابك**")
-            else:
-                await edit_or_reply(event, "**❌ الرد ليس على إيموجي مخصص**")
+        # جلب معرف الإيموجي الموجود في حساب المستخدم
+        user = await event.client.get_me()
+        if user.emoji_status:
+            user_emoji_id = user.emoji_status.document_id
+            user_emoji_message = f"`{user_emoji_id}`"
         else:
-            await edit_or_reply(event, "**❌ لا توجد كائنات في الرسالة**")
+            user_emoji_message = "لا يوجد إيموجي في حسابك"
+
+        # إرسال النتائج
+        await edit_or_reply(
+            event,
+            f"🎟 ايدي الإيموجي:\n{replied_emoji_message}\n\n"
+            f"🎟 ايدي الموجود في حسابك:\n{user_emoji_message}\n\n"
+            f"للاستخدام: `<emoji document_id='{emoji_id if replied_emoji_message != 'لم تقم بالرد على إيموجي' else ''}'>🌟</emoji>`"
+        )
     except Exception as e:
         await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")
         

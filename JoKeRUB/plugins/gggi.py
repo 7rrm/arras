@@ -820,3 +820,34 @@ async def comming(event):
                 await event.edit(f"‹  **[{event.message.text}](spoiler)**  ›", parse_mode=CustomParseMode("markdown"))
             except MessageIdInvalidError:
                 pass
+
+from telethon.tl.functions.messages import GetEmojiStatusesRequest
+from telethon.tl.types import InputPeerUser
+
+@l313l.ar_cmd(
+    pattern="جلب_ايموجيات$",
+    command=("جلب_ايموجيات", plugin_category),
+    info={
+        "header": "جلب معرفات حزمة إيموجي البريميوم",
+        "الاستخدام": "{tr}جلب_ايموجيات",
+    },
+)
+async def get_premium_emojis(event):
+    try:
+        # استدعاء إيموجيات البريميوم
+        emojis = await event.client(GetEmojiStatusesRequest())
+        
+        if emojis:
+            emoji_ids = []
+            for emoji in emojis:
+                emoji_ids.append(emoji.document_id)  # جمع معرفات الإيموجيات
+            
+            # إرسال النتائج
+            await edit_or_reply(
+                event,
+                f"**معرفات إيموجيات البريميوم:**\n" + "\n".join([f"`{emoji_id}`" for emoji_id in emoji_ids])
+            )
+        else:
+            await edit_or_reply(event, "**❌ لم يتم العثور على إيموجيات بريميوم**")
+    except Exception as e:
+        await edit_or_reply(event, f"**⚠️ خطأ:** {str(e)}")

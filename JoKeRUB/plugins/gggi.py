@@ -176,6 +176,8 @@ async def get_user_rating(client, user_id):
                 level_display = '<a href="emoji/5217498259404130179">🎖</a>'
             elif level == 2:
                 level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 3:
+                level_display = '<a href="emoji/5217707355591969547">⭐</a>'
             else:
                 level_display = str(level)
             

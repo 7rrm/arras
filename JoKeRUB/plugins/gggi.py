@@ -890,13 +890,12 @@ async def star_gifts(event):
         # ترتيب الهدايا حسب النجوم
         gifts = sorted(gifts, key=lambda g: -g["stars"])
         
-        # حذف رسالة التحميل
-        await zed.delete()
+        # إعداد الرسالة النهائية
+        message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
         
-        # إرسال كل هدية مع صورتها
-        for gift in gifts[:15]:  # أول 15 هدية
+        for i, gift in enumerate(gifts, 1):
             limited_text = "⭐ محدودة" if gift["limited"] else "♾️ غير محدودة"
-            remains_text = f"\n**📦 الكمية:** `{gift['remains']:,}` / `{gift['total']:,}`" if gift["limited"] else ""
+            remains_text = f"\n**📦 المتبقي:** `{gift['remains']:,}` / `{gift['total']:,}`" if gift["limited"] else ""
             
             caption = (
                 f"**🎁 {gift['title']}**\n"
@@ -921,9 +920,12 @@ async def star_gifts(event):
         
         # رسالة نهائية
         await event.respond(
-            f"**✅ تم عرض {len(gifts[:15])} هدية من أصل {len(gifts)}**\n"
+            f"**✅ تم عرض {len(gifts)} هدية**\n"
             f"**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
         )
+        
+        # حذف رسالة التحميل بعد الانتهاء
+        await zed.delete()
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

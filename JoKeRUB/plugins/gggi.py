@@ -841,6 +841,8 @@ async def comming(event):
 # ================================================================================================ #
 from telethon.tl.functions.payments import GetStarGiftsRequest
 
+from telethon.tl.types import Document
+
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
@@ -849,17 +851,22 @@ async def get_star_gifts_info(client):
         
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
-                gift_info = {
-                    "id": gift.id,
-                    "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
-                    "stars": getattr(gift, "stars", 0),
-                    "sticker": getattr(gift, "sticker", None),
-                }
-                gifts.append(gift_info)
+                sticker = getattr(gift, "sticker", None)
+                
+                # التحقق من نوع الملصق
+                if sticker and isinstance(sticker, Document):
+                    gift_info = {
+                        "id": gift.id,
+                        "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
+                        "stars": getattr(gift, "stars", 0),
+                        "sticker": sticker,  # كائن Document كامل
+                    }
+                    gifts.append(gift_info)
         
         return gifts
         
     except Exception as e:
+        print(f"خطأ في get_star_gifts_info: {e}")
         return None
 
 @l313l.ar_cmd(
@@ -877,37 +884,44 @@ async def star_gifts(event):
     try:
         gifts = await get_star_gifts_info(event.client)
         
-        # التحقق من وجود هدايا
         if not gifts:
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        # التحقق من وجود ملصقات قبل الحذف
-        gifts_with_stickers = [g for g in gifts if g.get("sticker")]
-        
-        if not gifts_with_stickers:
-            await zed.edit("**❌ لا توجد ملصقات متاحة للهدايا**")
-            return
-        
-        # حذف رسالة الجلب فقط بعد التأكد من وجود محتوى
         await zed.edit("**🎁 جـارِ إرسـال الهدايـا...**")
         
-        # إرسال كل هدية مع ملصقها وسعرها
-        for gift in gifts_with_stickers:
+        sent_count = 0
+        failed_count = 0
+        
+        for gift in gifts:
             try:
-                caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
-                await event.client.send_file(
-                    event.chat_id,
-                    file=gift["sticker"],
-                    caption=caption
-                )
+                if gift.get("sticker"):
+                    caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                    
+                    # إرسال الملصق باستخدام كائن Document
+                    await event.client.send_file(
+                        event.chat_id,
+                        file=gift["sticker"],
+                        caption=caption,
+                        force_document=False  # لإرسالها كملصق وليس ملف
+                    )
+                    sent_count += 1
+                    
             except Exception as e:
-                # إذا فشل إرسال ملصق معين، أرسل رسالة نصية
+                failed_count += 1
+                print(f"فشل إرسال الهدية {gift['title']}: {e}")
+                # إرسال رسالة نصية بدلاً من الملصق
                 message = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**\n⚠️ فشل تحميل الملصق"
                 await event.client.send_message(event.chat_id, message)
         
         # حذف رسالة الجلب بعد الانتهاء
         await zed.delete()
+        
+        # إرسال ملخص النتائج
+        summary = f"**✅ تم إرسال {sent_count} هدية بنجاح**"
+        if failed_count > 0:
+            summary += f"\n**⚠️ فشل إرسال {failed_count} هدية**"
+        await event.client.send_message(event.chat_id, summary)
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

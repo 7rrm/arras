@@ -911,40 +911,79 @@ async def star_gifts(event):
 
 from telethon.tl.types import InputDocument
 
+from telethon.tl.functions.payments import GetUniqueStarGiftRequest
+
 @l313l.ar_cmd(
     pattern="هديه(?:\s|$)([\s\S]*)",
     command=("هديه", plugin_category),
     info={
-        "header": "لـ إرسال الهديـة كملصـق",
-        "الاستـخـدام": "{tr}هديه <معرف_الملصق>",
+        "header": "لـ إرسال الهديـة كملصـق باستخدام معرف الهدية",
+        "الاستـخـدام": "{tr}هديه <معرف_الهدية>",
         "مثـال": "{tr}هديه 5168043875654172773",
     },
 )
 async def send_gift_sticker(event):
-    "إرسال الهدية كملصق"
-    sticker_id = event.pattern_match.group(1)
+    "إرسال الهدية كملصق باستخدام معرف الهدية"
+    gift_id = event.pattern_match.group(1)
     
-    if not sticker_id:
-        return await edit_delete(event, "**❌ يرجى تحديد معرف الملصق**\n**مثال:** `.هديه 5168043875654172773`", time=10)
-    
-    zed = await edit_or_reply(event, f"**🎁 جـارِ إرسال الملصـق...**")
+    if not gift_id:
+        return await edit_delete(event, "**❌ يرجى تحديد معرف الهدية**\n**مثال:** `.هديه 5168043875654172773`", time=10)
     
     try:
-        # الطريقة الثالثة: استخدام custom emoji إذا كان ID للإيموجي
-        emoji_message = await event.client.send_message(
-            event.chat_id,
-            f'<emoji id="{sticker_id}">⭐</emoji>',
-            parse_mode='html'
-        )
+        gift_id = int(gift_id.strip())
+    except ValueError:
+        return await edit_delete(event, "**❌ معرف الهدية يجب أن يكون رقماً**", time=10)
+    
+    zed = await edit_or_reply(event, f"**🎁 جـارِ جلب الهديـة {gift_id}...**")
+    
+    try:
+        # الحصول على معلومات الهدية باستخدام GetUniqueStarGiftRequest
+        gift_info = await event.client(GetUniqueStarGiftRequest(gift_id=gift_id))
         
-        # الرد على الإيموجي برسالة السعر
-        price_msg = await event.client.send_message(
-            event.chat_id,
-            f"**السعر: ? نجمـة**",
-            reply_to=emoji_message.id
-        )
+        # التحقق من وجود الهدية والملصق
+        if not gift_info or not gift_info.gift:
+            await zed.edit(f"**❌ لم يتم العثور على هدية بالمعرف {gift_id}**")
+            return
         
-        await zed.delete()
+        gift = gift_info.gift
+        sticker = getattr(gift, 'sticker', None)
+        
+        if not sticker:
+            # إذا لم يكن هناك sticker، جرب document أو cover
+            sticker = getattr(gift, 'document', None) or getattr(gift, 'cover', None)
+        
+        if sticker:
+            # إرسال الملصق
+            sticker_msg = await event.client.send_file(
+                event.chat_id,
+                sticker,
+                force_document=False
+            )
+            
+            # الحصول على سعر الهدية
+            price = getattr(gift, 'stars', 0)
+            title = getattr(gift, 'title', 'هدية')
+            limited = getattr(gift, 'limited', False)
+            remains = getattr(gift, 'availability_remains', 0)
+            
+            # الرد على الملصق برسالة السعر
+            price_msg = f"**{title}**\n**السعر: {price} نجمـة**"
+            if limited and remains > 0:
+                price_msg += f"\n**المتبقي: {remains}**"
+            
+            await event.client.send_message(
+                event.chat_id,
+                price_msg,
+                reply_to=sticker_msg.id
+            )
+            
+            await zed.delete()
+        else:
+            # إذا لم يكن هناك ملصق
+            price = getattr(gift, 'stars', 0)
+            title = getattr(gift, 'title', 'هدية')
+            
+            await zed.edit(f"**❌ لا يوجد ملصق للهدية**\n**{title}**\n**السعر: {price} نجمـة**")
         
     except Exception as e:
-        await zed.edit(f"**❌ خطأ في إرسال الملصق:** `{str(e)}`\n**جرب طريقة أخرى**")
+        await zed.edit(f"**❌ خطأ في جلب الهدية:** `{str(e)}`")

@@ -877,25 +877,37 @@ async def star_gifts(event):
     try:
         gifts = await get_star_gifts_info(event.client)
         
+        # التحقق من وجود هدايا
         if not gifts:
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        await zed.delete()
+        # التحقق من وجود ملصقات قبل الحذف
+        gifts_with_stickers = [g for g in gifts if g.get("sticker")]
+        
+        if not gifts_with_stickers:
+            await zed.edit("**❌ لا توجد ملصقات متاحة للهدايا**")
+            return
+        
+        # حذف رسالة الجلب فقط بعد التأكد من وجود محتوى
+        await zed.edit("**🎁 جـارِ إرسـال الهدايـا...**")
         
         # إرسال كل هدية مع ملصقها وسعرها
-        for gift in gifts:
-            if gift.get("sticker"):
+        for gift in gifts_with_stickers:
+            try:
                 caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
                 await event.client.send_file(
                     event.chat_id,
                     file=gift["sticker"],
                     caption=caption
                 )
-            else:
-                # في حالة عدم وجود ملصق، نرسل رسالة نصية فقط
-                message = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+            except Exception as e:
+                # إذا فشل إرسال ملصق معين، أرسل رسالة نصية
+                message = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**\n⚠️ فشل تحميل الملصق"
                 await event.client.send_message(event.chat_id, message)
+        
+        # حذف رسالة الجلب بعد الانتهاء
+        await zed.delete()
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

@@ -915,51 +915,36 @@ from telethon.tl.types import InputDocument
     pattern="هديه(?:\s|$)([\s\S]*)",
     command=("هديه", plugin_category),
     info={
-        "header": "لـ إرسال الهديـة كملصـق باستخدام معرف الملصق",
+        "header": "لـ إرسال الهديـة كملصـق",
         "الاستـخـدام": "{tr}هديه <معرف_الملصق>",
         "مثـال": "{tr}هديه 5168043875654172773",
     },
 )
 async def send_gift_sticker(event):
-    "إرسال الهدية كملصق باستخدام معرف الملصق"
+    "إرسال الهدية كملصق"
     sticker_id = event.pattern_match.group(1)
     
     if not sticker_id:
         return await edit_delete(event, "**❌ يرجى تحديد معرف الملصق**\n**مثال:** `.هديه 5168043875654172773`", time=10)
     
-    try:
-        sticker_id = int(sticker_id.strip())
-    except ValueError:
-        return await edit_delete(event, "**❌ معرف الملصق يجب أن يكون رقماً**", time=10)
-    
-    zed = await edit_or_reply(event, f"**🎁 جـارِ إرسال الملصـق {sticker_id}...**")
+    zed = await edit_or_reply(event, f"**🎁 جـارِ إرسال الملصـق...**")
     
     try:
-        # إنشاء InputDocument باستخدام الـ ID
-        # نحتاج إلى معرف access_hash و file_reference أيضاً
-        # لكن سنحاول بطريقة مبسطة أولاً
-        
-        # الطريقة الأولى: استخدام InputDocument
-        input_doc = InputDocument(
-            id=sticker_id,
-            access_hash=0,  # قد نحتاج access_hash حقيقي
-            file_reference=b''
-        )
-        
-        sticker_msg = await event.client.send_file(
+        # الطريقة الثالثة: استخدام custom emoji إذا كان ID للإيموجي
+        emoji_message = await event.client.send_message(
             event.chat_id,
-            input_doc,
-            force_document=False
+            f'<emoji id="{sticker_id}">⭐</emoji>',
+            parse_mode='html'
         )
         
-        # الرد على الملصق برسالة السعر
+        # الرد على الإيموجي برسالة السعر
         price_msg = await event.client.send_message(
             event.chat_id,
             f"**السعر: ? نجمـة**",
-            reply_to=sticker_msg.id
+            reply_to=emoji_message.id
         )
         
         await zed.delete()
         
     except Exception as e:
-        await zed.edit(f"**❌ خطأ في إرسال الملصق:** `{str(e)}`")
+        await zed.edit(f"**❌ خطأ في إرسال الملصق:** `{str(e)}`\n**جرب طريقة أخرى**")

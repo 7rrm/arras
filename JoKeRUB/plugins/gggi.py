@@ -844,29 +844,31 @@ from telethon.tl.functions.payments import GetStarGiftsRequest
 from telethon.tl.types import InputDocument
 
 async def get_star_gifts_info(client):
-    """جلب معلومات الهدايا النجمية"""
-    try:
-        result = await client(GetStarGiftsRequest(hash=0))
-        print(result)  # طباعة محتوى الاستجابة
-        gifts = []
-        
-        for gift in getattr(result, "gifts", []):
-            if not getattr(gift, "sold_out", False):
-                gift_info = {
-                    "id": gift.id,
-                    "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
-                    "stars": getattr(gift, "stars", 0),
-                    "limited": getattr(gift, "limited", False),
-                    "remains": getattr(gift, "availability_remains", 0),
-                    "sold_out": getattr(gift, "sold_out", False)
-                }
-                gifts.append(gift_info)
-        
-        return gifts
-        
-    except Exception as e:
-        print(f"Error fetching star gifts: {e}")
-        return None
+       """جلب معلومات الهدايا النجمية"""
+       try:
+           result = await client(GetStarGiftsRequest(hash=0))
+           print(result)  # طباعة محتوى الاستجابة
+           gifts = []
+           
+           for gift in getattr(result, "gifts", []):
+               print(gift)  # طباعة كل هدية لمراجعتها
+               if not getattr(gift, "sold_out", False):
+                   gift_info = {
+                       "id": gift.id,
+                       "access_hash": getattr(gift, "access_hash", None),  # استخدام getattr لتجنب الخطأ
+                       "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
+                       "stars": getattr(gift, "stars", 0),
+                       "limited": getattr(gift, "limited", False),
+                       "remains": getattr(gift, "availability_remains", 0),
+                       "sold_out": getattr(gift, "sold_out", False)
+                   }
+                   gifts.append(gift_info)
+           
+           return gifts
+           
+       except Exception as e:
+           print(f"Error fetching star gifts: {e}")
+           return None
 
 @l313l.ar_cmd(
     pattern="الهدايا$",

@@ -857,13 +857,14 @@ async def get_star_gifts_info(client):
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "document_id": getattr(gift, "document_id", None)  # ID الملصق
+                    "document": getattr(gift, "document", None)  # المستند نفسه وليس الـ ID فقط
                 }
                 gifts.append(gift_info)
         
         return gifts
         
     except Exception as e:
+        print(f"Error in get_star_gifts_info: {e}")
         return None
 
 @l313l.ar_cmd(
@@ -897,11 +898,11 @@ async def star_gifts(event):
             remains_text = f"\nالمتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
             try:
-                # إرسال الملصق باستخدام document_id
-                if gift.get('document_id'):
+                # إرسال الملصق باستخدام المستند مباشرة
+                if gift.get('document'):
                     sticker_message = await event.client.send_file(
                         event.chat_id,
-                        gift['document_id'],
+                        gift['document'],
                         force_document=False
                     )
                     
@@ -920,6 +921,7 @@ async def star_gifts(event):
                     )
                     
             except Exception as e:
+                print(f"Error sending gift {gift['id']}: {e}")
                 # في حالة خطأ، إرسال الاسم والسعر فقط
                 await event.client.send_message(
                     event.chat_id,

@@ -638,6 +638,8 @@ async def cb_sticker(event):
             reply += f"\n **• ID: **`{packid}`\n [{packtitle}]({packlink})"
     await catevent.edit(reply)
 
+from telethon.tl.types import InputDocument, InputMediaDocument
+
 @l313l.ar_cmd(
     pattern="ايدي_ملصق(?:\s|$)([\s\S]*)",
     command=("ايدي_ملصق", plugin_category),
@@ -659,19 +661,17 @@ async def send_sticker_by_id(event):
         return await edit_delete(event, "**⌔︙ معرف الملصق يجب أن يكون رقماً**")
     
     try:
-        # إنشاء كائن الملصق باستخدام المعرف مباشرة
-        sticker = types.InputDocument(
-            id=sticker_id,
-            access_hash=0,  # يمكن تعديله إذا كان لديك الـ access_hash
-            file_reference=b''
-        )
-        
-        await event.delete()
+        # إرسال الملصق مباشرة باستخدام المعرف
         await event.client.send_file(
             event.chat_id,
-            sticker,
+            InputDocument(
+                id=sticker_id,
+                access_hash=0,
+                file_reference=b''
+            ),
             reply_to=event.reply_to_msg_id
         )
+        await event.delete()
         
     except Exception as e:
-        await edit_delete(event, f"**⌔︙ حدث خطأ في إرسال الملصق:** {str(e)}")
+        await edit_delete(event, f"**⌔︙ خطأ:** {str(e)}")

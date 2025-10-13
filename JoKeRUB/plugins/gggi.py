@@ -856,7 +856,13 @@ async def get_star_gifts_info(client):
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
-                    "sold_out": getattr(gift, "sold_out", False)
+                    "sold_out": getattr(gift, "sold_out", False),
+                    "sticker": getattr(gift, "sticker", None),  # الملصق المرفق
+                    "convert_stars": getattr(gift, "convert_stars", 0),  # قيمة التحويل
+                    "upgrade_stars": getattr(gift, "upgrade_stars", 0),  # تكلفة الترقية
+                    "birthday": getattr(gift, "birthday", False),  # هدية مناسبات
+                    "first_sale_date": getattr(gift, "first_sale_date", None),  # تاريخ أول بيع
+                    "last_sale_date": getattr(gift, "last_sale_date", None),  # تاريخ آخر بيع
                 }
                 gifts.append(gift_info)
         
@@ -893,16 +899,40 @@ async def star_gifts(event):
         for i, gift in enumerate(gifts, 1):
             limited_icon = " ⭐" if gift["limited"] else ""
             sold_out_icon = " 🔴" if gift["sold_out"] else " 🟢"
+            birthday_icon = " 🎂" if gift["birthday"] else ""
             remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
-            message += (
-                f"**{i}. {gift['title']}**\n"
-                f"   ⏣ **{gift['stars']} نجمـة**{limited_icon}{sold_out_icon}{remains_text}\n\n"
-            )
+            message += f"**{i}. {gift['title']}**{birthday_icon}\n"
+            message += f"   💰 **السعر:** {gift['stars']} نجمـة{limited_icon}{sold_out_icon}{remains_text}\n"
+            
+            # إضافة معلومات التحويل والترقية
+            if gift["convert_stars"] > 0:
+                message += f"   🔄 **قيمة التحويل:** {gift['convert_stars']} نجمـة\n"
+            
+            if gift["upgrade_stars"] > 0:
+                message += f"   ⬆️ **تكلفة الترقية:** {gift['upgrade_stars']} نجمـة\n"
+            
+            # إضافة تواريخ البيع للهدايا المحدودة
+            if gift["limited"]:
+                if gift["first_sale_date"]:
+                    message += f"   📅 **بداية البيع:** {gift['first_sale_date']}\n"
+                if gift["last_sale_date"]:
+                    message += f"   ⏰ **نهاية البيع:** {gift['last_sale_date']}\n"
+            
+            message += "\n"
         
         message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
         
-        await zed.edit(message)
+        # إرسال الرسالة مع الملصق إذا كان متوفراً
+        if gifts and gifts[0].get("sticker"):
+            await event.client.send_file(
+                event.chat_id,
+                file=gifts[0]["sticker"],
+                caption=message
+            )
+            await zed.delete()
+        else:
+            await zed.edit(message)
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

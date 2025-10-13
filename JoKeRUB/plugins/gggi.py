@@ -853,15 +853,7 @@ async def get_star_gifts_info(client):
                     "id": gift.id,
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
                     "stars": getattr(gift, "stars", 0),
-                    "limited": getattr(gift, "limited", False),
-                    "remains": getattr(gift, "availability_remains", 0),
-                    "sold_out": getattr(gift, "sold_out", False),
                     "sticker": getattr(gift, "sticker", None),
-                    "convert_stars": getattr(gift, "convert_stars", 0) or 0,  # تحويل None إلى 0
-                    "upgrade_stars": getattr(gift, "upgrade_stars", 0) or 0,  # تحويل None إلى 0
-                    "birthday": getattr(gift, "birthday", False),
-                    "first_sale_date": getattr(gift, "first_sale_date", None),
-                    "last_sale_date": getattr(gift, "last_sale_date", None),
                 }
                 gifts.append(gift_info)
         
@@ -889,44 +881,21 @@ async def star_gifts(event):
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        gifts = sorted(gifts, key=lambda g: -g["stars"])
-        message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
+        await zed.delete()
         
-        for i, gift in enumerate(gifts, 1):
-            limited_icon = " ⭐" if gift["limited"] else ""
-            sold_out_icon = " 🔴" if gift["sold_out"] else " 🟢"
-            birthday_icon = " 🎂" if gift["birthday"] else ""
-            remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
-            
-            message += f"**{i}. {gift['title']}**{birthday_icon}\n"
-            message += f"   💰 **السعر:** {gift['stars']} نجمـة{limited_icon}{sold_out_icon}{remains_text}\n"
-            
-            # التحقق الآمن من القيم
-            if gift["convert_stars"] and gift["convert_stars"] > 0:
-                message += f"   🔄 **قيمة التحويل:** {gift['convert_stars']} نجمـة\n"
-            
-            if gift["upgrade_stars"] and gift["upgrade_stars"] > 0:
-                message += f"   ⬆️ **تكلفة الترقية:** {gift['upgrade_stars']} نجمـة\n"
-            
-            if gift["limited"]:
-                if gift["first_sale_date"]:
-                    message += f"   📅 **بداية البيع:** {gift['first_sale_date']}\n"
-                if gift["last_sale_date"]:
-                    message += f"   ⏰ **نهاية البيع:** {gift['last_sale_date']}\n"
-            
-            message += "\n"
-        
-        message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
-        
-        if gifts and gifts.get("sticker"):
-            await event.client.send_file(
-                event.chat_id,
-                file=gifts["sticker"],
-                caption=message
-            )
-            await zed.delete()
-        else:
-            await zed.edit(message)
+        # إرسال كل هدية مع ملصقها وسعرها
+        for gift in gifts:
+            if gift.get("sticker"):
+                caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                await event.client.send_file(
+                    event.chat_id,
+                    file=gift["sticker"],
+                    caption=caption
+                )
+            else:
+                # في حالة عدم وجود ملصق، نرسل رسالة نصية فقط
+                message = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                await event.client.send_message(event.chat_id, message)
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

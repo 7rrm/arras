@@ -841,7 +841,6 @@ async def comming(event):
 # ================================================================================================ #
 from telethon.tl.functions.payments import GetStarGiftsRequest
 
-
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
@@ -857,12 +856,12 @@ async def get_star_gifts_info(client):
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "sticker": getattr(gift, "sticker", None),  # الملصق المرفق
-                    "convert_stars": getattr(gift, "convert_stars", 0),  # قيمة التحويل
-                    "upgrade_stars": getattr(gift, "upgrade_stars", 0),  # تكلفة الترقية
-                    "birthday": getattr(gift, "birthday", False),  # هدية مناسبات
-                    "first_sale_date": getattr(gift, "first_sale_date", None),  # تاريخ أول بيع
-                    "last_sale_date": getattr(gift, "last_sale_date", None),  # تاريخ آخر بيع
+                    "sticker": getattr(gift, "sticker", None),
+                    "convert_stars": getattr(gift, "convert_stars", 0) or 0,  # تحويل None إلى 0
+                    "upgrade_stars": getattr(gift, "upgrade_stars", 0) or 0,  # تحويل None إلى 0
+                    "birthday": getattr(gift, "birthday", False),
+                    "first_sale_date": getattr(gift, "first_sale_date", None),
+                    "last_sale_date": getattr(gift, "last_sale_date", None),
                 }
                 gifts.append(gift_info)
         
@@ -890,10 +889,7 @@ async def star_gifts(event):
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        # ترتيب الهدايا حسب النجوم
         gifts = sorted(gifts, key=lambda g: -g["stars"])
-        
-        # إنشاء رسالة الهدايا
         message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
         
         for i, gift in enumerate(gifts, 1):
@@ -905,14 +901,13 @@ async def star_gifts(event):
             message += f"**{i}. {gift['title']}**{birthday_icon}\n"
             message += f"   💰 **السعر:** {gift['stars']} نجمـة{limited_icon}{sold_out_icon}{remains_text}\n"
             
-            # إضافة معلومات التحويل والترقية
-            if gift["convert_stars"] > 0:
+            # التحقق الآمن من القيم
+            if gift["convert_stars"] and gift["convert_stars"] > 0:
                 message += f"   🔄 **قيمة التحويل:** {gift['convert_stars']} نجمـة\n"
             
-            if gift["upgrade_stars"] > 0:
+            if gift["upgrade_stars"] and gift["upgrade_stars"] > 0:
                 message += f"   ⬆️ **تكلفة الترقية:** {gift['upgrade_stars']} نجمـة\n"
             
-            # إضافة تواريخ البيع للهدايا المحدودة
             if gift["limited"]:
                 if gift["first_sale_date"]:
                     message += f"   📅 **بداية البيع:** {gift['first_sale_date']}\n"
@@ -923,11 +918,10 @@ async def star_gifts(event):
         
         message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
         
-        # إرسال الرسالة مع الملصق إذا كان متوفراً
-        if gifts and gifts[0].get("sticker"):
+        if gifts and gifts.get("sticker"):
             await event.client.send_file(
                 event.chat_id,
-                file=gifts[0]["sticker"],
+                file=gifts["sticker"],
                 caption=message
             )
             await zed.delete()

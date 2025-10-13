@@ -835,3 +835,209 @@ async def comming(event):
             except MessageIdInvalidError:
                 pass
 
+
+# ================================================================================================ #
+# =========================================الهدايا================================================= #
+# ================================================================================================ #
+
+from telethon import TelegramClient, events
+from telethon.tl.functions.payments import GetPremiumGiftCodeOptionsRequest, GetStarsGiftsRequest
+from telethon.tl.functions.messages import GetStickerSetRequest
+from telethon.tl.types import InputStickerSetShortName
+import re
+
+# جلب خيارات هدايا Premium
+async def get_premium_gifts(client):
+    """
+    جلب قائمة هدايا Premium المتاحة في المتجر
+    """
+    try:
+        result = await client(GetPremiumGiftCodeOptionsRequest(
+            boost_peer=None  # للحصول على جميع الخيارات
+        ))
+        
+        print("=" * 60)
+        print("🎁 هدايا Premium المتاحة:")
+        print("=" * 60)
+        
+        for gift in result:
+            print(f"\n💎 خيار الهدية:")
+            print(f"   💰 السعر: {gift.amount} {gift.currency}")
+            print(f"   ⏰ المدة: {gift.months} شهر")
+            print(f"   👥 عدد المستخدمين: {gift.users}")
+            if hasattr(gift, 'store_product'):
+                print(f"   🏪 معرف المنتج: {gift.store_product}")
+            print("-" * 60)
+            
+    except Exception as e:
+        print(f"❌ خطأ في جلب هدايا Premium: {e}")
+
+
+# جلب هدايا النجوم (Stars Gifts)
+async def get_stars_gifts(client):
+    """
+    جلب الهدايا المدفوعة بالنجوم
+    """
+    try:
+        result = await client(GetStarsGiftsRequest())
+        
+        print("\n" + "=" * 60)
+        print("⭐ هدايا النجوم المتاحة:")
+        print("=" * 60)
+        
+        for gift in result.gifts:
+            print(f"\n🎁 الهدية:")
+            print(f"   🆔 المعرف: {gift.id}")
+            print(f"   ⭐ السعر بالنجوم: {gift.stars}")
+            
+            # معلومات الملصق
+            if hasattr(gift, 'sticker'):
+                print(f"   🎨 لديها ملصق")
+            
+            # التوفر
+            if hasattr(gift, 'availability_remains'):
+                print(f"   📦 الكمية المتبقية: {gift.availability_remains}")
+            if hasattr(gift, 'availability_total'):
+                print(f"   📊 الكمية الكلية: {gift.availability_total}")
+                
+            # السعر الأصلي
+            if hasattr(gift, 'convert_stars'):
+                print(f"   💱 قيمة التحويل: {gift.convert_stars} نجمة")
+                
+            print("-" * 60)
+            
+    except Exception as e:
+        print(f"❌ خطأ في جلب هدايا النجوم: {e}")
+
+
+# مراقبة تحديثات الهدايا
+@l313l.on(events.Raw)
+async def monitor_gift_updates(event):
+    """
+    مراقبة تحديثات الهدايا في الوقت الفعلي
+    """
+    # فحص إذا كان التحديث متعلق بالهدايا
+    if hasattr(event, 'action'):
+        action_type = type(event.action).__name__
+        
+        if 'Gift' in action_type or 'Premium' in action_type:
+            print(f"🔔 تحديث جديد في المتجر: {action_type}")
+            
+            # يمكنك إعادة جلب قائمة الهدايا هنا
+            await get_premium_gifts(l313l)
+            await get_stars_gifts(l313l)
+
+
+# أمر لعرض جميع الهدايا المتاحة
+@l313l.ar_cmd(pattern="عرض_الهدايا$")
+async def show_all_gifts(event):
+    """
+    أمر لعرض جميع الهدايا المتاحة في المتجر
+    """
+    await edit_or_reply(event, "**🔄 جاري جلب قائمة الهدايا...**")
+    
+    try:
+        # جلب هدايا Premium
+        premium_result = await event.client(GetPremiumGiftCodeOptionsRequest(
+            boost_peer=None
+        ))
+        
+        response = "**🎁 الهدايا المتاحة في المتجر**\n"
+        response += "ٴ**━━━━━━━━━━━━━**\n\n"
+        
+        # عرض هدايا Premium
+        response += "**💎 هدايا Premium:**\n\n"
+        for idx, gift in enumerate(premium_result, 1):
+            response += f"**{idx}. خيار الهدية**\n"
+            response += f"   💰 السعر: `{gift.amount} {gift.currency}`\n"
+            response += f"   ⏰ المدة: `{gift.months}` شهر\n"
+            response += f"   👥 المستخدمين: `{gift.users}`\n\n"
+        
+        # جلب هدايا النجوم
+        try:
+            stars_result = await event.client(GetStarsGiftsRequest())
+            
+            response += "\n**⭐ هدايا النجوم:**\n\n"
+            for idx, gift in enumerate(stars_result.gifts, 1):
+                response += f"**{idx}. هدية نجوم**\n"
+                response += f"   ⭐ السعر: `{gift.stars}` نجمة\n"
+                
+                if hasattr(gift, 'availability_remains'):
+                    response += f"   📦 المتبقي: `{gift.availability_remains}`\n"
+                if hasattr(gift, 'availability_total'):
+                    response += f"   📊 الإجمالي: `{gift.availability_total}`\n"
+                    
+                response += "\n"
+        except:
+            pass
+        
+        response += "ٴ**━━━━━━━━━━━━━**"
+        await edit_or_reply(event, response)
+        
+    except Exception as e:
+        await edit_or_reply(event, f"**❌ خطأ:** `{str(e)}`")
+
+
+# أمر لمراقبة هدية معينة
+@l313l.ar_cmd(pattern="مراقبة_هدية (\d+)$")
+async def monitor_specific_gift(event):
+    """
+    مراقبة هدية معينة ومتابعة توفرها
+    """
+    gift_id = int(event.pattern_match.group(1))
+    
+    await edit_or_reply(event, f"**🔍 جاري مراقبة الهدية #{gift_id}...**")
+    
+    try:
+        result = await event.client(GetStarsGiftsRequest())
+        
+        # البحث عن الهدية المحددة
+        target_gift = None
+        for gift in result.gifts:
+            if gift.id == gift_id:
+                target_gift = gift
+                break
+        
+        if not target_gift:
+            return await edit_or_reply(event, f"**❌ لم يتم العثور على هدية بالمعرف #{gift_id}**")
+        
+        response = f"**🎁 معلومات الهدية #{gift_id}**\n"
+        response += "ٴ**━━━━━━━━━━━━━**\n"
+        response += f"**⭐ السعر:** `{target_gift.stars}` نجمة\n"
+        
+        if hasattr(target_gift, 'availability_remains'):
+            response += f"**📦 المتبقي:** `{target_gift.availability_remains}`\n"
+        if hasattr(target_gift, 'availability_total'):
+            response += f"**📊 الإجمالي:** `{target_gift.availability_total}`\n"
+        if hasattr(target_gift, 'convert_stars'):
+            response += f"**💱 قيمة التحويل:** `{target_gift.convert_stars}` نجمة\n"
+            
+        response += "ٴ**━━━━━━━━━━━━━**"
+        
+        await edit_or_reply(event, response)
+        
+    except Exception as e:
+        await edit_or_reply(event, f"**❌ خطأ:** `{str(e)}`")
+
+
+# تشغيل تلقائي عند بدء البوت
+@l313l.on(events.NewMessage(pattern="/start_gift_monitor"))
+async def auto_start_monitoring(event):
+    """
+    تشغيل المراقبة التلقائية للهدايا
+    """
+    if event.sender_id == (await event.client.get_me()).id:
+        print("🚀 بدء مراقبة متجر الهدايا...")
+        
+        # جلب الهدايا كل فترة
+        while True:
+            try:
+                await get_premium_gifts(event.client)
+                await get_stars_gifts(event.client)
+                
+                # الانتظار 5 دقائق قبل التحديث التالي
+                await asyncio.sleep(300)
+                
+            except Exception as e:
+                print(f"❌ خطأ في المراقبة التلقائية: {e}")
+                await asyncio.sleep(60)

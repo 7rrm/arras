@@ -842,6 +842,31 @@ async def comming(event):
 
 from telethon.tl.functions.payments import GetStarGiftsRequest
 
+from telethon.tl.functions.payments import GetStarGiftRequest
+
+async def get_gift_by_id(client, gift_id):
+    """جلب الهدية باستخدام ID"""
+    try:
+        # استخدام GetStarGiftRequest للحصول على هدية محددة
+        result = await client(GetStarGiftRequest(gift_id=gift_id))
+        
+        gift_info = {
+            "id": result.id,
+            "title": getattr(result, "title", "بدون اسم") or getattr(result, "alt", f"ID: {result.id}"),
+            "stars": getattr(result, "stars", 0),
+            "limited": getattr(result, "limited", False),
+            "remains": getattr(result, "availability_remains", 0),
+            "sold_out": getattr(result, "sold_out", False),
+            "document": getattr(result, "document", None),
+            "sticker": getattr(result, "sticker", None),
+            "cover": getattr(result, "cover", None)
+        }
+        return gift_info
+        
+    except Exception as e:
+        print(f"Error getting gift by ID {gift_id}: {e}")
+        return None
+
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
@@ -864,26 +889,6 @@ async def get_star_gifts_info(client):
         
     except Exception as e:
         print(f"Error in get_star_gifts_info: {e}")
-        return None
-
-async def get_gift_sticker(client, gift_id):
-    """جلب ملصق الهدية باستخدام ID"""
-    try:
-        # جلب معلومات الهدية باستخدام الـ ID
-        result = await client(GetStarGiftsRequest(hash=0))
-        
-        for gift in getattr(result, "gifts", []):
-            if gift.id == gift_id:
-                # محاولة الحصول على الملصق بطرق مختلفة
-                if hasattr(gift, 'document') and gift.document:
-                    return gift.document
-                elif hasattr(gift, 'sticker') and gift.sticker:
-                    return gift.sticker
-                elif hasattr(gift, 'cover') and gift.cover:
-                    return gift.cover
-        return None
-    except Exception as e:
-        print(f"Error getting sticker for gift {gift_id}: {e}")
         return None
 
 @l313l.ar_cmd(
@@ -917,14 +922,17 @@ async def star_gifts(event):
             remains_text = f"\nالمتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
             try:
-                # جلب ملصق الهدية باستخدام ID
-                sticker_document = await get_gift_sticker(event.client, gift["id"])
+                # جلب الهدية باستخدام ID للحصول على الملصق
+                full_gift = await get_gift_by_id(event.client, gift["id"])
                 
-                if sticker_document:
+                if full_gift and (full_gift.get('document') or full_gift.get('sticker') or full_gift.get('cover')):
+                    # استخدام أول وسيط متاح
+                    media = full_gift.get('document') or full_gift.get('sticker') or full_gift.get('cover')
+                    
                     # إرسال الملصق
                     sticker_message = await event.client.send_file(
                         event.chat_id,
-                        sticker_document,
+                        media,
                         force_document=False
                     )
                     

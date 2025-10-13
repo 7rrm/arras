@@ -857,7 +857,7 @@ async def get_star_gifts_info(client):
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "document": getattr(gift, "document", None)  # إضافة المستند للملصق
+                    "document_id": getattr(gift, "document_id", None)  # ID الملصق
                 }
                 gifts.append(gift_info)
         
@@ -891,32 +891,36 @@ async def star_gifts(event):
         # حذف الرسالة الأولية
         await zed.delete()
         
-        # إرسال كل هدية كملصق منفصل
-        for i, gift in enumerate(gifts, 1):
+        # إرسال كل هدية كملصق والرد عليه بالسعر
+        for gift in gifts:
             limited_icon = " ⭐" if gift["limited"] else ""
-            remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
-            
-            caption = (
-                f"**{gift['title']}**\n"
-                f"**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
-            )
+            remains_text = f"\nالمتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
             try:
-                # إرسال الملصق إذا كان متوفراً
-                if gift.get('document'):
-                    await event.client.send_file(
+                # إرسال الملصق باستخدام document_id
+                if gift.get('document_id'):
+                    sticker_message = await event.client.send_file(
                         event.chat_id,
-                        gift['document'],
-                        caption=caption
+                        gift['document_id'],
+                        force_document=False
+                    )
+                    
+                    # الرد على الملصق بالسعر
+                    price_message = f"**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
+                    await event.client.send_message(
+                        event.chat_id,
+                        price_message,
+                        reply_to=sticker_message.id
                     )
                 else:
-                    # إذا لم يكن هناك ملصق، إرسال الرسالة فقط
+                    # إذا لم يكن هناك ملصق، إرسال الاسم والسعر فقط
                     await event.client.send_message(
                         event.chat_id,
                         f"**🎁 {gift['title']}**\n**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
                     )
+                    
             except Exception as e:
-                # في حالة خطأ، إرسال الرسالة بدون ملصق
+                # في حالة خطأ، إرسال الاسم والسعر فقط
                 await event.client.send_message(
                     event.chat_id,
                     f"**🎁 {gift['title']}**\n**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"

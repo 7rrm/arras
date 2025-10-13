@@ -850,6 +850,13 @@ async def get_star_gifts_info(client):
         
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
+                # محاولة الحصول على الملصق بطرق مختلفة
+                document = None
+                if hasattr(gift, 'document') and gift.document:
+                    document = gift.document
+                elif hasattr(gift, 'sticker') and gift.sticker:
+                    document = gift.sticker
+                
                 gift_info = {
                     "id": gift.id,
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
@@ -857,7 +864,7 @@ async def get_star_gifts_info(client):
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "document": getattr(gift, "document", None)  # المستند نفسه وليس الـ ID فقط
+                    "document": document
                 }
                 gifts.append(gift_info)
         

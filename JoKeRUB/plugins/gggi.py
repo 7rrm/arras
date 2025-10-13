@@ -841,7 +841,7 @@ async def comming(event):
 # ================================================================================================ #
 from telethon.tl.functions.payments import GetStarGiftsRequest
 
-from telethon.tl.types import Document
+from telethon.tl.types import InputDocument
 
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
@@ -853,15 +853,22 @@ async def get_star_gifts_info(client):
             if not getattr(gift, "sold_out", False):
                 sticker = getattr(gift, "sticker", None)
                 
-                # التحقق من نوع الملصق
-                if sticker and isinstance(sticker, Document):
-                    gift_info = {
-                        "id": gift.id,
-                        "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
-                        "stars": getattr(gift, "stars", 0),
-                        "sticker": sticker,  # كائن Document كامل
-                    }
-                    gifts.append(gift_info)
+                # استخراج معلومات الملصق إذا كان موجوداً
+                sticker_input = None
+                if sticker:
+                    sticker_input = InputDocument(
+                        id=sticker.id,
+                        access_hash=sticker.access_hash,
+                        file_reference=sticker.file_reference
+                    )
+                
+                gift_info = {
+                    "id": gift.id,
+                    "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
+                    "stars": getattr(gift, "stars", 0),
+                    "sticker": sticker_input,
+                }
+                gifts.append(gift_info)
         
         return gifts
         
@@ -888,40 +895,45 @@ async def star_gifts(event):
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        await zed.edit("**🎁 جـارِ إرسـال الهدايـا...**")
+        # التحقق من وجود ملصقات
+        gifts_with_stickers = [g for g in gifts if g.get("sticker")]
+        
+        if not gifts_with_stickers:
+            await zed.edit("**❌ لا توجد ملصقات متاحة للهدايا**")
+            return
+        
+        await zed.edit(f"**🎁 جـارِ إرسـال {len(gifts_with_stickers)} هدية...**")
         
         sent_count = 0
         failed_count = 0
         
-        for gift in gifts:
+        for gift in gifts_with_stickers:
             try:
-                if gift.get("sticker"):
-                    caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
-                    
-                    # إرسال الملصق باستخدام كائن Document
-                    await event.client.send_file(
-                        event.chat_id,
-                        file=gift["sticker"],
-                        caption=caption,
-                        force_document=False  # لإرسالها كملصق وليس ملف
-                    )
-                    sent_count += 1
-                    
+                caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                
+                # إرسال الملصق باستخدام InputDocument
+                await event.client.send_file(
+                    event.chat_id,
+                    file=gift["sticker"],
+                    caption=caption
+                )
+                sent_count += 1
+                
             except Exception as e:
                 failed_count += 1
                 print(f"فشل إرسال الهدية {gift['title']}: {e}")
-                # إرسال رسالة نصية بدلاً من الملصق
-                message = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**\n⚠️ فشل تحميل الملصق"
-                await event.client.send_message(event.chat_id, message)
         
-        # حذف رسالة الجلب بعد الانتهاء
+        # حذف رسالة الجلب
         await zed.delete()
         
-        # إرسال ملخص النتائج
-        summary = f"**✅ تم إرسال {sent_count} هدية بنجاح**"
-        if failed_count > 0:
-            summary += f"\n**⚠️ فشل إرسال {failed_count} هدية**"
-        await event.client.send_message(event.chat_id, summary)
+        # إرسال ملخص
+        if sent_count > 0:
+            summary = f"**✅ تم إرسال {sent_count} هدية**"
+            if failed_count > 0:
+                summary += f"\n**⚠️ فشل إرسال {failed_count} هدية**"
+            await event.client.send_message(event.chat_id, summary)
+        else:
+            await event.client.send_message(event.chat_id, "**❌ فشل إرسال جميع الهدايا**")
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

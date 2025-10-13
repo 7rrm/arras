@@ -847,13 +847,13 @@ async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
         result = await client(GetStarGiftsRequest(hash=0))
+        print(result)  # طباعة محتوى الاستجابة
         gifts = []
-
+        
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
                 gift_info = {
                     "id": gift.id,
-                    "access_hash": gift.access_hash,  # تأكد من أنك تحصل على access_hash
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
@@ -861,10 +861,11 @@ async def get_star_gifts_info(client):
                     "sold_out": getattr(gift, "sold_out", False)
                 }
                 gifts.append(gift_info)
-
+        
         return gifts
-
+        
     except Exception as e:
+        print(f"Error fetching star gifts: {e}")
         return None
 
 @l313l.ar_cmd(

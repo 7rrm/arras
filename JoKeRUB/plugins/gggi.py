@@ -911,8 +911,6 @@ async def star_gifts(event):
 
 from telethon.tl.types import InputDocument
 
-from telethon.tl.functions.payments import GetUniqueStarGiftRequest
-
 @l313l.ar_cmd(
     pattern="هديه(?:\s|$)([\s\S]*)",
     command=("هديه", plugin_category),
@@ -937,20 +935,24 @@ async def send_gift_sticker(event):
     zed = await edit_or_reply(event, f"**🎁 جـارِ جلب الهديـة {gift_id}...**")
     
     try:
-        # الحصول على معلومات الهدية باستخدام GetUniqueStarGiftRequest
-        gift_info = await event.client(GetUniqueStarGiftRequest(gift_id=gift_id))
+        # جلب جميع الهدايا أولاً
+        result = await event.client(GetStarGiftsRequest(hash=0))
+        target_gift = None
         
-        # التحقق من وجود الهدية والملصق
-        if not gift_info or not gift_info.gift:
+        # البحث عن الهدية المطلوبة
+        for gift in getattr(result, "gifts", []):
+            if gift.id == gift_id:
+                target_gift = gift
+                break
+        
+        if not target_gift:
             await zed.edit(f"**❌ لم يتم العثور على هدية بالمعرف {gift_id}**")
             return
         
-        gift = gift_info.gift
-        sticker = getattr(gift, 'sticker', None)
-        
+        # الحصول على الملصق
+        sticker = getattr(target_gift, 'sticker', None)
         if not sticker:
-            # إذا لم يكن هناك sticker، جرب document أو cover
-            sticker = getattr(gift, 'document', None) or getattr(gift, 'cover', None)
+            sticker = getattr(target_gift, 'document', None) or getattr(target_gift, 'cover', None)
         
         if sticker:
             # إرسال الملصق
@@ -960,11 +962,11 @@ async def send_gift_sticker(event):
                 force_document=False
             )
             
-            # الحصول على سعر الهدية
-            price = getattr(gift, 'stars', 0)
-            title = getattr(gift, 'title', 'هدية')
-            limited = getattr(gift, 'limited', False)
-            remains = getattr(gift, 'availability_remains', 0)
+            # الحصول على معلومات الهدية
+            price = getattr(target_gift, 'stars', 0)
+            title = getattr(target_gift, 'title', 'هدية')
+            limited = getattr(target_gift, 'limited', False)
+            remains = getattr(target_gift, 'availability_remains', 0)
             
             # الرد على الملصق برسالة السعر
             price_msg = f"**{title}**\n**السعر: {price} نجمـة**"
@@ -980,8 +982,8 @@ async def send_gift_sticker(event):
             await zed.delete()
         else:
             # إذا لم يكن هناك ملصق
-            price = getattr(gift, 'stars', 0)
-            title = getattr(gift, 'title', 'هدية')
+            price = getattr(target_gift, 'stars', 0)
+            title = getattr(target_gift, 'title', 'هدية')
             
             await zed.edit(f"**❌ لا يوجد ملصق للهدية**\n**{title}**\n**السعر: {price} نجمـة**")
         

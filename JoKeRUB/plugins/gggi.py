@@ -894,18 +894,33 @@ async def star_gifts(event):
         message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
         
         for i, gift in enumerate(gifts, 1):
-            limited_text = "⭐ محدودة" if gift["limited"] else "♾️ غير محدودة"
-            remains_text = f"\n**📦 المتبقي:** `{gift['remains']:,}` / `{gift['total']:,}`" if gift["limited"] else ""
-            
-            caption = (
-                f"**🎁 {gift['title']}**\n"
-                f"**━━━━━━━━━━━━━**\n"
-                f"**💰 سعر الهدية:** `{gift['stars']:,}` ⭐\n"
-                f"**💱 العملة:** `{gift['convert_stars']:,}` ⭐\n"
-                f"**🆔 الكود:** `{gift['id']}`\n"
-                f"**🏷️ النوع:** {limited_text}{remains_text}\n"
-                f"**━━━━━━━━━━━━━**"
+    limited_text = "⭐ محدودة" if gift["limited"] else "♾️ غير محدودة"
+    remains_text = f"\n**📦 المتبقي:** `{gift['remains']:,}` / `{gift['total']:,}`" if gift["limited"] else ""
+    
+    caption = (
+        f"**🎁 {gift['title']}**\n"
+        f"**━━━━━━━━━━━━━**\n"
+        f"**💰 سعر الهدية:** `{gift['stars']:,}` ⭐\n"
+        f"**💱 العملة:** `{gift['convert_stars']:,}` ⭐\n"
+        f"**🆔 الكود:** `{gift['id']}`\n"
+        f"**🏷️ النوع:** {limited_text}{remains_text}\n"
+        f"**━━━━━━━━━━━━━**"
+    )
+    
+    # تحقق من وجود معرف الملصق
+    if gift["id"]:  # استبدل `gift["sticker"]` بـ `gift["id"]` إذا كنت تستخدم معرف الهدية
+        try:
+            await event.client.send_sticker(
+                event.chat_id,
+                gift["id"],  # استخدم معرف الهدية هنا
+                caption=caption,
+                parse_mode="md"
             )
+        except Exception as e:
+            print(f"خطأ في إرسال الملصق: {e}")
+            await event.respond(caption)  # أرسل النص فقط في حالة حدوث خطأ
+    else:
+        await event.respond(caption)
             
             # إرسال الهدية مع الملصق
             if gift["sticker"]:

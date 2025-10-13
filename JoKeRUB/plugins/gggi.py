@@ -856,10 +856,8 @@ async def get_star_gifts_info(client):
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
-                    "total": getattr(gift, "availability_total", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "sticker": getattr(gift, "sticker", None),  # الملصق
-                    "convert_stars": getattr(gift, "convert_stars", 0)
+                    "document": getattr(gift, "document", None)  # إضافة المستند للملصق
                 }
                 gifts.append(gift_info)
         
@@ -890,57 +888,42 @@ async def star_gifts(event):
         # ترتيب الهدايا حسب النجوم
         gifts = sorted(gifts, key=lambda g: -g["stars"])
         
-        # إعداد الرسالة النهائية
-        message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
-        
-        for i, gift in enumerate(gifts, 1):
-    limited_text = "⭐ محدودة" if gift["limited"] else "♾️ غير محدودة"
-    remains_text = f"\n**📦 المتبقي:** `{gift['remains']:,}` / `{gift['total']:,}`" if gift["limited"] else ""
-    
-    caption = (
-        f"**🎁 {gift['title']}**\n"
-        f"**━━━━━━━━━━━━━**\n"
-        f"**💰 سعر الهدية:** `{gift['stars']:,}` ⭐\n"
-        f"**💱 العملة:** `{gift['convert_stars']:,}` ⭐\n"
-        f"**🆔 الكود:** `{gift['id']}`\n"
-        f"**🏷️ النوع:** {limited_text}{remains_text}\n"
-        f"**━━━━━━━━━━━━━**"
-    )
-    
-    # تحقق من وجود معرف الملصق
-    if gift["id"]:  # استبدل `gift["sticker"]` بـ `gift["id"]` إذا كنت تستخدم معرف الهدية
-        try:
-            await event.client.send_sticker(
-                event.chat_id,
-                gift["id"],  # استخدم معرف الهدية هنا
-                caption=caption,
-                parse_mode="md"
-            )
-        except Exception as e:
-            print(f"خطأ في إرسال الملصق: {e}")
-            await event.respond(caption)  # أرسل النص فقط في حالة حدوث خطأ
-    else:
-        await event.respond(caption)
-            
-            # إرسال الهدية مع الملصق
-            if gift["sticker"]:
-                await event.client.send_file(
-                    event.chat_id,
-                    gift["sticker"],
-                    caption=caption,
-                    parse_mode="md"
-                )
-            else:
-                await event.respond(caption)
-        
-        # رسالة نهائية
-        await event.respond(
-            f"**✅ تم عرض {len(gifts)} هدية**\n"
-            f"**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
-        )
-        
-        # حذف رسالة التحميل بعد الانتهاء
+        # حذف الرسالة الأولية
         await zed.delete()
+        
+        # إرسال كل هدية كملصق منفصل
+        for i, gift in enumerate(gifts, 1):
+            limited_icon = " ⭐" if gift["limited"] else ""
+            remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
+            
+            caption = (
+                f"**{gift['title']}**\n"
+                f"**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
+            )
+            
+            try:
+                # إرسال الملصق إذا كان متوفراً
+                if gift.get('document'):
+                    await event.client.send_file(
+                        event.chat_id,
+                        gift['document'],
+                        caption=caption
+                    )
+                else:
+                    # إذا لم يكن هناك ملصق، إرسال الرسالة فقط
+                    await event.client.send_message(
+                        event.chat_id,
+                        f"**🎁 {gift['title']}**\n**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
+                    )
+            except Exception as e:
+                # في حالة خطأ، إرسال الرسالة بدون ملصق
+                await event.client.send_message(
+                    event.chat_id,
+                    f"**🎁 {gift['title']}**\n**السعر: {gift['stars']} نجمـة**{limited_icon}{remains_text}"
+                )
+            
+            # تأخير بسيط بين كل رسالة
+            await asyncio.sleep(0.5)
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

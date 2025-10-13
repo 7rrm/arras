@@ -856,7 +856,8 @@ async def get_star_gifts_info(client):
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
-                    "sold_out": getattr(gift, "sold_out", False)
+                    "sold_out": getattr(gift, "sold_out", False),
+                    "document_id": getattr(gift, "document_id", None)  # إضافة document_id للملصق
                 }
                 gifts.append(gift_info)
         
@@ -887,22 +888,53 @@ async def star_gifts(event):
         # ترتيب الهدايا حسب النجوم
         gifts = sorted(gifts, key=lambda g: -g["stars"])
         
-        # إنشاء رسالة الهدايا
-        message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
+        # إرسال الرسالة الرئيسية أولاً
+        main_message = await zed.edit("**🎁 الهدايـا النجميـة المتاحـة:**\n\n**↳ جاري إرسال كل هدية على حدة...**")
         
+        # إرسال كل هدية كرسالة منفصلة مع ملصق
         for i, gift in enumerate(gifts, 1):
             limited_icon = " ⭐" if gift["limited"] else ""
             sold_out_icon = " 🔴" if gift["sold_out"] else " 🟢"
             remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
-            message += (
+            gift_message = (
                 f"**{i}. {gift['title']}**\n"
-                f"   ⏣ **{gift['stars']} نجمـة**{limited_icon}{sold_out_icon}{remains_text}\n\n"
+                f"   ⏣ **{gift['stars']} نجمـة**{limited_icon}{sold_out_icon}{remains_text}"
             )
+            
+            try:
+                # محاولة إرسال الملصق إذا كان document_id متوفراً
+                if gift.get('document_id'):
+                    await event.client.send_file(
+                        event.chat_id,
+                        gift['document_id'],
+                        caption=gift_message,
+                        reply_to=main_message.id
+                    )
+                else:
+                    # إذا لم يكن هناك ملصق، إرسال الرسالة فقط
+                    await event.client.send_message(
+                        event.chat_id,
+                        gift_message,
+                        reply_to=main_message.id
+                    )
+            except Exception as e:
+                # في حالة خطأ، إرسال الرسالة بدون ملصق
+                await event.client.send_message(
+                    event.chat_id,
+                    gift_message,
+                    reply_to=main_message.id
+                )
+            
+            # تأخير بسيط بين كل رسالة
+            await asyncio.sleep(1)
         
-        message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
-        
-        await zed.edit(message)
+        # إرسال رسالة الختام
+        await event.client.send_message(
+            event.chat_id,
+            "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**",
+            reply_to=main_message.id
+        )
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

@@ -637,3 +637,41 @@ async def cb_sticker(event):
             packid = (pack.button).get("data-popup")
             reply += f"\n **• ID: **`{packid}`\n [{packtitle}]({packlink})"
     await catevent.edit(reply)
+
+@l313l.ar_cmd(
+    pattern="ايدي_ملصق(?:\s|$)([\s\S]*)",
+    command=("ايدي_ملصق", plugin_category),
+    info={
+        "header": "لإرسال ملصق بواسطة المعرف",
+        "description": "يرسل الملصق مباشرة باستخدام معرفه",
+        "usage": "ايدي_ملصق + معرف_الملصق",
+    },
+)
+async def send_sticker_by_id(event):
+    "لإرسال ملصق بواسطة المعرف"
+    input_str = event.pattern_match.group(1)
+    if not input_str:
+        return await edit_delete(event, "**⌔︙ يرجى إدخال معرف الملصق بعد الأمر**")
+    
+    try:
+        sticker_id = int(input_str.strip())
+    except ValueError:
+        return await edit_delete(event, "**⌔︙ معرف الملصق يجب أن يكون رقماً**")
+    
+    try:
+        # إنشاء كائن الملصق باستخدام المعرف مباشرة
+        sticker = types.InputDocument(
+            id=sticker_id,
+            access_hash=0,  # يمكن تعديله إذا كان لديك الـ access_hash
+            file_reference=b''
+        )
+        
+        await event.delete()
+        await event.client.send_file(
+            event.chat_id,
+            sticker,
+            reply_to=event.reply_to_msg_id
+        )
+        
+    except Exception as e:
+        await edit_delete(event, f"**⌔︙ حدث خطأ في إرسال الملصق:** {str(e)}")

@@ -845,23 +845,26 @@ from telethon.tl.functions.payments import GetStarGiftsRequest
 from telethon.tl.functions.payments import GetStarGiftRequest
 
 async def get_gift_by_id(client, gift_id):
-    """جلب الهدية باستخدام ID"""
+    """جلب الهدية باستخدام ID - الطريقة البديلة"""
     try:
-        # استخدام GetStarGiftRequest للحصول على هدية محددة
-        result = await client(GetStarGiftRequest(gift_id=gift_id))
+        # جلب جميع الهدايا والبحث عن الهدية المطلوبة
+        result = await client(GetStarGiftsRequest(hash=0))
         
-        gift_info = {
-            "id": result.id,
-            "title": getattr(result, "title", "بدون اسم") or getattr(result, "alt", f"ID: {result.id}"),
-            "stars": getattr(result, "stars", 0),
-            "limited": getattr(result, "limited", False),
-            "remains": getattr(result, "availability_remains", 0),
-            "sold_out": getattr(result, "sold_out", False),
-            "document": getattr(result, "document", None),
-            "sticker": getattr(result, "sticker", None),
-            "cover": getattr(result, "cover", None)
-        }
-        return gift_info
+        for gift in getattr(result, "gifts", []):
+            if gift.id == gift_id:
+                gift_info = {
+                    "id": gift.id,
+                    "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
+                    "stars": getattr(gift, "stars", 0),
+                    "limited": getattr(gift, "limited", False),
+                    "remains": getattr(gift, "availability_remains", 0),
+                    "sold_out": getattr(gift, "sold_out", False),
+                    "document": getattr(gift, "document", None),
+                    "sticker": getattr(gift, "sticker", None),
+                    "cover": getattr(gift, "cover", None)
+                }
+                return gift_info
+        return None
         
     except Exception as e:
         print(f"Error getting gift by ID {gift_id}: {e}")

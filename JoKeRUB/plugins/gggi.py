@@ -843,6 +843,9 @@ from telethon.tl.functions.payments import GetStarGiftsRequest
 
 from telethon.tl.types import InputDocument
 
+import os
+import tempfile
+
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
@@ -851,22 +854,11 @@ async def get_star_gifts_info(client):
         
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
-                sticker = getattr(gift, "sticker", None)
-                
-                # استخراج معلومات الملصق إذا كان موجوداً
-                sticker_input = None
-                if sticker:
-                    sticker_input = InputDocument(
-                        id=sticker.id,
-                        access_hash=sticker.access_hash,
-                        file_reference=sticker.file_reference
-                    )
-                
                 gift_info = {
                     "id": gift.id,
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
                     "stars": getattr(gift, "stars", 0),
-                    "sticker": sticker_input,
+                    "sticker": getattr(gift, "sticker", None),
                 }
                 gifts.append(gift_info)
         
@@ -895,7 +887,6 @@ async def star_gifts(event):
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
         
-        # التحقق من وجود ملصقات
         gifts_with_stickers = [g for g in gifts if g.get("sticker")]
         
         if not gifts_with_stickers:
@@ -907,26 +898,45 @@ async def star_gifts(event):
         sent_count = 0
         failed_count = 0
         
-        for gift in gifts_with_stickers:
-            try:
-                caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
-                
-                # إرسال الملصق باستخدام InputDocument
-                await event.client.send_file(
-                    event.chat_id,
-                    file=gift["sticker"],
-                    caption=caption
-                )
-                sent_count += 1
-                
-            except Exception as e:
-                failed_count += 1
-                print(f"فشل إرسال الهدية {gift['title']}: {e}")
+        # إنشاء مجلد مؤقت للملصقات
+        temp_dir = tempfile.mkdtemp()
         
-        # حذف رسالة الجلب
+        try:
+            for gift in gifts_with_stickers:
+                try:
+                    sticker = gift.get("sticker")
+                    if sticker:
+                        # تنزيل الملصق إلى ملف مؤقت
+                        sticker_path = os.path.join(temp_dir, f"gift_{gift['id']}.webp")
+                        await event.client.download_media(sticker, sticker_path)
+                        
+                        # إرسال الملصق المحفوظ
+                        caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                        await event.client.send_file(
+                            event.chat_id,
+                            file=sticker_path,
+                            caption=caption
+                        )
+                        
+                        # حذف الملف المؤقت
+                        if os.path.exists(sticker_path):
+                            os.remove(sticker_path)
+                        
+                        sent_count += 1
+                        
+                except Exception as e:
+                    failed_count += 1
+                    print(f"فشل إرسال الهدية {gift['title']}: {e}")
+                    
+        finally:
+            # تنظيف المجلد المؤقت
+            try:
+                os.rmdir(temp_dir)
+            except:
+                pass
+        
         await zed.delete()
         
-        # إرسال ملخص
         if sent_count > 0:
             summary = f"**✅ تم إرسال {sent_count} هدية**"
             if failed_count > 0:

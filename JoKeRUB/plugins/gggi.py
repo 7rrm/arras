@@ -850,13 +850,6 @@ async def get_star_gifts_info(client):
         
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
-                # محاولة الحصول على الملصق بطرق مختلفة
-                document = None
-                if hasattr(gift, 'document') and gift.document:
-                    document = gift.document
-                elif hasattr(gift, 'sticker') and gift.sticker:
-                    document = gift.sticker
-                
                 gift_info = {
                     "id": gift.id,
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
@@ -864,7 +857,6 @@ async def get_star_gifts_info(client):
                     "limited": getattr(gift, "limited", False),
                     "remains": getattr(gift, "availability_remains", 0),
                     "sold_out": getattr(gift, "sold_out", False),
-                    "document": document
                 }
                 gifts.append(gift_info)
         
@@ -872,6 +864,26 @@ async def get_star_gifts_info(client):
         
     except Exception as e:
         print(f"Error in get_star_gifts_info: {e}")
+        return None
+
+async def get_gift_sticker(client, gift_id):
+    """جلب ملصق الهدية باستخدام ID"""
+    try:
+        # جلب معلومات الهدية باستخدام الـ ID
+        result = await client(GetStarGiftsRequest(hash=0))
+        
+        for gift in getattr(result, "gifts", []):
+            if gift.id == gift_id:
+                # محاولة الحصول على الملصق بطرق مختلفة
+                if hasattr(gift, 'document') and gift.document:
+                    return gift.document
+                elif hasattr(gift, 'sticker') and gift.sticker:
+                    return gift.sticker
+                elif hasattr(gift, 'cover') and gift.cover:
+                    return gift.cover
+        return None
+    except Exception as e:
+        print(f"Error getting sticker for gift {gift_id}: {e}")
         return None
 
 @l313l.ar_cmd(
@@ -905,11 +917,14 @@ async def star_gifts(event):
             remains_text = f"\nالمتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
             
             try:
-                # إرسال الملصق باستخدام المستند مباشرة
-                if gift.get('document'):
+                # جلب ملصق الهدية باستخدام ID
+                sticker_document = await get_gift_sticker(event.client, gift["id"])
+                
+                if sticker_document:
+                    # إرسال الملصق
                     sticker_message = await event.client.send_file(
                         event.chat_id,
-                        gift['document'],
+                        sticker_document,
                         force_document=False
                     )
                     

@@ -913,50 +913,41 @@ async def star_gifts(event):
     pattern="هديه(?:\s|$)([\s\S]*)",
     command=("هديه", plugin_category),
     info={
-        "header": "لـ إرسال الهديـة كصورة باستخدام المعرف",
-        "الاستـخـدام": "{tr}هديه <معرف_الهدية>",
+        "header": "لـ إرسال الهديـة كملصـق باستخدام معرف الملصق",
+        "الاستـخـدام": "{tr}هديه <معرف_الملصق>",
         "مثـال": "{tr}هديه 5168043875654172773",
     },
 )
 async def send_gift_sticker(event):
-    "إرسال الهدية كصورة باستخدام المعرف"
-    gift_id = event.pattern_match.group(1)
+    "إرسال الهدية كملصق باستخدام معرف الملصق"
+    sticker_id = event.pattern_match.group(1)
     
-    if not gift_id:
-        return await edit_delete(event, "**❌ يرجى تحديد معرف الهدية**\n**مثال:** `.هديه 5168043875654172773`", time=10)
+    if not sticker_id:
+        return await edit_delete(event, "**❌ يرجى تحديد معرف الملصق**\n**مثال:** `.هديه 5168043875654172773`", time=10)
     
     try:
-        gift_id = int(gift_id.strip())
+        sticker_id = int(sticker_id.strip())
     except ValueError:
-        return await edit_delete(event, "**❌ معرف الهدية يجب أن يكون رقماً**", time=10)
+        return await edit_delete(event, "**❌ معرف الملصق يجب أن يكون رقماً**", time=10)
     
-    zed = await edit_or_reply(event, f"**🎁 جـارِ جلب الهديـة {gift_id}...**")
+    zed = await edit_or_reply(event, f"**🎁 جـارِ إرسال الملصـق {sticker_id}...**")
     
     try:
-        # جلب جميع الهدايا والبحث عن الهدية المطلوبة
-        result = await event.client(GetStarGiftsRequest(hash=0))
-        target_gift = None
+        # إرسال الملصق مباشرة باستخدام الـ ID
+        sticker_msg = await event.client.send_file(
+            event.chat_id,
+            sticker_id,
+            force_document=False
+        )
         
-        for gift in getattr(result, "gifts", []):
-            if gift.id == gift_id:
-                target_gift = gift
-                break
+        # الرد على الملصق برسالة السعر
+        price_msg = await event.client.send_message(
+            event.chat_id,
+            f"**السعر: ? نجمـة**",
+            reply_to=sticker_msg.id
+        )
         
-        if not target_gift:
-            await zed.edit(f"**❌ لم يتم العثور على هدية بالمعرف {gift_id}**")
-            return
-        
-        # إرسال معلومات الهدية فقط
-        gift_title = getattr(target_gift, 'title', f'ID: {gift_id}')
-        gift_stars = getattr(target_gift, 'stars', 0)
-        gift_limited = getattr(target_gift, 'limited', False)
-        gift_remains = getattr(target_gift, 'availability_remains', 0)
-        
-        message = f"**🎁 {gift_title}**\n**السعر: {gift_stars} نجمـة**"
-        if gift_limited:
-            message += f"\n**المتبقي: {gift_remains}**"
-        
-        await zed.edit(message)
+        await zed.delete()
         
     except Exception as e:
-        await zed.edit(f"**❌ خطأ في جلب الهدية:** `{str(e)}`")
+        await zed.edit(f"**❌ خطأ في إرسال الملصق:** `{str(e)}`")

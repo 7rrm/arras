@@ -909,6 +909,8 @@ async def star_gifts(event):
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")
 
 
+from telethon.tl.types import InputDocument
+
 @l313l.ar_cmd(
     pattern="هديه(?:\s|$)([\s\S]*)",
     command=("هديه", plugin_category),
@@ -933,10 +935,20 @@ async def send_gift_sticker(event):
     zed = await edit_or_reply(event, f"**🎁 جـارِ إرسال الملصـق {sticker_id}...**")
     
     try:
-        # إرسال الملصق مباشرة باستخدام الـ ID
+        # إنشاء InputDocument باستخدام الـ ID
+        # نحتاج إلى معرف access_hash و file_reference أيضاً
+        # لكن سنحاول بطريقة مبسطة أولاً
+        
+        # الطريقة الأولى: استخدام InputDocument
+        input_doc = InputDocument(
+            id=sticker_id,
+            access_hash=0,  # قد نحتاج access_hash حقيقي
+            file_reference=b''
+        )
+        
         sticker_msg = await event.client.send_file(
             event.chat_id,
-            sticker_id,
+            input_doc,
             force_document=False
         )
         

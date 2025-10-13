@@ -841,18 +841,19 @@ async def comming(event):
 # ================================================================================================ #
 
 from telethon.tl.functions.payments import GetStarGiftsRequest
-
+from telethon.tl.types import InputDocument
 
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
     try:
         result = await client(GetStarGiftsRequest(hash=0))
         gifts = []
-        
+
         for gift in getattr(result, "gifts", []):
             if not getattr(gift, "sold_out", False):
                 gift_info = {
                     "id": gift.id,
+                    "access_hash": gift.access_hash,  # تأكد من أنك تحصل على access_hash
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
@@ -860,9 +861,9 @@ async def get_star_gifts_info(client):
                     "sold_out": getattr(gift, "sold_out", False)
                 }
                 gifts.append(gift_info)
-        
+
         return gifts
-        
+
     except Exception as e:
         return None
 
@@ -877,34 +878,41 @@ async def get_star_gifts_info(client):
 async def star_gifts(event):
     "عرض الهدايا النجمية المتاحة"
     zed = await edit_or_reply(event, "**🎁 جـارِ جلب الهدايـا النجميـة...**")
-    
+
     try:
         gifts = await get_star_gifts_info(event.client)
-        
+
         if not gifts:
             await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
             return
-        
+
         # ترتيب الهدايا حسب النجوم
         gifts = sorted(gifts, key=lambda g: -g["stars"])
-        
+
         # إنشاء رسالة الهدايا
         message = "**🎁 الهدايـا النجميـة المتاحـة:**\n\n"
-        
+
         for i, gift in enumerate(gifts, 1):
             limited_icon = " ⭐" if gift["limited"] else ""
             sold_out_icon = " 🔴" if gift["sold_out"] else " 🟢"
             remains_text = f" - المتبقي: {gift['remains']}" if gift["limited"] and gift["remains"] > 0 else ""
-            
+
             message += (
                 f"**{i}. {gift['title']}**\n"
                 f"   ⏣ **{gift['stars']} نجمـة**{limited_icon}{sold_out_icon}{remains_text}\n\n"
             )
-        
+
+            # إرسال الملصق
+            sticker = InputDocument(
+                id=gift["id"],
+                access_hash=gift["access_hash"],
+                file_reference=b''  # يمكنك تركه فارغًا
+            )
+            await event.client.send_file(event.chat_id, sticker)
+
         message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
-        
+
         await zed.edit(message)
-        
+
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")
-

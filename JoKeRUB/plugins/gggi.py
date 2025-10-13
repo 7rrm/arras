@@ -897,62 +897,40 @@ async def star_gifts(event):
         await zed.edit(f"**🎁 جـارِ إرسـال {len(gifts_with_stickers)} هدية...**")
         
         sent_count = 0
-        failed_count = 0
-        temp_dir = tempfile.mkdtemp()
         
-        try:
-            for gift in gifts_with_stickers:
-                try:
-                    sticker_doc = gift.get("sticker")
-                    if sticker_doc:
-                        # تحميل الملصق مؤقتاً
-                        temp_path = os.path.join(temp_dir, f"sticker_{gift['id']}.webp")
-                        await event.client.download_media(sticker_doc, temp_path)
-                        
-                        # إرسال كملصق بدلاً من ملف
-                        caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
-                        
-                        # استخدام attributes لجعله ملصقاً
-                        sticker_attributes = [
-                            DocumentAttributeSticker(
-                                alt="🎁",
-                                stickerset=InputStickerSetEmpty()
-                            )
-                        ]
-                        
-                        await event.client.send_file(
-                            event.chat_id,
-                            file=temp_path,
-                            caption=caption,
-                            attributes=sticker_attributes,
-                            force_document=False
-                        )
-                        
-                        # حذف الملف المؤقت
-                        if os.path.exists(temp_path):
-                            os.remove(temp_path)
-                        
-                        sent_count += 1
-                        
-                except Exception as e:
-                    failed_count += 1
-                    print(f"فشل إرسال الهدية {gift['title']}: {e}")
-                    
-        finally:
+        # إرسال الملصقات كصور بدلاً من ملصقات
+        for gift in gifts_with_stickers:
             try:
-                os.rmdir(temp_dir)
-            except:
-                pass
+                sticker_doc = gift.get("sticker")
+                if sticker_doc:
+                    caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                    
+                    # إرسال كصورة بدلاً من ملصق
+                    await event.client.send_file(
+                        event.chat_id,
+                        file=sticker_doc,
+                        caption=caption,
+                        force_document=False,
+                        supports_streaming=True
+                    )
+                    
+                    sent_count += 1
+                    
+            except Exception as e:
+                print(f"فشل إرسال الهدية {gift['title']}: {e}")
         
         await zed.delete()
         
         if sent_count > 0:
-            summary = f"**✅ تم إرسال {sent_count} هدية**"
-            if failed_count > 0:
-                summary += f"\n**⚠️ فشل إرسال {failed_count} هدية**"
-            await event.client.send_message(event.chat_id, summary)
+            await event.client.send_message(
+                event.chat_id, 
+                f"**✅ تم إرسال {sent_count} هدية بنجاح**"
+            )
         else:
-            await event.client.send_message(event.chat_id, "**❌ فشل إرسال جميع الهدايا**")
+            await event.client.send_message(
+                event.chat_id, 
+                "**❌ فشل إرسال الهدايا. جرب لاحقاً**"
+            )
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

@@ -843,8 +843,9 @@ from telethon.tl.functions.payments import GetStarGiftsRequest
 
 from telethon.tl.types import InputDocument
 
-import os
 import tempfile
+import os
+from telethon.tl.types import DocumentAttributeSticker, InputStickerSetEmpty
 
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
@@ -897,30 +898,39 @@ async def star_gifts(event):
         
         sent_count = 0
         failed_count = 0
-        
-        # إنشاء مجلد مؤقت للملصقات
         temp_dir = tempfile.mkdtemp()
         
         try:
             for gift in gifts_with_stickers:
                 try:
-                    sticker = gift.get("sticker")
-                    if sticker:
-                        # تنزيل الملصق إلى ملف مؤقت
-                        sticker_path = os.path.join(temp_dir, f"gift_{gift['id']}.webp")
-                        await event.client.download_media(sticker, sticker_path)
+                    sticker_doc = gift.get("sticker")
+                    if sticker_doc:
+                        # تحميل الملصق مؤقتاً
+                        temp_path = os.path.join(temp_dir, f"sticker_{gift['id']}.webp")
+                        await event.client.download_media(sticker_doc, temp_path)
                         
-                        # إرسال الملصق المحفوظ
+                        # إرسال كملصق بدلاً من ملف
                         caption = f"**🎁 {gift['title']}**\n💰 السعر: **{gift['stars']} نجمـة**"
+                        
+                        # استخدام attributes لجعله ملصقاً
+                        sticker_attributes = [
+                            DocumentAttributeSticker(
+                                alt="🎁",
+                                stickerset=InputStickerSetEmpty()
+                            )
+                        ]
+                        
                         await event.client.send_file(
                             event.chat_id,
-                            file=sticker_path,
-                            caption=caption
+                            file=temp_path,
+                            caption=caption,
+                            attributes=sticker_attributes,
+                            force_document=False
                         )
                         
                         # حذف الملف المؤقت
-                        if os.path.exists(sticker_path):
-                            os.remove(sticker_path)
+                        if os.path.exists(temp_path):
+                            os.remove(temp_path)
                         
                         sent_count += 1
                         
@@ -929,7 +939,6 @@ async def star_gifts(event):
                     print(f"فشل إرسال الهدية {gift['title']}: {e}")
                     
         finally:
-            # تنظيف المجلد المؤقت
             try:
                 os.rmdir(temp_dir)
             except:

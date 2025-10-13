@@ -946,34 +946,60 @@ async def send_gift_sticker(event):
             await zed.edit(f"**❌ لم يتم العثور على هدية بالمعرف {gift_id}**")
             return
         
-        # البحث عن الملصق في الهدية
-        sticker_document = None
-        if hasattr(target_gift, 'document') and target_gift.document:
-            sticker_document = target_gift.document
-        elif hasattr(target_gift, 'sticker') and target_gift.sticker:
-            sticker_document = target_gift.sticker
-        elif hasattr(target_gift, 'cover') and target_gift.cover:
-            sticker_document = target_gift.cover
+        # البحث عن الوسائط في الهدية
+        media_file = None
+        media_type = None
         
-        if sticker_document:
-            # إرسال الملصق فقط
-            sticker_msg = await event.client.send_file(
-                event.chat_id,
-                sticker_document,
-                force_document=False
-            )
-            
-            # الرد على الملصق بالسعر
-            price_msg = f"**السعر: {getattr(target_gift, 'stars', 0)} نجمـة**"
-            await event.client.send_message(
-                event.chat_id,
-                price_msg,
-                reply_to=sticker_msg.id
-            )
-            
-            await zed.delete()
+        if hasattr(target_gift, 'document') and target_gift.document:
+            media_file = target_gift.document
+            media_type = "document"
+        elif hasattr(target_gift, 'sticker') and target_gift.sticker:
+            media_file = target_gift.sticker
+            media_type = "sticker"
+        elif hasattr(target_gift, 'cover') and target_gift.cover:
+            media_file = target_gift.cover
+            media_type = "cover"
+        elif hasattr(target_gift, 'photo') and target_gift.photo:
+            media_file = target_gift.photo
+            media_type = "photo"
+        
+        if media_file:
+            # إرسال الوسائط بدون force_document=False
+            try:
+                media_msg = await event.client.send_file(
+                    event.chat_id,
+                    media_file,
+                    caption=f"**🎁 {getattr(target_gift, 'title', 'هدية')}**"
+                )
+                
+                # إرسال السعر كرسالة منفصلة
+                price_msg = f"**السعر: {getattr(target_gift, 'stars', 0)} نجمـة**"
+                if getattr(target_gift, 'limited', False):
+                    remains = getattr(target_gift, 'availability_remains', 0)
+                    price_msg += f"\n**المتبقي: {remains}**"
+                
+                await event.client.send_message(
+                    event.chat_id,
+                    price_msg,
+                    reply_to=media_msg.id
+                )
+                
+                await zed.delete()
+                
+            except Exception as send_error:
+                # إذا فشل إرسال الوسائط، أرسل المعلومات فقط
+                await zed.edit(
+                    f"**🎁 {getattr(target_gift, 'title', 'هدية')}**\n"
+                    f"**السعر: {getattr(target_gift, 'stars', 0)} نجمـة**\n"
+                    f"**النوع: {media_type}**\n"
+                    f"**الخطأ: {str(send_error)}**"
+                )
         else:
-            await zed.edit(f"**❌ لا يوجد ملصق للهدية {gift_id}**")
+            await zed.edit(
+                f"**❌ لا يوجد وسائط للهدية {gift_id}**\n"
+                f"**الاسم:** {getattr(target_gift, 'title', 'غير معروف')}\n"
+                f"**السعر:** {getattr(target_gift, 'stars', 0)} نجمـة"
+            )
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدية:** `{str(e)}`")

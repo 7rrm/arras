@@ -840,7 +840,7 @@ async def comming(event):
 # =========================================الهدايا================================================= #
 # ================================================================================================ #
 from telethon.tl.functions.payments import GetStarGiftsRequest
-from telethon.tl.types import InputDocument
+
 
 async def get_star_gifts_info(client):
     """جلب معلومات الهدايا النجمية"""
@@ -852,7 +852,6 @@ async def get_star_gifts_info(client):
             if not getattr(gift, "sold_out", False):
                 gift_info = {
                     "id": gift.id,
-                    "access_hash": gift.access_hash,  # الحصول على access_hash
                     "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
                     "stars": getattr(gift, "stars", 0),
                     "limited": getattr(gift, "limited", False),
@@ -900,11 +899,10 @@ async def star_gifts(event):
                 f"**{i}. {gift['title']}**\n"
                 f"   ⏣ **{gift['stars']} نجمـة**{limited_icon}{sold_out_icon}{remains_text}\n\n"
             )
-            
-            # إرسال الملصق
-            sticker = InputDocument(
-                id=gift["id"],
-                access_hash=gift["access_hash"],
-                file_reference=b''  # يمكنك تركه فارغًا
-            )
-            await event.client.send_file(event.chat_id, sticker)  # 
+        
+        message += "**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
+        
+        await zed.edit(message)
+        
+    except Exception as e:
+        await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

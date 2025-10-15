@@ -67,7 +67,7 @@ async def on_plug_in_callback_query_handler(event):
                         LOGS.error(f"Error editing message: {e}")
                 
             else:
-                await event.answer("عَـذراً عَـزيزي الهمسه ليست موجهه إلك", cache_time=0, alert=True)
+                await event.answer("آراس _ عَـذراً عَـزيزي الهمسه ليست موجهه إلك .", cache_time=0, alert=True)
         except KeyError:
             await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
     else:

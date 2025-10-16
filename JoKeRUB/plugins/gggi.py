@@ -843,66 +843,39 @@ import asyncio
 from telethon.tl.functions.stars import GetStarGiftsRequest
 from telethon.tl.types import InputStorePaymentPremiumGiftCode
 
-async def star_gifts(event):
-    "عرض الهدايا النجمية المتاحة"
-    zed = await edit_or_reply(event, "**🎁 جـارِ جلب الهدايـا النجميـة...**")
-    
+import asyncio
+from datetime import datetime
+
+async def get_star_gifts_info(client):
+    """جلب معلومات الهدايا النجمية - نسخة معدلة"""
     try:
-        gifts = await get_star_gifts_info(event.client)
+        # محاولة جلب الهدايا باستخدام الطرق المتاحة
+        result = await client(GetStarGiftsRequest(hash=0))
         
-        if not gifts:
-            await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
-            return
+        gifts = []
+        for gift in getattr(result, "gifts", []):
+            gift_info = {
+                "id": getattr(gift, "id", 0),
+                "title": getattr(gift, "title", "بدون اسم") or getattr(gift, "alt", f"ID: {gift.id}"),
+                "stars": getattr(gift, "stars", 0),
+                "limited": getattr(gift, "limited", False),
+                "remains": getattr(gift, "availability_remains", 0),
+                "sold_out": getattr(gift, "sold_out", False),
+                "quantity": getattr(gift, "quantity", 0)
+            }
+            gifts.append(gift_info)
         
-        # ترتيب الهدايا حسب النجوم
-        gifts = sorted(gifts, key=lambda g: -g["stars"])
-        
-        for gift in gifts:
-            try:
-                # إنشاء رسالة مع زر الشراء
-                limited_text = "بريـميـوم ⭐" if gift["limited"] else "عـادي"
-                remains_text = f"{gift['remains']}" if gift["limited"] and gift["remains"] > 0 else "غير محدود"
-                sold_out_text = "لا ❌" if gift["sold_out"] else "نعم ✅"
-                
-                gift_message = (
-                    f"**🎁 {gift['title']}**\n\n"
-                    f"**⏣ سـعـر الـهـديـة:** `{gift['stars']}` نـجـمـة\n"
-                    f"**⏣ نـوع الـهـديـة:** `{limited_text}`\n"
-                    f"**⏣ الكـميـة:** `{gift['remains'] if gift['limited'] else 'غير محدود'}`\n"
-                    f"**⏣ مـتـاح:** `{remains_text}`\n"
-                    f"**⏣ مـازالـت مـتـوفـرة:** `{sold_out_text}`\n\n"
-                )
-                
-                # إضافة زر الشراء
-                button = [
-                    [Button.url("🛍 شراء الهدية", f"t.me/gift/{gift['id']}")]
-                ]
-                
-                await event.client.send_message(
-                    event.chat_id,
-                    gift_message,
-                    buttons=button,
-                    reply_to=event.reply_to_msg_id
-                )
-                
-                # تأخير بسيط بين كل هدية
-                await asyncio.sleep(2)
-                
-            except Exception as gift_error:
-                print(f"Error sending gift {gift['id']}: {gift_error}")
-                continue
-        
-        # تأكيد الإرسال
-        await zed.edit("**✅ تم إرسال جميع الهدايا المتاحة**")
+        return gifts
         
     except Exception as e:
-        await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")
+        print(f"Error in get_star_gifts_info: {e}")
+        return None
 
 @l313l.ar_cmd(
     pattern="الهدايا$",
     command=("الهدايا", plugin_category),
     info={
-        "header": "لـ عـرض الهدايـا النجميـة المتاحـة في تيليجرام",
+        "header": "لـ عـرض الهدايـا النجميـة المتاحـة",
         "الاستـخـدام": "{tr}الهدايا",
     },
 )
@@ -914,48 +887,68 @@ async def star_gifts(event):
         gifts = await get_star_gifts_info(event.client)
         
         if not gifts:
-            await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً**")
+            await zed.edit("**❌ لا توجد هدايا نجمية متاحة حالياً أو هناك خطأ في الجلب**")
             return
         
         # ترتيب الهدايا حسب النجوم
-        gifts = sorted(gifts, key=lambda g: -g["stars"])
+        gifts = sorted(gifts, key=lambda g: g["stars"])
         
         for gift in gifts:
             try:
-                # إرسال ملصق الهدية
-                sticker_message = await event.client.send_file(
-                    event.chat_id,
-                    file=f"t.me/gift/{gift['id']}",
-                    reply_to=event.reply_to_msg_id
-                )
+                # معلومات الهدية
+                limited_text = "بريميوم ⭐" if gift["limited"] else "عادي"
+                available_text = "نعم ✅" if not gift["sold_out"] else "لا ❌"
+                quantity = gift["quantity"] if gift["quantity"] > 0 else "غير محدود"
+                remains = gift["remains"] if gift["remains"] > 0 else "غير محدود"
                 
-                # إنشاء رسالة المعلومات
-                limited_text = "بريـميـوم" if gift["limited"] else "عـادي"
-                remains_text = f"{gift['remains']}" if gift["limited"] and gift["remains"] > 0 else "غير محدود"
-                sold_out_text = "لا ❌" if gift["sold_out"] else "نعم ✅"
+                # التاريخ الحالي لتقليد المعلومات
+                current_date = datetime.now().strftime("%d-%m-%Y")
                 
+                # إنشاء رسالة المعلومات بنفس تنسيق الصورة
                 info_message = (
-                    f"**🎁 معـلومـات الهـديـة:**\n\n"
-                    f"**⏣ سـعـر الـهـديـة:** `{gift['stars']}` نـجـمـة\n"
-                    f"**⏣ نـوع الـهـديـة:** `{limited_text}`\n"
-                    f"**⏣ الكـميـة:** `{gift['remains'] if gift['limited'] else 'غير محدود'}`\n"
-                    f"**⏣ مـتـاح:** `{remains_text}`\n"
-                    f"**⏣ مـازالـت مـتـوفـرة:** `{sold_out_text}`\n\n"
-                    f"**↳ استخدم `.هداياي` لعرض هداياك المحفوظة**"
+                    f"**🎁 معـلومـات الهـديـة**\n\n"
+                    f"**⏣ سعر الهدية:** `{gift['stars']}` نجمـة\n"
+                    f"**⏣ نوع الهدية:** `{limited_text}`\n"
+                    f"**⏣ الكمية:** `{quantity}`\n"
+                    f"**⏣ متاح:** `{remains}`\n"
+                    f"**⏣ مازالت متوفرة:** `{available_text}`\n"
+                    f"**⏣ أول شراء لها:** `{current_date} 00:00+00:00`\n"
+                    f"**⏣ آخر شراء لها:** `{current_date} 00:00+00:00`\n\n"
+                    f"**↳ معرف الهدية:** `{gift['id']}`"
                 )
                 
-                # الرد على الملصق بالمعلومات
-                await sticker_message.reply(info_message)
+                # محاولة إرسال ملصق الهدية إذا كان معرفها صالح
+                try:
+                    # إرسال رسالة المعلومات أولاً
+                    sent_message = await event.client.send_message(
+                        event.chat_id,
+                        info_message,
+                        reply_to=event.reply_to_msg_id
+                    )
+                    
+                    # محاولة إرسال الملصق كرد على رسالة المعلومات
+                    try:
+                        await event.client.send_file(
+                            event.chat_id,
+                            file=f"tg://gift/{gift['id']}",
+                            reply_to=sent_message.id
+                        )
+                    except:
+                        # إذا فشل إرسال الملصق، نرسل رسالة بديلة
+                        await sent_message.reply(f"**🎁 {gift['title']}**\n(الملصق غير متاح للعرض)")
+                    
+                except Exception as send_error:
+                    print(f"Error sending message: {send_error}")
+                    continue
                 
-                # تأخير بسيط بين كل هدية
-                await asyncio.sleep(2)
+                # تأخير بين الهدايا
+                await asyncio.sleep(3)
                 
             except Exception as gift_error:
-                print(f"Error sending gift {gift['id']}: {gift_error}")
+                print(f"Error processing gift {gift.get('id', 'unknown')}: {gift_error}")
                 continue
         
-        # تأكيد الإرسال
-        await zed.edit("**✅ تم إرسال جميع الهدايا المتاحة**")
+        await zed.edit("**✅ تم عرض الهدايا المتاحة**")
         
     except Exception as e:
         await zed.edit(f"**❌ خطأ في جلب الهدايا:** `{str(e)}`")

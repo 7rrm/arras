@@ -160,20 +160,23 @@ async def autobio_loop():
 
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
-        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        
-        # تحديد صَ/مَ تلقائياً
-        hour = ZTZone.hour
-        period = "صَ" if hour < 12 else "مَ"
-        
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
-        channel_name = f"{ZT} {ZEDT} {period}"
+    TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
+    ZTZone = dt.now(timezone(TIME_ZONE))
+    ZTime = ZTZone.strftime('%H:%M')
+    ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+    
+    # تحديد صَ/مَ تلقائياً
+    hour = ZTZone.hour
+    period = "صَ" if hour < 12 else "مَ"
+    
+    ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
+    channel_name = f"{ZT} {ZEDT} {period}"
 
+    channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+
+    # محاولة تغيير اسم القناة مع التعامل مع الأخطاء
+    while True:
         try:  
-            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
             # تغيير اسم القناة  
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
@@ -187,13 +190,16 @@ async def autochannel_loop():
                     await message.delete()
                     break
                     
+            break  # الخروج من الحلقة عند النجاح
+            
         except FloodWaitError as e:
             LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
-            await asyncio.sleep(e.seconds)
+            await asyncio.sleep(e.seconds)  # الانتظار قبل المحاولة مرة أخرى
         except Exception as e:  
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
-          
-        await asyncio.sleep(CHANGE_TIME)
+            break  # الخروج من الحلقة عند حدوث خطأ آخر
+
+    await asyncio.sleep(CHANGE_TIME)
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

@@ -169,7 +169,7 @@ async def autochannel_loop():
         hour = ZTZone.hour
         period = "صَ" if hour < 12 else "مَ"
         
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
+        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
         channel_name = f"{ZT} {ZEDT} {period}"
 
         try:  
@@ -178,15 +178,13 @@ async def autochannel_loop():
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
                 title=channel_name  
-            ))  
-            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
+            ))
             
             # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(5)  # زيادة وقت الانتظار لتجنب FloodWait
+            await asyncio.sleep(11)  # زيادة وقت الانتظار لتجنب FloodWait
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if message.action and hasattr(message.action, 'title'):
                     await message.delete()
-                    LOGS.info("تم حذف رسالة الإشعار")
                     break
                     
         except FloodWaitError as e:

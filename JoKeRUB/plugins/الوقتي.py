@@ -162,25 +162,39 @@ async def autobio_loop():
 
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"  # اختر المنطقة الزمنية
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
-        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
-        channel_name = f"{ZT}{ZEDT}"
+    TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
+    ZTZone = dt.now(timezone(TIME_ZONE))
+    ZTime = ZTZone.strftime('%H:%M')
+    ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+    
+    hour = ZTZone.hour
+    period = "صَ" if hour < 12 else "مَ"
+    
+    ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
+    channel_name = f"{ZT} {ZEDT} {period}"
 
-        try:  
-            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
-            # تغيير اسم القناة  
-            await l313l(functions.channels.EditTitleRequest(  
-                channel=channel_id,  
-                title=channel_name  
-            ))  
-            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")  
-        except Exception as e:  
-            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
+    try:  
+        channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+        # تغيير اسم القناة  
+        await l313l(functions.channels.EditTitleRequest(  
+            channel=channel_id,  
+            title=channel_name  
+        ))
+        
+        # حذف رسالة الإشعار بعد التغيير
+        await asyncio.sleep(33)
+        async for message in l313l.iter_messages(channel_id, limit=1):
+            if message.action and hasattr(message.action, 'title'):
+                await message.delete()
+                break
+                
+    except FloodWaitError as e:
+        LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
+        await asyncio.sleep(e.seconds)
+    except Exception as e:  
+        LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
       
-        await asyncio.sleep(CHANGE_TIME)  # تكرار كل فترة زمنية محددة
+    await asyncio.sleep(CHANGE_TIME)
 
 
 

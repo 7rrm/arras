@@ -181,7 +181,7 @@ async def autochannel_loop():
             ))
             
             # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(11)  # زيادة وقت الانتظار لتجنب FloodWait
+            await asyncio.sleep(20)  # زيادة وقت الانتظار لتجنب FloodWait
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if message.action and hasattr(message.action, 'title'):
                     await message.delete()

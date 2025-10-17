@@ -172,34 +172,48 @@ async def autochannel_loop():
     ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
     channel_name = f"{ZT} {ZEDT} {period}"
 
-    channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+    try:  
+        channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+        
+        # الحصول على آخر رسالة قبل التغيير
+        last_message_id = None
+        async for message in l313l.iter_messages(channel_id, limit=1):
+            last_message_id = message.id
+            break
 
-    # محاولة تغيير اسم القناة مع التعامل مع الأخطاء
-    while True:
-        try:  
-            # تغيير اسم القناة  
-            await l313l(functions.channels.EditTitleRequest(  
-                channel=channel_id,  
-                title=channel_name  
-            ))
-            
-            # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(20)  # زيادة وقت الانتظار لتجنب FloodWait
-            async for message in l313l.iter_messages(channel_id, limit=1):
-                if message.action and hasattr(message.action, 'title'):
-                    await message.delete()
-                    break
-                    
-            break  # الخروج من الحلقة عند النجاح
-            
-        except FloodWaitError as e:
-            LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
-            await asyncio.sleep(e.seconds)  # الانتظار قبل المحاولة مرة أخرى
-        except Exception as e:  
-            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
-            break  # الخروج من الحلقة عند حدوث خطأ آخر
-
+        max_attempts = 2
+        attempt = 0
+        
+        while attempt < max_attempts:
+            try:  
+                # تغيير اسم القناة  
+                await l313l(functions.channels.EditTitleRequest(  
+                    channel=channel_id,  
+                    title=channel_name  
+                ))
+                
+                # حذف رسالة الإشعار بعد التغيير
+                await asyncio.sleep(20)  # زيادة وقت الانتظار لتجنب FloodWait
+                async for message in l313l.iter_messages(channel_id, limit=1):
+                    if message.action and hasattr(message.action, 'title'):
+                        await message.delete()
+                        break
+                        
+                break  # الخروج من الحلقة عند النجاح
+                
+            except FloodWaitError as e:
+                attempt += 1
+                LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية (المحاولة {attempt}/{max_attempts})")
+                await asyncio.sleep(e.seconds)
+            except Exception as e:  
+                LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
+                break  # الخروج من الحلقة عند حدوث خطأ آخر
+                
+    except Exception as e:  
+        LOGS.error(f"خطأ في الحصول على معرف القناة: {str(e)}")  
+      
     await asyncio.sleep(CHANGE_TIME)
+
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

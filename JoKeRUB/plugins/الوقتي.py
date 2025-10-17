@@ -167,26 +167,19 @@ async def autochannel_loop():
         ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
         channel_name = f"{ZT}{ZEDT}"
 
-        try:  
-            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
-            # تغيير اسم القناة  
-            await l313l(functions.channels.EditTitleRequest(  
-                channel=channel_id,  
-                title=channel_name  
-            ))  
+        try:
+            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))
+            # تغيير اسم القناة
+            await l313l(functions.channels.EditTitleRequest(
+                channel=channel_id,
+                title=channel_name
+            ))
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
-            
-            # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(2)  # انتظار قليل لضمان إرسال الرسالة
-            async for message in l313l.iter_messages(channel_id, limit=1):
-                if message.action and hasattr(message.action, 'title'):
-                    await message.delete()
-                    break
-                    
-        except Exception as e:  
-            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
-          
+        except Exception as e:
+            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")
+        
         await asyncio.sleep(CHANGE_TIME)  # تكرار كل فترة زمنية محددة
+        
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

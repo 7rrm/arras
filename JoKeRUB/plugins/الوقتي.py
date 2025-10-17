@@ -188,6 +188,7 @@ async def auto_update_channel_name():
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
           
         await asyncio.sleep(CHANGE_TIME)  # تكرار كل فترة زمنية محددة
+        
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

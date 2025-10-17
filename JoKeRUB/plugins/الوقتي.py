@@ -177,7 +177,7 @@ async def autochannel_loop():
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")
             
             # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(2)  # انتظار قليل لضمان إرسال الرسالة
+            await asyncio.sleep(3)  # انتظار قليل لضمان إرسال الرسالة
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if message.action and hasattr(message.action, 'title'):
                     await message.delete()

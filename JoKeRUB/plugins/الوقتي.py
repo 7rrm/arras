@@ -159,7 +159,6 @@ async def autobio_loop():
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
 
-
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
         TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
@@ -179,8 +178,11 @@ async def autochannel_loop():
             ))  
             LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")  
             
-            # 2. ⏳ انتظار 20 ثانية لحذف الإشعار
-            await asyncio.sleep(30)
+            # 💤 بداية انتظار CHANGE_TIME هنا (بعد تغيير الاسم مباشرة)
+            change_time_task = asyncio.create_task(asyncio.sleep(CHANGE_TIME))
+            
+            # 2. ⏳ انتظار 20 ثانية لحذف الإشعار (خلال فترة CHANGE_TIME)
+            await asyncio.sleep(20)
             
             # 3. 🗑️ حذف إشعار التغيير
             async for message in l313l.iter_messages(channel_id, limit=1):
@@ -188,12 +190,12 @@ async def autochannel_loop():
                     await message.delete()
                     LOGS.info("تم حذف رسالة الإشعار")
                     break
+            
+            # انتظار اكتمال المدة المتبقية من CHANGE_TIME
+            await change_time_task
                     
         except Exception as e:  
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
-      
-        # 4. 💤 انتظار CHANGE_TIME يبدأ من هنا (بعد تغيير الاسم)
-        await asyncio.sleep(CHANGE_TIME)
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

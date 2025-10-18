@@ -160,44 +160,50 @@ async def autobio_loop():
 
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        # جلب الوقت الحالي + 30 ثانية
         TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
         ZTZone = dt.now(timezone(TIME_ZONE))
-        
-        # إضافة 30 ثانية للوقت الحالي
-        future_time = ZTZone + timedelta(seconds=30)
-        ZTime = future_time.strftime('%H:%M')
+        ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
         
-        hour = future_time.hour
+        hour = ZTZone.hour
         period = "صَ" if hour < 12 else "مَ"
         
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
-        channel_name = f"{ZT} {ZEDT} {period}"
+        channel_name = f"{ZT} 𓏺 {period}"
 
         try:  
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
             
-            # تغيير اسم القناة  
+            # الحساب يغير الاسم
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
                 title=channel_name  
             ))
+            LOGS.info(f"✅ تم تغيير الاسم: {channel_name}")  
             
-            # حذف رسالة الإشعار بعد التغيير
-            await asyncio.sleep(33)
-            async for message in l313l.iter_messages(channel_id, limit=1):
-                if message.action and hasattr(message.action, 'title'):
-                    await message.delete()
-                    break
+            # البوت يحذف الإشعار بعد 8 ثواني
+            await asyncio.sleep(8)
+            
+            # استدعاء دالة الحذف بالبوت
+            await delete_notification_bot(channel_id)
                     
-        except FloodWaitError as e:
-            LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
-            await asyncio.sleep(e.seconds)
         except Exception as e:  
-            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
+            LOGS.error(f"❌ خطأ: {str(e)}")  
       
         await asyncio.sleep(CHANGE_TIME)
+
+# دالة منفصلة للبوت المساعد
+async def delete_notification_bot(channel_id):
+    try:
+        bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token='7785659342:AAF8sOyTxCCTBkjBjV_El_-kj5kGyjtdns8')
+        async with bot:
+            async for msg in bot.iter_messages(channel_id, limit=5):
+                if msg.action and hasattr(msg.action, 'title'):
+                    await msg.delete()
+                    LOGS.info("🗑️ البوت حذف الإشعار")
+                    return True
+    except Exception as e:
+        LOGS.warning(f"⚠️ فشل حذف البوت: {e}")
+    return False
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

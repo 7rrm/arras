@@ -183,7 +183,7 @@ async def autochannel_loop():
         ))
         
         # حذف رسالة الإشعار بعد التغيير
-        await asyncio.sleep(20)
+        await asyncio.sleep(33)
         async for message in l313l.iter_messages(channel_id, limit=1):
             if message.action and hasattr(message.action, 'title'):
                 await message.delete()

@@ -162,7 +162,7 @@ async def autobio_loop():
 
 async def autochannel_loop():
   while gvarstatus("autochannel") == "true":
-    TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
+    TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
     ZTZone = dt.now(timezone(TIME_ZONE))
     ZTime = ZTZone.strftime('%H:%M')
     ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")

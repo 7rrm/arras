@@ -195,7 +195,7 @@ async def autochannel_loop():
     except Exception as e:  
         LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
       
-    await asyncio.sleep(27)
+    await asyncio.sleep(CHANGE_TIME)
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

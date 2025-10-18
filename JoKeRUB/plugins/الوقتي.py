@@ -158,44 +158,51 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
-
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
+        TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
         ZTZone = dt.now(timezone(TIME_ZONE))
         ZTime = ZTZone.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or " 𓏺"
-        channel_name = f"{ZT}{ZEDT}"
+        
+        hour = ZTZone.hour
+        period = "صَ" if hour < 12 else "مَ"
+        
+        ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
+        channel_name = f"{ZT} {ZEDT} {period}"
 
         try:  
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
             
-            # 1. ⏰ تغيير اسم القناة
+            # بداية حساب الوقت
+            start_time = asyncio.get_event_loop().time()
+            
+            # تغيير اسم القناة  
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
                 title=channel_name  
-            ))  
-            LOGS.info(f"تم تحديث اسم القناة إلى: {channel_name}")  
+            ))
             
-            # 💤 بداية انتظار CHANGE_TIME هنا (بعد تغيير الاسم مباشرة)
-            change_time_task = asyncio.create_task(asyncio.sleep(CHANGE_TIME))
-            
-            # 2. ⏳ انتظار 20 ثانية لحذف الإشعار (خلال فترة CHANGE_TIME)
-            await asyncio.sleep(30)
-            
-            # 3. 🗑️ حذف إشعار التغيير
+            # حذف رسالة الإشعار بعد التغيير
+            await asyncio.sleep(33)
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if message.action and hasattr(message.action, 'title'):
                     await message.delete()
-                    LOGS.info("تم حذف رسالة الإشعار")
                     break
             
-            # انتظار اكتمال المدة المتبقية من CHANGE_TIME
-            await change_time_task
-                    
+            # حساب الوقت المتبقي
+            elapsed_time = asyncio.get_event_loop().time() - start_time
+            remaining_time = CHANGE_TIME - elapsed_time
+            
+            if remaining_time > 0:
+                await asyncio.sleep(remaining_time)
+                
+        except FloodWaitError as e:
+            LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
+            await asyncio.sleep(e.seconds)
         except Exception as e:  
             LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
+
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

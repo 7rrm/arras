@@ -161,7 +161,7 @@ async def autobio_loop():
 
 
 async def autochannel_loop():
-    while gvarstatus("autochannel") == "true":
+  while gvarstatus("autochannel") == "true":
     TIME_ZONE = gvarstatus("T_Z") or "Asia/Riyadh"
     ZTZone = dt.now(timezone(TIME_ZONE))
     ZTime = ZTZone.strftime('%H:%M')
@@ -175,6 +175,7 @@ async def autochannel_loop():
 
     try:  
         channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+        
         # تغيير اسم القناة  
         await l313l(functions.channels.EditTitleRequest(  
             channel=channel_id,  
@@ -182,7 +183,7 @@ async def autochannel_loop():
         ))
         
         # حذف رسالة الإشعار بعد التغيير
-        await asyncio.sleep(33)
+        await asyncio.sleep(20)
         async for message in l313l.iter_messages(channel_id, limit=1):
             if message.action and hasattr(message.action, 'title'):
                 await message.delete()
@@ -195,7 +196,6 @@ async def autochannel_loop():
         LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
       
     await asyncio.sleep(CHANGE_TIME)
-
 
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")

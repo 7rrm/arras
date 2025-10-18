@@ -182,7 +182,7 @@ async def autochannel_loop():
             change_time_task = asyncio.create_task(asyncio.sleep(CHANGE_TIME))
             
             # 2. ⏳ انتظار 20 ثانية لحذف الإشعار (خلال فترة CHANGE_TIME)
-            await asyncio.sleep(20)
+            await asyncio.sleep(30)
             
             # 3. 🗑️ حذف إشعار التغيير
             async for message in l313l.iter_messages(channel_id, limit=1):

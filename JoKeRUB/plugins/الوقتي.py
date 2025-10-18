@@ -158,6 +158,25 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
+from telethon import TelegramClient, functions
+from telethon.errors import FloodWaitError
+import asyncio
+from datetime import datetime as dt, timezone, timedelta
+
+async def delete_notification_bot(channel_id):
+    try:
+        # استخدام Config بدلاً من API_ID مباشر
+        bot = TelegramClient('bot_session', Config.APP_ID, Config.API_HASH).start(bot_token='7785659342:AAF8sOyTxCCTBkjBjV_El_-kj5kGyjtdns8')
+        async with bot:
+            async for msg in bot.iter_messages(channel_id, limit=10):
+                if msg.action and hasattr(msg.action, 'title'):
+                    await msg.delete()
+                    LOGS.info("🗑️ البوت حذف الإشعار")
+                    return True
+    except Exception as e:
+        LOGS.warning(f"⚠️ فشل حذف البوت: {e}")
+    return False
+
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
         TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
@@ -190,20 +209,6 @@ async def autochannel_loop():
             LOGS.error(f"❌ خطأ: {str(e)}")  
       
         await asyncio.sleep(CHANGE_TIME)
-
-# دالة منفصلة للبوت المساعد
-async def delete_notification_bot(channel_id):
-    try:
-        bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token='7785659342:AAF8sOyTxCCTBkjBjV_El_-kj5kGyjtdns8')
-        async with bot:
-            async for msg in bot.iter_messages(channel_id, limit=5):
-                if msg.action and hasattr(msg.action, 'title'):
-                    await msg.delete()
-                    LOGS.info("🗑️ البوت حذف الإشعار")
-                    return True
-    except Exception as e:
-        LOGS.warning(f"⚠️ فشل حذف البوت: {e}")
-    return False
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

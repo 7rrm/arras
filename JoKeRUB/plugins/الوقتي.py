@@ -8,7 +8,7 @@ import base64
 import requests
 from datetime import datetime as dt
 from pytz import timezone
-from datetime import timedelta  # أضف هذا في أعلى الملف
+
 from PIL import Image, ImageDraw, ImageFont
 from telegraph import Telegraph, exceptions, upload_file
 from urlextract import URLExtract
@@ -158,57 +158,45 @@ async def autobio_loop():
         await asyncio.sleep(CHANGE_TIME)
         AUTOBIOSTART = gvarstatus("autobio") == "true"
 
-from telethon import TelegramClient, functions
-from telethon.errors import FloodWaitError
-import asyncio
-from datetime import datetime as dt, timezone, timedelta
 
-async def delete_notification_bot(channel_id):
-    try:
-        # استخدام Config بدلاً من API_ID مباشر
-        bot = TelegramClient('bot_session', Config.APP_ID, Config.API_HASH).start(bot_token='7785659342:AAF8sOyTxCCTBkjBjV_El_-kj5kGyjtdns8')
-        async with bot:
-            async for msg in bot.iter_messages(channel_id, limit=10):
-                if msg.action and hasattr(msg.action, 'title'):
-                    await msg.delete()
-                    LOGS.info("🗑️ البوت حذف الإشعار")
-                    return True
-    except Exception as e:
-        LOGS.warning(f"⚠️ فشل حذف البوت: {e}")
-    return False
 
 async def autochannel_loop():
-    while gvarstatus("autochannel") == "true":
-        TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
-        ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
-        
-        hour = ZTZone.hour
-        period = "صَ" if hour < 12 else "مَ"
-        
-        channel_name = f"{ZT} 𓏺 {period}"
+  while gvarstatus("autochannel") == "true":
+    TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
+    ZTZone = dt.now(timezone(TIME_ZONE))
+    ZTime = ZTZone.strftime('%H:%M')
+    ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
+    
+    hour = ZTZone.hour
+    period = "صَ" if hour < 12 else "مَ"
+    
+    ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
+    channel_name = f"{ZT} {ZEDT} {period}"
 
-        try:  
-            channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
-            
-            # الحساب يغير الاسم
-            await l313l(functions.channels.EditTitleRequest(  
-                channel=channel_id,  
-                title=channel_name  
-            ))
-            LOGS.info(f"✅ تم تغيير الاسم: {channel_name}")  
-            
-            # البوت يحذف الإشعار بعد 8 ثواني
-            await asyncio.sleep(8)
-            
-            # استدعاء دالة الحذف بالبوت
-            await delete_notification_bot(channel_id)
-                    
-        except Exception as e:  
-            LOGS.error(f"❌ خطأ: {str(e)}")  
+    try:  
+        channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
+        
+        # تغيير اسم القناة  
+        await l313l(functions.channels.EditTitleRequest(  
+            channel=channel_id,  
+            title=channel_name  
+        ))
+        
+        # حذف رسالة الإشعار بعد التغيير
+        await asyncio.sleep(33)
+        async for message in l313l.iter_messages(channel_id, limit=1):
+            if message.action and hasattr(message.action, 'title'):
+                await message.delete()
+                break
+                
+    except FloodWaitError as e:
+        LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
+        await asyncio.sleep(e.seconds)
+    except Exception as e:  
+        LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
       
-        await asyncio.sleep(CHANGE_TIME)
+    await asyncio.sleep(CHANGE_TIME)
+
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

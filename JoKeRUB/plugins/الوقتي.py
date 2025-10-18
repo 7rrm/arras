@@ -160,22 +160,16 @@ async def autobio_loop():
 
 async def autochannel_loop():
     while gvarstatus("autochannel") == "true":
+        # جلب الوقت الحالي + 30 ثانية
         TIME_ZONE = gvarstatus("T_Z") or "Asia/Baghdad"
         ZTZone = dt.now(timezone(TIME_ZONE))
         
-        # حساب الوقت الحالي + 30 ثانية
-        current_second = ZTZone.second
-        wait_time = 30 - current_second if current_second < 30 else 90 - current_second
-        
-        if wait_time > 0:
-            await asyncio.sleep(wait_time)
-        
-        # الآن الوقت أصبح عند الدقيقة:30 أو :00
-        ZTZone = dt.now(timezone(TIME_ZONE))
-        ZTime = ZTZone.strftime('%H:%M')
+        # إضافة 30 ثانية للوقت الحالي
+        future_time = ZTZone + timedelta(seconds=30)
+        ZTime = future_time.strftime('%H:%M')
         ZT = dt.strptime(ZTime, "%H:%M").strftime("%I:%M")
         
-        hour = ZTZone.hour
+        hour = future_time.hour
         period = "صَ" if hour < 12 else "مَ"
         
         ZEDT = gvarstatus("CUSTOM_ALIVE_EMZED") or "𓏺"
@@ -184,21 +178,26 @@ async def autochannel_loop():
         try:  
             channel_id = int(gvarstatus("AUTO_CHANNEL_ID"))  
             
+            # تغيير اسم القناة  
             await l313l(functions.channels.EditTitleRequest(  
                 channel=channel_id,  
                 title=channel_name  
             ))
             
+            # حذف رسالة الإشعار بعد التغيير
             await asyncio.sleep(33)
             async for message in l313l.iter_messages(channel_id, limit=1):
                 if message.action and hasattr(message.action, 'title'):
                     await message.delete()
                     break
                     
+        except FloodWaitError as e:
+            LOGS.warning(f"FloodWait: انتظر {e.seconds} ثانية")
+            await asyncio.sleep(e.seconds)
         except Exception as e:  
-            LOGS.error(f"خطأ: {str(e)}")  
+            LOGS.error(f"خطأ في تحديث اسم القناة: {str(e)}")  
       
-        await asyncio.sleep(60)  # التحديث كل دقيقة
+        await asyncio.sleep(CHANGE_TIME)
 
 @l313l.ar_cmd(pattern=f"{PAUTO}(?:\s+(.*))?$")
 async def _(event):

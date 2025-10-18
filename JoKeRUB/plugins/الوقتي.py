@@ -8,7 +8,7 @@ import base64
 import requests
 from datetime import datetime as dt
 from pytz import timezone
-
+from datetime import timedelta  # أضف هذا في أعلى الملف
 from PIL import Image, ImageDraw, ImageFont
 from telegraph import Telegraph, exceptions, upload_file
 from urlextract import URLExtract

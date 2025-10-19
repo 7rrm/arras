@@ -1,5 +1,6 @@
 # JoKeRUB module for purging unneeded messages(usually spam or ot).
 import re
+import asyncio
 from asyncio import sleep
 
 from telethon.errors import rpcbaseerrors

@@ -131,7 +131,7 @@ async def Hussein(event):
 
     smsg = await event.client.send_message(
         event.chat_id,
-    "**أنتهى التنظيف** تم حذف " + str(count) + " من الرسائل التي تم إرسالها من قبلك في المجموعة.",    
+    "**✧╎أنتهى التنظيف** تم حذف " + str`(count)` + " من الرسائل التي تم أرسالها من قبلك في المجموعة .",    
     )
     if BOTLOG:
         await event.client.send_message(

@@ -141,87 +141,41 @@ async def Hussein(event):
     await smsg.delete()
 
 
-
 @l313l.ar_cmd(
     pattern="مسح رسائله$",
     command=("مسح رسائله", plugin_category),
     info={
-        "header": "لحذف جميع رسائل المستخدم الذي تم الرد عليه",
-        "description": "يحذف جميع رسائل المستخدم الذي تم الرد عليه في الدردشة الحالية",
-        "usage": "{tr}مسح رسائله <بالرد على المستخدم>",
-        "examples": "{tr}مسح رسائله (بالرد على المستخدم)",
+        "header": "To purge user messages.",
+        "description": "Deletes all messages of replied user.",
+        "usage": "{tr}مسح رسائله <reply>",
+        "examples": "{tr}مسح رسائله",
     },
 )
-async def delete_user_messages(event):
-    "لحذف رسائل المستخدم الذي تم الرد عليه"
-    
-    # التحقق من وجود رد
+async def Hussein(event):
+    "To purge user messages."
     if not event.reply_to_msg_id:
-        await event.edit("**❌ يجب الرد على رسالة المستخدم لمسح رسائله**")
-        return
+        return await event.edit("**❌ يجب الرد على رسالة المستخدم**")
     
-    # الحصول على الرسالة التي تم الرد عليها
-    reply_message = await event.get_reply_message()
-    user_id = reply_message.sender_id
+    reply = await event.get_reply_message()
+    user_id = reply.sender_id
     
-    # الحصول على معلومات المستخدم
-    try:
-        user = await event.client.get_entity(user_id)
-        user_name = user.first_name if hasattr(user, 'first_name') else "المستخدم"
-    except:
-        user_name = "المستخدم"
-    
-    # تأكيد قبل الحذف
-    confirm = await event.edit(f"**⚠️ سيتم حذف جميع رسائل {user_name} في هذه الدردشة**\n\nاكتب `نعم` للتأكيد خلال 10 ثواني...")
-    
-    try:
-        # انتظار التأكيد
-        response = await event.client.wait_for(
-            'message',
-            timeout=10,
-            check=lambda m: m.sender_id == event.sender_id and m.text.lower() in ['نعم', 'yes', 'y']
-        )
-    except:
-        await confirm.edit("**❌ تم إلغاء العملية**")
-        return
-    
-    # بدء الحذف
-    deleting_msg = await event.edit(f"**⏳ جاري حذف جميع رسائل {user_name}...**")
-    
-    deleted_count = 0
-    try:
-        # حذف جميع رسائل المستخدم
-        async for message in event.client.iter_messages(
-            event.chat_id, 
-            from_user=user_id
-        ):
-            try:
-                await message.delete()
-                deleted_count += 1
-                # تأخير بسيط لتجنب حظر Flood
-                await asyncio.sleep(0.5)
-            except Exception as e:
-                continue  # الاستمرار في حالة وجود أخطاء في رسائل معينة
-                
-    except Exception as e:
-        await deleting_msg.edit(f"**❌ حدث خطأ أثناء الحذف:** `{str(e)}`")
-        return
-    
-    # رسالة النتيجة
-    result_msg = await event.edit(f"**✅ تم الانتهاء**\nتم حذف {deleted_count} رسالة لـ {user_name} في هذه الدردشة.")
-    
-    # إرسال إلى سجل البوت إذا كان مفعلاً
+    count = 0
+    async for message in event.client.iter_messages(event.chat_id, from_user=user_id):
+        count += 1
+        await message.delete()
+
+    smsg = await event.client.send_message(
+        event.chat_id,
+        "**أنتهى التنظيف** تم حذف " + str(count) + " من الرسائل التي تم إرسالها من قبل المستخدم في المجموعة.",    
+    )
     if BOTLOG:
         await event.client.send_message(
             BOTLOG_CHATID,
-            f"**تم حذف رسائل المستخدم**\nالمشغل: {event.sender_id}\nالمستخدم: {user_id} ({user_name})\nالدردشة: {event.chat_id}\nعدد الرسائل المحذوفة: {deleted_count}"
+            "**أنتهى التنظيف** تم حذف " + str(count) + " من الرسائل التي تم إرسالها من قبل المستخدم في المجموعة.",    
         )
-    
-    # حذف رسالة النتيجة بعد 5 ثواني
     await asyncio.sleep(5)
-    await result_msg.delete()
+    await smsg.delete()
 
-# TODO: only sticker messages.
 @l313l.ar_cmd(
     pattern="تنظيف(?:\s|$)([\s\S]*)",
     command=("تنظيف", plugin_category),

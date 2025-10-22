@@ -495,26 +495,39 @@ async def yt_audio_search(event):
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
+    # إعدادات yt-dlp محسنة
     ydl_ops = {
-            "format":"worstaudio[ext=m4a]",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
-            "noplaylist": True,
-            "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
-            "geo_bypass": True,
-            "cookiefile": get_cookies_file(),
-            "outtmpl": "%(id)s.%(ext)s"
+        "format": "bestaudio[ext=m4a]/bestaudio/best",
+        "socket_timeout": 10,
+        "http_chunk_size": 5242880,
+        "noplaylist": True,
+        "extract_flat": False,
+        "fragment_retries": 3,
+        "retries": 3,
+        "quiet": True,
+        "no_warnings": True,
+        "geo_bypass": True,
+        "cookiefile": get_cookies_file(),
+        "outtmpl": "%(id)s.%(ext)s",
+        # إعدادات إضافية لتجنب الحظر
+        "http_headers": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-us,en;q=0.5",
+            "Accept-Encoding": "gzip,deflate",
+            "Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+            "Connection": "keep-alive",
+        }
     }
+    
+    audio_file = None  # تعريف المتغير مسبقاً
     
     try:
         # البحث باستخدام YoutubeSearch
         results = YoutubeSearch(query, max_results=1).to_dict()
         if not results:
-            raise Exception("لم يتم العثور على نتائج")
+            await zedevent.edit("**- لم يتم العثور على نتائج للبحث**")
+            return
             
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
@@ -532,6 +545,11 @@ async def yt_audio_search(event):
         with yt_dlp.YoutubeDL(ydl_ops) as ydl:
             info_dict = ydl.extract_info(link, download=True)
             audio_file = ydl.prepare_filename(info_dict)
+            
+        # التحقق من وجود الملف
+        if not os.path.exists(audio_file):
+            await zedevent.edit("**- فشل في تحميل الملف الصوتي**")
+            return
             
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(
@@ -556,8 +574,15 @@ async def yt_audio_search(event):
         await zedevent.edit("**- عـذراً .. الوسـائـط مغلقـه هنـا**")
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
+        # تسجيل الخطأ للتصحيح
+        LOGS.error(f"Error in yt_audio_search: {str(e)}")
     finally:
-        remove_if_exists(audio_file)
+        # تنظيف الملفات بغض النظر عن النتيجة
+        if audio_file and os.path.exists(audio_file):
+            try:
+                remove_if_exists(audio_file)
+            except Exception as e:
+                LOGS.error(f"Error removing audio file: {str(e)}")
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

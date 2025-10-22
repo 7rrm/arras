@@ -784,41 +784,43 @@ async def yoot_auto_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث التلقائي عن المقطع الصوتي ... 🎧♥️╰**")
     
     try:
-        # الانضمام إلى القناة
+        # الانضمام إلى القناة أولاً
         try:
-            await event.client(JoinChannelRequest("@lllcz"))
-            await asyncio.sleep(2)
+            channel = await event.client.get_entity("@lllcz")
+            await event.client(JoinChannelRequest(channel))
+            await asyncio.sleep(3)
         except Exception as e:
-            await zedevent.edit(f"**⎉╎حدث خطأ أثناء الانضمام للقناة:** `{str(e)}`")
+            await zedevent.edit(f"**⎉╎خطأ في الانضمام للقناة:** `{str(e)}`")
             return
         
-        # بدء محادثة مع البوت
-        async with event.client.conversation("@MtikMbot") as conv:
-            try:
-                # إرسال النص الكامل مع "يوت" في رسالة واحدة
-                full_message = f"يوت {query}"
-                await conv.send_message(full_message)
-                response1 = await conv.get_response()
-                
-                # الحصول على المقطع الصوتي
-                audio_response = await conv.get_response()
-                
-                if audio_response.media:
-                    await event.client.send_file(
-                        event.chat_id,
-                        audio_response.media,
-                        caption=f"**⎉╎تم جلب المقطع الصوتي بنجاح ✅**\n**⎉╎البحث :** `{full_message}`",
-                        reply_to=event.reply_to_msg_id or event.id
-                    )
-                    await zedevent.delete()
-                else:
-                    await zedevent.edit("**⎉╎لم يتم العثور على مقطع صوتي**")
-                    
-            except YouBlockedUserError:
-                await event.client(unblock("@MtikMbot"))
-                await zedevent.edit("**⎉╎تم فك حظر البوت، حاول مرة أخرى**")
-            except Exception as e:
-                await zedevent.edit(f"**⎉╎حدث خطأ:** `{str(e)}`")
+        # التأكد من أن البوت غير محظور
+        try:
+            await event.client(unblock("@MtikMbot"))
+            await asyncio.sleep(2)
+        except:
+            pass
+        
+        # إرسال الرسالة للبوت
+        full_message = f"يوت {query}"
+        await event.client.send_message("@MtikMbot", full_message)
+        
+        # الانتظار قليلاً ثم محاولة الحصول على الرد
+        await asyncio.sleep(5)
+        
+        # البحث عن آخر رسالة من البوت تحتوي على ميديا
+        async for message in event.client.iter_messages("@MtikMbot", limit=10):
+            if message.media and message.sender_id == (await event.client.get_entity("@MtikMbot")).id:
+                # وجدنا المقطع الصوتي، نرسله
+                await event.client.send_file(
+                    event.chat_id,
+                    message.media,
+                    caption=f"**⎉╎تم جلب المقطع الصوتي بنجاح ✅**\n**⎉╎البحث :** `{full_message}`",
+                    reply_to=event.reply_to_msg_id or event.id
+                )
+                await zedevent.delete()
+                return
+        
+        await zedevent.edit("**⎉╎لم يتم العثور على مقطع صوتي من البوت**")
                 
     except Exception as e:
-        await zedevent.edit(f"**⎉╎حدث خطأ غير متوقع:** `{str(e)}`")
+        await zedevent.edit(f"**⎉╎حدث خطأ:** `{str(e)}`")

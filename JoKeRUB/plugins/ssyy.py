@@ -474,6 +474,7 @@ def parse_duration(duration_str):
         parts = list(map(int, duration_str.split(':')))
         if len(parts) == 2:
             seconds = parts[0] * 60 + parts[1]
+            # تنسيق المدة إلى دقائق وثواني
             minutes = seconds // 60
             remaining_seconds = seconds % 60
             return seconds, f"{minutes:02d}:{remaining_seconds:02d}"
@@ -483,9 +484,6 @@ def parse_duration(duration_str):
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    # تعريف المتغير مسبقاً لتجنب الخطأ
-    audio_file = None
-    
     # الحصول على الاستعلام من الرسالة
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
@@ -498,21 +496,18 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-        "format": "bestaudio[ext=m4a]/bestaudio",
-        "socket_timeout": 10,
-        "http_chunk_size": 5242880,
-        "noplaylist": True,
-        "extract_flat": True,
-        "fragment_retries": 3,
-        "retries": 3,
-        "quiet": True,
-        "no_warnings": True,
-        "geo_bypass": True,
-        "cookiefile": get_cookies_file(),
-        "outtmpl": "%(id)s.%(ext)s",
-        "http_headers": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-        }
+            "format":"worstaudio[ext=m4a]",
+            "socket_timeout": 5,
+            "http_chunk_size": 5242880,
+            "noplaylist": True,
+            "extract_flat": True,
+            "fragment_retries": 2,
+            "retries": 2,
+            "quiet": True,
+            "no_warnings": True,
+            "geo_bypass": True,
+            "cookiefile": get_cookies_file(),
+            "outtmpl": "%(id)s.%(ext)s"
     }
     
     try:
@@ -538,10 +533,6 @@ async def yt_audio_search(event):
             info_dict = ydl.extract_info(link, download=True)
             audio_file = ydl.prepare_filename(info_dict)
             
-        # التأكد من وجود الملف بعد التحميل
-        if not os.path.exists(audio_file):
-            raise Exception("فشل في تحميل الملف الصوتي")
-            
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
@@ -566,10 +557,7 @@ async def yt_audio_search(event):
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
-        # التأكد من أن audio_file معين قبل محاولة حذفه
-        if audio_file and os.path.exists(audio_file):
-            remove_if_exists(audio_file)
-        
+        remove_if_exists(audio_file)
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

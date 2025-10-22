@@ -836,7 +836,7 @@ async def yoot_auto_search(event):
                     f"<blockquote>\n"
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>\n"
                     f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code> "
-                    f'<a href="emoji/4970075771985986281">❤️</a>\n'
+                    f'<a href="emoji/5449435474164731685">❤️</a>\n'
                     f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5</b>"
                     f'<a href="emoji/5368338253868968009">❤️</a>\n'

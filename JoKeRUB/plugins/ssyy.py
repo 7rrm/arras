@@ -813,48 +813,57 @@ async def music_search(event):
         await zedevent.edit(f"**- فشل البحث:** `{str(e)}`")
 
 
-import aiohttp
-import json
+from pytube import YouTube
+import os
 
-@l313l.ar_cmd(pattern="بحث3(?: |$)(.*)")
-async def yt_audio_api(event):
+@l313l.ar_cmd(pattern="بحث2(?: |$)(.*)")
+async def yt_audio_pytube(event):
     query = event.pattern_match.group(1)
     if not query:
         return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ... 🎧♥️ ╰**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
-        # استخدام API خارجية
-        async with aiohttp.ClientSession() as session:
-            # API 1: y2mate (مثال)
-            async with session.get(f"https://api.y2mate.guru/search?q={query}") as response:
-                if response.status == 200:
-                    data = await response.json()
-                    
-            if not data or 'results' not in data:
-                await zedevent.edit("**- لم يتم العثور على نتائج**")
-                return
-                
-            result = data['results'][0]
-            download_url = result['download_url']
-            title = result['title']
+        # البحث أولاً
+        results = YoutubeSearch(query, max_results=1).to_dict()
+        if not results:
+            await zedevent.edit("**- لم يتم العثور على نتائج**")
+            return
             
-            await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
+        video_id = results[0]['id']
+        link = f"https://youtu.be/{video_id}"
+        title = results[0]["title"]
+        
+        await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
+        
+        # استخدام pytube للتحميل
+        yt = YouTube(link)
+        audio_stream = yt.streams.filter(only_audio=True, file_extension='mp4').first()
+        
+        if not audio_stream:
+            await zedevent.edit("**- لا يوجد تيار صوتي متاح**")
+            return
             
-            # تحميل الملف
-            async with session.get(download_url) as resp:
-                if resp.status == 200:
-                    audio_content = await resp.read()
-                    
-                    await event.client.send_file(
-                        event.chat_id,
-                        audio_content,
-                        caption=f"**🎵 الأغنية:** `{title}`",
-                        voice_note=True
-                    )
-                    
-                    await zedevent.delete()
-                    
+        audio_file = audio_stream.download(filename=f"{video_id}.mp4")
+        
+        await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
+        
+        await event.client.send_file(
+            event.chat_id,
+            audio_file,
+            caption=f"**🎵 الأغنية:** `{title}`",
+            attributes=[
+                DocumentAttributeAudio(
+                    duration=yt.length,
+                    performer="ZThon",
+                    title=title
+                )
+            ]
+        )
+        
+        await zedevent.delete()
+        os.remove(audio_file)
+        
     except Exception as e:
         await zedevent.edit(f"**- فشل التحميل:** `{str(e)}`")

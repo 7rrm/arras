@@ -801,10 +801,18 @@ async def yoot_auto_search(event):
             audio_response = await conv.get_response()
             
             if audio_response.media:
+                # إنشاء الكابشن مع الإيموجي البريميوم
+                caption = (
+                    f"<b>⎉╎تم التحميل ✅</b>\n"
+                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>\n"
+                    f'<a href="emoji/5210763312597326700">❤️</a>'
+                )
+                
                 await event.client.send_file(
                     event.chat_id,
                     audio_response.media,
-                    caption=f"**⎉╎تم التحميل ✅**\n`{full_message}`",
+                    caption=caption,
+                    parse_mode='html',
                     reply_to=event.reply_to_msg_id
                 )
                 await zedevent.delete()

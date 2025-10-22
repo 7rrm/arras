@@ -810,7 +810,8 @@ async def yoot_auto_search(event):
     if not query:
         return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ... 🎧╰**")
+    # الرد على الرسالة الأصلية برسالة "جار البحث"
+    search_msg = await event.reply("**╮ جـارِ البحث ... 🎧╰**")
     
     try:
         # الانضمام للقناة
@@ -836,11 +837,11 @@ async def yoot_auto_search(event):
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>\n"
                     f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code> "
                     f'<a href="emoji/4970075771985986281">❤️</a>\n'
-                    f"</blockquote>\n"
+                    f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5</b>"
                 )
                 
-                # الرد على الرسالة الأصلية
+                # إرسال المقطع كرد على الرسالة الأصلية
                 await event.client.send_file(
                     event.chat_id,
                     audio_response.media,
@@ -848,11 +849,14 @@ async def yoot_auto_search(event):
                     parse_mode=CustomParseMode("html"),
                     reply_to=event.message.id  # الرد على الرسالة الأصلية
                 )
-                await zedevent.delete()
+                
+                # حذف رسالة "جار البحث"
+                await search_msg.delete()
+                
             else:
-                await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
     except asyncio.TimeoutError:
-        await zedevent.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
-        await zedevent.edit(f"**⎉╎خطأ:** `{e}`")
+        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")

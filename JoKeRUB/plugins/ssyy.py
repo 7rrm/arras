@@ -843,24 +843,45 @@ async def disable_youtube(event):
         delgvar(f"youtube_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# الأمر الرئيسي لتحميل اليوتيوب
-@l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
-async def yoot_auto_search(event):
-    # التحقق من الصلاحيات - الإصدار المصحح
-    if event.sender_id == youtube_settings['admin_id']:
-        pass  # المطور مسموح له دائماً
-    elif event.is_private:
-        if not is_youtube_enabled():
-            return await event.reply("**❌ تحميل اليوتيوب معطل في الدردشات الخاصة**")
+# أمر التحقق من الحالة
+@l313l.on(events.NewMessage(pattern='^\.حالة اليوت$'))
+async def check_youtube_status(event):
+    status_text = "**📊 حالة نظام اليوتيوب:**\n\n"
+    
+    # حالة الدردشات الخاصة
+    private_status = is_youtube_enabled()
+    status_text += f"**الدردشات الخاصة:** {'✅ مفعل' if private_status else '❌ معطل'}\n"
+    
+    # حالة المجموعة الحالية
+    if not event.is_private:
+        group_status = is_youtube_enabled(event.chat_id)
+        status_text += f"**المجموعة الحالية:** {'✅ مفعل' if group_status else '❌ معطل'}\n"
     else:
-        if not is_youtube_enabled(event.chat_id):
-            return await event.reply("**❌ تحميل اليوتيوب معطل في هذه المجموعة**")
+        status_text += f"**المحادثة الحالية:** {'✅ مفعل' if private_status else '❌ معطل'}\n"
     
-    query = event.pattern_match.group(1)
+    status_text += f"\n**أي دي المطور:** `{youtube_settings['admin_id']}`\n"
+    status_text += f"**أي دي المستخدم:** `{event.sender_id}`\n"
+    status_text += f"**نوع الدردشة:** {'خاص' if event.is_private else f'مجموعة ({event.chat_id})'}"
+    
+    await event.reply(status_text)
+
+# الأمر الرئيسي لتحميل اليوتيوب
+@l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
+async def yoot_auto_search(event):
+    # التحقق من الصلاحيات
+    if event.sender_id != youtube_settings['admin_id']:
+        if event.is_private:
+            if not is_youtube_enabled():
+                return await event.reply("**🔒 تحميل اليوتيوب معطل في الدردشات الخاصة**")
+        else:
+            if not is_youtube_enabled(event.chat_id):
+                return await event.reply("**🔒 تحميل اليوتيوب معطل في هذه المجموعة**")
+    
+    query = event.pattern_match.group(1).strip()
     if not query:
-        return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**\nمثال: `.يوت اسم الاغنية`")
+        return await event.reply("**🎵 يرجى كتابة اسم المقطع**\nمثال: `.يوت اغنية حزينة`")
     
-    # باقي الكود بدون تغيير...
+    # الرد على الرسالة الأصلية برسالة "جار البحث"
     search_msg = await event.reply("**╮ جـارِ البحث ... 🎧╰**")
     
     try:

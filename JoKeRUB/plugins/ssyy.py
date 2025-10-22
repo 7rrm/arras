@@ -785,41 +785,33 @@ async def yoot_auto_search(event):
     
     try:
         # الانضمام للقناة
-        await event.client(JoinChannelRequest("@lllcz"))
+        await event.client(JoinChannelRequest("@B_a_r"))
+        await asyncio.sleep(2)
         
-        # إرسال الرسالة للبوت مباشرة
-        full_message = f"يوت {query}"
-        sent_message = await event.client.send_message("@MtikMbot", full_message)
-        
-        # الانتظار 5 ثواني فقط
-        await asyncio.sleep(5)
-        
-        # البحث عن آخر رسالة ميديا من البوت
-        async for msg in event.client.iter_messages("@MtikMbot", limit=10):
-            if msg.media and msg.id > sent_message.id:
-                # تحميل وإعادة إرسال مع البيانات الجديدة
-                temp_file = await msg.download_media()
-                
+        # استخدام conversation للاستماع الفوري
+        async with event.client.conversation("@h223bot", timeout=30) as conv:
+            # إرسال الرسالة للبوت
+            full_message = f"يوت {query}"
+            await conv.send_message(full_message)
+            
+            # الانتظار للرد الأول (تأكيد الاستلام)
+            first_response = await conv.get_response()
+            
+            # الانتظار للمقطع الصوتي مباشرة
+            audio_response = await conv.get_response()
+            
+            if audio_response.media:
                 await event.client.send_file(
                     event.chat_id,
-                    temp_file,
-                    caption=f"**⎉╎تم التحميل ✅**\n**⎉╎البحث :** `{full_message}`",
-                    reply_to=event.reply_to_msg_id,
-                    attributes=[
-                        DocumentAttributeAudio(
-                            duration=0,
-                            title=query,
-                            performer="𓏺 ᥲRRᥲS . @Lx5x5"
-                        )
-                    ],
-                    force_document=False
+                    audio_response.media,
+                    caption=f"**⎉╎تم التحميل ✅**\n`{full_message}`",
+                    reply_to=event.reply_to_msg_id
                 )
-                
-                os.remove(temp_file)
                 await zedevent.delete()
-                return
+            else:
+                await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
-        await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
-        
+    except asyncio.TimeoutError:
+        await zedevent.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await zedevent.edit(f"**⎉╎خطأ:** `{e}`")

@@ -793,7 +793,7 @@ async def yoot_auto_search(event):
         message = await event.client.send_message("@MtikMbot", full_message)
         
         # الانتظار 10 ثواني
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
         
         # الحصول على آخر رسالة من البوت
         async for msg in event.client.iter_messages("@MtikMbot", limit=5):

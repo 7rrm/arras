@@ -777,61 +777,37 @@ from telethon.tl.functions.channels import JoinChannelRequest
 
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
-    "للبحث التلقائي عن المقاطع الصوتية عبر بوت MtikMbot"
     query = event.pattern_match.group(1)
     if not query:
-        return await edit_or_reply(event, "**⎉╎قم باضافة اسم المقطع للامر ..**\n**⎉╎مثال :** `.يوت قلبي يحدثني`")
+        return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**")
     
-    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث التلقائي عن المقطع الصوتي ... 🎧♥️╰**")
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ... 🎧╰**")
     
     try:
-        # الانضمام إلى القناة أولاً
-        try:
-            await event.client(JoinChannelRequest("@lllcz"))
-            await asyncio.sleep(2)
-        except Exception as e:
-            await zedevent.edit(f"**⎉╎خطأ في الانضمام للقناة:** `{str(e)}`")
-            return
-
-        # فك حظر البوت إذا كان محظوراً
-        try:
-            await event.client(unblock("@MtikMbot"))
-            await asyncio.sleep(1)
-        except:
-            pass
-
-        # بدء محادثة مع البوت
-        async with event.client.conversation("@MtikMbot", timeout=60) as conv:
-            try:
-                # إرسال الرسالة كاملة
-                full_message = f"يوت {query}"
-                await conv.send_message(full_message)
-                
-                # الانتظار للحصول على الرد
-                response = await conv.get_response(timeout=30)
-                
-                # محاولة الحصول على المقطع الصوتي
-                try:
-                    audio_response = await conv.get_response(timeout=30)
-                    if audio_response.media:
-                        await event.client.send_file(
-                            event.chat_id,
-                            audio_response.media,
-                            caption=f"**⎉╎تم جلب المقطع الصوتي بنجاح ✅**\n**⎉╎البحث :** `{full_message}`",
-                            reply_to=event.reply_to_msg_id or event.id
-                        )
-                        await zedevent.delete()
-                    else:
-                        await zedevent.edit("**⎉╎لم يتم العثور على مقطع صوتي في الرد**")
-                except asyncio.TimeoutError:
-                    await zedevent.edit("**⎉╎انتهت المهلة في انتظار المقطع الصوتي**")
-                    
-            except YouBlockedUserError:
-                await zedevent.edit("**⎉╎البوت محظور، يرجى فك الحظر يدوياً**")
-            except asyncio.TimeoutError:
-                await zedevent.edit("**⎉╎انتهت المهلة في انتظار رد البوت**")
-            except Exception as e:
-                await zedevent.edit(f"**⎉╎حدث خطأ في المحادثة:** `{str(e)}`")
-                
+        # الانضمام للقناة
+        await event.client(JoinChannelRequest("@lllcz"))
+        await asyncio.sleep(2)
+        
+        # إرسال الرسالة للبوت
+        full_message = f"يوت {query}"
+        message = await event.client.send_message("@MtikMbot", full_message)
+        
+        # الانتظار 10 ثواني
+        await asyncio.sleep(10)
+        
+        # الحصول على آخر رسالة من البوت
+        async for msg in event.client.iter_messages("@MtikMbot", limit=5):
+            if msg.media and msg.id > message.id:
+                await event.client.send_file(
+                    event.chat_id,
+                    msg.media,
+                    caption=f"**⎉╎تم التحميل ✅**\n`{full_message}`",
+                    reply_to=event.reply_to_msg_id
+                )
+                await zedevent.delete()
+                return
+        
+        await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
+        
     except Exception as e:
-        await zedevent.edit(f"**⎉╎حدث خطأ غير متوقع:** `{str(e)}`")
+        await zedevent.edit(f"**⎉╎خطأ:** `{e}`")

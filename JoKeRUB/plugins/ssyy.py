@@ -811,3 +811,50 @@ async def music_search(event):
                 
     except Exception as e:
         await zedevent.edit(f"**- فشل البحث:** `{str(e)}`")
+
+
+import aiohttp
+import json
+
+@l313l.ar_cmd(pattern="بحث3(?: |$)(.*)")
+async def yt_audio_api(event):
+    query = event.pattern_match.group(1)
+    if not query:
+        return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**")
+    
+    zedevent = await edit_or_reply(event, "**╮ جـارِ البحث ... 🎧♥️ ╰**")
+    
+    try:
+        # استخدام API خارجية
+        async with aiohttp.ClientSession() as session:
+            # API 1: y2mate (مثال)
+            async with session.get(f"https://api.y2mate.guru/search?q={query}") as response:
+                if response.status == 200:
+                    data = await response.json()
+                    
+            if not data or 'results' not in data:
+                await zedevent.edit("**- لم يتم العثور على نتائج**")
+                return
+                
+            result = data['results'][0]
+            download_url = result['download_url']
+            title = result['title']
+            
+            await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
+            
+            # تحميل الملف
+            async with session.get(download_url) as resp:
+                if resp.status == 200:
+                    audio_content = await resp.read()
+                    
+                    await event.client.send_file(
+                        event.chat_id,
+                        audio_content,
+                        caption=f"**🎵 الأغنية:** `{title}`",
+                        voice_note=True
+                    )
+                    
+                    await zedevent.delete()
+                    
+    except Exception as e:
+        await zedevent.edit(f"**- فشل التحميل:** `{str(e)}`")

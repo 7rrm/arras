@@ -857,7 +857,7 @@ async def yoot_auto_search(event):
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎بحث + اسـم المقطـع الصـوتي")
+        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎يوت + اسـم المقطـع الصـوتي")
     
     # الرد على الرسالة الأصلية برسالة "جار البحث"
     search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")

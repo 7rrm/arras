@@ -774,9 +774,10 @@ async def download_video(event):
     await event.delete()
 
 
-from telethon.tl.functions.channels import JoinChannelRequest
-from telethon import types
+from telethon import types, events
 from telethon.extensions import html, markdown
+from telethon.tl.functions.channels import JoinChannelRequest
+import asyncio
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # كلاس التحليل المخصص لدعم الإيموجيات البريميوم
@@ -807,70 +808,62 @@ class CustomParseMode:
         return html.unparse(text, entities)
 
 # إعدادات التحكم
-yoot_settings = {
-    'admin_id': l313l.uid
+youtube_settings = {
+    'admin_id': l313l.uid  # أي دي المطور
 }
 
-def is_yoot_enabled(chat_id=None):
+# دالة التحقق من التفعيل
+def is_youtube_enabled(chat_id=None):
     if chat_id:
-        return gvarstatus(f"yoot_enabled_{chat_id}") == "True"
-    return gvarstatus("yoot_enabled_private") == "True"
+        return gvarstatus(f"youtube_enabled_{chat_id}") == "True"
+    return gvarstatus("youtube_enabled_private") == "True"
 
-@l313l.ar_cmd(pattern="تفعيل يوت$")
-async def enable_yoot(event):
-    if event.sender_id != yoot_settings['admin_id']:
-        return await event.reply("**⛔ ليس لديك صلاحية لاستخدام هذا الأمر**")
+# أوامر التفعيل والتعطيل
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل يوت$'))
+async def enable_youtube(event):
+    if event.sender_id != youtube_settings['admin_id']:
+        return await event.delete()
     
     if event.is_private:
-        addgvar("yoot_enabled_private", "True")
-        await event.reply("**✅ تم تفعيل نظام اليوتيوب في جميع الدردشات الخاصة**")
+        addgvar("youtube_enabled_private", "True")
+        await event.reply("✓ تم تفعيل تحميل اليوتيوب في جميع الدردشات الخاصة")
     else:
-        addgvar(f"yoot_enabled_{event.chat_id}", "True")
-        await event.reply(f"**✅ تم تفعيل نظام اليوتيوب في هذه المجموعة**")
+        addgvar(f"youtube_enabled_{event.chat_id}", "True")
+        await event.reply(f"✓ تم تفعيل تحميل اليوتيوب في هذه المجموعة")
 
-@l313l.ar_cmd(pattern="تعطيل يوت$")
-async def disable_yoot(event):
-    if event.sender_id != yoot_settings['admin_id']:
-        return await event.reply("**⛔ ليس لديك صلاحية لاستخدام هذا الأمر**")
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل يوت$'))
+async def disable_youtube(event):
+    if event.sender_id != youtube_settings['admin_id']:
+        return await event.delete()
     
     if event.is_private:
-        delgvar("yoot_enabled_private")
-        await event.reply("**❌ تم تعطيل نظام اليوتيوب في الدردشات الخاصة**")
+        delgvar("youtube_enabled_private")
+        await event.reply("✗ تم تعطيل تحميل اليوتيوب في الدردشات الخاصة")
     else:
-        delgvar(f"yoot_enabled_{event.chat_id}")
-        await event.reply(f"**❌ تم تعطيل نظام اليوتيوب في هذه المجموعة**")
+        delgvar(f"youtube_enabled_{event.chat_id}")
+        await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
+# الأمر الرئيسي لتحميل اليوتيوب
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
-    # طباعة معلومات التشخيص
-    print(f"🔍 تم استلام أمر يوت من: {event.sender_id}")
-    print(f"📱 المحادثة: {event.chat_id}")
-    print(f"👑 المطور: {yoot_settings['admin_id']}")
-    
     # التحقق من الصلاحيات
-    if event.sender_id == yoot_settings['admin_id']:
-        print("✅ المطور - مسموح له دائماً")
+    if event.sender_id == youtube_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
     elif event.is_private:
-        if not is_yoot_enabled():
-            print("❌ النظام معطل في الخاص")
-            return await event.reply("**⏸️ نظام اليوتيوب معطل حالياً في الدردشات الخاصة**")
-        else:
-            print("✅ النظام مفعل في الخاص")
+        if not is_youtube_enabled():
+            return
     else:
-        if not is_yoot_enabled(event.chat_id):
-            print("❌ النظام معطل في المجموعة")
-            return await event.reply("**⏸️ نظام اليوتيوب معطل حالياً في هذه المجموعة**")
-        else:
-            print("✅ النظام مفعل في المجموعة")
+        if not is_youtube_enabled(event.chat_id):
+            return
     
     query = event.pattern_match.group(1)
     if not query:
-        return await event.reply("**📝 يرجى إدخال اسم المقطع**\nمثال: `.يوت اسم الأغنية`")
-    
-    print(f"🎵 البحث عن: {query}")
+        if event.is_private:  # فقط في الدردشات الخاصة
+            return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**")
+        return
     
     # الرد على الرسالة الأصلية برسالة "جار البحث"
-    search_msg = await event.reply("**⏳ جارِ البحث عن المقطع...**")
+    search_msg = await event.reply("**╮ جـارِ البحث ... 🎧╰**")
     
     try:
         # الانضمام للقناة
@@ -893,10 +886,12 @@ async def yoot_auto_search(event):
                 # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                 caption = (
                     f"<blockquote>\n"
-                    f"<b>✅ تم التحميل بنجاح</b>\n"
-                    f"<b>🎵 اسم المقطع:</b> <code>{query}</code>\n"
-                    f"</blockquote>\n"
-                    f"<b>👤 بواسطة: @Lx5x5</b>"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
+                    f'<a href="emoji/5449435474164731685">❤️</a>\n'
+                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">❤️</a>\n'
                 )
                 
                 # إرسال المقطع كرد على الرسالة الأصلية
@@ -905,37 +900,16 @@ async def yoot_auto_search(event):
                     audio_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
-                    reply_to=event.message.id
+                    reply_to=event.message.id  # الرد على الرسالة الأصلية
                 )
                 
                 # حذف رسالة "جار البحث"
                 await search_msg.delete()
-                print("✅ تم إرسال المقطع بنجاح")
                 
             else:
-                await search_msg.edit("**❌ لم يتم العثور على نتائج**")
-                print("❌ لم يتم العثور على نتائج")
+                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
     except asyncio.TimeoutError:
-        await search_msg.edit("**⏰ انتهت المهلة في انتظار الرد**")
-        print("⏰ انتهت المهلة")
+        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
-        await search_msg.edit(f"**❌ حدث خطأ:** `{e}`")
-        print(f"❌ خطأ: {e}")
-
-# أمر لمعرفة حالة النظام
-@l313l.ar_cmd(pattern="حالة يوت$")
-async def yoot_status(event):
-    status_text = "**📊 حالة نظام اليوتيوب:**\n\n"
-    
-    if event.is_private:
-        status = is_yoot_enabled()
-        status_text += f"**الدردشات الخاصة:** {'مفعل ✅' if status else 'معطل ❌'}\n"
-    else:
-        status = is_yoot_enabled(event.chat_id)
-        status_text += f"**هذه المجموعة:** {'مفعل ✅' if status else 'معطل ❌'}\n"
-    
-    is_admin_user = event.sender_id == yoot_settings['admin_id']
-    status_text += f"\n**صلاحياتك:** {'مطور 👑' if is_admin_user else 'مستخدم 👤'}"
-    
-    await event.reply(status_text)
+        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")

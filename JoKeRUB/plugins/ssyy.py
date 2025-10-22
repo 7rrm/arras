@@ -832,8 +832,8 @@ async def yoot_auto_search(event):
             if audio_response.media:
                 # إنشاء الكابشن مع الإيموجي البريميوم
                 caption = (
-                    f"<b>⎉╎تم التحميل ✅</b>\n"
-                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>\n"
+                    f"<b>D𝒐𝒘𝒏𝒍𝒐𝒂𝒅 D𝒐𝒏𝒆 .</b>\n"
+                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
                     f'<a href="emoji/5210763312597326700">❤️</a>'
                 )
                 

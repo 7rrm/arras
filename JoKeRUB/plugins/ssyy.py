@@ -788,26 +788,30 @@ async def yoot_auto_search(event):
         await event.client(JoinChannelRequest("@lllcz"))
         await asyncio.sleep(2)
         
-        # إرسال الرسالة للبوت
-        full_message = f"يوت {query}"
-        message = await event.client.send_message("@MtikMbot", full_message)
-        
-        # الانتظار 10 ثواني
-        await asyncio.sleep(5)
-        
-        # الحصول على آخر رسالة من البوت
-        async for msg in event.client.iter_messages("@MtikMbot", limit=5):
-            if msg.media and msg.id > message.id:
+        # استخدام conversation للاستماع الفوري
+        async with event.client.conversation("@MtikMbot", timeout=30) as conv:
+            # إرسال الرسالة للبوت
+            full_message = f"يوت {query}"
+            await conv.send_message(full_message)
+            
+            # الانتظار للرد الأول (تأكيد الاستلام)
+            first_response = await conv.get_response()
+            
+            # الانتظار للمقطع الصوتي مباشرة
+            audio_response = await conv.get_response()
+            
+            if audio_response.media:
                 await event.client.send_file(
                     event.chat_id,
-                    msg.media,
+                    audio_response.media,
                     caption=f"**⎉╎تم التحميل ✅**\n`{full_message}`",
                     reply_to=event.reply_to_msg_id
                 )
                 await zedevent.delete()
-                return
+            else:
+                await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
-        await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")
-        
+    except asyncio.TimeoutError:
+        await zedevent.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await zedevent.edit(f"**⎉╎خطأ:** `{e}`")

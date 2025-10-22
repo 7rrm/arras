@@ -815,7 +815,7 @@ async def yoot_auto_search(event):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         
         # استخدام conversation للاستماع الفوري
         async with event.client.conversation("@h223bot", timeout=30) as conv:
@@ -833,9 +833,9 @@ async def yoot_auto_search(event):
                 # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                 caption = (
                     f"<blockquote>\n"
-                    f"<b>⎉╎تم التحميل ✅</b>\n"
+                    f"<b>D𝒐𝒘𝒏𝒍𝒐𝒂𝒅 D𝒐𝒏𝒆 .</b>\n"
                     f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>\n"
-                    f'<a href="emoji/5210763312597326700">❤️</a>\n'
+                    f'<a href="emoji/4970075771985986281">.</a>\n'
                     f"</blockquote>"
                 )
                 

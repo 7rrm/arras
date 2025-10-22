@@ -846,23 +846,21 @@ async def disable_youtube(event):
 # الأمر الرئيسي لتحميل اليوتيوب
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
-    # التحقق من الصلاحيات
+    # التحقق من الصلاحيات - الإصدار المصحح
     if event.sender_id == youtube_settings['admin_id']:
         pass  # المطور مسموح له دائماً
     elif event.is_private:
         if not is_youtube_enabled():
-            return
+            return await event.reply("**❌ تحميل اليوتيوب معطل في الدردشات الخاصة**")
     else:
         if not is_youtube_enabled(event.chat_id):
-            return
+            return await event.reply("**❌ تحميل اليوتيوب معطل في هذه المجموعة**")
     
     query = event.pattern_match.group(1)
     if not query:
-        if event.is_private:  # فقط في الدردشات الخاصة
-            return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**")
-        return
+        return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**\nمثال: `.يوت اسم الاغنية`")
     
-    # الرد على الرسالة الأصلية برسالة "جار البحث"
+    # باقي الكود بدون تغيير...
     search_msg = await event.reply("**╮ جـارِ البحث ... 🎧╰**")
     
     try:

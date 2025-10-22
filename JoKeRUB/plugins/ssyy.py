@@ -801,10 +801,13 @@ async def yoot_auto_search(event):
             audio_response = await conv.get_response()
             
             if audio_response.media:
-                # إرسال الملف مباشرة مع البيانات الوصفية الجديدة
+                # تحميل الملف مؤقتاً لإعادة إرساله مع البيانات الجديدة
+                temp_file = await audio_response.download_media()
+                
+                # إرسال الملف مع البيانات الوصفية المخصصة
                 await event.client.send_file(
                     event.chat_id,
-                    audio_response.media,
+                    temp_file,
                     caption=f"**⎉╎تم التحميل ✅**\n**⎉╎البحث :** `{full_message}`",
                     reply_to=event.reply_to_msg_id,
                     attributes=[
@@ -813,8 +816,12 @@ async def yoot_auto_search(event):
                             title=query,
                             performer="𓏺 ᥲRRᥲS . @Lx5x5"
                         )
-                    ]
+                    ],
+                    force_document=False
                 )
+                
+                # حذف الملف المؤقت
+                os.remove(temp_file)
                 await zedevent.delete()
             else:
                 await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")

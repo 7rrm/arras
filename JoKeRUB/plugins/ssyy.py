@@ -836,16 +836,17 @@ async def yoot_auto_search(event):
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>\n"
                     f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code> "
                     f'<a href="emoji/4970075771985986281">❤️</a>\n'
-                    f"</blockquote>"
+                    f"</blockquote>\n"
                     f"<b>↯︰By: @Lx5x5</b>"
                 )
                 
+                # الرد على الرسالة الأصلية
                 await event.client.send_file(
                     event.chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
-                    reply_to=event.reply_to_msg_id
+                    reply_to=event.message.id  # الرد على الرسالة الأصلية
                 )
                 await zedevent.delete()
             else:

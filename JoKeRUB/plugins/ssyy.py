@@ -773,6 +773,8 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
+from telethon.tl.functions.channels import JoinChannelRequest
+
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
     "للبحث التلقائي عن المقاطع الصوتية عبر بوت MtikMbot"

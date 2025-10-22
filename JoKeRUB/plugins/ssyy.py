@@ -801,28 +801,35 @@ async def yoot_auto_search(event):
             audio_response = await conv.get_response()
             
             if audio_response.media:
+                # حفظ المقطع مؤقتاً
+                temp_file = await audio_response.download_media()
+                
                 # البيانات الوصفية المخصصة
                 title = query
                 performer = "𓏺 ᥲRRᥲS . @Lx5x5"
-                duration = 0  # يمكن تعديله إذا كنت تعرف المدة
                 
                 # الصورة المصغرة المخصصة
                 thumb_path = "l313l/razan/resources/start/ssyy.JPEG"
                 
+                # إرسال الملف مع البيانات الوصفية الجديدة
                 await event.client.send_file(
                     event.chat_id,
-                    audio_response.media,
+                    temp_file,
                     caption=f"**⎉╎تم التحميل ✅**\n**⎉╎البحث :** `{full_message}`",
                     reply_to=event.reply_to_msg_id,
                     thumb=thumb_path if os.path.exists(thumb_path) else None,
                     attributes=[
                         DocumentAttributeAudio(
-                            duration=duration,
+                            duration=0,  # سيتعرف تيليجرام على المدة تلقائياً
                             title=title,
                             performer=performer
                         )
-                    ]
+                    ],
+                    force_document=False
                 )
+                
+                # حذف الملف المؤقت
+                os.remove(temp_file)
                 await zedevent.delete()
             else:
                 await zedevent.edit("**⎉╎لم يتم إيجاد نتيجة**")

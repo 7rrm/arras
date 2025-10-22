@@ -801,25 +801,17 @@ async def yoot_auto_search(event):
             audio_response = await conv.get_response()
             
             if audio_response.media:
-                # تحميل الصورة المصغرة
-                thumb = None
-                thumb_path = "l313l/razan/resources/start/ssyy.JPEG"
-                if os.path.exists(thumb_path):
-                    thumb = await event.client.upload_file(thumb_path)
-                
-                # إرسال الملف مع البيانات الجديدة
+                # إرسال الملف مباشرة مع البيانات الوصفية الجديدة
                 await event.client.send_file(
                     event.chat_id,
                     audio_response.media,
                     caption=f"**⎉╎تم التحميل ✅**\n**⎉╎البحث :** `{full_message}`",
                     reply_to=event.reply_to_msg_id,
-                    thumb=thumb,
                     attributes=[
                         DocumentAttributeAudio(
-                            duration=0,
+                            duration=0,  # سيتعرف تيليجرام على المدة تلقائياً
                             title=query,
-                            performer="𓏺 ᥲRRᥲS . @Lx5x5",
-                            voice=False
+                            performer="𓏺 ᥲRRᥲS . @Lx5x5"
                         )
                     ]
                 )

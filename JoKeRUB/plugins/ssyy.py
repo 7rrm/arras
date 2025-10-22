@@ -774,6 +774,34 @@ async def download_video(event):
     await event.delete()
 
 from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.tl import types
+
+# كلاس التحليل المخصص لدعم الإيموجيات البريميوم
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
 
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
@@ -786,7 +814,7 @@ async def yoot_auto_search(event):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
         
         # استخدام conversation للاستماع الفوري
         async with event.client.conversation("@h223bot", timeout=30) as conv:
@@ -812,7 +840,7 @@ async def yoot_auto_search(event):
                     event.chat_id,
                     audio_response.media,
                     caption=caption,
-                    parse_mode='html',
+                    parse_mode=CustomParseMode("html"),
                     reply_to=event.reply_to_msg_id
                 )
                 await zedevent.delete()

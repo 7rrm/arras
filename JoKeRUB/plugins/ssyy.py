@@ -776,6 +776,7 @@ async def download_video(event):
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon import types
 from telethon.extensions import html, markdown
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # كلاس التحليل المخصص لدعم الإيموجيات البريميوم
 class CustomParseMode:
@@ -804,8 +805,52 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
 
+# إعدادات التحكم
+yoot_settings = {
+    'admin_id': l313l.uid    # أي دي المطور
+}
+
+def is_yoot_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"yoot_enabled_{chat_id}") == "True"
+    return gvarstatus("yoot_enabled_private") == "True"
+
+@l313l.ar_cmd(pattern="تفعيل يوت$")
+async def enable_yoot(event):
+    if event.sender_id != yoot_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        addgvar("yoot_enabled_private", "True")
+        await event.reply("**✓ تم تفعيل نظام اليوتيوب في جميع الدردشات الخاصة**")
+    else:
+        addgvar(f"yoot_enabled_{event.chat_id}", "True")
+        await event.reply(f"**✓ تم تفعيل نظام اليوتيوب في هذه المجموعة**")
+
+@l313l.ar_cmd(pattern="تعطيل يوت$")
+async def disable_yoot(event):
+    if event.sender_id != yoot_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        delgvar("yoot_enabled_private")
+        await event.reply("**✗ تم تعطيل نظام اليوتيوب في الدردشات الخاصة**")
+    else:
+        delgvar(f"yoot_enabled_{event.chat_id}")
+        await event.reply(f"**✗ تم تعطيل نظام اليوتيوب في هذه المجموعة**")
+
 @l313l.ar_cmd(pattern="يوت(?:\s|$)([\s\S]*)")
 async def yoot_auto_search(event):
+    # التحقق من الصلاحيات
+    if event.sender_id == yoot_settings['admin_id']:
+        pass  # المطور مسموح له دائماً
+    elif event.is_private:
+        if not is_yoot_enabled():
+            return await event.reply("**⎉╎نظام اليوتيوب معطل حالياً في الدردشات الخاصة**")
+    else:
+        if not is_yoot_enabled(event.chat_id):
+            return await event.reply("**⎉╎نظام اليوتيوب معطل حالياً في هذه المجموعة**")
+    
     query = event.pattern_match.group(1)
     if not query:
         return await edit_or_reply(event, "**⎉╎أدخل اسم المقطع**")

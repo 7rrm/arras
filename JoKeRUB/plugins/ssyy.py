@@ -789,14 +789,14 @@ async def yoot_auto_search(event):
         
         # إرسال الرسالة للبوت مباشرة
         full_message = f"يوت {query}"
-        await event.client.send_message("@MtikMbot", full_message)
+        sent_message = await event.client.send_message("@MtikMbot", full_message)
         
         # الانتظار 5 ثواني فقط
         await asyncio.sleep(5)
         
         # البحث عن آخر رسالة ميديا من البوت
         async for msg in event.client.iter_messages("@MtikMbot", limit=10):
-            if msg.media and msg.date > (await event.get_message()).date:
+            if msg.media and msg.id > sent_message.id:
                 # تحميل وإعادة إرسال مع البيانات الجديدة
                 temp_file = await msg.download_media()
                 

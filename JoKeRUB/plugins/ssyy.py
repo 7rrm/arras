@@ -914,11 +914,12 @@ async def yoot_status(event):
     
     if event.is_private:
         status = is_yoot_enabled()
-        status_text += f"**الدردشات الخاصة:** {'مفعل' if status else 'معطل'}\n"
+        status_text += f"**الدردشات الخاصة:** {'مفعل ✅' if status else 'معطل ❌'}\n"
     else:
         status = is_yoot_enabled(event.chat_id)
-        status_text += f"**هذه المجموعة:** {'مفعل' if status else 'معطل'}\n"
+        status_text += f"**هذه المجموعة:** {'مفعل ✅' if status else 'معطل ❌'}\n"
     
-    status_text += f"\n**المطور:** {'مسموح دائماً' if event.sender_id == yoot_settings['admin_id'] else 'يحتاج تفعيل'}"
+    is_admin_user = event.sender_id == yoot_settings['admin_id']
+    status_text += f"\n**صلاحياتك:** {'مطور 👑' if is_admin_user else 'مستخدم 👤'}"
     
     await event.reply(status_text)

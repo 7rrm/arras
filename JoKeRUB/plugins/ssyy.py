@@ -774,7 +774,7 @@ async def download_video(event):
     await event.delete()
 
 from telethon.tl.functions.channels import JoinChannelRequest
-from telethon.tl import types
+from telethon import types
 from telethon.extensions import html, markdown
 
 # كلاس التحليل المخصص لدعم الإيموجيات البريميوم
@@ -815,7 +815,7 @@ async def yoot_auto_search(event):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
-        await asyncio.sleep(1)
+        await asyncio.sleep(2)
         
         # استخدام conversation للاستماع الفوري
         async with event.client.conversation("@h223bot", timeout=30) as conv:
@@ -830,11 +830,13 @@ async def yoot_auto_search(event):
             audio_response = await conv.get_response()
             
             if audio_response.media:
-                # إنشاء الكابشن مع الإيموجي البريميوم
+                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                 caption = (
-                    f"<b>D𝒐𝒘𝒏𝒍𝒐𝒂𝒅 D𝒐𝒏𝒆 .</b>\n"
-                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
-                    f'<a href="emoji/5210763312597326700">❤️</a>'
+                    f"<blockquote>\n"
+                    f"<b>⎉╎تم التحميل ✅</b>\n"
+                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>\n"
+                    f'<a href="emoji/5210763312597326700">❤️</a>\n'
+                    f"</blockquote>"
                 )
                 
                 await event.client.send_file(

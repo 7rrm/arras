@@ -815,6 +815,7 @@ async def music_search(event):
 
 from pytube import YouTube
 import os
+import re
 
 @l313l.ar_cmd(pattern="بحث2(?: |$)(.*)")
 async def yt_audio_pytube(event):
@@ -823,6 +824,8 @@ async def yt_audio_pytube(event):
         return await edit_or_reply(event, "**✧╎قم باضافـة إسـم للامـر ..**")
     
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    
+    audio_file = None
     
     try:
         # البحث أولاً
@@ -834,28 +837,66 @@ async def yt_audio_pytube(event):
         video_id = results[0]['id']
         link = f"https://youtu.be/{video_id}"
         title = results[0]["title"]
+        duration_str = results[0]["duration"]
         
         await zedevent.edit("**╮ ❐ جـارِ التحميل ▬▭ . . . ╰**")
         
-        # استخدام pytube للتحميل
-        yt = YouTube(link)
-        audio_stream = yt.streams.filter(only_audio=True, file_extension='mp4').first()
-        
-        if not audio_stream:
-            await zedevent.edit("**- لا يوجد تيار صوتي متاح**")
-            return
+        # استخدام pytube مع معالجة الأخطاء
+        try:
+            yt = YouTube(link)
             
-        audio_file = audio_stream.download(filename=f"{video_id}.mp4")
+            # الحصول على جميع التدفقات الصوتية
+            audio_streams = yt.streams.filter(only_audio=True)
+            
+            if not audio_streams:
+                await zedevent.edit("**- لا يوجد تيار صوتي متاح**")
+                return
+            
+            # اختيار أفضل جودة صوتية
+            audio_stream = audio_streams.order_by('abr').desc().first()
+            
+            if not audio_stream:
+                await zedevent.edit("**- لا يمكن العثور على تيار صوتي مناسب**")
+                return
+                
+            # تنظيف اسم الملف من الأحغير غير الآمنة
+            safe_title = re.sub(r'[^\w\s-]', '', title).strip()
+            safe_title = re.sub(r'[-\s]+', '-', safe_title)
+            
+            filename = f"{safe_title}_{video_id}.mp4"
+            
+            # التحميل
+            audio_file = audio_stream.download(filename=filename)
+            
+            if not os.path.exists(audio_file):
+                await zedevent.edit("**- فشل في تحميل الملف**")
+                return
+                
+        except Exception as e:
+            await zedevent.edit(f"**- خطأ في pytube:** `{str(e)}`")
+            return
         
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         
+        # تحويل المدة إلى ثواني
+        duration_seconds = 0
+        try:
+            if ':' in duration_str:
+                parts = list(map(int, duration_str.split(':')))
+                if len(parts) == 2:
+                    duration_seconds = parts[0] * 60 + parts[1]
+                elif len(parts) == 3:
+                    duration_seconds = parts[0] * 3600 + parts[1] * 60 + parts[2]
+        except:
+            duration_seconds = 180  # قيمة افتراضية
+            
         await event.client.send_file(
             event.chat_id,
             audio_file,
-            caption=f"**🎵 الأغنية:** `{title}`",
+            caption=f"**🎵 الأغنية:** `{title}`\n**⏱ المدة:** `{duration_str}`",
             attributes=[
                 DocumentAttributeAudio(
-                    duration=yt.length,
+                    duration=duration_seconds,
                     performer="ZThon",
                     title=title
                 )
@@ -863,7 +904,13 @@ async def yt_audio_pytube(event):
         )
         
         await zedevent.delete()
-        os.remove(audio_file)
         
     except Exception as e:
         await zedevent.edit(f"**- فشل التحميل:** `{str(e)}`")
+    finally:
+        # تنظيف الملفات
+        if audio_file and os.path.exists(audio_file):
+            try:
+                os.remove(audio_file)
+            except:
+                pass

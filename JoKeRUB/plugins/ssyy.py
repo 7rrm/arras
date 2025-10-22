@@ -843,28 +843,6 @@ async def disable_youtube(event):
         delgvar(f"youtube_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# أمر التحقق من الحالة
-@l313l.on(events.NewMessage(pattern='^\.حالة اليوت$'))
-async def check_youtube_status(event):
-    status_text = "**📊 حالة نظام اليوتيوب:**\n\n"
-    
-    # حالة الدردشات الخاصة
-    private_status = is_youtube_enabled()
-    status_text += f"**الدردشات الخاصة:** {'✅ مفعل' if private_status else '❌ معطل'}\n"
-    
-    # حالة المجموعة الحالية
-    if not event.is_private:
-        group_status = is_youtube_enabled(event.chat_id)
-        status_text += f"**المجموعة الحالية:** {'✅ مفعل' if group_status else '❌ معطل'}\n"
-    else:
-        status_text += f"**المحادثة الحالية:** {'✅ مفعل' if private_status else '❌ معطل'}\n"
-    
-    status_text += f"\n**أي دي المطور:** `{youtube_settings['admin_id']}`\n"
-    status_text += f"**أي دي المستخدم:** `{event.sender_id}`\n"
-    status_text += f"**نوع الدردشة:** {'خاص' if event.is_private else f'مجموعة ({event.chat_id})'}"
-    
-    await event.reply(status_text)
-
 # الأمر الرئيسي لتحميل اليوتيوب
 @l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
 async def yoot_auto_search(event):
@@ -872,17 +850,17 @@ async def yoot_auto_search(event):
     if event.sender_id != youtube_settings['admin_id']:
         if event.is_private:
             if not is_youtube_enabled():
-                return await event.reply("**🔒 تحميل اليوتيوب معطل في الدردشات الخاصة**")
+                return
         else:
             if not is_youtube_enabled(event.chat_id):
-                return await event.reply("**🔒 تحميل اليوتيوب معطل في هذه المجموعة**")
+                return
     
     query = event.pattern_match.group(1).strip()
     if not query:
-        return await event.reply("**🎵 يرجى كتابة اسم المقطع**\nمثال: `.يوت اغنية حزينة`")
+        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎بحث + اسـم المقطـع الصـوتي")
     
     # الرد على الرسالة الأصلية برسالة "جار البحث"
-    search_msg = await event.reply("**╮ جـارِ البحث ... 🎧╰**")
+    search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
         # الانضمام للقناة

@@ -906,3 +906,19 @@ async def yoot_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+
+# أمر لمعرفة حالة النظام
+@l313l.ar_cmd(pattern="حالة يوت$")
+async def yoot_status(event):
+    status_text = "**⎉╎حالة نظام اليوتيوب:**\n\n"
+    
+    if event.is_private:
+        status = is_yoot_enabled()
+        status_text += f"**الدردشات الخاصة:** {'مفعل' if status else 'معطل'}\n"
+    else:
+        status = is_yoot_enabled(event.chat_id)
+        status_text += f"**هذه المجموعة:** {'مفعل' if status else 'معطل'}\n"
+    
+    status_text += f"\n**المطور:** {'مسموح دائماً' if event.sender_id == yoot_settings['admin_id'] else 'يحتاج تفعيل'}"
+    
+    await event.reply(status_text)

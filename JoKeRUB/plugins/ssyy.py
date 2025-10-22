@@ -775,6 +775,7 @@ async def download_video(event):
 
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.tl import types
+from telethon.extensions import html, markdown
 
 # كلاس التحليل المخصص لدعم الإيموجيات البريميوم
 class CustomParseMode:

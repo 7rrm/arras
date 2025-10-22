@@ -839,6 +839,7 @@ async def yoot_auto_search(event):
                     f'<a href="emoji/4970075771985986281">❤️</a>\n'
                     f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5</b>"
+                    f'<a href="emoji/5368338253868968009">❤️</a>\n'
                 )
                 
                 # إرسال المقطع كرد على الرسالة الأصلية

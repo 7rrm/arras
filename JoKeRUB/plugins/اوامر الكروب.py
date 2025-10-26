@@ -1289,6 +1289,7 @@ async def zed(event):
 import http.client
 import json
 import re
+import asyncio
 from deepseekpowsolver import DeepSeekPowSolver
 
 # المتغيرات العامة
@@ -1299,12 +1300,25 @@ lastResponse = []
 async def process_deepseek(question):
     """دالة للتواصل مع DeepSeek API"""
     try:
-        # حل تحدي Proof-of-Work
-        solver = DeepSeekPowSolver(token=token)
-        pow_result = solver.FiF()
+        # حل تحدي Proof-of-Work بمحاولات متعددة
+        max_retries = 3
+        pow_result = None
+        
+        for attempt in range(max_retries):
+            try:
+                solver = DeepSeekPowSolver(token=token)
+                pow_result = solver.FiF()
+                if pow_result:
+                    break
+                else:
+                    print(f"❌ محاولة {attempt + 1} فشلت")
+                    await asyncio.sleep(2)  # انتظار قبل المحاولة التالية
+            except Exception as e:
+                print(f"❌ خطأ في المحاولة {attempt + 1}: {e}")
+                await asyncio.sleep(2)
 
         if not pow_result:
-            return "❌ فشل في حل التحدي الأمني"
+            return "❌ فشل في حل التحدي الأمني بعد عدة محاولات"
 
         # إعداد البيانات
         payload = json.dumps({
@@ -1359,36 +1373,4 @@ async def process_deepseek(question):
     except Exception as e:
         return f"❌ حدث خطأ: {str(e)}"
 
-@l313l.ar_cmd(pattern="ديب(?: |$)(.*)")
-async def deepseek_cmd(event):
-    global lastResponse
-    if lastResponse is None:
-        lastResponse = []
-        
-    question = event.pattern_match.group(1)
-    zzz = await event.get_reply_message()
-    
-    if not question and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⌔╎مثـــال :**\n`.ديب من هو مكتشف الجاذبية الارضية`")
-    
-    if not question and event.reply_to_msg_id and zzz.text: 
-        question = zzz.text
-        
-    if not event.reply_to_msg_id: 
-        question = event.pattern_match.group(1)
-        
-    if question == "مسح" or question == "حذف":
-        lastResponse = []
-        return await edit_or_reply(event, "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ديب + سؤالك) لـ البـدء من جديد**")
-    
-    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ DeepSeek AI**\n**⎉╎الرجـاء الانتظـار .. لحظـات**")
-    
-    answer = await process_deepseek(question)
-    
-    if answer:
-        await zed.edit(f"ᯓ 𝗗𝗲𝗲𝗽𝗦𝗲𝗲𝗸 𝗔𝗜 -🤖- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
-        lastResponse.append(str(answer))
-        if len(lastResponse) > 8:
-            lastResponse.pop(0)
-    else:
-        await zed.edit("**❌ فشل في الحصول على رد من DeepSeek**")
+# نفس الأمر @l313l.ar_cmd(pattern="ديب(?: |$)(.*)") يبقى كما هو

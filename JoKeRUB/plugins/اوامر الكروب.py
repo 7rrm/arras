@@ -1284,3 +1284,109 @@ async def zed(event):
         await edit_or_reply(event, f"[ᯓ ᥲRRᥲS Gᥲmᗴ -☣ لعبـة أحكـام](t.me/Lx5x5)\n⋆──┄─┄─┄───┄─┄─┄──⋆\n**- تـم اختيـار المتهـم ⇠**  [{name_zed}](tg://user?id={zed5})  \n**- ليتـم الحكـم عليـه ⇠ ⚖**\n**- الحاكـم 👨🏻‍⚖⇠**  [{name_zee}](tg://user?id={zee5}) ", link_preview=False)
         delgvar("Z_AKM")
         return
+
+
+import http.client
+import json
+import re
+from deepseekpowsolver import DeepSeekPowSolver
+
+# المتغيرات العامة
+token = "4FV/coP7ED5Qbo5lPzXt/dfu56CFf12ziu6M8tISldgPkIiPLZoiNEQWaAhpv98k"
+chat_session_id = "c836f2f8-d673-4466-8c43-e22f71fb5707"
+lastResponse = []
+
+async def process_deepseek(question):
+    """دالة للتواصل مع DeepSeek API"""
+    try:
+        # حل تحدي Proof-of-Work
+        solver = DeepSeekPowSolver(token=token)
+        pow_result = solver.FiF()
+
+        if not pow_result:
+            return "❌ فشل في حل التحدي الأمني"
+
+        # إعداد البيانات
+        payload = json.dumps({
+            "chat_session_id": chat_session_id,
+            "parent_message_id": None,
+            "prompt": question,
+            "ref_file_ids": [],
+            "thinking_enabled": False,
+            "search_enabled": False
+        })
+
+        # إعداد الرؤوس
+        headers = {
+            'User-Agent': "DeepSeek/1.4.2 Android/34",
+            'Accept': "application/json",
+            'Content-Type': "application/json",
+            'x-ds-pow-response': pow_result,
+            'x-client-platform': "android",
+            'x-client-version': "1.4.2",
+            'x-client-locale': "ar",
+            'x-rangers-id': "7094179430502815498",
+            'authorization': token,
+            'accept-charset': "UTF-8"
+        }
+
+        # الاتصال بالخادم
+        conn = http.client.HTTPSConnection("chat.deepseek.com")
+        conn.request("POST", "/api/v0/chat/completion", payload, headers)
+
+        response = conn.getresponse()
+        response_data = response.read().decode("utf-8")
+        conn.close()
+
+        if response.status == 200:
+            pattern = r'data: \{"v": "([^"]*)"\}'
+            text_parts = re.findall(pattern, response_data)
+            
+            filtered_parts = []
+            for part in text_parts:
+                if part and part not in ['FINISHED', 'WIP', '']:
+                    filtered_parts.append(part)
+            
+            complete_message = ''.join(filtered_parts)
+            
+            if complete_message:
+                return complete_message
+            else:
+                return "❌ لم يتم العثور على رد في الاستجابة"
+        else:
+            return f"❌ فشل الطلب برمز الحالة: {response.status}"
+            
+    except Exception as e:
+        return f"❌ حدث خطأ: {str(e)}"
+
+@l313l.ar_cmd(pattern="ديب(?: |$)(.*)")
+async def deepseek_cmd(event):
+    global lastResponse
+    if lastResponse is None:
+        lastResponse = []
+        
+    question = event.pattern_match.group(1)
+    zzz = await event.get_reply_message()
+    
+    if not question and not event.reply_to_msg_id:
+        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⌔╎مثـــال :**\n`.ديب من هو مكتشف الجاذبية الارضية`")
+    
+    if not question and event.reply_to_msg_id and zzz.text: 
+        question = zzz.text
+        
+    if not event.reply_to_msg_id: 
+        question = event.pattern_match.group(1)
+        
+    if question == "مسح" or question == "حذف":
+        lastResponse = []
+        return await edit_or_reply(event, "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ديب + سؤالك) لـ البـدء من جديد**")
+    
+    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ DeepSeek AI**\n**⎉╎الرجـاء الانتظـار .. لحظـات**")
+    
+    answer = await process_deepseek(question)
+    
+    if answer:
+        await zed.edit(f"ᯓ 𝗗𝗲𝗲𝗽𝗦𝗲𝗲𝗸 𝗔𝗜 -🤖- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
+        lastResponse.append(str(answer))
+        if len(lastResponse) > 8:
+            lastResponse.pop(0)

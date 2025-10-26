@@ -1390,3 +1390,5 @@ async def deepseek_cmd(event):
         lastResponse.append(str(answer))
         if len(lastResponse) > 8:
             lastResponse.pop(0)
+    else:
+        await zed.edit("**❌ فشل في الحصول على رد من DeepSeek**")

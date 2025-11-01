@@ -773,7 +773,6 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
-
 from telethon import types, events
 from telethon.extensions import html, markdown
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -858,40 +857,47 @@ async def handle_bot_interaction(event, query, bot_username, search_msg):
             full_message = f"يوت {query}"
             await conv.send_message(full_message)
             
-            # الانتظار للرد الأول (تأكيد الاستلام)
-            first_response = await conv.get_response()
-            
-            # الانتظار للمقطع الصوتي مباشرة
-            audio_response = await conv.get_response()
-            
-            if audio_response.media:
-                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
-                caption = (
-                    f"<blockquote>\n"
-                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
-                    f'<a href="emoji/5449435474164731685">❤️</a>\n'
-                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
-                    f"</blockquote>"
-                    f"<b>↯︰By: @Lx5x5 .</b>"
-                    f'<a href="emoji/5368338253868968009">❤️</a>\n'
-                )
+            # الانتظار لأي رد من البوت (حتى لو كان مجرد تأكيد)
+            try:
+                first_response = await conv.get_response()
+                # إذا وصلنا هنا، يعني البوت رد بشيء
                 
-                # إرسال المقطع كرد على الرسالة الأصلية
-                await event.client.send_file(
-                    event.chat_id,
-                    audio_response.media,
-                    caption=caption,
-                    parse_mode=CustomParseMode("html"),
-                    reply_to=event.message.id  # الرد على الرسالة الأصلية
-                )
+                # الانتظار للمقطع الصوتي
+                audio_response = await conv.get_response()
                 
-                # حذف رسالة "جار البحث"
-                await search_msg.delete()
-                return True
-            else:
+                if audio_response.media:
+                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                    caption = (
+                        f"<blockquote>\n"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
+                        f'<a href="emoji/5449435474164731685">❤️</a>\n'
+                        f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
+                        f"</blockquote>"
+                        f"<b>↯︰By: @Lx5x5 .</b>"
+                        f'<a href="emoji/5368338253868968009">❤️</a>\n'
+                    )
+                    
+                    # إرسال المقطع كرد على الرسالة الأصلية
+                    await event.client.send_file(
+                        event.chat_id,
+                        audio_response.media,
+                        caption=caption,
+                        parse_mode=CustomParseMode("html"),
+                        reply_to=event.message.id
+                    )
+                    
+                    # حذف رسالة "جار البحث"
+                    await search_msg.delete()
+                    return True
+                else:
+                    return False
+                    
+            except asyncio.TimeoutError:
+                # إذا لم يرد البوت بأي شيء خلال المهلة
                 return False
         
     except asyncio.TimeoutError:
+        # إذا انتهت المهلة الكاملة للمحادثة
         return False
     except Exception as e:
         return False
@@ -918,7 +924,7 @@ async def yoot_auto_search(event):
     # محاولة البوت الأساسي أولاً
     success = await handle_bot_interaction(event, query, youtube_settings['primary_bot'], search_msg)
     
-    # إذا فشل البوت الأساسي، جرب البوت الاحتياطي
+    # إذا لم يرد البوت الأساسي بأي شيء، جرب البوت الاحتياطي
     if not success:
         await search_msg.edit("**╮ جـارِ البحث عـن الإغـنيةة (البوت الإحتياطي) ... 🎧♥️ ╰**")
         success = await handle_bot_interaction(event, query, youtube_settings['backup_bot'], search_msg)

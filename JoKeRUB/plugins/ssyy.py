@@ -809,7 +809,9 @@ class CustomParseMode:
 
 # إعدادات التحكم
 youtube_settings = {
-    'admin_id': l313l.uid  # أي دي المطور
+    'admin_id': l313l.uid,  # أي دي المطور
+    'primary_bot': '@h223bot',   # البوت الأساسي
+    'backup_bot': '@BaarxXxbot'  # البوت الاحتياطي
 }
 
 # دالة التحقق من التفعيل
@@ -843,32 +845,15 @@ async def disable_youtube(event):
         delgvar(f"youtube_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# الأمر الرئيسي لتحميل اليوتيوب
-@l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
-async def yoot_auto_search(event):
-    # التحقق من الصلاحيات
-    if event.sender_id != youtube_settings['admin_id']:
-        if event.is_private:
-            if not is_youtube_enabled():
-                return
-        else:
-            if not is_youtube_enabled(event.chat_id):
-                return
-    
-    query = event.pattern_match.group(1).strip()
-    if not query:
-        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎يوت + اسـم المقطـع الصـوتي")
-    
-    # الرد على الرسالة الأصلية برسالة "جار البحث"
-    search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
-    
+# دالة للتعامل مع البوت
+async def handle_bot_interaction(event, query, bot_username, search_msg):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(1)
         
         # استخدام conversation للاستماع الفوري
-        async with event.client.conversation("@h223bot", timeout=30) as conv:
+        async with event.client.conversation(bot_username, timeout=20) as conv:
             # إرسال الرسالة للبوت
             full_message = f"يوت {query}"
             await conv.send_message(full_message)
@@ -902,11 +887,42 @@ async def yoot_auto_search(event):
                 
                 # حذف رسالة "جار البحث"
                 await search_msg.delete()
-                
+                return True
             else:
-                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                return False
         
     except asyncio.TimeoutError:
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+        return False
     except Exception as e:
-        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+        return False
+
+# الأمر الرئيسي لتحميل اليوتيوب
+@l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
+async def yoot_auto_search(event):
+    # التحقق من الصلاحيات
+    if event.sender_id != youtube_settings['admin_id']:
+        if event.is_private:
+            if not is_youtube_enabled():
+                return
+        else:
+            if not is_youtube_enabled(event.chat_id):
+                return
+    
+    query = event.pattern_match.group(1).strip()
+    if not query:
+        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎يوت + اسـم المقطـع الصـوتي")
+    
+    # الرد على الرسالة الأصلية برسالة "جار البحث"
+    search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+    
+    # محاولة البوت الأساسي أولاً
+    success = await handle_bot_interaction(event, query, youtube_settings['primary_bot'], search_msg)
+    
+    # إذا فشل البوت الأساسي، جرب البوت الاحتياطي
+    if not success:
+        await search_msg.edit("**╮ جـارِ البحث عـن الإغـنيةة (البوت الإحتياطي) ... 🎧♥️ ╰**")
+        success = await handle_bot_interaction(event, query, youtube_settings['backup_bot'], search_msg)
+    
+    # إذا فشل كلاهما
+    if not success:
+        await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة من أي من البوتات**")

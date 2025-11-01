@@ -809,7 +809,7 @@ class CustomParseMode:
 # إعدادات التحكم
 youtube_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
-    'primary_bot': '@h223bot',   # البوت الأساسي
+    'primary_bot': '@h223bot',   # البوت الرئيسي
     'backup_bot': '@BaarxXxbot'  # البوت الاحتياطي
 }
 
@@ -844,63 +844,36 @@ async def disable_youtube(event):
         delgvar(f"youtube_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# دالة للتعامل مع البوت
-async def handle_bot_interaction(event, query, bot_username, search_msg):
+# دالة محاولة التحميل من البوت
+async def try_download_from_bot(event, query, bot_username, search_msg):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(1)
         
-        # استخدام conversation للاستماع الفوري
-        async with event.client.conversation(bot_username, timeout=20) as conv:
+        async with event.client.conversation(bot_username, timeout=30) as conv:
             # إرسال الرسالة للبوت
             full_message = f"يوت {query}"
             await conv.send_message(full_message)
             
-            # الانتظار لأي رد من البوت (حتى لو كان مجرد تأكيد)
+            # الانتظار لمدة ثانية واحدة للرد الأول
             try:
-                first_response = await conv.get_response()
-                # إذا وصلنا هنا، يعني البوت رد بشيء
-                
-                # الانتظار للمقطع الصوتي
-                audio_response = await conv.get_response()
-                
-                if audio_response.media:
-                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
-                    caption = (
-                        f"<blockquote>\n"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
-                        f'<a href="emoji/5449435474164731685">❤️</a>\n'
-                        f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">❤️</a>\n'
-                    )
-                    
-                    # إرسال المقطع كرد على الرسالة الأصلية
-                    await event.client.send_file(
-                        event.chat_id,
-                        audio_response.media,
-                        caption=caption,
-                        parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
-                    )
-                    
-                    # حذف رسالة "جار البحث"
-                    await search_msg.delete()
-                    return True
-                else:
-                    return False
-                    
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
-                # إذا لم يرد البوت بأي شيء خلال المهلة
-                return False
-        
+                return None, "timeout"  # البوت لم يرد خلال ثانية
+            
+            # الانتظار للمقطع الصوتي
+            audio_response = await conv.get_response()
+            
+            if audio_response.media:
+                return audio_response, "success"
+            else:
+                return None, "no_media"
+                
     except asyncio.TimeoutError:
-        # إذا انتهت المهلة الكاملة للمحادثة
-        return False
+        return None, "timeout"
     except Exception as e:
-        return False
+        return None, f"error: {e}"
 
 # الأمر الرئيسي لتحميل اليوتيوب
 @l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
@@ -921,14 +894,46 @@ async def yoot_auto_search(event):
     # الرد على الرسالة الأصلية برسالة "جار البحث"
     search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
-    # محاولة البوت الأساسي أولاً
-    success = await handle_bot_interaction(event, query, youtube_settings['primary_bot'], search_msg)
+    # محاولة البوت الرئيسي أولاً
+    audio_response, status = await try_download_from_bot(
+        event, query, youtube_settings['primary_bot'], search_msg
+    )
     
-    # إذا لم يرد البوت الأساسي بأي شيء، جرب البوت الاحتياطي
-    if not success:
+    # إذا فشل البوت الرئيسي، جرب البوت الاحتياطي
+    if status == "timeout":
         await search_msg.edit("**╮ جـارِ البحث عـن الإغـنيةة (البوت الإحتياطي) ... 🎧♥️ ╰**")
-        success = await handle_bot_interaction(event, query, youtube_settings['backup_bot'], search_msg)
+        audio_response, status = await try_download_from_bot(
+            event, query, youtube_settings['backup_bot'], search_msg
+        )
     
-    # إذا فشل كلاهما
-    if not success:
-        await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة من أي من البوتات**")
+    if audio_response and audio_response.media:
+        # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+        caption = (
+            f"<blockquote>\n"
+            f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
+            f'<a href="emoji/5449435474164731685">❤️</a>\n'
+            f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
+            f"</blockquote>"
+            f"<b>↯︰By: @Lx5x5 .</b>"
+            f'<a href="emoji/5368338253868968009">❤️</a>\n'
+        )
+        
+        # إرسال المقطع كرد على الرسالة الأصلية
+        await event.client.send_file(
+            event.chat_id,
+            audio_response.media,
+            caption=caption,
+            parse_mode=CustomParseMode("html"),
+            reply_to=event.message.id  # الرد على الرسالة الأصلية
+        )
+        
+        # حذف رسالة "جار البحث"
+        await search_msg.delete()
+        
+    else:
+        if status == "timeout":
+            await search_msg.edit("**⎉╎كل البوتات لا تستجيب حالياً، حاول لاحقاً**")
+        elif status == "no_media":
+            await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+        else:
+            await search_msg.edit(f"**⎉╎خطأ:** `{status}`")

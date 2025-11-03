@@ -15,6 +15,7 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
+from telethon.tl.functions.fragment import GetCollectibleInfoRequest
 from telethon.extensions import markdown, html
 #from .xtelethonimport CustomParseMode  # TODO: Call the class from custom module
 from . import l313l

@@ -15,7 +15,6 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
-from telethon.tl.functions.fragment import GetCollectibleInfoRequest
 from telethon.extensions import markdown, html
 #from .xtelethonimport CustomParseMode  # TODO: Call the class from custom module
 from . import l313l
@@ -134,17 +133,6 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     zelzal_date = response['data']['date']
     return zelzal_date
 
-async def get_fragment_username(client, user_id):
-    """الحصول على يوزر Fragment إذا كان موجوداً"""
-    try:
-        # محاولة الحصول على معلومات Fragment
-        result = await client(GetCollectibleInfoRequest(user_id=user_id))
-        if result and hasattr(result, 'username') and result.username:
-            return f"@{result.username}"
-    except Exception:
-        pass
-    return None
-    
 from telethon.tl.functions.payments import GetSavedStarGiftsRequest
 from telethon.tl.types import PeerUser
 from telethon.utils import get_input_user
@@ -448,12 +436,6 @@ async def fetch_info(replied_user, event):
     
     common_chat = FullUser.common_chats_count
     username = replied_user.username
-    
-# 🔥 الحصول على يوزر Fragment إذا كان متاحاً
-if not username:
-    fragment_username = await get_fragment_username(event.client, user_id)
-    if fragment_username:
-        username = fragment_username
     user_bio = FullUser.about
     is_bot = replied_user.bot
     restricted = replied_user.restricted

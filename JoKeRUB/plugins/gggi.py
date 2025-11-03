@@ -129,7 +129,8 @@ async def get_fragment_username(client, user_id):
         ))
         username = getattr(result, 'username', None)
         return username
-    except Exception:
+    except Exception as e:
+        print(f"Error getting fragment username: {e}")
         return None
         
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
@@ -446,11 +447,12 @@ async def fetch_info(replied_user, event):
     full_name = f"{first_name} {last_name}" if last_name else first_name
     rating_info = await get_user_rating(event.client, user_id)
 
+    # جلب اليوزر العادي أولاً
     username = replied_user.username
-    if not username:  # إذا لم يكن هناك يوزر عادي
-        fragment_username = await get_fragment_username(event.client, user_id)
-        if fragment_username:
-            username = fragment_username
+
+# إذا لم يكن هناك يوزر عادي، جرب Fragment
+    if not username:
+    username = await get_fragment_username(event.client, user_id)
             
 # ✅ سطر واحد فقط - استخدم level_display مباشرة
     level_message = rating_info['level_display']

@@ -15,6 +15,8 @@ from telethon.tl.functions.users import GetFullUserRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 from telethon import events, types
+from telethon.tl.functions.fragment import GetCollectibleInfoRequest
+from telethon.tl.types import PeerUser
 from telethon.extensions import markdown, html
 #from .xtelethonimport CustomParseMode  # TODO: Call the class from custom module
 from . import l313l
@@ -117,6 +119,19 @@ async def get_user_from_event(event):
             return None
     return user_object
 
+async def get_fragment_username(client, user_id):
+    """
+    جلب يوزر Fragment للمستخدم
+    """
+    try:
+        result = await client(GetCollectibleInfoRequest(
+            collectible=user_id
+        ))
+        username = getattr(result, 'username', None)
+        return username
+    except Exception:
+        return None
+        
 async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
     headers = {
         'Host': 'restore-access.indream.app',
@@ -431,11 +446,16 @@ async def fetch_info(replied_user, event):
     full_name = f"{first_name} {last_name}" if last_name else first_name
     rating_info = await get_user_rating(event.client, user_id)
 
+    username = replied_user.username
+    if not username:  # إذا لم يكن هناك يوزر عادي
+        fragment_username = await get_fragment_username(event.client, user_id)
+        if fragment_username:
+            username = fragment_username
+            
 # ✅ سطر واحد فقط - استخدم level_display مباشرة
     level_message = rating_info['level_display']
     
     common_chat = FullUser.common_chats_count
-    username = replied_user.username
     user_bio = FullUser.about
     is_bot = replied_user.bot
     restricted = replied_user.restricted

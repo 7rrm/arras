@@ -450,7 +450,7 @@ async def fetch_info(replied_user, event):
     username = replied_user.username
     
 # 🔥 الحصول على يوزر Fragment إذا كان متاحاً
-    if not username:
+if not username:
     fragment_username = await get_fragment_username(event.client, user_id)
     if fragment_username:
         username = fragment_username

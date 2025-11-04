@@ -839,61 +839,95 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================ #
-from telethon.tl.functions.fragment import GetCollectibleInfoRequest
+from telethon.tl.functions.account import GetConnectedBotsRequest
+from telethon.tl.functions.users import GetUsersRequest
 
 async def get_fragment_username(client, user_id: int) -> str:
     """
-    دالة خاصة لجلب يوزر Fragment/Collectible فقط
+    دالة محسنة لجلب يوزر Fragment/Collectible
     """
     try:
-        # محاولة جلب معلومات Collectible
-        collectible_info = await client(GetCollectibleInfoRequest(user_id))
+        # الطريقة 1: محاولة جلب المعلومات عبر GetUsersRequest
+        users = await client(GetUsersRequest([user_id]))
+        if users and len(users) > 0:
+            user = users[0]
+            # Fragment عادةً يكون له يوزر خاص
+            if hasattr(user, 'username') and user.username:
+                return user.username
         
-        if collectible_info and hasattr(collectible_info, 'username') and collectible_info.username:
-            return collectible_info.username
-        else:
-            return None
+        # الطريقة 2: جلب الحسابات المتصلة
+        try:
+            connected_bots = await client(GetConnectedBotsRequest())
+            for bot in connected_bots.bots:
+                if bot.id == user_id and hasattr(bot, 'username') and bot.username:
+                    return bot.username
+        except:
+            pass
             
-    except Exception:
+        return None
+        
+    except Exception as e:
+        print(f"Error getting fragment username: {e}")
         return None
 
 @l313l.ar_cmd(
-    pattern="مستخدم?(?:\s|$)([\s\S]*)",
-    command=("مستخدم", plugin_category),
-    info={
-        "header": "عـرض يوزر Fragment/Collectible",
-        "الاستـخـدام": [
-            "{tr}مستخدم (بالرد على المستخدم)",
-        ],
-    },
+    pattern="يوزر$",
+    command=("يوزر", plugin_category),
 )
-async def show_fragment_username(event):
-    "عرض يوزر Fragment/Collectible فقط"
+async def show_username_cmd(event):
+    "عرض يوزر المستخدم - يدعم Fragment"
     replied_user = await get_user_from_event(event)
     if not replied_user:
         return await edit_or_reply(event, "**❌ لم يتم العثور على المستخدم**")
     
-    zed = await edit_or_reply(event, "**🔍 جاري جلب اليوزر...**")
+    zed = await edit_or_reply(event, "**⏳ جاري البحث عن اليوزر...**")
     
     try:
-        # جلب يوزر Fragment أولاً
-        fragment_username = await get_fragment_username(event.client, replied_user.id)
+        user_id = replied_user.id
         
-        # إذا لم يوجد Fragment، نستخدم اليوزر العادي
-        if fragment_username:
-            username = fragment_username
-            account_type = "Fragment"
-        else:
+        # محاولة جلب اليوزر بطرق مختلفة
+        username = None
+        
+        # الطريقة 1: اليوزر العادي
+        if hasattr(replied_user, 'username') and replied_user.username:
             username = replied_user.username
-            account_type = "عادي"
+        
+        # الطريقة 2: جلب المعلومات الكاملة
+        if not username:
+            try:
+                full_user = await event.client(GetFullUserRequest(user_id))
+                if hasattr(full_user, 'user') and hasattr(full_user.user, 'username') and full_user.user.username:
+                    username = full_user.user.username
+            except:
+                pass
+        
+        # الطريقة 3: استخدام GetUsersRequest
+        if not username:
+            try:
+                users = await event.client(GetUsersRequest([user_id]))
+                if users and len(users) > 0 and hasattr(users[0], 'username') and users[0].username:
+                    username = users[0].username
+            except:
+                pass
         
         if username:
-            result = f"**👤 يوزر المستخدم:** @{username}\n"
-            result += f"**📱 نـوع الحسـاب:** {account_type}"
+            # التحقق إذا كان حساب Fragment
+            is_fragment = False
+            try:
+                # Fragment عادةً يكون له يوزر مميز أو علامات خاصة
+                if hasattr(replied_user, 'premium') and replied_user.premium:
+                    is_fragment = True
+                if hasattr(replied_user, 'verified') and replied_user.verified:
+                    is_fragment = True
+            except:
+                pass
+            
+            if is_fragment:
+                await zed.edit(f"**👤 يوزر المستخدم:** @{username}\n**🎯 نـوع الحسـاب:** 𝐹𝑅𝐴𝐺𝑀𝐸𝑁𝑇 ✨")
+            else:
+                await zed.edit(f"**👤 يوزر المستخدم:** @{username}\n**🎯 نـوع الحسـاب:** عـادي")
         else:
-            result = "**❌ لا يوجد يوزر لهذا المستخدم**"
-        
-        await zed.edit(result)
-        
+            await zed.edit("**❌ لا يوجد يوزر لهذا المستخدم**")
+            
     except Exception as e:
         await zed.edit(f"**❌ حدث خطأ:** {str(e)}")

@@ -709,22 +709,22 @@ async def zelzalll(event):
         ZThon = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
+    
     message_id_to_reply = event.message.reply_to_msg_id
     if not message_id_to_reply:
         message_id_to_reply = None
-    #zedub.parse_mode = CustomParseMode('html')  # TODO: Choose parsemode
+
     try:
         await event.client.send_message(
             event.chat_id,
             ZThon,
             link_preview=False,
             reply_to=message_id_to_reply,
-            parse_mode="html",
+            parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode هنا
         )
         await zed.delete()
-    except:
+    except Exception as e:
         await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode="html")
-
 
 from telethon.tl.types import MessageEntityCustomEmoji
 

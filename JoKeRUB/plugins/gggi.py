@@ -839,95 +839,48 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================ #
-from telethon.tl.functions.account import GetConnectedBotsRequest
-from telethon.tl.functions.users import GetUsersRequest
-
-async def get_fragment_username(client, user_id: int) -> str:
-    """
-    دالة محسنة لجلب يوزر Fragment/Collectible
-    """
-    try:
-        # الطريقة 1: محاولة جلب المعلومات عبر GetUsersRequest
-        users = await client(GetUsersRequest([user_id]))
-        if users and len(users) > 0:
-            user = users[0]
-            # Fragment عادةً يكون له يوزر خاص
-            if hasattr(user, 'username') and user.username:
-                return user.username
-        
-        # الطريقة 2: جلب الحسابات المتصلة
-        try:
-            connected_bots = await client(GetConnectedBotsRequest())
-            for bot in connected_bots.bots:
-                if bot.id == user_id and hasattr(bot, 'username') and bot.username:
-                    return bot.username
-        except:
-            pass
-            
-        return None
-        
-    except Exception as e:
-        print(f"Error getting fragment username: {e}")
-        return None
+from telethon.tl.functions.fragment import GetCollectibleInfoRequest
 
 @l313l.ar_cmd(
-    pattern="يوزر$",
-    command=("يوزر", plugin_category),
+    pattern="م(?: |$)(.*)",
+    command=("م", plugin_category),
+    info={
+        "header": "امـر لـ عـرض معلومات الشخص بواسطة اسم المستخدم",
+        "الاستـخـدام": " {tr}م + معـرف الشخص",
+    },
 )
-async def show_username_cmd(event):
-    "عرض يوزر المستخدم - يدعم Fragment"
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(event, "**❌ لم يتم العثور على المستخدم**")
+async def show_user_info(event):
+    zed = await edit_or_reply(event, "⇆")
+    username = event.pattern_match.group(1).strip()
     
-    zed = await edit_or_reply(event, "**⏳ جاري البحث عن اليوزر...**")
+    if not username:
+        return await edit_or_reply(zed, "**- يجب عليك توفير اسم المستخدم!**")
     
     try:
-        user_id = replied_user.id
+        # محاولة الحصول على معلومات المستخدم
+        user = await event.client.get_entity(username)
+        full_user = await event.client(GetFullUserRequest(user.id))
         
-        # محاولة جلب اليوزر بطرق مختلفة
-        username = None
+        # إعداد الرسالة لعرض المعلومات
+        user_info = f"✦ الاســم    ⤎ {full_user.first_name or 'لا يـوجـد'}"
+        user_info += f"\n✦ اليـوزر    ⤎ @{user.username}" if user.username else "\n✦ اليـوزر    ⤎ لا يـوجـد"
+        user_info += f"\n✦ الايـدي    ⤎ {user.id}"
+        user_info += f"\n✦ الرتبــه    ⤎ {'مـطـور' if user.id in zel_dev else 'العضـو'}"
+        user_info += f"\n✦ الحساب  ⤎ {'بـريميـوم' if user.premium else 'عادي'}"
         
-        # الطريقة 1: اليوزر العادي
-        if hasattr(replied_user, 'username') and replied_user.username:
-            username = replied_user.username
-        
-        # الطريقة 2: جلب المعلومات الكاملة
-        if not username:
-            try:
-                full_user = await event.client(GetFullUserRequest(user_id))
-                if hasattr(full_user, 'user') and hasattr(full_user.user, 'username') and full_user.user.username:
-                    username = full_user.user.username
-            except:
-                pass
-        
-        # الطريقة 3: استخدام GetUsersRequest
-        if not username:
-            try:
-                users = await event.client(GetUsersRequest([user_id]))
-                if users and len(users) > 0 and hasattr(users[0], 'username') and users[0].username:
-                    username = users[0].username
-            except:
-                pass
-        
-        if username:
-            # التحقق إذا كان حساب Fragment
-            is_fragment = False
-            try:
-                # Fragment عادةً يكون له يوزر مميز أو علامات خاصة
-                if hasattr(replied_user, 'premium') and replied_user.premium:
-                    is_fragment = True
-                if hasattr(replied_user, 'verified') and replied_user.verified:
-                    is_fragment = True
-            except:
-                pass
-            
-            if is_fragment:
-                await zed.edit(f"**👤 يوزر المستخدم:** @{username}\n**🎯 نـوع الحسـاب:** 𝐹𝑅𝐴𝐺𝑀𝐸𝑁𝑇 ✨")
-            else:
-                await zed.edit(f"**👤 يوزر المستخدم:** @{username}\n**🎯 نـوع الحسـاب:** عـادي")
-        else:
-            await zed.edit("**❌ لا يوجد يوزر لهذا المستخدم**")
-            
+        # عرض معلومات إضافية
+        user_bio = full_user.about or "لا يـوجـد"
+        user_info += f"\n✦ البايـو     ⤎ {user_bio}"
+
+        # الحصول على المعلومات من Fragment إذا كان مرفوعاً
+        try:
+            collectible_info = await event.client(GetCollectibleInfoRequest(user.id))
+            collectible_users = collectible_info.collectibles
+            user_info += f"\n✦ أسماء المستخدمين في Fragment: {', '.join(user.username for user in collectible_users) if collectible_users else 'لا توجد أسماء'}"
+        except Exception as e:
+            user_info += "\n✦ معلومات Fragment غير متاحة"
+
+        await zed.edit(user_info)
+    
     except Exception as e:
-        await zed.edit(f"**❌ حدث خطأ:** {str(e)}")
+        await zed.edit(f"**- لم أستطع العثور على المستخدم: {str(e)}**")

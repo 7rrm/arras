@@ -839,3 +839,61 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================ #
+from telethon.tl.functions.fragment import GetCollectibleInfoRequest
+
+async def get_fragment_username(client, user_id: int) -> str:
+    """
+    دالة خاصة لجلب يوزر Fragment/Collectible فقط
+    """
+    try:
+        # محاولة جلب معلومات Collectible
+        collectible_info = await client(GetCollectibleInfoRequest(user_id))
+        
+        if collectible_info and hasattr(collectible_info, 'username') and collectible_info.username:
+            return collectible_info.username
+        else:
+            return None
+            
+    except Exception:
+        return None
+
+@l313l.ar_cmd(
+    pattern="مستخدم?(?:\s|$)([\s\S]*)",
+    command=("مستخدم", plugin_category),
+    info={
+        "header": "عـرض يوزر Fragment/Collectible",
+        "الاستـخـدام": [
+            "{tr}مستخدم (بالرد على المستخدم)",
+        ],
+    },
+)
+async def show_fragment_username(event):
+    "عرض يوزر Fragment/Collectible فقط"
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_or_reply(event, "**❌ لم يتم العثور على المستخدم**")
+    
+    zed = await edit_or_reply(event, "**🔍 جاري جلب اليوزر...**")
+    
+    try:
+        # جلب يوزر Fragment أولاً
+        fragment_username = await get_fragment_username(event.client, replied_user.id)
+        
+        # إذا لم يوجد Fragment، نستخدم اليوزر العادي
+        if fragment_username:
+            username = fragment_username
+            account_type = "Fragment"
+        else:
+            username = replied_user.username
+            account_type = "عادي"
+        
+        if username:
+            result = f"**👤 يوزر المستخدم:** @{username}\n"
+            result += f"**📱 نـوع الحسـاب:** {account_type}"
+        else:
+            result = "**❌ لا يوجد يوزر لهذا المستخدم**"
+        
+        await zed.edit(result)
+        
+    except Exception as e:
+        await zed.edit(f"**❌ حدث خطأ:** {str(e)}")

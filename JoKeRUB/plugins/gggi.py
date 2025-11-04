@@ -859,26 +859,3 @@ async def get_user_fragment_username(client, user_id):
     except Exception:
         return None
 
-
-
-@l313l.ar_cmd(
-    pattern="فراغ$",
-)
-async def show_fragment(event):
-    "يعرض يوزر Fragment للمستخدم"
-    if not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⛔️ يـجب الـرد على شخـص**")
-    
-    reply_msg = await event.get_reply_message()
-    user = await event.client.get_entity(reply_msg.sender_id)
-    
-    try:
-        # محاولة جلب معلومات Fragment
-        result = await event.client(GetCollectibleInfoRequest(
-            collectible=user.id
-        ))
-        
-        await event.reply(f"**🔖 يوزر Fragment:** @{result.collectible_id}")
-        
-    except Exception:
-        await event.reply("**❌ لا يـوجد يوزر Fragment**")

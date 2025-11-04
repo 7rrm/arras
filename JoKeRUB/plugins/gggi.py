@@ -701,7 +701,7 @@ async def who(event):
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
-@l313l.ar_cmd(pattern="الانشاء2(?: |$)(.*)")
+@l313l.ar_cmd(pattern="الانشاء(?: |$)(.*)")
 async def zelzalll(event):
     zed = await edit_or_reply(event, "**- جـارِ جلب المعلومـات . . .**")
     zthon_user = await get_user_from_event(event)
@@ -709,23 +709,22 @@ async def zelzalll(event):
         ZThon = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
         return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
-    
     message_id_to_reply = event.message.reply_to_msg_id
     if not message_id_to_reply:
         message_id_to_reply = None
-
+    
     try:
         await event.client.send_message(
             event.chat_id,
             ZThon,
             link_preview=False,
             reply_to=message_id_to_reply,
-            parse_mode=CustomParseMode("html"),  # استخدام CustomParseMode هنا
+            parse_mode=CustomParseMode("html"),  # ⬅️ هذا هو التغيير المطلوب
         )
         await zed.delete()
-    except Exception as e:
-        await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode="html")
-
+    except:
+        await zed.edit("**- غيـر معلـوم او هنـاك خطـأ ؟!**", parse_mode=CustomParseMode("html"))
+        
 from telethon.tl.types import MessageEntityCustomEmoji
 
 @l313l.ar_cmd(

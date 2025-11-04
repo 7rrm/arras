@@ -848,24 +848,24 @@ async def get_fragment_info(client, user_id):
     """
     try:
         result = await client(GetCollectibleInfoRequest(
-            collectible=user_id
+            collectible=str(user_id)
         ))
         
         if isinstance(result, CollectibleInfo):
             return {
                 'success': True,
                 'has_fragment': True,
-                'username': result.collectible_id
+                'username': getattr(result, 'collectible_id', '')
             }
         else:
             return {'success': True, 'has_fragment': False}
             
-    except Exception:
-        return {'success': False}
+    except Exception as e:
+        return {'success': False, 'error': str(e)}
 
 
 @l313l.ar_cmd(
-    pattern="مستخدم$",
+    pattern="فراغمنت$",
     command=("فراغمنت", plugin_category),
     info={
         "header": "عـرض يوزر Fragment للمستخدم",
@@ -885,10 +885,14 @@ async def show_fragment(event):
     fragment_info = await get_fragment_info(event.client, user_id)
     
     if not fragment_info['success']:
-        return await edit_or_reply(zed, "**❌ خطـأ في الجلب**")
+        error_msg = fragment_info.get('error', 'خطأ غير معروف')
+        return await edit_or_reply(zed, f"**❌ خطـأ في الجلب:** {error_msg}")
     
-    if fragment_info['has_fragment']:
-        username = fragment_info['username']
-        await edit_or_reply(zed, f"**🔖 يوزر Fragment:** @{username}")
+    if fragment_info.get('has_fragment'):
+        username = fragment_info.get('username', '')
+        if username:
+            await edit_or_reply(zed, f"**🔖 يوزر Fragment:** @{username}")
+        else:
+            await edit_or_reply(zed, "**❌ لا يـوجد يوزر Fragment**")
     else:
         await edit_or_reply(zed, "**❌ لا يـوجد يوزر Fragment**")

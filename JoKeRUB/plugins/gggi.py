@@ -839,60 +839,105 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================#
-from telethon.tl.functions.fragment import GetCollectibleInfoRequest
-from telethon.tl.types.fragment import CollectibleInfo
-
-async def get_fragment_info(client, user_id):
+async def get_only_username(client, target) -> dict:
     """
-    يحصل على معلومات يوزر Fragment للمستخدم
+    تجلب يوزر المستخدم فقط بدون معلومات إضافية
+    
+    Args:
+        client: كائن Telethon Client
+        target: يمكن أن يكون:
+            - كائن User/Channel
+            - user_id
+            - username
+            - رسالة للرد عليها
+    
+    Returns:
+        dict: يحتوي على يوزر المستخدم فقط
     """
     try:
-        result = await client(GetCollectibleInfoRequest(
-            collectible=str(user_id)
-        ))
-        
-        if isinstance(result, CollectibleInfo):
-            return {
-                'success': True,
-                'has_fragment': True,
-                'username': getattr(result, 'collectible_id', '')
-            }
+        # الحصول على كائن المستخدم/القناة
+        if hasattr(target, 'sender_id'):  # إذا كان كائن رسالة
+            entity = await client.get_entity(target.sender_id)
+        elif isinstance(target, (int, str)):
+            # إذا كان user_id أو username
+            entity = await client.get_entity(target)
         else:
-            return {'success': True, 'has_fragment': False}
-            
+            # إذا كان كائن مستخدم مباشر
+            entity = target
+        
+        result = {
+            'username': None,
+            'user_id': entity.id  # نحتفظ بالآيدي للرابط فقط
+        }
+        
+        # الحصول على اليوزر الأساسي فقط
+        if hasattr(entity, 'username') and entity.username:
+            result['username'] = f"@{entity.username}"
+        
+        return result
+        
     except Exception as e:
-        return {'success': False, 'error': str(e)}
+        return {'error': str(e)}
 
 
 @l313l.ar_cmd(
-    pattern="فراغمنت$",
-    command=("فراغمنت", plugin_category),
+    pattern="يوزر?(?: |$)(.*)",
+    command=("يوزر", plugin_category),
     info={
-        "header": "عـرض يوزر Fragment للمستخدم",
-        "الاستـخـدام": " {tr}فراغمنت بالـرد على المستخدم",
+        "header": "عـرض يـوزر الـمـسـتـخـدم فـقـط",
+        "الاستـخـدام": [
+            "{tr}يوزر بالـرد ع الشخـص",
+            "{tr}يوزر + معـرف/ايـدي",
+            "{tr}يوزر (لـعـرض يـوزرك)"
+        ],
     },
 )
-async def show_fragment(event):
-    "يعرض يوزر Fragment للمستخدم"
-    zed = await edit_or_reply(event, "⏳ جـاري البحـث...")
+async def show_username_only(event):
+    """عـرض يـوزر الـمـسـتـخـدم فـقـط"""
+    zed = await edit_or_reply(event, "**⏳ جـاري جـلب اليـوزر...**")
     
-    replied_user = await get_user_from_event(event)
-    if not replied_user:
-        return await edit_or_reply(zed, "**⛔️ يـجب الـرد على شخـص**")
+    # تحديد المستخدم المستهدف
+    input_str = event.pattern_match.group(1)
     
-    user_id = replied_user.id
-    
-    fragment_info = await get_fragment_info(event.client, user_id)
-    
-    if not fragment_info['success']:
-        error_msg = fragment_info.get('error', 'خطأ غير معروف')
-        return await edit_or_reply(zed, f"**❌ خطـأ في الجلب:** {error_msg}")
-    
-    if fragment_info.get('has_fragment'):
-        username = fragment_info.get('username', '')
-        if username:
-            await edit_or_reply(zed, f"**🔖 يوزر Fragment:** @{username}")
-        else:
-            await edit_or_reply(zed, "**❌ لا يـوجد يوزر Fragment**")
+    if input_str:
+        # إذا تم إدخال يوزر أو ايدي
+        try:
+            if input_str.isdigit():
+                target = int(input_str)
+            else:
+                target = input_str
+        except ValueError:
+            return await zed.edit("**⚠️ رجـاء أدخـل ايـدي صـحيـح**")
+    elif event.is_reply:
+        # إذا تم الرد على رسالة
+        reply_message = await event.get_reply_message()
+        target = reply_message
     else:
-        await edit_or_reply(zed, "**❌ لا يـوجد يوزر Fragment**")
+        # إذا لم يتم تحديد مستهدف (عرض يوزر المرسل)
+        target = await event.client.get_me()
+    
+    try:
+        # جلب معلومات اليوزر فقط
+        user_info = await get_only_username(event.client, target)
+        
+        if 'error' in user_info:
+            return await zed.edit(f"**❌ خطـأ:** `{user_info['error']}`")
+        
+        # بناء الرسالة - يوزر فقط
+        if user_info['username']:
+            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬 𓆪</b>\n"
+            caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
+            caption += f"<b>• اليـوزر ⤎</b> {user_info['username']}\n\n"
+            caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n"
+            caption += f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 𓆪</b>"
+        else:
+            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬 𓆪</b>\n"
+            caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
+            caption += f"<b>• اليـوزر ⤎</b> لا يـوجـد يـوزر\n\n"
+            caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n"
+            caption += f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 𓆪</b>"
+        
+        await zed.edit(caption, parse_mode='html')
+        
+    except Exception as e:
+        await zed.edit(f"**❌ حـدث خـطـأ:** `{str(e)}`")

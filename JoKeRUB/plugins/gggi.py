@@ -840,31 +840,55 @@ async def comming(event):
 # =========================================الهدايا================================================= #
 # ================================================================================================#
 from telethon.tl.functions.fragment import GetCollectibleInfoRequest
+from telethon.tl.types.fragment import CollectibleInfo
+
+async def get_fragment_info(client, user_id):
+    """
+    يحصل على معلومات يوزر Fragment للمستخدم
+    """
+    try:
+        result = await client(GetCollectibleInfoRequest(
+            collectible=user_id
+        ))
+        
+        if isinstance(result, CollectibleInfo):
+            return {
+                'success': True,
+                'has_fragment': True,
+                'username': result.collectible_id
+            }
+        else:
+            return {'success': True, 'has_fragment': False}
+            
+    except Exception:
+        return {'success': False}
+
 
 @l313l.ar_cmd(
-    pattern="م(?: |$)(.*)",
-    command=("م", plugin_category),
+    pattern="مستخدم$",
+    command=("فراغمنت", plugin_category),
     info={
-        "header": "امـر لعرض اسم المستخدم",
-        "الاستـخـدام": " {tr}م بالـرد أو {tr}م + اسم المستخدم",
+        "header": "عـرض يوزر Fragment للمستخدم",
+        "الاستـخـدام": " {tr}فراغمنت بالـرد على المستخدم",
     },
 )
-async def show_username(event):
-    zed = await edit_or_reply(event, "⇆")
-    username_input = event.pattern_match.group(1).strip()
-
-    # إذا كان هناك رد على رسالة، احصل على المستخدم من الرسالة السابقة
-    if event.reply_to_msg_id:
-        replied_message = await event.get_reply_message()
-        user = await event.client.get_entity(replied_message.sender_id)
-    elif username_input:
-        # إذا تم إدخال اسم المستخدم مباشرة
-        user = await event.client.get_entity(username_input)
-    else:
-        return await edit_or_reply(zed, "**- يجب عليك توفير اسم المستخدم أو الرد على رسالة!**")
-
-    # عرض اسم المستخدم
-    username_result = user.username if user.username else "لا يـوجـد"
+async def show_fragment(event):
+    "يعرض يوزر Fragment للمستخدم"
+    zed = await edit_or_reply(event, "⏳ جـاري البحـث...")
     
-    # عرض اسم المستخدم فقط
-    await zed.edit(f"✦ اليـوزر    ⤎ @{username_result}")
+    replied_user = await get_user_from_event(event)
+    if not replied_user:
+        return await edit_or_reply(zed, "**⛔️ يـجب الـرد على شخـص**")
+    
+    user_id = replied_user.id
+    
+    fragment_info = await get_fragment_info(event.client, user_id)
+    
+    if not fragment_info['success']:
+        return await edit_or_reply(zed, "**❌ خطـأ في الجلب**")
+    
+    if fragment_info['has_fragment']:
+        username = fragment_info['username']
+        await edit_or_reply(zed, f"**🔖 يوزر Fragment:** @{username}")
+    else:
+        await edit_or_reply(zed, "**❌ لا يـوجد يوزر Fragment**")

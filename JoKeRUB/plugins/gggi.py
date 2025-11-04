@@ -660,6 +660,7 @@ async def zzz_info(zthon_user, event):
     ZThon = f'ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮.'
     ZThon += f'<a href="emoji/5668127928907464707">❤️</a>: \n'
     ZThon += f"⋆─┄─┄─┄─┄─┄┄─┄┄─┄─⋆\n"
+    
     # ✅ الجزء الذي نريد وضعه داخل الاقتباس فقط
     quoted_content = ""
     quoted_content += f"● معلومـات تقييـم حسـاب تيليجـرام "
@@ -676,11 +677,15 @@ async def zzz_info(zthon_user, event):
     # ✅ إضافة المستوى والنقاط
     if rating_info['success'] and rating_info['has_rating']:
         quoted_content += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
-        quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['next_level_stars']}/{rating_info['stars']} "
+        quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['stars']}/{rating_info['next_level_stars']} "
         quoted_content += f'<a href="emoji/5875180111744995604">❤️</a> \n'
     else:
         quoted_content += f"<b>- المسـتوى ⤎ </b> ❤️\n"
         quoted_content += f"<b>- النقـاط  ⤎ </b> 0/0 🎁\n"
+    
+    # ✅ إضافة سطر الإنشاء
+    quoted_content += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}"
+    quoted_content += f'<a href="emoji/5233515377861879701">❤️</a> \n'
     
     # ✅ وضع الجزء المطلوب داخل الاقتباس
     ZThon += f"<blockquote>{quoted_content}</blockquote>"

@@ -676,7 +676,7 @@ async def zzz_info(zthon_user, event):
     # ✅ إضافة المستوى والنقاط
     if rating_info['success'] and rating_info['has_rating']:
         quoted_content += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
-        quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['stars']}/{rating_info['next_level_stars']} "
+        quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['next_level_stars']}/{rating_info['stars']} "
         quoted_content += f'<a href="emoji/5875180111744995604">❤️</a> \n'
     else:
         quoted_content += f"<b>- المسـتوى ⤎ </b> ❤️\n"

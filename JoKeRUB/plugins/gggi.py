@@ -660,25 +660,31 @@ async def zzz_info(zthon_user, event):
     ZThon = f'ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮.'
     ZThon += f'<a href="emoji/5668127928907464707">❤️</a>: \n'
     ZThon += f"\n⋆─┄─┄─┄─┄─┄┄─┄┄─┄─⋆\n"
-    ZThon += f"● معلومـات تقييـم حسـاب تيليجـرام "
-    ZThon += f'<a href="emoji/5199752274875796976">❤️</a>: \n'
-    ZThon += f"<b>- الاسـم    ⤎ </b> "
-    ZThon += f'<a href="tg://user?id={user_id}">{full_name}</a> {user_emoji}'
-    ZThon += f"\n<b>- الايــدي   ⤎ </b> <code>{user_id}</code>"
-    ZThon += f"\n<b>- اليـوزر    ⤎ </b> {username}\n"
+    
+    # ✅ الجزء الذي نريد وضعه داخل الاقتباس فقط
+    quoted_content = ""
+    quoted_content += f"● معلومـات تقييـم حسـاب تيليجـرام "
+    quoted_content += f'<a href="emoji/5199752274875796976">❤️</a>: \n'
+    quoted_content += f"<b>- الاسـم    ⤎ </b> "
+    quoted_content += f'<a href="tg://user?id={user_id}">{full_name}</a> {user_emoji}'
+    quoted_content += f"\n<b>- الايــدي   ⤎ </b> <code>{user_id}</code>"
+    quoted_content += f"\n<b>- اليـوزر    ⤎ </b> {username}\n"
     
     if zilzal == True or user_id in zelzal: 
-        ZThon += f"<b>- الحساب  ⤎  بـريميـوم</b> "
-        ZThon += f'<a href="emoji/5877323064202499941">❤️</a> \n'
+        quoted_content += f"<b>- الحساب  ⤎  بـريميـوم</b> "
+        quoted_content += f'<a href="emoji/5877323064202499941">❤️</a> \n'
     
     # ✅ إضافة المستوى والنقاط
     if rating_info['success'] and rating_info['has_rating']:
-        ZThon += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
-        ZThon += f"<b>- النقـاط  ⤎ </b> {rating_info['next_level_stars']}/{rating_info['stars']} "
-        ZThon += f'<a href="emoji/5875180111744995604">❤️</a> \n'
+        quoted_content += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
+        quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['stars']}/{rating_info['next_level_stars']} "
+        quoted_content += f'<a href="emoji/5875180111744995604">❤️</a> \n'
     else:
-        ZThon += f"<b>- المسـتوى ⤎ </b> ❤️\n"
-        ZThon += f"<b>- النقـاط  ⤎ </b> 0/0 🎁\n"
+        quoted_content += f"<b>- المسـتوى ⤎ </b> ❤️\n"
+        quoted_content += f"<b>- النقـاط  ⤎ </b> 0/0 🎁\n"
+    
+    # ✅ وضع الجزء المطلوب داخل الاقتباس
+    ZThon += f"<blockquote>{quoted_content}</blockquote>"
     
     return ZThon
 

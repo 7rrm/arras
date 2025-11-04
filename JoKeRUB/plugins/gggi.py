@@ -845,42 +845,24 @@ from telethon.tl.functions.fragment import GetCollectibleInfoRequest
     pattern="م(?: |$)(.*)",
     command=("م", plugin_category),
     info={
-        "header": "امـر لـ عـرض معلومات الشخص بواسطة اسم المستخدم",
-        "الاستـخـدام": " {tr}م + معـرف الشخص",
+        "header": "امـر لعرض اسم المستخدم",
+        "الاستـخـدام": " {tr}م بالـرد أو {tr}م + اسم المستخدم",
     },
 )
-async def show_user_info(event):
+async def show_username(event):
     zed = await edit_or_reply(event, "⇆")
-    username = event.pattern_match.group(1).strip()
-    
-    if not username:
-        return await edit_or_reply(zed, "**- يجب عليك توفير اسم المستخدم!**")
-    
-    try:
-        # محاولة الحصول على معلومات المستخدم
-        user = await event.client.get_entity(username)
-        full_user = await event.client(GetFullUserRequest(user.id))
-        
-        # إعداد الرسالة لعرض المعلومات
-        user_info = f"✦ الاســم    ⤎ {full_user.first_name or 'لا يـوجـد'}"
-        user_info += f"\n✦ اليـوزر    ⤎ @{user.username}" if user.username else "\n✦ اليـوزر    ⤎ لا يـوجـد"
-        user_info += f"\n✦ الايـدي    ⤎ {user.id}"
-        user_info += f"\n✦ الرتبــه    ⤎ {'مـطـور' if user.id in zel_dev else 'العضـو'}"
-        user_info += f"\n✦ الحساب  ⤎ {'بـريميـوم' if user.premium else 'عادي'}"
-        
-        # عرض معلومات إضافية
-        user_bio = full_user.about or "لا يـوجـد"
-        user_info += f"\n✦ البايـو     ⤎ {user_bio}"
+    username_input = event.pattern_match.group(1).strip()
 
-        # الحصول على المعلومات من Fragment إذا كان مرفوعاً
-        try:
-            collectible_info = await event.client(GetCollectibleInfoRequest(user.id))
-            collectible_users = collectible_info.collectibles
-            user_info += f"\n✦ أسماء المستخدمين في Fragment: {', '.join(user.username for user in collectible_users) if collectible_users else 'لا توجد أسماء'}"
-        except Exception as e:
-            user_info += "\n✦ معلومات Fragment غير متاحة"
+    # إذا كان هناك رد على رسالة، احصل على المستخدم من الرسالة السابقة
+    if event.reply_to_msg_id:
+        replied_message = await event.get_reply_message()
+        user = await event.client.get_entity(replied_message.sender_id)
+    elif username_input:
+        # إذا تم إدخال اسم المستخدم مباشرة
+        user = await event.client.get_entity(username_input)
+    else:
+        return await edit_or_reply(zed, "**- يجب عليك توفير اسم المستخدم أو الرد على رسالة!**")
 
-        await zed.edit(user_info)
-    
-    except Exception as e:
-        await zed.edit(f"**- لم أستطع العثور على المستخدم: {str(e)}**")
+    # عرض اسم المستخدم
+    username_result = user.username if user.username else "لا يـوجـد"
+    await zed.edit(f"✦ اليـوزر    ⤎ @{username_result}")

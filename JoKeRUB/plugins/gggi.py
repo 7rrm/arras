@@ -839,9 +839,12 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================#
-async def get_only_username(client, target) -> dict:
+from telethon.tl.types import MessageEntityMentionName
+from telethon.tl.functions.users import GetFullUserRequest
+
+async def get_all_usernames_fragment(client, target) -> dict:
     """
-    تجلب يوزر المستخدم فقط بدون معلومات إضافية
+    تجلب جميع يوزرات المستخدم بما فيها يوزرات Fragment
     
     Args:
         client: كائن Telethon Client
@@ -852,7 +855,7 @@ async def get_only_username(client, target) -> dict:
             - رسالة للرد عليها
     
     Returns:
-        dict: يحتوي على يوزر المستخدم فقط
+        dict: يحتوي على جميع اليوزرات
     """
     try:
         # الحصول على كائن المستخدم/القناة
@@ -865,36 +868,57 @@ async def get_only_username(client, target) -> dict:
             # إذا كان كائن مستخدم مباشر
             entity = target
         
+        # الحصول على المعلومات الكاملة للمستخدم
+        full_user = await client(GetFullUserRequest(entity.id))
+        
         result = {
-            'username': None,
-            'user_id': entity.id  # نحتفظ بالآيدي للرابط فقط
+            'user_id': entity.id,
+            'first_name': getattr(entity, 'first_name', ''),
+            'last_name': getattr(entity, 'last_name', ''),
+            'usernames': []
         }
         
-        # الحصول على اليوزر الأساسي فقط
+        # اليوزر الأساسي (إن وجد)
         if hasattr(entity, 'username') and entity.username:
-            result['username'] = f"@{entity.username}"
+            result['usernames'].append({
+                'username': f"@{entity.username}",
+                'type': 'رئيـسي',
+                'active': True,
+                'emoji': '🔵'
+            })
+        
+        # اليوزرات الإضافية (Fragment) - الميزة الجديدة في تيليجرام
+        if hasattr(full_user.full_user, 'usernames') and full_user.full_user.usernames:
+            for username_obj in full_user.full_user.usernames:
+                if username_obj.username:
+                    status_emoji = '🟢' if username_obj.active else '🔴'
+                    result['usernames'].append({
+                        'username': f"@{username_obj.username}",
+                        'type': 'إضـافي', 
+                        'active': username_obj.active,
+                        'emoji': status_emoji
+                    })
         
         return result
         
     except Exception as e:
         return {'error': str(e)}
 
-
 @l313l.ar_cmd(
-    pattern="يوزر?(?: |$)(.*)",
-    command=("يوزر", plugin_category),
+    pattern="يوزراتي?(?: |$)(.*)",
+    command=("يوزرات", plugin_category),
     info={
-        "header": "عـرض يـوزر الـمـسـتـخـدم فـقـط",
+        "header": "عـرض جـمـيع يـوزرات الـمـسـتـخـدم",
         "الاستـخـدام": [
-            "{tr}يوزر بالـرد ع الشخـص",
-            "{tr}يوزر + معـرف/ايـدي",
-            "{tr}يوزر (لـعـرض يـوزرك)"
+            "{tr}يوزرات بالـرد ع الشخـص",
+            "{tr}يوزرات + معـرف/ايـدي", 
+            "{tr}يوزراتي (لـعـرض يـوزراتـك)"
         ],
     },
 )
-async def show_username_only(event):
-    """عـرض يـوزر الـمـسـتـخـدم فـقـط"""
-    zed = await edit_or_reply(event, "**⏳ جـاري جـلب اليـوزر...**")
+async def show_all_usernames_fragment(event):
+    """عـرض جـمـيع يـوزرات الـمـسـتـخـدم بـمـا فـيـهـا Fragment"""
+    zed = await edit_or_reply(event, "**⏳ جـاري جـلب اليـوزرات...**")
     
     # تحديد المستخدم المستهدف
     input_str = event.pattern_match.group(1)
@@ -913,27 +937,36 @@ async def show_username_only(event):
         reply_message = await event.get_reply_message()
         target = reply_message
     else:
-        # إذا لم يتم تحديد مستهدف (عرض يوزر المرسل)
+        # إذا لم يتم تحديد مستهدف (عرض يوزرات المرسل)
         target = await event.client.get_me()
     
     try:
-        # جلب معلومات اليوزر فقط
-        user_info = await get_only_username(event.client, target)
+        # جلب جميع اليوزرات بما فيها Fragment
+        user_info = await get_all_usernames_fragment(event.client, target)
         
         if 'error' in user_info:
             return await zed.edit(f"**❌ خطـأ:** `{user_info['error']}`")
         
-        # بناء الرسالة - يوزر فقط
-        if user_info['username']:
-            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬 𓆪</b>\n"
+        # بناء الرسالة - جميع اليوزرات في سطر واحد
+        if user_info['usernames']:
+            # جمع جميع اليوزرات في قائمة
+            usernames_list = []
+            for username_data in user_info['usernames']:
+                usernames_list.append(username_data['username'])
+            
+            # تحويل القائمة إلى سطر واحد
+            usernames_line = " ".join(usernames_list)
+            
+            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬𝑺 𓆪</b>\n"
             caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
-            caption += f"<b>• اليـوزر ⤎</b> {user_info['username']}\n\n"
+            caption += f"<b>✦ اليـوزرات ⤎</b> {usernames_line}\n\n"
+            caption += f"<b>• العـدد ⤎</b> {len(user_info['usernames'])}\n"
             caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n"
             caption += f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 𓆪</b>"
         else:
-            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬 𓆪</b>\n"
+            caption = f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 - 𝑼𝑺𝑬𝑹𝑵𝑨𝑴𝑬𝑺 𓆪</b>\n"
             caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
-            caption += f"<b>• اليـوزر ⤎</b> لا يـوجـد يـوزر\n\n"
+            caption += f"<b>✦ اليـوزرات ⤎</b> لا يـوجـد يـوزرات\n\n"
             caption += f"<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n"
             caption += f"<b>𓆩 𝑺𝑶𝑼𝑹𝑪𝑬 𝑹𝑨𝑺 𝑻𝑯𝑶𝑵 𓆪</b>"
         

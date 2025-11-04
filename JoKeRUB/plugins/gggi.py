@@ -390,6 +390,7 @@ async def get_user_level_and_stars(client, user_id):  # ⬅️ تغيير اسم
         if stars_rating:
             level = stars_rating.level
             stars = stars_rating.stars  # ✅ إضافة النقاط (النجوم)
+            next_level_stars = stars_rating.next_level_stars  # ✅ إضافة نقاط المستوى التالي
             
             # ⚡ أقصى سرعة - شروط مباشرة
             if level == 1:
@@ -597,7 +598,8 @@ async def get_user_level_and_stars(client, user_id):  # ⬅️ تغيير اسم
                 'success': True, 
                 'has_rating': True, 
                 'level': level, 
-                'stars': stars,  # ✅ إضافة النقاط
+                'stars': stars,
+                'next_level_stars': next_level_stars,  # ✅ إرجاع نقاط المستوى التالي
                 'level_display': level_display
             }
         else:
@@ -605,15 +607,17 @@ async def get_user_level_and_stars(client, user_id):  # ⬅️ تغيير اسم
                 'success': True, 
                 'has_rating': False, 
                 'level_display': "لا يوجد",
-                'stars': 0  # ✅ إضافة النقاط بقيمة صفر
+                'stars': 0,
+                'next_level_stars': 0  # ✅ قيمة افتراضية
             }
             
     except Exception:
         return {
             'success': False, 
             'level_display': "خطأ",
-            'stars': 0  # ✅ إضافة النقاط بقيمة صفر
-                }
+            'stars': 0,
+            'next_level_stars': 0  # ✅ قيمة افتراضية
+        }
 
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
@@ -636,27 +640,43 @@ async def zzz_info(zthon_user, event):
     # ✅ جلب معلومات المستوى والنقاط
     rating_info = await get_user_level_and_stars(event.client, user_id)
     
-    ZThon = f'<a href="T.me/ZThon">ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮 📟</a>'
-    ZThon += f"\n<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
-    ZThon += f"<b>• معلومـات إنشـاء حسـاب تيليجـرام 📑 :</b>\n"
-    ZThon += f"<b>- الاسـم    ⤎ </b> "
-    ZThon += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-    ZThon += f"\n<b>- الايــدي   ⤎ </b> <code>{user_id}</code>"
-    ZThon += f"\n<b>- اليـوزر    ⤎  {username}</b>\n"
-    
-    # ✅ إضافة المستوى والنقاط
-    if rating_info['success'] and rating_info['has_rating']:
-        ZThon += f"<b>- المسـتوى   ⤎ </b> {rating_info['level_display']} \n"
-        ZThon += f"<b>- النقـاط    ⤎ </b> {rating_info['stars']} ⭐\n"
+    # ✅ الحصول على إيموجي الحساب كما في أمر ا
+    mypremium = (await event.client.get_entity(Zel_Uid)).premium
+    if (zilzal == True and mypremium == True):
+        emoji_status = (await event.client.get_entity(user_id)).emoji_status
+        if isinstance(emoji_status, EmojiStatusEmpty): 
+            emoji_id = 5834880210268329130
+        else:
+            try:
+                emoji_id = emoji_status.document_id
+                if emoji_id is None:
+                    emoji_id = 5834880210268329130
+            except Exception:
+                    emoji_id = 5834880210268329130
+        user_emoji = f'<a href="emoji/{emoji_id}">❤️</a>'
     else:
-        ZThon += f"<b>- المسـتوى   ⤎ </b> لا يوجد\n"
-        ZThon += f"<b>- النقـاط    ⤎ </b> 0 ⭐\n"
+        user_emoji = ""
+    
+    ZThon = f'ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮.❤️'
+    ZThon += f"\n⋆─┄─┄─┄─┄─┄┄─┄┄─┄─⋆\n"
+    ZThon += f"● معلومـات تقييـم حسـاب تيليجـرام ❤️:\n"
+    ZThon += f"<b>- الاسـم    ⤎ </b> "
+    ZThon += f'<a href="tg://user?id={user_id}">{full_name}</a> {user_emoji}'
+    ZThon += f"\n<b>- الايــدي   ⤎ </b> <code>{user_id}</code>"
+    ZThon += f"\n<b>- اليـوزر    ⤎ </b> {username}\n"
     
     if zilzal == True or user_id in zelzal: 
         ZThon += f"<b>- الحساب  ⤎  بـريميـوم</b> "
         ZThon += f'<a href="emoji/5834880210268329130">❤️</a> \n'
     
-    ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
+    # ✅ إضافة المستوى والنقاط
+    if rating_info['success'] and rating_info['has_rating']:
+        ZThon += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
+        ZThon += f"<b>- النقـاط  ⤎ </b> {rating_info['stars']}/{rating_info['next_level_stars']} 🎁\n"
+    else:
+        ZThon += f"<b>- المسـتوى ⤎ </b> ❤️\n"
+        ZThon += f"<b>- النقـاط  ⤎ </b> 0/0 🎁\n"
+    
     return ZThon
 
 async def fetch_info(replied_user, event):

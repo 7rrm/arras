@@ -379,7 +379,242 @@ async def get_user_rating(client, user_id):
             
     except Exception:
         return {'success': False, 'level_display': "خطأ"}
+
+
+#-------- دالة الانشاء -------#
+async def get_user_level_and_stars(client, user_id):  # ⬅️ تغيير اسم الدالة
+    try:
+        full_user = await client(GetFullUserRequest(user_id))
+        stars_rating = getattr(full_user.full_user, 'stars_rating', None)
         
+        if stars_rating:
+            level = stars_rating.level
+            stars = stars_rating.stars  # ✅ إضافة النقاط (النجوم)
+            
+            # ⚡ أقصى سرعة - شروط مباشرة
+            if level == 1:
+                level_display = '<a href="emoji/5217498259404130179">🎖</a>'
+            elif level == 2:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 3:
+                level_display = '<a href="emoji/5217707355591969547">⭐</a>'
+            elif level == 4:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 5:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 6:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 7:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 8:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 9:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 10:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 11:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 12:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 13:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 14:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 15:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 16:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 17:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 18:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 19:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 20:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 21:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 22:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 23:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 24:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 25:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 26:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 27:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 28:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 29:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 30:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 31:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 32:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 33:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 34:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 35:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 36:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 37:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 38:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 39:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 40:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 41:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 42:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 43:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 44:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 45:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 46:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 47:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 48:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 49:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 50:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 51:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 52:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 53:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 54:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 55:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 56:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 57:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 58:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 59:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 60:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 61:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 62:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 63:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 64:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 65:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 66:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 67:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 68:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 69:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 70:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 71:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 72:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 73:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 74:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 75:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 76:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 77:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 78:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 79:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 80:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 81:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 82:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 83:
+                level_display = '<a href="emoji/5217843832472764060">⭐</a>'
+            elif level == 84:
+                level_display = '<a href="emoji/5217982564211388784">⭐</a>'
+            elif level == 85:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 86:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 87:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 88:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 89:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 90:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 91:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 92:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 93:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 94:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 95:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 96:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 97:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 98:
+                level_display = '<a href="emoji/5217757976076518557">⭐</a>'
+            elif level == 99:
+                level_display = '<a href="emoji/5217498259404130179">🎖</a>'
+            else:
+                level_display = str(level)
+            
+            return {
+                'success': True, 
+                'has_rating': True, 
+                'level': level, 
+                'stars': stars,  # ✅ إضافة النقاط
+                'level_display': level_display
+            }
+        else:
+            return {
+                'success': True, 
+                'has_rating': False, 
+                'level_display': "لا يوجد",
+                'stars': 0  # ✅ إضافة النقاط بقيمة صفر
+            }
+            
+    except Exception:
+        return {
+            'success': False, 
+            'level_display': "خطأ",
+            'stars': 0  # ✅ إضافة النقاط بقيمة صفر
+                }
+
 async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
@@ -398,6 +633,9 @@ async def zzz_info(zthon_user, event):
     username = "@{}".format(username) if username else ("لا يـوجـد")
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     
+    # ✅ جلب معلومات المستوى والنقاط
+    rating_info = await get_user_level_and_stars(event.client, user_id)
+    
     ZThon = f'<a href="T.me/ZThon">ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗧𝗲𝗹𝗲𝗴𝗿𝗮𝗺 𝗗𝗮𝘁𝗮 📟</a>'
     ZThon += f"\n<b>⋆─┄─┄─┄─┄─┄─┄─⋆</b>\n\n"
     ZThon += f"<b>• معلومـات إنشـاء حسـاب تيليجـرام 📑 :</b>\n"
@@ -405,12 +643,21 @@ async def zzz_info(zthon_user, event):
     ZThon += f'<a href="tg://user?id={user_id}">{full_name}</a>'
     ZThon += f"\n<b>- الايــدي   ⤎ </b> <code>{user_id}</code>"
     ZThon += f"\n<b>- اليـوزر    ⤎  {username}</b>\n"
+    
+    # ✅ إضافة المستوى والنقاط
+    if rating_info['success'] and rating_info['has_rating']:
+        ZThon += f"<b>- المسـتوى   ⤎ </b> {rating_info['level_display']} \n"
+        ZThon += f"<b>- النقـاط    ⤎ </b> {rating_info['stars']} ⭐\n"
+    else:
+        ZThon += f"<b>- المسـتوى   ⤎ </b> لا يوجد\n"
+        ZThon += f"<b>- النقـاط    ⤎ </b> 0 ⭐\n"
+    
     if zilzal == True or user_id in zelzal: 
         ZThon += f"<b>- الحساب  ⤎  بـريميـوم</b> "
         ZThon += f'<a href="emoji/5834880210268329130">❤️</a> \n'
+    
     ZThon += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}  🗓" 
     return ZThon
-
 
 async def fetch_info(replied_user, event):
     """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""

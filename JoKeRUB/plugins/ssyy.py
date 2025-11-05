@@ -882,12 +882,11 @@ async def yoot_auto_search(event):
                 # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                 caption = (
                     f"<blockquote>\n"
-                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 𝆹𝅥𝅮 .</b>"
-                    f'<a href="emoji/5449435474164731685">❤️</a>\n'
-                    f"<b>S𝑜𝑛𝑔N𝑎𝑚𝑒 :-</b> <code>{query}</code>"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
                     f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5 .</b>"
-                    f'<a href="emoji/5368338253868968009">❤️</a>\n'
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
                 # إرسال المقطع كرد على الرسالة الأصلية

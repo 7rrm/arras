@@ -118,25 +118,24 @@ async def delete_it(event):
     elif not input_str:
         await event.delete()
 
-
 @l313l.ar_cmd(pattern="رسائلي$")
 async def zed(event):
     zzm = "me"
     a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
-    await edit_or_reply(event, f"**✧╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
+    await edit_or_reply(event, f"<b>✧╎لديـك هنـا ⇽</b>  <code>{a.total}</code>  <b>رسـالـه <a href='emoji/5253742260054409879'>❤️</a></b>", parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(pattern="رسائله ?(.*)")
 async def zed(event):
     k = await event.get_reply_message()
     if k:
         a = await bot.get_messages(event.chat_id, 0, from_user=k.sender_id)
-        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
+        return await edit_or_reply(event, f"<b>✧╎لديـه هنـا ⇽</b>  <code>{a.total}</code>  <b>رسـالـه <a href='emoji/5253742260054409879'>❤️</a></b>", parse_mode=CustomParseMode("html"))
     zzm = event.pattern_match.group(1)
     if zzm:
         a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
-        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
+        return await edit_or_reply(event, f"<b>✧╎المستخـدم</b> {zzm} <b>لديـه هنـا ⇽</b>  <code>{a.total}</code>  <b>رسـالـه <a href='emoji/5253742260054409879'>❤️</a></b>", parse_mode=CustomParseMode("html"))
     else:
-        await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
+        await edit_or_reply(event, f"<b>✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر</b>", parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(
     pattern="مسح رسائلي$",

@@ -22,10 +22,39 @@ from JoKeRUB import l313l
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import reply_id
 from . import BOTLOG, BOTLOG_CHATID
+from telethon.extensions import markdown, html
+from telethon.tl import types
+from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
 
 plugin_category = "utils"
 
 
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+        
 purgelist = {}
 
 purgetype = {
@@ -94,22 +123,20 @@ async def delete_it(event):
 async def zed(event):
     zzm = "me"
     a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
-    await edit_or_reply(event, f"**✧╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-
+    await edit_or_reply(event, f"**✧╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(pattern="رسائله ?(.*)")
 async def zed(event):
     k = await event.get_reply_message()
     if k:
         a = await bot.get_messages(event.chat_id, 0, from_user=k.sender_id)
-        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+        return await edit_or_reply(event, f"**✧╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
     zzm = event.pattern_match.group(1)
     if zzm:
         a = await bot.get_messages(event.chat_id, 0, from_user=zzm)
-        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+        return await edit_or_reply(event, f"**✧╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه <a href='emoji/5967280668885913944'>✉️</a>**", parse_mode=CustomParseMode("html"))
     else:
         await edit_or_reply(event, f"**✧╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
-
 
 @l313l.ar_cmd(
     pattern="مسح رسائلي$",

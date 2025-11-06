@@ -392,43 +392,69 @@ async def watcher(event):
         except Exception as e:
             LOGS.info(str(e))
 
-
-from asyncio import sleep
-import requests
-import os
-from telethon import events
 from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.types import InputWallPaperUploaded, WallPaperSettings
 from telethon.tl.functions.account import UploadWallPaperRequest
+from telethon.tl.types import InputWallPaper, WallPaperSettings
 
 @l313l.ar_cmd(
-    pattern="خلفية$"
+    pattern="خلفية$",
+    command=("خلفية", plugin_category),
+    info={
+        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة",
+        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة",
+        "᯽︙ الأمـر": [
+            "{tr}خلفية <بالرد على صورة>",
+        ],
+    },
 )
-async def test_wallpaper(event):
-    # رد فوري للتأكد أن الأمر يعمل
-    await event.reply("**᯽︙ الأمر يعمل! جاري المعالجة...**")
+async def set_chat_wallpaper(event):
+    "لتعيين خلفية للمحادثة"
+    replymsg = await event.get_reply_message()
+    photo = None
+    if replymsg and replymsg.media:
+        if isinstance(replymsg.media, MessageMediaPhoto):
+            photo = await event.client.download_media(message=replymsg.photo)
+        elif "image" in replymsg.media.document.mime_type.split("/"):
+            photo = await event.client.download_file(replymsg.media.document)
+        else:
+            return await edit_delete(event, INVALID_MEDIA)
     
-    try:
-        # التأكد من محادثة خاصة
-        if not event.is_private:
-            await event.reply("**᯽︙ هذا الأمر للمحادثات الخاصة فقط**")
-            return
-        
-        # إرسال الصورة مباشرة
-        await event.reply("**᯽︙ جاري إرسال الخلفية...**")
-        
-        await event.client.send_file(
-            event.chat_id,
-            "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg",
-            caption="**᯽︙ هذه هي الخلفية المطلوبة**"
-        )
-        
-    except Exception as e:
-        await event.reply(f"**᯽︙ حدث خطأ: {str(e)}**")
-
-
-@l313l.ar_cmd(
-    pattern="تست$"
-)
-async def test_command(event):
-    await event.reply("**✅ الأمر يعمل! البوت يستجيب.**")
+    if photo:
+        try:
+            # رفع الصورة أولاً
+            uploaded_file = await event.client.upload_file(photo)
+            
+            # استخدام InputWallPaper برفع الملف
+            from telethon.tl.types import InputWallPaper
+            
+            # نرفع الصورة كخلفية ونحصل على الـ id والـ hash
+            result = await event.client(UploadWallPaperRequest(
+                file=uploaded_file,
+                mime_type='image/jpeg',
+                settings=WallPaperSettings()
+            ))
+            
+            # الآن نستخدم InputWallPaper بالـ id والـ hash
+            wallpaper = InputWallPaper(
+                id=result.id,
+                access_hash=result.access_hash
+            )
+            
+            # تطبيق الخلفية على المحادثة الحالية
+            await event.client(SetChatWallPaperRequest(
+                peer=event.chat_id,
+                wallpaper=wallpaper,
+                settings=WallPaperSettings(
+                    blur=False,
+                    motion=False,
+                    background_color=0x000000,
+                    intensity=50
+                )
+            ))
+            
+            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للمحادثة بنجاح ✓**")
+            
+        except Exception as e:
+            return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
+    else:
+        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")

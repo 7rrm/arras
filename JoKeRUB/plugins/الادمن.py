@@ -394,64 +394,74 @@ async def watcher(event):
 
 from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, MessageMediaPhoto
+from telethon.tl.types import InputWallPaper, WallPaperSettings, InputWallPaperSlug
+from telethon.tl.types import MessageMediaPhoto
+
 
 @l313l.ar_cmd(
     pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة للطرف الآخر",
-        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة للطرف الآخر",
+        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة للطرفين",
+        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة لك وللطرف الآخر",
         "᯽︙ الأمـر": [
             "{tr}خلفية <بالرد على صورة>",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية للمحادثة للطرف الآخر"
+    "لتعيين خلفية للمحادثة للطرفين"
     replymsg = await event.get_reply_message()
     photo = None
+    
     if replymsg and replymsg.media:
         if isinstance(replymsg.media, MessageMediaPhoto):
             photo = await event.client.download_media(message=replymsg.photo)
         elif "image" in replymsg.media.document.mime_type.split("/"):
             photo = await event.client.download_file(replymsg.media.document)
         else:
-            return await edit_delete(event, INVALID_MEDIA)
+            return await edit_delete(event, "**᯽︙ يرجى الرد على صورة صالحة**")
     
     if photo:
         try:
             # رفع الصورة أولاً
             uploaded_file = await event.client.upload_file(photo)
-
-            # نرفع الصورة كخلفية ونحصل على الـ id والـ hash
+            
+            # استخدام InputWallPaper برفع الملف
+            from telethon.tl.types import InputWallPaper
+            
+            # نرفع الصورة كخلفية
             result = await event.client(UploadWallPaperRequest(
                 file=uploaded_file,
                 mime_type='image/jpeg',
                 settings=WallPaperSettings()
             ))
             
-            # الآن نستخدم InputWallPaper بالـ id والـ hash
+            # استخدام InputWallPaper بالـ id والـ hash
             wallpaper = InputWallPaper(
                 id=result.id,
                 access_hash=result.access_hash
             )
-
-            # تعيين الخلفية للطرف الآخر
+            
+            # تطبيق الخلفية على المحادثة للطرفين
             await event.client(SetChatWallPaperRequest(
-                peer=replymsg.from_id,  # تعيين الخلفية للطرف الآخر
+                peer=event.chat_id,
                 wallpaper=wallpaper,
                 settings=WallPaperSettings(
                     blur=False,
                     motion=False,
-                    background_color=0x000000,
-                    intensity=50
-                )
+                    background_color=0,
+                    intensity=0,
+                    second_background_color=0,
+                    third_background_color=0,
+                    fourth_background_color=0,
+                ),
+                for_both=True  # ✅ هذا هو المفتاح لجعلها للطرفين
             ))
-
-            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للطرف الآخر بنجاح ✓**")
-
+            
+            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للمحادثة للطرفين بنجاح ✓**")
+            
         except Exception as e:
             return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
     else:
-        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية للطرف الآخر**")
+        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")

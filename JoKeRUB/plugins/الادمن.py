@@ -400,93 +400,66 @@ from telethon import events
 from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.types import InputWallPaperUploaded, WallPaperSettings
 
-# متغير لتخزين حالة التفعيل
-WALLPAPER_AUTO = False
-
 @l313l.ar_cmd(
-    pattern="تفعيل الخلفية$",
-    command=("تفعيل الخلفية", plugin_category),
+    pattern="خلفية$",
+    command=("خلفية", plugin_category),
     info={
-        "header": "لتشغيل الخلفية التلقائية عند الرسائل",
-        "description": "عند التفعيل، سيتم تعيين خلفية تلقائية عندما يراسلك أي شخص",
+        "header": "لتعيين خلفية للدردشات الخاصة",
+        "description": "يقوم بتعيين صورة معينة كخلفية للدردشات الخاصة",
         "usage": [
-            "{tr}تفعيل الخلفية",
+            "{tr}خلفية",
         ],
     },
 )
-async def enable_auto_wallpaper(event):
-    "لتشغيل الخلفية التلقائية"
-    global WALLPAPER_AUTO
-    WALLPAPER_AUTO = True
-    await event.edit("**᯽︙ تم تفعيل الخلفية التلقائية ✓**\n**᯽︙ الآن سيتم تعيين خلفية عند استقبال أي رسالة**")
-
-@l313l.ar_cmd(
-    pattern="تعطيل الخلفية$",
-    command=("تعطيل الخلفية", plugin_category),
-    info={
-        "header": "لإيقاف الخلفية التلقائية",
-        "description": "لتعطيل نظام الخلفية التلقائية عند الرسائل",
-        "usage": [
-            "{tr}تعطيل الخلفية",
-        ],
-    },
-)
-async def disable_auto_wallpaper(event):
-    "لإيقاف الخلفية التلقائية"
-    global WALLPAPER_AUTO
-    WALLPAPER_AUTO = False
-    await event.edit("**᯽︙ تم تعطيل الخلفية التلقائية ✗**")
-
-@l313l.on(events.NewMessage(incoming=True))
-async def auto_wallpaper_handler(event):
-    "معالج الرسائل الواردة لتعيين الخلفية تلقائياً"
-    if not WALLPAPER_AUTO:
-        return
+async def set_chat_wallpaper(event):
+    "لتعيين خلفية للدردشات الخاصة"
+    await event.edit("**᯽︙ جاري تعيين الخلفية...**")
     
-    # التأكد أن الرسالة من شخص وليست من قناة أو بوت
-    if event.is_private and event.sender_id != (await event.client.get_me()).id:
-        try:
-            # تحميل الصورة من الرابط
-            image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"
-            response = requests.get(image_url)
-            response.raise_for_status()
-            
-            # حفظ الصورة مؤقتاً
-            with open("temp_auto_wallpaper.jpg", "wb") as f:
-                f.write(response.content)
-            
-            # رفع الصورة كخلفية
-            uploaded_file = await event.client.upload_file("temp_auto_wallpaper.jpg")
-            
-            # إنشاء كائن الخلفية المرفوعة
-            wallpaper = InputWallPaperUploaded(
-                file=uploaded_file,
-                mime_type='image/jpeg',
-                settings=WallPaperSettings(
-                    blur=False,
-                    motion=False,
-                    background_color=0x000000,
-                    intensity=50
-                )
+    try:
+        # تحميل الصورة من الرابط
+        image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"
+        response = requests.get(image_url)
+        response.raise_for_status()
+        
+        # حفظ الصورة مؤقتاً
+        with open("temp_wallpaper.jpg", "wb") as f:
+            f.write(response.content)
+        
+        # رفع الصورة كخلفية
+        uploaded_file = await event.client.upload_file("temp_wallpaper.jpg")
+        
+        # إنشاء كائن الخلفية المرفوعة
+        wallpaper = InputWallPaperUploaded(
+            file=uploaded_file,
+            mime_type='image/jpeg',
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50,
+                second_background_color=0x000000,
+                third_background_color=0x000000,
+                fourth_background_color=0x000000
             )
-            
-            # تطبيق الخلفية على الدردشة مع المرسل
-            await event.client(SetChatWallPaperRequest(
-                peer=await event.client.get_input_entity(event.sender_id),
-                wallpaper=wallpaper,
-                settings=WallPaperSettings(
-                    blur=False,
-                    motion=False,
-                    background_color=0x000000,
-                    intensity=50
-                )
-            ))
-            
-            # تنظيف الملف المؤقت
-            if os.path.exists("temp_auto_wallpaper.jpg"):
-                os.remove("temp_auto_wallpaper.jpg")
-                
-        except Exception as e:
-            # في حالة الخطأ، نستمر بدون إيقاف النظام
-            if os.path.exists("temp_auto_wallpaper.jpg"):
-                os.remove("temp_auto_wallpaper.jpg")
+        )
+        
+        # تطبيق الخلفية على الدردشات الخاصة
+        await event.client(SetChatWallPaperRequest(
+            peer=await event.client.get_input_entity('me'),
+            wallpaper=wallpaper,
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
+        
+        await event.edit("**᯽︙ تم تعيين الخلفية بنجاح ✓**")
+        
+        # تنظيف الملف المؤقت
+        import os
+        os.remove("temp_wallpaper.jpg")
+        
+    except Exception as e:
+        await event.edit(f"**᯽︙ حدث خطأ: {str(e)}**")

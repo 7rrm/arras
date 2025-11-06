@@ -504,3 +504,63 @@ async def set_chat_wallpaper(event):
                 os.remove(photo)
     else:
         return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
+
+
+
+from telethon.tl.functions.account import UploadWallPaperRequest
+from telethon.tl.types import WallPaperSettings, MessageMediaPhoto
+import requests
+import os
+
+
+@l313l.ar_cmd(
+    pattern="جلب_id$",
+    command=("جلب_id", plugin_category),
+    info={
+        "᯽︙ الأسـتخدام": "لجلب id و access_hash للصورة",
+        "᯽︙ الشـرح": "الرد على صورة لجلب معلوماتها",
+        "᯽︙ الأمـر": "{tr}جلب_id",
+    },
+)
+async def get_wallpaper_info(event):
+    "لجلب id و access_hash للصورة"
+    replymsg = await event.get_reply_message()
+    
+    if not replymsg or not replymsg.media:
+        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة**")
+    
+    try:
+        # تحميل الصورة
+        if isinstance(replymsg.media, MessageMediaPhoto):
+            photo = await event.client.download_media(message=replymsg.photo)
+        elif "image" in replymsg.media.document.mime_type.split("/"):
+            photo = await event.client.download_file(replymsg.media.document)
+        else:
+            return await edit_delete(event, "**᯽︙ يرجى الرد على صورة فقط**")
+        
+        # رفع الصورة كخلفية
+        uploaded_file = await event.client.upload_file(photo)
+        result = await event.client(UploadWallPaperRequest(
+            file=uploaded_file,
+            mime_type='image/jpeg',
+            settings=WallPaperSettings()
+        ))
+        
+        # إظهار النتائج
+        info_text = f"""
+**᯽︙ تم جلب معلومات الصورة بنجاح ✓**
+
+**🆔 الـ ID:** `{result.id}`
+**🔑 الـ Access Hash:** `{result.access_hash}`
+
+**📝 ملاحظة:** يمكنك استخدام هذه المعلومات في الأوامر الأخرى
+        """
+        
+        await edit_delete(event, info_text)
+        
+    except Exception as e:
+        await edit_delete(event, f"**᯽︙ خطأ في جلب المعلومات: **`{str(e)}`")
+    finally:
+        # تنظيف الملف المؤقت
+        if 'photo' in locals() and os.path.exists(photo):
+            os.remove(photo)

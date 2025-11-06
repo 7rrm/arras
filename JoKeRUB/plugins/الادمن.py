@@ -391,3 +391,68 @@ async def watcher(event):
             await event.delete()
         except Exception as e:
             LOGS.info(str(e))
+
+
+@l313l.ar_cmd(
+    pattern="خلفية$",
+    command=("خلفية", plugin_category),
+    info={
+        "header": "لتعيين خلفية للدردشات الخاصة",
+        "description": "يقوم بتعيين صورة معينة كخلفية للدردشات الخاصة",
+        "usage": [
+            "{tr}خلفية",
+        ],
+    },
+)
+async def set_chat_wallpaper(event):
+    "لتعيين خلفية للدردشات الخاصة"
+    await event.edit("**᯽︙ جاري تعيين الخلفية...**")
+    
+    try:
+        # تحميل الصورة من الرابط
+        image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"
+        response = requests.get(image_url)
+        response.raise_for_status()
+        
+        # حفظ الصورة مؤقتاً
+        with open("temp_wallpaper.jpg", "wb") as f:
+            f.write(response.content)
+        
+        # رفع الصورة كخلفية
+        uploaded_file = await event.client.upload_file("temp_wallpaper.jpg")
+        
+        # إنشاء كائن الخلفية المرفوعة
+        wallpaper = InputWallPaperUploaded(
+            file=uploaded_file,
+            mime_type='image/jpeg',
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50,
+                second_background_color=0x000000,
+                third_background_color=0x000000,
+                fourth_background_color=0x000000
+            )
+        )
+        
+        # تطبيق الخلفية على الدردشات الخاصة
+        await event.client(SetChatWallPaperRequest(
+            peer=await event.client.get_input_entity('me'),
+            wallpaper=wallpaper,
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
+        
+        await event.edit("**᯽︙ تم تعيين الخلفية بنجاح ✓**")
+        
+        # تنظيف الملف المؤقت
+        import os
+        os.remove("temp_wallpaper.jpg")
+        
+    except Exception as e:
+        await event.edit(f"**᯽︙ حدث خطأ: {str(e)}**")

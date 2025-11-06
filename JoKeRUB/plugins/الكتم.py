@@ -108,7 +108,7 @@ async def startgmute(event):
                 )
                 await event.delete()
             else:
-                await await edit_or_reply(
+                await edit_or_reply(
     event,
     f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>❤️</a>\n<b>✧╎السـبب :</b> {reason}",
     parse_mode=CustomParseMode("html")

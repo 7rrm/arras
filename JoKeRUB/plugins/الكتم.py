@@ -37,7 +37,6 @@ class CustomParseMode:
     def parse(self, text):
         if self.parse_mode == 'html':
             text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
             for i, e in enumerate(entities):
                 if isinstance(e, types.MessageEntityTextUrl):
                     if e.url.startswith('emoji/'):
@@ -49,7 +48,18 @@ class CustomParseMode:
                         )
             return text, entities
         elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
+            text, entities = markdown.parse(text)
+            # معالجة الإيموجيات في Markdown أيضاً
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
         raise ValueError("Unsupported parse mode")
 
     @staticmethod
@@ -121,8 +131,8 @@ async def startgmute(event):
             else:
                 await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> {_format.mentionuser(user.first_name ,user.id)}\n<b>✧╎تـم كتمــه .. بنجــاح <a href='emoji/5348296085334934565'>❤️</a></b>",
-    parse_mode=CustomParseMode("html")
+    f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح** <a href='emoji/5348296085334934565'>❤️</a>",
+    parse_mode=CustomParseMode("markdown")
                 )
     if BOTLOG:
         reply = await event.get_reply_message()

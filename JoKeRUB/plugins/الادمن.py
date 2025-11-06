@@ -248,10 +248,9 @@ async def demote(event):
     pattern="طرد(?:\s|$)([\s\S]*)",
     command=("طرد", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لـطرد شـخض من الـكروب",
-        "᯽︙ الشـرح": "لـطرد شخص من المـجموعة يستطيع الأنضـمام مرة اخـرى.\
-        \n᯽︙ تـحتاج الصلاحـيات لـهذا الأمـر.",
-        "᯽︙ الأمـر": [
+        "header": "لـطرد شـخض من الـكروب",
+        "description": "لـطرد شخص من المـجموعة يستطيع الأنضـمام مرة اخـرى.\nتـحتاج الصلاحـيات لـهذا الأمـر.",
+        "usage": [
             "{tr}طرد <الايدي/المعرف/بالرد عليه>",
             "{tr}طرد <الايدي/المعرف/بالرد عليه> <السبب> ",
         ],
@@ -266,17 +265,21 @@ async def endmute(event):
         return
     if user.id == 5427469031:
         return await edit_delete(event, "**- لا يمڪنني حظر مطـوري دي لك**")
-    catevent = await edit_or_reply(event, "᯽︙ يـتم طـرد الـمستخدم أنتـظر")
+    catevent = await edit_or_reply(event, "**✾╎ يـتم طـرد الـمستخدم أنتـظر**")
     try:
         await event.client.kick_participant(event.chat_id, user.id)
     except Exception as e:
         return await catevent.edit(NO_PERM + f"\n{str(e)}")
     if reason:
         await catevent.edit(
-            f"᯽︙ الـمستخدم [{user.first_name}](tg://user?id={user.id})\n ᯽︙ تـم طرده بنجاح ✅ \n᯽︙ السـبب : {reason}"
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم طرده بنجاح</b> <a href='emoji/5348135243104664976'>❤️</a>\n<b>✾╎ السـبب :</b> <code>{reason}</code>",
+            parse_mode=CustomParseMode("html")
         )
     else:
-        await catevent.edit(f"᯽︙ الـمستخدم [{user.first_name}](tg://user?id={user.id})\n ᯽︙ تـم طرده بنجاح ✅ ")
+        await catevent.edit(
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم طرده بنجاح</b> <a href='emoji/5348135243104664976'>❤️</a>",
+            parse_mode=CustomParseMode("html")
+        )
 
 @l313l.ar_cmd(
     pattern="حظر(?:\s|$)([\s\S]*)",

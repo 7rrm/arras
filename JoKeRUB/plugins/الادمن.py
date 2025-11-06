@@ -1,6 +1,3 @@
-# edit ~ @lMl10l
-# for ~ @jepthon
-
 from asyncio import sleep
 
 from telethon import functions
@@ -22,7 +19,9 @@ from telethon.tl.types import (
     InputChatPhotoEmpty,
     MessageMediaPhoto,
 )
-
+from telethon.extensions import markdown, html
+from telethon.tl import types
+from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
 from JoKeRUB import l313l
 
 from ..core.logger import logging
@@ -39,7 +38,6 @@ NO_ADMIN = "**᯽︙ أنا لست مشرف هنا!!** "
 NO_PERM = "**᯽︙ ليس لدي أذونات كافية!** "
 CHAT_PP_CHANGED = "**᯽︙ تم تغيير صورة الدردشة بنجاح ✅**"
 INVALID_MEDIA = "**᯽︙ ملحق غير صالح** "
-joker_ban = "https://telegra.ph/file/ebf6473688b243a85087c.jpg"
 BANNED_RIGHTS = ChatBannedRights(
     until_date=None,
     view_messages=True,
@@ -69,6 +67,32 @@ UNMUTE_RIGHTS = ChatBannedRights(until_date=None, send_messages=False)
 
 plugin_category = "aadmin" 
 # ================================================
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
 
 
 @l313l.ar_cmd(
@@ -161,7 +185,7 @@ async def promote(event):
     )
     user, rank = await get_user_from_event(event)
     if not rank:
-        rank = "admin"
+        rank = "-"
     if not user:
         return
     catevent = await edit_or_reply(event, "**يـتم الرفـع**")
@@ -207,7 +231,7 @@ async def demote(event):
         pin_messages=None,
         manage_call=None,
     )
-    rank = "admin"
+    rank = "-"
     try:
         await event.client(EditAdminRequest(event.chat_id, user.id, newrights, rank))
     except BadRequestError:
@@ -253,13 +277,14 @@ async def endmute(event):
         )
     else:
         await catevent.edit(f"᯽︙ الـمستخدم [{user.first_name}](tg://user?id={user.id})\n ᯽︙ تـم طرده بنجاح ✅ ")
+
 @l313l.ar_cmd(
     pattern="حظر(?:\s|$)([\s\S]*)",
     command=("حظر", plugin_category),
     info={
-        "᯽︙ الاستخدام": "يقـوم بـحظر شخـص في الـكروب الذي تـم اسـتخدام الأمر فيـه.",
-        "᯽︙ الشرح": "لحـظر شخـص من الكـروب ومـنعه من الأنـضمام مجـددا. تـحتاج الصلاحـيات لـهذا الأمـر.",
-        "᯽︙ الامر": [
+        "header": "يقـوم بـحظر شخـص في الـكروب الذي تـم اسـتخدام الأمر فيـه.",
+        "description": "لحـظر شخـص من الكـروب ومـنعه من الأنـضمام مجـددا. تـحتاج الصلاحـيات لـهذا الأمـر.",
+        "usage": [
             "{tr}حظر <الايدي/المعرف/بالرد عليه>",
             "{tr}حظر <الايدي/المعرف/بالرد عليه> <السبب>",
         ],
@@ -268,7 +293,7 @@ async def endmute(event):
     require_admin=True,
 )
 async def jokerban(event):
-    "᯽︙ لحـظر شخص في كـروب مـعين"
+    "لحـظر شخص في كـروب مـعين"
     await event.delete()
     user, reason = await get_user_from_event(event)
     if not user:
@@ -284,38 +309,37 @@ async def jokerban(event):
         if reply:
             await reply.delete()
     except BadRequestError:
-        return await edit_or_reply(event, "᯽︙ ليـس لـدي جـميع الصـلاحيـات لكـن سيـبقى محـظور")
+        return await edit_or_reply(event, "**✾╎ليـس لـدي جـميع الصـلاحيـات لكـن سيـبقى محـظور**")
     if reason:
-        await event.client.send_file(
+        await event.client.send_message(
             event.chat_id,
-            joker_ban,
-            caption=f"᯽︙ المسـتخدم {_format.mentionuser(user.first_name, user.id)} \n ᯽︙ تـم حـظره بنـجاح !!\n**⌔︙السبب : **`{reason}`"
+            f"**✾╎ المسـتخدم** {_format.mentionuser(user.first_name, user.id)} \n**✾╎ تـم حـظره بنـجاح** <a href='emoji/5348296085334934565'>❤️</a>\n**✾╎السبب : **`{reason}`",
+            parse_mode=CustomParseMode("html")
         )
     else:
-        await event.client.send_file(
+        await event.client.send_message(
             event.chat_id,
-            joker_ban,
-            caption=f"᯽︙ المسـتخدم {_format.mentionuser(user.first_name, user.id)} \n ᯽︙ تـم حـظره بنـجاح ✅"
+            f"**✾╎ المسـتخدم** {_format.mentionuser(user.first_name, user.id)} \n**✾╎ تـم حـظره بنـجاح** <a href='emoji/5348296085334934565'>❤️</a>",
+            parse_mode=CustomParseMode("html")
         )
     if BOTLOG:
         if reason:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                f"᯽︙ الحـظر\
-                \nالمسـتخدم: [{user.first_name}](tg://user?id={user.id})\
-                \nالـدردشـة: {event.chat.title}\
-                \nايدي الكروب(`{event.chat_id}`)\
-                \nالسبـب : {reason}",
+                f"**✾╎ الحـظر**\n"
+                f"**✾╎ المسـتخدم:** [{user.first_name}](tg://user?id={user.id})\n"
+                f"**✾╎ الـدردشـة:** {event.chat.title}\n"
+                f"**✾╎ ايدي الكروب:** `{event.chat_id}`\n"
+                f"**✾╎ السبـب:** {reason}",
             )
         else:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                f"᯽︙ الحـظر\
-                \nالمسـتخدم: [{user.first_name}](tg://user?id={user.id})\
-                \nالـدردشـة: {event.chat.title}\
-                \n ايـدي الكـروب: (`{event.chat_id}`)",
+                f"**✾╎ الحـظر**\n"
+                f"**✾╎ المسـتخدم:** [{user.first_name}](tg://user?id={user.id})\n"
+                f"**✾╎ الـدردشـة:** {event.chat.title}\n"
+                f"**✾╎ ايـدي الكـروب:** `{event.chat_id}`",
             )
-
 
 @l313l.ar_cmd(
     pattern="الغاء حظر(?:\s|$)([\s\S]*)",

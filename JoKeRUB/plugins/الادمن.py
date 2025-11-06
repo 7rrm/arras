@@ -404,16 +404,16 @@ from telethon.tl.types import InputWallPaperUploaded, WallPaperSettings
     pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "header": "لتعيين خلفية للدردشات الخاصة",
-        "description": "يقوم بتعيين صورة معينة كخلفية للدردشات الخاصة",
+        "header": "لتعيين خلفية للمحادثة الحالية",
+        "description": "يقوم بتعيين صورة معينة كخلفية للمحادثة الحالية فقط",
         "usage": [
             "{tr}خلفية",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية للدردشات الخاصة"
-    await event.edit("**᯽︙ جاري تعيين الخلفية...**")
+    "لتعيين خلفية للمحادثة الحالية"
+    await event.edit("**᯽︙ جاري تعيين الخلفية للمحادثة الحالية...**")
     
     try:
         # تحميل الصورة من الرابط
@@ -443,9 +443,9 @@ async def set_chat_wallpaper(event):
             )
         )
         
-        # تطبيق الخلفية على الدردشات الخاصة
+        # تطبيق الخلفية على المحادثة الحالية فقط
         await event.client(SetChatWallPaperRequest(
-            peer=await event.client.get_input_entity('me'),
+            peer=event.chat_id,  # استخدام المحادثة الحالية بدلاً من 'me'
             wallpaper=wallpaper,
             settings=WallPaperSettings(
                 blur=False,
@@ -455,7 +455,7 @@ async def set_chat_wallpaper(event):
             )
         ))
         
-        await event.edit("**᯽︙ تم تعيين الخلفية بنجاح ✓**")
+        await event.edit("**᯽︙ تم تعيين الخلفية للمحادثة الحالية بنجاح ✓**")
         
         # تنظيف الملف المؤقت
         import os

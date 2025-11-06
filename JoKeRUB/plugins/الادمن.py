@@ -394,23 +394,21 @@ async def watcher(event):
 
 from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, InputUser
-from telethon.tl.types import MessageMediaPhoto
-import os
+from telethon.tl.types import InputWallPaper, WallPaperSettings, MessageMediaPhoto
 
 @l313l.ar_cmd(
     pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية مشتركة للطرفين",
-        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية مشتركة للطرفين",
+        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة للطرف الآخر",
+        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة للطرف الآخر",
         "᯽︙ الأمـر": [
             "{tr}خلفية <بالرد على صورة>",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية مشتركة للطرفين"
+    "لتعيين خلفية للمحادثة للطرف الآخر"
     replymsg = await event.get_reply_message()
     photo = None
     if replymsg and replymsg.media:
@@ -425,33 +423,35 @@ async def set_chat_wallpaper(event):
         try:
             # رفع الصورة أولاً
             uploaded_file = await event.client.upload_file(photo)
-            
-            # رفع الخلفية
+
+            # نرفع الصورة كخلفية ونحصل على الـ id والـ hash
             result = await event.client(UploadWallPaperRequest(
                 file=uploaded_file,
                 mime_type='image/jpeg',
                 settings=WallPaperSettings()
             ))
             
-            # 🎯 **التغيير هنا: إضافة id=1 لجعلها مشتركة**
+            # الآن نستخدم InputWallPaper بالـ id والـ hash
+            wallpaper = InputWallPaper(
+                id=result.id,
+                access_hash=result.access_hash
+            )
+
+            # تعيين الخلفية للطرف الآخر
             await event.client(SetChatWallPaperRequest(
-                peer=event.chat_id,
-                wallpaper=InputWallPaper(
-                    id=result.id,
-                    access_hash=result.access_hash
-                ),
+                peer=replymsg.from_id,  # تعيين الخلفية للطرف الآخر
+                wallpaper=wallpaper,
                 settings=WallPaperSettings(
                     blur=False,
                     motion=False,
                     background_color=0x000000,
                     intensity=50
-                ),
-                id=1  # 🚨 **هذا السطر يخليها مشتركة للطرفين**
+                )
             ))
-            
-            await edit_delete(event, "**᯽︙ تم تعيين الخلفية المشتركة للطرفين بنجاح ✓**")
-            
+
+            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للطرف الآخر بنجاح ✓**")
+
         except Exception as e:
             return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
     else:
-        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
+        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية للطرف الآخر**")

@@ -310,18 +310,20 @@ async def jokerban(event):
             await reply.delete()
     except BadRequestError:
         return await edit_or_reply(event, "**✾╎ليـس لـدي جـميع الصـلاحيـات لكـن سيـبقى محـظور**")
+    
     if reason:
         await event.client.send_message(
             event.chat_id,
-            f"**✾╎ المسـتخدم** {_format.mentionuser(user.first_name, user.id)} \n**✾╎ تـم حـظره بنـجاح** <a href='emoji/5348296085334934565'>❤️</a>\n**✾╎السبب : **`{reason}`",
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348296085334934565'>❤️</a>\n<b>✾╎السبب :</b> <code>{reason}</code>",
             parse_mode=CustomParseMode("html")
         )
     else:
         await event.client.send_message(
             event.chat_id,
-            f"**✾╎ المسـتخدم** {_format.mentionuser(user.first_name, user.id)} \n**✾╎ تـم حـظره بنـجاح** <a href='emoji/5348296085334934565'>❤️</a>",
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348296085334934565'>❤️</a>",
             parse_mode=CustomParseMode("html")
         )
+    
     if BOTLOG:
         if reason:
             await event.client.send_message(
@@ -340,7 +342,7 @@ async def jokerban(event):
                 f"**✾╎ الـدردشـة:** {event.chat.title}\n"
                 f"**✾╎ ايـدي الكـروب:** `{event.chat_id}`",
             )
-
+            
 @l313l.ar_cmd(
     pattern="الغاء حظر(?:\s|$)([\s\S]*)",
     command=("الغاء حظر", plugin_category),

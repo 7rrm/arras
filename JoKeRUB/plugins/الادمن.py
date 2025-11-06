@@ -486,7 +486,7 @@ async def handle_new_message(event):
                     blur=True,
                     motion=False,
                     background_color=0x000000,
-                    intensity=100
+                    intensity=0
                 )
             ))
             

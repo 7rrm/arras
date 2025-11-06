@@ -402,43 +402,26 @@ from telethon.tl.types import InputWallPaperUploaded, WallPaperSettings
 from telethon.tl.functions.account import UploadWallPaperRequest
 
 @l313l.ar_cmd(
-    pattern="خلفية$",
+    pattern="خلفية$"
 )
-async def set_wallpaper(event):
-    await event.edit("**᯽︙ جاري تعيين الخلفية...**")
+async def test_wallpaper(event):
+    # رد فوري للتأكد أن الأمر يعمل
+    await event.reply("**᯽︙ الأمر يعمل! جاري المعالجة...**")
     
     try:
+        # التأكد من محادثة خاصة
         if not event.is_private:
-            return await event.edit("**᯽︙ للمحادثات الخاصة فقط**")
+            await event.reply("**᯽︙ هذا الأمر للمحادثات الخاصة فقط**")
+            return
         
-        reply = await event.get_reply_message()
-        if not reply or not reply.media:
-            return await event.edit("**᯽︙ الرد على صورة**")
+        # إرسال الصورة مباشرة
+        await event.reply("**᯽︙ جاري إرسال الخلفية...**")
         
-        # تحميل الصورة
-        media = await reply.download_media()
-        uploaded_file = await event.client.upload_file(media)
-        
-        # 1. رفع الخلفية
-        upload_result = await event.client(UploadWallPaperRequest(
-            file=uploaded_file,
-            mime_type="image/jpeg",
-            settings=WallPaperSettings()
-        ))
-        
-        # 2. تعيين الخلفية للمحادثة
-        chat = await event.get_chat()
-        await event.client(SetChatWallPaperRequest(
-            peer=chat,
-            wallpaper=InputWallPaper(
-                id=upload_result.id,
-                access_hash=upload_result.access_hash
-            ),
-            settings=WallPaperSettings()
-        ))
-        
-        await event.edit("**᯽︙ تم تعيين الخلفية بنجاح ✓**")
-        os.remove(media)
+        await event.client.send_file(
+            event.chat_id,
+            "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg",
+            caption="**᯽︙ هذه هي الخلفية المطلوبة**"
+        )
         
     except Exception as e:
-        await event.edit(f"**᯽︙ خطأ: {str(e)}**")
+        await event.reply(f"**᯽︙ حدث خطأ: {str(e)}**")

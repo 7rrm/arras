@@ -234,27 +234,28 @@ async def on_mute_list(event):
     if not perm_mutes and not temp_mutes:
         return await edit_or_reply(event, "**- لايــوجـد لديــك أي مكتوميــن بعــد 🔔**")
     
-    output = "𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - قائمـة المكتوميــن 🔕𓆪\n"
-    output += f"**• إجمالي عـدد المكتوميـن:** {len(perm_mutes) + len(temp_mutes)}\n"
-    output += "⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+    output = f"<b>𓆩 𝗠𝘂𝗳𝗳𝗹𝗲𝗱 𝗮𝗥𝗥𝗮𝗦 - قائمـة المكتوميــن</b> <a href='emoji/5348296085334934565'>🔕</a><b>𓆪</b>\n"
+    output += f"<b>• إجمالي عـدد المكتوميـن:</b> {len(perm_mutes) + len(temp_mutes)}\n"
+    output += "<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
     
     if perm_mutes:
-        output += "**✧ الكـتم العـام 🔕:**\n"
+        output += "<b>✧ الكـتم العـام</b> <a href='emoji/5348296085334934565'>🔕</a><b>:</b>\n"
         for i, mute in enumerate(perm_mutes, start=1):
-            output += f"**{i}.** - المستـخدم : [{mute.f_name}](tg://user?id={mute.ktm_id})\n"
-            output += f"- السـبب : `{mute.f_reason}`\n\n"
+            output += f"<b>{i}.</b> - المستـخدم : <a href='tg://user?id={mute.ktm_id}'>{mute.f_name}</a>\n"
+            output += f"- السـبب : <code>{mute.f_reason}</code>\n\n"
     
     if temp_mutes:
-        output += "**✧ الكـتم المؤقـت ⏳:**\n"
+        output += "<b>✧ الكـتم المؤقـت</b> <a href='emoji/5199457120428249992'>⏳</a><b>:</b>\n"
         for i, mute in enumerate(temp_mutes, start=1):
-            output += f"**{i}.** - المستـخدم : [{mute.f_name}](tg://user?id={mute.ktm_id})\n"
-            output += f"- المـدة : `{mute.mute_time}`\n"
-            output += f"- السـبب : `{mute.f_reason}`\n\n"
+            output += f"<b>{i}.</b> - المستـخدم : <a href='tg://user?id={mute.ktm_id}'>{mute.f_name}</a>\n"
+            output += f"- المـدة : <code>{mute.mute_time}</code>\n"
+            output += f"- السـبب : <code>{mute.f_reason}</code>\n\n"
     
     await edit_or_reply(
         event,
         output,
-        caption="**⧗╎قائمـة المكتوميــن 🔕**",
+        parse_mode=CustomParseMode("html"),
+        caption=f"<b>⧗╎قائمـة المكتوميــن</b> <a href='emoji/5348296085334934565'>❤️</a>",
         file_name="mktoms.text",
     )
 

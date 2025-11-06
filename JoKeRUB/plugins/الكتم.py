@@ -181,13 +181,15 @@ async def endgmute(event):
     else:
         if reason:
             await edit_or_reply(
-                event,
-                f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تم الغـاء كتمــه .. بنجــاح 🔔**\n**✧╎السـبب :** {reason}",
+    event,
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>❤️</a>\n<b>✧╎السـبب :</b> {reason}",
+    parse_mode=CustomParseMode("html")
             )
         else:
             await edit_or_reply(
-                event,
-                f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n\n**✧╎تم الغـاء كتمــه .. بنجــاح 🔔**",
+    event,
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>❤️</a>",
+    parse_mode=CustomParseMode("html")
             )
     if BOTLOG:
         remove_katm(str(l313l.uid), str(user.id))

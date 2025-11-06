@@ -328,7 +328,7 @@ async def jokerban(event):
         if reason:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                f"**#الحـظر**\n"
+                f"** #الحـظر**\n"
                 f"**✾╎ المسـتخدم:** [{user.first_name}](tg://user?id={user.id})\n"
                 f"**✾╎ الـدردشـة:** {event.chat.title}\n"
                 f"**✾╎ ايدي الكروب:** `{event.chat_id}`\n"
@@ -337,7 +337,7 @@ async def jokerban(event):
         else:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                f"**#الحـظر**\n"
+                f"** #الحـظر**\n"
                 f"**✾╎ المسـتخدم:** [{user.first_name}](tg://user?id={user.id})\n"
                 f"**✾╎ الـدردشـة:** {event.chat.title}\n"
                 f"**✾╎ ايـدي الكـروب:** `{event.chat_id}`",
@@ -366,7 +366,7 @@ async def nothanos(event):
     try:
         await event.client(EditBannedRequest(event.chat_id, user.id, UNBAN_RIGHTS))
         await catevent.edit(
-            f"<b>✾╎ الـمستخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم الـغاء حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>✅</a>",
+            f"<b>✾╎ الـمستخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم الـغاء حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>❤️</a>",
             parse_mode=CustomParseMode("html")
         )
         if BOTLOG:
@@ -376,7 +376,7 @@ async def nothanos(event):
                 f"<b>✾╎ الـمستخدم:</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n"
                 f"<b>✾╎ الـدردشـة:</b> {event.chat.title}(<code>{event.chat_id}</code>)",
                 parse_mode=CustomParseMode("html")
-       
+            )
     except UserIdInvalidError:
         await catevent.edit("**✾╎ يـبدو أن هذه الـعمليـة تم إلغاؤهـا**")
     except Exception as e:

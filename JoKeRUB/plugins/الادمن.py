@@ -416,6 +416,10 @@ async def set_chat_wallpaper(event):
     await event.edit("**᯽︙ جاري تعيين الخلفية للمحادثة الحالية...**")
     
     try:
+        # التأكد أننا في محادثة خاصة
+        if not event.is_private:
+            return await event.edit("**᯽︙ هذا الأمر يعمل فقط في المحادثات الخاصة**")
+        
         # تحميل الصورة من الرابط
         image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"
         response = requests.get(image_url)
@@ -425,41 +429,38 @@ async def set_chat_wallpaper(event):
         with open("temp_wallpaper.jpg", "wb") as f:
             f.write(response.content)
         
-        # رفع الصورة كخلفية
-        uploaded_file = await event.client.upload_file("temp_wallpaper.jpg")
-        
-        # إنشاء كائن الخلفية المرفوعة
-        wallpaper = InputWallPaperUploaded(
-            file=uploaded_file,
-            mime_type='image/jpeg',
-            settings=WallPaperSettings(
-                blur=False,
-                motion=False,
-                background_color=0x000000,
-                intensity=50,
-                second_background_color=0x000000,
-                third_background_color=0x000000,
-                fourth_background_color=0x000000
+        # محاولة الطريقة الأولى: SetChatWallPaperRequest
+        try:
+            uploaded_file = await event.client.upload_file("temp_wallpaper.jpg")
+            
+            wallpaper = InputWallPaperUploaded(
+                file=uploaded_file,
+                mime_type='image/jpeg',
+                settings=WallPaperSettings()
             )
-        )
-        
-        # تطبيق الخلفية على المحادثة الحالية فقط
-        await event.client(SetChatWallPaperRequest(
-            peer=event.chat_id,  # استخدام المحادثة الحالية بدلاً من 'me'
-            wallpaper=wallpaper,
-            settings=WallPaperSettings(
-                blur=False,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
+            
+            await event.client(SetChatWallPaperRequest(
+                peer=event.chat_id,
+                wallpaper=wallpaper,
+                settings=WallPaperSettings()
+            ))
+            
+        except Exception as e:
+            # إذا فشلت الطريقة الأولى، جرب إرسال الصورة كرسالة
+            await event.client.send_file(
+                event.chat_id,
+                "temp_wallpaper.jpg",
+                caption="**᯽︙ هذه هي الخلفية المطلوبة**"
             )
-        ))
+            await event.edit("**᯽︙ تم إرسال الصورة، يمكنك تعيينها يدوياً كخلفية**")
+            return
         
         await event.edit("**᯽︙ تم تعيين الخلفية للمحادثة الحالية بنجاح ✓**")
         
         # تنظيف الملف المؤقت
         import os
-        os.remove("temp_wallpaper.jpg")
+        if os.path.exists("temp_wallpaper.jpg"):
+            os.remove("temp_wallpaper.jpg")
         
     except Exception as e:
         await event.edit(f"**᯽︙ حدث خطأ: {str(e)}**")

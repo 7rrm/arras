@@ -23,9 +23,39 @@ from ..sql_helper.katm_sql import (
 from ..sql_helper.mute_sql import is_muted, mute, unmute
 from ..utils import Zed_Dev
 from . import BOTLOG, BOTLOG_CHATID, admin_groups, get_user_from_event
+from telethon.extensions import markdown, html
+from telethon.tl import types
+from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
 
 plugin_category = "الخدمات"
 LOGS = logging.getLogger(__name__)
+
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+        
 KTMZ = gvarstatus("Z_KTM") or "كتم"
 
 @l313l.ar_cmd(pattern=f"{KTMZ}(?: |$)(.*)")
@@ -90,9 +120,9 @@ async def startgmute(event):
                 await event.delete()
             else:
                 await edit_or_reply(
-                    event,
-                    f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح 🔕**",
-                )
+    event,
+    f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح <a href='emoji/5348296085334934565'>❤️</a>**",
+    parse_mode=CustomParseMode("html")
     if BOTLOG:
         reply = await event.get_reply_message()
         if reply:

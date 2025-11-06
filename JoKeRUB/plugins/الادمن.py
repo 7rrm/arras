@@ -449,9 +449,9 @@ async def set_chat_wallpaper(event):
                 settings=WallPaperSettings(
                     blur=False,
                     motion=False,
+                    for_both=True,
                     background_color=0x000000,
                     intensity=50
-                    for_both=True,
                 )
             ))
             

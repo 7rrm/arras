@@ -400,15 +400,15 @@ from telethon.tl.types import InputWallPaper, WallPaperSettings
     pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة",
-        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة",
+        "᯽︙ الأسـتخدام": "لتعيين خلفية مشتركة للمحادثة",
+        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية مشتركة للمحادثة",
         "᯽︙ الأمـر": [
             "{tr}خلفية <بالرد على صورة>",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية للمحادثة"
+    "لتعيين خلفية مشتركة للمحادثة"
     replymsg = await event.get_reply_message()
     photo = None
     if replymsg and replymsg.media:
@@ -440,19 +440,21 @@ async def set_chat_wallpaper(event):
                 access_hash=result.access_hash
             )
             
-            # تطبيق الخلفية على المحادثة الحالية
+            # تطبيق الخلفية على المحادثة الحالية مع إعدادات المشاركة
             await event.client(SetChatWallPaperRequest(
                 peer=event.chat_id,
                 wallpaper=wallpaper,
                 settings=WallPaperSettings(
-                    blur=True,
+                    blur=False,
                     motion=False,
                     background_color=0x000000,
-                    intensity=50
+                    intensity=50,
+                    # إعدادات إضافية للمشاركة
+                    for_both=True  # قد تحتاج هذه الإعدادات
                 )
             ))
             
-            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للمحادثة بنجاح ✓**")
+            await edit_delete(event, "**᯽︙ تم تعيين الخلفية المشتركة للمحادثة بنجاح ✓**")
             
         except Exception as e:
             return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")

@@ -415,7 +415,7 @@ async def set_chat_wallpaper(event):
     "لتعيين خلفية من رابط ثابت"
     try:
         # الرابط الثابت للصورة - غير هذا الرابط بالرابط الذي تريده
-        image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"  # ⬅️ غير هذا الرابط
+        image_url = "https://graph.org/file/8cd3d864e765b2d00521b-69d50ff95377d95199.jpg"  # ⬅️ غير هذا الرابط
         
         # تحميل الصورة من الرابط
         response = requests.get(image_url)

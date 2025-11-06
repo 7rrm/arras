@@ -121,8 +121,9 @@ async def startgmute(event):
             else:
                 await edit_or_reply(
     event,
-    f"**✧╎المستخـدم :** {_format.mentionuser(user.first_name ,user.id)}\n**✧╎تـم كتمــه .. بنجــاح <a href='emoji/5348296085334934565'>❤️</a>**",
+    f"<b>✧╎المستخـدم :</b> {_format.mentionuser(user.first_name ,user.id)}\n<b>✧╎تـم كتمــه .. بنجــاح <a href='emoji/5348296085334934565'>❤️</a></b>",
     parse_mode=CustomParseMode("html")
+                )
     if BOTLOG:
         reply = await event.get_reply_message()
         if reply:

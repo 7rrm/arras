@@ -401,31 +401,68 @@ from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.types import InputWallPaperUploaded, WallPaperSettings
 
 @l313l.ar_cmd(
-    pattern="خلفية$",
+    pattern="خلفية(?:\s|$)([\s\S]*)",
     command=("خلفية", plugin_category),
+    info={
+        "header": "لتعيين خلفية للمحادثة الحالية",
+        "description": "يقوم بتعيين خلفية للمحادثة الحالية من الصورة المرفوعة",
+        "usage": [
+            "{tr}خلفية <بالرد على صورة>",
+        ],
+    },
 )
 async def set_chat_wallpaper(event):
-    await event.edit("**᯽︙ جاري إعداد الخلفية...**")
+    "لتعيين خلفية للمحادثة الحالية"
+    await event.edit("**᯽︙ جاري تعيين الخلفية للمحادثة الحالية...**")
     
     try:
-        # تحميل وإرسال الصورة
-        image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"
-        response = requests.get(image_url)
+        # التأكد أننا في محادثة خاصة
+        if not event.is_private:
+            return await event.edit("**᯽︙ هذا الأمر يعمل فقط في المحادثات الخاصة**")
         
-        with open("wallpaper.jpg", "wb") as f:
-            f.write(response.content)
+        # التحقق من وجود صورة مرفوعة
+        reply = await event.get_reply_message()
+        if not reply or not reply.media:
+            return await event.edit("**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
         
-        # إرسال الصورة للمحادثة
-        await event.client.send_file(
-            event.chat_id,
-            "wallpaper.jpg",
-            caption="**᯽︙ يمكنك حفظ الصورة وتعيينها كخلفية للمحادثة يدوياً**"
+        # تحميل الصورة المرفوعة
+        media = await reply.download_media()
+        
+        # رفع الصورة كخلفية
+        uploaded_file = await event.client.upload_file(media)
+        
+        # الحصول على الكيان
+        chat = await event.get_chat()
+        
+        # إنشاء كائن الخلفية المرفوعة
+        wallpaper = InputWallPaperUploaded(
+            file=uploaded_file,
+            mime_type='image/jpeg',
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
         )
         
-        await event.edit("**᯽︙ تم إرسال الصورة ✓**")
+        # تطبيق الخلفية على المحادثة الحالية
+        await event.client(SetChatWallPaperRequest(
+            peer=chat,
+            wallpaper=wallpaper,
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
         
+        await event.edit("**᯽︙ تم تعيين الخلفية للمحادثة الحالية بنجاح ✓**")
+        
+        # تنظيف الملف المؤقت
         import os
-        os.remove("wallpaper.jpg")
+        os.remove(media)
         
     except Exception as e:
-        await event.edit(f"**᯽︙ خطأ: {e}**")
+        await event.edit(f"**᯽︙ حدث خطأ: {str(e)}**")

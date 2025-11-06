@@ -399,78 +399,59 @@ from telethon.tl.types import MessageMediaPhoto
 import os
 
 @l313l.ar_cmd(
-    pattern="خلفية(?:\s+(\S+))?$",
+    pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية للدردشة الخاصة مع شخص",
-        "᯽︙ الشـرح": "الرد على صورة + معرف الشخص أو رقمه",
+        "᯽︙ الأسـتخدام": "لتعيين خلفية مشتركة للطرفين",
+        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية مشتركة للطرفين",
         "᯽︙ الأمـر": [
-            "{tr}خلفية <معرف/رقم الشخص>",
-            "{tr}خلفية (بالرد على صورة)",
+            "{tr}خلفية <بالرد على صورة>",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية للدردشة الخاصة مع شخص"
+    "لتعيين خلفية مشتركة للطرفين"
     replymsg = await event.get_reply_message()
-    photo_path = None
-    
-    # الحصول على المعرف أو الرقم من الأمر
-    user_input = event.pattern_match.group(1)
-    
-    if not replymsg or not replymsg.media:
-        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
-    
-    if not user_input:
-        return await edit_delete(event, "**᯽︙ يرجى تحديد معرف أو رقم الشخص\nمثال:** `.خلفية @username`")
-    
-    try:
-        # تحميل الصورة
+    photo = None
+    if replymsg and replymsg.media:
         if isinstance(replymsg.media, MessageMediaPhoto):
-            photo_path = await event.client.download_media(replymsg.media)
-        elif hasattr(replymsg.media, 'document') and "image" in replymsg.media.document.mime_type:
-            photo_path = await event.client.download_media(replymsg.media.document)
+            photo = await event.client.download_media(message=replymsg.photo)
+        elif "image" in replymsg.media.document.mime_type.split("/"):
+            photo = await event.client.download_file(replymsg.media.document)
         else:
-            return await edit_delete(event, "**᯽︙ يرجى الرد على صورة صالحة**")
-        
-        # الحصول على كيان المستخدم
+            return await edit_delete(event, INVALID_MEDIA)
+    
+    if photo:
         try:
-            user_entity = await event.client.get_entity(user_input)
-        except Exception:
-            return await edit_delete(event, "**᯽︙ لم يتم العثور على المستخدم**")
-        
-        # رفع الصورة كخلفية
-        uploaded_file = await event.client.upload_file(photo_path)
-        
-        result = await event.client(UploadWallPaperRequest(
-            file=uploaded_file,
-            mime_type='image/jpeg',
-            settings=WallPaperSettings()
-        ))
-        
-        # إنشاء كائن الخلفية
-        wallpaper = InputWallPaper(
-            id=result.id,
-            access_hash=result.access_hash
-        )
-        
-        # تطبيق الخلفية على الدردشة مع الشخص المحدد
-        await event.client(SetChatWallPaperRequest(
-            peer=user_entity.id,  # استخدام معرف المستخدم الهدف
-            wallpaper=wallpaper,
-            settings=WallPaperSettings(
-                blur=False,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
-            )
-        ))
-        
-        await edit_delete(event, f"**᯽︙ تم تعيين الخلفية للدردشة مع {user_entity.first_name} بنجاح ✓**")
-        
-    except Exception as e:
-        return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
-    finally:
-        # تنظيف الملف المؤقت
-        if photo_path and os.path.exists(photo_path):
-            os.remove(photo_path)
+            # رفع الصورة أولاً
+            uploaded_file = await event.client.upload_file(photo)
+            
+            # رفع الخلفية
+            result = await event.client(UploadWallPaperRequest(
+                file=uploaded_file,
+                mime_type='image/jpeg',
+                settings=WallPaperSettings()
+            ))
+            
+            # 🎯 **التغيير هنا: إضافة id=1 لجعلها مشتركة**
+            await event.client(SetChatWallPaperRequest(
+                peer=event.chat_id,
+                wallpaper=InputWallPaper(
+                    id=result.id,
+                    access_hash=result.access_hash
+                ),
+                settings=WallPaperSettings(
+                    blur=False,
+                    motion=False,
+                    background_color=0x000000,
+                    intensity=50
+                ),
+                id=1  # 🚨 **هذا السطر يخليها مشتركة للطرفين**
+            ))
+            
+            await edit_delete(event, "**᯽︙ تم تعيين الخلفية المشتركة للطرفين بنجاح ✓**")
+            
+        except Exception as e:
+            return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
+    else:
+        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")

@@ -121,14 +121,11 @@ async def startgmute(event):
                 )
                 await event.delete()
             else:
-                # تخزين الكلاس في متغير عالمي بدل إنشائه كل مرة
-ZED_PARSER = CustomParseMode("html")
-
-await edit_or_reply(
+                await edit_or_reply(
     event,
     f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>❤️</a>",
-    parse_mode=ZED_PARSER
-)
+    parse_mode=CustomParseMode("html")
+                )
                 
     if BOTLOG:
         reply = await event.get_reply_message()

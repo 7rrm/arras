@@ -425,3 +425,10 @@ async def test_wallpaper(event):
         
     except Exception as e:
         await event.reply(f"**᯽︙ حدث خطأ: {str(e)}**")
+
+
+@l313l.ar_cmd(
+    pattern="تست$"
+)
+async def test_command(event):
+    await event.reply("**✅ الأمر يعمل! البوت يستجيب.**")

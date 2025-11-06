@@ -110,7 +110,7 @@ async def startgmute(event):
             else:
                 await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>❤️</a>\n<b>✧╎السـبب :</b> {reason}",
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>🔕</a>\n<b>✧╎السـبب :</b> {reason}",
     parse_mode=CustomParseMode("html")
                 )
         else:
@@ -124,7 +124,7 @@ async def startgmute(event):
             else:
                 await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>❤️</a>",
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تـم كتمــه .. بنجــاح</b> <a href='emoji/5348296085334934565'>🔕</a>",
     parse_mode=CustomParseMode("html")
                 )
                 
@@ -182,13 +182,13 @@ async def endgmute(event):
         if reason:
             await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>❤️</a>\n<b>✧╎السـبب :</b> {reason}",
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>🔔</a>\n<b>✧╎السـبب :</b> {reason}",
     parse_mode=CustomParseMode("html")
             )
         else:
             await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>❤️</a>",
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>🔔</a>",
     parse_mode=CustomParseMode("html")
             )
     if BOTLOG:

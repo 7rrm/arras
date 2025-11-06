@@ -395,72 +395,71 @@ async def watcher(event):
 
 from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, MessageMediaPhoto
+from telethon.tl.types import InputWallPaper, WallPaperSettings
+import requests
+import os
 
 
 @l313l.ar_cmd(
     pattern="خلفية$",
     command=("خلفية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة الخاصة لك وللشخص الآخر",
-        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة الخاصة",
+        "᯽︙ الأسـتخدام": "لتعيين خلفية من رابط ثابت",
+        "᯽︙ الشـرح": "يعين خلفية من رابط مدمج في الكود",
         "᯽︙ الأمـر": [
-            "{tr}خلفية <بالرد على صورة>",
+            "{tr}خلفية",
         ],
     },
 )
 async def set_chat_wallpaper(event):
-    "لتعيين خلفية للمحادثة الخاصة لك وللشخص الآخر"
-    replymsg = await event.get_reply_message()
-    photo = None
-    
-    if replymsg and replymsg.media:
-        if isinstance(replymsg.media, MessageMediaPhoto):
-            photo = await event.client.download_media(message=replymsg.photo)
-        elif "image" in replymsg.media.document.mime_type.split("/"):
-            photo = await event.client.download_file(replymsg.media.document)
-        else:
-            return await edit_delete(event, "**᯽︙ يرجى الرد على صورة فقط**")
-    
-    if photo:
-        try:
-            # رفع الصورة أولاً
-            uploaded_file = await event.client.upload_file(photo)
-            
-            # رفع الصورة كخلفية
-            result = await event.client(UploadWallPaperRequest(
-                file=uploaded_file,
-                mime_type='image/jpeg',
-                settings=WallPaperSettings()
-            ))
-            
-            # استخدام InputWallPaper بالـ id والـ hash
-            wallpaper = InputWallPaper(
-                id=result.id,
-                access_hash=result.access_hash
+    "لتعيين خلفية من رابط ثابت"
+    try:
+        # الرابط الثابت للصورة - غير هذا الرابط بالرابط الذي تريده
+        image_url = "https://graph.org/file/bc958f1d9cbede9fdba3c-ef281c7c94420807e6.jpg"  # ⬅️ غير هذا الرابط
+        
+        # تحميل الصورة من الرابط
+        response = requests.get(image_url)
+        response.raise_for_status()
+        
+        # حفظ الصورة مؤقتاً
+        photo_path = "wallpaper.jpg"
+        with open(photo_path, 'wb') as f:
+            f.write(response.content)
+        
+        # رفع الصورة أولاً
+        uploaded_file = await event.client.upload_file(photo_path)
+        
+        # رفع الصورة كخلفية
+        result = await event.client(UploadWallPaperRequest(
+            file=uploaded_file,
+            mime_type='image/jpeg',
+            settings=WallPaperSettings()
+        ))
+        
+        # استخدام InputWallPaper بالـ id والـ hash
+        wallpaper = InputWallPaper(
+            id=result.id,
+            access_hash=result.access_hash
+        )
+        
+        # تطبيق الخلفية على المحادثة الحالية مع for_both=True
+        await event.client(SetChatWallPaperRequest(
+            peer=event.chat_id,
+            wallpaper=wallpaper,
+            for_both=True,
+            settings=WallPaperSettings(
+                blur=False,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
             )
-            
-            # تطبيق الخلفية على المحادثة الحالية مع for_both=True
-            await event.client(SetChatWallPaperRequest(
-                peer=event.chat_id,
-                wallpaper=wallpaper,
-                for_both=True,  # ⬅️ هذا الوسيط يجعل الخلفية لك وللشخص الآخر
-                settings=WallPaperSettings(
-                    blur=False,
-                    motion=False,
-                    background_color=0x000000,
-                    intensity=50
-                )
-            ))
-            
-            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للمحادثة لك وللشخص الآخر بنجاح ✓**")
-            
-        except Exception as e:
-            return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
-        finally:
-            # تنظيف الملف المؤقت
-            import os
-            if os.path.exists(photo):
-                os.remove(photo)
-    else:
-        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
+        ))
+        
+        await edit_delete(event, "**᯽︙ تم تعيين الخلفية من الرابط بنجاح ✓**")
+        
+    except Exception as e:
+        await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
+    finally:
+        # تنظيف الملف المؤقت
+        if 'photo_path' in locals() and os.path.exists(photo_path):
+            os.remove(photo_path)

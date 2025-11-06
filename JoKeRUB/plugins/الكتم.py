@@ -188,7 +188,7 @@ async def endgmute(event):
         else:
             await edit_or_reply(
     event,
-    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>🔔</a>",
+    f"<b>✧╎المستخـدم :</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✧╎تم الغـاء كتمــه .. بنجــاح</b> <a href='emoji/5348125643852758491'>🔔</a>",
     parse_mode=CustomParseMode("html")
             )
     if BOTLOG:

@@ -314,13 +314,13 @@ async def jokerban(event):
     if reason:
         await event.client.send_message(
             event.chat_id,
-            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348296085334934565'>❤️</a>\n<b>✾╎السبب :</b> <code>{reason}</code>",
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>✅</a>\n<b>✾╎السبب :</b> <code>{reason}</code>",
             parse_mode=CustomParseMode("html")
         )
     else:
         await event.client.send_message(
             event.chat_id,
-            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348296085334934565'>❤️</a>",
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>✅</a>",
             parse_mode=CustomParseMode("html")
         )
     
@@ -347,10 +347,9 @@ async def jokerban(event):
     pattern="الغاء حظر(?:\s|$)([\s\S]*)",
     command=("الغاء حظر", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "يقـوم بـالغاء حـظر الشـخص في الـكروب الذي اسـتخدمت فيـه الامر.",
-        "᯽︙ الشرح": "لألـغاء حـظر شخـص من الكـروب والسـماح له من الأنـضمام مجـددا\
-            \n᯽︙ تـحتاج الصلاحـيات لـهذا الأمـر.",
-        "᯽︙ الأمـر": [
+        "header": "يقـوم بـالغاء حـظر الشـخص في الـكروب الذي اسـتخدمت فيـه الامر.",
+        "description": "لألـغاء حـظر شخـص من الكـروب والسـماح له من الأنـضمام مجـددا\nتـحتاج الصلاحـيات لـهذا الأمـر.",
+        "usage": [
             "{tr}الغاء حظر <الايدي/المعرف/بالرد عليه>",
             "{tr}الغاء حظر <الايدي/المعرف/بالرد عليه> <السبب> ",
         ],
@@ -359,27 +358,29 @@ async def jokerban(event):
     require_admin=True,
 )
 async def nothanos(event):
-    "᯽︙ لألـغاء الـحظر لـشخص في كـروب مـعين"
+    "لألـغاء الـحظر لـشخص في كـروب مـعين"
     user, _ = await get_user_from_event(event)
     if not user:
         return
-    catevent = await edit_or_reply(event, "᯽︙ جـار الـغاء الـحظر أنتـظر رجـاءا")
+    catevent = await edit_or_reply(event, "**✾╎ جـار الـغاء الـحظر أنتـظر رجـاءا**")
     try:
         await event.client(EditBannedRequest(event.chat_id, user.id, UNBAN_RIGHTS))
         await catevent.edit(
-            f"᯽︙ الـمستخدم {_format.mentionuser(user.first_name ,user.id)}\n ᯽︙ تـم الـغاء حـظره بنـجاح "
+            f"<b>✾╎ الـمستخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم الـغاء حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>✅</a>",
+            parse_mode=CustomParseMode("html")
         )
         if BOTLOG:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                "᯽︙ الـغاء الـحظر \n"
-                f"الـمستخدم: [{user.first_name}](tg://user?id={user.id})\n"
-                f"الـدردشـة: {event.chat.title}(`{event.chat_id}`)",
+                f"<b>✾╎ الـغاء الـحظر</b>\n"
+                f"<b>✾╎ الـمستخدم:</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n"
+                f"<b>✾╎ الـدردشـة:</b> {event.chat.title}(<code>{event.chat_id}</code>)",
+                parse_mode=CustomParseMode("html")
             )
     except UserIdInvalidError:
-        await catevent.edit("᯽︙ يـبدو أن هذه الـعمليـة تم إلغاؤهـا")
+        await catevent.edit("**✾╎ يـبدو أن هذه الـعمليـة تم إلغاؤهـا**")
     except Exception as e:
-        await catevent.edit(f"**خـطأ :**\n`{e}`")
+        await catevent.edit(f"**✾╎ خـطأ :**\n`{e}`")
 
 
 @l313l.ar_cmd(incoming=True)

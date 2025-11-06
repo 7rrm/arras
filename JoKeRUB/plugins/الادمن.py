@@ -392,97 +392,94 @@ async def watcher(event):
         except Exception as e:
             LOGS.info(str(e))
 
-
 from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, MessageMediaPhoto
-import requests
+from telethon.tl.types import InputWallPaper, WallPaperSettings
+from telethon import events
+import sqlite3
 import os
 
-async def get_wallpaper_id_hash(image_url_or_path):
-    """
-    دالة للحصول على id و access_hash لأي صورة
-    """
-    try:
-        # إذا كان رابط
-        if image_url_or_path.startswith('http'):
-            response = requests.get(image_url_or_path)
-            response.raise_for_status()
-            
-            photo_path = "temp_wallpaper.jpg"
-            with open(photo_path, 'wb') as f:
-                f.write(response.content)
-        else:
-            # إذا كان مسار ملف
-            photo_path = image_url_or_path
-        
-        # رفع الصورة كخلفية
-        uploaded_file = await event.client.upload_file(photo_path)
-        result = await event.client(UploadWallPaperRequest(
-            file=uploaded_file,
-            mime_type='image/jpeg',
-            settings=WallPaperSettings()
-        ))
-        
-        # تنظيف الملف المؤقت إذا كان من رابط
-        if image_url_or_path.startswith('http') and os.path.exists(photo_path):
-            os.remove(photo_path)
-        
-        return result.id, result.access_hash
-        
-    except Exception as e:
-        print(f"خطأ في الحصول على id و hash: {e}")
-        return None, None
+# قاعدة بيانات لتخزين المستخدمين الذين تم تعيين الخلفية لهم
+DB_PATH = "wallpaper_users.db"
+
+def init_db():
+    """تهيئة قاعدة البيانات"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY,
+            chat_id INTEGER,
+            date_added TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+def add_user_to_db(user_id, chat_id):
+    """إضافة مستخدم إلى قاعدة البيانات"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT OR REPLACE INTO users (user_id, chat_id, date_added)
+        VALUES (?, ?, datetime('now'))
+    ''', (user_id, chat_id))
+    conn.commit()
+    conn.close()
+
+def is_user_in_db(user_id):
+    """التحقق إذا كان المستخدم موجود في قاعدة البيانات"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id FROM users WHERE user_id = ?', (user_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
+
+# معلومات الخلفية المحددة
+WALLPAPER_ID = 4929533453965197504
+WALLPAPER_HASH = 7892786240745408655
 
 @l313l.ar_cmd(
-    pattern="خلفية$",
-    command=("خلفية", plugin_category),
+    pattern="تفعيل الخلفية التلقائية$",
+    command=("تفعيل الخلفية التلقائية", plugin_category),
     info={
-        "᯽︙ الأسـتخدام": "لتعيين خلفية للمحادثة الخاصة بك وللشخص الآخر",
-        "᯽︙ الشـرح": "الرد على صورة لتعيينها كخلفية للمحادثة الخاصة",
-        "᯽︙ الأمـر": [
-            "{tr}خلفية <بالرد على صورة>",
-        ],
+        "᯽︙ الأسـتخدام": "تفعيل النظام التلقائي لتعيين الخلفية",
+        "᯽︙ الشـرح": "بتفعيل هذا النظام، سيتم تعيين الخلفية تلقائياً لأي شخص يراسلك",
     },
 )
-async def set_chat_wallpaper(event):
-    "لتعيين خلفية للمحادثة الخاصة لك وللشخص الآخر"
-    replymsg = await event.get_reply_message()
-    photo = None
+async def enable_auto_wallpaper(event):
+    "تفعيل النظام التلقائي لتعيين الخلفية"
+    init_db()
+    await edit_delete(event, "**᯽︙ تم تفعيل النظام التلقائي لتعيين الخلفية ✓**\n**سيتم تعيين الخلفية تلقائياً لأي شخص يراسلك**")
+
+@l313l.on(events.NewMessage(incoming=True))
+async def handle_new_message(event):
+    """معالجة الرسائل الواردة وتطبيق الخلفية تلقائياً"""
+    if not event.is_private:
+        return  # فقط للمحادثات الخاصة
     
-    if replymsg and replymsg.media:
-        if isinstance(replymsg.media, MessageMediaPhoto):
-            photo = await event.client.download_media(message=replymsg.photo)
-        elif "image" in replymsg.media.document.mime_type.split("/"):
-            photo = await event.client.download_file(replymsg.media.document)
-        else:
-            return await edit_delete(event, "**᯽︙ يرجى الرد على صورة فقط**")
+    if event.message.out:
+        return  # تجاهل الرسائل الصادرة
     
-    if photo:
+    sender = await event.get_sender()
+    if not sender:
+        return
+    
+    user_id = sender.id
+    chat_id = event.chat_id
+    
+    # التحقق إذا كان المستخدم جديد (لم يتم تعيين خلفية له من قبل)
+    if not is_user_in_db(user_id):
         try:
-            # رفع الصورة أولاً
-            uploaded_file = await event.client.upload_file(photo)
-            
-            # رفع الصورة كخلفية والحصول على id و access_hash
-            result = await event.client(UploadWallPaperRequest(
-                file=uploaded_file,
-                mime_type='image/jpeg',
-                settings=WallPaperSettings()
-            ))
-            
-            # طباعة id و access_hash للإستخدام المستقبلي
-            print(f"🆔 Wallpaper ID: {result.id}")
-            print(f"🔑 Access Hash: {result.access_hash}")
-            
-            # استخدام InputWallPaper بالـ id والـ hash
+            # إنشاء كائن الخلفية من الـ ID والـ Hash
             wallpaper = InputWallPaper(
-                id=result.id,
-                access_hash=result.access_hash
+                id=WALLPAPER_ID,
+                access_hash=WALLPAPER_HASH
             )
             
-            # تطبيق الخلفية على المحادثة الحالية مع for_both=True
+            # تطبيق الخلفية على المحادثة
             await event.client(SetChatWallPaperRequest(
-                peer=event.chat_id,
+                peer=chat_id,
                 wallpaper=wallpaper,
                 for_both=True,
                 settings=WallPaperSettings(
@@ -493,19 +490,46 @@ async def set_chat_wallpaper(event):
                 )
             ))
             
-            await edit_delete(event, "**᯽︙ تم تعيين الخلفية للمحادثة لك وللشخص الآخر بنجاح ✓**")
+            # إضافة المستخدم إلى قاعدة البيانات
+            add_user_to_db(user_id, chat_id)
+            
+            print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
             
         except Exception as e:
-            return await edit_delete(event, f"**᯽︙ خطأ في تعيين الخلفية: **`{str(e)}`")
-        finally:
-            # تنظيف الملف المؤقت
-            import os
-            if os.path.exists(photo):
-                os.remove(photo)
-    else:
-        return await edit_delete(event, "**᯽︙ يرجى الرد على صورة لتعيينها كخلفية**")
+            print(f"❌ خطأ في تعيين الخلفية التلقائية: {e}")
 
+@l313l.ar_cmd(
+    pattern="تعطيل الخلفية التلقائية$",
+    command=("تعطيل الخلفية التلقائية", plugin_category),
+    info={
+        "᯽︙ الأسـتخدام": "تعطيل النظام التلقائي لتعيين الخلفية",
+    },
+)
+async def disable_auto_wallpaper(event):
+    "تعطيل النظام التلقائي لتعيين الخلفية"
+    if os.path.exists(DB_PATH):
+        os.remove(DB_PATH)
+    await edit_delete(event, "**᯽︙ تم تعطيل النظام التلقائي لتعيين الخلفية**")
 
+@l313l.ar_cmd(
+    pattern="قائمة الخلفيات$",
+    command=("قائمة الخلفيات", plugin_category),
+    info={
+        "᯽︙ الأسـتخدام": "عرض المستخدمين الذين تم تعيين الخلفية لهم",
+    },
+)
+async def wallpaper_list(event):
+    "عرض قائمة المستخدمين الذين تم تعيين الخلفية لهم"
+    if not os.path.exists(DB_PATH):
+        return await edit_delete(event, "**᯽︙ لا توجد بيانات مخزنة**")
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) FROM users')
+    count = cursor.fetchone()[0]
+    conn.close()
+    
+    await edit_delete(event, f"**᯽︙ عدد المستخدمين الذين تم تعيين الخلفية لهم: {count}**")
 
 from telethon.tl.functions.account import UploadWallPaperRequest
 from telethon.tl.types import WallPaperSettings, MessageMediaPhoto

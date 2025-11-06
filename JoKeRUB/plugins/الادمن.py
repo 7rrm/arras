@@ -436,8 +436,8 @@ def is_user_in_db(user_id):
     return result is not None
 
 # معلومات الخلفية المحددة
-WALLPAPER_ID = 4929533453965197504
-WALLPAPER_HASH = 7892786240745408655
+WALLPAPER_ID = 4929680629609529627
+WALLPAPER_HASH = -7661127971446686585
 
 @l313l.ar_cmd(
     pattern="تفعيل الخلفية التلقائية$",

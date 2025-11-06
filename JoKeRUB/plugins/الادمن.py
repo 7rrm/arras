@@ -342,7 +342,7 @@ async def jokerban(event):
                 f"**✾╎ الـدردشـة:** {event.chat.title}\n"
                 f"**✾╎ ايـدي الكـروب:** `{event.chat_id}`",
             )
-            
+
 @l313l.ar_cmd(
     pattern="الغاء حظر(?:\s|$)([\s\S]*)",
     command=("الغاء حظر", plugin_category),
@@ -366,22 +366,20 @@ async def nothanos(event):
     try:
         await event.client(EditBannedRequest(event.chat_id, user.id, UNBAN_RIGHTS))
         await catevent.edit(
-            f"<b>✾╎ الـمستخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم الـغاء حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>❤️</a>",
+            f"<b>✾╎ المسـتخدم</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n<b>✾╎ تـم الـغاء حـظره بنـجاح</b> <a href='emoji/5348135243104664976'>❤️</a>",
             parse_mode=CustomParseMode("html")
         )
         if BOTLOG:
             await event.client.send_message(
                 BOTLOG_CHATID,
-                f"<b>✾╎ الـغاء الـحظر</b>\n"
-                f"<b>✾╎ الـمستخدم:</b> <a href='tg://user?id={user.id}'>{user.first_name}</a>\n"
-                f"<b>✾╎ الـدردشـة:</b> {event.chat.title}(<code>{event.chat_id}</code>)",
-                parse_mode=CustomParseMode("html")
+                f"** #الـغاء_الـحظر**\n"
+                f"**✾╎ المسـتخدم:** [{user.first_name}](tg://user?id={user.id})\n"
+                f"**✾╎ الـدردشـة:** {event.chat.title}(`{event.chat_id}`)",
             )
     except UserIdInvalidError:
         await catevent.edit("**✾╎ يـبدو أن هذه الـعمليـة تم إلغاؤهـا**")
     except Exception as e:
         await catevent.edit(f"**✾╎ خـطأ :**\n`{e}`")
-
 
 @l313l.ar_cmd(incoming=True)
 async def watcher(event):

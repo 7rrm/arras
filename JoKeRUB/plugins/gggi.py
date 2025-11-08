@@ -1139,30 +1139,18 @@ async def show_username_only(event):
         first_name = first_name.replace("\u2060", "") if first_name else "بدون اسم"
         full_name = f"{first_name} {last_name}".strip() if last_name else first_name
         
-        # جلب اليوزر الأساسي
-        
-        # محاولة جلب اليوزرات من الطريقة 1 فقط (الحقول المباشرة)
-        fragment_usernames = []
-        
-        # الطريقة 1: استخدام الحقول المباشرة من User
+        # جلب جميع اليوزرات من الطريقة 1 فقط
+        usernames_list = []
         if hasattr(replied_user, 'usernames') and replied_user.usernames:
             for uname in replied_user.usernames:
                 if uname.username:
-                    fragment_usernames.append(f"@{uname.username}")
+                    usernames_list.append(f"@{uname.username}")
         
         # دمج اليوزرات للعرض
-        # جلب جميع اليوزرات من الطريقة 1 فقط
-usernames_list = []
-if hasattr(replied_user, 'usernames') and replied_user.usernames:
-    for uname in replied_user.usernames:
-        if uname.username:
-            usernames_list.append(f"@{uname.username}")
-
-# دمج اليوزرات للعرض
-if usernames_list:
-    all_usernames = " - ".join(usernames_list)
-else:
-    all_usernames = "لا يـوجـد"
+        if usernames_list:
+            all_usernames = " - ".join(usernames_list)
+        else:
+            all_usernames = "لا يـوجـد"
         
         # الرسالة النهائية
         caption = f"**🎯 اسـم المسـتخدم:**\n"

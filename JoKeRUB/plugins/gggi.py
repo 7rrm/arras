@@ -1139,19 +1139,57 @@ async def show_username_only(event):
         user_id = replied_user.id
         first_name = replied_user.first_name or ""
         last_name = replied_user.last_name or ""
-        username = replied_user.username or "لا يـوجـد"
         
         # تنظيف الاسم من الأحرف غير المرغوبة
         first_name = first_name.replace("\u2060", "") if first_name else "بدون اسم"
         full_name = f"{first_name} {last_name}".strip() if last_name else first_name
         
-        # إنشاء الرسالة البسيطة
+        # جلب اليوزر الأساسي واليوزرات الإضافية
+        username = replied_user.username or "لا يـوجـد"
+        
+        # محاولة جلب اليوزرات الإضافية من الحقول المتاحة
+        additional_usernames = []
+        
+        # جلب معلومات إضافية عن المستخدم
+        try:
+            full_user_info = await event.client(GetFullUserRequest(user_id))
+            
+            # البحث عن اليوزرات الإضافية في الحقول المختلفة
+            if hasattr(full_user_info, 'usernames') and full_user_info.usernames:
+                for uname in full_user_info.usernames:
+                    if uname.username and uname.username != username:
+                        additional_usernames.append(f"@{uname.username}")
+            
+            # التحقق من الحقول الأخرى التي قد تحتوي على يوزرات
+            if hasattr(full_user_info, 'private_forward_name'):
+                private_name = full_user_info.private_forward_name
+                if private_name and private_name.startswith('@'):
+                    additional_usernames.append(private_name)
+                    
+        except Exception:
+            pass
+        
+        # بناء رسالة اليوزرات
+        usernames_display = f"@{username}" if username != "لا يـوجـد" else "لا يـوجـد"
+        
+        # إضافة اليوزرات الإضافية إذا وجدت
+        if additional_usernames:
+            usernames_display += " - " + " - ".join(additional_usernames)
+        
+        # إنشاء الرسالة النهائية
         caption = f"**🎯 اسـم المسـتخدم:**\n"
         caption += f"**• الاسـم ⥼** `{full_name}`\n"
-        caption += f"**• اليـوزر ⥼** @{username}\n"
+        caption += f"**• اليـوزر ⥼** {usernames_display}\n"
         caption += f"**• الايـدي ⥼** `{user_id}`"
         
         await zed.edit(caption)
         
     except Exception as e:
         await zed.edit(f"**❌ حـدث خطـأ:** `{str(e)}`")
+
+# أمر إضافي لعرض جميع اليوزرات المتاحة
+@l313l.ar_cmd(
+    pattern="يوزراتي$",
+    command=("يوزراتي", plugin_category),
+)
+async def show_all_my_usern

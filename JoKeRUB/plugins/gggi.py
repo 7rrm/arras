@@ -1186,10 +1186,3 @@ async def show_username_only(event):
         
     except Exception as e:
         await zed.edit(f"**❌ حـدث خطـأ:** `{str(e)}`")
-
-# أمر إضافي لعرض جميع اليوزرات المتاحة
-@l313l.ar_cmd(
-    pattern="يوزراتي$",
-    command=("يوزراتي", plugin_category),
-)
-async def show_all_my_usern

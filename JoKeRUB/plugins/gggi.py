@@ -1121,10 +1121,6 @@ async def comming(event):
 @l313l.ar_cmd(
     pattern="مستخدم(?: |$)(.*)",
     command=("مستخدم", plugin_category),
-    info={
-        "header": "لـ عـرض اسـم المسـتخدم فقـط",
-        "الاستـخـدام": " {tr}مستخدم بالـرد او {tr}مستخدم + معـرف/ايـدي الشخص",
-    },
 )
 async def show_username_only(event):
     "يعرض اسم المستخدم فقط"
@@ -1135,51 +1131,47 @@ async def show_username_only(event):
         return await edit_or_reply(zed, "**❌ لـم استطـع العثــور ع الشخــص**")
     
     try:
-        # جلب المعلومات الأساسية
         user_id = replied_user.id
         first_name = replied_user.first_name or ""
         last_name = replied_user.last_name or ""
         
-        # تنظيف الاسم من الأحرف غير المرغوبة
+        # تنظيف الاسم
         first_name = first_name.replace("\u2060", "") if first_name else "بدون اسم"
         full_name = f"{first_name} {last_name}".strip() if last_name else first_name
         
-        # جلب اليوزر الأساسي واليوزرات الإضافية
-        username = replied_user.username or "لا يـوجـد"
+        # جلب اليوزر الأساسي
+        main_username = f"@{replied_user.username}" if replied_user.username else "لا يـوجـد"
         
-        # محاولة جلب اليوزرات الإضافية من الحقول المتاحة
-        additional_usernames = []
+        # محاولة جلب اليوزرات من الحقول المختلفة
+        fragment_usernames = []
         
-        # جلب معلومات إضافية عن المستخدم
+        # الطريقة 1: استخدام الحقول المباشرة
+        if hasattr(replied_user, 'usernames') and replied_user.usernames:
+            for uname in replied_user.usernames:
+                if uname.username:
+                    fragment_usernames.append(f"@{uname.username}")
+        
+        # الطريقة 2: استخدام معلومات إضافية
         try:
-            full_user_info = await event.client(GetFullUserRequest(user_id))
+            full_user = await event.client(GetFullUserRequest(user_id))
             
-            # البحث عن اليوزرات الإضافية في الحقول المختلفة
-            if hasattr(full_user_info, 'usernames') and full_user_info.usernames:
-                for uname in full_user_info.usernames:
-                    if uname.username and uname.username != username:
-                        additional_usernames.append(f"@{uname.username}")
-            
-            # التحقق من الحقول الأخرى التي قد تحتوي على يوزرات
-            if hasattr(full_user_info, 'private_forward_name'):
-                private_name = full_user_info.private_forward_name
-                if private_name and private_name.startswith('@'):
-                    additional_usernames.append(private_name)
-                    
-        except Exception:
+            # التحقق من الحقول المختلفة
+            if hasattr(full_user, 'usernames') and full_user.usernames:
+                for uname in full_user.usernames:
+                    if uname.username and uname.username != (replied_user.username or ""):
+                        fragment_usernames.append(f"@{uname.username}")
+        except:
             pass
         
-        # بناء رسالة اليوزرات
-        usernames_display = f"@{username}" if username != "لا يـوجـد" else "لا يـوجـد"
+        # دمج اليوزرات للعرض
+        all_usernames = main_username
+        if fragment_usernames:
+            all_usernames += " - " + " - ".join(fragment_usernames)
         
-        # إضافة اليوزرات الإضافية إذا وجدت
-        if additional_usernames:
-            usernames_display += " - " + " - ".join(additional_usernames)
-        
-        # إنشاء الرسالة النهائية
+        # الرسالة النهائية
         caption = f"**🎯 اسـم المسـتخدم:**\n"
         caption += f"**• الاسـم ⥼** `{full_name}`\n"
-        caption += f"**• اليـوزر ⥼** {usernames_display}\n"
+        caption += f"**• اليـوزر ⥼** {all_usernames}\n"
         caption += f"**• الايـدي ⥼** `{user_id}`"
         
         await zed.edit(caption)

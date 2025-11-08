@@ -711,17 +711,33 @@ async def fetch_info(replied_user, event):
     full_name = f"{first_name} {last_name}" if last_name else first_name
     rating_info = await get_user_rating(event.client, user_id)
 
-# ✅ سطر واحد فقط - استخدم level_display مباشرة
+    # ✅ سطر واحد فقط - استخدم level_display مباشرة
     level_message = rating_info['level_display']
     
     common_chat = FullUser.common_chats_count
-    username = replied_user.username
+    
+    # ⭐⭐ الكود الأسرع لجلب اليوزرات ⭐⭐
+    usernames_list = []
+    if hasattr(replied_user, 'usernames') and replied_user.usernames:
+        for uname in replied_user.usernames:
+            if uname.username:
+                usernames_list.append(f"@{uname.username}")
+
+    # دمج اليوزرات للعرض
+    if usernames_list:
+        username = " - ".join(usernames_list)
+    else:
+        username = "لا يـوجـد"
+    # ⭐⭐ نهاية الكود الأسرع ⭐⭐
+    
     user_bio = FullUser.about
     is_bot = replied_user.bot
     restricted = replied_user.restricted
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
+    
+    # ... باقي الكود يبقى كما هو بدون تغيير ...
     #zid = int(gvarstatus("ZThon_Vip"))
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
@@ -755,7 +771,6 @@ async def fetch_info(replied_user, event):
         else ("هذا المستخدم ليس له اسم أول")
     )
     #full_name = full_name or first_name
-    username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) 

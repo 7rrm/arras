@@ -123,7 +123,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),

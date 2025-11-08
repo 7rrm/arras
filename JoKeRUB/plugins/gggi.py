@@ -1151,9 +1151,18 @@ async def show_username_only(event):
                     fragment_usernames.append(f"@{uname.username}")
         
         # دمج اليوزرات للعرض
-        all_usernames = main_username
-        if fragment_usernames:
-            all_usernames += " - " + " - ".join(fragment_usernames)
+        # جلب جميع اليوزرات من الطريقة 1 فقط
+usernames_list = []
+if hasattr(replied_user, 'usernames') and replied_user.usernames:
+    for uname in replied_user.usernames:
+        if uname.username:
+            usernames_list.append(f"@{uname.username}")
+
+# دمج اليوزرات للعرض
+if usernames_list:
+    all_usernames = " - ".join(usernames_list)
+else:
+    all_usernames = "لا يـوجـد"
         
         # الرسالة النهائية
         caption = f"**🎯 اسـم المسـتخدم:**\n"

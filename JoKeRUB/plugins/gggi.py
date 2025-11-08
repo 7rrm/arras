@@ -1142,20 +1142,14 @@ async def show_username_only(event):
         # جلب اليوزر الأساسي
         main_username = f"@{replied_user.username}" if replied_user.username else "لا يـوجـد"
         
-        # محاولة جلب اليوزرات من الطريقة 2 فقط (GetFullUserRequest)
+        # محاولة جلب اليوزرات من الطريقة 1 فقط (الحقول المباشرة)
         fragment_usernames = []
         
-        # الطريقة 2: استخدام معلومات إضافية
-        try:
-            full_user = await event.client(GetFullUserRequest(user_id))
-            
-            # التحقق من الحقول المختلفة
-            if hasattr(full_user, 'usernames') and full_user.usernames:
-                for uname in full_user.usernames:
-                    if uname.username and uname.username != (replied_user.username or ""):
-                        fragment_usernames.append(f"@{uname.username}")
-        except:
-            pass
+        # الطريقة 1: استخدام الحقول المباشرة من User
+        if hasattr(replied_user, 'usernames') and replied_user.usernames:
+            for uname in replied_user.usernames:
+                if uname.username:
+                    fragment_usernames.append(f"@{uname.username}")
         
         # دمج اليوزرات للعرض
         all_usernames = main_username

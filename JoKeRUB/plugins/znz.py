@@ -28,7 +28,7 @@ scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "فتـح الهمسـه 🗳"
-dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+dss = "**⌔╎هو فقط من يستطيع ࢪؤيتهـا**"
 hss = "ᯓ a𝖱a𝖲 Whisp** - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
@@ -169,7 +169,7 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
+                text=f"{hss} {zilzal} \n{dss}",
                 buttons=buttons,
                 link_preview=False,
             )

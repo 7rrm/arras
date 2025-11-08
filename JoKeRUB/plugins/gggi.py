@@ -716,25 +716,23 @@ async def fetch_info(replied_user, event):
     
     common_chat = FullUser.common_chats_count
     
-    # ⭐⭐ الكود الأسرع والمصحح لجلب اليوزرات ⭐⭐
-    usernames_list = []
+    # ⚡⚡⚡ الكود الأسرع حقاً ⚡⚡⚡
+    usernames = []
+    main_username = replied_user.username
     
-    # اليوزر الأساسي أولاً
-    if replied_user.username:
-        usernames_list.append(f"@{replied_user.username}")
+    # إضافة اليوزر الأساسي
+    if main_username:
+        usernames.append(f"@{main_username}")
     
-    # ثم اليوزرات الإضافية
+    # إضافة اليوزرات الإضافية باستخدام list comprehension (أسرع)
     if hasattr(replied_user, 'usernames') and replied_user.usernames:
-        for uname in replied_user.usernames:
-            if uname.username and uname.username != replied_user.username:
-                usernames_list.append(f"@{uname.username}")
-
-    # دمج اليوزرات للعرض
-    if usernames_list:
-        username = " - ".join(usernames_list)
-    else:
-        username = "لا يـوجـد"
-    # ⭐⭐ نهاية الكود الأسرع والمصحح ⭐⭐
+        usernames.extend(
+            f"@{u.username}" for u in replied_user.usernames 
+            if u.username and u.username != main_username
+        )
+    
+    username = " - ".join(usernames) if usernames else "لا يـوجـد"
+    # ⚡⚡⚡ نهاية الكود الأسرع ⚡⚡⚡
     
     user_bio = FullUser.about
     is_bot = replied_user.bot
@@ -742,8 +740,6 @@ async def fetch_info(replied_user, event):
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
-    
-    # ... باقي الكود يبقى كما هو بدون تغيير ...
     #zid = int(gvarstatus("ZThon_Vip"))
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"

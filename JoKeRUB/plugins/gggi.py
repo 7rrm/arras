@@ -1140,7 +1140,6 @@ async def show_username_only(event):
         full_name = f"{first_name} {last_name}".strip() if last_name else first_name
         
         # جلب اليوزر الأساسي
-        main_username = f"@{replied_user.username}" if replied_user.username else "لا يـوجـد"
         
         # محاولة جلب اليوزرات من الطريقة 1 فقط (الحقول المباشرة)
         fragment_usernames = []

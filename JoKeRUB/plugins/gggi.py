@@ -716,11 +716,17 @@ async def fetch_info(replied_user, event):
     
     common_chat = FullUser.common_chats_count
     
-    # ⭐⭐ الكود الأسرع لجلب اليوزرات ⭐⭐
+    # ⭐⭐ الكود الأسرع والمصحح لجلب اليوزرات ⭐⭐
     usernames_list = []
+    
+    # اليوزر الأساسي أولاً
+    if replied_user.username:
+        usernames_list.append(f"@{replied_user.username}")
+    
+    # ثم اليوزرات الإضافية
     if hasattr(replied_user, 'usernames') and replied_user.usernames:
         for uname in replied_user.usernames:
-            if uname.username:
+            if uname.username and uname.username != replied_user.username:
                 usernames_list.append(f"@{uname.username}")
 
     # دمج اليوزرات للعرض
@@ -728,7 +734,7 @@ async def fetch_info(replied_user, event):
         username = " - ".join(usernames_list)
     else:
         username = "لا يـوجـد"
-    # ⭐⭐ نهاية الكود الأسرع ⭐⭐
+    # ⭐⭐ نهاية الكود الأسرع والمصحح ⭐⭐
     
     user_bio = FullUser.about
     is_bot = replied_user.bot

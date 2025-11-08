@@ -1118,3 +1118,40 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================#
+@l313l.ar_cmd(
+    pattern="مستخدم(?: |$)(.*)",
+    command=("مستخدم", plugin_category),
+    info={
+        "header": "لـ عـرض اسـم المسـتخدم فقـط",
+        "الاستـخـدام": " {tr}مستخدم بالـرد او {tr}مستخدم + معـرف/ايـدي الشخص",
+    },
+)
+async def show_username_only(event):
+    "يعرض اسم المستخدم فقط"
+    zed = await edit_or_reply(event, "**⏳ جـاري جـلب الاسـم...**")
+    replied_user = await get_user_from_event(event)
+    
+    if not replied_user:
+        return await edit_or_reply(zed, "**❌ لـم استطـع العثــور ع الشخــص**")
+    
+    try:
+        # جلب المعلومات الأساسية
+        user_id = replied_user.id
+        first_name = replied_user.first_name or ""
+        last_name = replied_user.last_name or ""
+        username = replied_user.username or "لا يـوجـد"
+        
+        # تنظيف الاسم من الأحرف غير المرغوبة
+        first_name = first_name.replace("\u2060", "") if first_name else "بدون اسم"
+        full_name = f"{first_name} {last_name}".strip() if last_name else first_name
+        
+        # إنشاء الرسالة البسيطة
+        caption = f"**🎯 اسـم المسـتخدم:**\n"
+        caption += f"**• الاسـم ⥼** `{full_name}`\n"
+        caption += f"**• اليـوزر ⥼** @{username}\n"
+        caption += f"**• الايـدي ⥼** `{user_id}`"
+        
+        await zed.edit(caption)
+        
+    except Exception as e:
+        await zed.edit(f"**❌ حـدث خطـأ:** `{str(e)}`")

@@ -29,11 +29,11 @@ hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "فتـح الهمسـه 🗳"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+hss = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - **همسـة سـريـه** 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎أضغـط الـزر بالأسفـل ⚓\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
 ddd = "💌"
 bbb = None
 
@@ -123,7 +123,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),
@@ -169,7 +169,7 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
             )
@@ -197,3 +197,4 @@ async def inline_handler(event):
             await event.answer(results)
     else:
         return
+

@@ -117,10 +117,20 @@ async def repozedub(event):
         bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    
+    # 🔥 التعديل هنا: احصل على رسالة الهمسة النهائية
     zed_message = await response[0].click(event.chat_id)
     
-    # 🔥 هنا الكود الجديد للرد التلقائي
-    await asyncio.sleep(2)  # انتظار قليل لضمان إرسال الهمسة
+    # انتظر حتى تظهر رسالة الهمسة النهائية
+    await asyncio.sleep(3)
+    
+    # 🔥 احصل على آخر رسالة في الدردشة (الهمسة النهائية)
+    async for message in l313l.iter_messages(event.chat_id, limit=1):
+        if "الهمسـة لـ" in message.text and "يستطيع ࢪؤيتهـا" in message.text:
+            target_message = message
+            break
+    else:
+        target_message = zed_message
     
     # إنشاء نص الرد
     if username and username.startswith("@"):
@@ -130,7 +140,7 @@ async def repozedub(event):
     
     reply_text = f"**عَزيزي لديك همسه {user_mention} .**"
     
-    # الرد على رسالة الهمسة
-    await zed_message.reply(reply_text)
+    # 🔥 الرد على رسالة الهمسة النهائية
+    await target_message.reply(reply_text)
     
     await event.delete()

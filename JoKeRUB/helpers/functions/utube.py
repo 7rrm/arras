@@ -1,7 +1,9 @@
 import os
 import re
+import glob
 import urllib.request
 from collections import defaultdict
+import random
 
 import ujson
 import yt_dlp
@@ -17,26 +19,36 @@ from ..progress import humanbytes
 from .functions import sublists
 
 LOGS = logging.getLogger(__name__)
+
+
+def get_cookies_file():
+    folder_path = f"{os.getcwd()}/karar"
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    if not txt_files:
+        raise FileNotFoundError("No .txt files found in the specified folder.")
+    cookie_txt_file = random.choice(txt_files)
+    return cookie_txt_file
+
+
 BASE_YT_URL = "https://www.youtube.com/watch?v="
 YOUTUBE_REGEX = re.compile(
     r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})"
 )
 PATH = "./JoKeRUB/cache/ytsearch.json"
 
-song_dl = "yt-dlp --force-ipv4 --write-thumbnail --add-metadata --embed-thumbnail -o './temp/%(title)s.%(ext)s' --extract-audio --audio-format mp3 --audio-quality {QUALITY} {video_link}"
+song_dl = "yt-dlp --cookies {get_cookies_file()} --force-ipv4 --write-thumbnail --add-metadata --embed-thumbnail -o './temp/%(title)s.%(ext)s' --extract-audio --audio-format mp3 --audio-quality {QUALITY} {video_link}"
 
-thumb_dl = "yt-dlp --force-ipv4 -o './temp/%(title)s.%(ext)s' --write-thumbnail --skip-download {video_link}"
-video_dl = "yt-dlp --force-ipv4 --write-thumbnail --add-metadata --embed-thumbnail -o './temp/%(title)s.%(ext)s' -f 'best[height<=480]' {video_link}"
+thumb_dl = "yt-dlp --cookies {get_cookies_file()} --force-ipv4 -o './temp/%(title)s.%(ext)s' --write-thumbnail --skip-download {video_link}"
+video_dl = "yt-dlp --cookies {get_cookies_file()} --force-ipv4 --write-thumbnail --add-metadata --embed-thumbnail -o './temp/%(title)s.%(ext)s' -f 'best[height<=480]' {video_link}"
 name_dl = (
-    "yt-dlp --force-ipv4 --get-filename -o './temp/%(title)s.%(ext)s' {video_link}"
+    "yt-dlp --cookies {get_cookies_file()} --force-ipv4 --get-filename -o './temp/%(title)s.%(ext)s' {video_link}"
 )
 
-
-async def yt_search(JoKeRUB):
+async def yt_search(zed):
     try:
-        JoKeRUB = urllib.parse.quote(JoKeRUB)
+        zed = urllib.parse.quote(zed)
         html = urllib.request.urlopen(
-            f"https://www.youtube.com/results?search_query={JoKeRUB}"
+            f"https://www.youtube.com/results?search_query={zed}"
         )
 
         user_data = re.findall(r"watch\?v=(\S{11})", html.read().decode())
@@ -61,12 +73,10 @@ async def ytsearch(query, limit):
     for v in videolinks.result()["result"]:
         textresult = f"[{v['title']}](https://www.youtube.com/watch?v={v['id']})\n"
         try:
-            textresult += f"**الشرح : **`{v['descriptionSnippet'][-1]['text']}`\n"
+            textresult += f"**- الوصـف : **`{v['descriptionSnippet'][-1]['text']}`\n"
         except Exception:
-            textresult += "**الشرح : **`None`\n"
-        textresult += (
-            f"**المدة : **{v['duration']}  **المشاهدات : **{v['viewCount']['short']}\n"
-        )
+            textresult += "**- الوصـف : **`None`\n"
+        textresult += f"**- المـده : **{v['duration']}  **- المشـاهـدات : **{v['viewCount']['short']}\n"
         result += f"☞ {textresult}\n"
     return result
 
@@ -91,8 +101,8 @@ class YT_Search_X:
 ytsearch_data = YT_Search_X()
 
 """
-async def yt_data(JoKeRUB):
-    params = {"format": "json", "url": JoKeRUB}
+async def yt_data(zed):
+    params = {"format": "json", "url": zed}
     url = "https://www.youtube.com/oembed"  # https://stackoverflow.com/questions/29069444/returning-the-urls-as-a-list-from-a-youtube-search-query
     query_string = urllib.parse.urlencode(params)
     url = f"{url}?{query_string}"
@@ -162,12 +172,12 @@ async def result_formatter(results: list):
             out += "<code>{}</code>\n\n".format(
                 "".join(x.get("text") for x in r.get("descriptionSnippet"))
             )
-        out += f'<b>❯  المدة:</b> {r.get("accessibility").get("duration")}\n'
-        views = f'<b>❯  المشاهدات:</b> {r.get("viewCount").get("short")}\n'
+        out += f'<b>❯  المـده :</b> {r.get("accessibility").get("duration")}\n'
+        views = f'<b>❯  المشـاهـدات :</b> {r.get("viewCount").get("short")}\n'
         out += views
-        out += f'<b>❯  تايرخ الرفع:</b> {r.get("publishedTime")}\n'
+        out += f'<b>❯  تاريـخ الرفـع :</b> {r.get("publishedTime")}\n'
         if upld:
-            out += "<b>❯  الرافع:</b> "
+            out += "<b>❯  القنـاة :</b> "
             out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
 
         output[index] = dict(
@@ -186,7 +196,7 @@ def yt_search_btns(
     buttons = [
         [
             Button.inline(
-                text="⬅️  رجوع",
+                text="رجـوع ⬅️",
                 data=f"ytdl_back_{data_key}_{page}",
             ),
             Button.inline(
@@ -196,11 +206,11 @@ def yt_search_btns(
         ],
         [
             Button.inline(
-                text="📜  قائمة الكل",
+                text="عرض الكل 📜",
                 data=f"ytdl_listall_{data_key}_{page}",
             ),
             Button.inline(
-                text="⬇️  تحميل",
+                text="⬇️ تحميـل",
                 data=f"ytdl_download_{vid}_0",
             ),
         ],
@@ -214,16 +224,16 @@ def yt_search_btns(
 def download_button(vid: str, body: bool = False):  # sourcery no-metrics
     # sourcery skip: low-code-quality
     try:
-        vid_data = yt_dlp.YoutubeDL({"no-playlist": True}).extract_info(
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
             BASE_YT_URL + vid, download=False
         )
     except ExtractorError:
         vid_data = {"formats": []}
     buttons = [
         [
-            Button.inline("⭐️ الافضل - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
+            Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
             Button.inline(
-                "⭐️ الافضل - 📹 WebM/MP4",
+                "⭐️ اعلى دقـه - 📹 WebM/MP4",
                 data=f"ytdl_download_{vid}_mp4_v",
             ),
         ]
@@ -243,7 +253,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
                     if fr_note in (frmt_, f"{frmt_}60"):
                         qual_dict[frmt_][fr_id] = fr_size
             if video.get("acodec") != "none":
-                bitrrate = int(video.get("abr", 0))
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
                 if bitrrate != 0:
                     audio_dict[
                         bitrrate
@@ -263,11 +273,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
             )
     buttons += sublists(video_btns, width=2)
     buttons += [
-        [
-            Button.inline(
-                "⭐️ الافضل  - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a"
-            )
-        ]
+        [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
     ]
     buttons += sublists(
         [
@@ -301,6 +307,8 @@ def _tubeDl(url: str, starttime, uid: str):
             # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
         ],
         "quiet": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -329,10 +337,12 @@ def _mp3Dl(url: str, starttime, uid: str):
                 "preferredcodec": "mp3",
                 "preferredquality": uid,
             },
-            {"key": "EmbedThumbnail"},
+            {"key": "EmbedThumbnail"},  # ERROR: Conversion failed!
             {"key": "FFmpegMetadata"},
         ],
         "quiet": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
     }
     try:
         with yt_dlp.YoutubeDL(_opts) as ytdl:

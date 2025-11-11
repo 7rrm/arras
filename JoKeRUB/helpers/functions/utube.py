@@ -1,13 +1,14 @@
 import httpx
 from youtubesearchpython.core.requests import RequestCore
 
-# الإصلاح أولاً
+# الإصلاح الصحيح
 def fixed_syncPostRequest(self):
+    # استخدام الخصائص الصحيحة من الكائن
     return httpx.post(
         self.url,
-        headers=self.headers, 
-        data=self.data,
-        params=self.params,
+        headers=getattr(self, 'headers', {}),
+        data=getattr(self, 'data', {}),
+        params=getattr(self, 'params', {}),
         timeout=10
     )
 

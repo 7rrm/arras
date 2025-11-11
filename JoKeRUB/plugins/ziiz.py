@@ -111,28 +111,7 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_user"):
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    
-    # 🔥 التعديل هنا: احصل على رسالة الهمسة النهائية
-    zed_message = await response[0].click(event.chat_id)
-    
-    # انتظر حتى تظهر رسالة الهمسة النهائية
-    await asyncio.sleep(3)
-    
-    # 🔥 احصل على آخر رسالة في الدردشة (الهمسة النهائية)
-    async for message in l313l.iter_messages(event.chat_id, limit=1):
-        if "الهمسـة لـ" in message.text and "يستطيع ࢪؤيتهـا" in message.text:
-            target_message = message
-            break
-    else:
-        target_message = zed_message
-    
-    # إنشاء نص الرد
     if username and username.startswith("@"):
         user_mention = username
     else:
@@ -140,7 +119,16 @@ async def repozedub(event):
     
     reply_text = f"**عَزيزي لديك همسه {user_mention} .**"
     
-    # 🔥 الرد على رسالة الهمسة النهائية
-    await target_message.reply(reply_text)
+    # 🔥 أرسل الرد أولاً
+    sent_message = await event.reply(reply_text)
+    
+    # ثم أرسل الهمسة
+    if gvarstatus("hmsa_user"):
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    await response[0].click(event.chat_id, reply_to=sent_message.id)  # رد على رسالة "عزيزي لديك همسة"
     
     await event.delete()

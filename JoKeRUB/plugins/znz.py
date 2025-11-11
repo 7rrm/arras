@@ -97,10 +97,9 @@ async def inline_handler(event):
                 jsondata = False
             timestamp = int(time.time() * 2)
             new_msg = {
-                str(timestamp): {"userid": user_list, "text": query, "sender_id": query_user_id}
-            }
-            # 🔥 التعديل هنا: زر واحد فقط (بدون زر الرد)
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+                str(timestamp): {"userid": user_list, "text": query}
+            }  # Code by T.me/zzzzl1l
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -164,10 +163,9 @@ async def inline_handler(event):
                 jsondata = False
             timestamp = int(time.time() * 2)
             new_msg = {
-                str(timestamp): {"userid": user_list, "text": query, "sender_id": query_user_id}
-            }
-            # 🔥 التعديل هنا: زر واحد فقط (بدون زر الرد)
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+                str(timestamp): {"userid": user_list, "text": query}
+            }  # Code by T.me/zzzzl1l
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",

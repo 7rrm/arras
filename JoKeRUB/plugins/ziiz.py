@@ -96,7 +96,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 async def repozedub(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -111,24 +111,10 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    
-    if username and username.startswith("@"):
-        user_mention = username
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
-        user_mention = f"[{full_name}](tg://user?id={user_id})"
-    
-    reply_text = f"**عَزيزي لديك همسه {user_mention} .**"
-    
-    # 🔥 أرسل الرد أولاً
-    sent_message = await event.reply(reply_text)
-    
-    # ثم أرسل الهمسة
-    if gvarstatus("hmsa_user"):
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id, reply_to=sent_message.id)  # رد على رسالة "عزيزي لديك همسة"
-    
+    await response[0].click(event.chat_id)
     await event.delete()

@@ -1,3 +1,18 @@
+import httpx
+from youtubesearchpython.core.requests import RequestCore
+
+# الإصلاح أولاً
+def fixed_syncPostRequest(self):
+    return httpx.post(
+        self.url,
+        headers=self.headers, 
+        data=self.data,
+        params=self.params,
+        timeout=10
+    )
+
+RequestCore.syncPostRequest = fixed_syncPostRequest
+
 import os
 import re
 import glob

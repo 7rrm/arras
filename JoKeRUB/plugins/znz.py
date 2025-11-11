@@ -24,47 +24,17 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
-from telethon.extensions import markdown, html
-from telethon.tl import types
-from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
-
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "فتـح الهمسـه 🗳"
-dss = f"<a href='emoji/5348296085334934565'>❤️</a> هو فقط من يستطيع ࢪؤيتهـا"
-hss = f"ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه <a href='emoji/5348296085334934565'>❤️</a>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+hss = "ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = f"ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه <a href='emoji/5348296085334934565'>❤️</a>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = f"<a href='emoji/5348135243104664976'>❤️</a>"
+ttt = "ᯓ a𝖱a𝖲 Whisp - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+ddd = "💌"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
@@ -153,7 +123,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} {zelzal} {ddd}",
+                    text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),
@@ -219,7 +189,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} {ddd}",
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),

@@ -1135,3 +1135,92 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================#
+import requests
+from .. import l313l
+from ..core.managers import edit_or_reply
+
+plugin_category = "utils"
+
+async def get_creation_date(user_id: int) -> str:
+    """أفضل API حالياً"""
+    try:
+        url = "https://tgapi.vercel.app/api/userinfo"
+        data = {"user_id": user_id}
+        response = requests.post(url, json=data, timeout=8)
+        if response.status_code == 200:
+            result = response.json().get("result", {})
+            return result.get("creation_date", "غير معروف")
+        return "غير معروف"
+    except Exception as e:
+        return "غير معروف"
+
+@l313l.ar_cmd(
+    pattern="انشاء2$",
+    command=("انشاء2", plugin_category),
+)
+async def creation_cmd(event):
+    """جلب تاريخ الإنشاء"""
+    reply = await event.get_reply_message()
+    
+    if not reply:
+        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم**")
+    
+    zed = await edit_or_reply(event, "**⏳ جاري جلب التاريخ...**")
+    user_id = reply.sender_id
+    
+    creation_date = await get_creation_date(user_id)
+    
+    await zed.edit(f"**📅 تاريخ الإنشاء:** `{creation_date}`")
+
+@l313l.ar_cmd(
+    pattern="انشاء3$",
+)
+async def creation_advanced(event):
+    """إصدار متقدم مع عدة مصادر"""
+    reply = await event.get_reply_message()
+    
+    if not reply:
+        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم**")
+    
+    zed = await edit_or_reply(event, "**🔍 جاري البحث في المصادر...**")
+    user_id = reply.sender_id
+    
+    # تجربة عدة APIs
+    dates = []
+    
+    # API 1
+    try:
+        url1 = "https://tgapi.vercel.app/api/userinfo"
+        data1 = {"user_id": user_id}
+        res1 = requests.post(url1, json=data1, timeout=5)
+        if res1.status_code == 200:
+            date1 = res1.json().get("result", {}).get("creation_date")
+            if date1: dates.append(f"**المصدر 1:** `{date1}`")
+    except: pass
+    
+    # API 2
+    try:
+        url2 = f"https://telegram-scraper.vercel.app/api/user/{user_id}"
+        res2 = requests.get(url2, timeout=5)
+        if res2.status_code == 200:
+            date2 = res2.json().get("created_at")
+            if date2: dates.append(f"**المصدر 2:** `{date2}`")
+    except: pass
+    
+    # API 3 (الاحتياطي)
+    try:
+        url3 = "https://restore-access.indream.app/regdate"
+        data3 = {"telegramId": user_id}
+        headers3 = {"x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128"}
+        res3 = requests.post(url3, json=data3, headers=headers3, timeout=5)
+        if res3.status_code == 200:
+            date3 = res3.json().get("data", {}).get("date")
+            if date3: dates.append(f"**المصدر 3:** `{date3}`")
+    except: pass
+    
+    if dates:
+        message = "**📊 تواريخ الإنشاء المتاحة:**\n\n" + "\n".join(dates)
+    else:
+        message = "**❌ لم أتمكن من جلب تاريخ الإنشاء من أي مصدر**"
+    
+    await zed.edit(message)

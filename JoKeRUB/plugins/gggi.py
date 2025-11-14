@@ -1160,7 +1160,7 @@ async def get_creation_date(tg_id: int) -> str:
     except:
         return "غير معروف"
 
-@l313l.ar_cmd(pattern="معلومات(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="ننن(?:\s|$)([\s\S]*)")
 async def user_info_cmd(event):
     """أمر معلومات المستخدم مع بانر"""
     args = event.pattern_match.group(1)
@@ -1220,7 +1220,7 @@ async def user_info_cmd(event):
         # إذا فشل إرسال الصورة، أرسل النص فقط
         await zed.edit(text)
 
-@l313l.ar_cmd(pattern="معلومات2(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="نن(?:\s|$)([\s\S]*)")
 async def user_info_simple(event):
     """أمر معلومات بدون بانر"""
     args = event.pattern_match.group(1)

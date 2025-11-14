@@ -1136,23 +1136,25 @@ async def comming(event):
 # =========================================الهدايا================================================= #
 # ================================================================================================#
 import requests
+import asyncio
 from .. import l313l
 from ..core.managers import edit_or_reply
 from telethon.tl.types import Message
+
+plugin_category = "utils"
 
 async def get_creation_date(tg_id: int) -> str:
     """دالة جلب تاريخ الإنشاء"""
     url = "https://restore-access.indream.app/regdate"
     headers = {
         "accept": "*/*",
-        "content-type": "application/x-www-form-urlencoded",
+        "content-type": "application/json",
         "user-agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0",
         "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
-        "accept-language": "en-US,en;q=0.9",
     }
     data = {"telegramId": tg_id}
     try:
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=10)
         if response.status_code == 200:
             return response.json()["data"]["date"]
         else:
@@ -1160,108 +1162,90 @@ async def get_creation_date(tg_id: int) -> str:
     except:
         return "غير معروف"
 
-@l313l.ar_cmd(pattern="ننن(?:\s|$)([\s\S]*)")
-async def user_info_cmd(event):
-    """أمر معلومات المستخدم مع بانر"""
-    args = event.pattern_match.group(1)
+@l313l.ar_cmd(
+    pattern="انشاء2$",
+    command=("انشاء2", plugin_category),
+    info={
+        "header": "جلب تاريخ إنشاء الحساب",
+        "الاستخدام": [
+            "{tr}انشاء2 بالرد على المستخدم",
+        ],
+    },
+)
+async def creation_date_cmd(event):
+    """أمر جلب تاريخ الإنشاء"""
     reply = await event.get_reply_message()
     
-    user = None
-    if args:
-        try:
-            user = await event.client.get_entity(args)
-        except:
-            return await edit_or_reply(event, "**❌ لم أستطع العثور على المستخدم**")
-    elif reply:
-        user = await event.client.get_entity(reply.sender_id)
-    else:
-        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم أو كتابة يوزره**")
+    if not reply:
+        return await edit_or_reply(event, "**❌ يرجى الرد على رسالة المستخدم**")
     
-    zed = await edit_or_reply(event, "**⏳ جاري جمع المعلومات...**")
+    user_id = reply.sender_id
+    zed = await edit_or_reply(event, "**⏳ جاري جلب تاريخ الإنشاء...**")
     
-    # جلب البيانات
-    name = user.first_name or "لا يوجد"
-    last_name = user.last_name or "لا يوجد"
-    username = f"@{user.username}" if user.username else "لا يوجد"
-    user_id = user.id
-    avatar = "نعم" if user.photo else "لا"
-    premium = "نعم" if getattr(user, "premium", False) else "لا"
-    is_bot = "نعم" if user.bot else "لا"
-    is_verified = "نعم" if user.verified else "لا"
+    # جلب تاريخ الإنشاء
     creation_date = await get_creation_date(user_id)
     
-    # نص المعلومات
-    text = f"""
-**👤 معلـومـات المسـتخدم:**
-
-**• الاسـم الأول ⥼** `{name}`
-**• الاسـم الأخيـر ⥼** `{last_name}`
-**• اليـوزر ⥼** {username}
-**• الايـدي ⥼** `{user_id}`
-**• تـاريخ الإنشـاء ⥼** `{creation_date}`
-**• صـورة البروفـايل ⥼** `{avatar}`
-**• حسـاب بريميـوم ⥼** `{premium}`
-**• حسـاب موثـق ⥼** `{is_verified}`
-**• بـوت ⥼** `{is_bot}`
-"""
-    
-    # إرسال مع صورة البانر (اختياري)
-    banner_url = "https://0x0.st/s/d-on0hAQlsqVfdGs0DHC4g/X7kw.jpg"  # نفس البانر الأصلي
-    
+    # جلب معلومات إضافية عن المستخدم
     try:
-        await event.client.send_file(
-            event.chat_id,
-            file=banner_url,
-            caption=text,
-            reply_to=reply.id if reply else None
-        )
-        await zed.delete()
+        user = await event.client.get_entity(user_id)
+        username = f"@{user.username}" if user.username else "لا يوجد"
+        first_name = user.first_name or "بدون اسم"
     except:
-        # إذا فشل إرسال الصورة، أرسل النص فقط
-        await zed.edit(text)
+        username = "غير معروف"
+        first_name = "غير معروف"
+    
+    # تنسيق الرسالة
+    message = f"""
+**🕰 تـاريـخ إنـشـاء الـحـسـاب**
 
-@l313l.ar_cmd(pattern="نن(?:\s|$)([\s\S]*)")
-async def user_info_simple(event):
-    """أمر معلومات بدون بانر"""
-    args = event.pattern_match.group(1)
-    reply = await event.get_reply_message()
-    
-    user = None
-    if args:
-        try:
-            user = await event.client.get_entity(args)
-        except:
-            return await edit_or_reply(event, "**❌ لم أستطع العثور على المستخدم**")
-    elif reply:
-        user = await event.client.get_entity(reply.sender_id)
-    else:
-        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم أو كتابة يوزره**")
-    
-    zed = await edit_or_reply(event, "**⏳ جاري جمع المعلومات...**")
-    
-    # جلب البيانات
-    name = user.first_name or "لا يوجد"
-    last_name = user.last_name or "لا يوجد"
-    username = f"@{user.username}" if user.username else "لا يوجد"
-    user_id = user.id
-    avatar = "نعم" if user.photo else "لا"
-    premium = "نعم" if getattr(user, "premium", False) else "لا"
-    is_bot = "نعم" if user.bot else "لا"
-    is_verified = "نعم" if user.verified else "لا"
-    creation_date = await get_creation_date(user_id)
-    
-    text = f"""
-**👤 معلـومـات المسـتخدم:**
-
-**• الاسـم الأول ⥼** `{name}`
-**• الاسـم الأخيـر ⥼** `{last_name}`
+**• الاسـم ⥼** `{first_name}`
 **• اليـوزر ⥼** {username}
 **• الايـدي ⥼** `{user_id}`
-**• تـاريخ الإنشـاء ⥼** `{creation_date}`
-**• صـورة البروفـايل ⥼** `{avatar}`
-**• حسـاب بريميـوم ⥼** `{premium}`
-**• حسـاب موثـق ⥼** `{is_verified}`
-**• بـوت ⥼** `{is_bot}`
+**• الإنـشـاء ⥼** `{creation_date}`
+
+**• ملاحظة ⥼** التاريخ تقريبي وقد لا يكون دقيقاً
 """
     
-    await zed.edit(text)
+    await zed.edit(message)
+
+@l313l.ar_cmd(
+    pattern="معلوماتيي$",
+    command=("معلوماتي", plugin_category),
+    info={
+        "header": "معلومات حسابك",
+        "الاستخدام": "{tr}معلوماتي",
+    },
+)
+async def my_info_cmd(event):
+    """معلومات حسابك الشخصي"""
+    zed = await edit_or_reply(event, "**⏳ جاري جمع المعلومات...**")
+    
+    user = await event.client.get_me()
+    user_id = user.id
+    
+    # جلب تاريخ الإنشاء
+    creation_date = await get_creation_date(user_id)
+    
+    # جمع المعلومات
+    username = f"@{user.username}" if user.username else "لا يوجد"
+    first_name = user.first_name or "بدون اسم"
+    last_name = user.last_name or "لا يوجد"
+    premium = "نعم ✅" if user.premium else "لا ❌"
+    verified = "نعم ✅" if user.verified else "لا ❌"
+    bot = "نعم ✅" if user.bot else "لا ❌"
+    
+    message = f"""
+**👤 معلـومـات حـسـابـك**
+
+**• الاسـم ⥼** `{first_name} {last_name}`
+**• اليـوزر ⥼** {username}
+**• الايـدي ⥼** `{user_id}`
+**• الإنـشـاء ⥼** `{creation_date}`
+**• بريميـوم ⥼** {premium}
+**• موثـق ⥼** {verified}
+**• بـوت ⥼** {bot}
+
+**• ملاحظة ⥼** تاريخ الإنشاء تقريبي
+"""
+    
+    await zed.edit(message)

@@ -1136,177 +1136,132 @@ async def comming(event):
 # =========================================الهدايا================================================= #
 # ================================================================================================#
 import requests
-import asyncio
 from .. import l313l
 from ..core.managers import edit_or_reply
 from telethon.tl.types import Message
 
-async def get_creation_date_advanced(user_id: int) -> dict:
-    """
-    أفضل دالة تجمع بين جميع مصادر تاريخ الإنشاء
-    تُرجع قاموساً يحتوي على جميع التواريخ والمصدر الأفضل
-    """
-    
-    results = {}
-    
-    # ==================== API 1: restore-access (الأفضل) ====================
+async def get_creation_date(tg_id: int) -> str:
+    """دالة جلب تاريخ الإنشاء"""
+    url = "https://restore-access.indream.app/regdate"
+    headers = {
+        "accept": "*/*",
+        "content-type": "application/x-www-form-urlencoded",
+        "user-agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0",
+        "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
+        "accept-language": "en-US,en;q=0.9",
+    }
+    data = {"telegramId": tg_id}
     try:
-        url1 = "https://restore-access.indream.app/regdate"
-        headers1 = {
-            "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
-            "Content-Type": "application/json",
-            "User-Agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0"
-        }
-        data1 = {"telegramId": user_id}
-        response1 = requests.post(url1, json=data1, headers=headers1, timeout=8)
-        if response1.status_code == 200:
-            date1 = response1.json().get("data", {}).get("date")
-            if date1:
-                results['api1'] = date1
+        response = requests.post(url, headers=headers, json=data)
+        if response.status_code == 200:
+            return response.json()["data"]["date"]
+        else:
+            return "غير معروف"
     except:
-        pass
+        return "غير معروف"
 
-    # ==================== API 2: telegram-scraper ====================
-    try:
-        url2 = "https://telegram-scraper.vercel.app/userinfo"
-        data2 = {"user_id": user_id}
-        response2 = requests.post(url2, json=data2, timeout=8)
-        if response2.status_code == 200:
-            date2 = response2.json().get("created_at")
-            if date2:
-                results['api2'] = date2
-    except:
-        pass
-
-    # ==================== API 3: tgapi ====================
-    try:
-        url3 = f"https://tgapi.vercel.app/api/user/{user_id}"
-        response3 = requests.get(url3, timeout=8)
-        if response3.status_code == 200:
-            date3 = response3.json().get("result", {}).get("creation_date")
-            if date3:
-                results['api3'] = date3
-    except:
-        pass
-
-    # تحديد أفضل نتيجة
-    if results:
-        # الأفضلية لـ API1 ثم API2 ثم API3
-        best_date = (
-            results.get('api1') or 
-            results.get('api2') or 
-            results.get('api3')
-        )
-        return {
-            'success': True,
-            'date': best_date,
-            'all_dates': results,
-            'source': 'api1' if 'api1' in results else 'api2' if 'api2' in results else 'api3'
-        }
-    else:
-        return {
-            'success': False,
-            'date': "غير معروف",
-            'all_dates': {},
-            'source': 'none'
-        }
-
-@l313l.ar_cmd(pattern="انشاء2(?:\s|$)([\s\S]*)")
-async def advanced_creation_date(event):
-    """أمر متقدم لجلب تاريخ الإنشاء من عدة مصادر"""
+@l313l.ar_cmd(pattern="معلومات(?:\s|$)([\s\S]*)")
+async def user_info_cmd(event):
+    """أمر معلومات المستخدم مع بانر"""
+    args = event.pattern_match.group(1)
     reply = await event.get_reply_message()
     
-    if not reply:
-        return await edit_or_reply(event, "**❌ يرجى الرد على رسالة المستخدم**")
+    user = None
+    if args:
+        try:
+            user = await event.client.get_entity(args)
+        except:
+            return await edit_or_reply(event, "**❌ لم أستطع العثور على المستخدم**")
+    elif reply:
+        user = await event.client.get_entity(reply.sender_id)
+    else:
+        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم أو كتابة يوزره**")
     
-    user_id = reply.sender_id
-    zed = await edit_or_reply(event, "**🔍 جاري البحث في جميع المصادر...**")
+    zed = await edit_or_reply(event, "**⏳ جاري جمع المعلومات...**")
     
-    # جلب المعلومات من جميع الـAPIs
-    result = await get_creation_date_advanced(user_id)
+    # جلب البيانات
+    name = user.first_name or "لا يوجد"
+    last_name = user.last_name or "لا يوجد"
+    username = f"@{user.username}" if user.username else "لا يوجد"
+    user_id = user.id
+    avatar = "نعم" if user.photo else "لا"
+    premium = "نعم" if getattr(user, "premium", False) else "لا"
+    is_bot = "نعم" if user.bot else "لا"
+    is_verified = "نعم" if user.verified else "لا"
+    creation_date = await get_creation_date(user_id)
     
-    # جلب معلومات المستخدم الإضافية
-    try:
-        user = await event.client.get_entity(user_id)
-        username = f"@{user.username}" if user.username else "لا يوجد"
-        first_name = user.first_name or "بدون اسم"
-    except:
-        username = "غير معروف"
-        first_name = "غير معروف"
+    # نص المعلومات
+    text = f"""
+**👤 معلـومـات المسـتخدم:**
 
-    if result['success']:
-        # تنسيق الرسالة الناجحة
-        source_names = {
-            'api1': 'Indream API',
-            'api2': 'Telegram Scraper', 
-            'api3': 'TG API',
-            'none': 'لا يوجد'
-        }
-        
-        message = f"""
-**✅ تم العثور على تاريخ الإنشاء**
-
-**👤 المعلومات:**
-**• الاسـم ⥼** `{first_name}`
+**• الاسـم الأول ⥼** `{name}`
+**• الاسـم الأخيـر ⥼** `{last_name}`
 **• اليـوزر ⥼** {username}
 **• الايـدي ⥼** `{user_id}`
-
-**📅 تاريخ الإنشاء:**
-**• التـاريخ ⥼** `{result['date']}`
-**• المـصدر ⥼** `{source_names[result['source']]}`
-
-**📊 جميع النتائج:**
-"""
-        
-        # إضافة جميع التواريخ
-        for api, date in result['all_dates'].items():
-            api_name = source_names.get(api, api)
-            message += f"**• {api_name} ⥼** `{date}`\n"
-        
-        message += "\n**💡 الملاحظة:** التاريخ تقريبي وقد يختلف بين المصادر"
-        
-    else:
-        # رسالة الفشل
-        message = f"""
-**❌ تعذر العثور على تاريخ الإنشاء**
-
-**👤 المستخدم:**
-**• الاسـم ⥼** `{first_name}`
-**• الايـدي ⥼** `{user_id}`
-
-**⚠️ الأسباب المحتملة:**
-• الحساب محظور أو خاص جداً
-• جميع الـAPIs غير متاحة حالياً
-• هناك مشكلة في الشبكة
-
-**🔄 جرب مرة أخرى بعد قليل**
+**• تـاريخ الإنشـاء ⥼** `{creation_date}`
+**• صـورة البروفـايل ⥼** `{avatar}`
+**• حسـاب بريميـوم ⥼** `{premium}`
+**• حسـاب موثـق ⥼** `{is_verified}`
+**• بـوت ⥼** `{is_bot}`
 """
     
-    await zed.edit(message)
+    # إرسال مع صورة البانر (اختياري)
+    banner_url = "https://0x0.st/s/d-on0hAQlsqVfdGs0DHC4g/X7kw.jpg"  # نفس البانر الأصلي
+    
+    try:
+        await event.client.send_file(
+            event.chat_id,
+            file=banner_url,
+            caption=text,
+            reply_to=reply.id if reply else None
+        )
+        await zed.delete()
+    except:
+        # إذا فشل إرسال الصورة، أرسل النص فقط
+        await zed.edit(text)
 
-@l313l.ar_cmd(pattern="انشاء3(?:\s|$)([\s\S]*)")
-async def quick_creation_date(event):
-    """أمر سريع باستخدام أفضل مصدر فقط"""
+@l313l.ar_cmd(pattern="معلومات2(?:\s|$)([\s\S]*)")
+async def user_info_simple(event):
+    """أمر معلومات بدون بانر"""
+    args = event.pattern_match.group(1)
     reply = await event.get_reply_message()
     
-    if not reply:
-        return await edit_or_reply(event, "**❌ يرجى الرد على رسالة المستخدم**")
-    
-    user_id = reply.sender_id
-    zed = await edit_or_reply(event, "**⏳ جاري جلب تاريخ الإنشاء...**")
-    
-    result = await get_creation_date_advanced(user_id)
-    
-    if result['success']:
-        message = f"""
-**🕰 تـاريـخ إنـشـاء الـحـسـاب:**
-
-**• التـاريخ ⥼** `{result['date']}`
-**• الايـدي ⥼** `{user_id}`
-
-**• ملاحظة ⥼** التاريخ تقريبي ولا يمكن الجزم به
-"""
+    user = None
+    if args:
+        try:
+            user = await event.client.get_entity(args)
+        except:
+            return await edit_or_reply(event, "**❌ لم أستطع العثور على المستخدم**")
+    elif reply:
+        user = await event.client.get_entity(reply.sender_id)
     else:
-        message = f"**❌ تعذر جلب تاريخ الإنشاء للمستخدم `{user_id}`**"
+        return await edit_or_reply(event, "**❌ يرجى الرد على مستخدم أو كتابة يوزره**")
     
-    await zed.edit(message)
+    zed = await edit_or_reply(event, "**⏳ جاري جمع المعلومات...**")
+    
+    # جلب البيانات
+    name = user.first_name or "لا يوجد"
+    last_name = user.last_name or "لا يوجد"
+    username = f"@{user.username}" if user.username else "لا يوجد"
+    user_id = user.id
+    avatar = "نعم" if user.photo else "لا"
+    premium = "نعم" if getattr(user, "premium", False) else "لا"
+    is_bot = "نعم" if user.bot else "لا"
+    is_verified = "نعم" if user.verified else "لا"
+    creation_date = await get_creation_date(user_id)
+    
+    text = f"""
+**👤 معلـومـات المسـتخدم:**
+
+**• الاسـم الأول ⥼** `{name}`
+**• الاسـم الأخيـر ⥼** `{last_name}`
+**• اليـوزر ⥼** {username}
+**• الايـدي ⥼** `{user_id}`
+**• تـاريخ الإنشـاء ⥼** `{creation_date}`
+**• صـورة البروفـايل ⥼** `{avatar}`
+**• حسـاب بريميـوم ⥼** `{premium}`
+**• حسـاب موثـق ⥼** `{is_verified}`
+**• بـوت ⥼** `{is_bot}`
+"""
+    
+    await zed.edit(text)

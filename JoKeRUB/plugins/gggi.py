@@ -1135,47 +1135,61 @@ async def comming(event):
 # ================================================================================================ #
 # =========================================الهدايا================================================= #
 # ================================================================================================#
-@l313l.ar_cmd(
-    pattern="مستخدم(?: |$)(.*)",
-    command=("مستخدم", plugin_category),
-)
-async def show_username_only(event):
-    "يعرض اسم المستخدم فقط"
-    zed = await edit_or_reply(event, "**⏳ جـاري جـلب الاسـم...**")
-    replied_user = await get_user_from_event(event)
-    
-    if not replied_user:
-        return await edit_or_reply(zed, "**❌ لـم استطـع العثــور ع الشخــص**")
-    
+import requests
+from .. import l313l
+from ..core.managers import edit_or_reply
+from telethon.tl.types import Message
+
+async def get_creation_date(user_id: int) -> str:
+    """جلب تاريخ إنشاء الحساب"""
+    url = "https://restore-access.indream.app/regdate"
+    headers = {
+        "accept": "*/*",
+        "content-type": "application/x-www-form-urlencoded",
+        "user-agent": "Nicegram/92 CFNetwork/1390 Darwin/22.0.0",
+        "x-api-key": "e758fb28-79be-4d1c-af6b-066633ded128",
+        "accept-language": "en-US,en;q=0.9",
+    }
+    data = {"telegramId": user_id}
     try:
-        user_id = replied_user.id
-        first_name = replied_user.first_name or ""
-        last_name = replied_user.last_name or ""
-        
-        # تنظيف الاسم
-        first_name = first_name.replace("\u2060", "") if first_name else "بدون اسم"
-        full_name = f"{first_name} {last_name}".strip() if last_name else first_name
-        
-        # جلب جميع اليوزرات من الطريقة 1 فقط
-        usernames_list = []
-        if hasattr(replied_user, 'usernames') and replied_user.usernames:
-            for uname in replied_user.usernames:
-                if uname.username:
-                    usernames_list.append(f"@{uname.username}")
-        
-        # دمج اليوزرات للعرض
-        if usernames_list:
-            all_usernames = " - ".join(usernames_list)
+        response = requests.post(url, headers=headers, json=data, timeout=10)
+        if response.status_code == 200:
+            return response.json()["data"]["date"]
         else:
-            all_usernames = "لا يـوجـد"
+            return "غير معروف"
+    except:
+        return "غير معروف"
+
+@l313l.ar_cmd(pattern="انشاء2(?:\s|$)([\s\S]*)")
+async def creation_date_cmd(event):
+    """أمر لجلب تاريخ إنشاء الحساب"""
+    reply = await event.get_reply_message()
+    
+    if not reply:
+        return await edit_or_reply(event, "**❌ يرجى الرد على رسالة المستخدم**")
+    
+    # جلب ايدي المستخدم
+    user_id = reply.sender_id
+    
+    if not user_id:
+        return await edit_or_reply(event, "**❌ لم أستطع تحديد المستخدم**")
+    
+    zed = await edit_or_reply(event, "**⏳ جاري جلب تاريخ الإنشاء...**")
+    
+    # جلب تاريخ الإنشاء
+    creation_date = await get_creation_date(user_id)
+    
+    # تنسيق الرسالة
+    if creation_date == "غير معروف":
+        message = f"**❌ تعذر جلب تاريخ الإنشاء للمستخدم**"
+    else:
+        message = f"""
+**🕰 تـاريـخ إنـشـاء الـحـسـاب:**
+
+**• التـاريخ ⥼** `{creation_date}`
         
-        # الرسالة النهائية
-        caption = f"**🎯 اسـم المسـتخدم:**\n"
-        caption += f"**• الاسـم ⥼** `{full_name}`\n"
-        caption += f"**• اليـوزر ⥼** {all_usernames}\n"
-        caption += f"**• الايـدي ⥼** `{user_id}`"
-        
-        await zed.edit(caption)
-        
-    except Exception as e:
-        await zed.edit(f"**❌ حـدث خطـأ:** `{str(e)}`")
+**• ملاحظة ⥼** تاريخ الإنشاء تقريبي ولا يمكن الجزم به
+        """
+    
+    await zed.edit(message)
+    

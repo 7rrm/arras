@@ -1002,7 +1002,12 @@ async def video_auto_search(event):
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎فيديو + اسـم المقطـع المرئي")
     
     # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
-    search_msg = await event.reply('<a href="emoji/5974332403890523746">️</a>')
+    search_msg = await event.client.send_message(
+        event.chat_id,
+        '<a href="emoji/5974332403890523746">️</a>',
+        parse_mode=CustomParseMode("html"),
+        reply_to=event.message.id
+    )
     
     try:
         # الانضمام للقنوات

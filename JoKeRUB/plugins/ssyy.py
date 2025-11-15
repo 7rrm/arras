@@ -914,6 +914,12 @@ async def yoot_auto_search(event):
         
 
 
+from telethon import types, events
+from telethon.extensions import html, markdown
+from telethon.tl.functions.channels import JoinChannelRequest
+import asyncio
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
 # كلاس التحليل المخصص لدعم الإيموجيات البريميوم
 class CustomParseMode:
     def __init__(self, parse_mode: str):
@@ -995,8 +1001,8 @@ async def video_auto_search(event):
     if not query:
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎فيديو + اسـم المقطـع المرئي")
     
-    # الرد على الرسالة الأصلية برسالة "جار البحث"
-    search_msg = await event.reply("**╮ جـارِ البحث عـن الفيديـو ... 🎬♥️ ╰**")
+    # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
+    search_msg = await event.reply('<a href="emoji/5974332403890523746">️</a>')
     
     try:
         # الانضمام للقنوات
@@ -1024,7 +1030,7 @@ async def video_auto_search(event):
                 caption = (
                     f"<blockquote>\n"
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                    f'<a href="emoji/5890831539507302154">🎬</a>\n'
+                    f'<a href="emoji/5886584791809134461">🎬</a>\n'
                     f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5 .</b>"
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'

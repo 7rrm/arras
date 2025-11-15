@@ -559,6 +559,7 @@ async def yt_audio_search(event):
     finally:
         remove_if_exists(audio_file)
 
+'''
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()
@@ -615,6 +616,8 @@ async def _(event): #Code by T.me/zzzzl1l
     except Exception as e:
         print(e)
 
+'''
+        
 
 # ================================================================================================ #
 # =========================================ردود الخاص================================================= #
@@ -909,3 +912,140 @@ async def yoot_auto_search(event):
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
         
+
+
+# كلاس التحليل المخصص لدعم الإيموجيات البريميوم
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
+# إعدادات التحكم
+video_settings = {
+    'admin_id': l313l.uid,  # أي دي المطور
+    'bot_username': '@V22BOT',  # البوت الجديد
+    'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
+}
+
+# دالة التحقق من التفعيل
+def is_video_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"video_enabled_{chat_id}") == "True"
+    return gvarstatus("video_enabled_private") == "True"
+
+# أوامر التفعيل والتعطيل
+@l313l.on(events.NewMessage(pattern=r'^\.تفعيل فيديو$'))
+async def enable_video(event):
+    if event.sender_id != video_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        addgvar("video_enabled_private", "True")
+        await event.reply("✓ تم تفعيل تحميل الفيديو في جميع الدردشات الخاصة")
+    else:
+        addgvar(f"video_enabled_{event.chat_id}", "True")
+        await event.reply(f"✓ تم تفعيل تحميل الفيديو في هذه المجموعة")
+
+@l313l.on(events.NewMessage(pattern=r'^\.تعطيل فيديو$'))
+async def disable_video(event):
+    if event.sender_id != video_settings['admin_id']:
+        return await event.delete()
+    
+    if event.is_private:
+        delgvar("video_enabled_private")
+        await event.reply("✗ تم تعطيل تحميل الفيديو في الدردشات الخاصة")
+    else:
+        delgvar(f"video_enabled_{event.chat_id}")
+        await event.reply(f"✗ تم تعطيل تحميل الفيديو في هذه المجموعة")
+
+# الأمر الرئيسي لتحميل الفيديو
+@l313l.on(events.NewMessage(pattern=r'^\.فيديو(?:\s|$)([\s\S]*)'))
+async def video_auto_search(event):
+    # التحقق من الصلاحيات
+    if event.sender_id != video_settings['admin_id']:
+        if event.is_private:
+            if not is_video_enabled():
+                return
+        else:
+            if not is_video_enabled(event.chat_id):
+                return
+    
+    query = event.pattern_match.group(1).strip()
+    if not query:
+        return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎فيديو + اسـم المقطـع المرئي")
+    
+    # الرد على الرسالة الأصلية برسالة "جار البحث"
+    search_msg = await event.reply("**╮ جـارِ البحث عـن الفيديـو ... 🎬♥️ ╰**")
+    
+    try:
+        # الانضمام للقنوات
+        for channel in video_settings['channels']:
+            try:
+                await event.client(JoinChannelRequest(channel))
+                await asyncio.sleep(1)
+            except Exception as e:
+                print(f"خطأ في الانضمام للقناة {channel}: {e}")
+        
+        # استخدام conversation للاستماع الفوري
+        async with event.client.conversation(video_settings['bot_username'], timeout=30) as conv:
+            # إرسال الرسالة للبوت
+            full_message = f"فيديو {query}"
+            await conv.send_message(full_message)
+            
+            # الانتظار للرد الأول (تأكيد الاستلام)
+            first_response = await conv.get_response()
+            
+            # الانتظار للمقطع المرئي مباشرة
+            video_response = await conv.get_response()
+            
+            if video_response.media:
+                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5890831539507302154">🎬</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                )
+                
+                # إرسال المقطع كرد على الرسالة الأصلية
+                await event.client.send_file(
+                    event.chat_id,
+                    video_response.media,
+                    caption=caption,
+                    parse_mode=CustomParseMode("html"),
+                    reply_to=event.message.id  # الرد على الرسالة الأصلية
+                )
+                
+                # حذف رسالة "جار البحث"
+                await search_msg.delete()
+                
+            else:
+                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+        
+    except asyncio.TimeoutError:
+        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+    except Exception as e:
+        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")

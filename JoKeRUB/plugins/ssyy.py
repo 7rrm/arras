@@ -845,9 +845,13 @@ async def disable_youtube(event):
         delgvar(f"youtube_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# الأمر الرئيسي لتحميل اليوتيوب
-@l313l.on(events.NewMessage(pattern=r'^\.يوت(?:\s|$)([\s\S]*)'))
+# الأمر الرئيسي لتحميل اليوتيوب - يعمل مع النقطة وبدونها في الخاص
+@l313l.on(events.NewMessage(pattern=r'^(\.يوت|يوت)(?:\s|$)([\s\S]*)'))
 async def yoot_auto_search(event):
+    # في المجموعات يتطلب النقطة، في الخاص يعمل مع وبدون
+    if not event.is_private and not event.pattern_match.group(1).startswith('.'):
+        return
+    
     # التحقق من الصلاحيات
     if event.sender_id != youtube_settings['admin_id']:
         if event.is_private:
@@ -857,7 +861,7 @@ async def yoot_auto_search(event):
             if not is_youtube_enabled(event.chat_id):
                 return
     
-    query = event.pattern_match.group(1).strip()
+    query = event.pattern_match.group(2).strip()
     if not query:
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎يوت + اسـم المقطـع الصـوتي")
     
@@ -911,56 +915,22 @@ async def yoot_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
-        
 
 
-from telethon import types, events
-from telethon.extensions import html, markdown
-from telethon.tl.functions.channels import JoinChannelRequest
-import asyncio
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-
-# كلاس التحليل المخصص لدعم الإيموجيات البريميوم
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
-# إعدادات التحكم
+# إعدادات التحكم للفيديو
 video_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
     'bot_username': '@V22BOT',  # البوت الجديد
     'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
 }
 
-# دالة التحقق من التفعيل
+# دالة التحقق من التفعيل للفيديو
 def is_video_enabled(chat_id=None):
     if chat_id:
         return gvarstatus(f"video_enabled_{chat_id}") == "True"
     return gvarstatus("video_enabled_private") == "True"
 
-# أوامر التفعيل والتعطيل
+# أوامر التفعيل والتعطيل للفيديو
 @l313l.on(events.NewMessage(pattern=r'^\.تفعيل فيديو$'))
 async def enable_video(event):
     if event.sender_id != video_settings['admin_id']:
@@ -985,9 +955,13 @@ async def disable_video(event):
         delgvar(f"video_enabled_{event.chat_id}")
         await event.reply(f"✗ تم تعطيل تحميل الفيديو في هذه المجموعة")
 
-# الأمر الرئيسي لتحميل الفيديو
-@l313l.on(events.NewMessage(pattern=r'^\.فيديو(?:\s|$)([\s\S]*)'))
+# الأمر الرئيسي لتحميل الفيديو - يعمل مع النقطة وبدونها في الخاص
+@l313l.on(events.NewMessage(pattern=r'^(\.فيديو|فيديو)(?:\s|$)([\s\S]*)'))
 async def video_auto_search(event):
+    # في المجموعات يتطلب النقطة، في الخاص يعمل مع وبدون
+    if not event.is_private and not event.pattern_match.group(1).startswith('.'):
+        return
+    
     # التحقق من الصلاحيات
     if event.sender_id != video_settings['admin_id']:
         if event.is_private:
@@ -997,14 +971,14 @@ async def video_auto_search(event):
             if not is_video_enabled(event.chat_id):
                 return
     
-    query = event.pattern_match.group(1).strip()
+    query = event.pattern_match.group(2).strip()
     if not query:
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎فيديو + اسـم المقطـع المرئي")
     
     # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
     search_msg = await event.client.send_message(
         event.chat_id,
-        '<a href="emoji/5974332403890523746">️🎵</a>',
+        '<a href="emoji/5974332403890523746">️</a>',
         parse_mode=CustomParseMode("html"),
         reply_to=event.message.id
     )

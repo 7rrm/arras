@@ -978,7 +978,7 @@ async def video_auto_search(event):
     # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
     search_msg = await event.client.send_message(
         event.chat_id,
-        '<a href="emoji/5974332403890523746">️</a>',
+        '<a href="emoji/5974332403890523746">️🎬</a>',
         parse_mode=CustomParseMode("html"),
         reply_to=event.message.id
     )

@@ -1,5 +1,6 @@
 import asyncio
 from telethon import events
+from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument
 from JoKeRUB import l313l
 
 plugin_category = "misc"
@@ -9,7 +10,7 @@ plugin_category = "misc"
     command=("حفظ كامل", plugin_category),
     info={
         "header": "نقل الرسائل من رسالة محددة إلى الأحدث في القناة.",
-        "description": "يحول الرسائل بدءًا من الرابط المحدد وحتى الأحدث، مع تجنب الرسائل الأقدم.",
+        "description": "يحول الرسائل بدءًا من الرابط المحدد وحتى الأحدث مع إخفاء المصدر.",
         "usage": "{tr}حفظ_كامل <رابط الرسالة>",
     },
 )
@@ -46,41 +47,56 @@ async def transfer_channel(event):
             if msg.id in transferred_messages:
                 continue
 
-            await asyncio.sleep(2)  # تأخير أقل لأن التحويل أسرع
+            await asyncio.sleep(2)  # تأخير بين الرسائل
 
             try:
                 # 1. معالجة الألبومات (الوسائط المجمعة)
                 if hasattr(msg, "grouped_id") and msg.grouped_id:
-                    # جمع كل الرسائل في الألبوم
-                    album_messages = []
-                    async for m in l313l.iter_messages(chat, min_id=msg.id - 5, max_id=msg.id + 5):
-                        if hasattr(m, "grouped_id") and m.grouped_id == msg.grouped_id:
-                            album_messages.append(m)
-                            transferred_messages.add(m.id)
+                    # جمع كل الوسائط في الألبوم
+                    media_files = []
+                    caption = ""
                     
-                    # تحويل الألبوم كامل
-                    if album_messages:
-                        await l313l.forward_messages(
-                            target_chat,
-                            album_messages,
-                            from_peer=chat
-                        )
-                        success += len(album_messages)
+                    async for m in l313l.iter_messages(chat, min_id=msg.id - 5, max_id=msg.id + 5):
+                        if hasattr(m, "grouped_id") and m.grouped_id == msg.grouped_id and m.media:
+                            # تحميل الوسائط لإعادة الإرسال بدون مصدر
+                            media_path = await l313l.download_media(m.media)
+                            media_files.append(media_path)
+                            if m.text and not caption:
+                                caption = m.text
+                            transferred_messages.add(m.id)
 
-                # 2. معالجة الرسائل الفردية
+                    # إرسال الألبوم كرسالة واحدة بدون مصدر
+                    if media_files:
+                        await l313l.send_file(
+                            target_chat,
+                            media_files,
+                            caption=caption,
+                        )
+                        success += 1
+
+                # 2. معالجة الرسائل الفردية بدون مصدر
                 else:
-                    await l313l.forward_messages(
-                        target_chat,
-                        msg.id,
-                        from_peer=chat
-                    )
+                    if msg.text and not msg.media:
+                        # إرسال النص مباشرة
+                        await l313l.send_message(target_chat, msg.text)
+                        success += 1
+                    elif msg.media:
+                        # تحميل وإعادة إرسال الوسائط بدون مصدر
+                        caption = msg.text if msg.text else ""
+                        media_path = await l313l.download_media(msg.media)
+                        await l313l.send_file(
+                            target_chat,
+                            media_path,
+                            caption=caption,
+                        )
+                        success += 1
+                    
                     transferred_messages.add(msg.id)
-                    success += 1
 
             except Exception as e:
-                await event.reply(f"**✎┊ خطأ في تحويل الرسالة {msg.id}: {str(e)}**")
+                await event.reply(f"**✎┊ خطأ في حفظ الرسالة {msg.id}: {str(e)}**")
 
-        await event.edit(f"**✎┊ تم تحويل {success} رسالة بنجاح بدءًا من الرسالة المحددة! ✅**")
+        await event.edit(f"**✎┊ تم حفظ {success} رسالة بنجاح بدون إظهار المصدر! ✅**")
     except Exception as e:
         await event.edit(f"**✎┊ حدث خطأ: {str(e)}**")
 

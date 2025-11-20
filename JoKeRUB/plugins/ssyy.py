@@ -776,8 +776,6 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
-
-    
 from telethon import types, events
 from telethon.extensions import html, markdown
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -875,49 +873,43 @@ async def yoot_auto_search(event):
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(1)
         
-        # إرسال الرسالة للبوت والحصول على معرف الرسالة
-        bot_entity = await event.client.get_entity("@h223bot")
-        sent_message = await event.client.send_message(bot_entity, f"يوت {query}")
-        
-        # مراقبة الردود المباشرة على رسالتنا
-        async for bot_message in event.client.iter_messages(
-            bot_entity, 
-            limit=20,
-            wait_time=30
-        ):
-            # التحقق إذا كان الرد على رسالتنا مباشرة
-            if (bot_message.sender_id == bot_entity.id and 
-                bot_message.is_reply and 
-                bot_message.reply_to_msg_id == sent_message.id):
+        # استخدام conversation للاستماع الفوري
+        async with event.client.conversation("@h223bot", timeout=30) as conv:
+            # إرسال الرسالة للبوت
+            full_message = f"يوت {query}"
+            await conv.send_message(full_message)
+            
+            # الانتظار للرد الأول (تأكيد الاستلام)
+            first_response = await conv.get_response()
+            
+            # الانتظار للمقطع الصوتي مباشرة
+            audio_response = await conv.get_response()
+            
+            if audio_response.media:
+                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                )
                 
-                if bot_message.media:
-                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
-                    caption = (
-                        f"<blockquote>\n"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
-                    )
-                    
-                    # إرسال المقطع كرد على الرسالة الأصلية
-                    await event.client.send_file(
-                        event.chat_id,
-                        bot_message.media,
-                        caption=caption,
-                        parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
-                    )
-                    
-                    await search_msg.delete()
-                    return
+                # إرسال المقطع كرد على الرسالة الأصلية
+                await event.client.send_file(
+                    event.chat_id,
+                    audio_response.media,
+                    caption=caption,
+                    parse_mode=CustomParseMode("html"),
+                    reply_to=event.message.id  # الرد على الرسالة الأصلية
+                )
                 
-                elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
-                    await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    return
-        
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+                # حذف رسالة "جار البحث"
+                await search_msg.delete()
+                
+            else:
+                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
@@ -986,7 +978,7 @@ async def video_auto_search(event):
     # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
     search_msg = await event.client.send_message(
         event.chat_id,
-        '<a href="emoji/5974332403890523746">️</a>',
+        '<a href="emoji/5974332403890523746">️🎬</a>',
         parse_mode=CustomParseMode("html"),
         reply_to=event.message.id
     )
@@ -1000,49 +992,43 @@ async def video_auto_search(event):
             except Exception as e:
                 print(f"خطأ في الانضمام للقناة {channel}: {e}")
         
-        # إرسال الرسالة للبوت والحصول على معرف الرسالة
-        bot_entity = await event.client.get_entity(video_settings['bot_username'])
-        sent_message = await event.client.send_message(bot_entity, f"فيديو {query}")
-        
-        # مراقبة الردود المباشرة على رسالتنا
-        async for bot_message in event.client.iter_messages(
-            bot_entity, 
-            limit=20,
-            wait_time=30
-        ):
-            # التحقق إذا كان الرد على رسالتنا مباشرة
-            if (bot_message.sender_id == bot_entity.id and 
-                bot_message.is_reply and 
-                bot_message.reply_to_msg_id == sent_message.id):
+        # استخدام conversation للاستماع الفوري
+        async with event.client.conversation(video_settings['bot_username'], timeout=30) as conv:
+            # إرسال الرسالة للبوت
+            full_message = f"فيديو {query}"
+            await conv.send_message(full_message)
+            
+            # الانتظار للرد الأول (تأكيد الاستلام)
+            first_response = await conv.get_response()
+            
+            # الانتظار للمقطع المرئي مباشرة
+            video_response = await conv.get_response()
+            
+            if video_response.media:
+                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5886584791809134461">🎬</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                )
                 
-                if bot_message.media:
-                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
-                    caption = (
-                        f"<blockquote>\n"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5886584791809134461">🎬</a>\n'
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
-                    )
-                    
-                    # إرسال المقطع كرد على الرسالة الأصلية
-                    await event.client.send_file(
-                        event.chat_id,
-                        bot_message.media,
-                        caption=caption,
-                        parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
-                    )
-                    
-                    await search_msg.delete()
-                    return
+                # إرسال المقطع كرد على الرسالة الأصلية
+                await event.client.send_file(
+                    event.chat_id,
+                    video_response.media,
+                    caption=caption,
+                    parse_mode=CustomParseMode("html"),
+                    reply_to=event.message.id  # الرد على الرسالة الأصلية
+                )
                 
-                elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
-                    await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    return
-        
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+                # حذف رسالة "جار البحث"
+                await search_msg.delete()
+                
+            else:
+                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")

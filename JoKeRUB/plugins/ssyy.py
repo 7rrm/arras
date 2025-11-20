@@ -874,21 +874,13 @@ async def yoot_auto_search(event):
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(1)
         
-        # إرسال الرسالة للبوت والحصول على الردود مباشرة
+        # إرسال الرسالة للبوت مباشرة بدون conversation
         bot_entity = await event.client.get_entity("@h223bot")
-        sent_message = await event.client.send_message(bot_entity, f"يوت {query}")
+        await event.client.send_message(bot_entity, f"يوت {query}")
         
-        # الانتظار للردود على رسالتنا مباشرة - أسرع طريقة
-        async for bot_message in event.client.iter_messages(
-            bot_entity, 
-            limit=10,
-            offset_id=sent_message.id - 1,  # ابدأ من قبل رسالتنا بقليل
-            wait_time=25
-        ):
-            if (bot_message.sender_id == bot_entity.id and 
-                bot_message.is_reply and 
-                bot_message.reply_to_msg_id == sent_message.id):
-                
+        # الانتظار لرد البوت باستخدام events
+        async for bot_message in event.client.iter_messages(bot_entity, limit=10, wait_time=30):
+            if bot_message.sender_id == bot_entity.id:
                 if bot_message.media:
                     # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
@@ -906,19 +898,15 @@ async def yoot_auto_search(event):
                         bot_message.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
+                        reply_to=event.message.id  # الرد على الرسالة الأصلية
                     )
                     
+                    # حذف رسالة "جار البحث"
                     await search_msg.delete()
-                    return
-                
-                # إذا كان رد البوت نصي (خطأ أو عدم وجود نتيجة)
-                elif any(word in bot_message.text for word in ["لم يتم", "error", "لا يوجد", "not found"]):
+                    break
+                elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    return
-        
-        # إذا لم يتم العثور على رد
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+                    break
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
@@ -1001,21 +989,13 @@ async def video_auto_search(event):
             except Exception as e:
                 print(f"خطأ في الانضمام للقناة {channel}: {e}")
         
-        # إرسال الرسالة للبوت والحصول على الردود مباشرة
+        # إرسال الرسالة للبوت مباشرة بدون conversation
         bot_entity = await event.client.get_entity(video_settings['bot_username'])
-        sent_message = await event.client.send_message(bot_entity, f"فيديو {query}")
+        await event.client.send_message(bot_entity, f"فيديو {query}")
         
-        # الانتظار للردود على رسالتنا مباشرة - أسرع طريقة
-        async for bot_message in event.client.iter_messages(
-            bot_entity, 
-            limit=10,
-            offset_id=sent_message.id - 1,  # ابدأ من قبل رسالتنا بقليل
-            wait_time=25
-        ):
-            if (bot_message.sender_id == bot_entity.id and 
-                bot_message.is_reply and 
-                bot_message.reply_to_msg_id == sent_message.id):
-                
+        # الانتظار لرد البوت باستخدام events
+        async for bot_message in event.client.iter_messages(bot_entity, limit=10, wait_time=30):
+            if bot_message.sender_id == bot_entity.id:
                 if bot_message.media:
                     # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
@@ -1033,19 +1013,15 @@ async def video_auto_search(event):
                         bot_message.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
+                        reply_to=event.message.id  # الرد على الرسالة الأصلية
                     )
                     
+                    # حذف رسالة "جار البحث"
                     await search_msg.delete()
-                    return
-                
-                # إذا كان رد البوت نصي (خطأ أو عدم وجود نتيجة)
-                elif any(word in bot_message.text for word in ["لم يتم", "error", "لا يوجد", "not found"]):
+                    break
+                elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    return
-        
-        # إذا لم يتم العثور على رد
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+                    break
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")

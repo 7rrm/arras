@@ -492,6 +492,7 @@ async def Hussein(event):
 
 from telethon import events
 import random
+import html
 
 # مجموعة الاقتباسات بنفس النمط مع التشكيل
 messages_collection = [
@@ -509,8 +510,15 @@ messages_collection = [
     "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ ."
 ]
 
+# أي دي المطور (لا يعمل معه)
+admin_id = l313l.uid
+
 @l313l.on(events.NewMessage(chats=[3393247189]))  # الكروب المحدد
 async def messages_handler(event):
+    # التحقق إذا كان المرسل هو المطور
+    if event.sender_id == admin_id:
+        return  # لا يعمل مع المطور
+    
     # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
     message_text = event.message.text.strip()
     
@@ -521,5 +529,8 @@ async def messages_handler(event):
         # اختيار رسالة عشوائية من المجموعة
         selected_message = random.choice(messages_collection)
         
+        # إضافة الاقتباس فقط
+        caption = f"<blockquote>\n{selected_message}\n</blockquote>"
+        
         # إرسال الرسالة في المحادثة بدون الرد على الشخص
-        await event.respond(selected_message)
+        await event.respond(caption, parse_mode='html')

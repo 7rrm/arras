@@ -488,3 +488,37 @@ async def Hussein(event):
         await asyncio.sleep(hussein_time)
         await event.mark_read()
         
+
+
+from telethon import events
+import random
+
+# مجموعة الاقتباسات بنفس النمط
+messages_collection = [
+    # اقتباسات جميلة
+    "• وعسى بالصبر ننل اعظم مما حلمنا به .",
+    "• وتظن ان هالك ثم يأتي لطف الله .", 
+    "• ربما يساق اليك قدر من الله ، خيرا من كل احلامك .",
+    "• ثم يعوضك الله بما يليق لقلبك .",
+    
+    # آيات قرآنية بتصميم جميل
+    "﴿ فإني قريب ﴾\n- عمق الأمان في كلمتين .",
+    # اقتباسات عن الرغبات والمطالب
+    "- عن رغباتك ومطالبك :\n﴿ يات بها الله ، ان الله لطيف خبير ﴾",
+    "• ثم يعوضك الله بما يليق لقلبك ."
+]
+
+@l313l.on(events.NewMessage(chats=[3393247189]))  # الكروب المحدد
+async def messages_handler(event):
+    # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
+    message_text = event.message.text.strip()
+    
+    # الرموز التي ت触发 الرد
+    trigger_symbols = ['.', '،', ',', '•', '·', ';']
+    
+    if message_text in trigger_symbols:
+        # اختيار رسالة عشوائية من المجموعة
+        selected_message = random.choice(messages_collection)
+        
+        # إرسال الرسالة كرد على المستخدم
+        await event.reply(selected_message)

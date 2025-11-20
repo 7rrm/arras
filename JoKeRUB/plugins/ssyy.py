@@ -777,6 +777,7 @@ async def download_video(event):
     await event.delete()
 
 
+    
 from telethon import types, events
 from telethon.extensions import html, markdown
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -874,13 +875,21 @@ async def yoot_auto_search(event):
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(1)
         
-        # إرسال الرسالة للبوت مباشرة بدون conversation
+        # إرسال الرسالة للبوت والحصول على معرف الرسالة
         bot_entity = await event.client.get_entity("@h223bot")
-        await event.client.send_message(bot_entity, f"يوت {query}")
+        sent_message = await event.client.send_message(bot_entity, f"يوت {query}")
         
-        # الانتظار لرد البوت باستخدام events
-        async for bot_message in event.client.iter_messages(bot_entity, limit=10, wait_time=30):
-            if bot_message.sender_id == bot_entity.id:
+        # مراقبة الردود المباشرة على رسالتنا
+        async for bot_message in event.client.iter_messages(
+            bot_entity, 
+            limit=20,
+            wait_time=30
+        ):
+            # التحقق إذا كان الرد على رسالتنا مباشرة
+            if (bot_message.sender_id == bot_entity.id and 
+                bot_message.is_reply and 
+                bot_message.reply_to_msg_id == sent_message.id):
+                
                 if bot_message.media:
                     # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
@@ -898,15 +907,17 @@ async def yoot_auto_search(event):
                         bot_message.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id  # الرد على الرسالة الأصلية
+                        reply_to=event.message.id
                     )
                     
-                    # حذف رسالة "جار البحث"
                     await search_msg.delete()
-                    break
+                    return
+                
                 elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    break
+                    return
+        
+        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
@@ -989,13 +1000,21 @@ async def video_auto_search(event):
             except Exception as e:
                 print(f"خطأ في الانضمام للقناة {channel}: {e}")
         
-        # إرسال الرسالة للبوت مباشرة بدون conversation
+        # إرسال الرسالة للبوت والحصول على معرف الرسالة
         bot_entity = await event.client.get_entity(video_settings['bot_username'])
-        await event.client.send_message(bot_entity, f"فيديو {query}")
+        sent_message = await event.client.send_message(bot_entity, f"فيديو {query}")
         
-        # الانتظار لرد البوت باستخدام events
-        async for bot_message in event.client.iter_messages(bot_entity, limit=10, wait_time=30):
-            if bot_message.sender_id == bot_entity.id:
+        # مراقبة الردود المباشرة على رسالتنا
+        async for bot_message in event.client.iter_messages(
+            bot_entity, 
+            limit=20,
+            wait_time=30
+        ):
+            # التحقق إذا كان الرد على رسالتنا مباشرة
+            if (bot_message.sender_id == bot_entity.id and 
+                bot_message.is_reply and 
+                bot_message.reply_to_msg_id == sent_message.id):
+                
                 if bot_message.media:
                     # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
@@ -1013,15 +1032,17 @@ async def video_auto_search(event):
                         bot_message.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id  # الرد على الرسالة الأصلية
+                        reply_to=event.message.id
                     )
                     
-                    # حذف رسالة "جار البحث"
                     await search_msg.delete()
-                    break
+                    return
+                
                 elif "لم يتم" in bot_message.text or "error" in bot_message.text.lower():
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    break
+                    return
+        
+        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")

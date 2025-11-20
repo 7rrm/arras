@@ -523,7 +523,7 @@ async def messages_handler(event):
     message_text = event.message.text.strip()
     
     # الرموز التي ت触发 الرد
-    trigger_symbols = ['.', '،', ',', '•', '·', ';']
+    trigger_symbols = ['.', '،', ',', '•', '·', '-']
     
     if message_text in trigger_symbols:
         # اختيار رسالة عشوائية من المجموعة

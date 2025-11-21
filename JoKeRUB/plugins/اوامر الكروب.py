@@ -1296,7 +1296,7 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 # قاموس لحفظ نتائج اللاعبين
 games = {}
 
-@zedub.on(events.NewMessage(pattern='.نرد'))
+@l313l.on(events.NewMessage(pattern='.نرد'))
 async def start_game(event):
     """
     تبدأ اللعبة عند إرسال .لعبة النرد
@@ -1365,7 +1365,7 @@ async def end_game(event):
     ينهي اللعبة الحالية في الدردشة ويعرض النتائج.
     """
     user = await event.get_sender()
-    if user.id != zedub.uid:
+    if user.id != l313l.uid:
         return
     if gvarstatus("dice_game") is None:
         return

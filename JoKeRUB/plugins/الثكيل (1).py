@@ -500,13 +500,15 @@ plugin_category = "utils"
 # مجموعة الاقتباسات
 messages_collection = [
     "• وَعَسَىٰ بِالصَّبْرِ نَنَالُ أَعْظَمَ مِمَّا حَلَمْنَا بِهِ .",
-    "• وَتَظُنُّ أَنَّ هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
+    "• وَتَظُنُّ أَنَّك هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
     "• رُبَّمَا يُسَاقُ إِلَيْكَ قَدَرٌ مِنَ اللَّهِ ، خَيْرًا مِنْ كُلِّ أَحْلَامِكَ .",
     "• ثُمَّ يُعَوِّضُكَ اللَّهُ بِمَا يَلِيقُ لِقَلْبِكَ .",
     "﴿ فَإِنِّي قَرِيبٌ ﴾\n- عُمْقُ الْأَمَانِ فِي كَلِمَتَيْنِ .",
     "- عَنْ رَغَبَاتِكَ وَمَطَالِبِكَ :\n﴿ يَأْتِ بِهَا اللَّهُ ، إِنَّ اللَّهَ لَطِيفٌ خَبِيرٌ ﴾",
     "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ ."
 ]
+
+admin_id = l313l.uid
 
 def is_quotes_enabled(chat_id):
     """التحقق من تفعيل الاقتباسات في مجموعة معينة"""
@@ -534,22 +536,22 @@ async def enable_quotes(event):
             if chat_id > 0:
                 chat_id = int(f"-100{chat_id}")
         except ValueError:
-            return await edit_delete(event, "**᯽︙ رقم المجموعة غير صحيح!**")
+            return await edit_delete(event, "**✧︙ رقم المجموعة غير صحيح!**")
     else:
         chat_id = event.chat_id
     
     # التحقق إذا كانت القيمة موجودة بالفعل
     if is_quotes_enabled(chat_id):
-        return await edit_delete(event, f"**᯽︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
+        return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
     
     # إضافة القيمة
     addgvar(f"quotes_{chat_id}", "true")
     
     # التحقق من التفعيل الفعلي
     if is_quotes_enabled(chat_id):
-        await edit_delete(event, f"**᯽︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
+        await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
     else:
-        await edit_delete(event, f"**᯽︙ فشل في تفعيل الاقتباسات!**")
+        await edit_delete(event, f"**✧︙ فشل في تفعيل الاقتباسات!**")
 
 @l313l.ar_cmd(
     pattern="تعطيل الاقتباس(?:\s+(-?\d+))?$",
@@ -573,50 +575,23 @@ async def disable_quotes(event):
             if chat_id > 0:
                 chat_id = int(f"-100{chat_id}")
         except ValueError:
-            return await edit_delete(event, "**᯽︙ رقم المجموعة غير صحيح!**")
+            return await edit_delete(event, "**✧︙ رقم المجموعة غير صحيح!**")
     else:
         chat_id = event.chat_id
     
     # التحقق إذا كانت القيمة معطلة بالفعل
     if not is_quotes_enabled(chat_id):
-        return await edit_delete(event, f"**᯽︙ الاقتباسات معطلة بالفعل في المجموعة `{chat_id}`!**")
+        return await edit_delete(event, f"**✧︙ الاقتباسات معطلة بالفعل في المجموعة `{chat_id}`!**")
     
     # حذف القيمة
     delgvar(f"quotes_{chat_id}")
     
     # التحقق من التعطيل الفعلي
     if not is_quotes_enabled(chat_id):
-        await edit_delete(event, f"**᯽︙ تم تعطيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
+        await edit_delete(event, f"**✧︙ تم تعطيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
     else:
-        await edit_delete(event, f"**᯽︙ فشل في تعطيل الاقتباسات!**")
+        await edit_delete(event, f"**✧︙ فشل في تعطيل الاقتباسات!**")
 
-@l313l.ar_cmd(
-    pattern="حالة الاقتباس(?:\s+(-?\d+))?$",
-    command=("حالة الاقتباس", plugin_category),
-    info={
-        "header": "للتحقق من حالة الاقتباسات في مجموعة",
-        "usage": [
-            "{tr}حالة الاقتباس - للمجموعة الحالية",
-            "{tr}حالة الاقتباس <ايدي المجموعة> - لمجموعة محددة"
-        ],
-    },
-)
-async def quotes_status(event):
-    "للتحقق من حالة الاقتباسات"
-    chat_input = event.pattern_match.group(1)
-    
-    if chat_input:
-        try:
-            chat_id = int(chat_input)
-            if chat_id > 0:
-                chat_id = int(f"-100{chat_id}")
-        except ValueError:
-            return await edit_delete(event, "**᯽︙ رقم المجموعة غير صحيح!**")
-    else:
-        chat_id = event.chat_id
-    
-    status = "مفعلة" if is_quotes_enabled(chat_id) else "معطلة"
-    await edit_delete(event, f"**᯽︙ حالة الاقتباسات في المجموعة `{chat_id}`: {status}**")
 
 @l313l.on(events.NewMessage)
 async def quotes_handler(event):
@@ -631,14 +606,15 @@ async def quotes_handler(event):
         return
     
     # التحقق إذا كان المرسل هو البوت نفسه
-    if event.sender_id == (await event.client.get_me()).id:
-        return
+    if event.sender_id == admin_id:
+        return  # لا يعمل مع المطور
+    
     
     # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
     message_text = event.message.text.strip()
     
     # الرموز التي ت trigger الرد
-    trigger_symbols = ['.', '،', ',', '•', '·', ';']
+    trigger_symbols = ['.', '،', ',', '-']
     
     if message_text in trigger_symbols:
         # اختيار رسالة عشوائية من المجموعة

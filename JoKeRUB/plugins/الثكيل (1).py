@@ -492,45 +492,68 @@ async def Hussein(event):
 
 from telethon import events
 import random
-import html
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from . import edit_or_reply
 
-# مجموعة الاقتباسات بنفس النمط مع التشكيل
+# مجموعة الاقتباسات
 messages_collection = [
-    # اقتباسات جميلة
     "• وَعَسَىٰ بِالصَّبْرِ نَنَالُ أَعْظَمَ مِمَّا حَلَمْنَا بِهِ .",
-    "• وَتَظُنُّ أَنَّك هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
+    "• وَتَظُنُّ أَنَّ هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
     "• رُبَّمَا يُسَاقُ إِلَيْكَ قَدَرٌ مِنَ اللَّهِ ، خَيْرًا مِنْ كُلِّ أَحْلَامِكَ .",
     "• ثُمَّ يُعَوِّضُكَ اللَّهُ بِمَا يَلِيقُ لِقَلْبِكَ .",
-    
-    # آيات قرآنية بتصميم جميل
     "﴿ فَإِنِّي قَرِيبٌ ﴾\n- عُمْقُ الْأَمَانِ فِي كَلِمَتَيْنِ .",
-    
-    # اقتباسات عن الرغبات والمطالب
     "- عَنْ رَغَبَاتِكَ وَمَطَالِبِكَ :\n﴿ يَأْتِ بِهَا اللَّهُ ، إِنَّ اللَّهَ لَطِيفٌ خَبِيرٌ ﴾",
-    "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ ."
+    "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ .",
+    "• الْهَيْ بِعَلِيٍّ وَمَا خَابَ مَنْ تَوَسَّلَ بِعَلِيٍّ ."
 ]
 
-# أي دي المطور (لا يعمل معه)
-admin_id = l313l.uid
+# دالة التحقق من التفعيل
+def is_quotes_enabled(chat_id):
+    return gvarstatus(f"quotes_enabled_{chat_id}") == "True"
 
-@l313l.on(events.NewMessage(chats=[3020067846]))  # الكروب المحدد
-async def messages_handler(event):
+# أوامر التفعيل والتعطيل
+@l313l.ar_cmd(
+    pattern="تفعيل الاقتباس$",
+    command=("تفعيل الاقتباس", "bot"),
+    info={
+        "header": "تفعيل نظام الاقتباسات التلقائية",
+        "الاستخدام": "{tr}تفعيل الاقتباس",
+    },
+)
+async def enable_quotes(event):
+    chat_id = event.chat_id
+    addgvar(f"quotes_enabled_{chat_id}", "True")
+    await edit_or_reply(event, "**✓ تم تفعيل نظام الاقتباسات في هذه المجموعة**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الاقتباس$",
+    command=("تعطيل الاقتباس", "bot"),
+    info={
+        "header": "تعطيل نظام الاقتباسات التلقائية",
+        "الاستخدام": "{tr}تعطيل الاقتباس",
+    },
+)
+async def disable_quotes(event):
+    chat_id = event.chat_id
+    delgvar(f"quotes_enabled_{chat_id}")
+    await edit_or_reply(event, "**✗ تم تعطيل نظام الاقتباسات في هذه المجموعة**")
+
+# المراقبة للرسائل
+@l313l.on(events.NewMessage())
+async def quotes_handler(event):
+    # التحقق إذا كانت المجموعة مفعلة
+    if not is_quotes_enabled(event.chat_id):
+        return
+    
     # التحقق إذا كان المرسل هو المطور
-    if event.sender_id == admin_id:
-        return  # لا يعمل مع المطور
+    if event.sender_id == l313l.uid:
+        return
     
     # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
     message_text = event.message.text.strip()
     
-    # الرموز التي ت触发 الرد
-    trigger_symbols = ['.', '،', ',', '•', '·', '-']
+    trigger_symbols = ['.', '،', ',', '•', '·', ';']
     
     if message_text in trigger_symbols:
-        # اختيار رسالة عشوائية من المجموعة
         selected_message = random.choice(messages_collection)
-        
-        # إضافة الاقتباس فقط
-        caption = f"<blockquote>\n{selected_message}\n</blockquote>"
-        
-        # إرسال الرسالة في المحادثة بدون الرد على الشخص
-        await event.respond(caption, parse_mode='html')
+        await event.respond(selected_message)

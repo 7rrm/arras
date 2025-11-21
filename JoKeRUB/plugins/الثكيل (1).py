@@ -597,8 +597,7 @@ async def quotes_handler(event):
     chat_id = event.chat_id
     
     # التحقق من تفعيل الاقتباسات في هذه المجموعة
-    if not is_quotes_enabled(chat_id):
-        return
+    
     
     # التحقق إذا كان المرسل هو البوت نفسه
     if event.sender_id == (await event.client.get_me()).id:

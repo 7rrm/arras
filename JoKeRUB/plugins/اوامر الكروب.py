@@ -1290,23 +1290,19 @@ async def zed(event):
 
 from telethon import events
 from telethon.tl.types import InputMediaDice
-from random import randint
 from . import l313l
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # قاموس لحفظ نتائج اللاعبين
-#player_scores = {}
 games = {}
-#player_end = {}
 
-@l313l.on(events.NewMessage(pattern='.نرد'))
+@zedub.on(events.NewMessage(pattern='.نرد'))
 async def start_game(event):
     """
-    تبدأ اللعبة عند إرسال /start_game.
-    يحفظ معرف الدردشة الحالية كدلالة على بدء اللعبة في هذه الدردشة
+    تبدأ اللعبة عند إرسال .لعبة النرد
     """
     user = await event.get_sender()
-    if user.id != zedub.uid:
+    if user.id != l313l.uid:
         return
     global games
     chat_id = event.chat_id
@@ -1318,33 +1314,30 @@ async def start_game(event):
     if gvarstatus("name_game"):
         delgvar("name_game")
     addgvar("name_game", "🎲 لعبـة رمـي النـرد")
-    global player_scores
-    #player_scores = {}
     addgvar("dice_game", True)
     await event.reply("[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 🎲 لعبـة رمـي النـرد](t.me/ZThon)\n⋆─┄─┄─┄─┄─┄─┄─┄─⋆\n**- تم بـدء لعبـة رمـي النـرد .. بنجـاح ☑️\n- اللي بيلعـب يضغـط ع النـرد بالاسفـل **", link_preview=False)
     await event.delete()
     emoticon = "🎲"
     r = await event.reply(file=InputMediaDice(emoticon=emoticon))
 
-
 @l313l.on(events.NewMessage())
 async def handle_dice(event):
     """
-     يتفاعل مع رمي النرد في الدردشة التي بدأت فيها لعبة.
+    يتفاعل مع رمي النرد في الدردشة التي بدأت فيها لعبة.
     """
     global games
     chat_id = event.chat_id
-    #  التحقق من وجود لعبة في هذه الدردشة 
+    # التحقق من وجود لعبة في هذه الدردشة 
     if chat_id in games:
         sender = await event.get_sender()
         user_id = sender.id
         sender_name = f"{sender.first_name} {sender.last_name}" if sender.last_name else sender.first_name
-        #  للتأكد من أن الرسالة تحتوي على رمي نرد 
+        # للتأكد من أن الرسالة تحتوي على رمي نرد 
         if event.dice and event.dice.emoticon == '🎲':
             if gvarstatus("dice_game") is None:
                 return
             dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
+            # حفظ نتيجة اللاعب 
             if user_id not in games[chat_id]["players"]:
                 games[chat_id]["players"][user_id] = 0
                 games[chat_id]["players"][user_id] += dice_value
@@ -1365,7 +1358,6 @@ async def handle_dice(event):
                 await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• رمى النرد وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
             else:
                 await event.delete()
-        
 
 @l313l.on(events.NewMessage(pattern='.النتيجه'))
 async def end_game(event):
@@ -1373,7 +1365,7 @@ async def end_game(event):
     ينهي اللعبة الحالية في الدردشة ويعرض النتائج.
     """
     user = await event.get_sender()
-    if user.id != l313l.uid:
+    if user.id != zedub.uid:
         return
     if gvarstatus("dice_game") is None:
         return
@@ -1386,19 +1378,18 @@ async def end_game(event):
             await event.reply("**- لم يشارك أحد في اللعبة بعد.**")
             return
 
-        #  إيجاد أعلى نتيجة 
+        # إيجاد أعلى نتيجة 
         max_score = max(games[chat_id]["players"].values())
 
-        #  إيجاد جميع الفائزين (الذين حصلوا على أعلى نتيجة)
+        # إيجاد جميع الفائزين (الذين حصلوا على أعلى نتيجة)
         winners = [user_id for user_id, score in games[chat_id]["players"].items() if score == max_score]
 
-        #  بناء رسالة النتائج 
-        name_game = gvarstatus("name_game") if gvarstatus("name_game") else "🕹 العـاب المشاركـة الجماعيـة"
+        # بناء رسالة النتائج 
+        name_game = gvarstatus("name_game") if gvarstatus("name_game") else "🎲 لعبـة رمـي النـرد"
         results_message = f"ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 {name_game}\n⋆─┄─┄─┄─┄─┄─┄─┄─⋆\n"
         for user_id, score in games[chat_id]["players"].items():
             user_entity = (await l313l.get_entity(user_id))
             user_name = f"{user_entity.first_name} {user_entity.last_name}" if user_entity.last_name else user_entity.first_name
-            #score = str(score)  #  لا حاجة للتحويل  إلى  رموز  هنا
             if score == 1:
                 score = "❶"
             elif score == 2:
@@ -1415,7 +1406,7 @@ async def end_game(event):
                 pass
             results_message += f"**• اللاعب ⇐**  {user_name} | **عـدد النقـاط ⇐** {score}\n"
 
-        #  إضافة  أسماء  الفائزين 
+        # إضافة أسماء الفائزين 
         if len(winners) == 1:
             winner_entity = (await l313l.get_entity(winners[0]))
             winner_name = f"{winner_entity.first_name} {winner_entity.last_name}" if winner_entity.last_name else winner_entity.first_name
@@ -1440,7 +1431,6 @@ async def end_game(event):
                 winner_entity = (await l313l.get_entity(winner_id))
                 winner_name = f"**• الفائـز ⇐** {winner_entity.first_name} {winner_entity.last_name}" if winner_entity.last_name else winner_entity.first_name
                 results_message += f"\n{winner_name}"
-            #results_message = results_message[:-2]  #  إزالة  الفاصلة  والفراغ  الإضافيين  في  النهاية
             if max_score == 1:
                 max_score = "❶"
             elif max_score == 2:
@@ -1464,30 +1454,18 @@ async def end_game(event):
         await event.reply(results_message, link_preview=False)
         await event.delete()
     else:
-        await event.reply("**- لا يوجد لعبة جماعيه في هذه الدردشة ❌**\n**- لـ بـدء لعبـة جماعية جديـدة 🎮**\n**- ارسـل الامـر** ( `.العاب الجماعي` ) 🕹")
-
+        await event.reply("**- لا يوجد لعبة نرد في هذه الدردشة ❌**\n**- لـ بـدء لعبـة النرد 🎲**\n**- ارسـل الامـر** ( `.لعبة النرد` )")
 
 ZelzalGM_cmd = (
-"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 🎮 العـاب المشاركـة الجماعيـة](t.me/ZThon)\n"
+"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 🎲 لعبـة رمـي النـرد](t.me/ZThon)\n"
 "**⋆─┄─┄─┄─┄•┄─┄─┄─┄─⋆**\n"
-"**⌖ قائمـة 6 العـاب مشاركـة جماعيـة ممطروقـه 🪁**\n"
-"**⌖ تقبـل مشاركـة عـدد لامحـدود مـن اللاعبيـن 🤼‍♀**\n"
-"**⌖ لـ اول مـرة ع سـورس يـوزر بـوت 🥇**\n"
-"**⌖ تستطيـع لعبها فـي الخاص او المجموعـات مـع أصدقائـك 🕹**\n\n"
-"  ❶ **⪼**  `.لعبة النرد`\n"
-"**⪼ لعبـة رمـي النـرد 🎲 الجديـدة اكثـر نقطـه 6 ⛳️**\n\n"
-"  ❷ **⪼**  `.لعبة السهام`\n"
-"**⪼ لعبـة رمـي السهـام 🎯 أعلـى نقطـه فيها 5 نقـاط 🏹**\n\n"
-"  ❸ **⪼**  `.لعبة الكرة`\n"
-"**⪼ لعبـة تسديـد كـرة القـدم ⚽️ أعلـى نقطـه فيها 5 نقـاط 🥅**\n\n"
-"  ❹ **⪼**  `.لعبة السلة`\n"
-"**⪼ لعبـة رمـي كـرة السلة 🏀 أعلـى نقطـه فيها 5 نقـاط ⛹🏻‍♂**\n\n"
-"  ❺ **⪼**  `.لعبة البولينج`\n"
-"**⪼ لعبـة رمـي كـرة البولينـج 🎳 أعلـى نقطـه فيها 6 نقـاط 🤽‍♀**\n\n"
-"  ❻ **⪼**  `.لعبة الحظ`\n"
-"**⪼ لعبـة الحـظ 🎰 أعلـى نقطـه فيها 64 نقطـه 🎟**\n\n"
+"**⌖ لعبـة رمـي النـرد 🎲 الجديـدة اكثـر نقطـه 6 ⛳️**\n\n"
+"**• الامـر ⇐**  `.لعبة النرد`\n"
+"**⪼ لـ بـدء لعبـة رمـي النـرد 🎲**\n\n"
+"**• الامـر ⇐**  `.النتيجه`\n"
+"**⪼ لـ إنهـاء اللعبـه وعـرض النتائـج 🏆**\n"
 )
 
 @l313l.ar_cmd(pattern="العاب المشاركة")
-async def ganez(event):
+async def game_info(event):
     await edit_or_reply(event, ZelzalGM_cmd, link_preview=False)

@@ -1365,115 +1365,129 @@ async def handle_dice(event):
                 await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• رمى النرد وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
             else:
                 await event.delete()
-        if event.dice and event.dice.emoticon == '🎯':
-            if gvarstatus("dice_game") is None:
-                return
-            dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
-            if user_id not in games[chat_id]["players"]:
-                games[chat_id]["players"][user_id] = 0
-                games[chat_id]["players"][user_id] += dice_value
-                if dice_value == 1:
-                    dice_value = "❶"
-                elif dice_value == 2:
-                    dice_value = "❷"
-                elif dice_value == 3:
-                    dice_value = "❸"
-                elif dice_value == 4:
-                    dice_value = "❹"
-                elif dice_value == 5:
-                    dice_value = "❺"
-                elif dice_value == 6:
-                    dice_value = "❻"
-                else:
-                    pass
-                await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• رمى السهم وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
+        
+
+@l313l.on(events.NewMessage(pattern='.النتيجه'))
+async def end_game(event):
+    """
+    ينهي اللعبة الحالية في الدردشة ويعرض النتائج.
+    """
+    user = await event.get_sender()
+    if user.id != l313l.uid:
+        return
+    if gvarstatus("dice_game") is None:
+        return
+    global games
+    chat_id = event.chat_id
+
+    # التحقق من وجود لعبة في هذه الدردشة
+    if chat_id in games:
+        if not games[chat_id]["players"]:
+            await event.reply("**- لم يشارك أحد في اللعبة بعد.**")
+            return
+
+        #  إيجاد أعلى نتيجة 
+        max_score = max(games[chat_id]["players"].values())
+
+        #  إيجاد جميع الفائزين (الذين حصلوا على أعلى نتيجة)
+        winners = [user_id for user_id, score in games[chat_id]["players"].items() if score == max_score]
+
+        #  بناء رسالة النتائج 
+        name_game = gvarstatus("name_game") if gvarstatus("name_game") else "🕹 العـاب المشاركـة الجماعيـة"
+        results_message = f"ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 {name_game}\n⋆─┄─┄─┄─┄─┄─┄─┄─⋆\n"
+        for user_id, score in games[chat_id]["players"].items():
+            user_entity = (await l313l.get_entity(user_id))
+            user_name = f"{user_entity.first_name} {user_entity.last_name}" if user_entity.last_name else user_entity.first_name
+            #score = str(score)  #  لا حاجة للتحويل  إلى  رموز  هنا
+            if score == 1:
+                score = "❶"
+            elif score == 2:
+                score = "❷"
+            elif score == 3:
+                score = "❸"
+            elif score == 4:
+                score = "❹"
+            elif score == 5:
+                score = "❺"
+            elif score == 6:
+                score = "❻"
             else:
-                await event.delete()
-        if event.dice and event.dice.emoticon == '🏀':
-            if gvarstatus("dice_game") is None:
-                return
-            dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
-            if user_id not in games[chat_id]["players"]:
-                games[chat_id]["players"][user_id] = 0
-                games[chat_id]["players"][user_id] += dice_value
-                if dice_value == 1:
-                    dice_value = "❶"
-                elif dice_value == 2:
-                    dice_value = "❷"
-                elif dice_value == 3:
-                    dice_value = "❸"
-                elif dice_value == 4:
-                    dice_value = "❹"
-                elif dice_value == 5:
-                    dice_value = "❺"
-                #elif dice_value == 6:
-                    #dice_value = "❻"
-                else:
-                    pass
-                await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• رمى كرة السلة وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
+                pass
+            results_message += f"**• اللاعب ⇐**  {user_name} | **عـدد النقـاط ⇐** {score}\n"
+
+        #  إضافة  أسماء  الفائزين 
+        if len(winners) == 1:
+            winner_entity = (await l313l.get_entity(winners[0]))
+            winner_name = f"{winner_entity.first_name} {winner_entity.last_name}" if winner_entity.last_name else winner_entity.first_name
+            if max_score == 1:
+                max_score = "❶"
+            elif max_score == 2:
+                max_score = "❷"
+            elif max_score == 3:
+                max_score = "❸"
+            elif max_score == 4:
+                max_score = "❹"
+            elif max_score == 5:
+                max_score = "❺"
+            elif max_score == 6:
+                max_score = "❻"
             else:
-                await event.delete()
-        if event.dice and event.dice.emoticon == '⚽️':
-            if gvarstatus("dice_game") is None:
-                return
-            await asyncio.sleep(2)
-            dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
-            if user_id not in games[chat_id]["players"]:
-                games[chat_id]["players"][user_id] = 0
-                games[chat_id]["players"][user_id] += dice_value
-                if dice_value == 1:
-                    dice_value = "❶"
-                elif dice_value == 2:
-                    dice_value = "❷"
-                elif dice_value == 3:
-                    dice_value = "❸"
-                elif dice_value == 4:
-                    dice_value = "❹"
-                elif dice_value == 5:
-                    dice_value = "❺"
-                #elif dice_value == 6:
-                    #dice_value = "❻"
-                else:
-                    pass
-                await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• سدد كرة القدم وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
+                pass
+            results_message += f"\n\n**• الفـائـز هـو ⇐** {winner_name} | **بمجمـوع نقـاط ⇐** {max_score} 🏆"
+        else:
+            results_message += f"\n\n**• الفائـزيـن هـم:** "
+            for winner_id in winners:
+                winner_entity = (await l313l.get_entity(winner_id))
+                winner_name = f"**• الفائـز ⇐** {winner_entity.first_name} {winner_entity.last_name}" if winner_entity.last_name else winner_entity.first_name
+                results_message += f"\n{winner_name}"
+            #results_message = results_message[:-2]  #  إزالة  الفاصلة  والفراغ  الإضافيين  في  النهاية
+            if max_score == 1:
+                max_score = "❶"
+            elif max_score == 2:
+                max_score = "❷"
+            elif max_score == 3:
+                max_score = "❸"
+            elif max_score == 4:
+                max_score = "❹"
+            elif max_score == 5:
+                max_score = "❺"
+            elif max_score == 6:
+                max_score = "❻"
             else:
-                await event.delete()
-        if event.dice and event.dice.emoticon == '🎳':
-            if gvarstatus("dice_game") is None:
-                return
-            dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
-            if user_id not in games[chat_id]["players"]:
-                games[chat_id]["players"][user_id] = 0
-                games[chat_id]["players"][user_id] += dice_value
-                if dice_value == 1:
-                    dice_value = "❶"
-                elif dice_value == 2:
-                    dice_value = "❷"
-                elif dice_value == 3:
-                    dice_value = "❸"
-                elif dice_value == 4:
-                    dice_value = "❹"
-                elif dice_value == 5:
-                    dice_value = "❺"
-                elif dice_value == 6:
-                    dice_value = "❻"
-                else:
-                    pass
-                await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• رمى كرة البولينج وحصل على ⇐ ** {dice_value} **نقاط**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
-            else:
-                await event.delete()
-        if event.dice and event.dice.emoticon == '🎰':
-            if gvarstatus("dice_game") is None:
-                return
-            dice_value = event.dice.value
-            #  حفظ نتيجة اللاعب 
-            if user_id not in games[chat_id]["players"]:
-                games[chat_id]["players"][user_id] = 0
-                games[chat_id]["players"][user_id] += dice_value
-                await event.reply(f"**• اللاعب ⇐**  {sender_name}\n**• حرك عجلة الحظ وحصل على ⇐ ** {dice_value} **نقطه**\n\n**• انتظـر لـ حتى يتم إنهاء اللعبـه واختيار الفائـز**\n**• لـ إنهـاء اللعبـه ارسـل الامـر** ( `.النتيجه` )")
-            else:
-                await event.delete()
+                pass
+            results_message += f"\n**• نقـاط الفائـزيـن ⇐** {max_score} **نقطـه** 🏆"
+
+        # إزالة اللعبة من القائمة بعد نهايتها
+        del games[chat_id]
+        delgvar("dice_game")
+        delgvar("name_game")
+        await event.reply(results_message, link_preview=False)
+        await event.delete()
+    else:
+        await event.reply("**- لا يوجد لعبة جماعيه في هذه الدردشة ❌**\n**- لـ بـدء لعبـة جماعية جديـدة 🎮**\n**- ارسـل الامـر** ( `.العاب الجماعي` ) 🕹")
+
+
+ZelzalGM_cmd = (
+"[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 🎮 العـاب المشاركـة الجماعيـة](t.me/ZThon)\n"
+"**⋆─┄─┄─┄─┄•┄─┄─┄─┄─⋆**\n"
+"**⌖ قائمـة 6 العـاب مشاركـة جماعيـة ممطروقـه 🪁**\n"
+"**⌖ تقبـل مشاركـة عـدد لامحـدود مـن اللاعبيـن 🤼‍♀**\n"
+"**⌖ لـ اول مـرة ع سـورس يـوزر بـوت 🥇**\n"
+"**⌖ تستطيـع لعبها فـي الخاص او المجموعـات مـع أصدقائـك 🕹**\n\n"
+"  ❶ **⪼**  `.لعبة النرد`\n"
+"**⪼ لعبـة رمـي النـرد 🎲 الجديـدة اكثـر نقطـه 6 ⛳️**\n\n"
+"  ❷ **⪼**  `.لعبة السهام`\n"
+"**⪼ لعبـة رمـي السهـام 🎯 أعلـى نقطـه فيها 5 نقـاط 🏹**\n\n"
+"  ❸ **⪼**  `.لعبة الكرة`\n"
+"**⪼ لعبـة تسديـد كـرة القـدم ⚽️ أعلـى نقطـه فيها 5 نقـاط 🥅**\n\n"
+"  ❹ **⪼**  `.لعبة السلة`\n"
+"**⪼ لعبـة رمـي كـرة السلة 🏀 أعلـى نقطـه فيها 5 نقـاط ⛹🏻‍♂**\n\n"
+"  ❺ **⪼**  `.لعبة البولينج`\n"
+"**⪼ لعبـة رمـي كـرة البولينـج 🎳 أعلـى نقطـه فيها 6 نقـاط 🤽‍♀**\n\n"
+"  ❻ **⪼**  `.لعبة الحظ`\n"
+"**⪼ لعبـة الحـظ 🎰 أعلـى نقطـه فيها 64 نقطـه 🎟**\n\n"
+)
+
+@l313l.ar_cmd(pattern="العاب المشاركة")
+async def ganez(event):
+    await edit_or_reply(event, ZelzalGM_cmd, link_preview=False)

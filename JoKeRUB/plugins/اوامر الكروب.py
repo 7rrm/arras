@@ -1299,7 +1299,7 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 games = {}
 #player_end = {}
 
-@l313l.on(events.NewMessage(pattern='.لعبة النرد'))
+@l313l.on(events.NewMessage(pattern='.نرد'))
 async def start_game(event):
     """
     تبدأ اللعبة عند إرسال /start_game.

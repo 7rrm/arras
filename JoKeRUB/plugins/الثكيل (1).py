@@ -489,3 +489,103 @@ async def Hussein(event):
         await event.mark_read()
         
 
+from telethon import events
+import random
+from JoKeRUB import l313l
+from ..core.managers import edit_delete
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+plugin_category = "utils"
+
+# مجموعة الاقتباسات
+messages_collection = [
+    "• وَعَسَىٰ بِالصَّبْرِ نَنَالُ أَعْظَمَ مِمَّا حَلَمْنَا بِهِ .",
+    "• وَتَظُنُّ أَنَّ هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
+    "• رُبَّمَا يُسَاقُ إِلَيْكَ قَدَرٌ مِنَ اللَّهِ ، خَيْرًا مِنْ كُلِّ أَحْلَامِكَ .",
+    "• ثُمَّ يُعَوِّضُكَ اللَّهُ بِمَا يَلِيقُ لِقَلْبِكَ .",
+    "﴿ فَإِنِّي قَرِيبٌ ﴾\n- عُمْقُ الْأَمَانِ فِي كَلِمَتَيْنِ .",
+    "- عَنْ رَغَبَاتِكَ وَمَطَالِبِكَ :\n﴿ يَأْتِ بِهَا اللَّهُ ، إِنَّ اللَّهَ لَطِيفٌ خَبِيرٌ ﴾",
+    "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ ."
+]
+
+@l313l.ar_cmd(
+    pattern="تفعيل الاقتباس(?:\\s+(\\d+))?$",
+    command=("تفعيل الاقتباس", plugin_category),
+    info={
+        "header": "لتشغيل ميزة الاقتباسات في مجموعة محددة",
+        "usage": [
+            "{tr}تفعيل الاقتباس - للتشغيل في المجموعة الحالية",
+            "{tr}تفعيل الاقتباس <ايدي المجموعة> - للتشغيل في مجموعة محددة"
+        ],
+    },
+)
+async def enable_quotes(event):
+    "لتشغيل الاقتباسات"
+    chat_id = event.pattern_match.group(1)
+    if not chat_id:
+        chat_id = event.chat_id
+    else:
+        chat_id = int(chat_id)
+    
+    if gvarstatus(f"quotes_{chat_id}") == "true":
+        return await edit_delete(event, "**᯽︙ الاقتباسات مفعلة بالفعل في هذه المجموعة!**")
+    
+    addgvar(f"quotes_{chat_id}", "true")
+    await edit_delete(event, f"**᯽︙ تم تفعيل الاقتباسات في المجموعة بنجاح ✓**")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الاقتباس(?:\\s+(\\d+))?$",
+    command=("تعطيل الاقتباس", plugin_category),
+    info={
+        "header": "لإيقاف ميزة الاقتباسات في مجموعة محددة",
+        "usage": [
+            "{tr}تعطيل الاقتباس - للإيقاف في المجموعة الحالية", 
+            "{tr}تعطيل الاقتباس <ايدي المجموعة> - للإيقاف في مجموعة محددة"
+        ],
+    },
+)
+async def disable_quotes(event):
+    "لإيقاف الاقتباسات"
+    chat_id = event.pattern_match.group(1)
+    if not chat_id:
+        chat_id = event.chat_id
+    else:
+        chat_id = int(chat_id)
+    
+    if gvarstatus(f"quotes_{chat_id}") != "true":
+        return await edit_delete(event, "**᯽︙ الاقتباسات معطلة بالفعل في هذه المجموعة!**")
+    
+    delgvar(f"quotes_{chat_id}")
+    await edit_delete(event, f"**᯽︙ تم تعطيل الاقتباسات في المجموعة بنجاح ✓**")
+
+@l313l.on(events.NewMessage)
+async def quotes_handler(event):
+    # التحقق من أن الرسالة في مجموعة
+    if not event.is_group:
+        return
+    
+    chat_id = event.chat_id
+    
+    # التحقق من تفعيل الاقتباسات في هذه المجموعة
+    if gvarstatus(f"quotes_{chat_id}") != "true":
+        return
+    
+    # التحقق إذا كان المرسل هو البوت نفسه
+    if event.sender_id == (await event.client.get_me()).id:
+        return
+    
+    # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
+    message_text = event.message.text.strip()
+    
+    # الرموز التي ت trigger الرد
+    trigger_symbols = ['.', '،', ',', '•', '·', ';']
+    
+    if message_text in trigger_symbols:
+        # اختيار رسالة عشوائية من المجموعة
+        selected_message = random.choice(messages_collection)
+        
+        # إضافة الاقتباس فقط
+        caption = f"<blockquote>\n{selected_message}\n</blockquote>"
+        
+        # إرسال الرسالة في المحادثة بدون الرد على الشخص
+        await event.respond(caption, parse_mode='html')

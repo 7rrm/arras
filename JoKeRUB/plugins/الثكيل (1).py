@@ -508,6 +508,8 @@ messages_collection = [
     "• وَرَاءَ كُلِّ شَيْءٍ لَمْ يَكْتَمِلْ ، خَيْرًا أَرَادَهُ اللَّهُ لَكَ ."
 ]
 
+admin_id = l313l.uid
+
 def is_quotes_enabled(chat_id):
     """التحقق من تفعيل الاقتباسات في مجموعة معينة"""
     return gvarstatus(f"quotes_{chat_id}") == "true"
@@ -597,11 +599,13 @@ async def quotes_handler(event):
     chat_id = event.chat_id
     
     # التحقق من تفعيل الاقتباسات في هذه المجموعة
-    
+    if not is_quotes_enabled(chat_id):
+        return
     
     # التحقق إذا كان المرسل هو البوت نفسه
-    if event.sender_id == (await event.client.get_me()).id:
-        return
+    if event.sender_id == admin_id:
+        return  # لا يعمل مع المطور
+    
     
     # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
     message_text = event.message.text.strip()

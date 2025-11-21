@@ -1327,7 +1327,7 @@ async def start_game(event):
     r = await event.reply(file=InputMediaDice(emoticon=emoticon))
 
 
-@zedub.on(events.NewMessage())
+@l313l.on(events.NewMessage())
 async def handle_dice(event):
     """
      يتفاعل مع رمي النرد في الدردشة التي بدأت فيها لعبة.

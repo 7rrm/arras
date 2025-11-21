@@ -422,27 +422,15 @@ async def stop(event):
 
 from telethon.tl.types import InputMediaDice
 
-@l313l.on(events.NewMessage(pattern='.لعبة النرد'))
+@l313l.on(events.NewMessage(pattern='.نرد'))
 async def start_game(event):
     """
-    تبدأ اللعبة عند إرسال .لعبة النرد
+    يرسل النرد عند إرسال .نرد
     """
     user = await event.get_sender()
     if user.id != l313l.uid:
         return
-    global games
-    chat_id = event.chat_id
-    games[chat_id] = {
-        "players": {} 
-    }
-    if gvarstatus("dice_game"):
-        delgvar("dice_game")
-    if gvarstatus("name_game"):
-        delgvar("name_game")
-    addgvar("name_game", "🎲 لعبـة رمـي النـرد")
-    global player_scores
-    addgvar("dice_game", True)
-    await event.reply("[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗚𝗮𝗺𝗲 🎲 لعبـة رمـي النـرد](t.me/ZThon)\n⋆─┄─┄─┄─┄─┄─┄─┄─⋆\n**- تم بـدء لعبـة رمـي النـرد .. بنجـاح ☑️\n- اللي بيلعـب يضغـط ع النـرد بالاسفـل **", link_preview=False)
+    
     await event.delete()
     
     # إرسال النرد بالقيمة 6 دائماً

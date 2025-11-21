@@ -419,26 +419,3 @@ async def stop(event):
     stop_sending = True
     await event.reply("تم إيقاف إرسال كلمات الأغنية.")
 
-
-from telethon.tl.types import InputMediaDice
-
-@l313l.on(events.NewMessage(pattern='.نرد'))
-async def start_game(event):
-    """
-    يرسل النرد عند إرسال .نرد
-    """
-    user = await event.get_sender()
-    if user.id != l313l.uid:
-        return
-    
-    await event.delete()
-    
-    # إرسال النرد بالقيمة 6 دائماً
-    try:
-        emoticon = "🎲"
-        r = await event.reply(file=InputMediaDice(emoticon=emoticon, value=6))
-        print("✅ تم إرسال النرد بالقيمة 6")
-    except Exception as e:
-        print(f"❌ خطأ في إرسال النرد: {e}")
-        # إذا فشل، نرسل النرد العادي
-        r = await event.reply(file=InputMediaDice(emoticon=emoticon))

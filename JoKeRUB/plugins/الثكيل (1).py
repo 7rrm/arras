@@ -500,7 +500,7 @@ plugin_category = "utils"
 # مجموعة الاقتباسات
 messages_collection = [
     "• وَعَسَىٰ بِالصَّبْرِ نَنَالُ أَعْظَمَ مِمَّا حَلَمْنَا بِهِ .",
-    "• وَتَظُنُّ أَنَّك هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
+    "• وَتَظُنُّ أَنَّ هَالِكٌ ثُمَّ يَأْتِي لُطْفُ اللَّهِ .", 
     "• رُبَّمَا يُسَاقُ إِلَيْكَ قَدَرٌ مِنَ اللَّهِ ، خَيْرًا مِنْ كُلِّ أَحْلَامِكَ .",
     "• ثُمَّ يُعَوِّضُكَ اللَّهُ بِمَا يَلِيقُ لِقَلْبِكَ .",
     "﴿ فَإِنِّي قَرِيبٌ ﴾\n- عُمْقُ الْأَمَانِ فِي كَلِمَتَيْنِ .",
@@ -509,7 +509,7 @@ messages_collection = [
 ]
 
 @l313l.ar_cmd(
-    pattern="تفعيل الاقتباس(?:\\s+(\\d+))?$",
+    pattern="تفعيل الاقتباس(?:\s+(-?\d+))?$",
     command=("تفعيل الاقتباس", plugin_category),
     info={
         "header": "لتشغيل ميزة الاقتباسات في مجموعة محددة",
@@ -521,20 +521,27 @@ messages_collection = [
 )
 async def enable_quotes(event):
     "لتشغيل الاقتباسات"
-    chat_id = event.pattern_match.group(1)
-    if not chat_id:
-        chat_id = event.chat_id
+    chat_input = event.pattern_match.group(1)
+    
+    if chat_input:
+        try:
+            chat_id = int(chat_input)
+            # إذا كان الأيدي سالب (للمجموعات)
+            if chat_id < 0:
+                chat_id = int(f"-100{abs(chat_id)}")
+        except ValueError:
+            return await edit_delete(event, "**᯽︙ رقم المجموعة غير صحيح!**")
     else:
-        chat_id = int(chat_id)
+        chat_id = event.chat_id
     
     if gvarstatus(f"quotes_{chat_id}") == "true":
-        return await edit_delete(event, "**᯽︙ الاقتباسات مفعلة بالفعل في هذه المجموعة!**")
+        return await edit_delete(event, f"**᯽︙ الاقتباسات مفعلة بالفعل في المجموعة {chat_id}!**")
     
     addgvar(f"quotes_{chat_id}", "true")
-    await edit_delete(event, f"**᯽︙ تم تفعيل الاقتباسات في المجموعة بنجاح ✓**")
+    await edit_delete(event, f"**᯽︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
 
 @l313l.ar_cmd(
-    pattern="تعطيل الاقتباس(?:\\s+(\\d+))?$",
+    pattern="تعطيل الاقتباس(?:\s+(-?\d+))?$",
     command=("تعطيل الاقتباس", plugin_category),
     info={
         "header": "لإيقاف ميزة الاقتباسات في مجموعة محددة",
@@ -546,17 +553,24 @@ async def enable_quotes(event):
 )
 async def disable_quotes(event):
     "لإيقاف الاقتباسات"
-    chat_id = event.pattern_match.group(1)
-    if not chat_id:
-        chat_id = event.chat_id
+    chat_input = event.pattern_match.group(1)
+    
+    if chat_input:
+        try:
+            chat_id = int(chat_input)
+            # إذا كان الأيدي سالب (للمجموعات)
+            if chat_id < 0:
+                chat_id = int(f"-100{abs(chat_id)}")
+        except ValueError:
+            return await edit_delete(event, "**᯽︙ رقم المجموعة غير صحيح!**")
     else:
-        chat_id = int(chat_id)
+        chat_id = event.chat_id
     
     if gvarstatus(f"quotes_{chat_id}") != "true":
-        return await edit_delete(event, "**᯽︙ الاقتباسات معطلة بالفعل في هذه المجموعة!**")
+        return await edit_delete(event, f"**᯽︙ الاقتباسات معطلة بالفعل في المجموعة {chat_id}!**")
     
     delgvar(f"quotes_{chat_id}")
-    await edit_delete(event, f"**᯽︙ تم تعطيل الاقتباسات في المجموعة بنجاح ✓**")
+    await edit_delete(event, f"**᯽︙ تم تعطيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
 
 @l313l.on(events.NewMessage)
 async def quotes_handler(event):

@@ -1486,8 +1486,6 @@ from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 import asyncio
 import random
 
-PREMIUM_EMOJI_ID = "5210763312597326700"
-
 class CustomParseMode:
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
@@ -1850,11 +1848,11 @@ async def join_game(event):
     success = await game.add_player(event, user)
     if success:
         # استخدام الإيموجي البريميوم في الرسالة مع تنسيق HTML
-        message = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة </b><a href=\"emoji/{PREMIUM_EMOJI_ID}\">❤️</a>"
+        message = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة </b><a href=\"emoji/5357069174512303778\">✅</a>"
         await event.reply(message, parse_mode=CustomParseMode("html"))
     else:
         await event.reply("<b>❌ أنت مشترك بالفعل في اللعبة!</b>", parse_mode=CustomParseMode("html"))
-
+        
 @l313l.on(events.NewMessage(pattern='^(?i)n$'))
 async def end_game_command(event):
     """إنهاء اللعبة"""

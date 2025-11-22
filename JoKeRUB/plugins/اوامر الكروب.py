@@ -1842,13 +1842,13 @@ async def join_game(event):
     game = dice_games[chat_id]
     
     if game.game_active:
-        await event.reply("**❌ اللعبة已经开始， لا يمكن الانضمام الآن!**")
+        await event.reply("**❌ اللعبة جاريه， لا يمكن الانضمام الآن!**")
         return
     
     success = await game.add_player(event, user)
     if success:
-        # استخدام الإيموجي البريميوم في الرسالة
-        await event.reply(f"**⪼ تم انضمام** `{user.first_name}` **إلى اللعبة **<a href=\"emoji/5210763312597326700\">❤️</a>", parse_mode=CustomParseMode("html"))
+        # مباشر بدون متغير
+        await event.reply(f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة</b> <a href='emoji/5357069174512303778'>✅</a>", parse_mode='html')
     else:
         await event.reply("**❌ أنت مشترك بالفعل في اللعبة!**")
 

@@ -1563,7 +1563,7 @@ class DiceGame:
 
     async def start_round(self, event):
         """بدء جولة جديدة"""
-        # 🔥 التعديل الرئيسي: تصفير نقاط الجولة الحالية للجميع
+        # تصفير نقاط الجولة الحالية للجميع
         for user_id in self.players:
             self.players[user_id]["current_round_score"] = 0
             self.players[user_id]["dice_throws"] = []
@@ -1576,8 +1576,8 @@ class DiceGame:
         user_entity = await event.client.get_entity(first_player)
         user_name = self.players[first_player]["name"]
         
-        # إرسال رسالة جديدة بدون رد
-        await event.respond(f"**🎲 الجولة {self.current_round}**\n\nعَزيزي/تي {user_name}\nتم بدء اللعبة إرسل 3 مرات نرد")
+        # إرسال رسالة جديدة مع منشن
+        await event.respond(f"**🎲 الجولة {self.current_round}**\n\nعَزيزي/تي [{user_name}](tg://user?id={first_player})\nتم بدء اللعبة إرسل 3 مرات نرد")
 
     async def process_dice_throw(self, event, user_id, dice_value):
         """معالجة رمي النرد"""
@@ -1586,25 +1586,28 @@ class DiceGame:
         
         player = self.players[user_id]
         player["dice_throws"].append(dice_value)
-        player["current_round_score"] += dice_value  # 🔥 نضيف للنقاط الحالية فقط
+        player["current_round_score"] += dice_value  # نضيف للنقاط الحالية فقط
         self.waiting_for_dice["remaining_throws"] -= 1
         
-        # تحديث الرسالة المثبتة بعد كل رمية
-        await self.update_pinned_message(event)
+        # ❌ إزالة تحديث الرسالة المثبتة بعد كل رمية
+        # سنحدثها فقط عند انتهاء الجولة
         
         if self.waiting_for_dice["remaining_throws"] > 0:
             remaining = self.waiting_for_dice["remaining_throws"]
             user_name = player["name"]
-            # إرسال رسالة جديدة بدون رد
-            await event.respond(f"**🎲 اللاعب {user_name} رمى النرد وحصل على {dice_value} نقطة.\n\nباقي {remaining} رميات**")
+            # إرسال رسالة جديدة بدون تحديث القائمة
+            await event.respond(f"◈︙**اللاعب** - {user_name}\n - رمى النرد وحصل على {dice_value} نقطة.\n\n❨ باقي {remaining} رميات❩")
             return "continue"
         else:
             # انتهى دور اللاعب
             total_round_score = player["current_round_score"]
             user_name = player["name"]
             
-            # إرسال رسالة جديدة بدون رد
+            # إرسال رسالة جديدة بدون تحديث القائمة
             await event.respond(f"**🎲 اللاعب {user_name} انتهى من رمي النرد وحصل على {total_round_score} نقطة في هذه الجولة!**")
+            
+            # ✅ الآن نحدث الرسالة المثبتة بعد انتهاء اللاعب
+            await self.update_pinned_message(event)
             
             # الانتقال للاعب التالي
             await self.next_player(event)
@@ -1620,8 +1623,8 @@ class DiceGame:
             self.waiting_for_dice = {"user_id": next_player_id, "remaining_throws": 3}
             
             user_name = self.players[next_player_id]["name"]
-            # إرسال رسالة جديدة بدون رد
-            await event.respond(f"**🎲 الدور الآن على:**\n\nعَزيزي/تي {user_name}\nإرسل 3 مرات نرد")
+            # إرسال رسالة جديدة مع منشن
+            await event.respond(f"**🎲 الدور الآن على:**\n\nعَزيزي/تي [{user_name}](tg://user?id={next_player_id})\nإرسل 3 مرات نرد")
         else:
             # انتهت الجولة
             await self.finish_round(event)
@@ -1630,7 +1633,7 @@ class DiceGame:
         """إنهاء الجولة وتصفية اللاعبين"""
         self.waiting_for_dice = None
         
-        # 🔥 التعديل الرئيسي: الإقصاء بناءً على نقاط الجولة الحالية فقط
+        # الإقصاء بناءً على نقاط الجولة الحالية فقط
         current_round_scores = {user_id: player["current_round_score"] for user_id, player in self.players.items()}
         min_score = min(current_round_scores.values())
         lowest_players = [user_id for user_id, score in current_round_scores.items() if score == min_score]
@@ -1670,48 +1673,54 @@ class DiceGame:
         
         # حفظ اللاعبين المتعادلين مؤقتاً
         self.tied_players = tied_players
-        self.tied_scores = {pid: 0 for pid in tied_players}  # 🔥 نبدأ من الصفر في الجولة الإضافية
+        self.tied_scores = {pid: 0 for pid in tied_players}  # نبدأ من الصفر في الجولة الإضافية
         
         # إعادة تعيين النقاط للجولة الإضافية
         for player_id in tied_players:
             self.players[player_id]["current_round_score"] = 0
             self.players[player_id]["dice_throws"] = []
         
+        # تحديث الرسالة المثبتة للجولة الإضافية
+        await self.update_pinned_message(event)
+        
         # بدء الجولة الإضافية من أول لاعب متعادل
         first_tied_player = tied_players[0]
         self.waiting_for_dice = {"user_id": first_tied_player, "remaining_throws": 3, "tie_breaker": True}
         
         user_name = self.players[first_tied_player]["name"]
-        await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي {user_name}\nإرسل 3 مرات نرد")
+        await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي [{user_name}](tg://user?id={first_tied_player})\nإرسل 3 مرات نرد")
 
     async def process_tie_breaker_dice(self, event, user_id, dice_value):
         """معالجة رمي النرد في الجولة الإضافية"""
         player = self.players[user_id]
         player["dice_throws"].append(dice_value)
         player["current_round_score"] += dice_value
-        self.tied_scores[user.id] = player["current_round_score"]  # تحديث النقاط للجولة الإضافية
+        self.tied_scores[user_id] = player["current_round_score"]  # ✅ تصحيح: user_id بدلاً من user.id
         self.waiting_for_dice["remaining_throws"] -= 1
         
-        await self.update_pinned_message(event)
+        # ❌ لا نحدث الرسالة المثبتة بعد كل رمية في الجولة الإضافية
         
         if self.waiting_for_dice["remaining_throws"] > 0:
             remaining = self.waiting_for_dice["remaining_throws"]
             user_name = player["name"]
-            await event.respond(f"**🎲 اللاعب {user_name} رمى النرد وحصل على {dice_value} نقطة.\n\nباقي {remaining} رميات**")
+            await event.respond(f"◈︙**اللاعب** - {user_name}\n - رمى النرد وحصل على {dice_value} نقطة.\n\n❨ باقي {remaining} رميات❩")
         else:
             # انتهى دور اللاعب في الجولة الإضافية
             total_round_score = player["current_round_score"]
             user_name = player["name"]
             await event.respond(f"**🎲 اللاعب {user_name} انتهى من رمي النرد وحصل على {total_round_score} نقطة في الجولة الإضافية!**")
             
+            # ✅ تحديث الرسالة المثبتة بعد انتهاء اللاعب
+            await self.update_pinned_message(event)
+            
             # الانتقال للاعب التالي في الجولة الإضافية
-            current_index = self.tied_players.index(user.id)
+            current_index = self.tied_players.index(user_id)
             if current_index + 1 < len(self.tied_players):
                 next_player_id = self.tied_players[current_index + 1]
                 self.waiting_for_dice = {"user_id": next_player_id, "remaining_throws": 3, "tie_breaker": True}
                 
                 user_name = self.players[next_player_id]["name"]
-                await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي {user_name}\nإرسل 3 مرات نرد")
+                await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي [{user_name}](tg://user?id={next_player_id})\nإرسل 3 مرات نرد")
             else:
                 # انتهت الجولة الإضافية
                 self.waiting_for_dice = None
@@ -1719,7 +1728,7 @@ class DiceGame:
 
     async def finish_tie_breaker(self, event):
         """إنهاء الجولة الإضافية للمتعادلين"""
-        # 🔥 الإقصاء بناءً على نقاط الجولة الإضافية فقط
+        # الإقصاء بناءً على نقاط الجولة الإضافية فقط
         min_score = min(self.tied_scores.values())
         lowest_players = [pid for pid, score in self.tied_scores.items() if score == min_score]
         
@@ -1745,12 +1754,14 @@ class DiceGame:
         del self.tied_players
         del self.tied_scores
         
+        # تحديث الرسالة المثبتة النهائية
+        await self.update_pinned_message(event)
+        
         # الاستمرار في اللعبة العادية
         if len(self.players) == 1:
             await self.finish_game(event)
         else:
             self.current_round += 1
-            await self.update_pinned_message(event)
             await asyncio.sleep(3)
             await self.start_round(event)
 

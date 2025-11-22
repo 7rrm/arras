@@ -1842,13 +1842,15 @@ async def join_game(event):
     game = dice_games[chat_id]
     
     if game.game_active:
-        await event.reply("**❌ اللعبة جاريه， لا يمكن الانضمام الآن!**")
+        await event.reply("**❌ اللعبة已经开始， لا يمكن الانضمام الآن!**")
         return
     
     success = await game.add_player(event, user)
     if success:
-        # مباشر بدون متغير
-        await event.reply(f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة</b> <a href='emoji/5357069174512303778'>✅</a>", parse_mode='html')
+        # استخدام HTML بسيط
+        message_text = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة</b> ❤️"
+        
+        await event.reply(message_text, parse_mode='html')
     else:
         await event.reply("**❌ أنت مشترك بالفعل في اللعبة!**")
 

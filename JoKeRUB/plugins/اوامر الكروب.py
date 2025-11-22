@@ -1842,17 +1842,16 @@ async def join_game(event):
     game = dice_games[chat_id]
     
     if game.game_active:
-        await event.reply("**❌ اللعبة已经开始， لا يمكن الانضمام الآن!**")
+        await event.reply("<b>❌ اللعبة已经开始， لا يمكن الانضمام الآن!</b>")
         return
     
     success = await game.add_player(event, user)
     if success:
-        # استخدام HTML بسيط
-        message_text = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة</b> ❤️"
-        
-        await event.reply(message_text, parse_mode='html')
+        # استخدام الإيموجي البريميوم في الرسالة مع تنسيق HTML
+        message = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة </b><a href=\"emoji/5210763312597326700\">❤️</a>"
+        await event.reply(message, parse_mode=CustomParseMode("html"))
     else:
-        await event.reply("**❌ أنت مشترك بالفعل في اللعبة!**")
+        await event.reply("<b>❌ أنت مشترك بالفعل في اللعبة!</b>", parse_mode=CustomParseMode("html"))
 
 @l313l.on(events.NewMessage(pattern='^(?i)n$'))
 async def end_game_command(event):

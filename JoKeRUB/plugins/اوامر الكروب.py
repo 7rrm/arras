@@ -1479,461 +1479,386 @@ async def game_info(event):
 
 from telethon import events
 from telethon.tl.types import InputMediaDice
-from telethon.tl.functions.messages import UpdatePinnedMessageRequest
-from . import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-import random
+from telethon.utils import get_display_name
 import asyncio
 
-# قاموس لإدارة حالة اللعبة
-dice_game_state = {
-    "active": False,
-    "players": {},
-    "current_round": 1,
-    "current_player_index": 0,
-    "pinned_message_id": None,
-    "chat_id": None,
-    "round_scores": {},
-    "game_message": ""
-}
+# متغيرات التخزين
+dice_games = {}
+pinned_messages = {}
 
-def initialize_game_state():
-    """تهيئة حالة اللعبة"""
-    global dice_game_state
-    dice_game_state = {
-        "active": False,
-        "players": {},
-        "current_round": 1,
-        "current_player_index": 0,
-        "pinned_message_id": None,
-        "chat_id": None,
-        "round_scores": {},
-        "game_message": ""
-    }
-
-@l313l.ar_cmd(pattern="نرد2$")
-async def start_dice_game(event):
+@l313l.ar_cmd(pattern="نرد2")
+async def start_new_dice_game(event):
     """بدء لعبة النرد الجديدة"""
+    chat_id = event.chat_id
+    user = await event.get_sender()
+    
+    if chat_id in dice_games:
+        await event.reply("**⛔️ هناك لعبة نرد نشطة بالفعل في هذه الدردشة!**")
+        return
+    
+    # إنشاء اللعبة الجديدة
+    dice_games[chat_id] = {
+        'players': {},  # {user_id: {'name': '', 'total_score': 0, 'current_round_score': 0, 'throws_remaining': 0, 'current_throws': []}}
+        'game_message': None,
+        'current_player': None,
+        'round_number': 1,
+        'game_active': True,
+        'join_mode': True,
+        'game_started': False
+    }
+    
+    # إنشاء رسالة المشاركين
     try:
-        # التحقق من أن البوت جاهز
-        if not l313l:
-            await event.edit("**⛔ البوت غير جاهز حاليًا**")
-            return
-        
-        if dice_game_state["active"]:
-            await event.edit("**⛔ هناك لعبة نشطة بالفعل!**")
-            return
-        
-        # إعادة تعيين حالة اللعبة
-        initialize_game_state()
-        dice_game_state.update({
-            "active": True,
-            "chat_id": event.chat_id,
-        })
-        
-        # إنشاء الرسالة الأولى
-        initial_message = await event.edit(
-            "🎲 **لعبة النرد - المسابقة**\n"
-            "┏━━━━━━━━━━━━━┓\n"
-            "┃ **حالة اللعبة**: في انتظار اللاعبين\n"
-            "┃ **للانضمام**: أرسل `Y`\n"
-            "┃ **لإنهاء التسجيل**: أرسل `n`\n"
-            "┗━━━━━━━━━━━━━┛\n"
-            "\n**اللاعبون المشاركون:**\n- لا يوجد لاعبون بعد"
+        game_msg = await event.reply(
+            "**🎲 لعبـة النـرد الجديدة **\n\n"
+            "**المشاركون:**\n"
+            "▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+            "لا يوجد مشاركون بعد\n\n"
+            "**للانضمام ارسل: Y**\n"
+            "**لبدء اللعبة ارسل: N**"
         )
         
-        # الحصول على معرف الرسالة
-        if hasattr(initial_message, 'id'):
-            dice_game_state["pinned_message_id"] = initial_message.id
-            try:
-                await event.client(UpdatePinnedMessageRequest(
-                    event.chat_id, initial_message.id, False
-                ))
-            except Exception as e:
-                print(f"خطأ في التثبيت: {e}")
-        
-        dice_game_state["game_message"] = initial_message.text if initial_message else ""
+        # تثبيت الرسالة
+        await event.client.pin_message(chat_id, game_msg.id)
+        dice_games[chat_id]['game_message'] = game_msg.id
+        pinned_messages[chat_id] = game_msg.id
         
     except Exception as e:
-        await event.edit(f"**⛔ حدث خطأ: {str(e)}**")
+        await event.reply(f"**❌ خطأ في إنشاء اللعبة: {str(e)}**")
+        return
+    
+    await event.delete()
 
-@l313l.on(events.NewMessage(pattern=r'^(?i)Y$'))
-async def join_game(event):
-    """الانضمام إلى اللعبة"""
+@l313l.on(events.NewMessage(pattern='^[Yy]$'))
+async def join_dice_game(event):
+    """الانضمام للعبة بإرسال Y"""
+    chat_id = event.chat_id
+    user = await event.get_sender()
+    
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    if not game['join_mode']:
+        await event.reply("**⛔️ انتهى وقت الانضمام! اللعبة بدأت.**")
+        return
+    
+    if user.id in game['players']:
+        await event.reply("**⚠️ أنت مشترك بالفعل في اللعبة!**")
+        return
+    
+    # إضافة اللاعب
+    game['players'][user.id] = {
+        'name': get_display_name(user),
+        'total_score': 0,
+        'current_round_score': 0,
+        'throws_remaining': 0,
+        'current_throws': [],
+        'round_scores': []  # لتخزين نتائج كل جولة
+    }
+    
+    await update_game_message(chat_id)
+    await event.reply(f"**✅ تم انضمام {get_display_name(user)} للعبة!**")
+
+@l313l.on(events.NewMessage(pattern='^[Nn]$'))
+async def start_game_play(event):
+    """بدء اللعبة بإرسال N"""
+    chat_id = event.chat_id
+    user = await event.get_sender()
+    
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    if len(game['players']) < 2:
+        await event.reply("**❌ يجب أن يكون هناك لاعبين على الأقل لبدء اللعبة!**")
+        return
+    
+    # إغلاق الانضمام وبدء اللعبة
+    game['join_mode'] = False
+    game['game_started'] = True
+    
+    await update_game_message(chat_id)
+    await start_next_player(chat_id)
+
+async def update_game_message(chat_id):
+    """تحديث رسالة المشاركين"""
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    message_id = game['game_message']
+    
+    if not message_id:
+        return
+    
+    # بناء نص الرسالة
+    message_text = "**🎲 لعبـة النـرد الجديدة **\n\n"
+    message_text += "**المشاركون:**\n"
+    message_text += "▬▬▬▬▬▬▬▬▬▬▬▬▬\n"
+    
+    if not game['players']:
+        message_text += "لا يوجد مشاركون بعد\n"
+    else:
+        for user_id, player_data in game['players'].items():
+            if game['game_started']:
+                message_text += f"• {player_data['name']} | النقاط: {player_data['total_score']}\n"
+            else:
+                message_text += f"• {player_data['name']}\n"
+    
+    message_text += f"\n**الجولة: {game['round_number']}**\n"
+    
+    if game['join_mode']:
+        message_text += "\n**للانضمام ارسل: Y**\n**لبدء اللعبة ارسل: N**"
+    elif game['current_player']:
+        current_player = game['players'][game['current_player']]
+        throws_left = current_player['throws_remaining']
+        message_text += f"\n**🎯 الدور الآن: {current_player['name']}**\n"
+        message_text += f"**رميات متبقية: {throws_left}**"
+    
     try:
-        if not dice_game_state.get("active") or event.chat_id != dice_game_state.get("chat_id"):
-            return
-        
-        user = await event.get_sender()
-        user_id = user.id
-        
-        if user_id in dice_game_state.get("players", {}):
-            reply = await event.reply("**⚠️ أنت مشارك بالفعل في اللعبة!**")
-            await asyncio.sleep(3)
-            await event.delete()
-            await reply.delete()
-            return
-        
-        # إضافة اللاعب
-        player_name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
-        dice_game_state["players"][user_id] = {
-            "name": player_name,
-            "score": 0,
-            "total_score": 0,
-            "dice_count": 0
-        }
-        
-        # تحديث الرسالة المثبتة
-        await update_pinned_message()
-        reply = await event.reply(f"**✅ تم انضمام {player_name} إلى اللعبة!**")
-        await event.delete()
-        await asyncio.sleep(3)
-        await reply.delete()
-        
+        await l313l.edit_message(chat_id, message_id, message_text)
     except Exception as e:
-        print(f"خطأ في الانضمام: {e}")
+        print(f"Error updating message: {e}")
 
-@l313l.on(events.NewMessage(pattern=r'^(?i)n$'))
-async def start_playing(event):
-    """بدء اللعب بعد انتهاء التسجيل"""
+async def start_next_player(chat_id):
+    """بدء دور اللاعب التالي"""
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    # إذا لم يكن هناك لاعب حالي، نبدأ بأول لاعب
+    if not game['current_player']:
+        player_ids = list(game['players'].keys())
+        game['current_player'] = player_ids[0]
+    else:
+        # الانتقال للاعب التالي
+        player_ids = list(game['players'].keys())
+        current_index = player_ids.index(game['current_player'])
+        next_index = (current_index + 1) % len(player_ids)
+        game['current_player'] = player_ids[next_index]
+    
+    # إعداد الرميات للاعب الحالي
+    current_player = game['players'][game['current_player']]
+    current_player['throws_remaining'] = 3
+    current_player['current_throws'] = []
+    current_player['current_round_score'] = 0
+    
+    await update_game_message(chat_id)
+    
+    # إرسال منشن للاعب الحالي
     try:
-        if not dice_game_state.get("active") or event.chat_id != dice_game_state.get("chat_id"):
-            return
-        
-        user = await event.get_sender()
-        players = dice_game_state.get("players", {})
-        
-        if user.id not in players:
-            reply = await event.reply("**⛔ يجب أن تكون مشاركاً في اللعبة!**")
-            await event.delete()
-            await asyncio.sleep(3)
-            await reply.delete()
-            return
-        
-        if len(players) < 2:
-            reply = await event.reply("**⛔ تحتاج إلى لاعبين على الأقل!**")
-            await event.delete()
-            await asyncio.sleep(3)
-            await reply.delete()
-            return
-        
-        # بدء الجولة الأولى
-        await start_new_round()
-        await event.delete()
-        
-    except Exception as e:
-        print(f"خطأ في بدء اللعب: {e}")
-
-async def update_pinned_message():
-    """تحديث الرسالة المثبتة"""
-    try:
-        if not dice_game_state.get("pinned_message_id") or not dice_game_state.get("chat_id"):
-            return
-        
-        players = dice_game_state.get("players", {})
-        players_text = "**اللاعبون المشاركون:**\n"
-        
-        if players:
-            for player_id, player_data in players.items():
-                score_display = player_data.get("total_score", 0)
-                players_text += f"• {player_data.get('name', 'Unknown')} - {score_display} نقطة\n"
-        else:
-            players_text += "- لا يوجد لاعبون بعد\n"
-        
-        game_info = (
-            f"🎲 **لعبة النرد - المسابقة**\n"
-            f"┏━━━━━━━━━━━━━┓\n"
-            f"┃ **الجولة**: {dice_game_state.get('current_round', 1)}\n"
-            f"┃ **اللاعبين**: {len(players)}\n"
-            f"┃ **الحالة**: {'جارية' if dice_game_state.get('active') else 'منتهية'}\n"
-            f"┗━━━━━━━━━━━━━┛\n\n"
-            f"{players_text}"
-        )
-        
-        await l313l.edit_message(
-            dice_game_state["chat_id"],
-            dice_game_state["pinned_message_id"],
-            game_info
-        )
-        dice_game_state["game_message"] = game_info
-        
-    except Exception as e:
-        print(f"خطأ في تحديث الرسالة: {e}")
-
-async def start_new_round():
-    """بدء جولة جديدة"""
-    try:
-        dice_game_state["current_player_index"] = 0
-        dice_game_state["round_scores"] = {}
-        
-        # إعادة تعيين عداد النرد للجميع
-        for player_id in dice_game_state.get("players", {}):
-            dice_game_state["players"][player_id]["dice_count"] = 0
-        
-        await update_pinned_message()
-        await next_player_turn()
-        
-    except Exception as e:
-        print(f"خطأ في بدء الجولة: {e}")
-
-async def next_player_turn():
-    """الانتقال إلى اللاعب التالي"""
-    try:
-        players = dice_game_state.get("players", {})
-        players_list = list(players.keys())
-        
-        if dice_game_state["current_player_index"] >= len(players_list):
-            # انتهت الجولة
-            await end_round()
-            return
-        
-        current_player_id = players_list[dice_game_state["current_player_index"]]
-        current_player = players[current_player_id]
-        
-        # إرسال رسالة للاعب الحالي
-        chat = dice_game_state["chat_id"]
         await l313l.send_message(
-            chat,
-            f"**🎲 عَزيزي/تي {current_player.get('name', 'Unknown')}**\n"
-            f"**تم بدء اللعبة إرسل 3 مرات نرد**\n"
-            f"**الجولة: {dice_game_state.get('current_round', 1)}**"
+            chat_id,
+            f"**عَزيزي/تي {current_player['name']}**\n"
+            f"**تم بدء اللعبة إرسل 3 مرات نرد 🎲**\n"
+            f"**الرميات المتبقية: 3**"
         )
-        
     except Exception as e:
-        print(f"خطأ في الدور التالي: {e}")
+        print(f"Error mentioning player: {e}")
 
-@l313l.on(events.NewMessage())
-async def handle_dice_roll(event):
+@l313l.on(events.NewMessage(pattern='.نرد'))
+async def handle_dice_throw(event):
     """معالجة رمي النرد"""
-    try:
-        if not dice_game_state.get("active") or event.chat_id != dice_game_state.get("chat_id"):
+    chat_id = event.chat_id
+    user = await event.get_sender()
+    
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    if not game['game_started']:
+        return
+    
+    if user.id != game['current_player']:
+        return
+    
+    # التحقق من أن الرسالة تحتوي على نرد
+    if event.dice and event.dice.emoticon == '🎲':
+        player = game['players'][user.id]
+        
+        if player['throws_remaining'] <= 0:
+            await event.reply("**❌ لقد انتهت رمياتك لهذا الدور!**")
             return
         
-        user = await event.get_sender()
-        user_id = user.id
+        dice_value = event.dice.value
+        player['current_throws'].append(dice_value)
+        player['current_round_score'] += dice_value
+        player['throws_remaining'] -= 1
         
-        players = dice_game_state.get("players", {})
-        # التحقق إذا كان المستخدم لاعباً في اللعبة
-        if user_id not in players:
-            return
+        await event.reply(
+            f"**🎲 {player['name']} رمى النرد وحصل على {dice_value} نقطة **\n"
+            f"**الرميات المتبقية: {player['throws_remaining']}**\n"
+            f"**المجموع الحالي: {player['current_round_score']}**"
+        )
         
-        # التحقق إذا كان هذا هو دور اللاعب
-        players_list = list(players.keys())
-        if dice_game_state["current_player_index"] >= len(players_list):
-            return
-            
-        current_player_id = players_list[dice_game_state["current_player_index"]]
+        # تحديث رسالة المشاركين
+        await update_game_message(chat_id)
         
-        if user_id != current_player_id:
-            reply = await event.reply("**⏳ ليس دورك بعد! انتظر دورك.**")
-            await event.delete()
-            await asyncio.sleep(3)
-            await reply.delete()
-            return
-        
-        # التحقق إذا كانت الرسالة تحتوي على نرد
-        if event.dice and event.dice.emoticon == '🎲':
-            player_data = players[user_id]
+        # إذا انتهت الرميات
+        if player['throws_remaining'] == 0:
+            player['total_score'] += player['current_round_score']
+            player['round_scores'].append(player['current_round_score'])
             
-            if player_data.get("dice_count", 0) >= 3:
-                reply = await event.reply("**✅ لقد أتممت 3 رميات بالفعل! انتظر اللاعبين الآخرين.**")
-                await event.delete()
-                await asyncio.sleep(3)
-                await reply.delete()
-                return
-            
-            # زيادة عداد الرميات
-            player_data["dice_count"] = player_data.get("dice_count", 0) + 1
-            dice_value = event.dice.value
-            
-            # إضافة النقاط
-            if user_id not in dice_game_state["round_scores"]:
-                dice_game_state["round_scores"][user_id] = 0
-            dice_game_state["round_scores"][user_id] += dice_value
-            
-            reply = await event.reply(f"**🎲 {player_data.get('name', 'Unknown')} رمى النرد وحصل على {dice_value} نقطة **")
-            
-            # التحقق إذا أتمم اللاعب 3 رميات
-            if player_data["dice_count"] >= 3:
-                total_score = dice_game_state["round_scores"][user_id]
-                await event.reply(
-                    f"**✅ {player_data.get('name', 'Unknown')} أنهى رمياته!**\n"
-                    f"**🎯 المجموع: {total_score} نقطة**"
-                )
-                
-                # الانتقال للاعب التالي
-                dice_game_state["current_player_index"] += 1
-                await asyncio.sleep(2)
-                await next_player_turn()
-            
-            await event.delete()
-            await asyncio.sleep(3)
-            await reply.delete()
-            
-    except Exception as e:
-        print(f"خطأ في معالجة النرد: {e}")
-
-async def end_round():
-    """إنهاء الجولة الحالية وتصفية اللاعبين"""
-    try:
-        if not dice_game_state.get("round_scores"):
-            return
-        
-        # تحديث النقاط الإجمالية
-        for player_id, round_score in dice_game_state["round_scores"].items():
-            if player_id in dice_game_state["players"]:
-                dice_game_state["players"][player_id]["total_score"] = dice_game_state["players"][player_id].get("total_score", 0) + round_score
-        
-        # العثور على أقل نقاط
-        min_score = min(dice_game_state["round_scores"].values())
-        
-        # العثور على جميع اللاعبين الذين حصلوا على أقل نقاط
-        lowest_players = [
-            player_id for player_id, score in dice_game_state["round_scores"].items() 
-            if score == min_score
-        ]
-        
-        if len(lowest_players) == 1:
-            # تصفية لاعب واحد
-            eliminated_player = dice_game_state["players"][lowest_players[0]]
-            del dice_game_state["players"][lowest_players[0]]
-            
-            await l313l.send_message(
-                dice_game_state["chat_id"],
-                f"**🚫 تم تصفية {eliminated_player.get('name', 'Unknown')} من اللعبة!**\n"
-                f"**🎯 النقاط: {min_score}**"
+            await event.reply(
+                f"**✅ انتهى دور {player['name']} **\n"
+                f"**🎯 النقاط الكلية: {player['total_score']}**\n"
+                f"**نقاط هذه الجولة: {player['current_round_score']}**"
             )
-        else:
-            # معالجة التعادل - جولة تصفية
-            await handle_tie_breaker(lowest_players)
-            return
-        
-        # التحقق إذا بقي لاعب واحد فقط
-        if len(dice_game_state["players"]) == 1:
-            await end_game()
-            return
-        
-        # بدء جولة جديدة
-        dice_game_state["current_round"] += 1
-        await asyncio.sleep(3)
-        await start_new_round()
-        
-    except Exception as e:
-        print(f"خطأ في إنهاء الجولة: {e}")
+            
+            # الانتقال للاعب التالي أو إنهاء الجولة
+            await asyncio.sleep(2)
+            await check_round_completion(chat_id)
 
-async def handle_tie_breaker(tied_players):
+async def check_round_completion(chat_id):
+    """التحقق من اكتمال الجولة"""
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    all_players_done = all(player['throws_remaining'] == 0 for player in game['players'].values())
+    
+    if all_players_done:
+        # جميع اللاعبين انتهوا، نبدأ عملية التصفية
+        await eliminate_lowest_player(chat_id)
+    else:
+        # الانتقال للاعب التالي
+        await start_next_player(chat_id)
+
+async def eliminate_lowest_player(chat_id):
+    """تصفية اللاعب الأقل نقاطاً"""
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    if len(game['players']) <= 1:
+        await declare_winner(chat_id)
+        return
+    
+    # إيجاد أقل نقاط
+    min_score = min(player['total_score'] for player in game['players'].values())
+    lowest_players = [user_id for user_id, player in game['players'].items() if player['total_score'] == min_score]
+    
+    if len(lowest_players) == 1:
+        # لاعب واحد فقط بأقل نقاط
+        eliminated_id = lowest_players[0]
+        eliminated_name = game['players'][eliminated_id]['name']
+        
+        del game['players'][eliminated_id]
+        
+        await l313l.send_message(
+            chat_id,
+            f"**🚫 تم تصفية {eliminated_name} **\n"
+            f"**بمجموع نقاط: {min_score}**\n"
+            f"**🎯 اللاعبون المتبقون: {len(game['players'])}**"
+        )
+        
+        # إعادة تعيين النقاط الحالية للجولة التالية
+        for player in game['players'].values():
+            player['current_round_score'] = 0
+            player['throws_remaining'] = 0
+            player['current_throws'] = []
+        
+        game['round_number'] += 1
+        game['current_player'] = None
+        
+        await update_game_message(chat_id)
+        await asyncio.sleep(3)
+        await start_next_player(chat_id)
+        
+    else:
+        # تعادل بين لاعبين أو أكثر
+        await handle_tie_breaker(chat_id, lowest_players)
+
+async def handle_tie_breaker(chat_id, tied_players):
     """معالجة التعادل بين اللاعبين"""
-    try:
-        tied_names = [dice_game_state["players"][pid].get("name", "Unknown") for pid in tied_players if pid in dice_game_state["players"]]
+    game = dice_games[chat_id]
+    
+    tied_names = [game['players'][pid]['name'] for pid in tied_players]
+    names_text = " - ".join(tied_names)
+    
+    await l313l.send_message(
+        chat_id,
+        f"**⚖️ تعادل في النقاط!**\n"
+        f"**اللاعبون المتعادلون: {names_text}**\n"
+        f"**يرجى إرسال 3 مرات نرد لكل لاعب**\n"
+        f"**سيتم تصفية الأقل نقاطاً من بينهم**"
+    )
+    
+    # إعداد اللاعبين المتعادلين للجولة الفاصلة
+    for player_id in tied_players:
+        game['players'][player_id]['current_round_score'] = 0
+        game['players'][player_id]['throws_remaining'] = 3
+        game['players'][player_id]['current_throws'] = []
+    
+    # بدء بأول لاعب متعادل
+    game['current_player'] = tied_players[0]
+    await update_game_message(chat_id)
+    
+    current_player = game['players'][game['current_player']]
+    await l313l.send_message(
+        chat_id,
+        f"**عَزيزي/تي {current_player['name']}**\n"
+        f"**الجولة الفاصلة - إرسل 3 مرات نرد 🎲**"
+    )
+
+async def declare_winner(chat_id):
+    """إعلان الفائز النهائي"""
+    if chat_id not in dice_games:
+        return
+    
+    game = dice_games[chat_id]
+    
+    if len(game['players']) == 1:
+        winner_id = list(game['players'].keys())[0]
+        winner = game['players'][winner_id]
         
         await l313l.send_message(
-            dice_game_state["chat_id"],
-            f"**⚡ تعادل!**\n"
-            f"**اللاعبون المتعادلون: {', '.join(tied_names)}**\n"
-            f"**سيخوضون جولة تصفية إضافية!**"
+            chat_id,
+            f"**🎉🎊 تهانينا! **\n"
+            f"**🏆 الفائز النهائي: {winner['name']} **\n"
+            f"**🎯 بمجموع نقاط: {winner['total_score']} **\n"
+            f"**🎲 بعد {game['round_number'] - 1} جولة**"
         )
         
-        # حفظ اللاعبين المتعادلين فقط
-        temp_players = {pid: dice_game_state["players"][pid] for pid in tied_players if pid in dice_game_state["players"]}
-        dice_game_state["players"] = temp_players
+        # إلغاء تثبيت الرسالة وإنهاء اللعبة
+        try:
+            if chat_id in pinned_messages:
+                await l313l.unpin_message(chat_id, pinned_messages[chat_id])
+        except:
+            pass
         
-        # بدء جولة التصفية
-        dice_game_state["current_round"] += 1
-        await asyncio.sleep(3)
-        await start_new_round()
-        
-    except Exception as e:
-        print(f"خطأ في معالجة التعادل: {e}")
+        # تنظيف البيانات
+        if chat_id in dice_games:
+            del dice_games[chat_id]
+        if chat_id in pinned_messages:
+            del pinned_messages[chat_id]
 
-async def end_game():
-    """إنهاء اللعبة وإعلان الفائز"""
-    try:
-        players = dice_game_state.get("players", {})
-        if len(players) != 1:
-            return
-        
-        winner_id = list(players.keys())[0]
-        winner = players[winner_id]
-        
-        await l313l.send_message(
-            dice_game_state["chat_id"],
-            f"🎉 **تهانينا!** 🎉\n"
-            f"**{winner.get('name', 'Unknown')} فاز باللعبة!** 🏆\n"
-            f"**🎯 النقاط الإجمالية: {winner.get('total_score', 0)}**\n"
-            f"**🔥 عدد الجولات: {dice_game_state.get('current_round', 1)}**"
-        )
-        
-        # إعادة تعيين حالة اللعبة
-        initialize_game_state()
-        
-    except Exception as e:
-        print(f"خطأ في إنهاء اللعبة: {e}")
-
-@l313l.ar_cmd(pattern="انهاء النرد2$")
+@l313l.ar_cmd(pattern="انهاء النرد")
 async def force_end_game(event):
     """إجبار إنهاء اللعبة"""
+    chat_id = event.chat_id
+    
+    if chat_id not in dice_games:
+        await event.reply("**❌ لا توجد لعبة نرد نشطة في هذه الدردشة!**")
+        return
+    
+    # إلغاء تثبيت الرسالة
     try:
-        if not dice_game_state.get("active"):
-            await event.edit("**⛔ لا توجد لعبة نشطة!**")
-            return
-        
-        initialize_game_state()
-        await event.edit("**✅ تم إنهاء اللعبة!**")
-        
-    except Exception as e:
-        await event.edit(f"**⛔ حدث خطأ: {str(e)}**")
-
-@l313l.ar_cmd(pattern="حالة النرد2$")
-async def game_status(event):
-    """عرض حالة اللعبة الحالية"""
-    try:
-        if not dice_game_state.get("active"):
-            await event.edit("**⛔ لا توجد لعبة نشطة!**")
-            return
-        
-        players = dice_game_state.get("players", {})
-        status_text = (
-            f"🎲 **حالة لعبة النرد**\n"
-            f"┏━━━━━━━━━━━━━┓\n"
-            f"┃ **الجولة**: {dice_game_state.get('current_round', 1)}\n"
-            f"┃ **اللاعبين**: {len(players)}\n"
-            f"┃ **النشطة**: نعم\n"
-            f"┗━━━━━━━━━━━━━┛\n\n"
-        )
-        
-        if players:
-            status_text += "**اللاعبون:**\n"
-            for player_id, player_data in players.items():
-                status_text += f"• {player_data.get('name', 'Unknown')} - {player_data.get('total_score', 0)} نقطة\n"
-        else:
-            status_text += "**لا يوجد لاعبون**"
-        
-        await event.edit(status_text)
-        
-    except Exception as e:
-        await event.edit(f"**⛔ حدث خطأ: {str(e)}**")
-
-# أمر المساعدة
-@l313l.ar_cmd(pattern="لعبة النرد2$")
-async def dice_game_help(event):
-    """تعليمات لعبة النرد"""
-    help_text = (
-        "🎲 **لعبة النرد - المسابقة (الإصدار 2)**\n\n"
-        "**الأوامر:**\n"
-        "• `.نرد2` - بدء لعبة جديدة\n"
-        "• `Y` - الانضمام للعبة\n"
-        "• `n` - بدء اللعب بعد الانضمام\n"
-        "• `.انهاء النرد2` - إجبار إنهاء اللعبة\n"
-        "• `.حالة النرد2` - عرض حالة اللعبة\n\n"
-        "**طريقة اللعب:**\n"
-        "1. ابدأ اللعبة بـ `.نرد2`\n"
-        "2. اللاعبون ينضمون بـ `Y`\n"
-        "3. ابدأ اللعب بـ `n`\n"
-        "4. كل لاعب يرسل 3 نرد عندما يأتي دوره\n"
-        "5. يتم تصفية اللاعب الأقل نقاطاً كل جولة\n"
-        "6. تستمر اللعبة حتى يتبقى فائز واحد 🏆"
-    )
-    await event.edit(help_text)
-
-# تهيئة حالة اللعبة عند التحميل
-initialize_game_state()
+        if chat_id in pinned_messages:
+            await l313l.unpin_message(chat_id, pinned_messages[chat_id])
+    except:
+        pass
+    
+    # تنظيف البيانات
+    if chat_id in dice_games:
+        del dice_games[chat_id]
+    if chat_id in pinned_messages:
+        del pinned_messages[chat_id]
+    
+    await event.reply("**✅ تم إنهاء لعبة النرد بنجاح!**")

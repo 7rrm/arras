@@ -1477,14 +1477,15 @@ async def game_info(event):
 ##############################
 #####
 
-from telethon import events, types
+from telethon import events
 from telethon.tl.types import InputMediaDice, Message
 from telethon.tl.functions.messages import UpdatePinnedMessageRequest
-from telethon import utils
-import html
-import markdown
+from . import l313l
+from telethon.extensions import html, markdown
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+import asyncio
+import random
 
-# كلاس التحليل المخصص
 class CustomParseMode:
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
@@ -1510,7 +1511,7 @@ class CustomParseMode:
     @staticmethod
     def unparse(text, entities):
         return html.unparse(text, entities)
-
+        
 # قاموس لحفظ بيانات اللعبة
 dice_games = {}
 
@@ -1807,6 +1808,7 @@ class DiceGame:
         if self.chat_id in dice_games:
             del dice_games[self.chat_id]
 
+# باقي الأوامر تبقى كما هي...
 @l313l.on(events.NewMessage(pattern='.نرد2'))
 async def start_dice_game(event):
     """بدء لعبة النرد الجديدة"""
@@ -1840,16 +1842,13 @@ async def join_game(event):
     game = dice_games[chat_id]
     
     if game.game_active:
-        await event.reply("**❌ اللعبة جارية، لا يمكن الانضمام الآن!**")
+        await event.reply("**❌ اللعبة已经开始， لا يمكن الانضمام الآن!**")
         return
     
     success = await game.add_player(event, user)
     if success:
-        # ✅ استخدام إيموجي البريميوم مع HTML
-        message_text = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة</b> <a href='emoji/5357069174512303778'>✅</a>"
-        
-        # إرسال الرسالة مع إيموجي البريميوم
-        await event.reply(message_text, parse_mode='html')
+        # استخدام الإيموجي البريميوم في الرسالة
+        await event.reply(f"**⪼ تم انضمام** `{user.first_name}` **إلى اللعبة **<a href=\"emoji/5210763312597326700\">❤️</a>", parse_mode=CustomParseMode("html"))
     else:
         await event.reply("**❌ أنت مشترك بالفعل في اللعبة!**")
 

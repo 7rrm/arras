@@ -1481,7 +1481,6 @@ from telethon import events, types
 from telethon.tl.types import InputMediaDice, Message
 from telethon.tl.functions.messages import UpdatePinnedMessageRequest
 from telethon import utils
-from telethon.helpers import total_seconds
 import html
 import markdown
 

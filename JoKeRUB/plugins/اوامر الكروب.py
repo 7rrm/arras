@@ -1286,7 +1286,7 @@ async def zed(event):
         return
 
 
-
+'''
 
 from telethon import events
 from telethon.tl.types import InputMediaDice
@@ -1471,7 +1471,7 @@ async def game_info(event):
     await edit_or_reply(event, ZelzalGM_cmd, link_preview=False)
 
 
-
+'''
 
 
 ##############################

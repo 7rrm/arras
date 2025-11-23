@@ -920,7 +920,7 @@ async def yoot_auto_search(event):
 # إعدادات التحكم للفيديو
 video_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
-    'bot_username': '@V22BOT',  # البوت الجديد
+    'bot_username': '@Bro_4bot',  # البوت الجديد
     'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
 }
 

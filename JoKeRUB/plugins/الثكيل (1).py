@@ -491,6 +491,7 @@ async def Hussein(event):
 
 from telethon import events
 import random
+import time
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
@@ -515,24 +516,34 @@ messages_collection = [
 
 admin_id = l313l.uid
 
+# قاموس لتخزين آخر وقت تم فيه الرد لكل مجموعة
+last_reply_time = {}
+
 def is_quotes_enabled(chat_id):
     """التحقق من تفعيل الاقتباسات في مجموعة معينة"""
     return gvarstatus(f"quotes_{chat_id}") == "true"
 
+def get_quotes_delay(chat_id):
+    """الحصول على وقت التأخير للمجموعة من قاعدة البيانات"""
+    delay = gvarstatus(f"quotes_delay_{chat_id}")
+    return int(delay) if delay and delay.isdigit() else 0
+
 @l313l.ar_cmd(
-    pattern="تفعيل الاقتباس(?:\s+(-?\d+))?$",
+    pattern="تفعيل الاقتباس(?:\s+(-?\d+))?(?:\s+(\d+))?$",
     command=("تفعيل الاقتباس", plugin_category),
     info={
-        "header": "لتشغيل ميزة الاقتباسات في مجموعة محددة",
+        "header": "لتشغيل ميزة الاقتباسات في مجموعة محددة مع وقت تأخير اختياري",
         "usage": [
             "{tr}تفعيل الاقتباس - للتشغيل في المجموعة الحالية",
-            "{tr}تفعيل الاقتباس <ايدي المجموعة> - للتشغيل في مجموعة محددة"
+            "{tr}تفعيل الاقتباس <ايدي المجموعة> - للتشغيل في مجموعة محددة",
+            "{tr}تفعيل الاقتباس <ايدي المجموعة> <الوقت بالثواني> - للتشغيل مع وقت تأخير"
         ],
     },
 )
 async def enable_quotes(event):
-    "لتشغيل الاقتباسات"
+    "لتشغيل الاقتباسات مع وقت تأخير اختياري"
     chat_input = event.pattern_match.group(1)
+    delay_input = event.pattern_match.group(2)
     
     if chat_input:
         try:
@@ -545,16 +556,29 @@ async def enable_quotes(event):
     else:
         chat_id = event.chat_id
     
+    # تحديد وقت التأخير
+    delay_time = 0
+    if delay_input and delay_input.isdigit():
+        delay_time = int(delay_input)
+        addgvar(f"quotes_delay_{chat_id}", str(delay_time))
+    
     # التحقق إذا كانت القيمة موجودة بالفعل
     if is_quotes_enabled(chat_id):
-        return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
+        current_delay = get_quotes_delay(chat_id)
+        if delay_time > 0:
+            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!\n✧︙ وقت التأخير: `{current_delay}` ثانية**")
+        else:
+            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
     
     # إضافة القيمة
     addgvar(f"quotes_{chat_id}", "true")
     
     # التحقق من التفعيل الفعلي
     if is_quotes_enabled(chat_id):
-        await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
+        if delay_time > 0:
+            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓\n✧︙ وقت التأخير: `{delay_time}` ثانية**")
+        else:
+            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
     else:
         await edit_delete(event, f"**✧︙ فشل في تفعيل الاقتباسات!**")
 
@@ -588,8 +612,13 @@ async def disable_quotes(event):
     if not is_quotes_enabled(chat_id):
         return await edit_delete(event, f"**✧︙ الاقتباسات معطلة بالفعل في المجموعة `{chat_id}`!**")
     
-    # حذف القيمة
+    # حذف القيم من قاعدة البيانات
     delgvar(f"quotes_{chat_id}")
+    delgvar(f"quotes_delay_{chat_id}")
+    
+    # إزالة الوقت من الذاكرة المؤقتة
+    if chat_id in last_reply_time:
+        del last_reply_time[chat_id]
     
     # التحقق من التعطيل الفعلي
     if not is_quotes_enabled(chat_id):
@@ -609,8 +638,7 @@ async def quotes_handler(event):
     
     # التحقق إذا كان المرسل هو البوت نفسه
     if event.sender_id == admin_id:
-        return  # لا يعمل مع المطور
-    
+        return
     
     # التحقق إذا كانت الرسالة نقطة أو فاصلة فقط
     message_text = event.message.text.strip()
@@ -619,6 +647,27 @@ async def quotes_handler(event):
     trigger_symbols = ['.', '،', ',', '-']
     
     if message_text in trigger_symbols:
+        # الحصول على وقت التأخير من قاعدة البيانات
+        delay_time = get_quotes_delay(chat_id)
+        
+        # التحقق من الوقت المنقضي منذ آخر رد
+        current_time = time.time()
+        last_time = last_reply_time.get(chat_id, 0)
+        
+        if delay_time > 0:
+            # إذا كان هناك وقت تأخير
+            time_passed = current_time - last_time
+            
+            if time_passed < delay_time:
+                # لم ينته وقت الانتظار بعد، لا نرد
+                return
+            else:
+                # انتهى وقت الانتظار، نرد ونحدث الوقت
+                last_reply_time[chat_id] = current_time
+        else:
+            # لا يوجد وقت تأخير، نرد فوراً
+            last_reply_time[chat_id] = current_time
+        
         # اختيار رسالة عشوائية من المجموعة
         selected_message = random.choice(messages_collection)
         

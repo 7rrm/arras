@@ -494,7 +494,7 @@ import random
 import time
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
-from ..sql_helper.globants import addgvar, delgvar, gvarstatus
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 plugin_category = "utils"
 

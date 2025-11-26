@@ -1766,7 +1766,7 @@ class DiceGame:
             del self.players[eliminated_id]
             
             # ✅ لا يرد - رسالة جديدة فقط
-            await event.respond(f"**🎲 تم إقصاء اللاعب {eliminated_name} من الجولة الإضافية ({eliminated_score} نقطة)**")
+            await event.respond(f"◈︙اللاعب `{eliminated_name}`\n- تم أقصائه من الجولة الإضافية (`{eliminated_score}` نقطة) .")
         else:
             eliminated_id = random.choice(lowest_players)
             eliminated_name = self.players[eliminated_id]["name"]
@@ -1775,7 +1775,7 @@ class DiceGame:
             del self.players[eliminated_id]
             
             # ✅ لا يرد - رسالة جديدة فقط
-            await event.respond(f"**🎲 تم إقصاء اللاعب {eliminated_name} عشوائياً due to persistent tie ({eliminated_score} نقطة)**")
+            await event.respond(f"◈︙اللاعب `{eliminated_name}`\n- تم أقصائه عشوائيا بسبب التعادل المستمر (`{eliminated_score}` نقطة) .")
         
         del self.tied_players
         del self.tied_scores

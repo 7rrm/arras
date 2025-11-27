@@ -869,26 +869,50 @@ async def disable_emoji_blocker(event):
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
 
+from datetime import datetime
+
 remove_admins_aljoker = {}
-#الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
+admin_kick_count = {}
+
 @l313l.on(events.ChatAction)
 async def Hussein(event):
     if gvarstatus("Mn3_Kick"):
         if event.user_kicked:
             user_id = event.action_message.from_id
             chat = await event.get_chat()
+            
             if chat and user_id:
                 now = datetime.now()
-                if user_id in remove_admins_aljoker:
-                    if (now - remove_admins_aljoker[user_id]).seconds < 60:
-                        admin_info = await event.client.get_entity(user_id)
-                        joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                        await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
-                        await event.client.edit_admin(chat, user_id, change_info=False)
-                    remove_admins_aljoker.pop(user_id)
-                    remove_admins_aljoker[user_id] = now
+                
+                # زيادة عداد الطرد للمشرف
+                if user_id in admin_kick_count:
+                    admin_kick_count[user_id]['count'] += 1
+                    admin_kick_count[user_id]['last_kick'] = now
                 else:
-                    remove_admins_aljoker[user_id] = now
+                    admin_kick_count[user_id] = {'count': 1, 'last_kick': now}
+                
+                # إذا طرد اثنين خلال 5 دقائق
+                if admin_kick_count[user_id]['count'] >= 2:
+                    time_diff = (now - admin_kick_count[user_id]['last_kick']).seconds
+                    if time_diff < 300:  # 5 دقائق
+                        try:
+                            admin_info = await event.client.get_entity(user_id)
+                            joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                            
+                            # تنزيل المشرف
+                            await event.client.edit_admin(
+                                chat, 
+                                user_id, 
+                                is_admin=False
+                            )
+                            
+                            await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب طرده عضوان في وقت قصير ⚠️**")
+                            
+                            # إعادة تعيين العداد
+                            admin_kick_count[user_id] = {'count': 0, 'last_kick': now}
+                            
+                        except Exception as e:
+                            print(f"Error: {e}")
 
 @l313l.ar_cmd(pattern="منع_التفليش", require_admin=True)
 async def Hussein_aljoker(event):
@@ -898,7 +922,9 @@ async def Hussein_aljoker(event):
 @l313l.ar_cmd(pattern="سماح_التفليش", require_admin=True)
 async def Hussein_aljoker(event):
     delgvar("Mn3_Kick")
-    await event.edit("**᯽︙ تم تفعيل منع التفليش للمجموعة بنجاح ✓**")
+    admin_kick_count.clear()
+    await event.edit("**᯽︙ تم إيقاف منع التفليش للمجموعة بنجاح ✓**")
+
 message_counts = {}
 enabled_groups = []
 Ya_Abbas = False

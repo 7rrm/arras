@@ -840,7 +840,7 @@ async def handle_event(event):
         if "kicked" in event.raw_text:
             zedy = await event.client.get_entity(event.user_id)
             kicked_count += 1
-            if kicked_count == 3:
+            if kicked_count == 2:
                 await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False,
                                               post_messages=False, edit_messages=False,
                                               delete_messages=False, ban_users=False,

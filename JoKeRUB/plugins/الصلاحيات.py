@@ -841,12 +841,12 @@ async def handle_event(event):
             zedy = await event.client.get_entity(event.user_id)
             kicked_count += 1
             if kicked_count == 3:
-                await zedub(EditAdminRequest(event.chat_id, zedy.id, change_info=False,
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False,
                                               post_messages=False, edit_messages=False,
                                               delete_messages=False, ban_users=False,
                                               invite_users=False, pin_messages=False,
                                               add_admins=False))
-                await zedub(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
                 kicked_count = 0
                 await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
 

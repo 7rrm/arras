@@ -32,7 +32,7 @@ from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from ..Config import Config
 from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply
-from ..helpers.utils import _zedutils, reply_id
+from ..helpers.utils import _catutils, reply_id
 from ..sql_helper.globals import gvarstatus
 from . import ALIVE_NAME, BOTLOG, BOTLOG_CHATID, zedub, edit_delete, get_user_from_event
 """

@@ -963,135 +963,21 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-
-@l313l.on(events.ChatAction())
-async def _(event):
-    if not is_locked(event.chat_id, "voice"):
-        return
-    if event.is_channel:  # التحقق من أن الحدث يأتي من قناة
-        channel = await event.get_chat()
-        admin = channel.admin_rights
-        creator = channel.creator
-        if not admin and not creator:
-            return
-        zed_dev = (5427469031, 1895219306, 5280339206)
-        if event.user_joined: 
-            zedy = await event.client.get_entity(event.user_id)
-            is_ban_able = True
-            rights = types.ChatBannedRights(until_date=None, view_messages=True)
-            if zedy.id in zed_dev:
-                return
-            try:
-                await event.client(
-                    functions.channels.EditBannedRequest(
-                        event.chat_id, zedy.id, rights
-                    )
-                )
-                zzz = await event.reply(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـاة \n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎عـذࢪاً {zedy.first_name} \n⌔╎يُمنـع الانضمـام لـ هـذه القناة 🚷•\n⌔╎تـم حظـࢪه .. بنجـاح ☑️", link_preview=False)
-                await sleep(3)
-                await zzz.delete()
-            except Exception:
-                return
-            if BOTLOG and is_ban_able:
-                ban_reason_msg = await event.client.send_message(BOTLOG_CHATID,
-                    "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎بالانضمـام للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرده .. بنجـاح ✓𓆰**".format(
-                        zedy.id
-                    )
-                )
-
-# Copyright (C) 2022 Zed-Thon
 @l313l.on(events.ChatAction())
 async def handle_event(event):
-    global kick_protection
-    
-    # التحقق من تفعيل حماية التفليش - باستخدام المتغير الجديد
-    if (not event.chat_id in kick_protection or 
-        not kick_protection[event.chat_id].get('active', False)):
+    global kicked_count
+    if not is_locked(event.chat_id, "bots"):
         return
-    
-    # التأكد من أن الحدث في قناة
-    if not event.is_channel:
-        return
-    
-    # كشف عمليات الطرد
-    if hasattr(event, 'action_message') and event.action_message:
-        action_text = event.action_message.text or ""
-        
-        # كلمات دالة على الطرد
-        kick_keywords = ["طرد", "kicked", "حظر", "banned", "removed", "طردت", "حظرت"]
-        is_kick_action = any(keyword in action_text for keyword in kick_keywords)
-        
-        if is_kick_action:
+    if "kicked" in event.message.message:
+        zedy = await event.client.get_entity(event.message.sender_id)
+        kicked_count += 1
+        if kicked_count == 3:
             try:
-                # الحصول على المشرف الذي قام بالطرد
-                action_sender = await event.get_sender()
-                if not action_sender:
-                    return
-                
-                zed_dev = (5427469031, 1895219306, 5280339206)
-                malath = l313l.uid
-                
-                # استثناء المالك والمطورين
-                if action_sender.id == malath or action_sender.id in zed_dev:
-                    return
-                
-                # تهيئة العداد للمشرف
-                user_id = action_sender.id
-                if user_id not in kick_protection[event.chat_id]['counters']:
-                    kick_protection[event.chat_id]['counters'][user_id] = 0
-                
-                # زيادة العداد
-                kick_protection[event.chat_id]['counters'][user_id] += 1
-                
-                # إذا وصل العداد لـ3 - تنزيل المشرف
-                if kick_protection[event.chat_id]['counters'][user_id] >= 2:
-                    try:
-                        # تنزيل المشرف الخائن
-                        await l313l(EditAdminRequest(
-                            event.chat_id, 
-                            user_id, 
-                            change_info=False,
-                            post_messages=False, 
-                            edit_messages=False,
-                            delete_messages=False, 
-                            ban_users=False,
-                            invite_users=False, 
-                            pin_messages=False,
-                            add_admins=False
-                        ))
-                        
-                        # إعادة تعيين الرتبة
-                        await l313l(EditAdminRequest(
-                            event.chat_id, 
-                            user_id, 
-                            rank=''
-                        ))
-                        
-                        # إرسال رسالة التنبيه
-                        await event.reply(
-                            f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـوات ]\n"
-                            f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-                            f"⌔╎**مشرف خاين** [{action_sender.first_name}](tg://user?id={user_id}) .\n"
-                            f"⌔╎**حاول تفليش القنـاة •**\n"
-                            f"⌔╎**تم تنزيلـه .. بنجـاح ✅**",
-                            link_preview=False
-                        )
-                        
-                        # إعادة تعيين العداد
-                        kick_protection[event.chat_id]['counters'][user_id] = 0
-                        
-                        # تسجيل في السجلات
-                        if BOTLOG:
-                            await event.client.send_message(
-                                BOTLOG_CHATID,
-                                f"**⎉╎سيـدي المـالك**\n\n"
-                                f"**⎉╎قـام هـذا** [المشرف](tg://user?id={user_id})  \n"
-                                f"**⎉╎بمحاولة تفليش القنـاة**\n"
-                                f"**⎉╎تم تنزيله تلقائياً .. بنجـاح ✓**"
-                            )
-                            
-                    except Exception as e:
-                        print(f"Error in anti-flood protection: {e}")
-                        
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                kicked_count = 0
+                await edit_or_reply(event, f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
             except Exception as e:
-                print(f"Error processing kick action: {e}")
+                return
+            if BOTLOG:
+                await event.client.send_message(BOTLOG_CHATID, "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**".format(zedy.id))

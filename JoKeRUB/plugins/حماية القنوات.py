@@ -968,7 +968,7 @@ async def handle_event(event):
     global kicked_count
     if not is_locked(event.chat_id, "bots"):
         return
-    if "kicked" in event.message.message:
+    if "حظر" in event.message.message:
         zedy = await event.client.get_entity(event.message.sender_id)
         kicked_count += 1
         if kicked_count == 3:

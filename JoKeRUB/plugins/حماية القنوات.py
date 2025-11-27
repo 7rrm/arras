@@ -1,4 +1,4 @@
-import requests
+"""import requests
 import asyncio
 import random
 import os
@@ -46,7 +46,7 @@ ZZ_CHANGED = "**⎉╎تم انتحـال الشخص .. بنجـاح 🥷**"
 # =========================================================== #
 #                                                             𝙕𝙏𝙝𝙤𝙣
 # =========================================================== #
-"""
+
 @zedub.zed_cmd(pattern="انتحال(?: |$)(.*)")
 async def _(event):
     replied_user, error_i_a = await get_user_from_event(event)

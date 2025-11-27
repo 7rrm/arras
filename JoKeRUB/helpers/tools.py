@@ -42,7 +42,18 @@ async def meme_type(message):
             return await file_type(message)
     return None
 
-
+async def post_to_telegraph(page_title, html_format_content):
+    post_client = TelegraphPoster(use_api=True)
+    auth_name = "JoKeRUB"
+    post_client.create_api_token(auth_name)
+    post_page = post_client.post(
+        title=page_title,
+        author=auth_name,
+        author_url="https://t.me/jepthon",
+        text=html_format_content,
+    )
+    return post_page["url"]
+    
 async def media_type(message):
     if message:
         try:

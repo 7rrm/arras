@@ -440,52 +440,52 @@ async def _(event):
     chat_per = (await event.get_chat()).default_banned_rights
     if input_str == "التفليش" or input_str == "التصفير":
         update_lock(zed_id, "bots", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة الطـرد والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة الطـرد والتحذيـر •**".format(input_str))
     if input_str == "المعرفات" or input_str == "اليوزرات":
         update_lock(zed_id, "button", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الصور":
         update_lock(zed_id, "photo", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الملصقات":
         update_lock(zed_id, "sticker", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الفيديو":
         update_lock(zed_id, "video", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الصوت" or input_str == "البصمات":
         update_lock(zed_id, "audio", True)
         return await edit_or_reply(event, "**⎉╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الدخول":
         update_lock(zed_id, "voice", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "المتحركات":
         update_lock(zed_id, "gif", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "تعديل الميديا":
         update_lock(zed_id, "document", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الملفات":
         update_lock(zed_id, "contact", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "التوجيه":
         update_lock(zed_id, "forward", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الدردشه" or input_str == "الدردشة":
         update_lock(zed_id, "game", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الانلاين":
         update_lock(zed_id, "inline", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الميديا" or input_str == "الوسائط":
         update_lock(zed_id, "location", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الفشار" or input_str == "السب":
         update_lock(zed_id, "rtl", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الروابط":
         update_lock(zed_id, "url", True)
-        return await edit_or_reply(event, "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
+        return await edit_or_reply(event, "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎تـم قفـل {} بنجـاح ✅ •**\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "الكل":
         update_lock(zed_id, "bots", True)
         update_lock(zed_id, "location", True)
@@ -642,7 +642,7 @@ async def _(event):
     if event.fwd_from:
         return
    # All Rights Reserved for "Zed-Thon - ZelZal" "زلـزال الهيبـه"
-    res = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n**- اليك إعـدادات حماية القنـاة ⚓**\n**- ❌ ⇽ مغلـق | ✅ ⇽ مفتـوح**\n\n"
+    res = "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n**- اليك إعـدادات حماية القنـاة ⚓**\n**- ❌ ⇽ مغلـق | ✅ ⇽ مفتـوح**\n\n"
     ubots = "❌" if is_locked(event.chat_id, "bots") else "✅"
     uegame = "❌" if is_locked(event.chat_id, "egame") else "✅"
     uphoto = "❌" if is_locked(event.chat_id, "photo") else "✅"
@@ -692,7 +692,7 @@ async def _(event):
     if event.fwd_from:
         return
    # All Rights Reserved for "Zed-Thon - ZelZal" "زلـزال الهيبـه"
-    res = "ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n**- اليك إعـدادات حماية القنـاة ⚓**\n**- ❌ ⇽ مغلـق | ✅ ⇽ مفتـوح**\n\n"
+    res = "ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n**- اليك إعـدادات حماية القنـاة ⚓**\n**- ❌ ⇽ مغلـق | ✅ ⇽ مفتـوح**\n\n"
     ubots = "❌" if is_locked(event.chat_id, "bots") else "✅"
     uegame = "❌" if is_locked(event.chat_id, "egame") else "✅"
     uphoto = "❌" if is_locked(event.chat_id, "photo") else "✅"
@@ -751,7 +751,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع الفشـار والسب هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع الفشـار والسب هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -762,7 +762,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الرسـائل النصيـه هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الرسـائل النصيـه هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -773,7 +773,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع التوجيـه هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع التوجيـه هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -784,7 +784,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المعـرفات هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المعـرفات هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -795,7 +795,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الصـور هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الصـور هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -806,7 +806,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الميـديـا هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الميـديـا هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -817,7 +817,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الملصقـات هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الملصقـات هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -828,7 +828,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال مقـاطـع الفيـديـو هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال مقـاطـع الفيـديـو هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -839,7 +839,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المقـاطع الصـوتيـه هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المقـاطع الصـوتيـه هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -850,7 +850,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المتحـركات هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال المتحـركات هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -861,7 +861,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الملفات هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الملفات هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -872,7 +872,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الروابـط هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع إرسـال الروابـط هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -883,7 +883,7 @@ async def check_incoming_messages(event):
         else:
             try:
                 await event.delete()
-                zzz = await event.reply("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع استـخـدام الانـلايـن هنـا ⚠️**")
+                zzz = await event.reply("ᯓ 𝗮𝗥𝗥𝗮𝗦**╎حمـايـة القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n**⎉╎عـذراً .. عزيـزي الادمـن **\n**⎉╎يُمنـع استـخـدام الانـلايـن هنـا ⚠️**")
                 await sleep(5)
                 await zzz.delete()
             except Exception as e:
@@ -910,7 +910,7 @@ async def check_edit_media(event):
         else:
             try:
                 await event.delete() #Write Code By T.me/zzzzl1l
-                zzz = await event.reply(f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡** - حمـاية القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n⌔╎**عـذࢪاً عـزيـزي الادمـن**  \n⌔╎**يُمنـع تعديـل الميديـا هنـا 🚫**\n⌔╎**تم حـذف التعديـل .. بنجـاح ☑️**", link_preview=False)
+                zzz = await event.reply(f"ᯓ 𝗮𝗥𝗥𝗮𝗦** - حمـاية القنـوات**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n⌔╎**عـذࢪاً عـزيـزي الادمـن**  \n⌔╎**يُمنـع تعديـل الميديـا هنـا 🚫**\n⌔╎**تم حـذف التعديـل .. بنجـاح ☑️**", link_preview=False)
                 await sleep(5)
                 await zzz.delete()
             except Exception:  #Write Code By T.me/zzzzl1l
@@ -987,7 +987,7 @@ async def _(event):
                         event.chat_id, zedy.id, rights
                     )
                 )
-                zzz = await event.reply(f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـاة \n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎عـذࢪاً {zedy.first_name} \n⌔╎يُمنـع الانضمـام لـ هـذه القناة 🚷•\n⌔╎تـم حظـࢪه .. بنجـاح ☑️", link_preview=False)
+                zzz = await event.reply(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـاة \n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎عـذࢪاً {zedy.first_name} \n⌔╎يُمنـع الانضمـام لـ هـذه القناة 🚷•\n⌔╎تـم حظـࢪه .. بنجـاح ☑️", link_preview=False)
                 await sleep(3)
                 await zzz.delete()
             except Exception:
@@ -1013,7 +1013,7 @@ async def handle_event(event):
                 await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
                 await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
                 kicked_count = 0
-                await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                await edit_or_reply(event, f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
             except Exception as e:
                 return
             if BOTLOG:

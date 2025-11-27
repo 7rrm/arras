@@ -1,7 +1,7 @@
 import contextlib
 import json
 import os
-
+from html_telegraph_poster import TelegraphPoster
 from .utils.utils import runcmd
 
 

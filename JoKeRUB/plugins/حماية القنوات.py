@@ -34,7 +34,7 @@ from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import _catutils, reply_id
 from ..sql_helper.globals import gvarstatus
-from . import ALIVE_NAME, BOTLOG, BOTLOG_CHATID, zedub, edit_delete, get_user_from_event
+from . import ALIVE_NAME, BOTLOG, BOTLOG_CHATID, l313l, edit_delete, get_user_from_event
 """
 LOGS = logging.getLogger(__name__)
 ANTHAL = gvarstatus("ANTHAL") or "(ايقاف الانتحال|اعادة|اعاده)"

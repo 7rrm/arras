@@ -351,8 +351,6 @@ from telethon.tl.functions.channels import (
     EditBannedRequest,
     EditPhotoRequest,
 )
-from telethon.tl.functions.channels import EditAdminRequest
-from telethon.errors import ChatAdminRequiredError
 from telethon.tl.types import (
     ChatAdminRights,
     ChannelParticipantAdmin,
@@ -965,69 +963,21 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-kicked_count = 0  # متغير عام
-
 @l313l.on(events.ChatAction())
 async def handle_event(event):
     global kicked_count
-    try:
-        if not event.is_channel:
-            return
-            
-        if not is_locked(event.chat_id, "bots"):
-            return
-            
-        # التحقق من وجود رسالة
-        if not event.message or not event.message.message:
-            return
-            
-        if "طرد" in event.message.message or "kicked" in event.message.message.lower():
-            # الحصول على المستخدم
-            if event.message.sender_id:
-                zedy = await event.client.get_entity(event.message.sender_id)
-                
-                # التحقق من صلاحيات البوت
-                try:
-                    chat = await event.get_chat()
-                    if not await is_admin(event, event.client.uid):
-                        return await event.reply("**⎉╎البوت ليس مشرفاً!**")
-                        
-                    kicked_count += 1
-                    
-                    if kicked_count >= 3:  # تغيير إلى >= 3
-                        # تنزيل الصلاحيات
-                        await event.client(EditAdminRequest(
-                            event.chat_id, 
-                            zedy.id, 
-                            ChatAdminRights(
-                                change_info=False,
-                                post_messages=False,
-                                edit_messages=False,
-                                delete_messages=False,
-                                ban_users=False,
-                                invite_users=False,
-                                pin_messages=False,
-                                add_admins=False
-                            ),
-                            rank=''
-                        ))
-                        
-                        kicked_count = 0
-                        await event.reply(
-                            f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـوات](t.me/ZThon)\n"
-                            f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-                            f"⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id})\n"
-                            f"⌔╎**حاول تفليش القنـوات**\n"
-                            f"⌔╎**تم تنزيلـه .. بنجـاح ✅**",
-                            link_preview=False
-                        )
-                        
-                except ChatAdminRequiredError:
-                    await event.reply("**⎉╎البوت يحتاج صلاحيات مشرف كاملة!**")
-                except UserAdminInvalidError:
-                    await event.reply("**⎉╎لا يمكن تنزيل مشرف رئيسي!**")
-                except Exception as e:
-                    await event.reply(f"**⎉╎خطأ: {str(e)}**")
-                    
-    except Exception as e:
-        print(f"Error in handle_event: {e}")
+    if not is_locked(event.chat_id, "bots"):
+        return
+    if "kicked" in event.message.message:
+        zedy = await event.client.get_entity(event.message.sender_id)
+        kicked_count += 1
+        if kicked_count == 3:
+            try:
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                kicked_count = 0
+                await edit_or_reply(event, f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+            except Exception as e:
+                return
+            if BOTLOG:
+                await event.client.send_message(BOTLOG_CHATID, "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**".format(zedy.id))

@@ -869,9 +869,6 @@ async def disable_emoji_blocker(event):
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
 
-ما هذا
-
-
 remove_admins_aljoker = {}
 #الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
 @l313l.on(events.ChatAction)

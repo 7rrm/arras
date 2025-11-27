@@ -1044,7 +1044,7 @@ async def handle_event(event):
                 kick_protection[event.chat_id]['counters'][user_id] += 1
                 
                 # إذا وصل العداد لـ3 - تنزيل المشرف
-                if kick_protection[event.chat_id]['counters'][user_id] >= 3:
+                if kick_protection[event.chat_id]['counters'][user_id] >= 2:
                     try:
                         # تنزيل المشرف الخائن
                         await l313l(EditAdminRequest(

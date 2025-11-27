@@ -1901,3 +1901,231 @@ async def handle_dice_throws(event):
             await game.process_tie_breaker_dice(event, user.id, dice_value)
         else:
             await game.process_dice_throw(event, user.id, dice_value)
+
+
+
+################################
+
+
+from datetime import datetime
+from telethon.tl.functions.channels import EditAdminRequest
+from telethon.tl.types import ChatAdminRights
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+
+# قاموس لتتبع عمليات الطرد
+remove_members_tracker = {}
+
+@l313l.on(events.ChatAction)
+async def handle_kick_actions(event):
+    if not gvarstatus("auto_demote"):  # إذا لم يكن النظام مفعل
+        return
+    
+    # التحقق من أن الحدث هو طرد عضو
+    if event.user_kicked:
+        user_id = event.user_id
+        chat_id = event.chat_id
+        admin_id = event.action_message.from_id if event.action_message else None
+        
+        # إذا كان الذي طرد هو مشرف
+        if admin_id and admin_id != user_id:  # تأكد أنه لا يطرد نفسه
+            try:
+                # الحصول على معلومات المشرف
+                admin = await event.client.get_entity(admin_id)
+                chat = await event.get_chat()
+                
+                # التحقق إذا كان المشرف هو مالك المجموعة
+                if chat.creator and chat.creator == admin_id:
+                    return  # لا يمكن تنزيل المالك
+                
+                now = datetime.now()
+                
+                # تتبع عمليات الطرد
+                if admin_id in remove_members_tracker:
+                    # إذا كانت هناك عملية طرد سابقة خلال دقيقة
+                    last_kick_time = remove_members_tracker[admin_id]
+                    time_diff = (now - last_kick_time).seconds
+                    
+                    if time_diff < 60:  # إذا طرد أكثر من عضو خلال دقيقة
+                        # تنزيل المشرف
+                        try:
+                            # إزالة جميع الصلاحيات
+                            new_rights = ChatAdminRights(
+                                change_info=False,
+                                post_messages=False,
+                                edit_messages=False,
+                                delete_messages=False,
+                                ban_users=False,
+                                invite_users=False,
+                                pin_messages=False,
+                                add_admins=False,
+                                anonymous=False,
+                                manage_call=False,
+                                other=False
+                            )
+                            
+                            await event.client(EditAdminRequest(
+                                chat_id,
+                                admin_id,
+                                new_rights,
+                                rank=""
+                            ))
+                            
+                            # إرسال رسالة تنبيه
+                            admin_profile = f"[{admin.first_name}](tg://user?id={admin_id})"
+                            await event.reply(
+                                f"**⚠️ تم تنزيل المشرف {admin_profile} من الإشراف **\n"
+                                f"**السبب:** قيامه بعمليات طرد متتالية للأعضاء"
+                            )
+                            
+                            # إزالة من المتابعة
+                            remove_members_tracker.pop(admin_id, None)
+                            
+                        except Exception as e:
+                            print(f"خطأ في تنزيل المشرف: {e}")
+                
+                # تحديث وقت آخر طرد
+                remove_members_tracker[admin_id] = now
+                
+            except Exception as e:
+                print(f"خطأ في معالجة الحدث: {e}")
+
+@l313l.ar_cmd(pattern="منع_الطرد تفعيل")
+async def enable_kick_protection(event):
+    """تفعيل نظام منع الطرد العشوائي"""
+    if not await is_admin(event):
+        return await event.edit("**❌ تحتاج إلى صلاحيات المشرف لتفعيل هذا النظام**")
+    
+    addgvar("auto_demote", True)
+    await event.edit("**✅ تم تفعيل نظام منع الطرد العشوائي**\n"
+                    "**سيتم تنزيل أي مشرف يقوم بعمليات طرد متتالية**")
+
+@l313l.ar_cmd(pattern="منع_الطرد تعطيل")
+async def disable_kick_protection(event):
+    """تعطيل نظام منع الطرد العشوائي"""
+    if not await is_admin(event):
+        return await event.edit("**❌ تحتاج إلى صلاحيات المشرف لتعطيل هذا النظام**")
+    
+    delgvar("auto_demote")
+    remove_members_tracker.clear()
+    await event.edit("**✅ تم تعطيل نظام منع الطرد العشوائي**")
+
+@l313l.ar_cmd(pattern="حالة_الطرد")
+async def kick_protection_status(event):
+    """عرض حالة نظام منع الطرد"""
+    status = "**مفعل ✅**" if gvarstatus("auto_demote") else "**معطل ❌**"
+    tracked_admins = len(remove_members_tracker)
+    
+    await event.edit(f"**حالة نظام منع الطرد:** {status}\n"
+                    f"**المشرفين تحت المتابعة:** {tracked_admins}")
+
+async def is_admin(event):
+    """التحقق إذا كان المستخدم مشرفاً"""
+    try:
+        chat = await event.get_chat()
+        if hasattr(chat, 'creator') and chat.creator:
+            return True
+        if hasattr(chat, 'admin_rights') and chat.admin_rights:
+            return True
+        return False
+    except:
+        return False
+
+# إضافة هذا الكود أيضاً لمنع التفليش
+@l313l.on(events.ChatAction)
+async def handle_mass_kick(event):
+    """كشف ومنع عمليات التفليش"""
+    if not gvarstatus("anti_mass_kick"):
+        return
+    
+    if event.user_kicked:
+        user_id = event.action_message.from_id if event.action_message else None
+        
+        if user_id:
+            now = datetime.now()
+            chat_id = event.chat_id
+            
+            # مفتاح فريد لكل مشرف في كل مجموعة
+            admin_key = f"{chat_id}_{user_id}"
+            
+            if admin_key in remove_members_tracker:
+                last_kick_time, kick_count = remove_members_tracker[admin_key]
+                time_diff = (now - last_kick_time).seconds
+                
+                if time_diff < 30:  # 30 ثانية
+                    kick_count += 1
+                    remove_members_tracker[admin_key] = (now, kick_count)
+                    
+                    # إذا طرد أكثر من 3 أعضاء خلال 30 ثانية
+                    if kick_count >= 3:
+                        await demote_admin(event, user_id, "قيامه بعملية تفليش")
+                        remove_members_tracker.pop(admin_key, None)
+                else:
+                    # إعادة تعيين العد إذا مر أكثر من 30 ثانية
+                    remove_members_tracker[admin_key] = (now, 1)
+            else:
+                remove_members_tracker[admin_key] = (now, 1)
+
+async def demote_admin(event, admin_id, reason):
+    """دالة مساعدة لتنزيل المشرف"""
+    try:
+        chat = await event.get_chat()
+        admin = await event.client.get_entity(admin_id)
+        
+        # لا يمكن تنزيل المالك
+        if chat.creator and chat.creator == admin_id:
+            return
+        
+        new_rights = ChatAdminRights(
+            change_info=False,
+            post_messages=False,
+            edit_messages=False,
+            delete_messages=False,
+            ban_users=False,
+            invite_users=False,
+            pin_messages=False,
+            add_admins=False,
+            anonymous=False,
+            manage_call=False,
+            other=False
+        )
+        
+        await event.client(EditAdminRequest(
+            event.chat_id,
+            admin_id,
+            new_rights,
+            rank=""
+        ))
+        
+        admin_profile = f"[{admin.first_name}](tg://user?id={admin_id})"
+        await event.reply(
+            f"**🚫 تم تنزيل المشرف {admin_profile} **\n"
+            f"**السبب:** {reason}"
+        )
+        
+    except Exception as e:
+        print(f"خطأ في تنزيل المشرف: {e}")
+
+@l313l.ar_cmd(pattern="منع_التفليش تفعيل")
+async def enable_anti_mass_kick(event):
+    """تفعيل نظام منع التفليش"""
+    if not await is_admin(event):
+        return await event.edit("**❌ تحتاج إلى صلاحيات المشرف**")
+    
+    addgvar("anti_mass_kick", True)
+    await event.edit("**✅ تم تفعيل نظام منع التفليش**\n"
+                    "**سيتم تنزيل أي مشرف يقوم بطرد أكثر من 3 أعضاء خلال 30 ثانية**")
+
+@l313l.ar_cmd(pattern="منع_التفليش تعطيل")
+async def disable_anti_mass_kick(event):
+    """تعطيل نظام منع التفليش"""
+    if not await is_admin(event):
+        return await event.edit("**❌ تحتاج إلى صلاحيات المشرف**")
+    
+    delgvar("anti_mass_kick")
+    # تنظيف المتابعة للمجموعة الحالية فقط
+    chat_id = event.chat_id
+    keys_to_remove = [key for key in remove_members_tracker.keys() if key.startswith(f"{chat_id}_")]
+    for key in keys_to_remove:
+        remove_members_tracker.pop(key, None)
+    
+    await event.edit("**✅ تم تعطيل نظام منع التفليش**")

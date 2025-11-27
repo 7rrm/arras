@@ -56,22 +56,6 @@ async def get_cast(casttype, movie):
         mov_casttype += "Not Data"
     return mov_casttype
 
-
-async def post_to_telegraph(
-    page_title,
-    html_format_content,
-    auth_name="Zed-Thon",
-    auth_url="https://t.me/lx5x5",
-):
-    post_client = TelegraphPoster(use_api=True)
-    post_client.create_api_token(auth_name)
-    post_page = post_client.post(
-        title=page_title,
-        author=auth_name,
-        author_url=auth_url,
-        text=html_format_content,
-    )
-    return post_page["url"]
     
 async def get_moviecollections(movie):
     result = ""

@@ -170,7 +170,6 @@ async def _(event):
             update_lock(zed_id, "sticker", True)
             update_lock(zed_id, "voice", True)
             update_lock(zed_id, "audio", True)
-			update_lock(zed_id, "flood", True)
         lock_rights = ChatBannedRights(
             until_date=None,
             send_messages=msg,
@@ -224,7 +223,7 @@ async def _(event):
         update_lock(zed_id, "url", True)
         return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
-        update_lock(zed_id, "flood", True)
+        update_lock(zed_id, "audio", True)
         return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة تنزيـل المشـرف الخـائن •**".format(input_str))
     if input_str == "المميز":
         return
@@ -320,7 +319,6 @@ async def _(event):
             update_lock(zed_id, "sticker", False)
             update_lock(zed_id, "voice", False)
             update_lock(zed_id, "audio", False)
-			update_lock(zed_id, "flood", False)
         unlock_rights = ChatBannedRights(
             until_date=None,
             send_messages=msg,
@@ -374,7 +372,7 @@ async def _(event):
         update_lock(zed_id, "inline", False)
         return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
     if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
-        update_lock(zed_id, "flood", False)
+        update_lock(zed_id, "audio", False)
         return await edit_or_reply(event, "**◆╎تـم فتـح {} بنجـاح ✅ .**\n\n**⤶╎وتعطيـل مانـع التفليـش .**".format(input_str))
     if input_str == "المميز":
         return
@@ -429,7 +427,6 @@ async def _(event):
     ubutton = "✅" if is_locked(event.chat_id, "button") else "❌"
     uinline = "✅" if is_locked(event.chat_id, "inline") else "❌"
     uaudio = "✅" if is_locked(event.chat_id, "audio") else "❌"
-	uaudio = "✅" if is_locked(event.chat_id, "flood") else "❌"
     res += f"**◆╎ البوتات :** {ubots}\n"
     res += f"**◆╎ الدخول :** {ulocation}\n"
     res += f"**◆╎ دخول الايران :** {uegame}\n"
@@ -442,7 +439,7 @@ async def _(event):
     res += f"**◆╎ الفشار :** {urtl}\n"
     res += f"**◆╎ الروابط :** {uurl}\n"
     res += f"**◆╎ الانلاين :** {uinline}\n"
-    res += f"**◆╎ التفليش :** {uflood}\n"
+    res += f"**◆╎ التفليش :** {uaudio}\n"
     await edit_or_reply(event, res)
 
 
@@ -834,44 +831,26 @@ remove_members_aljoker = {}
 
 @l313l.on(events.ChatAction())
 async def handle_event(event):
-    if not is_locked(event.chat_id, "audio"):  # تم التعديل هنا
-        return
-    if not event.is_group:
+    if not is_locked(event.chat_id, "audio") or not event.is_group:
         return
     
-    # التحقق من وجود عملية طرد
     if "kicked" in event.raw_text:
         user_id = str(event.user_id)
         
-        # الحصول على معلومات المشرف
-        zedy = await event.client.get_entity(event.user_id)
-        
-        # التحقق إذا كان المستخدم مشرفاً
+        # التحقق من الصلاحيات مرة واحدة
         participants = await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-        if event.user_id in [user.id for user in participants]:
+        if event.user_id in participants:
             now = datetime.now()
             
-            if user_id in remove_members_aljoker:
-                # التحقق إذا مر أقل من 60 ثانية منذ آخر عملية
-                if (now - remove_members_aljoker[user_id]).seconds < 60:
-                    # تنزيل المشرف
-                    chat = await event.get_chat()
-                    await event.client.edit_admin(chat, int(user_id), change_info=False)
-                    
-                    await edit_or_reply(
-                        event, 
-                        f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                        f"⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n"
-                        f"⌔╎**حاول تفليش المجموعـة•**\n"
-                        f"⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
-                        link_preview=False
-                    )
+            if user_id in remove_members_aljoker and (now - remove_members_aljoker[user_id]).seconds < 60:
+                # ⭐ الطريقة الأسرع - مكالمة API واحدة
+                chat = await event.get_chat()
+                await event.client.edit_admin(chat, int(user_id), change_info=False)
                 
-                # تحديث الوقت بغض النظر عن التنزيل
-                remove_members_aljoker[user_id] = now
-            else:
-                # إضافة المستخدم للمرة الأولى
-                remove_members_aljoker[user_id] = now
+                await edit_or_reply(event, f"**تم تنزيل المشرف [{event.user_id}] بسبب التفليش**")
+            
+            # تحديث الوقت
+            remove_members_aljoker[user_id] = now
 
 @l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):

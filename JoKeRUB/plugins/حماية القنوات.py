@@ -968,7 +968,7 @@ remove_members_aljokerr = {}  # المتغير الصحيح
 @l313l.on(events.ChatAction)
 async def Hussein(event):
     # نظام منع التفليش للقنوات
-    if is_locked(event.chat_id, "audio"):
+    if is_locked(event.chat_id, "bots"):
         if event.user_kicked:
             try:
                 # الحصول على ID المستخدم الذي قام بالطرد

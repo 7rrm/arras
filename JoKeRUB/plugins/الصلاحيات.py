@@ -845,7 +845,7 @@ async def Hussein(event):
                         if (now - remove_members_aljoker[user_id]).seconds < 10:
                             admin_info = await event.client.get_entity(int(user_id))
                             joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                            await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
                             await event.client.edit_admin(chat, int(user_id), change_info=False)
                         # إصلاح: فقط تحديث الوقت بدون حذف
                         remove_members_aljoker[user_id] = now

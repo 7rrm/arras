@@ -963,28 +963,30 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-remove_members_aljoker = {}  # المتغير الصحيح
+remove_members_aljokerr = {}  # المتغير الصحيح
 
 @l313l.on(events.ChatAction)
 async def Hussein(event):
-    # نظام منع التفليش الجديد - يعمل مع نظام القفل والفتح
+    # نظام منع التفليش للقنوات
     if is_locked(event.chat_id, "audio"):
         if event.user_kicked:
             try:
-                # إصلاح مشكلة unhashable
+                # الحصول على ID المستخدم الذي قام بالطرد
                 user_id = str(event.action_message.sender_id)
                 chat = await event.get_chat()
                 if chat and user_id:
                     now = datetime.now()
-                    if user_id in remove_members_aljoker:  # المتغير الصحيح
-                        if (now - remove_members_aljoker[user_id]).seconds < 10:
+                    if user_id in remove_members_aljokerr:
+                        if (now - remove_members_aljokerr[user_id]).seconds < 60:  # 60 ثانية بدلاً من 10
+                            # تنزيل المشرف الخائن
                             admin_info = await event.client.get_entity(int(user_id))
                             joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
                             await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
                             await event.client.edit_admin(chat, int(user_id), change_info=False)
-                        # إصلاح: فقط تحديث الوقت بدون حذف
+                        # تحديث الوقت
                         remove_members_aljoker[user_id] = now
                     else:
+                        # أول طرد - تخزين الوقت فقط
                         remove_members_aljoker[user_id] = now
             except Exception as e:
                 print(f"Error in anti-kick system: {e}")

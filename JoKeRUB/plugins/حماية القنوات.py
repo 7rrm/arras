@@ -963,36 +963,39 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-remove_members_aljokerr = {}  # المتغير الصحيح
+remove_members_aljokerr = {}
+kicked_count = {}
 
-@l313l.on(events.ChatAction)
+@l313l.on(events.NewMessage)
 async def Hussein(event):
-    # نظام منع التفليش للقنوات
+    # نظام منع التفليش للقنوات - بنفس طريقة الكود الأصلي
     if is_locked(event.chat_id, "bots"):
-        if event.user_kicked:
-            try:
-                print(f"DEBUG: تم اكتشاف طرد - Chat: {event.chat_id}, User: {event.action_message.sender_id}")
-                # الحصول على ID المستخدم الذي قام بالطرد
-                user_id = str(event.action_message.sender_id)
-                chat = await event.get_chat()
-                if chat and user_id:
-                    now = datetime.now()
-                    print(f"DEBUG: user_id في القاموس: {user_id in remove_members_aljokerr}")
-                    if user_id in remove_members_aljokerr:
-                        time_diff = (now - remove_members_aljokerr[user_id]).seconds
-                        print(f"DEBUG: الفارق الزمني: {time_diff} ثانية")
-                        if time_diff < 60:
-                            print(f"DEBUG: تم كشف تفليش - تنزيل المشرف {user_id}")
-                            # تنزيل المشرف الخائن
+        if event.message and event.message.text:
+            message_text = event.message.text.lower()
+            
+            # الكشف عن الطرد في النص
+            if any(word in message_text for word in ["طرد", "حظر", "kicked", "banned"]):
+                try:
+                    user_id = str(event.message.sender_id)
+                    chat = await event.get_chat()
+                    
+                    if chat and user_id:
+                        # نظام العد
+                        if user_id not in kicked_count:
+                            kicked_count[user_id] = 0
+                        
+                        kicked_count[user_id] += 1
+                        print(f"DEBUG: عدد الطردات للمستخدم {user_id}: {kicked_count[user_id]}")
+                        
+                        if kicked_count[user_id] >= 2:  # بعد طردين
                             admin_info = await event.client.get_entity(int(user_id))
                             joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                            
                             await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
                             await event.client.edit_admin(chat, int(user_id), change_info=False)
-                        # تحديث الوقت
-                        remove_members_aljokerr[user_id] = now
-                    else:
-                        print(f"DEBUG: أول طرد - تخزين الوقت للمستخدم {user_id}")
-                        # أول طرد - تخزين الوقت فقط
-                        remove_members_aljokerr[user_id] = now
-            except Exception as e:
-                print(f"Error in anti-kick system: {e}")
+                            
+                            # إعادة العد
+                            kicked_count[user_id] = 0
+                            
+                except Exception as e:
+                    print(f"Error in anti-kick system: {e}")

@@ -971,13 +971,18 @@ async def Hussein(event):
     if is_locked(event.chat_id, "bots"):
         if event.user_kicked:
             try:
+                print(f"DEBUG: تم اكتشاف طرد - Chat: {event.chat_id}, User: {event.action_message.sender_id}")
                 # الحصول على ID المستخدم الذي قام بالطرد
                 user_id = str(event.action_message.sender_id)
                 chat = await event.get_chat()
                 if chat and user_id:
                     now = datetime.now()
+                    print(f"DEBUG: user_id في القاموس: {user_id in remove_members_aljokerr}")
                     if user_id in remove_members_aljokerr:
-                        if (now - remove_members_aljokerr[user_id]).seconds < 60:  # 60 ثانية بدلاً من 10
+                        time_diff = (now - remove_members_aljokerr[user_id]).seconds
+                        print(f"DEBUG: الفارق الزمني: {time_diff} ثانية")
+                        if time_diff < 60:
+                            print(f"DEBUG: تم كشف تفليش - تنزيل المشرف {user_id}")
                             # تنزيل المشرف الخائن
                             admin_info = await event.client.get_entity(int(user_id))
                             joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
@@ -986,6 +991,7 @@ async def Hussein(event):
                         # تحديث الوقت
                         remove_members_aljokerr[user_id] = now
                     else:
+                        print(f"DEBUG: أول طرد - تخزين الوقت للمستخدم {user_id}")
                         # أول طرد - تخزين الوقت فقط
                         remove_members_aljokerr[user_id] = now
             except Exception as e:

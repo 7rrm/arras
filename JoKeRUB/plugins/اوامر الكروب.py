@@ -869,27 +869,28 @@ async def disable_emoji_blocker(event):
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
 
-remove_admins_aljoker = {}
-#الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
+remove_members_aljoker = {}  # المتغير الصحيح
 
 @l313l.on(events.ChatAction)
 async def Hussein(event):
     if gvarstatus("Mn3_Kick"):
         if event.user_kicked:
-            user_id = event.action_message.from_id
+            # إصلاح مشكلة unhashable
+            user_id = str(event.action_message.from_id.user_id)
             chat = await event.get_chat()
             if chat and user_id:
                 now = datetime.now()
-                if user_id in remove_admins_aljoker:
-                    if (now - remove_admins_aljoker[user_id]).seconds < 60:
-                        admin_info = await event.client.get_entity(user_id)
+                if user_id in remove_members_aljoker:  # المتغير الصحيح
+                    if (now - remove_members_aljoker[user_id]).seconds < 60:
+                        admin_info = await event.client.get_entity(int(user_id))
                         joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
                         await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
-                        await event.client.edit_admin(chat, user_id, change_info=False)
-                    remove_admins_aljoker.pop(user_id)
-                    remove_admins_aljoker[user_id] = now
+                        await event.client.edit_admin(chat, int(user_id), change_info=False)
+                    # إصلاح: فقط تحديث الوقت بدون حذف
+                    remove_members_aljoker[user_id] = now
                 else:
-                    remove_admins_aljoker[user_id] = now
+                    remove_members_aljoker[user_id] = now
+
 @l313l.ar_cmd(pattern="منع_التفليش", require_admin=True)
 async def Hussein_aljoker(event):
     addgvar("Mn3_Kick", True)

@@ -963,49 +963,22 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-remove_members_aljokerr = {}  # المتغير الصحيح
 
-@l313l.on(events.NewMessage)
-async def Hussein(event):
-    # نظام منع التفليش للقنوات - يعمل بتحليل النص
-    if is_locked(event.chat_id, "bots"):
-        if event.message and event.message.text:
-            message_text = event.message.text.lower()
-            
-            # كلمات تدل على الطرد في القنوات
-            kick_keywords = ["طرد", "حظر", "غادر", "خرج", "kicked", "banned", "removed", "left"]
-            
-            # تحقق إذا كانت الرسالة تحتوي على أي من كلمات الطرد
-            if any(keyword in message_text for keyword in kick_keywords):
-                try:
-                    print(f"DEBUG: تم اكتشاف طرد - النص: {message_text}")
-                    
-                    # الحصول على ID المستخدم الذي أرسل الرسالة (المشرف)
-                    user_id = str(event.message.sender_id)
-                    chat = await event.get_chat()
-                    
-                    if chat and user_id:
-                        now = datetime.now()
-                        print(f"DEBUG: user_id في القاموس: {user_id in remove_members_aljokerr}")
-                        
-                        if user_id in remove_members_aljokerr:
-                            time_diff = (now - remove_members_aljokerr[user_id]).seconds
-                            print(f"DEBUG: الفارق الزمني: {time_diff} ثانية")
-                            
-                            if time_diff < 60:
-                                print(f"DEBUG: تم كشف تفليش - تنزيل المشرف {user_id}")
-                                # تنزيل المشرف الخائن
-                                admin_info = await event.client.get_entity(int(user_id))
-                                joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                                await event.client.edit_admin(chat, int(user_id), change_info=False)
-                            
-                            # تحديث الوقت - إصلاح اسم المتغير
-                            remove_members_aljokerr[user_id] = now
-                        else:
-                            print(f"DEBUG: أول طرد - تخزين الوقت للمستخدم {user_id}")
-                            # أول طرد - تخزين الوقت فقط - إصلاح اسم المتغير
-                            remove_members_aljokerr[user_id] = now
-                            
-                except Exception as e:
-                    print(f"Error in anti-kick system: {e}")
+@l313l.on(events.ChatAction())
+async def handle_event(event):
+    global kicked_count
+    if not is_locked(event.chat_id, "bots"):
+        return
+    if "kicked" in event.message.message:
+        zedy = await event.client.get_entity(event.message.sender_id)
+        kicked_count += 1
+        if kicked_count == 3:
+            try:
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                kicked_count = 0
+                await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+            except Exception as e:
+                return
+            if BOTLOG:
+                await event.client.send_message(BOTLOG_CHATID, "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**".format(zedy.id))

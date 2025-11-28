@@ -963,43 +963,49 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-remove_members_aljokerr = {}
+remove_members_aljokerr = {}  # المتغير الصحيح
 
-@l313l.on(events.ChatAction)
+@l313l.on(events.NewMessage)
 async def Hussein(event):
-    print(f"DEBUG: حدث ChatAction - ID: {event.chat_id}")
-    
+    # نظام منع التفليش للقنوات - يعمل بتحليل النص
     if is_locked(event.chat_id, "bots"):
-        print(f"DEBUG: منع التفليش مفعل")
-        
-        # طريقة بديلة للكشف عن الطرد في القنوات
-        action = event.action_message.action if event.action_message else None
-        print(f"DEBUG: نوع الحدث: {type(action)}")
-        
-        # الكشف عن أي تغيير في المشاركين
-        if hasattr(action, 'users') and action.users:
-            print(f"DEBUG: هناك تغيير في المستخدمين: {action.users}")
+        if event.message and event.message.text:
+            message_text = event.message.text.lower()
             
-            user_id = str(event.action_message.sender_id)
-            print(f"DEBUG: المستخدم الفاعل: {user_id}")
+            # كلمات تدل على الطرد في القنوات
+            kick_keywords = ["طرد", "حظر", "غادر", "خرج", "kicked", "banned", "removed", "left"]
             
-            chat = await event.get_chat()
-            if chat and user_id:
-                now = datetime.now()
-                print(f"DEBUG: التحقق من المستخدم في القاموس")
-                
-                if user_id in remove_members_aljokerr:
-                    time_diff = (now - remove_members_aljokerr[user_id]).seconds
-                    print(f"DEBUG: الفارق الزمني: {time_diff} ثانية")
+            # تحقق إذا كانت الرسالة تحتوي على أي من كلمات الطرد
+            if any(keyword in message_text for keyword in kick_keywords):
+                try:
+                    print(f"DEBUG: تم اكتشاف طرد - النص: {message_text}")
                     
-                    if time_diff < 60:
-                        print(f"DEBUG: كشف تفليش - تنزيل {user_id}")
-                        admin_info = await event.client.get_entity(int(user_id))
-                        joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                        await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                        await event.client.edit_admin(chat, int(user_id), change_info=False)
+                    # الحصول على ID المستخدم الذي أرسل الرسالة (المشرف)
+                    user_id = str(event.message.sender_id)
+                    chat = await event.get_chat()
                     
-                    remove_members_aljokerr[user_id] = now
-                else:
-                    print(f"DEBUG: أول طرد - تخزين {user_id}")
-                    remove_members_aljokerr[user_id] = now
+                    if chat and user_id:
+                        now = datetime.now()
+                        print(f"DEBUG: user_id في القاموس: {user_id in remove_members_aljokerr}")
+                        
+                        if user_id in remove_members_aljokerr:
+                            time_diff = (now - remove_members_aljokerr[user_id]).seconds
+                            print(f"DEBUG: الفارق الزمني: {time_diff} ثانية")
+                            
+                            if time_diff < 60:
+                                print(f"DEBUG: تم كشف تفليش - تنزيل المشرف {user_id}")
+                                # تنزيل المشرف الخائن
+                                admin_info = await event.client.get_entity(int(user_id))
+                                joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                                await event.client.edit_admin(chat, int(user_id), change_info=False)
+                            
+                            # تحديث الوقت - إصلاح اسم المتغير
+                            remove_members_aljokerr[user_id] = now
+                        else:
+                            print(f"DEBUG: أول طرد - تخزين الوقت للمستخدم {user_id}")
+                            # أول طرد - تخزين الوقت فقط - إصلاح اسم المتغير
+                            remove_members_aljokerr[user_id] = now
+                            
+                except Exception as e:
+                    print(f"Error in anti-kick system: {e}")

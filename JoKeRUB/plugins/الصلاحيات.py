@@ -170,6 +170,7 @@ async def _(event):
             update_lock(zed_id, "sticker", True)
             update_lock(zed_id, "voice", True)
             update_lock(zed_id, "audio", True)
+			update_lock(zed_id, "flood", True)
         lock_rights = ChatBannedRights(
             until_date=None,
             send_messages=msg,
@@ -223,7 +224,7 @@ async def _(event):
         update_lock(zed_id, "url", True)
         return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة المسـح والتحذيـر •**".format(input_str))
     if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
-        update_lock(zed_id, "audio", True)
+        update_lock(zed_id, "flood", True)
         return await edit_or_reply(event, "**◆╎تـم قفـل {} بنجـاح ✅ •**\n\n**⎉╎خاصيـة تنزيـل المشـرف الخـائن •**".format(input_str))
     if input_str == "المميز":
         return
@@ -319,6 +320,7 @@ async def _(event):
             update_lock(zed_id, "sticker", False)
             update_lock(zed_id, "voice", False)
             update_lock(zed_id, "audio", False)
+			update_lock(zed_id, "flood", False)
         unlock_rights = ChatBannedRights(
             until_date=None,
             send_messages=msg,
@@ -372,7 +374,7 @@ async def _(event):
         update_lock(zed_id, "inline", False)
         return await edit_or_reply(event, "**◆╎تـم فتـح** {} **بنجـاح ✅ .**".format(input_str))
     if input_str == "التفليش" or input_str == "الخيانه" or input_str == "الخيانة":
-        update_lock(zed_id, "audio", False)
+        update_lock(zed_id, "flood", False)
         return await edit_or_reply(event, "**◆╎تـم فتـح {} بنجـاح ✅ .**\n\n**⤶╎وتعطيـل مانـع التفليـش .**".format(input_str))
     if input_str == "المميز":
         return
@@ -427,6 +429,7 @@ async def _(event):
     ubutton = "✅" if is_locked(event.chat_id, "button") else "❌"
     uinline = "✅" if is_locked(event.chat_id, "inline") else "❌"
     uaudio = "✅" if is_locked(event.chat_id, "audio") else "❌"
+	uaudio = "✅" if is_locked(event.chat_id, "flood") else "❌"
     res += f"**◆╎ البوتات :** {ubots}\n"
     res += f"**◆╎ الدخول :** {ulocation}\n"
     res += f"**◆╎ دخول الايران :** {uegame}\n"
@@ -439,7 +442,7 @@ async def _(event):
     res += f"**◆╎ الفشار :** {urtl}\n"
     res += f"**◆╎ الروابط :** {uurl}\n"
     res += f"**◆╎ الانلاين :** {uinline}\n"
-    res += f"**◆╎ التفليش :** {uaudio}\n"
+    res += f"**◆╎ التفليش :** {uflood}\n"
     await edit_or_reply(event, res)
 
 

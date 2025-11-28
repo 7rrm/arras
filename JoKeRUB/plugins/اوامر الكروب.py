@@ -868,7 +868,7 @@ async def disable_emoji_blocker(event):
     Ya_Hussein = False
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
-
+"""
 remove_members_aljoker = {}
 #الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
 
@@ -899,7 +899,7 @@ async def Hussein_aljoker(event):
 async def Hussein_aljoker(event):
     delgvar("Mn3_Kick")
     await event.edit("**᯽︙ تم تعطيل منع التفليش للمجموعة بنجاح ✓**")
-
+"""
 message_counts = {}
 enabled_groups = []
 Ya_Abbas = False
@@ -1903,3 +1903,150 @@ async def handle_dice_throws(event):
             await game.process_dice_throw(event, user.id, dice_value)
 
 
+
+import logging
+from datetime import datetime
+
+# إعداد نظام التسجيل للأخطاء
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+remove_members_aljoker = {}
+
+@l313l.on(events.ChatAction)
+async def Hussein(event):
+    try:
+        logger.info(f"حدث ChatAction تم استقباله: {event.action_message}")
+        
+        if not gvarstatus("Mn3_Kick"):
+            logger.info("الحماية غير مفعلة - تخطي الحدث")
+            return
+        
+        logger.info("الحماية مفعلة - معالجة الحدث")
+        
+        if event.user_kicked:
+            logger.info("تم كشف عملية طرد عضو")
+            user_id = event.action_message.from_id
+            chat = await event.get_chat()
+            
+            logger.info(f"user_id: {user_id}, chat: {chat.title if chat else 'غير معروف'}")
+            
+            if chat and user_id:
+                now = datetime.now()
+                
+                if user_id in remove_members_aljoker:
+                    time_diff = (now - remove_members_aljoker[user_id]).seconds
+                    logger.info(f"فرق الوقت: {time_diff} ثانية")
+                    
+                    if time_diff < 60:
+                        logger.info(f"تم كشف تفليش من user_id: {user_id}")
+                        try:
+                            admin_info = await event.client.get_entity(user_id)
+                            joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                            
+                            await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
+                            await event.client.edit_admin(chat, user_id, change_info=False)
+                            
+                            logger.info(f"تم تنزيل المشرف بنجاح: {admin_info.first_name}")
+                            
+                        except Exception as admin_error:
+                            logger.error(f"خطأ في تنزيل المشرف: {admin_error}")
+                            await event.reply(f"**✧︙ حدث خطأ في تنزيل المشرف: {admin_error}**")
+                    
+                    # تحديث الوقت بغض النظر عن الحالة
+                    remove_members_aljoker[user_id] = now
+                else:
+                    logger.info(f"إضافة user_id جديد للقائمة: {user_id}")
+                    remove_members_aljoker[user_id] = now
+            else:
+                logger.warning("لا يوجد chat أو user_id")
+        else:
+            logger.info("ليس حدث طرد عضو - تخطي")
+            
+    except Exception as e:
+        logger.error(f"خطأ في وظيفة الحماية: {e}")
+        try:
+            await event.reply(f"**✧︙ حدث خطأ في نظام الحماية: {e}**")
+        except:
+            pass
+
+@l313l.ar_cmd(pattern="منع_التفليش", require_admin=True)
+async def Hussein_aljoker(event):
+    try:
+        addgvar("Mn3_Kick", True)
+        logger.info("تم تفعيل منع التفليش")
+        await event.edit("**᯽︙ تم تفعيل منع التفليش للمجموعة بنجاح ✓**")
+        
+        # إرسال رسالة تأكيد مع معلومات التفعيل
+        chat = await event.get_chat()
+        await event.reply(f"**✧︙ تم تفعيل نظام منع التفليش في {chat.title}**\n"
+                         "**✧︙ الحالة: ✅ مفعل**\n"
+                         "**✧︙ سيتم مراقبة جميع عمليات الطرد**")
+                         
+    except Exception as e:
+        logger.error(f"خطأ في تفعيل الحماية: {e}")
+        await event.edit(f"**✧︙ حدث خطأ في التفعيل: {e}**")
+
+@l313l.ar_cmd(pattern="سماح_التفليش", require_admin=True)
+async def Hussein_aljoker(event):
+    try:
+        delgvar("Mn3_Kick")
+        logger.info("تم تعطيل منع التفليش")
+        await event.edit("**᯽︙ تم تعطيل منع التفليش للمجموعة بنجاح ✓**")
+        
+        # تنظيف القائمة
+        remove_members_aljoker.clear()
+        
+    except Exception as e:
+        logger.error(f"خطأ في تعطيل الحماية: {e}")
+        await event.edit(f"**✧︙ حدث خطأ في التعطيل: {e}**")
+
+@l313l.ar_cmd(pattern="حالة_الحماية", require_admin=True)
+async def protection_status(event):
+    try:
+        status = "✅ مفعل" if gvarstatus("Mn3_Kick") else "❌ معطل"
+        tracked_users = len(remove_members_aljoker)
+        
+        status_msg = f"""
+**✧︙ حالة نظام منع التفليش:**
+
+**الحالة:** {status}
+**عدد المستخدمين تحت المراقبة:** {tracked_users}
+**آخر تحديث:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+
+**تفاصيل النظام:**
+- يراقب عمليات الطرد الجماعي
+- ينزل المشرف إذا طرد أكثر من عضو في أقل من 60 ثانية
+        """
+        
+        await event.edit(status_msg)
+        
+    except Exception as e:
+        logger.error(f"خطأ في عرض الحالة: {e}")
+        await event.edit(f"**✧︙ حدث خطأ في عرض الحالة: {e}**")
+
+@l313l.ar_cmd(pattern="تصحيح_الحماية", require_admin=True)
+async def fix_protection(event):
+    try:
+        # إعادة تعيين النظام
+        remove_members_aljoker.clear()
+        
+        # التحقق من حالة المتغير
+        current_status = gvarstatus("Mn3_Kick")
+        
+        fix_msg = f"""
+**✧︙ تم تصحيح نظام الحماية:**
+
+- **تم تنظيف قائمة المراقبة**
+- **الحالة الحالية:** {'✅ مفعل' if current_status else '❌ معطل'}
+- **عدد المستخدمين بعد التنظيف:** {len(remove_members_aljoker)}
+
+**النظام جاهز للعمل ✅**
+        """
+        
+        await event.edit(fix_msg)
+        logger.info("تم تصحيح نظام الحماية")
+        
+    except Exception as e:
+        logger.error(f"خطأ في التصحيح: {e}")
+        await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")

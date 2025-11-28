@@ -831,26 +831,44 @@ remove_members_aljoker = {}
 
 @l313l.on(events.ChatAction())
 async def handle_event(event):
-    if not is_locked(event.chat_id, "bots") or not event.is_group:
+    if not is_locked(event.chat_id, "audio"):  # تم التعديل هنا
+        return
+    if not event.is_group:
         return
     
+    # التحقق من وجود عملية طرد
     if "kicked" in event.raw_text:
         user_id = str(event.user_id)
         
-        # التحقق من الصلاحيات مرة واحدة
+        # الحصول على معلومات المشرف
+        zedy = await event.client.get_entity(event.user_id)
+        
+        # التحقق إذا كان المستخدم مشرفاً
         participants = await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-        if event.user_id in participants:
+        if event.user_id in [user.id for user in participants]:
             now = datetime.now()
             
-            if user_id in remove_members_aljoker and (now - remove_members_aljoker[user_id]).seconds < 60:
-                # ⭐ الطريقة الأسرع - مكالمة API واحدة
-                chat = await event.get_chat()
-                await event.client.edit_admin(chat, int(user_id), change_info=False)
+            if user_id in remove_members_aljoker:
+                # التحقق إذا مر أقل من 60 ثانية منذ آخر عملية
+                if (now - remove_members_aljoker[user_id]).seconds < 60:
+                    # تنزيل المشرف
+                    chat = await event.get_chat()
+                    await event.client.edit_admin(chat, int(user_id), change_info=False)
+                    
+                    await edit_or_reply(
+                        event, 
+                        f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+                        f"⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n"
+                        f"⌔╎**حاول تفليش المجموعـة•**\n"
+                        f"⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
+                        link_preview=False
+                    )
                 
-                await edit_or_reply(event, f"**تم تنزيل المشرف [{event.user_id}] بسبب التفليش**")
-            
-            # تحديث الوقت
-            remove_members_aljoker[user_id] = now
+                # تحديث الوقت بغض النظر عن التنزيل
+                remove_members_aljoker[user_id] = now
+            else:
+                # إضافة المستخدم للمرة الأولى
+                remove_members_aljoker[user_id] = now
 
 @l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):

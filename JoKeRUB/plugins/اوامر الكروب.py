@@ -1926,7 +1926,14 @@ async def Hussein(event):
         
         if event.user_kicked:
             logger.info("تم كشف عملية طرد عضو")
-            user_id = event.action_message.from_id
+            
+            # إصلاح: الحصول على user_id بشكل صحيح
+            if event.action_message and event.action_message.from_id:
+                user_id = event.action_message.from_id.user_id if hasattr(event.action_message.from_id, 'user_id') else event.action_message.from_id
+            else:
+                logger.warning("لا يمكن الحصول على from_id")
+                return
+            
             chat = await event.get_chat()
             
             logger.info(f"user_id: {user_id}, chat: {chat.title if chat else 'غير معروف'}")
@@ -1934,18 +1941,21 @@ async def Hussein(event):
             if chat and user_id:
                 now = datetime.now()
                 
-                if user_id in remove_members_aljoker:
-                    time_diff = (now - remove_members_aljoker[user_id]).seconds
-                    logger.info(f"فرق الوقت: {time_diff} ثانية")
+                # تحويل user_id إلى نص لتجنب مشكلة unhashable
+                user_key = str(user_id)
+                
+                if user_key in remove_members_aljoker:
+                    time_diff = (now - remove_members_aljoker[user_key]).seconds
+                    logger.info(f"فرق الوقت: {time_diff} ثانية للمستخدم {user_key}")
                     
                     if time_diff < 60:
-                        logger.info(f"تم كشف تفليش من user_id: {user_id}")
+                        logger.info(f"تم كشف تفليش من user_id: {user_key}")
                         try:
-                            admin_info = await event.client.get_entity(user_id)
+                            admin_info = await event.client.get_entity(int(user_key))
                             joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
                             
                             await event.reply(f"**✧︙ تم تنزيل المشرف {joker_link} بسبب قيامه بعملية تفليش فاشلة 🤣**")
-                            await event.client.edit_admin(chat, user_id, change_info=False)
+                            await event.client.edit_admin(chat, int(user_key), change_info=False)
                             
                             logger.info(f"تم تنزيل المشرف بنجاح: {admin_info.first_name}")
                             
@@ -1954,10 +1964,10 @@ async def Hussein(event):
                             await event.reply(f"**✧︙ حدث خطأ في تنزيل المشرف: {admin_error}**")
                     
                     # تحديث الوقت بغض النظر عن الحالة
-                    remove_members_aljoker[user_id] = now
+                    remove_members_aljoker[user_key] = now
                 else:
-                    logger.info(f"إضافة user_id جديد للقائمة: {user_id}")
-                    remove_members_aljoker[user_id] = now
+                    logger.info(f"إضافة user_id جديد للقائمة: {user_key}")
+                    remove_members_aljoker[user_key] = now
             else:
                 logger.warning("لا يوجد chat أو user_id")
         else:

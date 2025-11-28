@@ -868,8 +868,8 @@ async def disable_emoji_blocker(event):
     Ya_Hussein = False
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
-"""
-remove_members_aljoker = {}
+
+remove_admins_aljoker = {}
 #الكود تمت كتابته من قبل مطورين الجوكر اذا الك نية تخمطه اذكر حقوق السورس @jepthon
 
 @l313l.on(events.ChatAction)
@@ -899,7 +899,7 @@ async def Hussein_aljoker(event):
 async def Hussein_aljoker(event):
     delgvar("Mn3_Kick")
     await event.edit("**᯽︙ تم تعطيل منع التفليش للمجموعة بنجاح ✓**")
-"""
+    
 message_counts = {}
 enabled_groups = []
 Ya_Abbas = False
@@ -1903,7 +1903,7 @@ async def handle_dice_throws(event):
             await game.process_dice_throw(event, user.id, dice_value)
 
 
-
+'''
 import logging
 from datetime import datetime
 
@@ -2060,3 +2060,4 @@ async def fix_protection(event):
     except Exception as e:
         logger.error(f"خطأ في التصحيح: {e}")
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
+'''

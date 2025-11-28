@@ -827,55 +827,29 @@ async def _(event):
                 )
             )
 
-remove_members_aljoker = {}
 
 @l313l.on(events.ChatAction())
 async def handle_event(event):
-    if not is_locked(event.chat_id, "audio"):  # أو "flood" إذا أضفته
+    global kicked_count
+    if not is_locked(event.chat_id, "audio"):
         return
     if not event.is_group:
         return
-    
-    # التصحيح: استخدام event.action_message بدلاً من event.raw_text
-    if event.action_message:
-        action_text = event.action_message.text or ""
-        if "kicked" in action_text:
-            user_id = str(event.user_id)
-            
-            # الحصول على معلومات المشرف
+    zedy = await event.client.get_entity(event.user_id)
+    if event.user_id in await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins):
+        if "kicked" in event.raw_text:
             zedy = await event.client.get_entity(event.user_id)
-            
-            # التحقق إذا كان المستخدم مشرفاً
-            participants = await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-            admin_ids = [user.id for user in participants]
-            
-            if event.user_id in admin_ids:
-                now = datetime.now()
-                
-                if user_id in remove_members_aljoker:
-                    if (now - remove_members_aljoker[user_id]).seconds < 60:
-                        # تنزيل المشرف
-                        chat = await event.get_chat()
-                        try:
-                            await event.client.edit_admin(chat, int(user_id), change_info=False)
-                            
-                            await edit_or_reply(
-                                event, 
-                                f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                                f"⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n"
-                                f"⌔╎**حاول تفليش المجموعـة•**\n"
-                                f"⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
-                                link_preview=False
-                            )
-                        except Exception as e:
-                            print(f"Error: {e}")
-                    
-                    # تحديث الوقت
-                    remove_members_aljoker[user_id] = now
-                else:
-                    # إضافة المستخدم للمرة الأولى
-                    remove_members_aljoker[user_id] = now
-
+            kicked_count += 1
+            if kicked_count == 2:
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False,
+                                              post_messages=False, edit_messages=False,
+                                              delete_messages=False, ban_users=False,
+                                              invite_users=False, pin_messages=False,
+                                              add_admins=False))
+                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                kicked_count = 0
+                await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+				
 @l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):
     con = zed.pattern_match.group(1).lower()

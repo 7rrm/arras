@@ -31,8 +31,6 @@ class Permissions(BASE):
     button = Column(Boolean, default=False)
     egame = Column(Boolean, default=False)
     inline = Column(Boolean, default=False)
-    # أضف هذا السطر الجديد للتفليش
-    flood = Column(Boolean, default=False)  # ✨ جديد للتفليش
 
     def __init__(self, chat_id):
         self.chat_id = str(chat_id)  # ensure string
@@ -53,7 +51,6 @@ class Permissions(BASE):
         self.button = False
         self.egame = False
         self.inline = False
-        self.flood = False  # ✨ جديد
 
     def __repr__(self):
         return "<Permissions for %s>" % self.chat_id
@@ -148,8 +145,6 @@ def update_lock(chat_id, lock_type, locked):
         curr_perm.egame = locked
     elif lock_type == "inline":
         curr_perm.inline = locked
-    elif lock_type == "flood":  # ✨ جديد للتفليش
-        curr_perm.flood = locked
     SESSION.add(curr_perm)
     SESSION.commit()
 
@@ -214,8 +209,6 @@ def is_locked(chat_id, lock_type):
         return curr_perm.egame
     elif lock_type == "inline":
         return curr_perm.inline
-    elif lock_type == "flood":  # ✨ جديد للتفليش
-        return curr_perm.flood
 
 
 def is_restr_locked(chat_id, lock_type):
@@ -264,3 +257,4 @@ def migrate_chat(old_chat_id, new_chat_id):
     if rest:
         rest.chat_id = str(new_chat_id)
     SESSION.commit()
+        

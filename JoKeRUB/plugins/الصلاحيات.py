@@ -831,26 +831,50 @@ remove_members_aljoker = {}
 
 @l313l.on(events.ChatAction())
 async def handle_event(event):
-    if not is_locked(event.chat_id, "audio") or not event.is_group:
+    if not is_locked(event.chat_id, "audio"):  # أو "flood" إذا أضفته
+        return
+    if not event.is_group:
         return
     
-    if "kicked" in event.raw_text:
-        user_id = str(event.user_id)
-        
-        # التحقق من الصلاحيات مرة واحدة
-        participants = await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-        if event.user_id in participants:
-            now = datetime.now()
+    # التصحيح: استخدام event.action_message بدلاً من event.raw_text
+    if event.action_message:
+        action_text = event.action_message.text or ""
+        if "kicked" in action_text:
+            user_id = str(event.user_id)
             
-            if user_id in remove_members_aljoker and (now - remove_members_aljoker[user_id]).seconds < 60:
-                # ⭐ الطريقة الأسرع - مكالمة API واحدة
-                chat = await event.get_chat()
-                await event.client.edit_admin(chat, int(user_id), change_info=False)
+            # الحصول على معلومات المشرف
+            zedy = await event.client.get_entity(event.user_id)
+            
+            # التحقق إذا كان المستخدم مشرفاً
+            participants = await l313l.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
+            admin_ids = [user.id for user in participants]
+            
+            if event.user_id in admin_ids:
+                now = datetime.now()
                 
-                await edit_or_reply(event, f"**تم تنزيل المشرف [{event.user_id}] بسبب التفليش**")
-            
-            # تحديث الوقت
-            remove_members_aljoker[user_id] = now
+                if user_id in remove_members_aljoker:
+                    if (now - remove_members_aljoker[user_id]).seconds < 60:
+                        # تنزيل المشرف
+                        chat = await event.get_chat()
+                        try:
+                            await event.client.edit_admin(chat, int(user_id), change_info=False)
+                            
+                            await edit_or_reply(
+                                event, 
+                                f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية المجموعـة ](t.me/ZThon)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+                                f"⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n"
+                                f"⌔╎**حاول تفليش المجموعـة•**\n"
+                                f"⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
+                                link_preview=False
+                            )
+                        except Exception as e:
+                            print(f"Error: {e}")
+                    
+                    # تحديث الوقت
+                    remove_members_aljoker[user_id] = now
+                else:
+                    # إضافة المستخدم للمرة الأولى
+                    remove_members_aljoker[user_id] = now
 
 @l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):

@@ -984,9 +984,9 @@ async def Hussein(event):
                             await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
                             await event.client.edit_admin(chat, int(user_id), change_info=False)
                         # تحديث الوقت
-                        remove_members_aljoker[user_id] = now
+                        remove_members_aljokerr[user_id] = now
                     else:
                         # أول طرد - تخزين الوقت فقط
-                        remove_members_aljoker[user_id] = now
+                        remove_members_aljokerr[user_id] = now
             except Exception as e:
                 print(f"Error in anti-kick system: {e}")

@@ -964,36 +964,46 @@ async def chat_action_empty(event: events.ChatAction.Event):
             )
 """
 
-remove_members_aljoker = {}  # المتغير الصحيح
+kicked_count = 0
 
-@l313l.on(events.ChatAction)
-async def Hussein(event):
-    # نظام منع التفليش - يعمل مع نظام القفل والفتح
-    if is_locked(event.chat_id, "bots"):
-        if event.user_kicked:
+@l313l.on(events.NewMessage)
+async def handle_event(event):
+    global kicked_count
+    if not is_locked(event.chat_id, "bots"):
+        return
+    
+    if event.message and event.message.text:
+        message_text = event.message.text.lower()
+        
+        # البحث عن كلمات تدل على الطرد
+        if any(word in message_text for word in ["kicked", "طرد", "حظر", "مطرود", "محظور"]):
             try:
-                # إصلاح مشكلة unhashable
-                user_id = str(event.action_message.sender_id)
-                chat = await event.get_chat()
-                if chat and user_id:
-                    now = datetime.now()
-                    if user_id in remove_members_aljoker:  # المتغير الصحيح
-                        if (now - remove_members_aljoker[user_id]).seconds < 60:  # غيرت إلى 60 ثانية
-                            admin_info = await event.client.get_entity(int(user_id))
-                            joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
-                            
-                            # تحديد نوع المحادثة للرسالة
-                            if event.is_channel:
-                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                            else:
-                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                            
-                            await event.client.edit_admin(chat, int(user_id), change_info=False)
+                zedy = await event.client.get_entity(event.message.sender_id)
+                kicked_count += 1
+                
+                print(f"DEBUG: تم اكتشاف طرد - العدد: {kicked_count}")
+                
+                if kicked_count >= 2:  # غيرت إلى 2 بدلاً من 3
+                    try:
+                        await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, 
+                                                    post_messages=False, edit_messages=False, 
+                                                    delete_messages=False, ban_users=False, 
+                                                    invite_users=False, pin_messages=False, 
+                                                    add_admins=False))
+                        await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                        kicked_count = 0
                         
-                        # تحديث الوقت
-                        remove_members_aljoker[user_id] = now
-                    else:
-                        # أول طرد - تخزين الوقت فقط
-                        remove_members_aljoker[user_id] = now
+                        await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                        
+                    except Exception as e:
+                        print(f"Error in demoting admin: {e}")
+                        return
+                    
+                    if BOTLOG:
+                        await event.client.send_message(
+                            BOTLOG_CHATID, 
+                            f"**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={zedy.id})  \n**⎉╎بمحاولة تفليش القناة**\n**⎉╎تم تنزيله .. بنجـاح ✓**"
+                        )
+                        
             except Exception as e:
                 print(f"Error in anti-kick system: {e}")

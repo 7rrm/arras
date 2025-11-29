@@ -978,7 +978,7 @@ async def Anti_Ban_Channel(event):
     
     # استخدام شرط القفل هنا
     # تم تغيير 'audio' إلى 'anti_ban' ليكون أكثر منطقية مع وظيفة الكود
-     if not is_locked(event.chat_id, "bots"):
+     if is_locked(event.chat_id, "bots"):
     #     return # إيقاف الكود إذا كان القفل غير مفعل
         
     # نتحقق مما إذا كان الإجراء هو تقييد (Restrict) أو حظر (Ban)

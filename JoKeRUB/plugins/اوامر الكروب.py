@@ -1716,7 +1716,7 @@ class DiceGame:
         
         user_name = self.players[first_tied_player]["name"]
         # ✅ لا يرد - رسالة جديدة فقط
-        await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي [{user_name}](tg://user?id={first_tied_player})\nإرسل 3 مرات نرد")
+        await event.respond(f"**⦑ الجولة الإضافية ⦒**\n\n- عَزيزي/تي◖ [{user_name}](tg://user?id={first_tied_player})◗\n- إرسل 3 مرات نرد .")
 
     async def process_tie_breaker_dice(self, event, user_id, dice_value):
         """معالجة رمي النرد في الجولة الإضافية"""
@@ -1730,13 +1730,13 @@ class DiceGame:
             remaining = self.waiting_for_dice["remaining_throws"]
             user_name = player["name"]
             # ✅ يرد - على رسالة النرد
-            await event.reply(f"◈︙اللاعب - {user_name}\n - رمى النرد وحصل على {dice_value} نقطة.\n\n❨ باقي {remaining} رميات❩")
+            await event.reply(f"◈︙اللاعب - `{user_name}`\n - رمى النرد وحصل على `{dice_value}` نقطة.\n\n❨ باقي `{remaining}` رميات❩")
         else:
             # انتهى دور اللاعب في الجولة الإضافية
             total_round_score = player["current_round_score"]
             user_name = player["name"]
             # ✅ لا يرد - رسالة جديدة فقط
-            await event.respond(f"**🎲 اللاعب {user_name} انتهى من رمي النرد وحصل على {total_round_score} نقطة في الجولة الإضافية!**")
+            await event.respond(f"◈︙اللاعب - `{user_name}`\n انتهى من رمي النرد وحصل على `{total_round_score}` نقطة في الجولة الإضافية!")
             
             # تحديث الرسالة المثبتة بعد انتهاء اللاعب
             await self.update_pinned_message(event)
@@ -1749,7 +1749,7 @@ class DiceGame:
                 
                 user_name = self.players[next_player_id]["name"]
                 # ✅ لا يرد - رسالة جديدة فقط
-                await event.respond(f"**🎲 الجولة الإضافية**\n\nعَزيزي/تي [{user_name}](tg://user?id={next_player_id})\nإرسل 3 مرات نرد")
+                await event.respond(f"**⦑ الجولة الإضافية ⦒**\n\n-عَزيزي/تي ◖ [{user_name}](tg://user?id={next_player_id}) ◗\nإرسل 3 مرات نرد .")
             else:
                 # انتهت الجولة الإضافية
                 self.waiting_for_dice = None

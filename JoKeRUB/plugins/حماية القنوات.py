@@ -965,7 +965,7 @@ async def chat_action_empty(event: events.ChatAction.Event):
 """
 kicked_count = 0
 
-@l313l.on(events.ChatAction())
+@l313l.on(events.ChatAction)
 async def handle_event(event):
     if not event.is_channel:
         return
@@ -974,47 +974,58 @@ async def handle_event(event):
     if not is_locked(event.chat_id, "bots"):
         return
     
-    # كشف الأخطاء
     print(f"DEBUG: حدث ChatAction في القناة {event.chat_id}")
+    print(f"DEBUG: نوع الحدث: {type(event.action_message)}")
     
-    if event.message and event.message.text and "kicked" in event.message.text:
-        try:
-            print(f"DEBUG: تم اكتشاف طرد - النص: {event.message.text}")
-            
-            zedy = await event.client.get_entity(event.message.sender_id)
-            kicked_count += 1
-            
-            print(f"DEBUG: عدد الطردات: {kicked_count}")
-            
-            if kicked_count >= 2:
-                try:
-                    await l313l(EditAdminRequest(
-                        event.chat_id, zedy.id, 
-                        change_info=False, 
-                        post_messages=False, 
-                        edit_messages=False, 
-                        delete_messages=False, 
-                        ban_users=False, 
-                        invite_users=False, 
-                        pin_messages=False, 
-                        add_admins=False
-                    ))
-                    await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
-                    kicked_count = 0
-                    
-                    await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                    
-                    print(f"DEBUG: تم تنزيل المشرف {zedy.first_name} بنجاح")
-                    
-                except Exception as e:
-                    print(f"Error in demoting admin: {e}")
-                    return
+    # في events.ChatAction نستخدم event.action_message وليس event.message
+    if event.action_message and event.action_message.text:
+        message_text = event.action_message.text.lower()
+        print(f"DEBUG: نص الرسالة: {message_text}")
+        
+        # البحث عن كلمات الطرد (بالعربية والإنجليزية)
+        kick_keywords = ["kicked", "طرد", "حظر", "مطرود", "محظور"]
+        
+        if any(keyword in message_text for keyword in kick_keywords):
+            try:
+                print(f"DEBUG: تم اكتشاف طرد - النص: {message_text}")
                 
-                if BOTLOG:
-                    await event.client.send_message(
-                        BOTLOG_CHATID, 
-                        f"**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={zedy.id})  \n**⎉╎بمحاولة تفليش القناة**\n**⎉╎تم تنزيله .. بنجـاح ✓**"
-                    )
+                user_id = event.action_message.sender_id
+                zedy = await event.client.get_entity(user_id)
+                
+                kicked_count += 1
+                print(f"DEBUG: عدد الطردات: {kicked_count}")
+                
+                if kicked_count >= 2:  # غيرت إلى 2 بدلاً من 3
+                    try:
+                        await l313l(EditAdminRequest(
+                            event.chat_id, zedy.id, 
+                            change_info=False, 
+                            post_messages=False, 
+                            edit_messages=False, 
+                            delete_messages=False, 
+                            ban_users=False, 
+                            invite_users=False, 
+                            pin_messages=False, 
+                            add_admins=False
+                        ))
+                        await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                        kicked_count = 0
+                        
+                        await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                        
+                        print(f"DEBUG: تم تنزيل المشرف {zedy.first_name} بنجاح")
+                        
+                    except Exception as e:
+                        print(f"Error in demoting admin: {e}")
+                        return
                     
-        except Exception as e:
-            print(f"Error in anti-kick system: {e}")
+                    if BOTLOG:
+                        await event.client.send_message(
+                            BOTLOG_CHATID, 
+                            f"**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={zedy.id})  \n**⎉╎بمحاولة تفليش القناة**\n**⎉╎تم تنزيله .. بنجـاح ✓**"
+                        )
+                        
+            except Exception as e:
+                print(f"Error in anti-kick system: {e}")
+    else:
+        print(f"DEBUG: لا يوجد نص في الرسالة أو event.action_message غير موجود")

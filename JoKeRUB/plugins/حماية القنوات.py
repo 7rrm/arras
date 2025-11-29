@@ -963,69 +963,56 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-kicked_count = 0
+remove_members_aljoker = {}  # المتغير الصحيح
+
+# ⚠️ ملاحظة هامة: يجب تعريف دالة 'is_locked' في مكان آخر من ملف البوت لديك 
+# لتجنب خطأ NameError. هذا مجرد مثال على كيفية استخدامها.
+# def is_locked(chat_id, mode):
+#     # منطق التحقق من القفل هنا
+#     return True/False # إرجاع True إذا كان القفل مفعلاً
 
 @l313l.on(events.ChatAction)
-async def handle_event(event):
+async def Anti_Ban_Channel(event):
     if not event.is_channel:
         return
     
-    global kicked_count
-    if not is_locked(event.chat_id, "bots"):
-        return
-    
-    print(f"DEBUG: حدث ChatAction في القناة {event.chat_id}")
-    print(f"DEBUG: نوع الحدث: {type(event.action_message)}")
-    
-    # في events.ChatAction نستخدم event.action_message وليس event.message
-    if event.action_message and event.action_message.text:
-        message_text = event.action_message.text.lower()
-        print(f"DEBUG: نص الرسالة: {message_text}")
+    # استخدام شرط القفل هنا
+    # تم تغيير 'audio' إلى 'anti_ban' ليكون أكثر منطقية مع وظيفة الكود
+     if not is_locked(event.chat_id, "bots"):
+    #     return # إيقاف الكود إذا كان القفل غير مفعل
         
-        # البحث عن كلمات الطرد (بالعربية والإنجليزية)
-        kick_keywords = ["kicked", "طرد", "حظر", "مطرود", "محظور"]
+    # نتحقق مما إذا كان الإجراء هو تقييد (Restrict) أو حظر (Ban)
+    if event.user_restricted or event.user_banned:
         
-        if any(keyword in message_text for keyword in kick_keywords):
+        # تأكد من أن المُنفذ (المشرف) هو من قام بالإجراء
+        if event.action_message and event.action_message.sender_id:
             try:
-                print(f"DEBUG: تم اكتشاف طرد - النص: {message_text}")
+                user_id = str(event.action_message.sender_id) # المشرف الذي قام بالتقييد/الحظر
+                chat = await event.get_chat()
                 
-                user_id = event.action_message.sender_id
-                zedy = await event.client.get_entity(user_id)
-                
-                kicked_count += 1
-                print(f"DEBUG: عدد الطردات: {kicked_count}")
-                
-                if kicked_count >= 2:  # غيرت إلى 2 بدلاً من 3
-                    try:
-                        await l313l(EditAdminRequest(
-                            event.chat_id, zedy.id, 
-                            change_info=False, 
-                            post_messages=False, 
-                            edit_messages=False, 
-                            delete_messages=False, 
-                            ban_users=False, 
-                            invite_users=False, 
-                            pin_messages=False, 
-                            add_admins=False
-                        ))
-                        await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
-                        kicked_count = 0
-                        
-                        await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
-                        
-                        print(f"DEBUG: تم تنزيل المشرف {zedy.first_name} بنجاح")
-                        
-                    except Exception as e:
-                        print(f"Error in demoting admin: {e}")
-                        return
+                if chat and user_id:
+                    now = datetime.now()
                     
-                    if BOTLOG:
-                        await event.client.send_message(
-                            BOTLOG_CHATID, 
-                            f"**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={zedy.id})  \n**⎉╎بمحاولة تفليش القناة**\n**⎉╎تم تنزيله .. بنجـاح ✓**"
-                        )
+                    # ⚠️ آليه مكافحة التفليش (Anti-Ban) ⚠️
+                    if user_id in remove_members_aljoker:
+                        # إذا قام بحظر آخر خلال أقل من 10 ثوانٍ 
+                        if (now - remove_members_aljoker[user_id]).seconds < 10:
+                            
+                            admin_info = await event.client.get_entity(int(user_id))
+                            joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                            
+                            await event.reply(
+                                f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنـاة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش/حظر مشتركين القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
+                                link_preview=False
+                            )
+                            # تنزيل المشرف (إزالة الصلاحيات)
+                            await event.client.edit_admin(chat, int(user_id), change_info=False) 
+                            
+                        # تحديث الوقت لأي عملية حظر/تقييد جديدة
+                        remove_members_aljoker[user_id] = now
+                    else:
+                        remove_members_aljoker[user_id] = now
                         
             except Exception as e:
-                print(f"Error in anti-kick system: {e}")
-    else:
-        print(f"DEBUG: لا يوجد نص في الرسالة أو event.action_message غير موجود")
+                print(f"Error in anti-ban system: {e}")
+                

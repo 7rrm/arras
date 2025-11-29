@@ -964,21 +964,36 @@ async def chat_action_empty(event: events.ChatAction.Event):
             )
 """
 
-@l313l.on(events.ChatAction())
-async def handle_event(event):
-    global kicked_count
-    if not is_locked(event.chat_id, "bots"):
-        return
-    if "kicked" in event.message.message:
-        zedy = await event.client.get_entity(event.message.sender_id)
-        kicked_count += 1
-        if kicked_count == 3:
+remove_members_aljoker = {}  # المتغير الصحيح
+
+@l313l.on(events.ChatAction)
+async def Hussein(event):
+    # نظام منع التفليش - يعمل مع نظام القفل والفتح
+    if is_locked(event.chat_id, "bots"):
+        if event.user_kicked:
             try:
-                await l313l(EditAdminRequest(event.chat_id, zedy.id, change_info=False, post_messages=False, edit_messages=False, delete_messages=False, ban_users=False, invite_users=False, pin_messages=False, add_admins=False))
-                await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
-                kicked_count = 0
-                await edit_or_reply(event, f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                # إصلاح مشكلة unhashable
+                user_id = str(event.action_message.sender_id)
+                chat = await event.get_chat()
+                if chat and user_id:
+                    now = datetime.now()
+                    if user_id in remove_members_aljoker:  # المتغير الصحيح
+                        if (now - remove_members_aljoker[user_id]).seconds < 60:  # غيرت إلى 60 ثانية
+                            admin_info = await event.client.get_entity(int(user_id))
+                            joker_link = f"[{admin_info.first_name}](tg://user?id={admin_info.id})"
+                            
+                            # تحديد نوع المحادثة للرسالة
+                            if event.is_channel:
+                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية القنوات ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش القناة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                            else:
+                                await event.reply(f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 - حمـاية المجموعـة ](t.me/lx5x5)\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎**مشرف خاين** {joker_link} .\n⌔╎**حاول تفليش المجموعـة•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", link_preview=False)
+                            
+                            await event.client.edit_admin(chat, int(user_id), change_info=False)
+                        
+                        # تحديث الوقت
+                        remove_members_aljoker[user_id] = now
+                    else:
+                        # أول طرد - تخزين الوقت فقط
+                        remove_members_aljoker[user_id] = now
             except Exception as e:
-                return
-            if BOTLOG:
-                await event.client.send_message(BOTLOG_CHATID, "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**".format(zedy.id))
+                print(f"Error in anti-kick system: {e}")

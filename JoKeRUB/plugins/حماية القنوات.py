@@ -986,7 +986,7 @@ async def handle_event(event):
             
             print(f"DEBUG: عدد الطردات: {kicked_count}")
             
-            if kicked_count >= 3:
+            if kicked_count >= 2:
                 try:
                     await l313l(EditAdminRequest(
                         event.chat_id, zedy.id, 

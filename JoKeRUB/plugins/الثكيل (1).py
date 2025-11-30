@@ -186,9 +186,10 @@ from JoKeRUB import l313l
 
 # تعريف المتغيرات العامة
 flags_enabled = False
-active_chat_id = None
-flags_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-flags_trigger_text = "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫"  # النص المحفز الافتراضي
+flags_chat_id = None
+flags_allowed_user_ids = set()
+flags_trigger_text = "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫"
+reply_mode = False  # متغير جديد لتحديد وضع الرد
 
 # قاموس الأعلام والبلدان
 flags_dict = {
@@ -235,68 +236,85 @@ flags_dict = {
     "🇨🇭": "سويسرا",
 }
 
-# تفعيل ميزة الأعلام
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل اعلام(?: (\d+(?:,\d+)*))?$'))
-async def enable_flags(event):
-    global flags_enabled, active_chat_id, flags_allowed_user_ids
-    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
-
-    # إضافة المعرفات إلى المجموعة
-    if ids_input:
-        flags_allowed_user_ids.update(map(int, ids_input.split(',')))
-    else:
-        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
-        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل اعلام(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
+async def enable_flags_bot(event):
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, reply_mode
+    user_id = event.pattern_match.group(2)
+    group_id = event.pattern_match.group(3)
+    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
+    
+    if not user_id:
+        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل اعلام 123456789`\nأو `/تفعيل اعلام` للوضع العادي")
         return
-
-    active_chat_id = event.chat_id  # حفظ معرف الدردشة
+    
+    flags_allowed_user_ids.add(int(user_id))
+    reply_mode = is_reply_mode  # تعيين وضع الرد
+    
+    if group_id:
+        flags_chat_id = int(group_id)
+    else:
+        flags_chat_id = event.chat_id
+    
     flags_enabled = True
-    await event.edit(f"ش")
-                   #  f"**المعرفات المسموحة:** {', '.join(map(str, flags_allowed_user_ids))}")
+    mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
+    await event.edit(f"**✅ تم تفعيل الأعلام بنجاح**\n"
+                    f"المجموعة: `{flags_chat_id}`\n"
+                    f"المستخدم المسموح: `{user_id}`\n"
+                    f"الوضع: `{mode_text}`")
 
-# تعطيل ميزة الأعلام
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
-async def disable_flags(event):
-    global flags_enabled, active_chat_id, flags_allowed_user_ids
+async def disable_flags_bot(event):
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, reply_mode
     flags_enabled = False
-    active_chat_id = None
-    flags_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
-    await event.edit("**᯽︙ تم تعطيل ميزة الأعلام بنجاح ✅**")
+    flags_chat_id = None
+    flags_allowed_user_ids.clear()
+    reply_mode = False
+    await event.edit("**✅ تم تعطيل الأعلام بنجاح**")
 
-# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص اعلام (.*)$'))
 async def set_flags_trigger_text(event):
     global flags_trigger_text
-    flags_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"ش")
+    flags_trigger_text = event.pattern_match.group(1)
+    await event.edit(f"**✅ تم تعيين نص الأعلام إلى:** `{flags_trigger_text}`")
 
-# الرد التلقائي على الأعلام
 @l313l.on(events.NewMessage(incoming=True))
-async def auto_reply_flags(event):
-    global flags_enabled, active_chat_id, flags_allowed_user_ids, flags_trigger_text, flags_dict
+async def process_flags(event):
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, flags_trigger_text, flags_dict, reply_mode
     
-    # التحقق من أن الميزة مفعلة وأن الرسالة في الدردشة المحددة ومن المعرف المسموح
-    if not (flags_enabled and event.chat_id == active_chat_id and event.sender_id in flags_allowed_user_ids):
+    if not flags_enabled or event.chat_id != flags_chat_id or event.sender_id not in flags_allowed_user_ids:
         return
-
-    if flags_trigger_text not in event.raw_text:
-        return
-
+    
+    if reply_mode:
+        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+        if not event.is_reply:
+            return
+            
+        replied_msg = await event.get_reply_message()
+        if replied_msg.sender_id != l313l.uid or flags_trigger_text not in event.raw_text:
+            return
+            
+        text_to_process = event.raw_text
+    else:
+        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
+        if flags_trigger_text not in event.raw_text:
+            return
+            
+        text_to_process = event.raw_text
+    
     # البحث عن العلم داخل الأقواس (إذا وجد)
-    flag_with_brackets = re.search(r'[\({]([^})]+)[\)}]', event.raw_text)
+    flag_with_brackets = re.search(r'[\({]([^})]+)[\)}]', text_to_process)
     if flag_with_brackets:
-        flag = flag_with_brackets.group(1).strip()  # إزالة المسافات الزائدة
-        # تجاهل النقطة في النهاية إذا وجدت
+        flag = flag_with_brackets.group(1).strip()
         if flag.endswith('.'):
             flag = flag[:-1]
     else:
         # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
-        flag = event.raw_text.split(flags_trigger_text)[-1].strip()
+        flag = text_to_process.split(flags_trigger_text)[-1].strip()
     
     # البحث عن العلم في القاموس
     if flag in flags_dict:
         country = flags_dict[flag]
-        await asyncio.sleep(1)  # تأخير لمدة ثانية واحدة
+        await asyncio.sleep(1)
         await event.reply(country)
 
 import asyncio

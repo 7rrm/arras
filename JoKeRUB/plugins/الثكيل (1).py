@@ -86,66 +86,97 @@ async def auto_reply_word_game(event):
 # باقي الكود الحالي...
                 
 ######المطور arras #####
-                                  
+
 import asyncio
+import re
 from telethon import events
 from JoKeRUB import l313l
 
 # تعريف المتغيرات العامة
 articles_enabled = False
-articles_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-articles_trigger_text = "⌔︙اكتبها بدون فواصل"  # النص المحفز الافتراضي
+articles_chat_id = None  # تغيير الاسم فقط
+articles_allowed_user_ids = set()
+articles_trigger_text = "⌔︙اكتبها بدون فواصل"
+reply_mode = False  # متغير جديد لتحديد وضع الرد
 reply_delay = 2  # تأخير الرد بـ 2 ثانية
 
-# تفعيل ميزة المقالات مع معرفات المستخدمين
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل مقالات(?: (\d+(?:,\d+)*))?$'))
-async def enable_articles(event):
-    global articles_enabled, articles_allowed_user_ids
-    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
-
-    # إضافة المعرفات إلى المجموعة
-    if ids_input:
-        articles_allowed_user_ids.update(map(int, ids_input.split(',')))
-    else:
-        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
-        await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل مقالات(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
+async def enable_articles_bot(event):
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
+    user_id = event.pattern_match.group(2)
+    group_id = event.pattern_match.group(3)
+    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
+    
+    if not user_id:
+        await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل مقالات 123456789`\nأو `/تفعيل مقالات` للوضع العادي")
         return
-
+    
+    articles_allowed_user_ids.add(int(user_id))
+    reply_mode = is_reply_mode  # تعيين وضع الرد
+    
+    if group_id:
+        articles_chat_id = int(group_id)  # استخدام الاسم الجديد
+    else:
+        articles_chat_id = event.chat_id  # استخدام الاسم الجديد
+    
     articles_enabled = True
-    await event.edit(f"ش")
-                    # f"**المعرفات المسموحة:** {', '.join(map(str, articles_allowed_user_ids))}")
+    mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
+    await event.edit(f"**✅ تم تفعيل المقالات بنجاح**\n"
+                    f"المجموعة: `{articles_chat_id}`\n"
+                    f"المستخدم المسموح: `{user_id}`\n"
+                    f"الوضع: `{mode_text}`")
 
-# تعطيل ميزة المقالات
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
-async def disable_articles(event):
-    global articles_enabled, articles_allowed_user_ids
+async def disable_articles_bot(event):
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
     articles_enabled = False
-    articles_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
-    await event.edit("**᯽︙ تم تعطيل ميزة المقالات بنجاح ✅**")
+    articles_chat_id = None  # استخدام الاسم الجديد
+    articles_allowed_user_ids.clear()
+    reply_mode = False
+    await event.edit("**✅ تم تعطيل المقالات بنجاح**")
 
-# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص مقالات (.*)$'))
 async def set_articles_trigger_text(event):
     global articles_trigger_text
-    articles_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"ش")
+    articles_trigger_text = event.pattern_match.group(1)
+    await event.edit(f"**✅ تم تعيين نص المقالات إلى:** `{articles_trigger_text}`")
 
-# الرد التلقائي على الرسائل
 @l313l.on(events.NewMessage(incoming=True))
-async def auto_reply_articles(event):
-    global articles_enabled, articles_allowed_user_ids, articles_trigger_text, reply_delay
+async def process_articles(event):
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_trigger_text, reply_mode, reply_delay
     
-    # التحقق من أن الميزة مفعلة وأن الرسالة من أحد المستخدمين المسموح لهم
-    if articles_enabled and event.sender_id in articles_allowed_user_ids:
-        if articles_trigger_text in event.raw_text:
-            # استخراج النص الذي يحتوي على الفواصل
-            text_with_symbols = event.raw_text.split(articles_trigger_text)[0].strip()
-            # استبدال الفواصل بمسافات
-            cleaned_text = text_with_symbols.replace("*", " ").replace("/", " ")
-            # تأخير الرد بـ 2 ثانية
-            await asyncio.sleep(reply_delay)
-            # الرد على الرسالة
-            await event.reply(cleaned_text)
+    if not articles_enabled or event.chat_id != articles_chat_id or event.sender_id not in articles_allowed_user_ids:
+        return
+    
+    if reply_mode:
+        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+        if not event.is_reply:
+            return
+            
+        replied_msg = await event.get_reply_message()
+        if replied_msg.sender_id != l313l.uid or articles_trigger_text not in event.raw_text:
+            return
+            
+        text_to_process = event.raw_text
+        delay = reply_delay
+    else:
+        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
+        if articles_trigger_text not in event.raw_text:
+            return
+            
+        text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
+        delay = reply_delay
+    
+    # تنظيف النص من الرموز واستبدالها بمسافات
+    cleaned_text = text_to_process.replace("*", " ").replace("/", " ").replace("،", " ").replace(",", " ")
+    
+    # إزالة المسافات الزائدة
+    cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
+    
+    if cleaned_text:
+        await asyncio.sleep(delay)
+        await event.reply(cleaned_text)
+
 
 # باقي الكود الحالي...
 import asyncio

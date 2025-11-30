@@ -874,7 +874,7 @@ async def yoot_auto_search(event):
         await asyncio.sleep(1)
         
         # استخدام conversation للاستماع الفوري
-        async with event.client.conversation("@BaarxXxbot", timeout=30) as conv:
+        async with event.client.conversation("@W60yBot", timeout=30) as conv:
             # إرسال الرسالة للبوت
             full_message = f"يوت {query}"
             await conv.send_message(full_message)

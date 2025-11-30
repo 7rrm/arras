@@ -94,30 +94,30 @@ from JoKeRUB import l313l
 
 # تعريف المتغيرات العامة
 articles_enabled = False
-articles_chat_id = None  # تغيير الاسم فقط
+articles_chat_id = None
 articles_allowed_user_ids = set()
 articles_trigger_text = "⌔︙اكتبها بدون فواصل"
-reply_mode = False  # متغير جديد لتحديد وضع الرد
-reply_delay = 2  # تأخير الرد بـ 2 ثانية
+reply_mode = False
+reply_delay = 2
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل مقالات(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_articles_bot(event):
     global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
     user_id = event.pattern_match.group(2)
     group_id = event.pattern_match.group(3)
-    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
+    is_reply_mode = bool(event.pattern_match.group(1))
     
     if not user_id:
         await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل مقالات 123456789`\nأو `/تفعيل مقالات` للوضع العادي")
         return
     
     articles_allowed_user_ids.add(int(user_id))
-    reply_mode = is_reply_mode  # تعيين وضع الرد
+    reply_mode = is_reply_mode
     
     if group_id:
-        articles_chat_id = int(group_id)  # استخدام الاسم الجديد
+        articles_chat_id = int(group_id)
     else:
-        articles_chat_id = event.chat_id  # استخدام الاسم الجديد
+        articles_chat_id = event.chat_id
     
     articles_enabled = True
     mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
@@ -130,7 +130,7 @@ async def enable_articles_bot(event):
 async def disable_articles_bot(event):
     global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
     articles_enabled = False
-    articles_chat_id = None  # استخدام الاسم الجديد
+    articles_chat_id = None
     articles_allowed_user_ids.clear()
     reply_mode = False
     await event.edit("**✅ تم تعطيل المقالات بنجاح**")
@@ -157,13 +157,15 @@ async def process_articles(event):
         if replied_msg.sender_id != l313l.uid or articles_trigger_text not in event.raw_text:
             return
             
-        text_to_process = event.raw_text
+        # في وضع الرد، نأخذ النص قبل النص المحفز فقط
+        text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
         delay = reply_delay
     else:
         # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if articles_trigger_text not in event.raw_text:
             return
             
+        # في الوضع العادي، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
         delay = reply_delay
     

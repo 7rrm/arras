@@ -1798,9 +1798,9 @@ class DiceGame:
         winner_score = self.players[winner_id]["current_round_score"]
         
         # ✅ لا يرد - رسالة جديدة فقط
-        await event.respond(f"**🎊 🏆 مبروك! 🏆 🎊**\n\nالفائز هو:◖ {winner_name} ◗\nبمجموع نقاط الجولة الأخيرة: `{winner_score}`\n\nشكراً للجميع على المشاركة .")
+        await event.respond(f"**🎊 🏆 مبروك! 🏆 🎊**\n\nالفائز هو:◗ {winner_name} ◖\nبمجموع نقاط الجولة الأخيرة: `{winner_score}`\n\nشكراً للجميع على المشاركة .")
         
-        final_text = f"**🎲 لعبـة النـرد - انتهت**\n\n🏆 الفائز:◖ {winner_name} ◗\nنقاط الجولة الأخيرة: `{winner_score}`\n\n"
+        final_text = f"**🎲 لعبـة النـرد - انتهت**\n\n🏆 الفائز:◗ {winner_name} ◖\nنقاط الجولة الأخيرة: `{winner_score}`\n\n"
         final_text += "**المشاركون:**\n"
         for player in self.eliminated_players:
             final_text += f"ٴ❌ {player}\n"

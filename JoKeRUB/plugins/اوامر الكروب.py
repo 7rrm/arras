@@ -1086,7 +1086,7 @@ async def handle_strike(event):
         strike_position = int(event.pattern_match.group(1))
         if strike_position == correct_answer:
             game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-            await event.reply(f"** خسرت شبيك مستعجل وجه الچوب 😒\n{format_board(game_board, numbers_board)}**")
+            await event.reply(f"**خَسرت عَزيزي ليش مستعجل !\n{format_board(game_board, numbers_board)}**")
             reset_game(chat_id)
         else:
             game_board[0][strike_position - 1] = '🖐️'

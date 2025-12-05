@@ -473,7 +473,7 @@ async def handle_new_message(event):
                 wallpaper=wallpaper,
                 for_both=True,
                 settings=WallPaperSettings(
-                    blur=False,
+                    blur=True,
                     motion=False,
                     background_color=0x000000,
                     intensity=50

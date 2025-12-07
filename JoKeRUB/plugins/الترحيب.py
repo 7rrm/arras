@@ -20,7 +20,7 @@ from . import BOTLOG_CHATID
 
 plugin_category = "utils"
 LOGS = logging.getLogger(__name__)
-
+'''
 # قائمة بكليشات الترحيب التي يرسلها البوت الإداري
 ADMIN_WELCOME_MESSAGES = [
     "︙عـمࢪي جمـاࢦك نـوࢪنـا ❤️‍🔥🎗️ .",
@@ -110,7 +110,7 @@ async def reply_to_admin_welcome(event):
                     parse_mode="markdown",
                 )
                 
-                
+                '''
                 
 @l313l.on(events.ChatAction)
 async def _(event):
@@ -382,3 +382,315 @@ async def welcome_handler(event):
             
     except Exception as e:
         print(f"Error in welcome handler: {e}")
+
+
+
+
+import random
+import re
+from telethon import events
+from telethon.tl.types import User
+
+# قائمة بكليشات الترحيب التي يرسلها حسابك
+CUSTOM_WELCOME_MESSAGES = [
+    "**نَـورت**↜  {mention}",
+    "**هُـِݪآإ**↜  {mention}",
+    "**يهُـِݪآإ**↜  {mention}",
+    "**ءنـرت عزيزي**↜  {mention}",
+    "**هَِـلا يڪَِمر**↜  {mention}",
+    "**ٵطلق من يدخݪ نورتنـﺂ**↜  {mention}",
+]
+
+# تخزين إعدادات الترحيب
+admin_welcome_text = None  # نص ترحيب البوت الإداري
+active_chats = {}  # {chat_id: admin_bot_id}
+
+# =============== الأوامر ===============
+
+@l313l.ar_cmd(
+    pattern="تفعيل نص ترحيب (.*)",
+    command=("تفعيل نص ترحيب", plugin_category),
+    info={
+        "header": "لتحديد نص ترحيب البوت الإداري الذي تريد البحث عنه",
+        "description": "إذا كان هناك نص قديم، يتم استبداله بالنص الجديد تلقائياً",
+        "usage": "{tr}تفعيل نص ترحيب <النص>",
+        "examples": ["{tr}تفعيل نص ترحيب نورتنـا", "{tr}تفعيل نص ترحيب أهلاً وسهلاً"],
+    },
+)
+async def set_admin_welcome(event):
+    "لتحديد نص ترحيب البوت الإداري (يستبدل القديم)"
+    global admin_welcome_text
+    text = event.pattern_match.group(1).strip()
+    
+    if not text:
+        return await edit_delete(event, "**᯽︙ يرجى كتابة نص الترحيب!**")
+    
+    # إذا كان هناك نص قديم، إعلام المستخدم أنه تم استبداله
+    old_text = admin_welcome_text
+    admin_welcome_text = text
+    
+    if old_text:
+        await edit_delete(event, f"**᯽︙ تم تحديث نص الترحيب بنجاح ✓**\n**القديم:** `{old_text}`\n**الجديد:** `{text}`")
+    else:
+        await edit_delete(event, f"**᯽︙ تم حفظ نص الترحيب بنجاح ✓**\n`{text}`")
+
+@l313l.ar_cmd(
+    pattern="تفعيل الترحيب (-?\d+) (\d+)$",
+    command=("تفعيل الترحيب", plugin_category),
+    info={
+        "header": "لتشغيل نظام الترحيب في مجموعة معينة",
+        "description": "يحدد المجموعة والبوت الإداري الذي سيتم مراقبته",
+        "usage": "{tr}تفعيل الترحيب <ايدي_المجموعة> <ايدي_البوت_الاداري>",
+        "examples": ["{tr}تفعيل الترحيب -100123456789 1839897340"],
+    },
+)
+async def enable_welcome(event):
+    "لتشغيل نظام الترحيب في مجموعة"
+    global admin_welcome_text
+    
+    if admin_welcome_text is None:
+        return await edit_delete(event, "**᯽︙ يرجى تحديد نص الترحيب أولاً!**\nاستخدم: `.تفعيل نص ترحيب <النص>`")
+    
+    chat_id = int(event.pattern_match.group(1))
+    admin_bot_id = int(event.pattern_match.group(2))
+    
+    if chat_id in active_chats:
+        # إذا المجموعة مفعلة بالفعل، نحدث بيانات البوت فقط
+        old_bot_id = active_chats[chat_id]
+        if old_bot_id == admin_bot_id:
+            return await edit_delete(event, f"**᯽︙ الترحيب مفعل بالفعل في هذه المجموعة!**\nالبوت الإداري: `{admin_bot_id}`")
+        else:
+            active_chats[chat_id] = admin_bot_id
+            await edit_delete(event, f"**᯽︙ تم تحديث إعدادات الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\n**البوت القديم:** `{old_bot_id}`\n**البوت الجديد:** `{admin_bot_id}`")
+    else:
+        active_chats[chat_id] = admin_bot_id
+        await edit_delete(event, f"**᯽︙ تم تفعيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{admin_bot_id}`")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب (-?\d+)$",
+    command=("تعطيل الترحيب", plugin_category),
+    info={
+        "header": "لتعطيل نظام الترحيب في مجموعة معينة",
+        "description": "يوقف المراقبة في المجموعة المحددة ويحذف إعداداتها",
+        "usage": "{tr}تعطيل الترحيب <ايدي_المجموعة>",
+        "examples": ["{tr}تعطيل الترحيب -100123456789"],
+    },
+)
+async def disable_welcome(event):
+    "لتعطيل نظام الترحيب في مجموعة (يحذف إعداداتها)"
+    chat_id = int(event.pattern_match.group(1))
+    
+    if chat_id not in active_chats:
+        return await edit_delete(event, "**᯽︙ الترحيب غير مفعل في هذه المجموعة!**")
+    
+    deleted_bot_id = active_chats[chat_id]
+    del active_chats[chat_id]
+    
+    # إذا لم تعد هناك مجموعات مفعلة، نحذف نص الترحيب أيضاً
+    if not active_chats:
+        global admin_welcome_text
+        if admin_welcome_text:
+            old_text = admin_welcome_text
+            admin_welcome_text = None
+            await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{deleted_bot_id}`\n\n**تم حذف نص الترحيب أيضاً:** `{old_text}`")
+        else:
+            await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{deleted_bot_id}`")
+    else:
+        await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب في المجموعة `{chat_id}` بنجاح ✓**\nالبوت الإداري: `{deleted_bot_id}`")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب الكل$",
+    command=("تعطيل الترحيب الكل", plugin_category),
+    info={
+        "header": "لتعطيل نظام الترحيب في جميع المجموعات",
+        "description": "يحذف جميع إعدادات الترحيب (النص والمجموعات)",
+        "usage": "{tr}تعطيل الترحيب الكل",
+    },
+)
+async def disable_all_welcome(event):
+    "لتعطيل نظام الترحيب في جميع المجموعات (يحذف كل شيء)"
+    global admin_welcome_text, active_chats
+    
+    if not active_chats and admin_welcome_text is None:
+        return await edit_delete(event, "**᯽︙ لا توجد إعدادات ترحيب حالياً!**")
+    
+    # حفظ البيانات قبل الحذف لعرضها
+    old_text = admin_welcome_text
+    old_chats_count = len(active_chats)
+    
+    # حذف كل شيء
+    admin_welcome_text = None
+    active_chats.clear()
+    
+    message = "**᯽︙ تم تعطيل جميع إعدادات الترحيب بنجاح ✓**\n\n"
+    
+    if old_text:
+        message += f"**نص الترحيب المحذوف:** `{old_text}`\n"
+    
+    if old_chats_count > 0:
+        message += f"**عدد المجموعات المحذوفة:** `{old_chats_count}`\n"
+    
+    await edit_delete(event, message)
+
+@l313l.ar_cmd(
+    pattern="عرض ترحيبات$",
+    command=("عرض ترحيبات", plugin_category),
+    info={
+        "header": "لعرض الإعدادات الحالية للترحيب",
+        "description": "يعرض نص الترحيب والمجموعات المفعلة",
+        "usage": "{tr}عرض ترحيبات",
+    },
+)
+async def show_welcome_settings(event):
+    "لعرض إعدادات الترحيب الحالية"
+    global admin_welcome_text
+    
+    if admin_welcome_text is None and not active_chats:
+        return await edit_delete(event, "**᯽︙ لا توجد إعدادات ترحيب حالياً!**")
+    
+    message = "**᯽︙ إعدادات نظام الترحيب:**\n\n"
+    
+    if admin_welcome_text:
+        message += f"**نص الترحيب:** `{admin_welcome_text}`\n\n"
+    else:
+        message += "**⚠️ لا يوجد نص ترحيب محفوظ**\n\n"
+    
+    if active_chats:
+        message += f"**عدد المجموعات المفعلة:** `{len(active_chats)}`\n\n"
+        message += "**المجموعات المفعلة:**\n"
+        for chat_id, bot_id in active_chats.items():
+            message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}`\n"
+    else:
+        message += "**لا توجد مجموعات مفعلة**"
+    
+    await edit_or_reply(event, message)
+
+# =============== المستمع ===============
+
+@l313l.on(events.NewMessage)
+async def reply_to_admin_welcome(event):
+    global admin_welcome_text
+    
+    # التحقق من الأساسيات
+    if not event.is_group:
+        return
+    
+    if admin_welcome_text is None:
+        return
+    
+    # التحقق إذا كانت المجموعة مفعلة
+    if event.chat_id not in active_chats:
+        return
+    
+    # التحقق إذا كانت الرسالة من البوت الإداري المحدد لهذه المجموعة
+    if event.sender_id != active_chats[event.chat_id]:
+        return
+    
+    # التحقق إذا كانت الرسالة تحتوي على نص الترحيب
+    if admin_welcome_text not in event.message.text:
+        return
+    
+    # استخراج المستخدم من الرسالة
+    user_entity = None
+    
+    # أولاً: البحث عن يوزر (@username)
+    if event.message.text:
+        # البحث عن @username
+        username_match = re.search(r'@(\w+)', event.message.text)
+        if username_match:
+            username = username_match.group(1)
+            try:
+                # محاولة الحصول على كيان المستخدم من اليوزر
+                user = await event.client.get_entity(username)
+                if isinstance(user, User):
+                    user_entity = user
+            except:
+                pass
+    
+    # ثانياً: إذا لم يجد يوزر، البحث عن منشن (tg://user?id=)
+    if not user_entity and "tg://user?id=" in event.message.text:
+        try:
+            # استخراج الـ ID من الرابط
+            user_id_match = re.search(r'tg://user\?id=(\d+)', event.message.text)
+            if user_id_match:
+                user_id = int(user_id_match.group(1))
+                user = await event.client.get_entity(user_id)
+                if isinstance(user, User):
+                    user_entity = user
+        except:
+            pass
+    
+    # إذا لم يتم العثور على مستخدم، لا نرد
+    if not user_entity:
+        return
+    
+    # تحديد كيفية الرد
+    mention_text = ""
+    
+    # الأولوية: اليوزر إذا كان موجوداً
+    if user_entity.username:
+        mention_text = f"@{user_entity.username}"
+    else:
+        # إذا لا يوجد يوزر، نستخدم المنشن
+        user_name = user_entity.first_name or "المستخدم"
+        mention_text = f"[{user_name}](tg://user?id={user_entity.id})"
+    
+    # اختيار رسالة ترحيب عشوائية
+    welcome_message = random.choice(CUSTOM_WELCOME_MESSAGES).format(mention=mention_text)
+    
+    # الرد على الرسالة
+    try:
+        await event.reply(
+            welcome_message,
+            parse_mode="markdown",
+        )
+    except:
+        pass
+
+# =============== رسالة المساعدة ===============
+
+@l313l.ar_cmd(
+    pattern="الترحيب1$",
+    command=("الترحيب", plugin_category),
+    info={
+        "header": "لعرض معلومات عن نظام الترحيب",
+        "description": "يعرض كيفية استخدام نظام الترحيب",
+        "usage": "{tr}الترحيب",
+    },
+)
+async def welcome_info(event):
+    "لعرض معلومات عن نظام الترحيب"
+    info_message = """
+**᯽︙ نظام الترحيب المتقدم**
+
+**الأوامر المتاحة:**
+
+1. **تحديد/تحديث نص ترحيب البوت الإداري:**
+   `.تفعيل نص ترحيب <النص>`
+   - إذا كان هناك نص قديم، يتم استبداله تلقائياً
+   مثال: `.تفعيل نص ترحيب "نورتنـا"`
+
+2. **تفعيل النظام في مجموعة:**
+   `.تفعيل الترحيب <ايدي_المجموعة> <ايدي_البوت_الاداري>`
+   مثال: `.تفعيل الترحيب -100123456789 1839897340`
+
+3. **عرض الإعدادات:**
+   `.عرض ترحيبات`
+
+4. **تعطيل في مجموعة (يحذف إعداداتها):**
+   `.تعطيل الترحيب <ايدي_المجموعة>`
+   - إذا كانت آخر مجموعة، يحذف نص الترحيب أيضاً
+
+5. **تعطيل كل شيء (نسخة إعادة ضبط):**
+   `.تعطيل الترحيب الكل`
+   - يحذف كل الإعدادات (النص والمجموعات)
+
+**ملاحظات:**
+- النظام يبحث عن نص الترحيب في رسائل البوت الإداري
+- يحاول استخراج اليوزر أولاً (`@username`)
+- إذا لم يجد يوزر، يستخرج المنشن
+- يرد باليوزر إذا موجود، وإلا بالمنشن
+- عند وضع نص جديد → يحل محل القديم تلقائياً
+- عند تعطيل آخر مجموعة → يحذف النص تلقائياً
+"""
+    await edit_or_reply(event, info_message)

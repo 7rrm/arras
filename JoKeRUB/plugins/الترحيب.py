@@ -637,14 +637,14 @@ async def reply_to_admin_welcome(event):
     
     # اختيار رسالة ترحيب عشوائية
     welcome_message = random.choice(CUSTOM_WELCOME_MESSAGES).format(mention=mention_text)
-    try:  
-    await event.client.send_message(
-        event.chat_id,  
-        welcome_message,  
-        parse_mode="markdown",
-    )
-except:
-    pass
+    try:
+        await event.client.send_message(
+            event.chat_id,
+            welcome_message,
+            parse_mode="markdown",
+        )
+    except:
+        pass
 
 # =============== رسالة المساعدة ===============
 

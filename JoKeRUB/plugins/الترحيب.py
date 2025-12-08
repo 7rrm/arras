@@ -360,7 +360,8 @@ async def disable_welcome(event):
     await edit_delete(event, "**✓ تم تعطيل الترحيب بنجاح**")
 
 @l313l.on(events.ChatAction)
-async def welcome_handler(event):    try:
+async def welcome_handler(event):
+    try:
         if not gvarstatus("welcome_enabled") == "true":
             return
             

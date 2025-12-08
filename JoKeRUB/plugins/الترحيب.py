@@ -384,12 +384,11 @@ async def welcome_handler(event):    try:
 
 
 
-
 import random
 import re
-from telethon import events
+from telethon import events, types
+from telethon.extensions import html, markdown
 from telethon.tl.types import User
-from telethon.tl import types
 
 # قائمة بكليشات الترحيب التي يرسلها حسابك
 CUSTOM_WELCOME_MESSAGES = [
@@ -410,6 +409,33 @@ PREMIUM_EMOJIS = [
 # تخزين إعدادات الترحيب
 admin_welcome_text = None  # نص ترحيب البوت الإداري
 active_chats = {}  # {chat_id: admin_bot_id}
+
+# =============== كلاس ParseMode (نفس كود الأوامر) ===============
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
 
 # =============== الأوامر ===============
 
@@ -728,7 +754,8 @@ async def reply_to_admin_welcome(event):
     # اختيار إيموجي بريميوم عشوائي من القائمة
     random_emoji_id = random.choice(PREMIUM_EMOJIS)
     
-    # إضافة الإيموجي البريميوم
+    # إنشاء الرسالة مع الإيموجي البريميوم
+    # نستخدم نفس طريقة كود الأوامر
     welcome_message = welcome_text.format(
         mention=mention_text,
         premium_emoji=f'<a href="emoji/{random_emoji_id}">❤️</a>'
@@ -739,7 +766,7 @@ async def reply_to_admin_welcome(event):
         await event.client.send_message(
             event.chat_id,
             welcome_message,
-            parse_mode='html'
+            parse_mode=CustomParseMode("html")
         )
     except Exception as e:
         # إذا فشل الإرسال مع HTML، نرسل بدون إيموجي
@@ -775,9 +802,7 @@ async def welcome_info(event):
 - يتم إضافة إيموجي بريميوم عشوائي بعد كل رسالة ترحيب
 - الإيموجيات المتاحة: `{len(PREMIUM_EMOJIS)}` إيموجي
 - في كل ترحيب، يتم اختيار إيموجي عشوائي من القائمة
-- لعرضها: `.عرض ايموجيات بريميوم`
-- لإضافة: `.اضافة ايموجي بريميوم <ID>`
-- لحذف: `.حذف ايموجي بريميوم <ID>`
+- يستخدم نفس نظام الإيموجيات المستخدم في كود الأوامر
 
 **الأوامر المتاحة:**
 
@@ -792,24 +817,14 @@ async def welcome_info(event):
 3. **عرض الإعدادات:**
    `.عرض ترحيبات`
 
-4. **تعطيل في مجموعة:**
-   `.تعطيل الترحيب <ايدي_المجموعة>`
+4. **إدارة الإيموجيات:**
+   `.اضافة ايموجي بريميوم <ID>` - لإضافة جديد
+   `.حذف ايموجي بريميوم <ID>` - لحذف إيموجي
+   `.عرض ايموجيات بريميوم` - لعرض الكل
 
-5. **تعطيل كل شيء:**
+5. **تعطيل النظام:**
+   `.تعطيل الترحيب <ايدي_المجموعة>`
    `.تعطيل الترحيب الكل`
 
 **🎲 مثال للترحيب:**
 سيختار النظام عشوائياً بين:
-1. **نَـورت↜ @المستخدم 🎁** (بالإيموجي 1)
-2. **نَـورت↜ @المستخدم ✨** (بالإيموجي 2)
-3. **هُـِݪآإ↜ @المستخدم 🎁** (بالإيموجي 1)
-وهكذا...
-
-**⚡ القائمة الحالية:**
-"""
-    
-    # إضافة IDs الإيموجيات الحالية
-    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
-        info_message += f"**{i}.** `{emoji_id}`\n"
-    
-    await edit_or_reply(event, info_message)

@@ -389,6 +389,7 @@ import re
 from telethon import events
 from telethon.tl.types import User
 from telethon.tl import types
+from telethon.extensions import html, markdown  # هذا غير موجود في الكود 1
 
 # قائمة بكليشات الترحيب التي يرسلها حسابك
 CUSTOM_WELCOME_MESSAGES = [

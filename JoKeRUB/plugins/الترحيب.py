@@ -637,11 +637,10 @@ async def reply_to_admin_welcome(event):
     
     # اختيار رسالة ترحيب عشوائية
     welcome_message = random.choice(CUSTOM_WELCOME_MESSAGES).format(mention=mention_text)
-    # إرسال رسالة جديدة
-try:
+    try:  
     await event.client.send_message(
-        event.chat_id,  # نفس المجموعة
-        welcome_message,
+        event.chat_id,  
+        welcome_message,  
         parse_mode="markdown",
     )
 except:
@@ -661,7 +660,7 @@ except:
 async def welcome_info(event):
     "لعرض معلومات عن نظام الترحيب"
     info_message = """
-**᯽︙ نظام الترحيب المتقدم**
+**◈︙︙ نظام الترحيب المتقدم**
 
 **الأوامر المتاحة:**
 

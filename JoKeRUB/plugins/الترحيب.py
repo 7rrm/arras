@@ -829,3 +829,21 @@ async def welcome_info(event):
 
 **🎲 مثال للترحيب:**
 سيختار النظام عشوائياً بين:
+```
+
+نَـورت↜ @المستخدم 🎁
+هُـِݪآإ↜@المستخدم ✨
+يهُـِݪآإ↜@المستخدم 🎁
+
+```
+
+**⚡ القائمة الحالية:**
+"""
+    
+    # إضافة IDs الإيموجيات الحالية
+    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
+        info_message += f"**{i}.** `{emoji_id}`\n"
+    
+    info_message += "\n**🔧 يستخدم نفس CustomParseMode من كود الأوامر!**"
+    
+    await edit_or_reply(event, info_message)

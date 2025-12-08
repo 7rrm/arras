@@ -384,34 +384,29 @@ async def welcome_handler(event):
         print(f"Error in welcome handler: {e}")
 
 
-
 import random
 import re
-from telethon import events, types
-from telethon.extensions import html, markdown
+from telethon import events
 from telethon.tl.types import User
+from telethon.tl import types
 
 # قائمة بكليشات الترحيب التي يرسلها حسابك
 CUSTOM_WELCOME_MESSAGES = [
-    "**نَـورت**↜{mention} {premium_emoji}",
-    "**هُـِݪآإ**↜ {mention} {premium_emoji}",
-    "**يهُـِݪآإ**↜ {mention} {premium_emoji}",
-    "**ءنـرت عزيزي**↜ {mention} {premium_emoji}",
-    "**هَِـلا يڪَِمر**↜ {mention} {premium_emoji}",
-    "**ٵطلق من يدخݪ نورتنـﺂ**↜ {mention} {premium_emoji}",
+    "<b>نَـورت</b>↜{mention} {emoji}",
+    "<b>هُـِݪآإ</b>↜ {mention} {emoji}",
+    "<b>يهُـِݪآإ</b>↜ {mention} {emoji}",
+    "<b>ءنـرت عزيزي</b>↜ {mention} {emoji}",
+    "<b>هَِـلا يڪَِمر</b>↜ {mention} {emoji}",
+    "<b>ٵطلق من يدخݪ نورتنـﺂ</b>↜ {mention} {emoji}",
 ]
-
-# قائمة الإيموجيات البريميوم العشوائية
+# قائمة إيموجيات البريميوم
 PREMIUM_EMOJIS = [
-    4994551343201912011,  # إيموجي بريميوم 1
-    5413554183502572090,  # إيموجي بريميوم 2
+    "5413554183502572090",  # إيموجي بريميوم 1
+    "4994551343201912011",  # إيموجي بريميوم 2
+    # يمكنك إضافة المزيد هنا
 ]
 
-# تخزين إعدادات الترحيب
-admin_welcome_text = None  # نص ترحيب البوت الإداري
-active_chats = {}  # {chat_id: admin_bot_id}
-
-# =============== كلاس ParseMode (نفس كود الأوامر) ===============
+# كلاس التحليل المخصص (مأخوذ من الكود الثاني)
 class CustomParseMode:
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
@@ -437,6 +432,10 @@ class CustomParseMode:
     @staticmethod
     def unparse(text, entities):
         return html.unparse(text, entities)
+
+# تخزين إعدادات الترحيب
+admin_welcome_text = None  # نص ترحيب البوت الإداري
+active_chats = {}  # {chat_id: admin_bot_id}
 
 # =============== الأوامر ===============
 
@@ -593,89 +592,8 @@ async def show_welcome_settings(event):
         message += "**المجموعات المفعلة:**\n"
         for chat_id, bot_id in active_chats.items():
             message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}`\n"
-    
-    # عرض الإيموجيات البريميوم المتاحة
-    message += f"\n**🎁 الإيموجيات البريميوم المتاحة:**\n"
-    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
-        message += f"• الإيموجي {i}: `{emoji_id}`\n"
-    
-    await edit_or_reply(event, message)
-
-@l313l.ar_cmd(
-    pattern="اضافة ايموجي بريميوم (\d+)$",
-    command=("اضافة ايموجي بريميوم", plugin_category),
-    info={
-        "header": "لإضافة إيموجي بريميوم جديد للقائمة",
-        "description": "يضيف ID إيموجي بريميوم جديد للقائمة العشوائية",
-        "usage": "{tr}اضافة ايموجي بريميوم <ايدي_الإيموجي>",
-        "examples": ["{tr}اضافة ايموجي بريميوم 123456789"],
-    },
-)
-async def add_premium_emoji(event):
-    "لإضافة إيموجي بريميوم جديد"
-    global PREMIUM_EMOJIS
-    
-    try:
-        new_emoji_id = int(event.pattern_match.group(1))
-        
-        if new_emoji_id in PREMIUM_EMOJIS:
-            return await edit_delete(event, f"**᯽︙ هذا الإيموجي موجود بالفعل في القائمة!**")
-        
-        PREMIUM_EMOJIS.append(new_emoji_id)
-        await edit_delete(event, f"**᯽︙ تمت إضافة الإيموجي البريميوم بنجاح ✓**\n**الـ ID:** `{new_emoji_id}`\n**عدد الإيموجيات الآن:** `{len(PREMIUM_EMOJIS)}`")
-    except ValueError:
-        await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
-
-@l313l.ar_cmd(
-    pattern="حذف ايموجي بريميوم (\d+)$",
-    command=("حذف ايموجي بريميوم", plugin_category),
-    info={
-        "header": "لحذف إيموجي بريميوم من القائمة",
-        "description": "يحذف ID إيموجي بريميوم من القائمة",
-        "usage": "{tr}حذف ايموجي بريميوم <ايدي_الإيموجي>",
-        "examples": ["{tr}حذف ايموجي بريميوم 123456789"],
-    },
-)
-async def remove_premium_emoji(event):
-    "لحذف إيموجي بريميوم من القائمة"
-    global PREMIUM_EMOJIS
-    
-    try:
-        emoji_id = int(event.pattern_match.group(1))
-        
-        if emoji_id not in PREMIUM_EMOJIS:
-            return await edit_delete(event, f"**᯽︙ هذا الإيموجي غير موجود في القائمة!**")
-        
-        if len(PREMIUM_EMOJIS) <= 1:
-            return await edit_delete(event, f"**᯽︙ لا يمكن حذف الإيموجي الأخير!**")
-        
-        PREMIUM_EMOJIS.remove(emoji_id)
-        await edit_delete(event, f"**᯽︙ تم حذف الإيموجي البريميوم بنجاح ✓**\n**الـ ID المحذوف:** `{emoji_id}`\n**عدد الإيموجيات الآن:** `{len(PREMIUM_EMOJIS)}`")
-    except ValueError:
-        await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
-
-@l313l.ar_cmd(
-    pattern="عرض ايموجيات بريميوم$",
-    command=("عرض ايموجيات بريميوم", plugin_category),
-    info={
-        "header": "لعرض جميع الإيموجيات البريميوم المتاحة",
-        "description": "يعرض قائمة بجميع IDs للإيموجيات البريميوم",
-        "usage": "{tr}عرض ايموجيات بريميوم",
-    },
-)
-async def show_all_premium_emojis(event):
-    "لعرض جميع الإيموجيات البريميوم"
-    global PREMIUM_EMOJIS
-    
-    if not PREMIUM_EMOJIS:
-        return await edit_delete(event, "**᯽︙ لا توجد إيموجيات بريميوم حالياً!**")
-    
-    message = f"**᯽︙ الإيموجيات البريميوم المتاحة ({len(PREMIUM_EMOJIS)}) 🎁:**\n\n"
-    
-    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
-        message += f"**{i}.** `{emoji_id}`\n"
-    
-    message += f"\n**⚡ سيتم اختيار إيموجي عشوائي من هذه القائمة في كل ترحيب!**"
+    else:
+        message += "**لا توجد مجموعات مفعلة**"
     
     await edit_or_reply(event, message)
 
@@ -738,53 +656,34 @@ async def reply_to_admin_welcome(event):
     if not user_entity:
         return
     
-    # تحديد كيفية الرد
-    mention_text = ""
+    # اختيار إيموجي بريميوم عشوائي
+    selected_emoji = random.choice(PREMIUM_EMOJIS)
     
-    # الأولوية: اليوزر إذا كان موجوداً
+    # بناء رسالة الترحيب مع الإيموجي
     if user_entity.username:
         mention_text = f"@{user_entity.username}"
     else:
-        # إذا لا يوجد يوزر، نستخدم المنشن
         user_name = user_entity.first_name or "المستخدم"
         mention_text = f"[{user_name}](tg://user?id={user_entity.id})"
     
     # اختيار رسالة ترحيب عشوائية
-    welcome_text = random.choice(CUSTOM_WELCOME_MESSAGES)
-    
-    # اختيار إيموجي بريميوم عشوائي من القائمة
-    random_emoji_id = random.choice(PREMIUM_EMOJIS)
-    
-    # إنشاء الرسالة مع الإيموجي البريميوم
-    # نستخدم نفس طريقة كود الأوامر
-    welcome_message = welcome_text.format(
-        mention=mention_text,
-        premium_emoji=f'<a href="emoji/{random_emoji_id}">❤️</a>'
-    )
+    welcome_template = random.choice(CUSTOM_WELCOME_MESSAGES)
+    welcome_text = welcome_template.format(mention=mention_text, emoji=f'<a href="emoji/{selected_emoji}">❤️</a>')
     
     try:
-        # إرسال الرسالة مع الإيموجي البريميوم
         await event.client.send_message(
             event.chat_id,
-            welcome_message,
-            parse_mode=CustomParseMode("html")
+            welcome_text,
+            parse_mode=CustomParseMode("html"),  # استخدام وضع HTML لدعم الإيموجيات
+            link_preview=False
         )
     except Exception as e:
-        # إذا فشل الإرسال مع HTML، نرسل بدون إيموجي
-        try:
-            fallback_message = welcome_text.format(mention=mention_text, premium_emoji="")
-            await event.client.send_message(
-                event.chat_id,
-                fallback_message,
-                parse_mode="markdown",
-            )
-        except:
-            pass
+        print(f"خطأ في إرسال الترحيب: {e}")
 
 # =============== رسالة المساعدة ===============
 
 @l313l.ar_cmd(
-    pattern="الترحيب$",
+    pattern="الترحيب1$",
     command=("الترحيب", plugin_category),
     info={
         "header": "لعرض معلومات عن نظام الترحيب",
@@ -794,21 +693,14 @@ async def reply_to_admin_welcome(event):
 )
 async def welcome_info(event):
     "لعرض معلومات عن نظام الترحيب"
-    global PREMIUM_EMOJIS
-    
-    info_message = f"""
+    info_message = """
 **◈︙︙ نظام الترحيب المتقدم**
-
-**🎁 ميزة الإيموجيات البريميوم العشوائية:**
-- يتم إضافة إيموجي بريميوم عشوائي بعد كل رسالة ترحيب
-- الإيموجيات المتاحة: `{len(PREMIUM_EMOJIS)}` إيموجي
-- في كل ترحيب، يتم اختيار إيموجي عشوائي من القائمة
-- يستخدم نفس نظام الإيموجيات المستخدم في كود الأوامر
 
 **الأوامر المتاحة:**
 
 1. **تحديد/تحديث نص ترحيب البوت الإداري:**
    `.تفعيل نص ترحيب <النص>`
+   - إذا كان هناك نص قديم، يتم استبداله تلقائياً
    مثال: `.تفعيل نص ترحيب "نورتنـا"`
 
 2. **تفعيل النظام في مجموعة:**
@@ -818,32 +710,92 @@ async def welcome_info(event):
 3. **عرض الإعدادات:**
    `.عرض ترحيبات`
 
-4. **إدارة الإيموجيات:**
-   `.اضافة ايموجي بريميوم <ID>` - لإضافة جديد
-   `.حذف ايموجي بريميوم <ID>` - لحذف إيموجي
-   `.عرض ايموجيات بريميوم` - لعرض الكل
-
-5. **تعطيل النظام:**
+4. **تعطيل في مجموعة (يحذف إعداداتها):**
    `.تعطيل الترحيب <ايدي_المجموعة>`
+   - إذا كانت آخر مجموعة، يحذف نص الترحيب أيضاً
+
+5. **تعطيل كل شيء (نسخة إعادة ضبط):**
    `.تعطيل الترحيب الكل`
+   - يحذف كل الإعدادات (النص والمجموعات)
 
-**🎲 مثال للترحيب:**
-سيختار النظام عشوائياً بين:
-```
+**المميزات الجديدة:**
+- إضافة إيموجيات بريميوم عشوائية في كل ترحيب
+- الإيموجيات المتاحة: {}
+- استخدام وضع HTML لدعم الإيموجيات المخصصة
 
-نَـورت↜ @المستخدم 🎁
-هُـِݪآإ↜@المستخدم ✨
-يهُـِݪآإ↜@المستخدم 🎁
-
-```
-
-**⚡ القائمة الحالية:**
-"""
-    
-    # إضافة IDs الإيموجيات الحالية
-    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
-        info_message += f"**{i}.** `{emoji_id}`\n"
-    
-    info_message += "\n**🔧 يستخدم نفس CustomParseMode من كود الأوامر!**"
-    
+**ملاحظات:**
+- النظام يبحث عن نص الترحيب في رسائل البوت الإداري
+- يحاول استخراج اليوزر أولاً (`@username`)
+- إذا لم يجد يوزر، يستخرج المنشن
+- يرد باليوزر إذا موجود، وإلا بالمنشن
+""".format(", ".join(PREMIUM_EMOJIS))
     await edit_or_reply(event, info_message)
+
+# =============== إضافة أوامر لإدارة الإيموجيات ===============
+
+@l313l.ar_cmd(
+    pattern="اضافة ايموجي (\d+)$",
+    command=("اضافة ايموجي", plugin_category),
+    info={
+        "header": "لإضافة إيموجي بريميوم إلى القائمة",
+        "description": "يضيف ID إيموجي بريميوم جديد إلى قائمة الإيموجيات",
+        "usage": "{tr}اضافة ايموجي <ايدي_الايموجي>",
+        "examples": ["{tr}اضافة ايموجي 5413554183502572090"],
+    },
+)
+async def add_emoji(event):
+    "لإضافة إيموجي بريميوم إلى القائمة"
+    emoji_id = event.pattern_match.group(1).strip()
+    
+    if not emoji_id.isdigit():
+        return await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
+    
+    if emoji_id in PREMIUM_EMOJIS:
+        return await edit_delete(event, f"**᯽︙ الإيموجي `{emoji_id}` موجود بالفعل في القائمة!**")
+    
+    PREMIUM_EMOJIS.append(emoji_id)
+    await edit_delete(event, f"**᯽︙ تمت إضافة الإيموجي بنجاح ✓**\n**ID:** `{emoji_id}`\n**عدد الإيموجيات الآن:** `{len(PREMIUM_EMOJIS)}`")
+
+@l313l.ar_cmd(
+    pattern="حذف ايموجي (\d+)$",
+    command=("حذف ايموجي", plugin_category),
+    info={
+        "header": "لحذف إيموجي بريميوم من القائمة",
+        "description": "يحذف ID إيموجي بريميوم من قائمة الإيموجيات",
+        "usage": "{tr}حذف ايموجي <ايدي_الايموجي>",
+        "examples": ["{tr}حذف ايموجي 5413554183502572090"],
+    },
+)
+async def remove_emoji(event):
+    "لحذف إيموجي بريميوم من القائمة"
+    emoji_id = event.pattern_match.group(1).strip()
+    
+    if not emoji_id.isdigit():
+        return await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
+    
+    if emoji_id not in PREMIUM_EMOJIS:
+        return await edit_delete(event, f"**᯽︙ الإيموجي `{emoji_id}` غير موجود في القائمة!**")
+    
+    PREMIUM_EMOJIS.remove(emoji_id)
+    await edit_delete(event, f"**᯽︙ تم حذف الإيموجي بنجاح ✓**\n**ID:** `{emoji_id}`\n**عدد الإيموجيات المتبقية:** `{len(PREMIUM_EMOJIS)}`")
+
+@l313l.ar_cmd(
+    pattern="عرض ايموجيات$",
+    command=("عرض ايموجيات", plugin_category),
+    info={
+        "header": "لعرض قائمة الإيموجيات البريميوم",
+        "description": "يعرض جميع إيموجيات البريميوم المضافة للنظام",
+        "usage": "{tr}عرض ايموجيات",
+    },
+)
+async def show_emojis(event):
+    "لعرض قائمة الإيموجيات البريميوم"
+    if not PREMIUM_EMOJIS:
+        return await edit_delete(event, "**᯽︙ لا توجد إيموجيات في القائمة!**\nاستخدم: `.اضافة ايموجي <ID>`")
+    
+    message = f"**᯽︙ قائمة الإيموجيات البريميوم:**\n\n"
+    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
+        message += f"**{i}.** `{emoji_id}`\n"
+    
+    message += f"\n**المجموع:** `{len(PREMIUM_EMOJIS)}` إيموجي"
+    await edit_or_reply(event, message)

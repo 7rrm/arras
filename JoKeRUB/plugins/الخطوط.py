@@ -110,7 +110,7 @@ class CustomParseMode:
 
 # الإيموجي الثابت للزخرفة
 DECORATIVE_EMOJI_ID = "5447181973544008180"
-DECORATIVE_EMOJII_ID = "5447389832781264371"
+#DECORATIVE_EMOJII_ID = "5447389832781264371"وقفته
 
 # الأمر الرئيسي لتفعيل خط مزخرف
 @l313l.on(admin_cmd(pattern="(خط مزخرف|خط المزخرف)"))
@@ -136,7 +136,7 @@ async def handle_decorative_formatting(event):
             return
         
         # تنسيق النص مع الإيموجي من الجانبين
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>{text}<a href="emoji/{DECORATIVE_EMOJII_ID}">❤️</a>'
+        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>{text}'
         
         try:
             # استخدام CustomParseMode مع event.edit()

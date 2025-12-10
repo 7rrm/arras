@@ -136,7 +136,7 @@ async def handle_decorative_formatting(event):
             return
         
         # تنسيق النص مع الإيموجي من الجانبين
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a><b>{text}</b>'
+        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>{text}'
         
         try:
             # استخدام CustomParseMode مع event.edit()

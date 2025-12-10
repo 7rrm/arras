@@ -921,7 +921,7 @@ async def yoot_auto_search(event):
 video_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
     'bot_username': '@Musicdark101_bot',  # البوت الجديد
-    #'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
+    'channels': ['@aRRaS_iD']  # القنوات الجديدة
 }
 
 # دالة التحقق من التفعيل للفيديو
@@ -985,8 +985,8 @@ async def video_auto_search(event):
     
     try:
         # الانضمام للقنوات
-     #   for channel in video_settings['channels']:
-           # try:
+        for channel in video_settings['channels']:
+            try:
                 await event.client(JoinChannelRequest(channel))
                 await asyncio.sleep(1)
             except Exception as e:

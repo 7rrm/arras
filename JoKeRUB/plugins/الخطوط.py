@@ -109,7 +109,7 @@ class CustomParseMode:
         return html.unparse(text, entities)
 
 # الإيموجي الثابت للزخرفة
-DECORATIVE_EMOJI_ID = "5447181973544008180"
+DECORATIVE_EMOJI_ID = "5447389832781264371"
 #DECORATIVE_EMOJII_ID = "5447389832781264371"وقفته
 
 # الأمر الرئيسي لتفعيل خط مزخرف

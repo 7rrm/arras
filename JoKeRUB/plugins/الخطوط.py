@@ -108,7 +108,7 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
 
-# الإيموجي الثابت للزخرفة (نفس الإيموجي المستخدم في الأوامر)
+# الإيموجي الثابت للزخرفة
 DECORATIVE_EMOJI_ID = "5447181973544008180"
 DECORATIVE_EMOJII_ID = "5447389832781264371"
 
@@ -135,19 +135,23 @@ async def handle_decorative_formatting(event):
         if text.startswith('.'):
             return
         
-        # تنسيق النص مع الإيموجي من الجانبين بنفس طريقة كود الأوامر
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJII_ID}">❤️</a>{text}<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>'
+        # تنسيق النص مع الإيموجي من الجانبين
+        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>{text}<a href="emoji/{DECORATIVE_EMOJII_ID}">❤️</a>'
         
         try:
-            await event.client.send_message(
-                event.chat_id,
-                formatted_text,
-                link_preview=False,
-                parse_mode=CustomParseMode("html"),
+            # استخدام CustomParseMode مع event.edit()
+            # ننشئ الكيانيات يدوياً
+            parse_mode = CustomParseMode("html")
+            parsed_text, entities = parse_mode.parse(formatted_text)
+            
+            # نعدل الرسالة الأصلية
+            await event.edit(
+                parsed_text,
+                parse_mode=None,  # نستخدم الكيانيات مباشرة
+                formatting_entities=entities
             )
-            await event.delete()  # حذف الرسالة الأصلية
         except Exception as e:
-            # في حال فشل الإرسال بالتحليل المخصص، نستخدم الطريقة العادية
+            # في حال فشل، نستخدم الطريقة العادية
             try:
                 await event.edit(formatted_text)
             except:

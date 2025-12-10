@@ -920,8 +920,8 @@ async def yoot_auto_search(event):
 # إعدادات التحكم للفيديو
 video_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
-    'bot_username': '@MsosMbot',  # البوت الجديد
-    'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
+    'bot_username': '@Musicdark101_bot',  # البوت الجديد
+    #'channels': ['@lllcz', '@mmmsc']  # القنوات الجديدة
 }
 
 # دالة التحقق من التفعيل للفيديو
@@ -985,8 +985,8 @@ async def video_auto_search(event):
     
     try:
         # الانضمام للقنوات
-        for channel in video_settings['channels']:
-            try:
+     #   for channel in video_settings['channels']:
+           # try:
                 await event.client(JoinChannelRequest(channel))
                 await asyncio.sleep(1)
             except Exception as e:
@@ -995,7 +995,7 @@ async def video_auto_search(event):
         # استخدام conversation للاستماع الفوري
         async with event.client.conversation(video_settings['bot_username'], timeout=30) as conv:
             # إرسال الرسالة للبوت
-            full_message = f"فيديو {query}"
+            full_message = f"تحميل {query}"
             await conv.send_message(full_message)
             
             # الانتظار للرد الأول (تأكيد الاستلام)

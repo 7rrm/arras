@@ -74,3 +74,81 @@ async def handle_text_formatting(event):
         except:
             pass
             
+#########################
+from telethon import events, types
+from JoKeRUB import l313l
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..core.managers import edit_delete
+from telethon.extensions import html
+
+# كلاس التحليل المخصص (كما في كود الأوامر)
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
+# الإيموجي الثابت للزخرفة (نفس الإيموجي المستخدم في الأوامر)
+DECORATIVE_EMOJI_ID = "5447181973544008180"
+DECORATIVE_EMOJII_ID = "5447389832781264371"
+
+# الأمر الرئيسي لتفعيل خط مزخرف
+@l313l.on(admin_cmd(pattern="(خط مزخرف|خط المزخرف)"))
+async def decorative_toggle(event):
+    if not gvarstatus("decorative"):
+        addgvar("decorative", "on")
+        await edit_delete(event, "**᯽︙ تم تفعيل خط مزخرف بنجاح ✓**")
+    else:
+        delgvar("decorative")
+        await edit_delete(event, "**᯽︙ تم إيقاف خط مزخرف ✓**")
+
+@l313l.on(events.NewMessage(outgoing=True))
+async def handle_decorative_formatting(event):
+    if not event.message.text or event.message.media:
+        return
+    
+    # التحقق من تفعيل خط مزخرف
+    if gvarstatus("decorative"):
+        text = event.message.text
+        
+        # تخطي إذا كان النص يبدأ بنقطة (أوامر)
+        if text.startswith('.'):
+            return
+        
+        # تنسيق النص مع الإيموجي من الجانبين بنفس طريقة كود الأوامر
+        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJII_ID}">❤️</a>{text}<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>'
+        
+        try:
+            await event.client.send_message(
+                event.chat_id,
+                formatted_text,
+                link_preview=False,
+                parse_mode=CustomParseMode("html"),
+            )
+            await event.delete()  # حذف الرسالة الأصلية
+        except Exception as e:
+            # في حال فشل الإرسال بالتحليل المخصص، نستخدم الطريقة العادية
+            try:
+                await event.edit(formatted_text)
+            except:
+                pass

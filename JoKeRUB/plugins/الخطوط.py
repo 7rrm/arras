@@ -217,7 +217,7 @@ async def handle_decorative_formatting(event):
     
     # التحقق من تفعيل النوع الجديد فقط
     if gvarstatus("decorative_bold"):
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a><b>{text}</b>.'
+        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a><b>{text}</b> .'
         
         try:
             parse_mode = CustomParseMode("html")

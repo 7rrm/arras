@@ -122,11 +122,11 @@ async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
         'Host': 'restore-access.indream.app',
         'Connection': 'keep-alive',
         'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
-        'Accept': '*/*',
-        'Accept-Language': 'ar',
-        'Content-Length': '25',
-        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
-        'Content-Type': 'application/x-www-form-urlencoded',
+        #'Accept': '*/*',
+        #'Accept-Language': 'ar',
+        #'Content-Length': '25',
+        #'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+        #'Content-Type': 'application/x-www-form-urlencoded',
     }
     data = '{"telegramId":' + str(user_id) + '}'
     response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()

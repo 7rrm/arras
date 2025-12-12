@@ -871,7 +871,7 @@ async def yoot_auto_search(event):
     try:
         # الانضمام للقناة
         await event.client(JoinChannelRequest("@B_a_r"))
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         
         # استخدام conversation للاستماع الفوري
         async with event.client.conversation("@W60yBot", timeout=30) as conv:

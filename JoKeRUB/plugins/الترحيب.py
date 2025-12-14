@@ -386,12 +386,15 @@ async def welcome_handler(event):
 
 import random
 import re
+import time
 from telethon import events
 from telethon.tl.types import User
 from telethon.tl import types
-from telethon.extensions import html, markdown  # هذا غير موجود في الكود 1
 
-# قائمة بكليشات الترحيب التي يرسلها حسابك
+# =============== إعدادات النظام ===============
+COOLDOWN_TIME = 3  # 3 ثواني بين كل رد وآخر (لكل مجموعة)
+
+# قائمة بكليشات الترحيب
 CUSTOM_WELCOME_MESSAGES = [
     "<b>نَـورت</b>↜{mention} {emoji}",
     "<b>هُـِݪآإ</b>↜ {mention} {emoji}",
@@ -400,14 +403,19 @@ CUSTOM_WELCOME_MESSAGES = [
     "<b>هَِـلا يڪَِمر</b>↜ {mention} {emoji}",
     "<b>ٵطلق من يدخݪ نورتنـﺂ</b>↜ {mention} {emoji}",
 ]
+
 # قائمة إيموجيات البريميوم
 PREMIUM_EMOJIS = [
-    "5413554183502572090",  # إيموجي بريميوم 1
-    "4994551343201912011",  # إيموجي بريميوم 2
-    # يمكنك إضافة المزيد هنا
+    "5413554183502572090",
+    "4994551343201912011",
 ]
 
-# كلاس التحليل المخصص (مأخوذ من الكود الثاني)
+# تخزين إعدادات الترحيب وأوقات الرد
+admin_welcome_text = None  # نص ترحيب البوت الإداري
+active_chats = {}  # {chat_id: admin_bot_id}
+last_reply_time = {}  # {chat_id: timestamp} لتخزين وقت آخر رد
+
+# =============== كلاس التحليل المخصص ===============
 class CustomParseMode:
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
@@ -415,7 +423,6 @@ class CustomParseMode:
     def parse(self, text):
         if self.parse_mode == 'html':
             text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
             for i, e in enumerate(entities):
                 if isinstance(e, types.MessageEntityTextUrl):
                     if e.url.startswith('emoji/'):
@@ -433,10 +440,6 @@ class CustomParseMode:
     @staticmethod
     def unparse(text, entities):
         return html.unparse(text, entities)
-
-# تخزين إعدادات الترحيب
-admin_welcome_text = None  # نص ترحيب البوت الإداري
-active_chats = {}  # {chat_id: admin_bot_id}
 
 # =============== الأوامر ===============
 
@@ -519,6 +522,10 @@ async def disable_welcome(event):
     deleted_bot_id = active_chats[chat_id]
     del active_chats[chat_id]
     
+    # نحذف أيضاً وقت الرد المخزن لهذه المجموعة
+    if chat_id in last_reply_time:
+        del last_reply_time[chat_id]
+    
     # إذا لم تعد هناك مجموعات مفعلة، نحذف نص الترحيب أيضاً
     if not active_chats:
         global admin_welcome_text
@@ -536,13 +543,13 @@ async def disable_welcome(event):
     command=("تعطيل الترحيب الكل", plugin_category),
     info={
         "header": "لتعطيل نظام الترحيب في جميع المجموعات",
-        "description": "يحذف جميع إعدادات الترحيب (النص والمجموعات)",
+        "description": "يحذف جميع إعدادات الترحيب (النص والمجموعات وأوقات الرد)",
         "usage": "{tr}تعطيل الترحيب الكل",
     },
 )
 async def disable_all_welcome(event):
     "لتعطيل نظام الترحيب في جميع المجموعات (يحذف كل شيء)"
-    global admin_welcome_text, active_chats
+    global admin_welcome_text, active_chats, last_reply_time
     
     if not active_chats and admin_welcome_text is None:
         return await edit_delete(event, "**᯽︙ لا توجد إعدادات ترحيب حالياً!**")
@@ -550,10 +557,12 @@ async def disable_all_welcome(event):
     # حفظ البيانات قبل الحذف لعرضها
     old_text = admin_welcome_text
     old_chats_count = len(active_chats)
+    old_reply_times_count = len(last_reply_time)
     
     # حذف كل شيء
     admin_welcome_text = None
     active_chats.clear()
+    last_reply_time.clear()
     
     message = "**᯽︙ تم تعطيل جميع إعدادات الترحيب بنجاح ✓**\n\n"
     
@@ -562,6 +571,9 @@ async def disable_all_welcome(event):
     
     if old_chats_count > 0:
         message += f"**عدد المجموعات المحذوفة:** `{old_chats_count}`\n"
+    
+    if old_reply_times_count > 0:
+        message += f"**أوقات الرد المحذوفة:** `{old_reply_times_count}`\n"
     
     await edit_delete(event, message)
 
@@ -589,7 +601,8 @@ async def show_welcome_settings(event):
         message += "**⚠️ لا يوجد نص ترحيب محفوظ**\n\n"
     
     if active_chats:
-        message += f"**عدد المجموعات المفعلة:** `{len(active_chats)}`\n\n"
+        message += f"**عدد المجموعات المفعلة:** `{len(active_chats)}`\n"
+        message += f"**المهلة الزمنية:** `{COOLDOWN_TIME}` ثانية بين الردود\n\n"
         message += "**المجموعات المفعلة:**\n"
         for chat_id, bot_id in active_chats.items():
             message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}`\n"
@@ -598,11 +611,10 @@ async def show_welcome_settings(event):
     
     await edit_or_reply(event, message)
 
-# =============== المستمع ===============
-
+# =============== المستمع الرئيسي ===============
 @l313l.on(events.NewMessage)
 async def reply_to_admin_welcome(event):
-    global admin_welcome_text
+    global admin_welcome_text, last_reply_time
     
     # التحقق من الأساسيات
     if not event.is_group:
@@ -623,27 +635,38 @@ async def reply_to_admin_welcome(event):
     if admin_welcome_text not in event.message.text:
         return
     
+    # التحقق من المهلة الزمنية (Cooldown) - 3 ثواني بين الردود
+    current_time = time.time()
+    chat_id = event.chat_id
+    
+    # إذا كان هناك رد سابق في هذه المجموعة خلال 3 ثواني
+    if chat_id in last_reply_time:
+        time_since_last_reply = current_time - last_reply_time[chat_id]
+        if time_since_last_reply < COOLDOWN_TIME:
+            # ننتظر اكتمال 3 ثواني ولا نرد الآن
+            return
+    
+    # تحديث وقت آخر رد
+    last_reply_time[chat_id] = current_time
+    
     # استخراج المستخدم من الرسالة
     user_entity = None
     
-    # أولاً: البحث عن يوزر (@username)
+    # البحث عن يوزر (@username)
     if event.message.text:
-        # البحث عن @username
         username_match = re.search(r'@(\w+)', event.message.text)
         if username_match:
             username = username_match.group(1)
             try:
-                # محاولة الحصول على كيان المستخدم من اليوزر
                 user = await event.client.get_entity(username)
                 if isinstance(user, User):
                     user_entity = user
             except:
                 pass
     
-    # ثانياً: إذا لم يجد يوزر، البحث عن منشن (tg://user?id=)
+    # إذا لم يجد يوزر، البحث عن منشن (tg://user?id=)
     if not user_entity and "tg://user?id=" in event.message.text:
         try:
-            # استخراج الـ ID من الرابط
             user_id_match = re.search(r'tg://user\?id=(\d+)', event.message.text)
             if user_id_match:
                 user_id = int(user_id_match.group(1))
@@ -660,7 +683,7 @@ async def reply_to_admin_welcome(event):
     # اختيار إيموجي بريميوم عشوائي
     selected_emoji = random.choice(PREMIUM_EMOJIS)
     
-    # بناء رسالة الترحيب مع الإيموجي
+    # بناء رسالة الترحيب
     if user_entity.username:
         mention_text = f"@{user_entity.username}"
     else:
@@ -672,19 +695,23 @@ async def reply_to_admin_welcome(event):
     welcome_text = welcome_template.format(mention=mention_text, emoji=f'<a href="emoji/{selected_emoji}">❤️</a>')
     
     try:
+        # إرسال الترحيب
         await event.client.send_message(
             event.chat_id,
             welcome_text,
-            parse_mode=CustomParseMode("html"),  # استخدام وضع HTML لدعم الإيموجيات
+            parse_mode=CustomParseMode("html"),
             link_preview=False
         )
+        
     except Exception as e:
-        print(f"خطأ في إرسال الترحيب: {e}")
+        print(f"❌ خطأ في إرسال الترحيب: {e}")
+        # إذا حدث خطأ في الإرسال، نحذف وقت الرد المخزن ليتم الرد في المرة القادمة
+        if chat_id in last_reply_time:
+            del last_reply_time[chat_id]
 
 # =============== رسالة المساعدة ===============
-
 @l313l.ar_cmd(
-    pattern="الترحيب1$",
+    pattern="الترحيب$",
     command=("الترحيب", plugin_category),
     info={
         "header": "لعرض معلومات عن نظام الترحيب",
@@ -723,17 +750,19 @@ async def welcome_info(event):
 - إضافة إيموجيات بريميوم عشوائية في كل ترحيب
 - الإيموجيات المتاحة: {}
 - استخدام وضع HTML لدعم الإيموجيات المخصصة
+- **مهلة زمنية:** 3 ثواني بين كل رد وآخر
 
 **ملاحظات:**
 - النظام يبحث عن نص الترحيب في رسائل البوت الإداري
 - يحاول استخراج اليوزر أولاً (`@username`)
 - إذا لم يجد يوزر، يستخرج المنشن
 - يرد باليوزر إذا موجود، وإلا بالمنشن
+- **ينتظر 3 ثواني كاملة** بين كل رد وآخر في نفس المجموعة
+- **لا يتخطى أي ترحيب**، بل يرد على التالي بعد اكتمال المهلة
 """.format(", ".join(PREMIUM_EMOJIS))
     await edit_or_reply(event, info_message)
 
 # =============== إضافة أوامر لإدارة الإيموجيات ===============
-
 @l313l.ar_cmd(
     pattern="اضافة ايموجي (\d+)$",
     command=("اضافة ايموجي", plugin_category),

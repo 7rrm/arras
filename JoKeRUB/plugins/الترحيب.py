@@ -384,13 +384,13 @@ async def welcome_handler(event):
         print(f"Error in welcome handler: {e}")
 
 
+
 import random
 import re
-import time  # أضفنا المكتبة
 from telethon import events
 from telethon.tl.types import User
 from telethon.tl import types
-from telethon.extensions import html, markdown
+from telethon.extensions import html, markdown  # هذا غير موجود في الكود 1
 
 # قائمة بكليشات الترحيب التي يرسلها حسابك
 CUSTOM_WELCOME_MESSAGES = [
@@ -438,9 +438,6 @@ class CustomParseMode:
 # تخزين إعدادات الترحيب
 admin_welcome_text = None  # نص ترحيب البوت الإداري
 active_chats = {}  # {chat_id: admin_bot_id}
-
-# ====== إضافة نظام التوقيت ======
-last_reply_time = {}  # تخزين آخر وقت رد لكل مجموعة {chat_id: timestamp}
 
 # =============== الأوامر ===============
 
@@ -523,10 +520,6 @@ async def disable_welcome(event):
     deleted_bot_id = active_chats[chat_id]
     del active_chats[chat_id]
     
-    # ====== إضافة: حذف وقت الرد السابق لهذه المجموعة ======
-    if chat_id in last_reply_time:
-        del last_reply_time[chat_id]
-    
     # إذا لم تعد هناك مجموعات مفعلة، نحذف نص الترحيب أيضاً
     if not active_chats:
         global admin_welcome_text
@@ -558,9 +551,6 @@ async def disable_all_welcome(event):
     # حفظ البيانات قبل الحذف لعرضها
     old_text = admin_welcome_text
     old_chats_count = len(active_chats)
-    
-    # ====== إضافة: حذف جميع أوقات الرد ======
-    last_reply_time.clear()
     
     # حذف كل شيء
     admin_welcome_text = None
@@ -603,17 +593,13 @@ async def show_welcome_settings(event):
         message += f"**عدد المجموعات المفعلة:** `{len(active_chats)}`\n\n"
         message += "**المجموعات المفعلة:**\n"
         for chat_id, bot_id in active_chats.items():
-            # ====== إضافة: عرض آخر وقت رد لهذه المجموعة ======
-            last_time = last_reply_time.get(chat_id, "لم يرد بعد")
-            if last_time != "لم يرد بعد":
-                last_time = time.strftime("%H:%M:%S", time.localtime(last_time))
-            message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}` | آخر رد: `{last_time}`\n"
+            message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}`\n"
     else:
         message += "**لا توجد مجموعات مفعلة**"
     
     await edit_or_reply(event, message)
 
-# =============== المستمع مع التعديل لـ 3 ثواني ===============
+# =============== المستمع ===============
 
 @l313l.on(events.NewMessage)
 async def reply_to_admin_welcome(event):
@@ -637,19 +623,6 @@ async def reply_to_admin_welcome(event):
     # التحقق إذا كانت الرسالة تحتوي على نص الترحيب
     if admin_welcome_text not in event.message.text:
         return
-    
-    # ====== التحقق من الوقت - الجديد ======
-    current_time = time.time()
-    chat_id = event.chat_id
-    
-    # إذا كان هناك وقت رد سابق لهذه المجموعة
-    if chat_id in last_reply_time:
-        time_since_last_reply = current_time - last_reply_time[chat_id]
-        
-        # إذا لم يمر 3 ثواني بعد، لا نرد
-        if time_since_last_reply < 3:
-            print(f"⏰ تم تجاهل الترحيب في المجموعة {chat_id} - لم يمر 3 ثواني بعد (بقي: {3-time_since_last_reply:.2f} ثانية)")
-            return
     
     # استخراج المستخدم من الرسالة
     user_entity = None
@@ -706,11 +679,6 @@ async def reply_to_admin_welcome(event):
             parse_mode=CustomParseMode("html"),  # استخدام وضع HTML لدعم الإيموجيات
             link_preview=False
         )
-        
-        # ====== حفظ وقت الرد الحالي - الجديد ======
-        last_reply_time[chat_id] = current_time
-        print(f"✅ تم الترحيب في المجموعة {chat_id} - تم حفظ الوقت: {current_time}")
-        
     except Exception as e:
         print(f"خطأ في إرسال الترحيب: {e}")
 
@@ -756,12 +724,6 @@ async def welcome_info(event):
 - إضافة إيموجيات بريميوم عشوائية في كل ترحيب
 - الإيموجيات المتاحة: {}
 - استخدام وضع HTML لدعم الإيموجيات المخصصة
-
-**نظام الـ 3 ثواني المضافة:**
-- ✅ النظام يرد مرة واحدة فقط كل 3 ثواني
-- ✅ إذا أرسل البوت الإداري ترحيبات متتالية، يرد على الأول فقط
-- ✅ ينتظر 3 ثواني قبل الرد على الترحيب التالي
-- ✅ النظام مستقل لكل مجموعة
 
 **ملاحظات:**
 - النظام يبحث عن نص الترحيب في رسائل البوت الإداري
@@ -838,40 +800,4 @@ async def show_emojis(event):
         message += f"**{i}.** `{emoji_id}`\n"
     
     message += f"\n**المجموع:** `{len(PREMIUM_EMOJIS)}` إيموجي"
-    await edit_or_reply(event, message)
-
-# =============== إضافة أمر لعرض حالة التوقيت ===============
-
-@l313l.ar_cmd(
-    pattern="حالة التوقيت$",
-    command=("حالة التوقيت", plugin_category),
-    info={
-        "header": "لعرض حالة نظام الـ 3 ثواني",
-        "description": "يعرض آخر أوقات الرد ومتى يمكن الرد التالي",
-        "usage": "{tr}حالة التوقيت",
-    },
-)
-async def show_timing_status(event):
-    "لعرض حالة نظام التوقيت"
-    if not last_reply_time:
-        return await edit_delete(event, "**᯽︙ لم يتم أي رد بعد!**")
-    
-    current_time = time.time()
-    message = "**᯽︙ حالة نظام التوقيت (3 ثواني بين كل رد):**\n\n"
-    
-    for chat_id, last_time in last_reply_time.items():
-        time_since = current_time - last_time
-        
-        if time_since >= 3:
-            status = "✅ يمكن الرد الآن"
-        else:
-            time_left = 3 - time_since
-            status = f"⏳ ينتظر {time_left:.1f} ثانية"
-        
-        last_time_str = time.strftime("%H:%M:%S", time.localtime(last_time))
-        message += f"**المجموعة:** `{chat_id}`\n"
-        message += f"**آخر رد:** `{last_time_str}`\n"
-        message += f"**الحالة:** {status}\n"
-        message += "─" * 30 + "\n"
-    
     await edit_or_reply(event, message)

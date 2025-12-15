@@ -901,7 +901,6 @@ async def process_queue():
                 parse_mode=CustomParseMode("html"),
                 link_preview=False
             )
-        except Exception as e:
         
         # ⏱️ انتظار 3 ثواني قبل الترحيب التالي
         if welcome_queue:  # إذا كان هناك المزيد في الصف

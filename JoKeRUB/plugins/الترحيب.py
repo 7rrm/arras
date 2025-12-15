@@ -832,7 +832,7 @@ PREMIUM_EMOJIS = [
 
 # =============== نظام صف الانتظار ===============
 welcome_queue = deque()  # صف الانتظار للترحيبات
-is_processing = False    # هل تتم معالجة الآن؟
+#is_processing = False    # هل تتم معالجة الآن؟
 DELAY_SECONDS = 3        # 3 ثواني بين كل ترحيب
 
 # كلاس التحليل المخصص
@@ -907,7 +907,7 @@ async def process_queue():
         if welcome_queue:  # إذا كان هناك المزيد في الصف
             await asyncio.sleep(DELAY_SECONDS)
     
-    is_processing = False
+    #is_processing = False
 
 # =============== الأوامر ===============
 

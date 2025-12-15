@@ -819,7 +819,7 @@ CUSTOM_WELCOME_MESSAGES = [
     "<b>هُـِݪآإ</b>↜ {mention} {emoji}",
     "<b>يهُـِݪآإ</b>↜ {mention} {emoji}",
     "<b>ءنـرت عزيزي</b>↜ {mention} {emoji}",
-    "<b>هَِـلا يڪَِمر</b>↜ {mention} {emoji}",
+    #"<b>هَِـلا يڪَِمر</b>↜ {mention} {emoji}",
     "<b>ٵطلق من يدخݪ نورتنـﺂ</b>↜ {mention} {emoji}",
 ]
 
@@ -871,7 +871,6 @@ async def process_queue():
     global is_processing
     
     is_processing = True
-    print(f"🔄 بدء معالجة صف الترحيبات ({len(welcome_queue)} في الانتظار)")
     
     while welcome_queue:
         # أخذ الترحيب الأول من الصف
@@ -879,7 +878,6 @@ async def process_queue():
         
         # التحقق إذا كانت المجموعة لا تزال مفعلة
         if chat_id not in active_chats:
-            print(f"⚠️ تخطي ترحيب: المجموعة {chat_id} غير مفعلة")
             continue
         
         # بناء رسالة الترحيب مع الإيموجي
@@ -903,17 +901,15 @@ async def process_queue():
                 parse_mode=CustomParseMode("html"),
                 link_preview=False
             )
-            print(f"✅ تم الترحيب بـ {mention_text}")
         except Exception as e:
             print(f"❌ خطأ في إرسال الترحيب: {e}")
         
         # ⏱️ انتظار 3 ثواني قبل الترحيب التالي
         if welcome_queue:  # إذا كان هناك المزيد في الصف
-            print(f"⏳ انتظار {DELAY_SECONDS} ثواني للترحيب التالي...")
             await asyncio.sleep(DELAY_SECONDS)
     
     is_processing = False
-    print("⏹️ انتهت معالجة صف الترحيبات")
+    
 
 # =============== الأوامر ===============
 
@@ -1086,38 +1082,7 @@ async def show_welcome_settings(event):
     
     await edit_or_reply(event, message)
 
-# =============== أمر حالة الصف ===============
-@l313l.ar_cmd(
-    pattern="حالة الصف$",
-    command=("حالة الصف", plugin_category),
-    info={
-        "header": "لعرض حالة صف انتظار الترحيبات",
-        "usage": "{tr}حالة الصف",
-    },
-)
-async def show_queue_status(event):
-    """لعرض حالة صف الانتظار"""
-    global is_processing
-    
-    status = f"""
-**📊 حالة نظام الترحيب:**
-
-**• الترحيبات في الانتظار:** `{len(welcome_queue)}`
-**• هل تتم المعالجة الآن:** `{'نعم ✅' if is_processing else 'لا ⏸️'}`
-**• التأخير بين الترحيبات:** `{DELAY_SECONDS} ثواني`
-
-**• آخر 5 ترحيبات في الصف:**
-"""
-    
-    if welcome_queue:
-        # عرض آخر 5 ترحيبات
-        for i, (chat_id, user, _) in enumerate(list(welcome_queue)[:5], 1):
-            username = f"@{user.username}" if user.username else (user.first_name or "مستخدم")
-            status += f"  **{i}.** {username} (المجموعة: `{chat_id}`)\n"
-    else:
-        status += "  **الصف فارغ**"
-    
-    await edit_or_reply(event, status)
+# =============== أمر حالة الصف ==============
 
 # =============== المستمع للترحيبات ===============
 @l313l.on(events.NewMessage)
@@ -1179,7 +1144,6 @@ async def reply_to_admin_welcome(event):
     
     # إضافة الترحيب لصف الانتظار
     welcome_queue.append((event.chat_id, user_entity, event))
-    print(f"➕ أضيف ترحيب جديد للصف (الإجمالي: {len(welcome_queue)})")
     
     # 🔥 المهم: بدء المعالجة إذا لم تكن جارية
     if not is_processing:

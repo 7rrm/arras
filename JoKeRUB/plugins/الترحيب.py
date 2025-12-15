@@ -384,7 +384,7 @@ async def welcome_handler(event):
         print(f"Error in welcome handler: {e}")
 
 
-
+'''
 import random
 import re
 from telethon import events
@@ -730,6 +730,515 @@ async def welcome_info(event):
 - يحاول استخراج اليوزر أولاً (`@username`)
 - إذا لم يجد يوزر، يستخرج المنشن
 - يرد باليوزر إذا موجود، وإلا بالمنشن
+""".format(", ".join(PREMIUM_EMOJIS))
+    await edit_or_reply(event, info_message)
+
+# =============== إضافة أوامر لإدارة الإيموجيات ===============
+
+@l313l.ar_cmd(
+    pattern="اضافة ايموجي (\d+)$",
+    command=("اضافة ايموجي", plugin_category),
+    info={
+        "header": "لإضافة إيموجي بريميوم إلى القائمة",
+        "description": "يضيف ID إيموجي بريميوم جديد إلى قائمة الإيموجيات",
+        "usage": "{tr}اضافة ايموجي <ايدي_الايموجي>",
+        "examples": ["{tr}اضافة ايموجي 5413554183502572090"],
+    },
+)
+async def add_emoji(event):
+    "لإضافة إيموجي بريميوم إلى القائمة"
+    emoji_id = event.pattern_match.group(1).strip()
+    
+    if not emoji_id.isdigit():
+        return await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
+    
+    if emoji_id in PREMIUM_EMOJIS:
+        return await edit_delete(event, f"**᯽︙ الإيموجي `{emoji_id}` موجود بالفعل في القائمة!**")
+    
+    PREMIUM_EMOJIS.append(emoji_id)
+    await edit_delete(event, f"**᯽︙ تمت إضافة الإيموجي بنجاح ✓**\n**ID:** `{emoji_id}`\n**عدد الإيموجيات الآن:** `{len(PREMIUM_EMOJIS)}`")
+
+@l313l.ar_cmd(
+    pattern="حذف ايموجي (\d+)$",
+    command=("حذف ايموجي", plugin_category),
+    info={
+        "header": "لحذف إيموجي بريميوم من القائمة",
+        "description": "يحذف ID إيموجي بريميوم من قائمة الإيموجيات",
+        "usage": "{tr}حذف ايموجي <ايدي_الايموجي>",
+        "examples": ["{tr}حذف ايموجي 5413554183502572090"],
+    },
+)
+async def remove_emoji(event):
+    "لحذف إيموجي بريميوم من القائمة"
+    emoji_id = event.pattern_match.group(1).strip()
+    
+    if not emoji_id.isdigit():
+        return await edit_delete(event, "**᯽︙ يرجى إدخال ID صحيح للإيموجي!**")
+    
+    if emoji_id not in PREMIUM_EMOJIS:
+        return await edit_delete(event, f"**᯽︙ الإيموجي `{emoji_id}` غير موجود في القائمة!**")
+    
+    PREMIUM_EMOJIS.remove(emoji_id)
+    await edit_delete(event, f"**᯽︙ تم حذف الإيموجي بنجاح ✓**\n**ID:** `{emoji_id}`\n**عدد الإيموجيات المتبقية:** `{len(PREMIUM_EMOJIS)}`")
+
+@l313l.ar_cmd(
+    pattern="عرض ايموجيات$",
+    command=("عرض ايموجيات", plugin_category),
+    info={
+        "header": "لعرض قائمة الإيموجيات البريميوم",
+        "description": "يعرض جميع إيموجيات البريميوم المضافة للنظام",
+        "usage": "{tr}عرض ايموجيات",
+    },
+)
+async def show_emojis(event):
+    "لعرض قائمة الإيموجيات البريميوم"
+    if not PREMIUM_EMOJIS:
+        return await edit_delete(event, "**᯽︙ لا توجد إيموجيات في القائمة!**\nاستخدم: `.اضافة ايموجي <ID>`")
+    
+    message = f"**᯽︙ قائمة الإيموجيات البريميوم:**\n\n"
+    for i, emoji_id in enumerate(PREMIUM_EMOJIS, 1):
+        message += f"**{i}.** `{emoji_id}`\n"
+    
+    message += f"\n**المجموع:** `{len(PREMIUM_EMOJIS)}` إيموجي"
+    await edit_or_reply(event, message)
+'''
+
+import random
+import re
+import asyncio
+from collections import deque
+from telethon import events
+from telethon.tl.types import User
+from telethon.tl import types
+from telethon.extensions import html, markdown
+
+# قائمة بكليشات الترحيب التي يرسلها حسابك
+CUSTOM_WELCOME_MESSAGES = [
+    "<b>نَـورت</b>↜{mention} {emoji}",
+    "<b>هُـِݪآإ</b>↜ {mention} {emoji}",
+    "<b>يهُـِݪآإ</b>↜ {mention} {emoji}",
+    "<b>ءنـرت عزيزي</b>↜ {mention} {emoji}",
+    "<b>هَِـلا يڪَِمر</b>↜ {mention} {emoji}",
+    "<b>ٵطلق من يدخݪ نورتنـﺂ</b>↜ {mention} {emoji}",
+]
+# قائمة إيموجيات البريميوم
+PREMIUM_EMOJIS = [
+    "5413554183502572090",  # إيموجي بريميوم 1
+    "4994551343201912011",  # إيموجي بريميوم 2
+    # يمكنك إضافة المزيد هنا
+]
+
+# نظام صف الانتظار
+welcome_queue = deque()  # صف الانتظار للترحيبات
+processing = False  # هل تتم معالجة ترحيب حالياً؟
+DELAY_BETWEEN_WELCOMES = 3  # 3 ثواني بين كل ترحيب
+
+# كلاس التحليل المخصص (مأخوذ من الكود الثاني)
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
+# تخزين إعدادات الترحيب
+admin_welcome_text = None  # نص ترحيب البوت الإداري
+active_chats = {}  # {chat_id: admin_bot_id}
+
+# =============== وظيفة معالجة الصف ===============
+async def process_welcome_queue():
+    """معالجة صف الانتظار بفاصل 3 ثواني بين كل ترحيب"""
+    global processing, welcome_queue
+    
+    while True:
+        if welcome_queue:
+            processing = True
+            chat_id, user_entity, event = welcome_queue.popleft()
+            
+            # اختيار إيموجي بريميوم عشوائي
+            selected_emoji = random.choice(PREMIUM_EMOJIS)
+            
+            # بناء رسالة الترحيب مع الإيموجي
+            if user_entity.username:
+                mention_text = f"@{user_entity.username}"
+            else:
+                user_name = user_entity.first_name or "المستخدم"
+                mention_text = f"[{user_name}](tg://user?id={user_entity.id})"
+            
+            # اختيار رسالة ترحيب عشوائية
+            welcome_template = random.choice(CUSTOM_WELCOME_MESSAGES)
+            welcome_text = welcome_template.format(mention=mention_text, emoji=f'<a href="emoji/{selected_emoji}">❤️</a>')
+            
+            try:
+                # إرسال الترحيب
+                await event.client.send_message(
+                    chat_id,
+                    welcome_text,
+                    parse_mode=CustomParseMode("html"),  # استخدام وضع HTML لدعم الإيموجيات
+                    link_preview=False
+                )
+                print(f"✓ تم الترحيب بـ {mention_text} في المجموعة {chat_id}")
+            except Exception as e:
+                print(f"✗ خطأ في إرسال الترحيب: {e}")
+            
+            # انتظار 3 ثواني قبل الترحيب التالي
+            await asyncio.sleep(DELAY_BETWEEN_WELCOMES)
+        else:
+            processing = False
+            await asyncio.sleep(1)  # انتظار قصير إذا كان الصف فارغاً
+
+# =============== وظيفة استخراج المستخدم ===============
+def extract_user_from_message(event):
+    """استخراج معلومات المستخدم من رسالة البوت الإداري"""
+    user_entity = None
+    
+    # البحث عن @username
+    if event.message.text:
+        username_match = re.search(r'@(\w+)', event.message.text)
+        if username_match:
+            username = username_match.group(1)
+            try:
+                user = event.client.get_entity(username)
+                if isinstance(user, User):
+                    return user
+            except:
+                pass
+    
+    # البحث عن tg://user?id=
+    if "tg://user?id=" in event.message.text:
+        try:
+            user_id_match = re.search(r'tg://user\?id=(\d+)', event.message.text)
+            if user_id_match:
+                user_id = int(user_id_match.group(1))
+                user = event.client.get_entity(user_id)
+                if isinstance(user, User):
+                    return user
+        except:
+            pass
+    
+    return None
+
+# =============== الأوامر ===============
+
+@l313l.ar_cmd(
+    pattern="تفعيل نص ترحيب (.*)",
+    command=("تفعيل نص ترحيب", plugin_category),
+    info={
+        "header": "لتحديد نص ترحيب البوت الإداري الذي تريد البحث عنه",
+        "description": "إذا كان هناك نص قديم، يتم استبداله بالنص الجديد تلقائياً",
+        "usage": "{tr}تفعيل نص ترحيب <النص>",
+        "examples": ["{tr}تفعيل نص ترحيب نورتنـا", "{tr}تفعيل نص ترحيب أهلاً وسهلاً"],
+    },
+)
+async def set_admin_welcome(event):
+    "لتحديد نص ترحيب البوت الإداري (يستبدل القديم)"
+    global admin_welcome_text
+    text = event.pattern_match.group(1).strip()
+    
+    if not text:
+        return await edit_delete(event, "**᯽︙ يرجى كتابة نص الترحيب!**")
+    
+    # إذا كان هناك نص قديم، إعلام المستخدم أنه تم استبداله
+    old_text = admin_welcome_text
+    admin_welcome_text = text
+    
+    if old_text:
+        await edit_delete(event, f"**᯽︙ تم تحديث نص الترحيب بنجاح ✓**\n**القديم:** `{old_text}`\n**الجديد:** `{text}`")
+    else:
+        await edit_delete(event, f"**᯽︙ تم حفظ نص الترحيب بنجاح ✓**\n`{text}`")
+
+@l313l.ar_cmd(
+    pattern="تفعيل الترحيب (-?\d+) (\d+)$",
+    command=("تفعيل الترحيب", plugin_category),
+    info={
+        "header": "لتشغيل نظام الترحيب في مجموعة معينة",
+        "description": "يحدد المجموعة والبوت الإداري الذي سيتم مراقبته",
+        "usage": "{tr}تفعيل الترحيب <ايدي_المجموعة> <ايدي_البوت_الاداري>",
+        "examples": ["{tr}تفعيل الترحيب -100123456789 1839897340"],
+    },
+)
+async def enable_welcome(event):
+    "لتشغيل نظام الترحيب في مجموعة"
+    global admin_welcome_text
+    
+    if admin_welcome_text is None:
+        return await edit_delete(event, "**᯽︙ يرجى تحديد نص الترحيب أولاً!**\nاستخدم: `.تفعيل نص ترحيب <النص>`")
+    
+    chat_id = int(event.pattern_match.group(1))
+    admin_bot_id = int(event.pattern_match.group(2))
+    
+    if chat_id in active_chats:
+        # إذا المجموعة مفعلة بالفعل، نحدث بيانات البوت فقط
+        old_bot_id = active_chats[chat_id]
+        if old_bot_id == admin_bot_id:
+            return await edit_delete(event, f"**᯽︙ الترحيب مفعل بالفعل في هذه المجموعة!**\nالبوت الإداري: `{admin_bot_id}`")
+        else:
+            active_chats[chat_id] = admin_bot_id
+            await edit_delete(event, f"**᯽︙ تم تحديث إعدادات الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\n**البوت القديم:** `{old_bot_id}`\n**البوت الجديد:** `{admin_bot_id}`")
+    else:
+        active_chats[chat_id] = admin_bot_id
+        await edit_delete(event, f"**᯽︙ تم تفعيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{admin_bot_id}`")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب (-?\d+)$",
+    command=("تعطيل الترحيب", plugin_category),
+    info={
+        "header": "لتعطيل نظام الترحيب في مجموعة معينة",
+        "description": "يوقف المراقبة في المجموعة المحددة ويحذف إعداداتها",
+        "usage": "{tr}تعطيل الترحيب <ايدي_المجموعة>",
+        "examples": ["{tr}تعطيل الترحيب -100123456789"],
+    },
+)
+async def disable_welcome(event):
+    "لتعطيل نظام الترحيب في مجموعة (يحذف إعداداتها)"
+    chat_id = int(event.pattern_match.group(1))
+    
+    if chat_id not in active_chats:
+        return await edit_delete(event, "**᯽︙ الترحيب غير مفعل في هذه المجموعة!**")
+    
+    deleted_bot_id = active_chats[chat_id]
+    del active_chats[chat_id]
+    
+    # إذا لم تعد هناك مجموعات مفعلة، نحذف نص الترحيب أيضاً
+    if not active_chats:
+        global admin_welcome_text
+        if admin_welcome_text:
+            old_text = admin_welcome_text
+            admin_welcome_text = None
+            await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{deleted_bot_id}`\n\n**تم حذف نص الترحيب أيضاً:** `{old_text}`")
+        else:
+            await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب بنجاح ✓**\nالمجموعة: `{chat_id}`\nالبوت الإداري: `{deleted_bot_id}`")
+    else:
+        await edit_delete(event, f"**᯽︙ تم تعطيل الترحيب في المجموعة `{chat_id}` بنجاح ✓**\nالبوت الإداري: `{deleted_bot_id}`")
+
+@l313l.ar_cmd(
+    pattern="تعطيل الترحيب الكل$",
+    command=("تعطيل الترحيب الكل", plugin_category),
+    info={
+        "header": "لتعطيل نظام الترحيب في جميع المجموعات",
+        "description": "يحذف جميع إعدادات الترحيب (النص والمجموعات)",
+        "usage": "{tr}تعطيل الترحيب الكل",
+    },
+)
+async def disable_all_welcome(event):
+    "لتعطيل نظام الترحيب في جميع المجموعات (يحذف كل شيء)"
+    global admin_welcome_text, active_chats, welcome_queue
+    
+    if not active_chats and admin_welcome_text is None:
+        return await edit_delete(event, "**᯽︙ لا توجد إعدادات ترحيب حالياً!**")
+    
+    # حفظ البيانات قبل الحذف لعرضها
+    old_text = admin_welcome_text
+    old_chats_count = len(active_chats)
+    old_queue_count = len(welcome_queue)
+    
+    # حذف كل شيء
+    admin_welcome_text = None
+    active_chats.clear()
+    welcome_queue.clear()
+    
+    message = "**᯽︙ تم تعطيل جميع إعدادات الترحيب بنجاح ✓**\n\n"
+    
+    if old_text:
+        message += f"**نص الترحيب المحذوف:** `{old_text}`\n"
+    
+    if old_chats_count > 0:
+        message += f"**عدد المجموعات المحذوفة:** `{old_chats_count}`\n"
+    
+    if old_queue_count > 0:
+        message += f"**عدد الترحيبات الملغاة من الصف:** `{old_queue_count}`\n"
+    
+    await edit_delete(event, message)
+
+@l313l.ar_cmd(
+    pattern="عرض ترحيبات$",
+    command=("عرض ترحيبات", plugin_category),
+    info={
+        "header": "لعرض الإعدادات الحالية للترحيب",
+        "description": "يعرض نص الترحيب والمجموعات المفعلة",
+        "usage": "{tr}عرض ترحيبات",
+    },
+)
+async def show_welcome_settings(event):
+    "لعرض إعدادات الترحيب الحالية"
+    global admin_welcome_text, welcome_queue
+    
+    if admin_welcome_text is None and not active_chats:
+        return await edit_delete(event, "**᯽︙ لا توجد إعدادات ترحيب حالياً!**")
+    
+    message = "**᯽︙ إعدادات نظام الترحيب:**\n\n"
+    
+    if admin_welcome_text:
+        message += f"**نص الترحيب:** `{admin_welcome_text}`\n\n"
+    else:
+        message += "**⚠️ لا يوجد نص ترحيب محفوظ**\n\n"
+    
+    if active_chats:
+        message += f"**عدد المجموعات المفعلة:** `{len(active_chats)}`\n\n"
+        message += "**المجموعات المفعلة:**\n"
+        for chat_id, bot_id in active_chats.items():
+            message += f"• المجموعة: `{chat_id}` | البوت: `{bot_id}`\n"
+        
+        message += f"\n**حالة صف الانتظار:**\n"
+        message += f"• عدد الترحيبات في الانتظار: `{len(welcome_queue)}`\n"
+        message += f"• هل تتم المعالجة الآن: `{'نعم ✅' if processing else 'لا ⏸️'}`\n"
+        message += f"• التأخير بين الترحيبات: `{DELAY_BETWEEN_WELCOMES} ثواني`\n"
+    else:
+        message += "**لا توجد مجموعات مفعلة**"
+    
+    await edit_or_reply(event, message)
+
+# =============== أمر جديد لعرض حالة الصف ===============
+@l313l.ar_cmd(
+    pattern="حالة الترحيبات$",
+    command=("حالة الترحيبات", plugin_category),
+    info={
+        "header": "لعرض حالة صف انتظار الترحيبات",
+        "description": "يعرض عدد الترحيبات في الانتظار وحالة المعالجة",
+        "usage": "{tr}حالة الترحيبات",
+    },
+)
+async def show_queue_status(event):
+    """لعرض حالة صف الانتظار"""
+    global welcome_queue, processing
+    
+    status_message = f"""
+**᯽︙ حالة نظام الترحيب:**
+
+**• عدد الترحيبات في الانتظار:** `{len(welcome_queue)}`
+**• هل تتم المعالجة الآن:** `{'نعم ✅' if processing else 'لا ⏸️'}`
+**• التأخير بين الترحيبات:** `{DELAY_BETWEEN_WELCOMES} ثواني`
+
+**• آخر 5 ترحيبات في الصف:**
+"""
+    
+    if welcome_queue:
+        for i, (chat_id, user, _) in enumerate(list(welcome_queue)[:5], 1):
+            username = f"@{user.username}" if user.username else (user.first_name or "مستخدم")
+            status_message += f"  **{i}.** {username} (المجموعة: `{chat_id}`)\n"
+    else:
+        status_message += "  **لا توجد ترحيبات في الانتظار**"
+    
+    await edit_or_reply(event, status_message)
+
+# =============== المستمع للترحيبات ===============
+@l313l.on(events.NewMessage)
+async def reply_to_admin_welcome(event):
+    """معالجة ترحيبات البوت الإداري وإضافتها للصف"""
+    global admin_welcome_text, welcome_queue
+    
+    # التحقق من الأساسيات
+    if not event.is_group:
+        return
+    
+    if admin_welcome_text is None:
+        return
+    
+    # التحقق إذا كانت المجموعة مفعلة
+    if event.chat_id not in active_chats:
+        return
+    
+    # التحقق إذا كانت الرسالة من البوت الإداري المحدد لهذه المجموعة
+    if event.sender_id != active_chats[event.chat_id]:
+        return
+    
+    # التحقق إذا كانت الرسالة تحتوي على نص الترحيب
+    if admin_welcome_text not in event.message.text:
+        return
+    
+    # استخراج المستخدم من الرسالة
+    user_entity = extract_user_from_message(event)
+    
+    # إذا لم يتم العثور على مستخدم، لا نضيف للصف
+    if not user_entity:
+        return
+    
+    # إضافة الترحيب لصف الانتظار
+    welcome_queue.append((event.chat_id, user_entity, event))
+    print(f"↪ تم إضافة ترحيب جديد للصف ({len(welcome_queue)} في الانتظار)")
+    
+    # بدء المعالجة إذا لم تكن جارية
+    if not processing:
+        asyncio.create_task(process_welcome_queue())
+
+# =============== رسالة المساعدة ===============
+
+@l313l.ar_cmd(
+    pattern="الترحيب1$",
+    command=("الترحيب", plugin_category),
+    info={
+        "header": "لعرض معلومات عن نظام الترحيب",
+        "description": "يعرض كيفية استخدام نظام الترحيب",
+        "usage": "{tr}الترحيب",
+    },
+)
+async def welcome_info(event):
+    "لعرض معلومات عن نظام الترحيب"
+    info_message = """
+**◈︙︙ نظام الترحيب المتقدم**
+
+**الأوامر المتاحة:**
+
+1. **تحديد/تحديث نص ترحيب البوت الإداري:**
+   `.تفعيل نص ترحيب <النص>`
+   - إذا كان هناك نص قديم، يتم استبداله تلقائياً
+   مثال: `.تفعيل نص ترحيب "نورتنـا"`
+
+2. **تفعيل النظام في مجموعة:**
+   `.تفعيل الترحيب <ايدي_المجموعة> <ايدي_البوت_الاداري>`
+   مثال: `.تفعيل الترحيب -100123456789 1839897340`
+
+3. **عرض الإعدادات:**
+   `.عرض ترحيبات`
+
+4. **حالة صف الانتظار:**
+   `.حالة الترحيبات`
+   - يعرض عدد الترحيبات في الانتظار
+
+5. **تعطيل في مجموعة (يحذف إعداداتها):**
+   `.تعطيل الترحيب <ايدي_المجموعة>`
+   - إذا كانت آخر مجموعة، يحذف نص الترحيب أيضاً
+
+6. **تعطيل كل شيء (نسخة إعادة ضبط):**
+   `.تعطيل الترحيب الكل`
+   - يحذف كل الإعدادات (النص والمجموعات والصف)
+
+**المميزات الجديدة:**
+- **نظام صف الانتظار:** يخزن جميع الترحيبات
+- **تأخير 3 ثواني بين كل ترحيب:** لمنع التكرار السريع
+- **إيموجيات بريميوم عشوائية** في كل ترحيب
+- **الحفاظ على الترحيبات الأصلية:** لا يحذف ترحيبات البوت الإداري
+
+**مثال عملي:**
+- يدخل 3 أعضاء في 2 ثانية
+- البوت الإداري يرحب بهم جميعاً فوراً
+- حسابك سيرد:
+  ✓ الترحيب الأول (بعد 0 ثانية)
+  ⏳ انتظار 3 ثواني...
+  ✓ الترحيب الثاني (بعد 3 ثواني)
+  ⏳ انتظار 3 ثواني...
+  ✓ الترحيب الثالث (بعد 6 ثواني)
+
+**الإيموجيات المتاحة:** {}
 """.format(", ".join(PREMIUM_EMOJIS))
     await edit_or_reply(event, info_message)
 

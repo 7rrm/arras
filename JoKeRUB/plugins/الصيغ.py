@@ -39,7 +39,7 @@ cancel_process = False
 #WRITE BY  @lMl10l  
 #Edited By Reda 
 
-
+"""
 @l313l.ar_cmd(
     pattern=r"حفظ_المحتوى (.+)",
     command=("حفظ_المحتوى", plugin_category),
@@ -96,7 +96,7 @@ async def save_media(event):
             await event.edit("الرسالة لا تحتوي على ميديا!")
     except Exception as e:
         await event.edit(f"حدث خطأ أثناء حفظ الرسالة. الخطأ: {str(e)}")
-
+"""
 
     
 @l313l.ar_cmd(
@@ -385,30 +385,3 @@ async def _(event):
     for i in [inputfile, outputfile]:
         if os.path.exists(i):
             os.remove(i)
-#write Code By #Hussein For Aljoker 🤡
-@l313l.ar_cmd(
-    pattern=r"بنتيرست (.+)",
-    command=("بنتيرست", plugin_category),
-)
-async def pinterestAljoker(event):
-    if not event.out and not is_fullsudo(event.sender_id):
-        return await edit_or_reply(event, "هـذا الامـر مقـيد ")
-    event = await edit_or_reply(event, "** ᯽︙ يتـم جـلـب الـوسـائـط مـن مـوقـع بـنـتـريـست، انتـظر قليلا**")
-    pinterest_jok = event.pattern_match.group(1)
-    try:
-        response = requests.get(pinterest_jok, stream=True)
-        if response.status_code == 200:
-            content_type = response.headers.get('content-type')
-            if 'image' in content_type:
-                img = Image.open(response.raw)
-                img.save("media.jpg", "JPEG", quality=100)
-                await event.reply(file="media.jpg")
-            else:
-                await event.edit("** ᯽︙ هـذا لـيس رابـط صـورة**")
-                return
-        else:
-            await event.edit("** ᯽︙ حـدث خـطـأ أثـنـاء جـلـب الـوسـائـط مـن مـوقـع بـنـتـريـست**")
-            return
-    except Exception as e:
-        await event.edit(f"** ᯽︙ حـدث خـطـأ: {str(e)}**")
-        return

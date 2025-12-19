@@ -288,3 +288,197 @@ async def Hussein(event):
             await conv.send_message(f'{user_id}')
             response = await conv.get_response()
             await event.edit(response.text)
+
+
+№##############№###################№###
+
+import requests
+from datetime import datetime, timedelta
+
+# --- إعداد مفاتيح API الخاصة بك ---
+FOOTBALL_API_KEY = "b96b04a99b2848fae1ba546bad94feb7"
+BASE_URL = "https://v3.football.api-sports.io"
+headers = {
+    'x-rapidapi-host': 'v3.football.api-sports.io',
+    'x-rapidapi-key': FOOTBALL_API_KEY
+}
+
+def get_arabic_time(match_time):
+    """تحويل الوقت للعربية"""
+    try:
+        dt = datetime.fromisoformat(match_time.replace('Z', '+00:00'))
+        days = ["الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
+        arabic_day = days[dt.weekday()]
+        time_str = dt.strftime("%H:%M")
+        return f"{arabic_day} {time_str}"
+    except:
+        return match_time
+
+def get_match_status_arabic(status):
+    """ترجمة حالة المباراة"""
+    status_map = {
+        'NS': '⏳ لم تبدأ',
+        '1H': '⏱ الشوط الأول',
+        'HT': '⏸ استراحة',
+        '2H': '⏱ الشوط الثاني',
+        'FT': '✅ انتهت',
+        'LIVE': '🔥 مباشرة'
+    }
+    return status_map.get(status, status)
+
+# --- الأمر: المباريات الحالية ---
+@l313l.on(events.NewMessage(pattern=r"\.مباريات حية"))
+async def live_matches_handler(event):
+    try:
+        url = f"{BASE_URL}/fixtures"
+        params = {'live': 'all'}
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code != 200:
+            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
+            return
+            
+        data = response.json()
+        matches = data.get('response', [])
+        
+        if not matches:
+            await event.reply("⚽ لا توجد مباريات حية الآن.")
+            return
+        
+        message = "🔥 *المباريات الحية الآن:*\n" + "="*40 + "\n"
+        
+        for match in matches[:8]:  # عرض أول 8 مباريات
+            fixture = match['fixture']
+            teams = match['teams']
+            goals = match['goals']
+            league = match['league']
+            
+            home_team = teams['home']['name']
+            away_team = teams['away']['name']
+            league_name = league.get('name', 'Unknown League')
+            
+            # ✅ **التصحيح هنا:** عرض اسم الدوري فقط إذا كان من الدوريات المعروفة
+            # أو يمكنك عرض اسم الدولة للتوضيح
+            country = league.get('country', '')
+            if country:
+                league_display = f"{country} League"
+            else:
+                league_display = league_name
+            
+            # النتيجة والوقت
+            home_goals = goals.get('home', 0) or 0
+            away_goals = goals.get('away', 0) or 0
+            elapsed = fixture['status'].get('elapsed', '')
+            status = get_match_status_arabic(fixture['status']['short'])
+            
+            message += f"🏆 **{league_display}**\n"
+            message += f"🕒 {status}"
+            if elapsed:
+                message += f" ({elapsed}')"
+            message += f"\n⚽ {home_team} **{home_goals} - {away_goals}** {away_team}\n"
+            message += "─" * 30 + "\n"
+        
+        await event.reply(message, parse_mode='markdown')
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")
+
+# --- الأمر: مباريات اليوم ---
+@l313l.on(events.NewMessage(pattern=r"\.مباريات اليوم"))
+async def today_matches_handler(event):
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        url = f"{BASE_URL}/fixtures"
+        params = {'date': today}
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code != 200:
+            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
+            return
+            
+        data = response.json()
+        matches = data.get('response', [])
+        
+        if not matches:
+            await event.reply(f"📅 لا توجد مباريات مجدولة بتاريخ اليوم ({today}).")
+            return
+        
+        message = f"📅 *مباريات اليوم ({today}):*\n" + "="*40 + "\n"
+        
+        # تجميع المباريات حسب الدولة أو الدوري
+        leagues = {}
+        for match in matches[:15]:  # عرض أول 15 مباراة
+            league_info = match.get('league', {})
+            country = league_info.get('country', 'Other')
+            if country not in leagues:
+                leagues[country] = []
+            leagues[country].append(match)
+        
+        for country, country_matches in leagues.items():
+            message += f"\n🌍 **{country}:**\n"
+            for match in country_matches[:3]:  # أول 3 مباريات لكل دولة
+                fixture = match['fixture']
+                teams = match['teams']
+                
+                home_team = teams['home']['name']
+                away_team = teams['away']['name']
+                
+                match_time = get_arabic_time(fixture['date'])
+                status = get_match_status_arabic(fixture['status']['short'])
+                
+                message += f"  {status} | {match_time}\n"
+                message += f"  👥 {home_team} 🆚 {away_team}\n"
+                message += "  ─" * 20 + "\n"
+        
+        await event.reply(message, parse_mode='markdown')
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")
+
+# --- الأمر: مباريات الغد ---
+@l313l.on(events.NewMessage(pattern=r"\.مباريات الغد"))
+async def tomorrow_matches_handler(event):
+    try:
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
+        url = f"{BASE_URL}/fixtures"
+        params = {'date': tomorrow}
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code != 200:
+            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
+            return
+            
+        data = response.json()
+        matches = data.get('response', [])
+        
+        if not matches:
+            await event.reply(f"📅 لا توجد مباريات مجدولة بتاريخ الغد ({tomorrow}).")
+            return
+        
+        message = f"📅 *مباريات الغد ({tomorrow}):*\n" + "="*40 + "\n"
+        
+        for match in matches[:10]:  # عرض أول 10 مباريات
+            fixture = match['fixture']
+            teams = match['teams']
+            league = match['league']
+            
+            home_team = teams['home']['name']
+            away_team = teams['away']['name']
+            country = league.get('country', '')
+            
+            match_time = get_arabic_time(fixture['date'])
+            
+            # عرض اسم الدولة مع المباراة
+            league_display = f"{country} League" if country else "League"
+            
+            message += f"🏆 **{league_display}**\n"
+            message += f"🕒 {match_time}\n"
+            message += f"👥 {home_team} 🆚 {away_team}\n"
+            message += "─" * 30 + "\n"
+        
+        await event.reply(message, parse_mode='markdown')
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")

@@ -302,6 +302,11 @@ headers = {
     'x-rapidapi-key': FOOTBALL_API_KEY
 }
 
+TEAMS = {
+    "برشلونة": 529,      # Barcelona ID
+    "الريال": 541        # Real Madrid ID
+}
+
 def get_arabic_time(match_time):
     """تحويل الوقت للعربية"""
     try:
@@ -481,3 +486,164 @@ async def tomorrow_matches_handler(event):
         
     except Exception as e:
         await event.reply(f"❌ حدث خطأ: {str(e)}")
+
+
+
+# ==================== أمر برشلونة ====================
+@l313l.on(events.NewMessage(pattern=r"\.مباريات برشلونة"))
+async def barcelona_matches(event):
+    try:
+        team_id = TEAMS["برشلونة"]
+        
+        # جلب المباريات القادمة
+        today = datetime.now().strftime('%Y-%m-%d')
+        next_month = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d')
+        
+        url = f"{BASE_URL}/fixtures"
+        params = {
+            'team': team_id,
+            'from': today,
+            'to': next_month,
+            'status': 'NS'  # مباريات مجدولة فقط
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code != 200:
+            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
+            return
+            
+        data = response.json()
+        matches = data.get('response', [])
+        
+        if not matches:
+            # جلب المباريات السابقة
+            params['status'] = 'FT'
+            params['from'] = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+            params['to'] = today
+            
+            response = requests.get(url, headers=headers, params=params)
+            data = response.json()
+            matches = data.get('response', [])
+            
+            if not matches:
+                await event.reply("⚽ لا توجد مباريات لبرشلونة في الفترة الأخيرة.")
+                return
+            
+            message = "📊 *آخر مباريات برشلونة:*\n" + "="*40 + "\n"
+        else:
+            message = "📅 *المباريات القادمة لبرشلونة:*\n" + "="*40 + "\n"
+        
+        for match in matches[:8]:  # أول 8 مباريات
+            fixture = match['fixture']
+            teams = match['teams']
+            goals = match['goals']
+            league = match['league']
+            
+            home_team = teams['home']['name']
+            away_team = teams['away']['name']
+            league_name = league['name']
+            
+            match_time = get_arabic_time(fixture['date'])
+            status = translate_status(fixture['status']['short'])
+            
+            # إضافة النتيجة إن كانت المباراة منتهية
+            score = ""
+            if fixture['status']['short'] in ['FT', 'AET', 'PEN']:
+                home_goals = goals.get('home', 0) or 0
+                away_goals = goals.get('away', 0) or 0
+                score = f" ({home_goals}-{away_goals})"
+            
+            message += f"🏆 **{league_name}**\n"
+            message += f"🕒 {match_time}\n"
+            message += f"📊 {status}{score}\n"
+            message += f"⚽ {home_team} 🆚 {away_team}\n"
+            message += "─" * 30 + "\n"
+        
+        # إضافة صورة أو رمز الفريق
+        message += "\n🔵🔴 *FC Barcelona* 🔴🔵"
+        
+        await event.reply(message, parse_mode='markdown')
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")
+
+# ==================== أمر الريال ====================
+@l313l.on(events.NewMessage(pattern=r"\.مباريات الريال"))
+async def realmadrid_matches(event):
+    try:
+        team_id = TEAMS["الريال"]
+        
+        # جلب المباريات القادمة
+        today = datetime.now().strftime('%Y-%m-%d')
+        next_month = (datetime.now() + timedelta(days=60)).strftime('%Y-%m-%d')
+        
+        url = f"{BASE_URL}/fixtures"
+        params = {
+            'team': team_id,
+            'from': today,
+            'to': next_month,
+            'status': 'NS'  # مباريات مجدولة فقط
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code != 200:
+            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
+            return
+            
+        data = response.json()
+        matches = data.get('response', [])
+        
+        if not matches:
+            # جلب المباريات السابقة
+            params['status'] = 'FT'
+            params['from'] = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+            params['to'] = today
+            
+            response = requests.get(url, headers=headers, params=params)
+            data = response.json()
+            matches = data.get('response', [])
+            
+            if not matches:
+                await event.reply("⚽ لا توجد مباريات للريال في الفترة الأخيرة.")
+                return
+            
+            message = "📊 *آخر مباريات ريال مدريد:*\n" + "="*40 + "\n"
+        else:
+            message = "📅 *المباريات القادمة لريال مدريد:*\n" + "="*40 + "\n"
+        
+        for match in matches[:8]:  # أول 8 مباريات
+            fixture = match['fixture']
+            teams = match['teams']
+            goals = match['goals']
+            league = match['league']
+            
+            home_team = teams['home']['name']
+            away_team = teams['away']['name']
+            league_name = league['name']
+            
+            match_time = get_arabic_time(fixture['date'])
+            status = translate_status(fixture['status']['short'])
+            
+            # إضافة النتيجة إن كانت المباراة منتهية
+            score = ""
+            if fixture['status']['short'] in ['FT', 'AET', 'PEN']:
+                home_goals = goals.get('home', 0) or 0
+                away_goals = goals.get('away', 0) or 0
+                score = f" ({home_goals}-{away_goals})"
+            
+            message += f"🏆 **{league_name}**\n"
+            message += f"🕒 {match_time}\n"
+            message += f"📊 {status}{score}\n"
+            message += f"⚽ {home_team} 🆚 {away_team}\n"
+            message += "─" * 30 + "\n"
+        
+        # إضافة صورة أو رمز الفريق
+        message += "\n⚪ *Real Madrid CF* ⚪"
+        
+        await event.reply(message, parse_mode='markdown')
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")
+            

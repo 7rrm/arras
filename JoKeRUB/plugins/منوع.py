@@ -564,3 +564,58 @@ async def get_league_matches(event, league_id, league_name_arabic):
         
     except Exception as e:
         await event.reply(f"❌ حدث خطأ: {str(e)}")
+
+
+
+@l313l.on(events.NewMessage(pattern=r"\.الدوري الاسباني اسبوع"))
+async def laliga_week(event):
+    try:
+        today = datetime.now().strftime('%Y-%m-%d')
+        week_later = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+        
+        url = f"{BASE_URL}/fixtures"
+        params = {
+            'league': 140,  # الدوري الإسباني
+            'from': today,
+            'to': week_later
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            matches = data.get('response', [])
+            
+            if matches:
+                message = f"📅 **مباريات الدوري الإسباني (الاسبوع القادم):**\n" + "="*40 + "\n"
+                
+                for match in matches:
+                    fixture = match['fixture']
+                    teams = match['teams']
+                    
+                    home_team = teams['home']['name']
+                    away_team = teams['away']['name']
+                    match_time = get_arabic_time(fixture['date'])
+                    
+                    message += f"🕒 {match_time}\n"
+                    message += f"⚽ {home_team} 🆚 {away_team}\n"
+                    message += "─" * 30 + "\n"
+                
+                await event.reply(message, parse_mode='markdown')
+            else:
+                # جرب الموسم السابق 2024
+                params['season'] = '2024'
+                response = requests.get(url, headers=headers, params=params)
+                
+                data = response.json()
+                matches = data.get('response', [])
+                
+                if matches:
+                    message = "📌 **مباريات من الموسم السابق (2024):**\n" + "="*40 + "\n"
+                    # ... عرض المباريات
+                    await event.reply(message, parse_mode='markdown')
+                else:
+                    await event.reply("⚽ **لا توجد مباريات في الموسم الحالي أو السابق**\n\nقد يكون الموسم في فترة استراحة.")
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")

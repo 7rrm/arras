@@ -289,8 +289,7 @@ async def Hussein(event):
             response = await conv.get_response()
             await event.edit(response.text)
 
-
-№##############№###################№###
+###################################
 
 import requests
 from datetime import datetime, timedelta

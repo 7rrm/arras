@@ -484,21 +484,50 @@ async def tomorrow_matches_handler(event):
 
 
 
-import requests
-from datetime import datetime
-
-# استخدم المفتاح الخاص بك
-API_KEY = "5e7af29f7c1345198a5184458f3c0e1c"
-url = "https://api.football-data.org/v4/matches"
-
-headers = {'X-Auth-Token': API_KEY}
-today = datetime.now().strftime('%Y-%m-%d')  # سيكون 2025-12-19
-params = {
-    'competitions': 'PD',  # كود الدوري الإسباني
-    'dateFrom': today,
-    'dateTo': today
-}
-
-response = requests.get(url, headers=headers, params=params)
-print("كود الحالة:", response.status_code)
-print("الاستجابة:", response.json())
+@l313l.on(events.NewMessage(pattern=r"\.الدوري الاسباني"))
+async def real_laliga_matches(event):
+    try:
+        # استخدم تاريخ 2024 بدلاً من 2025
+        match_date = "2005-12-19"  # تاريخ المباراة الحقيقي
+        
+        url = f"{BASE_URL}/fixtures"
+        params = {
+            'date': match_date,
+            'league': 140  # الدوري الإسباني
+        }
+        
+        response = requests.get(url, headers=headers, params=params)
+        
+        if response.status_code == 200:
+            data = response.json()
+            matches = data.get('response', [])
+            
+            if matches:
+                message = f"🏆 **مباريات الدوري الإسباني {match_date}:**\n" + "="*40 + "\n"
+                
+                for match in matches:
+                    fixture = match['fixture']
+                    teams = match['teams']
+                    league = match['league']
+                    
+                    home_team = teams['home']['name']
+                    away_team = teams['away']['name']
+                    
+                    # تحقق إذا كانت هذه هي المباراة المطلوبة
+                    if 'Valencia' in home_team or 'Valencia' in away_team:
+                        if 'Mallorca' in home_team or 'Mallorca' in away_team:
+                            match_time = get_arabic_time(fixture['date'])
+                            status = get_match_status_arabic(fixture['status']['short'])
+                            
+                            message += f"✅ **تم العثور على المباراة!**\n"
+                            message += f"⚽ **{home_team} 🆚 {away_team}**\n"
+                            message += f"🏆 {league['name']} - الجولة {league['round']}\n"
+                            message += f"🕒 {match_time}\n"
+                            message += f"📊 {status}\n"
+                
+                await event.reply(message, parse_mode='markdown')
+            else:
+                await event.reply(f"⚠️ الـAPI لا يظهر مباريات بتاريخ {match_date}")
+        
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ: {str(e)}")

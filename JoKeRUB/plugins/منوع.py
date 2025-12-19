@@ -488,7 +488,7 @@ async def tomorrow_matches_handler(event):
 async def real_laliga_matches(event):
     try:
         # استخدم تاريخ 2024 بدلاً من 2025
-        match_date = "2005-12-19"  # تاريخ المباراة الحقيقي
+        match_date = "2025-12-19"  # تاريخ المباراة الحقيقي
         
         url = f"{BASE_URL}/fixtures"
         params = {

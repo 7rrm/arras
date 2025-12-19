@@ -484,44 +484,21 @@ async def tomorrow_matches_handler(event):
 
 
 
-@l313l.on(events.NewMessage(pattern=r"\.الدوري الاسبانى fd"))
-async def laliga_football_data(event):
-    try:
-        FD_API_KEY = "5e7af29f7c1345198a5184458f3c0e1c"
-        FD_URL = "https://api.football-data.org/v4"
-        
-        headers = {'X-Auth-Token': FD_API_KEY}
-        
-        # الدوري الإسباني في football-data.org
-        url = f"{FD_URL}/competitions/PD/matches"  # PD = Primera División
-        
-        response = requests.get(url, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            matches = data.get('matches', [])
-            
-            if matches:
-                message = "🏆 **مباريات الدوري الإسباني (Football-data.org):**\n" + "="*40 + "\n"
-                
-                for match in matches[:10]:
-                    home = match['homeTeam']['name']
-                    away = match['awayTeam']['name']
-                    status = match['status']
-                    utc_date = match['utcDate']
-                    
-                    if status == 'SCHEDULED':
-                        dt = datetime.fromisoformat(utc_date.replace('Z', '+00:00'))
-                        time_str = dt.strftime("%Y-%m-%d %H:%M")
-                        message += f"🕒 {time_str} | {home} vs {away}\n"
-                    elif status == 'IN_PLAY':
-                        message += f"🔥 مباشرة الآن | {home} vs {away}\n"
-                    
-                    message += "─" * 30 + "\n"
-                
-                await event.reply(message, parse_mode='markdown')
-            else:
-                await event.reply("⚽ لا توجد مباريات في هذا المصدر أيضاً.")
-        
-    except Exception as e:
-        await event.reply(f"❌ حدث خطأ: {str(e)}")
+import requests
+from datetime import datetime
+
+# استخدم المفتاح الخاص بك
+API_KEY = "5e7af29f7c1345198a5184458f3c0e1c"
+url = "https://api.football-data.org/v4/matches"
+
+headers = {'X-Auth-Token': API_KEY}
+today = datetime.now().strftime('%Y-%m-%d')  # سيكون 2025-12-19
+params = {
+    'competitions': 'PD',  # كود الدوري الإسباني
+    'dateFrom': today,
+    'dateTo': today
+}
+
+response = requests.get(url, headers=headers, params=params)
+print("كود الحالة:", response.status_code)
+print("الاستجابة:", response.json())

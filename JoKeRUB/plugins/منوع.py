@@ -290,7 +290,7 @@ async def Hussein(event):
             await event.edit(response.text)
 
 ###################################
-
+"""
 import requests
 from datetime import datetime, timedelta
 from telethon import events
@@ -739,3 +739,4 @@ async def help_command(event):
 🤖 **مطور البوت:** @اسمك
 """
     await event.reply(help_text, parse_mode='markdown')
+"""

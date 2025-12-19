@@ -483,139 +483,45 @@ async def tomorrow_matches_handler(event):
         await event.reply(f"❌ حدث خطأ: {str(e)}")
 
 
-# 1. أضف هذا القاموس مع رموز الدوريات بالقرب من إعدادات الـAPI:
-LEAGUES = {
-    "الدوري الإسباني": {"id": 140, "name": "La Liga"},
-    "دوري الأبطال": {"id": 2, "name": "UEFA Champions League"},
-    "الدوري الإنجليزي": {"id": 39, "name": "Premier League"},
-    "الدوري الإيطالي": {"id": 135, "name": "Serie A"},
-    "الدوري الألماني": {"id": 78, "name": "Bundesliga"},
-}
 
-# 2. الأمر: مباريات اليوم في الدوري الإسباني
-@l313l.on(events.NewMessage(pattern=r"\.الدوري الإسباني"))
-async def laliga_matches(event):
-    league_id = LEAGUES["الدوري الإسباني"]["id"]
-    league_name_arabic = "الدوري الإسباني"
-    await get_league_matches(event, league_id, league_name_arabic)
-
-# 3. الأمر: مباريات اليوم في دوري الأبطال
-@l313l.on(events.NewMessage(pattern=r"\.دوري الأبطال"))
-async def champions_league_matches(event):
-    league_id = LEAGUES["دوري الأبطال"]["id"]
-    league_name_arabic = "دوري أبطال أوروبا"
-    await get_league_matches(event, league_id, league_name_arabic)
-
-# 4. دالة رئيسية لجلب مباريات دوري معين
-async def get_league_matches(event, league_id, league_name_arabic):
+@l313l.on(events.NewMessage(pattern=r"\.الدوري الاسبانى fd"))
+async def laliga_football_data(event):
     try:
-        today = datetime.now().strftime('%Y-%m-%d')
-        url = f"{BASE_URL}/fixtures"
+        FD_API_KEY = "5e7af29f7c1345198a5184458f3c0e1c"
+        FD_URL = "https://api.football-data.org/v4"
         
-        # التعديل الأساسي هنا: إضافة معامل `league`
-        params = {
-            'date': today,
-            'league': league_id  # هنا تتم الفلترة حسب الدوري
-        }
+        headers = {'X-Auth-Token': FD_API_KEY}
         
-        response = requests.get(url, headers=headers, params=params)
+        # الدوري الإسباني في football-data.org
+        url = f"{FD_URL}/competitions/PD/matches"  # PD = Primera División
         
-        if response.status_code != 200:
-            await event.reply("⚠️ حدث خطأ في الاتصال بالخادم.")
-            return
-        
-        data = response.json()
-        matches = data.get('response', [])
-        
-        if not matches:
-            await event.reply(f"📅 لا توجد مباريات **{league_name_arabic}** بتاريخ اليوم ({today}).")
-            return
-        
-        message = f"🏆 **مباريات {league_name_arabic} - اليوم:**\n" + "="*40 + "\n"
-        
-        for match in matches[:12]:  # عرض أول 12 مباراة
-            fixture = match['fixture']
-            teams = match['teams']
-            goals = match['goals']
-            
-            home_team = teams['home']['name']
-            away_team = teams['away']['name']
-            
-            match_time = get_arabic_time(fixture['date'])
-            status = get_match_status_arabic(fixture['status']['short'])
-            
-            # إضافة النتيجة إذا كانت المباراة منتهية أو جارية
-            score_text = ""
-            if fixture['status']['short'] in ['FT', 'HT', '1H', '2H', 'LIVE']:
-                home_goals = goals.get('home', 0) or 0
-                away_goals = goals.get('away', 0) or 0
-                score_text = f" (**{home_goals} - {away_goals}**) "
-            
-            message += f"🕒 {match_time} | {status}\n"
-            message += f"⚽ {home_team} {score_text} {away_team}\n"
-            message += "─" * 30 + "\n"
-        
-        # إضافة عدد المباريات المتبقية
-        remaining = len(matches) - 12
-        if remaining > 0:
-            message += f"\n... و {remaining} مباراة أخرى."
-        
-        await event.reply(message, parse_mode='markdown')
-        
-    except Exception as e:
-        await event.reply(f"❌ حدث خطأ: {str(e)}")
-
-
-
-@l313l.on(events.NewMessage(pattern=r"\.الدوري الاسباني اسبوع"))
-async def laliga_week(event):
-    try:
-        today = datetime.now().strftime('%Y-%m-%d')
-        week_later = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-        
-        url = f"{BASE_URL}/fixtures"
-        params = {
-            'league': 140,  # الدوري الإسباني
-            'from': today,
-            'to': week_later
-        }
-        
-        response = requests.get(url, headers=headers, params=params)
+        response = requests.get(url, headers=headers)
         
         if response.status_code == 200:
             data = response.json()
-            matches = data.get('response', [])
+            matches = data.get('matches', [])
             
             if matches:
-                message = f"📅 **مباريات الدوري الإسباني (الاسبوع القادم):**\n" + "="*40 + "\n"
+                message = "🏆 **مباريات الدوري الإسباني (Football-data.org):**\n" + "="*40 + "\n"
                 
-                for match in matches:
-                    fixture = match['fixture']
-                    teams = match['teams']
+                for match in matches[:10]:
+                    home = match['homeTeam']['name']
+                    away = match['awayTeam']['name']
+                    status = match['status']
+                    utc_date = match['utcDate']
                     
-                    home_team = teams['home']['name']
-                    away_team = teams['away']['name']
-                    match_time = get_arabic_time(fixture['date'])
+                    if status == 'SCHEDULED':
+                        dt = datetime.fromisoformat(utc_date.replace('Z', '+00:00'))
+                        time_str = dt.strftime("%Y-%m-%d %H:%M")
+                        message += f"🕒 {time_str} | {home} vs {away}\n"
+                    elif status == 'IN_PLAY':
+                        message += f"🔥 مباشرة الآن | {home} vs {away}\n"
                     
-                    message += f"🕒 {match_time}\n"
-                    message += f"⚽ {home_team} 🆚 {away_team}\n"
                     message += "─" * 30 + "\n"
                 
                 await event.reply(message, parse_mode='markdown')
             else:
-                # جرب الموسم السابق 2024
-                params['season'] = '2024'
-                response = requests.get(url, headers=headers, params=params)
-                
-                data = response.json()
-                matches = data.get('response', [])
-                
-                if matches:
-                    message = "📌 **مباريات من الموسم السابق (2024):**\n" + "="*40 + "\n"
-                    # ... عرض المباريات
-                    await event.reply(message, parse_mode='markdown')
-                else:
-                    await event.reply("⚽ **لا توجد مباريات في الموسم الحالي أو السابق**\n\nقد يكون الموسم في فترة استراحة.")
+                await event.reply("⚽ لا توجد مباريات في هذا المصدر أيضاً.")
         
     except Exception as e:
         await event.reply(f"❌ حدث خطأ: {str(e)}")

@@ -516,7 +516,7 @@ async def search_match(event):
         await event.reply(f"❌ حدث خطأ: {str(e)}")
 
 # --- الأمر: عرض مباراة بالإحصائيات الكاملة (ID) ---
-@l313l.on(events.NewMessage(pattern=r"\.لعبة (\d+)"))
+@l313l.on(events.NewMessage(pattern=r"\.لعبه (\d+)"))
 async def match_by_id_handler(event):
     try:
         match_id = event.pattern_match.group(1)

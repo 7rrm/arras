@@ -963,7 +963,7 @@ async def chat_action_empty(event: events.ChatAction.Event):
                 )
             )
 """
-
+'''
 @l313l.on(events.ChatAction())
 async def handle_event(event):
     global kicked_count
@@ -982,3 +982,53 @@ async def handle_event(event):
                 return
             if BOTLOG:
                 await event.client.send_message(BOTLOG_CHATID, "**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**".format(zedy.id))
+'''
+
+
+@l313l.on(events.ChatAction())
+async def handle_event(event):
+    global kicked_count
+    if not is_locked(event.chat_id, "bots"):
+        return
+    
+    # التحقق إذا كان هناك رسالة فعلية مرتبطة بالحدث
+    if event.action_message:
+        message_text = event.action_message.text or event.action_message.raw_text or ""
+        
+        if "kicked" in message_text.lower():
+            # هنا يبدو أنك تريد اكتشاف عندما يتم طرد البوت
+            # ولكن event.user_id سيكون معرف الشخص الذي قام بالفعل
+            if event.user_id:
+                try:
+                    zedy = await event.client.get_entity(event.user_id)
+                    kicked_count += 1
+                    if kicked_count == 3:
+                        try:
+                            await l313l(EditAdminRequest(
+                                event.chat_id, 
+                                zedy.id, 
+                                change_info=False, 
+                                post_messages=False, 
+                                edit_messages=False, 
+                                delete_messages=False, 
+                                ban_users=False, 
+                                invite_users=False, 
+                                pin_messages=False, 
+                                add_admins=False
+                            ))
+                            await l313l(EditAdminRequest(event.chat_id, zedy.id, rank=''))
+                            kicked_count = 0
+                            await edit_or_reply(
+                                event, 
+                                f"[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 - حمـاية القنـوات ](t.me/ZThon)\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n⌔╎**مشرف خاين** [{zedy.first_name}](tg://user?id={zedy.id}) .\n⌔╎**حاول تفليش القنـوات•**\n⌔╎**تم تنزيلـه .. بنجـاح ✅**", 
+                                link_preview=False
+                            )
+                        except Exception as e:
+                            return
+                        if BOTLOG:
+                            await event.client.send_message(
+                                BOTLOG_CHATID, 
+                                f"**⎉╎سيـدي المـالك**\n\n**⎉╎قـام هـذا** [الشخـص](tg://user?id={zedy.id})  \n**⎉╎باضـافة بـوت للقنـاة**\n**⎉╎تم تحذيـر الشخـص وطـرد البـوت .. بنجـاح ✓𓆰**"
+                            )
+                except Exception as e:
+                    print(f"حدث خطأ: {e}")

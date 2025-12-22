@@ -288,9 +288,9 @@ async def Hussein(event):
             await conv.send_message(f'{user_id}')
             response = await conv.get_response()
             await event.edit(response.text)
-
+'''
 ###################################
-"""
+
 import requests
 from datetime import datetime, timedelta
 from telethon import events
@@ -739,4 +739,4 @@ async def help_command(event):
 🤖 **مطور البوت:** @اسمك
 """
     await event.reply(help_text, parse_mode='markdown')
-"""
+'''

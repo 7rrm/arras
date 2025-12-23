@@ -330,7 +330,7 @@ async def Hussein(event):
                 await asyncio.sleep(1) 
                 await event.reply(file=url)
 
-'''
+
 from telethon import events
 from . import l313l
 
@@ -418,102 +418,3 @@ async def stop(event):
     global stop_sending
     stop_sending = True
     await event.reply("تم إيقاف إرسال كلمات الأغنية.")
-
-'''
-
-from . import l313l
-import asyncio
-
-plugin_category = "fun"
-stop_sending = False
-
-@l313l.ar_cmd(
-    pattern="قلبي يحدثني$",
-    command=("قلبي يحدثني", plugin_category),
-    info={
-        "header": "إرسال كلمات الأغنية مع تأخير بين كل رسالة",
-        "usage": "{tr}قلبي يحدثني",
-    },
-)
-async def _(event):
-    "إرسال كلمات الأغنية مع تأخير بين كل رسالة"
-    global stop_sending
-    stop_sending = False
-
-    # قائمة تحتوي على (النص, المدة بالثواني قبل إرسال السطر التالي)
-    # يمكنك تعديل المدد حسب رغبتك
-    verses_with_delay = [
-        ("قَلبي يُحدّثُني بأنّكَ مُتلِفي", 5),  # السطر الأول، ينتظر 5 ثواني
-        ("روحي فداكَ عرفتَ أمْ لمْ تعرفِ", 7),
-        ("لم أقضِ حقَّ هَوَاكَ إن كُنتُ الذي", 6),
-        ("لم أقضِ فيهِ أسى ً، ومِثلي مَن يَفي", 8),
-        ("ما لي سِوى روحي، وباذِلُ نفسِهِ", 7),
-        ("في حبِّ منْ يهواهُ ليسَ بمسرفِ", 6),
-        ("فَلَئنْ رَضيتَ بها، فقد أسْعَفْتَني", 8),
-        ("يا خيبة َ المسعى إذا لمْ تسعفِ", 7),
-        ("يا مانِعي طيبَ المَنامِ، ومانحي", 6),
-        ("ثوبَ السِّقامِ بهِ ووجدي المتلفِ", 8),
-        ("عَطفاً على رمَقي", 5),
-        ("، وما أبْقَيْتَ لي منْ جِسميَ المُضْنى وقلبي المُدنَفِ", 10),
-        ("فالوَجْدُ باقٍ، والوِصالُ مُماطِلي", 7),
-        ("والصّبرُ فانٍ، واللّقاءُ مُسَوّفي", 6),
-        ("لم أخلُ من حَسدٍ عليكَ", 5),
-        ("فلاتُضعْ سَهَري بتَشنيعِ الخَيالِ المُرْجِفِ", 9),
-        ("واسألْ نُجومَ اللّيلِ:هل زارَ الكَرَى جَفني", 8),
-        ("وكيفَ يزورُ مَن لم يَعرِفِ؟", 6),
-        ("لا غَروَ إنْ شَحّتْ بِغُمضِ جُفونها", 7),
-        ("عيني وسحَّتْ بالدُّموعِ الدُّرَّفِ", 6),
-        ("وبماجرى في موقفِ التَّوديعِ منْ ألمِ النّوى", 9),
-        ("شاهَدتُ هَولَ المَوقِفِ", 5),
-        ("إن لم يكُنْ وَصْلٌ لَدَيكَ، فَعِدْ بهِ أملي", 8),
-        ("وماطلْ إنْ وعدتَ ولاتفي", 6),
-        ("لا تحسبوني في الهوى متصنِّعاً", 7),
-        ("كلفي بكمْ خلقٌ بغيرِ تكلُّفِ", 8),
-    ]
-
-    # حذف رسالة الأمر
-    await event.delete()
-
-    try:
-        # الرد على الرسالة التي قمت بالرد عليها بالأمر أو إرسال رسالة جديدة
-        previous_message = await event.get_reply_message()
-        
-        # إرسال السطر الأول
-        if previous_message:
-            reply = await previous_message.reply(verses_with_delay[0][0])
-        else:
-            reply = await event.respond(verses_with_delay[0][0])
-        
-        previous_message = reply
-
-        # إرسال الأسطر المتبقية مع التأخير المخصص لكل سطر
-        for line, delay in verses_with_delay[1:]:
-            if stop_sending:
-                break
-            
-            # الانتظار للمدة المحددة لهذا السطر
-            await asyncio.sleep(delay)
-            
-            # إرسال السطر
-            reply = await previous_message.reply(line)
-            previous_message = reply
-            
-    except Exception as e:
-        await event.reply(f"حدث خطأ: {str(e)}")
-
-@l313l.ar_cmd(
-    pattern="توقف$",
-    command=("توقف", plugin_category),
-    info={
-        "header": "إيقاف إرسال كلمات الأغنية",
-        "usage": "{tr}توقف",
-    },
-)
-async def stop(event):
-    "إيقاف إرسال كلمات الأغنية"
-    global stop_sending
-    stop_sending = True
-    await event.delete()  # حذف رسالة الأمر
-    stop_msg = await event.reply("✅ تم إيقاف إرسال كلمات الأغنية.")
-    await asyncio.sleep(3)  # انتظار 3 ثواني
-    await stop_msg.delete()  # حذف رسالة التأكيد بعد 3 ثواني

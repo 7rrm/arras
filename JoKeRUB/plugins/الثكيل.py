@@ -98,7 +98,7 @@ articles_chat_id = None
 articles_allowed_user_ids = set()
 articles_trigger_text = "⌔︙اكتبها بدون فواصل"
 reply_mode = False
-reply_delay = random.choice([2, 3, 4, 5])  # اختيار عشوائي من التاخيرات
+reply_delay = random.choice([2, 3, 4])  # اختيار عشوائي من التاخيرات
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل مقالات(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_articles_bot(event):
@@ -125,7 +125,7 @@ async def enable_articles_bot(event):
                     f"المجموعة: `{articles_chat_id}`\n"
                     f"المستخدم المسموح: `{user_id}`\n"
                     f"الوضع: `{mode_text}`\n"
-                    f"التأخير العشوائي: `2-5 ثواني`")
+                    f"التأخير العشوائي: `2-4 ثواني`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
 async def disable_articles_bot(event):
@@ -169,7 +169,7 @@ async def process_articles(event):
             
         # في وضع الرد، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = random.choice([2, 3, 4, 5])
+        delay = random.choice([2, 3, 4])
     else:
         # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if articles_trigger_text not in event.raw_text:
@@ -177,7 +177,7 @@ async def process_articles(event):
             
         # في الوضع العادي، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = random.choice([2, 3, 4, 5])
+        delay = random.choice([2, 3, 4])
     
     # تنظيف النص من الرموز واستبدالها بمسافات
     cleaned_text = text_to_process.replace("*", " ").replace("/", " ").replace("،", " ").replace(",", " ")
@@ -187,7 +187,7 @@ async def process_articles(event):
     
     if cleaned_text:
         await asyncio.sleep(delay)
-        await event.reply(cleaned_text)
+        await event.respond(cleaned_text)
 
 
 

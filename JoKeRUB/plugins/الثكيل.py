@@ -85,10 +85,8 @@ async def auto_reply_word_game(event):
 
 # باقي الكود الح
 
-
 import asyncio
 import re
-import random
 from telethon import events
 from JoKeRUB import l313l
 
@@ -98,7 +96,7 @@ articles_chat_id = None
 articles_allowed_user_ids = set()
 articles_trigger_text = "⌔︙اكتبها بدون فواصل"
 reply_mode = False
-reply_delay = random.choice([2, 3, 4])  # اختيار عشوائي من التاخيرات
+reply_delay = 3
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل مقالات(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_articles_bot(event):
@@ -124,8 +122,7 @@ async def enable_articles_bot(event):
     await event.edit(f"**✅ تم تفعيل المقالات بنجاح**\n"
                     f"المجموعة: `{articles_chat_id}`\n"
                     f"المستخدم المسموح: `{user_id}`\n"
-                    f"الوضع: `{mode_text}`\n"
-                    f"التأخير العشوائي: `2-4 ثواني`")
+                    f"الوضع: `{mode_text}`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
 async def disable_articles_bot(event):
@@ -144,18 +141,9 @@ async def set_articles_trigger_text(event):
 
 @l313l.on(events.NewMessage(incoming=True))
 async def process_articles(event):
-    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_trigger_text, reply_mode
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_trigger_text, reply_mode, reply_delay
     
-    # التحقق من الشروط الأساسية
-    if not articles_enabled or event.chat_id != articles_chat_id:
-        return
-    
-    # إذا كان المرسل هو بوت (وليس المستخدم المسموح)
-    if event.sender.bot:
-        return
-    
-    # التحقق من صلاحية المستخدم
-    if event.sender_id not in articles_allowed_user_ids:
+    if not articles_enabled or event.chat_id != articles_chat_id or event.sender_id not in articles_allowed_user_ids:
         return
     
     if reply_mode:
@@ -169,7 +157,7 @@ async def process_articles(event):
             
         # في وضع الرد، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = random.choice([2, 3, 4])
+        delay = reply_delay
     else:
         # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if articles_trigger_text not in event.raw_text:
@@ -177,7 +165,7 @@ async def process_articles(event):
             
         # في الوضع العادي، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = random.choice([2, 3, 4])
+        delay = reply_delay
     
     # تنظيف النص من الرموز واستبدالها بمسافات
     cleaned_text = text_to_process.replace("*", " ").replace("/", " ").replace("،", " ").replace(",", " ")
@@ -188,6 +176,8 @@ async def process_articles(event):
     if cleaned_text:
         await asyncio.sleep(delay)
         await event.respond(cleaned_text)
+
+
 
 
 

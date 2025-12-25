@@ -415,41 +415,52 @@ async def Hussein(event):
            elif event.message.message == "منو فخر العرب؟":
                await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
 
-
 @l313l.on(admin_cmd(pattern="رفع(?:\s|$)([\s\S]*)"))
 async def custom_raise(event):
-    """
-    أمر مخصص للرفع بأي كلمة
-    الاستخدام: .رفع ورده @المستخدم
-    أو: .رفع بطيخ @المستخدم
-    """
-    # استخراج الكلمة والمستخدم
-    match = event.pattern_match
-    word = match.group(1)  # الكلمة بعد "رفع"
+    # قائمة الأوامر المحجوزة (الأوامر القديمة)
+    reserved_commands = [
+        "بكلبي", "بقلبي", "عسل", "كمر", "مطي", "زوجي",
+        "زاحف", "كحبة", "فرخ", "حاته", "هايشة", "صاك",
+        "ايجة", "زبال", "كواد", "ديوث", "مميز", "ادمن",
+        "منشئ", "مالك", "مجنب", "وصخ", "تاج", "قرد",
+        "جلب", "مرتي"
+    ]
     
-    # الحصول على معلومات المستخدم
+    # الحصول على الكلمة بعد "رفع"
+    full_text = event.pattern_match.group(1).strip()
+    
+    # إذا لم يكن هناك نص، خرج
+    if not full_text:
+        return
+    
+    # استخراج أول كلمة
+    first_word = full_text.split()[0].strip()
+    
+    # إذا كانت الكلمة من الأوامر المحجوزة، اتركها للأوامر القديمة
+    if first_word in reserved_commands:
+        return  # لا تفعل شيء، دع الأمر القديم يتولى
+    
+    # الكلمة غير محجوزة، تابع مع الأمر الجديد
+    word = first_word
+    
+    # باقي الكود...
     user_info = await get_user_from_event(event)
     if not user_info:
         return
     
     user = user_info[0] if isinstance(user_info, tuple) else user_info
     
-    # حماية المطور
     if user.id == 5427469031:
         return await edit_or_reply(event, f"**- لكك دي هذا المطور**")
     
-    # تنظيف اسم المستخدم
     JoKeRUB = user.first_name.replace("\u2060", "") if user.first_name else user.username
     
-    # الحصول على بيانات البوت
-    me = await event.client.get_me()
-
-    # إرسال الرسالة
     await edit_or_reply(
         event,
         f"**✧︙ المستخدم** [{JoKeRUB}](tg://user?id={user.id}) \n"
-        f"**✧︙ تَـم رفعه {word} ."
+        f"**✧︙ تَـم رفعه {word} **."
     )
+
 # ================================================================================================ #
 # =========================================اوامر النسب================================================= #
 # ================================================================================================ #

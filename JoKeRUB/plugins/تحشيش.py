@@ -416,7 +416,7 @@ async def Hussein(event):
                await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
 
 
-@l313l.on(admin_cmd(pattern="رفع (\S+) (?:\s|$)([\s\S]*)"))
+@l313l.on(admin_cmd(pattern="رفع(?:\s|$)([\s\S]*)"))
 async def custom_raise(event):
     """
     أمر مخصص للرفع بأي كلمة

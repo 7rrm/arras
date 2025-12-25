@@ -457,8 +457,8 @@ async def custom_raise(event):
     
     await edit_or_reply(
         event,
-        f"**✧︙ المستخدم** [{JoKeRUB}](tg://user?id={user.id}) \n"
-        f"**✧︙ تَـم رفعه {word} **."
+        f"**✧︙اَ‍لستخـدِم** [{JoKeRUB}](tg://user?id={user.id}) \n"
+        f"**✧︙تَـم رفعـه {word} **."
     )
 
 # ================================================================================================ #

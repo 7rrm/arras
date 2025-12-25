@@ -408,9 +408,48 @@ lMl10l = [393120911, 5427469031]
 async def Hussein(event):
     if event.reply_to and event.sender_id in lMl10l:
        reply_msg = await event.get_reply_message()
-       owner_id 
+       owner_id = reply_msg.from_id.user_id
+       if owner_id == l313l.uid:
+           if event.message.message == "منصب؟":
+               await event.reply("**يب منصب ✓**")
+           elif event.message.message == "منو فخر العرب؟":
+               await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
 
 
+@l313l.on(admin_cmd(pattern="رفع (\S+) (?:\s|$)([\s\S]*)"))
+async def custom_raise(event):
+    """
+    أمر مخصص للرفع بأي كلمة
+    الاستخدام: .رفع ورده @المستخدم
+    أو: .رفع بطيخ @المستخدم
+    """
+    # استخراج الكلمة والمستخدم
+    match = event.pattern_match
+    word = match.group(1)  # الكلمة بعد "رفع"
+    
+    # الحصول على معلومات المستخدم
+    user_info = await get_user_from_event(event)
+    if not user_info:
+        return
+    
+    user = user_info[0] if isinstance(user_info, tuple) else user_info
+    
+    # حماية المطور
+    if user.id == 5427469031:
+        return await edit_or_reply(event, f"**- لكك دي هذا المطور**")
+    
+    # تنظيف اسم المستخدم
+    JoKeRUB = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    
+    # الحصول على بيانات البوت
+    me = await event.client.get_me()
+
+    # إرسال الرسالة
+    await edit_or_reply(
+        event,
+        f"**✧︙ المستخدم** [{JoKeRUB}](tg://user?id={user.id}) \n"
+        f"**✧︙ تَـم رفعه {word} ."
+    )
 # ================================================================================================ #
 # =========================================اوامر النسب================================================= #
 # ================================================================================================ #

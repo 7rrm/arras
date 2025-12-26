@@ -334,7 +334,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await bot.get_me()
         if query.startswith("صور") and event.query.user_id == bot.uid:
-            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=hack")
+            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=edit")
             result = builder.article(
                 title="Aljoker 🤡",
                 description="اضغط على الزر لعرض الأوامر.",
@@ -342,7 +342,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 buttons=buttons
             )
         await event.answer([result] if result else None)
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل_الصور"))
+@bot.on(admin_cmd(outgoing=True, pattern="صور"))
 async def repo(event):
     if event.fwd_from:
         return
@@ -357,19 +357,19 @@ async def start(event):
   global menu
   if event.sender_id == bot.uid:
       async with bot.conversation(event.chat_id) as x:
-keyboard = [
-    [  
-        Button.inline("🖼️ إنشاء صورة جديدة", data="create_image"), 
-        Button.inline("✏️ تعديل صورة", data="edit_image"),
-    ],
-    [
-        Button.inline("📋 حساباتي", data="my_accounts"),
-        Button.inline("🆕 إنشاء حساب جديد", data="new_account"),
-    ],
-    [
-        Button.url("المـطور", "https://t.me/Lx5x5")
-    ]
-]
+          keyboard = [
+              [
+                  Button.inline("🖼️ إنشاء صورة جديدة", data="create_image"), 
+                  Button.inline("✏️ تعديل صورة", data="edit_image"),
+              ],
+              [
+                  Button.inline("📋 حساباتي", data="my_accounts"),
+                  Button.inline("🆕 إنشاء حساب جديد", data="new_account"),
+              ],
+              [
+                  Button.url("المـطور", "https://t.me/Lx5x5")
+              ]
+              ]
         await x.send_message(f"اختر ماتريد فعله مع الجلسة \n\n{menu}", buttons=keyboard)
     
 

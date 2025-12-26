@@ -61,7 +61,7 @@ async def repo(event):
 
 
 EDIT_TEXT = "**🖼️︙ لأستخدام بوت تعديل الصور أضغط على الزر**"
-EDIT_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
+EDIT_PIC = "https://graph.org/file/8cd3d864e765b2d00521b-69d50ff95377d95199.jpg"
 BOT_USER = Config.TG_BOT_USERNAME
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:

@@ -332,13 +332,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
-        
         if query.startswith("صور") and event.query.user_id == bot.uid:
-            buttons = Button.url(" اضغط هنا ", f"https://t.me/{joker}?start=edit")
+            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=edit")
             result = builder.article(
-                title="🎨 بوت تعديل الصور",
-                description="اضغط للدخول إلى بوت تعديل الصور",
-                text="**🎨 قم بالضغط على الزر لبدء استخدام بوت تعديل الصور**",
+                title="Aljoker 🤡",
+                description="اضغط على الزر لعرض الأوامر.",
+                text="**✧︙ قم بالضغط على زر ادناه لأستخدام امر اختراق عبر كود التيرمكس",
                 buttons=buttons
             )
         await event.answer([result] if result else None)

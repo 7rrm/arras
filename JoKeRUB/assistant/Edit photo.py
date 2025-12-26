@@ -332,6 +332,7 @@ async def inline_handler(event):
     query = event.text
     await bot.get_me()
     
+    # ⬇️ أضف هذا الشرط ⬇️
     if query.startswith("صور") and event.query.user_id == bot.uid:
         buttons = Button.url(" اضغط هنا ", f"https://t.me/{joker}?start=edit")
         result = builder.article(

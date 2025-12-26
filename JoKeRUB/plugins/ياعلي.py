@@ -75,7 +75,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    KARAR_PIC, text=REH, buttons=buttons, link_preview=False
+                    KARAR_PIC, text=kar, buttons=buttons, link_preview=False
                 )
             elif KARAR_PIC:
                 result = builder.document(

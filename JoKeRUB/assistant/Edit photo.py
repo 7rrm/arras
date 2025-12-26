@@ -23,6 +23,8 @@ from datetime import datetime
 from JoKeRUB.utils import admin_cmd
 from ..Config import Config
 import asyncio, aiohttp, random, json, requests, re, time, os
+import logging
+logging.getLogger().setLevel(logging.WARNING)  # ⬅️ نفس كود الاختراق
 
 # إعدادات الملفات
 accounts_file = "accounts/accounts_data.json"

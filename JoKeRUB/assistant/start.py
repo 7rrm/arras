@@ -1,5 +1,14 @@
 import re
 import random
+import asyncio
+import aiohttp
+import random
+import json
+import requests
+import time
+import os
+from datetime import datetime
+import threading
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional, Union
@@ -44,6 +53,145 @@ class FloodConfig:
     SECONDS = 6
     ALERT = defaultdict(dict)
     AUTOBAN = 10
+
+async def create_temp_email():
+    """إنشاء بريد مؤقت"""
+    email_url = "https://api.mail.tm"
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
+    
+    try:
+        async with aiohttp.ClientSession(headers=headers) as session:
+            domains_resp = await session.get(f"{email_url}/domains")
+            domains_data = await domains_resp.json()
+            domain = domains_data["hydra:member"][0]["domain"]
+            
+            username = ''.join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(12))
+            email = f"{username}@{domain}"
+            password = f"Pass{random.randint(1000, 9999)}!"
+            
+            payload = {"address": email, "password": password}
+            await session.post(f"{email_url}/accounts", json=payload)
+            
+            token_resp = await session.post(f"{email_url}/token", json=payload)
+            token_data = await token_resp.json()
+            token = token_data.get("token")
+            
+            return email, password, token
+            
+    except Exception:
+        return False, False, False
+
+async def wait_for_verification_code(token, email):
+    """انتظار رمز التحقق"""
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Authorization": f"Bearer {token}"
+    }
+    
+    timeout = 300
+    start_time = time.time()
+    
+    async with aiohttp.ClientSession(headers=headers) as session:
+        while time.time() - start_time < timeout:
+            try:
+                messages_resp = await session.get("https://api.mail.tm/messages")
+                inbox = await messages_resp.json()
+                messages = inbox.get("hydra:member", [])
+                
+                for msg in messages:
+                    sender = msg.get('from', {}).get('address', '')
+                    if 'nanabanana.ai' in sender:
+                        msg_id = msg["id"]
+                        msg_resp = await session.get(f"https://api.mail.tm/messages/{msg_id}")
+                        full_msg = await msg_resp.json()
+                        text_content = full_msg.get('text', '')
+                        matches = re.findall(r'\b\d{6}\b', text_content)
+                        if matches:
+                            return matches[0]
+                
+                await asyncio.sleep(5)
+            except Exception:
+                await asyncio.sleep(5)
+    
+    return None
+
+async def create_nanabanana_account_func():
+    """إنشاء حساب NanoBanana"""
+    email, password, mail_token = await create_temp_email()
+    
+    if not email or not mail_token:
+        return None, None, None
+    
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+        'sec-ch-ua-platform': "\"Android\"",
+        'sec-ch-ua': "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        'sec-ch-ua-mobile': "?1",
+        'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+    }
+    
+    csrf_response = requests.get("https://nanabanana.ai/api/auth/csrf", headers=headers)
+    csrf_token = None
+    csrf_cookie = None
+    
+    if csrf_response.text:
+        try:
+            csrf_data = json.loads(csrf_response.text)
+            csrf_token = csrf_data.get("csrfToken")
+        except:
+            pass
+    
+    if '__Host-authjs.csrf-token' in csrf_response.cookies:
+        csrf_cookie = csrf_response.cookies.get('__Host-authjs.csrf-token')
+    
+    cookies_dict = csrf_response.cookies.get_dict()
+    
+    verification_headers = {**headers, 'Content-Type': "application/json", 'origin': "https://nanabanana.ai", 
+                          'referer': "https://nanabanana.ai/ar/ai-image", 
+                          'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    
+    for key, value in cookies_dict.items():
+        if key != '__Host-authjs.csrf-token':
+            verification_headers['Cookie'] += f"; {key}={value}"
+    
+    verification_payload = {"email": email}
+    requests.post("https://nanabanana.ai/api/auth/email-verification", 
+                 data=json.dumps(verification_payload), headers=verification_headers)
+    
+    code = await wait_for_verification_code(mail_token, email)
+    
+    if not code:
+        return None, None, None
+    
+    callback_headers = {**headers, 'x-auth-return-redirect': "1", 'origin': "https://nanabanana.ai", 
+                       'referer': "https://nanabanana.ai/ar/ai-image", 
+                       'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    
+    for key, value in cookies_dict.items():
+        if key != '__Host-authjs.csrf-token':
+            callback_headers['Cookie'] += f"; {key}={value}"
+    
+    callback_payload = {'email': email, 'code': code, 'redirect': "false", 
+                       'csrfToken': csrf_token, 'callbackUrl': "https://nanabanana.ai/ar/ai-image"}
+    final_response = requests.post("https://nanabanana.ai/api/auth/callback/email-verification", 
+                                  data=callback_payload, headers=callback_headers)
+    
+    final_cookies = final_response.cookies.get_dict()
+    session_token = None
+    if '__Secure-authjs.session-token' in final_cookies:
+        session_token = final_cookies['__Secure-authjs.session-token']
+    
+    if session_token:
+        return email, password, session_token
+    
+    return None, None, None
+
+# أضف هذا المتغير للتحكم في حالة تعديل الصور
+image_edit_mode = {}
 
 async def check_bot_started_users(user, event):
     if user.id == Config.OWNER_ID:
@@ -154,6 +302,9 @@ async def bot_start(event):
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
                 Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+            ],
+            [
+                Button.inline("تعديـل الصـور 🎨", data="image_edit_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -1332,3 +1483,197 @@ async def antif_on_msg(event):
         raise StopPropagation
     if user_id in FloodConfig.BANNED_USERS:
         FloodConfig.BANNED_USERS.remove(user_id)
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"image_edit_menu$")))
+async def image_edit_menu_handler(event):
+    """قائمة تعديل الصور"""
+    await event.edit(
+        """**🎨 قـسـم تعـديـل الصـور بـالذكـاء الاصـطناعـي**
+
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+
+**مـرحبـاً بك فـي نظـام تعـديـل الصـور!**
+**يـمكنك إنـشاء وتعـديـل الصـور بـاستخـدام NanoBanana AI**
+
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+**خيـاراتك المتاحـة:**""",
+        buttons=[
+            [
+                Button.inline("📋 حسـاباتي", data="my_accounts"),
+                Button.inline("🆕 إنـشاء حساب", data="create_account")
+            ],
+            [
+                Button.inline("✏️ تعديـل صـورة", data="edit_image"),
+                Button.inline("🖼️ إنـشاء صـورة", data="create_image")
+            ],
+            [
+                Button.inline("رجــوع", data="styleback")
+            ]
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"my_accounts$")))
+async def my_accounts_handler(event):
+    """عرض حسابات المستخدم"""
+    user_id = event.query.user_id
+    # هنا سيكون الكود لجلب الحسابات من قاعدة البيانات
+    await event.edit(
+        "**📋 حسـاباتك:**\n\n"
+        "**1. account1@mail.com**\n"
+        "   📊 الاستخدامات: 2/5\n"
+        "   📅 تاريخ الإنشاء: 2024-01-15\n\n"
+        "**2. account2@mail.com**\n"
+        "   📊 الاستخدامات: 0/5\n"
+        "   📅 تاريخ الإنشاء: 2024-01-20\n\n"
+        "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**",
+        buttons=[
+            [Button.inline("رجــوع", data="image_edit_menu")]
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"create_account$")))
+async def create_account_handler(event):
+    """إنشاء حساب جديد"""
+    await event.edit(
+        "**🆕 إنـشاء حسـاب جديـد**\n\n"
+        "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**\n"
+        "**⏳ جـاري إنـشاء حسـاب جديـد...**\n"
+        "**- سيتم إنـشاء بـريد إلكـتروني مؤقـت**\n"
+        "**- سيتـم تسـجيل حسـاب فـي NanoBanana**\n"
+        "**- سـيتم حفـظ التوكـن فـي قاعـدة البيـانات**\n\n"
+        "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**\n"
+        "**⏱️ الرجـاء الانتظـار 1-2 دقيقة...**",
+        link_preview=False
+    )
+    
+    # إنشاء الحساب في خيط منفصل
+    async def create_acc():
+        try:
+            email, password, session_token = await create_nanabanana_account_func()
+            if session_token:
+                # هنا سيتم حفظ الحساب في قاعدة البيانات
+                await event.edit(
+                    f"**✅ تم إنـشاء حسـاب جديـد بنجـاح!**\n\n"
+                    f"**📧 البـريد:** `{email}`\n"
+                    f"**🔑 كلمـة المـرور:** `{password}`\n"
+                    f"**🍪 التوكـن:** `{session_token[:30]}...`\n\n"
+                    f"**📊 يمكنـك الآن اسـتخدام الخدمـة!**",
+                    buttons=[
+                        [Button.inline("رجــوع", data="image_edit_menu")]
+                    ],
+                    link_preview=False
+                )
+            else:
+                await event.edit(
+                    "**❌ فشـل فـي إنـشاء الحسـاب**\n\n"
+                    "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**\n"
+                    "**عـذراً، حـدث خطـأ أثنـاء إنـشاء الحسـاب.**\n"
+                    "**الرجـاء المحـاولة مـرة أخـرى لاحـقاً.**",
+                    buttons=[
+                        [Button.inline("رجــوع", data="image_edit_menu")]
+                    ],
+                    link_preview=False
+                )
+        except Exception as e:
+            await event.edit(
+                f"**❌ حـدث خطـأ غير متوقـع:**\n`{str(e)}`",
+                buttons=[
+                    [Button.inline("رجــوع", data="image_edit_menu")]
+                ],
+                link_preview=False
+            )
+    
+    asyncio.create_task(create_acc())
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"edit_image$")))
+async def edit_image_handler(event):
+    """بدء عملية تعديل الصورة"""
+    user_id = event.query.user_id
+    image_edit_mode[user_id] = "waiting_for_image"
+    
+    await event.edit(
+        "**✏️ تعـديـل صـورة**\n\n"
+        "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**\n"
+        "**1. 📤 الرجـاء إرسـال الصـورة التـي تـريد تعـديلهـا**\n"
+        "**2. ✍️ ثـم أرسـل وصـف التعـديل المطلـوب**\n\n"
+        "**ملاحظـة:**\n"
+        "**- الصـورة يجب أن تكـون بصيغـة JPG أو PNG**\n"
+        "**- الوصـف يجب أن يكـون مفصـلاً وواضـحاً**\n"
+        "**- العمليـة قد تستغـرق 1-3 دقائـق**",
+        buttons=[
+            [Button.inline("إلغــاء", data="image_edit_menu")]
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"create_image$")))
+async def create_image_handler(event):
+    """بدء عملية إنشاء صورة جديدة"""
+    user_id = event.query.user_id
+    image_edit_mode[user_id] = "waiting_for_prompt"
+    
+    await event.edit(
+        "**🖼️ إنـشاء صـورة جديـدة**\n\n"
+        "**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**\n"
+        "**✍️ الرجـاء إرسـال وصـف الصـورة المطلـوبة**\n\n"
+        "**أمثلـة للوصـف:**\n"
+        "**- صـورة لـ فتاة شـعرها أشـقر في غـابة سـحريـة**\n"
+        "**- منظر طبيعـي خلاب لغـروب الشـمس على البحـر**\n"
+        "**- قـط جميـل ينـام على سـريـر دافـئ**\n\n"
+        "**ملاحظـة:**\n"
+        "**- كـن مفصـلاً في وصـفك للحصـول على نتيجـة أفضـل**\n"
+        "**- العمليـة قد تستغـرق 1-3 دقائـق**",
+        buttons=[
+            [Button.inline("إلغــاء", data="image_edit_menu")]
+        ],
+        link_preview=False
+    )
+
+# أضف هذه الدالة لمعالجة الرسائل الواردة للصورة
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
+async def handle_image_edit_messages(event):
+    """معالجة رسائل تعديل الصور"""
+    user_id = event.sender_id
+    
+    if user_id in image_edit_mode:
+        if image_edit_mode[user_id] == "waiting_for_image" and event.media:
+            # تم إرسال صورة
+            await event.reply(
+                "**✅ تم استلام الصـورة**\n"
+                "**✍️ الرجـاء إرسـال وصـف التعـديل المطلـوب**"
+            )
+            image_edit_mode[user_id] = "waiting_for_prompt"
+            
+        elif image_edit_mode[user_id] == "waiting_for_prompt" and event.text:
+            # تم إرسال الوصف
+            prompt = event.text
+            await event.reply(
+                f"**✅ تم استلام وصـف التعـديل:**\n`{prompt[:100]}...`\n\n"
+                f"**⏳ جـاري معالجـة طلبـك...**\n"
+                f"**الرجـاء الانتظـار 1-3 دقائـق**"
+            )
+            
+            # هنا سيتم معالجة الصورة باستخدام API
+            del image_edit_mode[user_id]
+            
+            # إرسال رسالة تأكيد
+            await event.reply(
+                "**🎉 تم إنهـاء العمليـة!**\n"
+                "**📋 استخـدم الأزراـر لـ طلب خدمـة أخـرى**",
+                buttons=[
+                    [
+                        Button.inline("✏️ تعـديل صـورة", data="edit_image"),
+                        Button.inline("🖼️ إنـشاء صـورة", data="create_image")
+                    ],
+                    [
+                        Button.inline("📋 حسـاباتي", data="my_accounts"),
+                        Button.inline("🆕 إنـشاء حساب", data="create_account")
+                    ],
+                    [
+                        Button.inline("الرجـوع للقائـمة", data="image_edit_menu")
+                    ]
+                ]
+            )

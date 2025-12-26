@@ -38,6 +38,12 @@ dd = []
 kk = []
 tt = []
 
+# === إعدادات NanoBanana ===
+accounts_file = "accounts/accounts_data.json"
+os.makedirs("accounts", exist_ok=True)
+os.makedirs("generated_images", exist_ok=True)
+os.makedirs("temp_images", exist_ok=True)
+    
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -45,6 +51,336 @@ class FloodConfig:
     SECONDS = 6
     ALERT = defaultdict(dict)
     AUTOBAN = 10
+
+# === دوال إدارة حسابات NanoBanana ===
+def load_accounts():
+    if not os.path.exists(accounts_file):
+        return []
+    with open(accounts_file, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def save_accounts(accounts):
+    with open(accounts_file, 'w', encoding='utf-8') as f:
+        json.dump(accounts, f, ensure_ascii=False, indent=2)
+
+def get_user_accounts(user_id):
+    accounts = load_accounts()
+    user_accs = [acc for acc in accounts if acc.get('user_id') == user_id]
+    return user_accs
+
+async def create_email_account():
+    email_url = "https://api.mail.tm"
+    email_headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
+    
+    try:
+        async with aiohttp.ClientSession(headers=email_headers) as session:
+            domains_resp = await session.get(f"{email_url}/domains")
+            domains_data = await domains_resp.json()
+            domain = domains_data["hydra:member"][0]["domain"]
+            
+            username = ''.join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(12))
+            email = f"{username}@{domain}"
+            password = f"Pass{random.randint(1000, 9999)}!"
+            
+            payload = {"address": email, "password": password}
+            await session.post(f"{email_url}/accounts", json=payload)
+            
+            token_resp = await session.post(f"{email_url}/token", json=payload)
+            token_data = await token_resp.json()
+            token = token_data.get("token")
+            
+            return email, password, token
+            
+    except Exception as e:
+        LOGS.error(f"خطأ في إنشاء البريد: {e}")
+        return False, False, False
+
+async def wait_for_verification_code(token, email):
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Authorization": f"Bearer {token}"
+    }
+    
+    timeout = 300
+    start_time = time.time()
+    
+    async with aiohttp.ClientSession(headers=headers) as session:
+        while time.time() - start_time < timeout:
+            try:
+                messages_resp = await session.get("https://api.mail.tm/messages")
+                inbox = await messages_resp.json()
+                messages = inbox.get("hydra:member", [])
+                
+                for msg in messages:
+                    sender = msg.get('from', {}).get('address', '')
+                    if 'nanabanana.ai' in sender:
+                        msg_id = msg["id"]
+                        msg_resp = await session.get(f"https://api.mail.tm/messages/{msg_id}")
+                        full_msg = await msg_resp.json()
+                        text_content = full_msg.get('text', '')
+                        matches = re.findall(r'\b\d{6}\b', text_content)
+                        if matches:
+                            code = matches[0]
+                            return code
+                
+                await asyncio.sleep(5)
+            except Exception as e:
+                LOGS.error(f"خطأ في التحقق من البريد: {e}")
+                await asyncio.sleep(5)
+    
+    return None
+
+async def create_nanabanana_account():
+    email, password, mail_token = await create_email_account()
+    
+    if not email or not mail_token:
+        return None, None, None
+    
+    nana_headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+        'sec-ch-ua-platform': "\"Android\"",
+        'sec-ch-ua': "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        'sec-ch-ua-mobile': "?1",
+        'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+    }
+    
+    csrf_response = requests.get("https://nanabanana.ai/api/auth/csrf", headers=nana_headers)
+    csrf_token = None
+    csrf_cookie = None
+    
+    if csrf_response.text:
+        try:
+            csrf_data = json.loads(csrf_response.text)
+            csrf_token = csrf_data.get("csrfToken")
+        except:
+            pass
+    
+    if '__Host-authjs.csrf-token' in csrf_response.cookies:
+        csrf_cookie = csrf_response.cookies.get('__Host-authjs.csrf-token')
+    
+    cookies_dict = csrf_response.cookies.get_dict()
+    
+    verification_headers = {**nana_headers, 'Content-Type': "application/json", 'origin': "https://nanabanana.ai", 'referer': "https://nanabanana.ai/ar/ai-image", 'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    
+    for key, value in cookies_dict.items():
+        if key != '__Host-authjs.csrf-token':
+            verification_headers['Cookie'] += f"; {key}={value}"
+    
+    verification_payload = {"email": email}
+    requests.post("https://nanabanana.ai/api/auth/email-verification", data=json.dumps(verification_payload), headers=verification_headers)
+    
+    code = await wait_for_verification_code(mail_token, email)
+    
+    if not code:
+        return None, None, None
+    
+    callback_headers = {**nana_headers, 'x-auth-return-redirect': "1", 'origin': "https://nanabanana.ai", 'referer': "https://nanabanana.ai/ar/ai-image", 'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    
+    for key, value in cookies_dict.items():
+        if key != '__Host-authjs.csrf-token':
+            callback_headers['Cookie'] += f"; {key}={value}"
+    
+    callback_payload = {'email': email, 'code': code, 'redirect': "false", 'csrfToken': csrf_token, 'callbackUrl': "https://nanabanana.ai/ar/ai-image"}
+    final_response = requests.post("https://nanabanana.ai/api/auth/callback/email-verification", data=callback_payload, headers=callback_headers)
+    
+    final_cookies = final_response.cookies.get_dict()
+    session_token = None
+    if '__Secure-authjs.session-token' in final_cookies:
+        session_token = final_cookies['__Secure-authjs.session-token']
+    
+    if session_token:
+        return email, password, session_token
+    else:
+        return None, None, None
+
+def upload_image(image_path):
+    url = "https://nanabanana.ai/api/upload"
+    try:
+        if not os.path.exists(image_path):
+            return None
+        
+        with open(image_path, 'rb') as f:
+            file_content = f.read()
+        
+        headers = {
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+            'sec-ch-ua-platform': "\"Android\"",
+            'sec-ch-ua': "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+            'sec-ch-ua-mobile': "?1",
+            'origin': "https://nanabanana.ai",
+            'sec-fetch-site': "same-origin",
+            'sec-fetch-mode': "cors",
+            'sec-fetch-dest': "empty",
+            'referer': "https://nanabanana.ai/ar/ai-image",
+            'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+            'priority': "u=1, i"
+        }
+        
+        files = [('file', (os.path.basename(image_path), file_content, 'image/jpeg'))]
+        response = requests.post(url, files=files, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            image_url = data.get("url")
+            return image_url
+        else:
+            return None
+    except Exception as e:
+        LOGS.error(f"خطأ أثناء رفع الصورة: {e}")
+        return None
+
+def create_or_edit_image(session_token, prompt, image_urls=None):
+    url = "https://nanabanana.ai/api/image-generation-nano-banana/create"
+    payload = {
+        "prompt": prompt,
+        "output_format": "png",
+        "image_size": "auto",
+        "enable_pro": False,
+        "width": 1024,
+        "height": 1024,
+        "steps": 20,
+        "guidance_scale": 7.5,
+        "is_public": False
+    }
+    
+    if image_urls:
+        payload["image_urls"] = image_urls
+    
+    cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+        'Content-Type': "application/json",
+        'sec-ch-ua-platform': "\"Android\"",
+        'sec-ch-ua': "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        'sec-ch-ua-mobile': "?1",
+        'origin': "https://nanabanana.ai",
+        'sec-fetch-site': "same-origin",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://nanabanana.ai/ar/ai-image",
+        'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+        'priority': "u=1, i",
+        'Cookie': cookie_string
+    }
+    
+    response = requests.post(url, data=json.dumps(payload), headers=headers)
+    
+    if response.status_code == 200:
+        data = response.json()
+        task_id = data.get("task_id")
+        if task_id:
+            return task_id
+        else:
+            return None
+    else:
+        return None
+
+def check_status(task_id, session_token, max_attempts=40, delay=5):
+    url = "https://nanabanana.ai/api/image-generation-nano-banana/status"
+    cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+        'Content-Type': "application/json",
+        'sec-ch-ua-platform': "\"Android\"",
+        'sec-ch-ua': "\"Google Chrome\";v=\"143\", \"Chromium\";v=\"143\", \"Not A(Brand\";v=\"24\"",
+        'sec-ch-ua-mobile': "?1",
+        'origin': "https://nanabanana.ai",
+        'sec-fetch-site': "same-origin",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://nanabanana.ai/ar/ai-image",
+        'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+        'priority': "u=1, i",
+        'Cookie': cookie_string
+    }
+    
+    for attempt in range(max_attempts):
+        payload = {"taskId": task_id}
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "generations" in data and len(data["generations"]) > 0:
+                generation = data["generations"][0]
+                status = generation.get("status", "unknown")
+                if status == "succeed":
+                    image_url = generation.get("url", "")
+                    if image_url:
+                        return image_url
+                    else:
+                        return None
+                elif status == "failed":
+                    return None
+                elif status == "waiting":
+                    time.sleep(delay)
+                elif status == "processing":
+                    time.sleep(delay)
+                else:
+                    time.sleep(delay)
+            else:
+                time.sleep(delay)
+        else:
+            time.sleep(delay)
+    
+    return None
+
+def download_image(image_url, task_id, account_email):
+    try:
+        response = requests.get(image_url, stream=True)
+        
+        if response.status_code == 200:
+            safe_email = account_email.replace("@", "_").replace(".", "_")
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"generated_images/image_{safe_email}_{timestamp}.png"
+            
+            with open(filename, "wb") as f:
+                for chunk in response.iter_content(1024):
+                    f.write(chunk)
+            
+            return filename
+        else:
+            return None
+    except Exception as e:
+        LOGS.error(f"خطأ أثناء التحميل: {e}")
+        return None
+
+def get_or_create_account(user_id):
+    accounts = load_accounts()
+    user_accs = [acc for acc in accounts if acc.get('user_id') == user_id]
+    
+    if user_accs:
+        for acc in user_accs:
+            if acc.get('use_count', 0) < 5:
+                return acc
+        for acc in user_accs:
+            accounts.remove(acc)
+        save_accounts(accounts)
+    
+    async def create_and_save():
+        email, password, session_token = await create_nanabanana_account()
+        if session_token:
+            new_account = {
+                'user_id': user_id,
+                'email': email,
+                'password': password,
+                'session_token': session_token,
+                'use_count': 0,
+                'created_at': datetime.now().isoformat()
+            }
+            accounts.append(new_account)
+            save_accounts(accounts)
+            return new_account
+        return None
+    
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    result = loop.run_until_complete(create_and_save())
+    loop.close()
+    return result
 
 async def check_bot_started_users(user, event):
     if user.id == Config.OWNER_ID:
@@ -185,31 +521,35 @@ async def bot_start(event):
                         \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
                         \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
                         \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
-        buttons = [
-            [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
-            ],
-            [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
-            ],
-            [
-                Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
-            ],
-            [
-                Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
-            ],
-            [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
-            ]
-        ]
+        # في قسم المطور
+buttons = [
+    [
+        Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
+    ],
+    [
+        Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
+        Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
+    ],
+    [
+        Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+    ],
+    [
+        Button.inline("🎨 إنشاء وتعديل صور", data="nanabanana_menu")  # ← أضف هذا السطر
+    ],
+    [
+        Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+        Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+    ],
+    [
+        Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
+    ],
+    [
+        Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
+    ],
+    [
+        Button.url(zz_txt, f"https://t.me/{zz_ch}")
+    ]
+]
     else:
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
@@ -288,6 +628,15 @@ async def bot_pms(event):  # sourcery no-metrics
     if event.contact or int(chat.id) in kk:
         return
     if chat.id != Config.OWNER_ID:
+        if event.text.startswith("/cancle"):
+        if int(chat.id) in kk:
+            kk.remove(int(chat.id))
+        return await event.client.send_message(
+            chat.id,
+            "✅ **تم الإلغاء**",
+            link_preview=False,
+            reply_to=reply_to,
+        )
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:
                 dd.remove(int(chat.id))
@@ -1333,3 +1682,119 @@ async def antif_on_msg(event):
         raise StopPropagation
     if user_id in FloodConfig.BANNED_USERS:
         FloodConfig.BANNED_USERS.remove(user_id)
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nanabanana_menu$")))
+async def nanabanana_menu_handler(c_q: CallbackQuery):
+    await c_q.edit(
+        """🎨 **قسم إنشاء وتعديل الصور بواسطة NanoBanana AI** 🎨
+        
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+**يمكنك من خلال هذا القسم:**
+• إنشاء صور جديدة بالذكاء الاصطناعي
+• تعديل الصور الموجودة
+• إدارة حساباتك (5 محاولات لكل حساب)
+
+**اختر أحد الخيارات:**""",
+        buttons=[
+            [Button.inline("🖼️ إنشاء صورة جديدة", data="nb_create_img")],
+            [Button.inline("✏️ تعديل صورة", data="nb_edit_img")],
+            [Button.inline("📋 حساباتي", data="nb_my_accounts")],
+            [Button.inline("🆕 إنشاء حساب جديد", data="nb_create_account")],
+            [Button.inline("🔙 رجوع", data="styleback")]
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_img$")))
+async def nb_create_image_handler(c_q: CallbackQuery):
+    kk.append(int(c_q.query.user_id))
+    await c_q.edit(
+        "✍️ **الرجاء إرسال وصف الصورة المطلوبة:**\n\n"
+        "**مثال:** قطة لطيفة تلعب في الحديقة\n"
+        "**ملاحظة:** كن مفصلاً للحصول على نتائج أفضل\n\n"
+        "**لإلغاء العملية:** /cancle",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_edit_img$")))
+async def nb_edit_image_handler(c_q: CallbackQuery):
+    kk.append(int(c_q.query.user_id))
+    await c_q.edit(
+        "📤 **الرجاء إرسال الصورة التي تريد تعديلها:**\n\n"
+        "**ملاحظة:** أرسل الصورة الآن فقط\n"
+        "**لإلغاء العملية:** /cancle",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_my_accounts$")))
+async def nb_my_accounts_handler(c_q: CallbackQuery):
+    user_id = c_q.query.user_id
+    accounts = get_user_accounts(user_id)
+    
+    if not accounts:
+        response = "📭 **لا توجد حسابات مرفوعة بعد.**"
+    else:
+        response = "📋 **حساباتك:**\n\n"
+        for i, acc in enumerate(accounts, 1):
+            response += f"**{i}. {acc['email']}**\n"
+            response += f"   الاستخدامات: {acc.get('use_count', 0)}/5\n"
+            response += f"   التاريخ: {acc.get('created_at', 'غير معروف')[:10]}\n"
+            response += "   ───────────────\n"
+    
+    await c_q.edit(
+        response,
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_account$")))
+async def nb_create_account_handler(c_q: CallbackQuery):
+    await c_q.edit(
+        "🆕 **جاري إنشاء حساب جديد...**\n\n"
+        "⏳ **قد يستغرق هذا بعض الوقت**\n"
+        "**يرجى الانتظار...**",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+    
+    # إنشاء الحساب
+    email, password, session_token = await create_nanabanana_account()
+    
+    if session_token:
+        # حفظ الحساب
+        accounts = load_accounts()
+        new_account = {
+            'user_id': c_q.query.user_id,
+            'email': email,
+            'password': password,
+            'session_token': session_token,
+            'use_count': 0,
+            'created_at': datetime.now().isoformat()
+        }
+        accounts.append(new_account)
+        save_accounts(accounts)
+        
+        await c_q.edit(
+            f"✅ **تم إنشاء حساب جديد بنجاح!**\n\n"
+            f"**📧 البريد:** `{email}`\n"
+            f"**🔑 كلمة المرور:** `{password}`\n\n"
+            f"**تم حفظ الحساب تلقائيًا.**",
+            buttons=[
+                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+            ]
+        )
+    else:
+        await c_q.edit(
+            "❌ **فشل في إنشاء الحساب**\n"
+            "الرجاء المحاولة مرة أخرى لاحقًا.",
+            buttons=[
+                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+            ]
+        )

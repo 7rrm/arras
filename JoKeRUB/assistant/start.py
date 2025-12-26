@@ -106,9 +106,9 @@ async def bot_start(event):
     else:
         zz_txt = "⌔ قنـاة المـطور ⌔"
         zz_ch = "aqhvv"
-    zid = 5427469031
+    zid = 5462630004
     if gvarstatus("ZThon_Vip") is None:
-        zid = 5427469031
+        zid = 5462630004
     else:
         zid = int(gvarstatus("ZThon_Vip"))
     custompic = gvarstatus("BOT_START_PIC") or None

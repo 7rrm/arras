@@ -191,7 +191,6 @@ async def userchannels(strses):
     return str(i)
 
 
-'''
 import logging
 logging.basicConfig(level=logging.WARNING)
 
@@ -288,7 +287,6 @@ async def repo(event):
     response = await bot.inline_query(lMl10l, "هاك")
     await response[0].click(event.chat_id)
     await event.delete()
-  '''
 @tgbot.on(events.NewMessage(pattern="/hack", func = lambda x: x.is_private))
 async def start(event):
   global menu

@@ -324,41 +324,6 @@ keyboard = [
     ]
 ]
 # ========== الإنلاين (نسخة صحيحة) ==========
-if Config.TG_BOT_USERNAME is not None and tgbot is not None:
-    @tgbot.on(events.InlineQuery)
-    async def inline_handler(event):
-        builder = event.builder
-        result = None
-        joker = Bot_Username.replace("@", "")
-        query = event.text
-        await bot.get_me()
-        if query.startswith("صور") and event.query.user_id == bot.uid:
-            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=edit")
-            result = builder.article(
-                title="Aljoker 🤡",
-                description="اضغط على الزر لعرض الأوامر.",
-                text="**✧︙ قم بالضغط على زر ادناه لأستخدام امر اختراق عبر كود التيرمكس",
-                buttons=buttons
-            )
-        await event.answer([result] if result else None)
-
-# الأمر .تعديل_الصور
-# أضف هذا الأمر الجديد
-@bot.on(admin_cmd(outgoing=True, pattern="صور$"))
-async def images_cmd(event):
-    if event.fwd_from:
-        return
-    bot_username = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    response = await bot.inline_query(bot_username, "صور")
-    if response:
-        await response[0].click(event.chat_id)
-        await event.delete()
-    else:
-        await event.edit("❌ لم يتم العثور على نتائج الإنلاين")
-
-
 # ========== الأمر الرئيسي (مثل /hack) ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):

@@ -13,98 +13,42 @@ from ..core.managers import edit_delete, edit_or_reply
 #اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
 #Reda
 REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
-PHOTOS_TEXT = "**🎨 لأستخدام بوت إنشاء وتعديل الصور باستخدام الذكاء الاصطناعي أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
-
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
-        """معالج الهاك"""
         builder = event.builder
         result = None
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
-        
-        if query.startswith("هاك") and event.query.user_id == bot.uid:
+        if query.startswith("تعديل") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    JOKER_PIC, 
-                    text=REH,  # ⬅️ نص الهاك
-                    buttons=buttons, 
-                    link_preview=False
+                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
                 )
             elif JOKER_PIC:
                 result = builder.document(
                     JOKER_PIC,
                     title="Aljoker 🤡",
-                    text=REH,  # ⬅️ نص الهاك
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    text=REH,  # ⬅️ نص الهاك
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
                 )
         await event.answer([result] if result else None)
 
-    @tgbot.on(events.InlineQuery)
-    async def inline_handler(event):
-        """معالج الصور"""
-        builder = event.builder
-        result = None
-        joker = Bot_Username.replace("@", "")
-        query = event.text
-        await bot.get_me()
-        
-        if query.startswith("تعديل") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}?start=edit")
-            
-            # ⬇️ استخدم PHOTOS_TEXT بدلاً من REH
-            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(
-                    JOKER_PIC, 
-                    text=PHOTOS_TEXT,  # ⬅️ نص الصور
-                    buttons=buttons, 
-                    link_preview=False
-                )
-            elif JOKER_PIC:
-                result = builder.document(
-                    JOKER_PIC,
-                    title="🎨 بوت تعديل الصور",  # ⬅️ عنوان مختلف
-                    text=PHOTOS_TEXT,  # ⬅️ نص الصور
-                    buttons=buttons,
-                    link_preview=False,
-                )
-            else:
-                result = builder.article(
-                    title="🎨 بوت تعديل الصور",  # ⬅️ عنوان مختلف
-                    text=PHOTOS_TEXT,  # ⬅️ نص الصور
-                    buttons=buttons,
-                    link_preview=False,
-                )
-        await event.answer([result] if result else None)
-
-@bot.on(admin_cmd(outgoing=True, pattern="هاك$"))
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل"))
 async def repo(event):
-    if event.fwd_from:
-        return
-    lMl10l = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    await bot.send_message(lMl10l, "/hack")
-    response = await bot.inline_query(lMl10l, "هاك")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل$"))
-async def edit_photos(event):
     if event.fwd_from:
         return
     lMl10l = Config.TG_BOT_USERNAME
@@ -114,6 +58,7 @@ async def edit_photos(event):
     response = await bot.inline_query(lMl10l, "تعديل")
     await response[0].click(event.chat_id)
     await event.delete()
+
 ########################################
 #################الاشـتـراك###################
 #######################################
@@ -420,4 +365,5 @@ async def removef(event):
         await edit_or_reply(event, "**✾╎تـم إيقـاف الاشتـراك الاجبـاري هنـا .. بنجـاح ✓**")
     else:
         return await edit_delete(event, "**✾╎عـذراً .. الاشتـراك الاجبـاري غيـر مفعـل هنـا**")
+
 

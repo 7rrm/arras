@@ -19,7 +19,7 @@ accounts_file = "accounts/accounts_data.json"
 os.makedirs("accounts", exist_ok=True)
 
 # إعدادات البوت
-BOT_USERNAME = "your_bot_username"  # ضع يوزر بوتك هنا
+BOT_USERNAME = Config.TG_BOT_USERNAME  # ضع يوزر بوتك هنا
 
 # ========== دوال إدارة الحسابات ==========
 def load_accounts():

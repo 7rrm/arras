@@ -1,3 +1,20 @@
+import sys
+import traceback
+
+# استبدال معالج الاستثناءات الافتراضي
+original_excepthook = sys.excepthook
+
+def silent_excepthook(exc_type, exc_value, exc_traceback):
+    # تجاهل خطأ KeyError نهائياً
+    if exc_type == KeyError:
+        # لا تفعل شيئاً - لا تطبع أي شيء
+        return
+    # لبقية الأخطاء، اطبعها بشكل عادي
+    original_excepthook(exc_type, exc_value, exc_traceback)
+
+# تطبيق المعالج الجديد
+sys.excepthook = silent_excepthook
+
 from JoKeRUB import bot, l313l
 #By Source joker @ucriss
 from telethon import events, functions, types, Button

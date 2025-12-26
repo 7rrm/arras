@@ -670,7 +670,7 @@ async def handler(event):
                     )
             except Exception as e:
                 LOGS.error(str(e))
-'''
+
 
 @l313l.bot_cmd(pattern="^/info$", from_users=Config.OWNER_ID)
 async def bot_start(event):
@@ -789,7 +789,6 @@ async def send_flood_alert(user_) -> None:
                 await l313l.tgbot.send_message(BOTLOG_CHATID, "**- قم بالغـاء حظـر بوتك المسـاعـد ؟!**")
     if FloodConfig.ALERT[user_.id].get("fa_id") is None and fa_msg:
         FloodConfig.ALERT[user_.id]["fa_id"] = fa_msg.id
-'''
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"bot_pm_ban_([0-9]+)")))
 @check_owner

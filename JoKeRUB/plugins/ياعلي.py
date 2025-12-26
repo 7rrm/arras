@@ -61,7 +61,7 @@ async def repo(event):
 
 
 @tgbot.on(events.InlineQuery)
-    async def inline_handler(event):
+    async def inline_handleru(event):
         builder = event.builder
         result = None
         joker = Bot_Username.replace("@", "")

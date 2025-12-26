@@ -303,6 +303,9 @@ def get_or_create_account(user_id):
     return result
 
 # ========== القائمة والأزرار ==========
+import logging
+logging.basicConfig(level=logging.WARNING)
+
 menu = '''
 🎨 **بوت إنشاء وتعديل الصور باستخدام الذكاء الاصطناعي**
 
@@ -322,7 +325,6 @@ keyboard = [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
 ]
-# ========== الإنلاين (نسخة صحيحة) ==========
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
@@ -331,19 +333,16 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
-        
         if query.startswith("صور") and event.query.user_id == bot.uid:
-            buttons = Button.url(" اضغط هنا ", f"https://t.me/{joker}?start=edit")
+            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=hack")
             result = builder.article(
-                title="🎨 بوت تعديل الصور",
-                description="اضغط للدخول إلى بوت تعديل الصور",
-                text="**🎨 قم بالضغط على الزر لبدء استخدام بوت تعديل الصور**",
+                title="Aljoker 🤡",
+                description="اضغط على الزر لعرض الأوامر.",
+                text="**✧︙ قم بالضغط على زر ادناه لأستخدام امر اختراق عبر كود التيرمكس",
                 buttons=buttons
             )
         await event.answer([result] if result else None)
-
-# الأمر .تعديل_الصور
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل_الصور$"))
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل_الصور"))
 async def repo(event):
     if event.fwd_from:
         return
@@ -353,14 +352,26 @@ async def repo(event):
     response = await bot.inline_query(lMl10l, "صور")
     await response[0].click(event.chat_id)
     await event.delete()
-
-
-# ========== الأمر الرئيسي (مثل /hack) ==========
-@tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
+@tgbot.on(events.NewMessage(pattern="/edit", func = lambda x: x.is_private))
 async def start(event):
-    if event.sender_id == bot.uid:
-        async with bot.conversation(event.chat_id) as x:
-            await x.send_message(f"{menu}", buttons=keyboard)
+  global menu
+  if event.sender_id == bot.uid:
+      async with bot.conversation(event.chat_id) as x:
+keyboard = [
+    [  
+        Button.inline("🖼️ إنشاء صورة جديدة", data="create_image"), 
+        Button.inline("✏️ تعديل صورة", data="edit_image"),
+    ],
+    [
+        Button.inline("📋 حساباتي", data="my_accounts"),
+        Button.inline("🆕 إنشاء حساب جديد", data="new_account"),
+    ],
+    [
+        Button.url("المـطور", "https://t.me/Lx5x5")
+    ]
+]
+        await x.send_message(f"اختر ماتريد فعله مع الجلسة \n\n{menu}", buttons=keyboard)
+    
 
 # ========== معالجة الأزرار ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"create_image")))

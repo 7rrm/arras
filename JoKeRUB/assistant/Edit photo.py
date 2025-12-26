@@ -322,27 +322,27 @@ keyboard = [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
 ]
+# ========== الإنلاين (نسخة صحيحة) ==========
+if Config.TG_BOT_USERNAME is not None and tgbot is not None:
+    @tgbot.on(events.InlineQuery)
+    async def inline_handler(event):
+        builder = event.builder
+        result = None
+        joker = Bot_Username.replace("@", "")
+        query = event.text
+        await bot.get_me()
+        
+        if query.startswith("صور") and event.query.user_id == bot.uid:
+            buttons = Button.url(" اضغط هنا ", f"https://t.me/{joker}?start=edit")
+            result = builder.article(
+                title="🎨 بوت تعديل الصور",
+                description="اضغط للدخول إلى بوت تعديل الصور",
+                text="**🎨 قم بالضغط على الزر لبدء استخدام بوت تعديل الصور**",
+                buttons=buttons
+            )
+        await event.answer([result] if result else None)
 
-# ========== الإنلاين (مثل الكود الثالث) ==========
-@tgbot.on(events.InlineQuery)
-async def inline_handler(event):
-    builder = event.builder
-    result = None
-    joker = Bot_Username.replace("@", "")
-    query = event.text
-    await bot.get_me()
-    
-    # ⬇️ أضف هذا الشرط ⬇️
-    if query.startswith("صور") and event.query.user_id == bot.uid:
-        buttons = Button.url(" اضغط هنا ", f"https://t.me/{joker}?start=edit")
-        result = builder.article(
-            title="🎨 بوت تعديل الصور",
-            description="اضغط للدخول إلى بوت تعديل الصور",
-            text="**🎨 قم بالضغط على الزر لبدء استخدام بوت تعديل الصور**",
-            buttons=buttons
-        )
-    await event.answer([result] if result else None)
-
+# الأمر .تعديل_الصور
 @bot.on(admin_cmd(outgoing=True, pattern="تعديل_الصور$"))
 async def repo(event):
     if event.fwd_from:
@@ -353,6 +353,7 @@ async def repo(event):
     response = await bot.inline_query(lMl10l, "صور")
     await response[0].click(event.chat_id)
     await event.delete()
+
 
 # ========== الأمر الرئيسي (مثل /hack) ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))

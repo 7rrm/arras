@@ -12,117 +12,203 @@ from ..core.managers import edit_delete, edit_or_reply
 #ياعلي
 #اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
 #Reda
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
 
+logger.info(f"🔧 تهيئة البوت: Bot_Username = {Bot_Username}")
+logger.info(f"🔧 bot.uid = {bot.uid if hasattr(bot, 'uid') else 'غير معرف'}")
+
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
+    logger.info("✅ tgbot و Bot_Username معرفان")
     
     # ========== للصور ==========
     @tgbot.on(events.InlineQuery)
     async def inline_handler_photos(event):
         """معالج الإنلاين للصور"""
-        builder = event.builder
-        result = None
-        joker = Bot_Username.replace("@", "")
-        query = event.text
-        await bot.get_me()
-        
-        if query.startswith("تعديل") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا للصور •", f"https://t.me/{joker}?start=edit")
-            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(
-                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
-                )
-            elif JOKER_PIC:
-                result = builder.document(
-                    JOKER_PIC,
-                    title="🎨 بوت الصور",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-            else:
-                result = builder.article(
-                    title="🎨 بوت الصور",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-        await event.answer([result] if result else None)
+        try:
+            logger.info(f"📸 إنلاين الصور: '{event.text}' من {event.query.user_id}")
+            logger.info(f"📸 مقارنة: {event.query.user_id} == {bot.uid} = {event.query.user_id == bot.uid}")
+            
+            builder = event.builder
+            result = None
+            joker = Bot_Username.replace("@", "")
+            query = event.text
+            await bot.get_me()
+            
+            logger.info(f"📸 البحث: '{query}' -> startswith('تعديل') = {query.startswith('تعديل')}")
+            
+            if query.startswith("تعديل") and event.query.user_id == bot.uid:
+                logger.info("✅ تطابق تعديل!")
+                buttons = Button.url("• اضغط هنا للصور •", f"https://t.me/{joker}?start=edit")
+                
+                if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
+                    logger.info("✅ جاري إنشاء صورة...")
+                    result = builder.photo(
+                        JOKER_PIC, text=REH, buttons=buttons, link_preview=False
+                    )
+                elif JOKER_PIC:
+                    logger.info("✅ جاري إنشاء مستند...")
+                    result = builder.document(
+                        JOKER_PIC,
+                        title="🎨 بوت الصور",
+                        text=REH,
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+                else:
+                    logger.info("✅ جاري إنشاء مقالة...")
+                    result = builder.article(
+                        title="🎨 بوت الصور",
+                        text=REH,
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+            
+            await event.answer([result] if result else None)
+            logger.info(f"📤 تم إرسال: {'نعم' if result else 'لا'}")
+            
+        except Exception as e:
+            logger.error(f"🚨 خطأ في إنلاين الصور: {str(e)}")
+            await event.answer([])
     
     # ========== للهاك ==========
     @tgbot.on(events.InlineQuery)
     async def inline_handler_hack(event):
         """معالج الإنلاين للهاك"""
-        builder = event.builder
-        result = None
-        joker = Bot_Username.replace("@", "")
-        query = event.text
-        await bot.get_me()
-        
-        if query.startswith("هاك") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا للاختراق •", f"https://t.me/{joker}?start=hack")
-            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(
-                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
-                )
-            elif JOKER_PIC:
-                result = builder.document(
-                    JOKER_PIC,
-                    title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-            else:
-                result = builder.article(
-                    title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-        await event.answer([result] if result else None)
+        try:
+            logger.info(f"🔓 إنلاين الهاك: '{event.text}' من {event.query.user_id}")
+            logger.info(f"🔓 مقارنة: {event.query.user_id} == {bot.uid} = {event.query.user_id == bot.uid}")
+            
+            builder = event.builder
+            result = None
+            joker = Bot_Username.replace("@", "")
+            query = event.text
+            await bot.get_me()
+            
+            logger.info(f"🔓 البحث: '{query}' -> startswith('هاك') = {query.startswith('هاك')}")
+            
+            if query.startswith("هاك") and event.query.user_id == bot.uid:
+                logger.info("✅ تطابق هاك!")
+                buttons = Button.url("• اضغط هنا للاختراق •", f"https://t.me/{joker}?start=hack")
+                
+                if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
+                    logger.info("✅ جاري إنشاء صورة...")
+                    result = builder.photo(
+                        JOKER_PIC, text=REH, buttons=buttons, link_preview=False
+                    )
+                elif JOKER_PIC:
+                    logger.info("✅ جاري إنشاء مستند...")
+                    result = builder.document(
+                        JOKER_PIC,
+                        title="Aljoker 🤡",
+                        text=REH,
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+                else:
+                    logger.info("✅ جاري إنشاء مقالة...")
+                    result = builder.article(
+                        title="Aljoker 🤡",
+                        text=REH,
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+            
+            await event.answer([result] if result else None)
+            logger.info(f"📤 تم إرسال: {'نعم' if result else 'لا'}")
+            
+        except Exception as e:
+            logger.error(f"🚨 خطأ في إنلاين الهاك: {str(e)}")
+            await event.answer([])
 
 # ========== أوامر الصور ==========
 @bot.on(admin_cmd(outgoing=True, pattern="تعديل$"))
 async def edit_cmd(event):
     """أمر .تعديل للصور"""
-    if event.fwd_from:
-        return
-    bot_username = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    
-    await bot.send_message(bot_username, "/edit")
-    response = await bot.inline_query(bot_username, "تعديل")
-    
-    if response and len(response) > 0:
-        await response[0].click(event.chat_id)
-        await event.delete()
-    else:
-        # بديل
-        await event.edit("❌ لم يتم العثور على نتائج")
+    try:
+        logger.info(f"🎯 أمر .تعديل من {event.chat_id}")
+        
+        if event.fwd_from:
+            return
+        
+        bot_username = Config.TG_BOT_USERNAME
+        logger.info(f"🔍 معرف البوت: {bot_username}")
+        
+        if event.reply_to_msg_id:
+            await event.get_reply_message()
+        
+        # أرسل /edit
+        logger.info("📩 جاري إرسال /edit...")
+        await bot.send_message(bot_username, "/edit")
+        
+        # استخدم الإنلاين
+        logger.info("🔍 جاري البحث بكلمة 'تعديل'...")
+        response = await bot.inline_query(bot_username, "تعديل")
+        logger.info(f"📊 نتائج البحث: {len(response) if response else 0}")
+        
+        if response and len(response) > 0:
+            logger.info("✅ تم العثور على نتائج، جاري النقر...")
+            await response[0].click(event.chat_id)
+            await event.delete()
+            logger.info("✅ تم بنجاح!")
+        else:
+            logger.warning("❌ لم يتم العثور على نتائج")
+            await event.edit("❌ لم يتم العثور على نتائج")
+            
+    except Exception as e:
+        logger.error(f"🚨 خطأ في .تعديل: {str(e)}")
+        await event.edit(f"❌ خطأ: {str(e)}")
 
 # ========== أوامر الهاك ==========
 @bot.on(admin_cmd(outgoing=True, pattern="هاك$"))
 async def hack_cmd(event):
     """أمر .هاك للاختراق"""
-    if event.fwd_from:
-        return
-    bot_username = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    
-    await bot.send_message(bot_username, "/hack")
-    response = await bot.inline_query(bot_username, "هاك")
-    
-    if response and len(response) > 0:
-        await response[0].click(event.chat_id)
-        await event.delete()
-    else:
-        # بديل
-        await event.edit("❌ لم يتم العثور على نتائج")
+    try:
+        logger.info(f"🎯 أمر .هاك من {event.chat_id}")
+        
+        if event.fwd_from:
+            return
+        
+        bot_username = Config.TG_BOT_USERNAME
+        logger.info(f"🔍 معرف البوت: {bot_username}")
+        
+        if event.reply_to_msg_id:
+            await event.get_reply_message()
+        
+        # أرسل /hack
+        logger.info("📩 جاري إرسال /hack...")
+        await bot.send_message(bot_username, "/hack")
+        
+        # استخدم الإنلاين
+        logger.info("🔍 جاري البحث بكلمة 'هاك'...")
+        response = await bot.inline_query(bot_username, "هاك")
+        logger.info(f"📊 نتائج البحث: {len(response) if response else 0}")
+        
+        if response and len(response) > 0:
+            logger.info("✅ تم العثور على نتائج، جاري النقر...")
+            await response[0].click(event.chat_id)
+            await event.delete()
+            logger.info("✅ تم بنجاح!")
+        else:
+            logger.warning("❌ لم يتم العثور على نتائج")
+            # بديل إذا فشل الإنلاين
+            buttons = [[Button.url("• اضغط هنا •", f"https://t.me/{bot_username}?start=hack")]]
+            await event.respond(
+                "**᯽︙ لأستخدام بوت الاختراق اضغط على الزر:**",
+                buttons=buttons
+            )
+            await event.delete()
+            
+    except Exception as e:
+        logger.error(f"🚨 خطأ في .هاك: {str(e)}")
+        await event.edit(f"❌ خطأ: {str(e)}")
+
+logger.info("✅ تم تحميل الكود مع معالج الأخطاء")
     
 ########################################
 #################الاشـتـراك###################

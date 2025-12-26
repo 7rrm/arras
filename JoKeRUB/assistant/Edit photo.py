@@ -344,16 +344,20 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await event.answer([result] if result else None)
 
 # الأمر .تعديل_الصور
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل_الصور$"))
-async def repo(event):
+# أضف هذا الأمر الجديد
+@bot.on(admin_cmd(outgoing=True, pattern="صور$"))
+async def images_cmd(event):
     if event.fwd_from:
         return
-    lMl10l = Config.TG_BOT_USERNAME
+    bot_username = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    response = await bot.inline_query(lMl10l, "صور")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    response = await bot.inline_query(bot_username, "صور")
+    if response:
+        await response[0].click(event.chat_id)
+        await event.delete()
+    else:
+        await event.edit("❌ لم يتم العثور على نتائج الإنلاين")
 
 
 # ========== الأمر الرئيسي (مثل /hack) ==========

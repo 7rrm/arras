@@ -80,21 +80,21 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             elif KARAR_PIC:
                 result = builder.document(
                     KARAR_PIC,
-                    title="Aljoker 🤡",
+                    title="Aljoker",
                     text=kar,
                     buttons=buttons,
                     link_preview=False,
                 )
             else:
                 result = builder.article(
-                    title="Aljoker 🤡",
+                    title="Aljoker",
                     text=kar,
                     buttons=buttons,
                     link_preview=False,
                 )
         await event.answer([result] if result else None)
 
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل الصور"))
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل"))
 async def repo(event):
     if event.fwd_from:
         return

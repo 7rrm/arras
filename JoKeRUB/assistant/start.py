@@ -1,4 +1,3 @@
-
 import re
 import random
 from collections import defaultdict
@@ -43,7 +42,7 @@ accounts_file = "accounts/accounts_data.json"
 os.makedirs("accounts", exist_ok=True)
 os.makedirs("generated_images", exist_ok=True)
 os.makedirs("temp_images", exist_ok=True)
-    
+
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -67,6 +66,32 @@ def get_user_accounts(user_id):
     accounts = load_accounts()
     user_accs = [acc for acc in accounts if acc.get('user_id') == user_id]
     return user_accs
+    
+async def check_bot_started_users(user, event):
+    if user.id == Config.OWNER_ID:
+        return
+    check = get_starter_details(user.id)
+    usernaam = f"@{user.username}" if user.username else "لايوجـد"
+    if check is None:
+        start_date = str(datetime.now().strftime("%B %d, %Y"))
+        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
+                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
+                \n\n**- الاسـم : **{get_display_name(user)}\
+                \n**- الايـدي : **`{user.id}`\
+                \n**- اليـوزر :** {usernaam}"
+    else:
+        start_date = check.date
+        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
+                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
+                \n\n**- الاسـم : **{get_display_name(user)}\
+                \n**- الايـدي : **`{user.id}`\
+                \n**- اليـوزر :** {usernaam}"
+    try:
+        add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
+    except Exception as e:
+        LOGS.error(str(e))
+    if BOTLOG:
+        await event.client.send_message(BOTLOG_CHATID, notification)
 
 async def create_email_account():
     email_url = "https://api.mail.tm"
@@ -382,34 +407,6 @@ def get_or_create_account(user_id):
     loop.close()
     return result
 
-async def check_bot_started_users(user, event):
-    if user.id == Config.OWNER_ID:
-        return
-    check = get_starter_details(user.id)
-    usernaam = f"@{user.username}" if user.username else "لايوجـد"
-    if check is None:
-        start_date = str(datetime.now().strftime("%B %d, %Y"))
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
-    else:
-        start_date = check.date
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
-    try:
-        add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
-    except Exception as e:
-        LOGS.error(str(e))
-    if BOTLOG:
-        await event.client.send_message(BOTLOG_CHATID, notification)
-
-
-
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
     incoming=True,
@@ -489,6 +486,9 @@ async def bot_start(event):
                 Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
             ],
             [
+                Button.inline("🎨 إنشاء وتعديل صور", data="nanabanana_menu")
+            ],
+            [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
                 Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
@@ -521,35 +521,31 @@ async def bot_start(event):
                         \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
                         \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
                         \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
-        # في قسم المطور
-buttons = [
-    [
-        Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-    ],
-    [
-        Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-        Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-    ],
-    [
-        Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
-    ],
-    [
-        Button.inline("🎨 إنشاء وتعديل صور", data="nanabanana_menu")  # ← أضف هذا السطر
-    ],
-    [
-        Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
-        Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
-    ],
-    [
-        Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
-    ],
-    [
-        Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
-    ],
-    [
-        Button.url(zz_txt, f"https://t.me/{zz_ch}")
-    ]
-]
+        buttons = [
+            [
+                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
+            ],
+            [
+                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
+                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
+            ],
+            [
+                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+            ],
+            [
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+            ],
+            [
+                Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
+            ],
+            [
+                Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
+            ],
+            [
+                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+            ]
+        ]
     else:
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
@@ -628,15 +624,6 @@ async def bot_pms(event):  # sourcery no-metrics
     if event.contact or int(chat.id) in kk:
         return
     if chat.id != Config.OWNER_ID:
-        if event.text.startswith("/cancle"):
-        if int(chat.id) in kk:
-            kk.remove(int(chat.id))
-        return await event.client.send_message(
-            chat.id,
-            "✅ **تم الإلغاء**",
-            link_preview=False,
-            reply_to=reply_to,
-        )
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:
                 dd.remove(int(chat.id))
@@ -1542,6 +1529,121 @@ async def settings_toggle(c_q: CallbackQuery):
             ],
         link_preview=False)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nanabanana_menu$")))
+async def nanabanana_menu_handler(c_q: CallbackQuery):
+    await c_q.edit(
+        """🎨 **قسم إنشاء وتعديل الصور بواسطة NanoBanana AI** 🎨
+        
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+**يمكنك من خلال هذا القسم:**
+• إنشاء صور جديدة بالذكاء الاصطناعي
+• تعديل الصور الموجودة
+• إدارة حساباتك (5 محاولات لكل حساب)
+
+**اختر أحد الخيارات:**""",
+        buttons=[
+            [Button.inline("🖼️ إنشاء صورة جديدة", data="nb_create_img")],
+            [Button.inline("✏️ تعديل صورة", data="nb_edit_img")],
+            [Button.inline("📋 حساباتي", data="nb_my_accounts")],
+            [Button.inline("🆕 إنشاء حساب جديد", data="nb_create_account")],
+            [Button.inline("🔙 رجوع", data="styleback")]
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_img$")))
+async def nb_create_image_handler(c_q: CallbackQuery):
+    kk.append(int(c_q.query.user_id))
+    await c_q.edit(
+        "✍️ **الرجاء إرسال وصف الصورة المطلوبة:**\n\n"
+        "**مثال:** قطة لطيفة تلعب في الحديقة\n"
+        "**ملاحظة:** كن مفصلاً للحصول على نتائج أفضل\n\n"
+        "**لإلغاء العملية:** /cancle",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_edit_img$")))
+async def nb_edit_image_handler(c_q: CallbackQuery):
+    kk.append(int(c_q.query.user_id))
+    await c_q.edit(
+        "📤 **الرجاء إرسال الصورة التي تريد تعديلها:**\n\n"
+        "**ملاحظة:** أرسل الصورة الآن فقط\n"
+        "**لإلغاء العملية:** /cancle",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_my_accounts$")))
+async def nb_my_accounts_handler(c_q: CallbackQuery):
+    user_id = c_q.query.user_id
+    accounts = get_user_accounts(user_id)
+    
+    if not accounts:
+        response = "📭 **لا توجد حسابات مرفوعة بعد.**"
+    else:
+        response = "📋 **حساباتك:**\n\n"
+        for i, acc in enumerate(accounts, 1):
+            response += f"**{i}. {acc['email']}**\n"
+            response += f"   الاستخدامات: {acc.get('use_count', 0)}/5\n"
+            response += f"   التاريخ: {acc.get('created_at', 'غير معروف')[:10]}\n"
+            response += "   ───────────────\n"
+    
+    await c_q.edit(
+        response,
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_account$")))
+async def nb_create_account_handler(c_q: CallbackQuery):
+    await c_q.edit(
+        "🆕 **جاري إنشاء حساب جديد...**\n\n"
+        "⏳ **قد يستغرق هذا بعض الوقت**\n"
+        "**يرجى الانتظار...**",
+        buttons=[
+            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+        ]
+    )
+    
+    # إنشاء الحساب
+    email, password, session_token = await create_nanabanana_account()
+    
+    if session_token:
+        # حفظ الحساب
+        accounts = load_accounts()
+        new_account = {
+            'user_id': c_q.query.user_id,
+            'email': email,
+            'password': password,
+            'session_token': session_token,
+            'use_count': 0,
+            'created_at': datetime.now().isoformat()
+        }
+        accounts.append(new_account)
+        save_accounts(accounts)
+        
+        await c_q.edit(
+            f"✅ **تم إنشاء حساب جديد بنجاح!**\n\n"
+            f"**📧 البريد:** `{email}`\n"
+            f"**🔑 كلمة المرور:** `{password}`\n\n"
+            f"**تم حفظ الحساب تلقائيًا.**",
+            buttons=[
+                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+            ]
+        )
+    else:
+        await c_q.edit(
+            "❌ **فشل في إنشاء الحساب**\n"
+            "الرجاء المحاولة مرة أخرى لاحقًا.",
+            buttons=[
+                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
+            ]
+        )
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-3$")))
 async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit(
@@ -1682,119 +1784,3 @@ async def antif_on_msg(event):
         raise StopPropagation
     if user_id in FloodConfig.BANNED_USERS:
         FloodConfig.BANNED_USERS.remove(user_id)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nanabanana_menu$")))
-async def nanabanana_menu_handler(c_q: CallbackQuery):
-    await c_q.edit(
-        """🎨 **قسم إنشاء وتعديل الصور بواسطة NanoBanana AI** 🎨
-        
-**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
-**يمكنك من خلال هذا القسم:**
-• إنشاء صور جديدة بالذكاء الاصطناعي
-• تعديل الصور الموجودة
-• إدارة حساباتك (5 محاولات لكل حساب)
-
-**اختر أحد الخيارات:**""",
-        buttons=[
-            [Button.inline("🖼️ إنشاء صورة جديدة", data="nb_create_img")],
-            [Button.inline("✏️ تعديل صورة", data="nb_edit_img")],
-            [Button.inline("📋 حساباتي", data="nb_my_accounts")],
-            [Button.inline("🆕 إنشاء حساب جديد", data="nb_create_account")],
-            [Button.inline("🔙 رجوع", data="styleback")]
-        ],
-        link_preview=False
-    )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_img$")))
-async def nb_create_image_handler(c_q: CallbackQuery):
-    kk.append(int(c_q.query.user_id))
-    await c_q.edit(
-        "✍️ **الرجاء إرسال وصف الصورة المطلوبة:**\n\n"
-        "**مثال:** قطة لطيفة تلعب في الحديقة\n"
-        "**ملاحظة:** كن مفصلاً للحصول على نتائج أفضل\n\n"
-        "**لإلغاء العملية:** /cancle",
-        buttons=[
-            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-        ]
-    )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_edit_img$")))
-async def nb_edit_image_handler(c_q: CallbackQuery):
-    kk.append(int(c_q.query.user_id))
-    await c_q.edit(
-        "📤 **الرجاء إرسال الصورة التي تريد تعديلها:**\n\n"
-        "**ملاحظة:** أرسل الصورة الآن فقط\n"
-        "**لإلغاء العملية:** /cancle",
-        buttons=[
-            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-        ]
-    )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_my_accounts$")))
-async def nb_my_accounts_handler(c_q: CallbackQuery):
-    user_id = c_q.query.user_id
-    accounts = get_user_accounts(user_id)
-    
-    if not accounts:
-        response = "📭 **لا توجد حسابات مرفوعة بعد.**"
-    else:
-        response = "📋 **حساباتك:**\n\n"
-        for i, acc in enumerate(accounts, 1):
-            response += f"**{i}. {acc['email']}**\n"
-            response += f"   الاستخدامات: {acc.get('use_count', 0)}/5\n"
-            response += f"   التاريخ: {acc.get('created_at', 'غير معروف')[:10]}\n"
-            response += "   ───────────────\n"
-    
-    await c_q.edit(
-        response,
-        buttons=[
-            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-        ]
-    )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"nb_create_account$")))
-async def nb_create_account_handler(c_q: CallbackQuery):
-    await c_q.edit(
-        "🆕 **جاري إنشاء حساب جديد...**\n\n"
-        "⏳ **قد يستغرق هذا بعض الوقت**\n"
-        "**يرجى الانتظار...**",
-        buttons=[
-            [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-        ]
-    )
-    
-    # إنشاء الحساب
-    email, password, session_token = await create_nanabanana_account()
-    
-    if session_token:
-        # حفظ الحساب
-        accounts = load_accounts()
-        new_account = {
-            'user_id': c_q.query.user_id,
-            'email': email,
-            'password': password,
-            'session_token': session_token,
-            'use_count': 0,
-            'created_at': datetime.now().isoformat()
-        }
-        accounts.append(new_account)
-        save_accounts(accounts)
-        
-        await c_q.edit(
-            f"✅ **تم إنشاء حساب جديد بنجاح!**\n\n"
-            f"**📧 البريد:** `{email}`\n"
-            f"**🔑 كلمة المرور:** `{password}`\n\n"
-            f"**تم حفظ الحساب تلقائيًا.**",
-            buttons=[
-                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-            ]
-        )
-    else:
-        await c_q.edit(
-            "❌ **فشل في إنشاء الحساب**\n"
-            "الرجاء المحاولة مرة أخرى لاحقًا.",
-            buttons=[
-                [Button.inline("🔙 رجوع", data="nanabanana_menu")]
-            ]
-        )

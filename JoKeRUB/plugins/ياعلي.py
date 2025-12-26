@@ -103,7 +103,7 @@ async def repo(event):
     await response[0].click(event.chat_id)
     await event.delete()
 
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل الصور$"))
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل$"))
 async def edit_photos(event):
     if event.fwd_from:
         return

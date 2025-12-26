@@ -15,17 +15,54 @@ from ..core.managers import edit_delete, edit_or_reply
 REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
+
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
+    # ========== للصور ==========
     @tgbot.on(events.InlineQuery)
-    async def inline_handler(event):
+    async def inline_handler_photos(event):
+        """معالج الإنلاين للصور"""
         builder = event.builder
         result = None
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
+        
         if query.startswith("تعديل") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
+            buttons = Button.url("• اضغط هنا للصور •", f"https://t.me/{joker}?start=edit")
+            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
+                result = builder.photo(
+                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
+                )
+            elif JOKER_PIC:
+                result = builder.document(
+                    JOKER_PIC,
+                    title="🎨 بوت الصور",
+                    text=REH,
+                    buttons=buttons,
+                    link_preview=False,
+                )
+            else:
+                result = builder.article(
+                    title="🎨 بوت الصور",
+                    text=REH,
+                    buttons=buttons,
+                    link_preview=False,
+                )
+        await event.answer([result] if result else None)
+    
+    # ========== للهاك ==========
+    @tgbot.on(events.InlineQuery)
+    async def inline_handler_hack(event):
+        """معالج الإنلاين للهاك"""
+        builder = event.builder
+        result = None
+        joker = Bot_Username.replace("@", "")
+        query = event.text
+        await bot.get_me()
+        
+        if query.startswith("هاك") and event.query.user_id == bot.uid:
+            buttons = Button.url("• اضغط هنا للاختراق •", f"https://t.me/{joker}?start=hack")
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, text=REH, buttons=buttons, link_preview=False
@@ -47,65 +84,45 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 )
         await event.answer([result] if result else None)
 
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل"))
-async def repo(event):
+# ========== أوامر الصور ==========
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل$"))
+async def edit_cmd(event):
+    """أمر .تعديل للصور"""
     if event.fwd_from:
         return
-    lMl10l = Config.TG_BOT_USERNAME
+    bot_username = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    await bot.send_message(lMl10l, "/edit")
-    response = await bot.inline_query(lMl10l, "تعديل")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-
-REHH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
-JOKER_PICC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
-Bot_Usernamee = Config.TG_BOT_USERNAME
-if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
-    @tgbot.on(events.InlineQuery)
-    async def inline_handleer(event):
-        builder = event.builder
-        result = None
-        joker = Bot_Usernamee.replace("@", "")
-        query = event.text
-        await bot.get_me()
-        if query.startswith("هاك") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
-            if JOKER_PIC and JOKER_PICC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(
-                    JOKER_PICC, text=REHH, buttons=buttons, link_preview=False
-                )
-            elif JOKER_PICC:
-                result = builder.document(
-                    JOKER_PICC,
-                    title="Aljoker",
-                    text=REHH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-            else:
-                result = builder.article(
-                    title="Aljoker",
-                    text=REHH,
-                    buttons=buttons,
-                    link_preview=False,
-                )
-        await event.answer([result] if result else None)
+    await bot.send_message(bot_username, "/edit")
+    response = await bot.inline_query(bot_username, "تعديل")
+    
+    if response and len(response) > 0:
+        await response[0].click(event.chat_id)
+        await event.delete()
+    else:
+        # بديل
+        await event.edit("❌ لم يتم العثور على نتائج")
 
-@bot.on(admin_cmd(outgoing=True, pattern="هاك"))
-async def repoo(event):
+# ========== أوامر الهاك ==========
+@bot.on(admin_cmd(outgoing=True, pattern="هاك$"))
+async def hack_cmd(event):
+    """أمر .هاك للاختراق"""
     if event.fwd_from:
         return
-    lMl10l = Config.TG_BOT_USERNAME
+    bot_username = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    await bot.send_message(lMl10l, "/hack")
-    response = await bot.inline_query(lMl10l, "هاك")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    
+    await bot.send_message(bot_username, "/hack")
+    response = await bot.inline_query(bot_username, "هاك")
+    
+    if response and len(response) > 0:
+        await response[0].click(event.chat_id)
+        await event.delete()
+    else:
+        # بديل
+        await event.edit("❌ لم يتم العثور على نتائج")
     
 ########################################
 #################الاشـتـراك###################

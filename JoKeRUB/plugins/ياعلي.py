@@ -55,7 +55,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await event.answer([result] if result else None)
 
     @tgbot.on(events.InlineQuery)
-    async def inline_handleru(event):
+    async def inline_handler(event):
         """معالج الصور"""
         builder = event.builder
         result = None

@@ -60,41 +60,37 @@ async def repo(event):
     await event.delete()
 
 
-kar = "**✧︙ لأستخدام بوت تعديل الصور**"
-KARAR_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
-if Config.TG_BOT_USERNAME is not None and tgbot is not None:
-    
-    @tgbot.on(events.InlineQuery)
+@tgbot.on(events.InlineQuery)
     async def inline_handler(event):
         builder = event.builder
         result = None
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
-        if query.startswith("صور") and event.query.user_id == bot.uid:
+        if query.startswith("تعديل الصور") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    KARAR_PIC, text=kar, buttons=buttons, link_preview=False
+                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
                 )
-            elif KARAR_PIC:
+            elif JOKER_PIC:
                 result = builder.document(
-                    KARAR_PIC,
-                    title="Aljoker",
-                    text=kar,
+                    JOKER_PIC,
+                    title="Aljoker 🤡",
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
                 )
             else:
                 result = builder.article(
-                    title="Aljoker",
-                    text=kar,
+                    title="Aljoker 🤡",
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
                 )
         await event.answer([result] if result else None)
 
-@bot.on(admin_cmd(outgoing=True, pattern="تعديل"))
+@bot.on(admin_cmd(outgoing=True, pattern="تعديل الصور"))
 async def repo(event):
     if event.fwd_from:
         return
@@ -102,7 +98,7 @@ async def repo(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
     await bot.send_message(lMl10l, "/edit")
-    response = await bot.inline_query(lMl10l, "صور")
+    response = await bot.inline_query(lMl10l, "تعديل الصور")
     await response[0].click(event.chat_id)
     await event.delete()
 ########################################

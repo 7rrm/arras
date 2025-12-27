@@ -380,12 +380,12 @@ menu = '''
 
 keyboard = [
     [  
-        Button.inline("🖼️ إنشاء صورة جديدة", data="create_image"), 
-        Button.inline("✏️ تعديل صورة", data="edit_image"),
+        Button.inline("‹ : إنشاء صورة جديدة 🎚 : ›", data="create_image"), 
+        Button.inline("‹ :🪞 تعديل صورة : ›", data="edit_image"),
     ],
     [
-        Button.inline("📋 حساباتي", data="my_accounts"),
-        Button.inline("🆕 إنشاء حساب جديد", data="new_account"),
+        Button.inline("‹ : حساباتي 📜: ›", data="my_accounts"),
+        Button.inline("‹ :🎐 انشاء حساب : ›", data="new_account"),
     ],
     [
         Button.url("المـطور", "https://t.me/Lx5x5")

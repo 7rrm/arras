@@ -547,14 +547,14 @@ async def start(event):
     keyboard = [
       [  
         Button.inline("a", data="a"), 
-        Button.inline("b", data="b"),
+        Button.inline("bb", data="bb"),
         Button.inline("pp", data="pp"),
         ],
       [
         Button.url("القناة", "https://t.me/aqhvv")
         ]
     ]
-    await event.reply("Now Give Me Flag Where U Want to Gcast \nâœ“ For All - Choose a\nâœ“ For Group - Choose b\nâœ“ For Private - Choose pp", buttons=keyboard)
+    await event.reply("Now Give Me Flag Where U Want to Gcast \nâœ“ For All - Choose a\nâœ“ For Group - Choose bb\nâœ“ For Private - Choose pp", buttons=keyboard)
 
 
 
@@ -720,7 +720,7 @@ async def gcastb(strses, msg):
             print(e)
 
 
-@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"b")))
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"bb")))
 async def users(event):
   async with bot.conversation(event.chat_id) as x:
       await x.send_message("ارسل الكود تيرمكس")

@@ -200,12 +200,6 @@ async def bot_start(event):
                 Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
             [
-                Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
-            ],
-            [
-                Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
-            ],
-            [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
@@ -967,12 +961,6 @@ async def settings_toggle(event):
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
-                Button.inline("رشق لايكات انستا ♥️", data="zzk_bot-insta")
-            ],
-            [
-                Button.inline("رشق مشاهدات تيك توك 👁‍🗨", data="zzk_bot-tiktok")
-            ],
-            [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
@@ -1277,43 +1265,6 @@ async def settings_toggle(c_q: CallbackQuery):
         ],
     link_preview=False)
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-insta$")))
-async def settings_toggle(c_q: CallbackQuery):
-    await c_q.edit(
-        """ᯓ 𝗮𝗥𝗥𝗮𝗦 - **رشـق لايكـات إنستجـرام** 🎡
-**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
-**- لـ رشـق لايكـات منشـور انستا 🖤**
-**- قم بارسـال الامـر التالي :**
-
-/insta
-
-**ثم اتبـع التعليمـات**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-.""",
-
-        buttons=[
-            [Button.inline("رجوع", data="styleback")],
-        ],
-    link_preview=False)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-tiktok$")))
-async def settings_toggle(c_q: CallbackQuery):
-    await c_q.edit(
-        """ᯓ 𝗮𝗥𝗥𝗮𝗦 - **رشـق مشاهـدات تيك توك** 🎡
-**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
-**- لـ رشـق 1000 مشاهـدة تيك توك 🖤**
-**- قم بارسـال الامـر التالي :**
-
-/tiktok
-
-**ثم اتبـع التعليمـات**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-.""",
-
-        buttons=[
-            [Button.inline("رجوع", data="styleback")],
-        ],
-    link_preview=False)
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 @l313l.bot_cmd(edited=True, func=lambda e: e.is_private)

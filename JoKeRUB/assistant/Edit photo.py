@@ -6,7 +6,7 @@ from datetime import timedelta
 from JoKeRUB.utils import admin_cmd
 import asyncio
 from ..Config import Config
-import os, asyncio, re
+import os, asyncio, re, traceback
 from os import system
 from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon import TelegramClient as tg
@@ -216,7 +216,7 @@ def upload_image(image_path):
             'referer': "https://nanabanana.ai/ar/ai-image",
         }
         
-        files = [('file', (os.pathasyncio.basename(image_path), file_content, 'image/jpeg'))]
+        files = [('file', (os.path.basename(image_path), file_content, 'image/jpeg'))]
         response = requests.post(url, files=files, headers=headers)
         
         if response.status_code == 200:
@@ -340,6 +340,39 @@ def get_or_create_account(user_id):
     loop.close()
     return result
 
+# ========== دوال مساعدة ==========
+async def safe_edit(event, text, buttons=None):
+    """تعديل الرسالة بأمان مع منع الأخطاء"""
+    try:
+        if buttons:
+            await event.edit(text, buttons=buttons)
+        else:
+            await event.edit(text)
+    except Exception as e:
+        # إذا كانت الرسالة نفسها، أرسل رسالة جديدة
+        try:
+            if buttons:
+                await event.respond(text, buttons=buttons)
+            else:
+                await event.respond(text)
+        except:
+            pass
+
+async def wait_for_user_response(event):
+    """الانتظار لرد المستخدم"""
+    try:
+        # الانتظار لرسالة جديدة من المستخدم
+        async for message in event.client.iter_messages(
+            event.chat_id, 
+            limit=1, 
+            from_user=event.sender_id
+        ):
+            if message:
+                return message
+    except Exception as e:
+        print(f"Error waiting for response: {e}")
+    return None
+
 # ========== القائمة والأزرار ==========
 menu = '''
 🎨 **بوت إنشاء وتعديل الصور باستخدام الذكاء الاصطناعي**
@@ -359,10 +392,6 @@ keyboard = [
     [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
-]
-
-back_button = [
-    [Button.inline("🔙 رجوع", data="back_to_menu")]
 ]
 
 # ========== الإنلاين ==========
@@ -401,23 +430,28 @@ async def repo(event):
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
     if event.sender_id == bot.uid:
-        async with bot.conversation(event.chat_id) as x:
-            await x.send_message(f"{menu}", buttons=keyboard)
+        await safe_edit(event, menu, buttons=keyboard)
 
 # ========== زر العودة ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"back_to_menu")))
 async def back_to_menu_handler(event):
-    await event.edit(menu, buttons=keyboard)
+    await safe_edit(event, menu, buttons=keyboard)
 
 # ========== معالجة الأزرار ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"create_image")))
 async def create_image_handler(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("**✍️ أرسل وصف الصورة التي تريد إنشاءها:**")
-        prompt_msg = await x.get_response()
-        prompt = prompt_msg.text
+    try:
+        await safe_edit(event, "**✍️ أرسل وصف الصورة التي تريد إنشاءها:**")
         
-        if not prompt or len(prompt.strip()) < 3:
+        # الانتظار لرد المستخدم
+        response = await wait_for_user_response(event)
+        if not response or not response.text:
+            await event.respond("**❌ لم ترسل وصفاً**", buttons=keyboard)
+            return
+        
+        prompt = response.text.strip()
+        
+        if len(prompt) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
             return
         
@@ -444,7 +478,11 @@ async def create_image_handler(event):
             if image_url:
                 filename = download_image(image_url, account['email'])
                 if filename:
-                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    await event.client.send_file(
+                        event.chat_id, 
+                        filename, 
+                        caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**"
+                    )
                     os.remove(filename)
                 else:
                     await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
@@ -452,27 +490,42 @@ async def create_image_handler(event):
                 await event.respond("**❌ فشل في إنشاء الصورة**", buttons=keyboard)
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
+            
+    except Exception as e:
+        error_msg = f"**❌ حدث خطأ في إنشاء الصورة:**\n```{str(e)}```"
+        await event.respond(error_msg, buttons=keyboard)
+        print(f"Error in create_image_handler: {traceback.format_exc()}")
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
 async def edit_image_handler(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("**📤 أرسل الصورة التي تريد تعديلها:**")
-        photo_msg = await x.get_response()
+    try:
+        await safe_edit(event, "**📤 أرسل الصورة التي تريد تعديلها:**")
         
-        if not photo_msg.media:
+        # الانتظار للصورة
+        response = await wait_for_user_response(event)
+        if not response or not response.media:
             await event.respond("**❌ لم ترسل صورة**", buttons=keyboard)
             return
         
         # حفظ الصورة
-        photo_path = await photo_msg.download_media(file="temp_images/")
+        photo_path = await response.download_media(file="temp_images/")
         
-        await x.send_message("**✍️ أرسل وصف التعديل المطلوب:**")
-        prompt_msg = await x.get_response()
-        prompt = prompt_msg.text
+        await event.respond("**✍️ أرسل وصف التعديل المطلوب:**")
         
-        if not prompt or len(prompt.strip()) < 3:
+        # الانتظار للوصف
+        response2 = await wait_for_user_response(event)
+        if not response2 or not response2.text:
+            await event.respond("**❌ لم ترسل وصفاً**", buttons=keyboard)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
+            return
+        
+        prompt = response2.text.strip()
+        
+        if len(prompt) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
-            os.remove(photo_path)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
             return
         
         await event.respond("**⏳ جاري معالجة الصورة...**")
@@ -480,12 +533,14 @@ async def edit_image_handler(event):
         account = get_or_create_account(event.sender_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
-            os.remove(photo_path)
+            if os.path.exists(photo_path):
+                os.remove(photo_path)
             return
         
         # رفع الصورة
         uploaded_url = upload_image(photo_path)
-        os.remove(photo_path)
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
         
         if not uploaded_url:
             await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
@@ -501,7 +556,11 @@ async def edit_image_handler(event):
             if image_url:
                 filename = download_image(image_url, account['email'])
                 if filename:
-                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    await event.client.send_file(
+                        event.chat_id, 
+                        filename, 
+                        caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**"
+                    )
                     os.remove(filename)
                 else:
                     await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
@@ -509,18 +568,25 @@ async def edit_image_handler(event):
                 await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
+            
+    except Exception as e:
+        error_msg = f"**❌ حدث خطأ في تعديل الصورة:**\n```{str(e)}```"
+        await event.respond(error_msg, buttons=keyboard)
+        print(f"Error in edit_image_handler: {traceback.format_exc()}")
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
 async def my_accounts_handler(event):
-    # حذف الحسابات المنتهية أولاً
-    deleted_count = delete_expired_accounts(event.sender_id)
-    
-    accounts = get_user_accounts(event.sender_id)
-    
-    if not accounts:
-        response = "**📭 لا توجد حسابات مرفوعة بعد.**"
-        buttons = keyboard
-    else:
+    try:
+        # حذف الحسابات المنتهية أولاً
+        deleted_count = delete_expired_accounts(event.sender_id)
+        
+        accounts = get_user_accounts(event.sender_id)
+        
+        if not accounts:
+            response = "**📭 لا توجد حسابات مرفوعة بعد.**"
+            await safe_edit(event, response, buttons=keyboard)
+            return
+        
         response = "**📋 حساباتك:**\n\n"
         
         for i, acc in enumerate(accounts, 1):
@@ -548,62 +614,76 @@ async def my_accounts_handler(event):
             [Button.inline("🔙 رجوع", data="back_to_menu")]
         ]
         
-        await event.edit(response, buttons=delete_buttons)
-        return
-    
-    await event.edit(response, buttons=buttons)
+        await safe_edit(event, response, buttons=delete_buttons)
+        
+    except Exception as e:
+        error_msg = f"**❌ حدث خطأ في عرض الحسابات:**\n```{str(e)}```"
+        await event.respond(error_msg, buttons=keyboard)
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"delete_all_accounts")))
 async def delete_all_accounts_handler(event):
-    # تأكيد الحذف
-    confirm_buttons = [
-        [Button.inline("✅ نعم، احذف الكل", data="confirm_delete_all")],
-        [Button.inline("❌ لا، إلغاء", data="my_accounts")]
-    ]
-    
-    await event.edit(
-        "**⚠️ هل أنت متأكد من حذف جميع حساباتك؟**\n"
-        "❌ هذه العملية لا يمكن التراجع عنها!\n"
-        "🗑️ سيتم حذف جميع الحسابات نهائياً.",
-        buttons=confirm_buttons
-    )
+    try:
+        # تأكيد الحذف
+        confirm_buttons = [
+            [Button.inline("✅ نعم، احذف الكل", data="confirm_delete_all")],
+            [Button.inline("❌ لا، إلغاء", data="my_accounts")]
+        ]
+        
+        await safe_edit(
+            event,
+            "**⚠️ هل أنت متأكد من حذف جميع حساباتك؟**\n"
+            "❌ هذه العملية لا يمكن التراجع عنها!\n"
+            "🗑️ سيتم حذف جميع الحسابات نهائياً.",
+            buttons=confirm_buttons
+        )
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"confirm_delete_all")))
 async def confirm_delete_all_handler(event):
-    deleted_count = delete_user_accounts(event.sender_id)
-    
-    await event.edit(
-        f"**✅ تم حذف {deleted_count} حساب بنجاح!**\n"
-        f"🗑️ تم مسح جميع حساباتك من قاعدة البيانات.",
-        buttons=keyboard
-    )
+    try:
+        deleted_count = delete_user_accounts(event.sender_id)
+        
+        await safe_edit(
+            event,
+            f"**✅ تم حذف {deleted_count} حساب بنجاح!**\n"
+            f"🗑️ تم مسح جميع حساباتك من قاعدة البيانات.",
+            buttons=keyboard
+        )
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"new_account")))
 async def new_account_handler(event):
-    await event.edit("**⏳ جاري إنشاء حساب جديد...**")
-    
-    email, password, session_token = await create_nanabanana_account()
-    if session_token:
-        accounts = load_accounts()
-        new_account = {
-            'user_id': event.sender_id,
-            'email': email,
-            'password': password,
-            'session_token': session_token,
-            'use_count': 0,
-            'created_at': datetime.now().isoformat()
-        }
-        accounts.append(new_account)
-        save_accounts(accounts)
+    try:
+        await safe_edit(event, "**⏳ جاري إنشاء حساب جديد...**")
         
-        await event.edit(
-            f"**✅ تم إنشاء حساب جديد!\n\n"
-            f"📧 {email}\n"
-            f"🔑 {password}\n\n"
-            f"تم الحفظ تلقائياً.**",
-            buttons=keyboard
-        )
-    else:
-        await event.edit("**❌ فشل في إنشاء الحساب**", buttons=keyboard)
+        email, password, session_token = await create_nanabanana_account()
+        if session_token:
+            accounts = load_accounts()
+            new_account = {
+                'user_id': event.sender_id,
+                'email': email,
+                'password': password,
+                'session_token': session_token,
+                'use_count': 0,
+                'created_at': datetime.now().isoformat()
+            }
+            accounts.append(new_account)
+            save_accounts(accounts)
+            
+            await safe_edit(
+                event,
+                f"**✅ تم إنشاء حساب جديد!**\n\n"
+                f"📧 `{email}`\n"
+                f"🔑 `{password}`\n\n"
+                f"**تم الحفظ تلقائياً.**",
+                buttons=keyboard
+            )
+        else:
+            await safe_edit(event, "**❌ فشل في إنشاء الحساب**", buttons=keyboard)
+            
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور بنجاح!")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع الإصلاحات!")

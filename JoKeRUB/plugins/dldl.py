@@ -331,9 +331,3 @@ async def robot(event):
                 return await l313l.tgbot.send_message(event.chat_id, res)
     except Exception as e:
         print(type(e),e)
-
-
-اريد حذف الكب وابقاا
-
-فقط حذف حسابي او احذف حسابي 
-        

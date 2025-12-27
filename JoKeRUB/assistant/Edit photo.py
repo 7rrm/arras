@@ -440,18 +440,12 @@ async def back_to_menu_handler(event):
 # ========== معالجة الأزرار ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"create_image")))
 async def create_image_handler(event):
-    try:
-        await safe_edit(event, "**✍️ أرسل وصف الصورة التي تريد إنشاءها:**")
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("**✍️ أرسل وصف الصورة التي تريد إنشاءها:**")
+        prompt_msg = await x.get_response()
+        prompt = prompt_msg.text
         
-        # الانتظار لرد المستخدم
-        response = await wait_for_user_response(event)
-        if not response or not response.text:
-            await event.respond("**❌ لم ترسل وصفاً**", buttons=keyboard)
-            return
-        
-        prompt = response.text.strip()
-        
-        if len(prompt) < 3:
+        if not prompt or len(prompt.strip()) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
             return
         
@@ -478,11 +472,7 @@ async def create_image_handler(event):
             if image_url:
                 filename = download_image(image_url, account['email'])
                 if filename:
-                    await event.client.send_file(
-                        event.chat_id, 
-                        filename, 
-                        caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**"
-                    )
+                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**")
                     os.remove(filename)
                 else:
                     await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
@@ -490,89 +480,7 @@ async def create_image_handler(event):
                 await event.respond("**❌ فشل في إنشاء الصورة**", buttons=keyboard)
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
-            
-    except Exception as e:
-        error_msg = f"**❌ حدث خطأ في إنشاء الصورة:**\n```{str(e)}```"
-        await event.respond(error_msg, buttons=keyboard)
-        print(f"Error in create_image_handler: {traceback.format_exc()}")
 
-@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
-async def edit_image_handler(event):
-    try:
-        await safe_edit(event, "**📤 أرسل الصورة التي تريد تعديلها:**")
-        
-        # الانتظار للصورة
-        response = await wait_for_user_response(event)
-        if not response or not response.media:
-            await event.respond("**❌ لم ترسل صورة**", buttons=keyboard)
-            return
-        
-        # حفظ الصورة
-        photo_path = await response.download_media(file="temp_images/")
-        
-        await event.respond("**✍️ أرسل وصف التعديل المطلوب:**")
-        
-        # الانتظار للوصف
-        response2 = await wait_for_user_response(event)
-        if not response2 or not response2.text:
-            await event.respond("**❌ لم ترسل وصفاً**", buttons=keyboard)
-            if os.path.exists(photo_path):
-                os.remove(photo_path)
-            return
-        
-        prompt = response2.text.strip()
-        
-        if len(prompt) < 3:
-            await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
-            if os.path.exists(photo_path):
-                os.remove(photo_path)
-            return
-        
-        await event.respond("**⏳ جاري معالجة الصورة...**")
-        
-        account = get_or_create_account(event.sender_id)
-        if not account:
-            await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
-            if os.path.exists(photo_path):
-                os.remove(photo_path)
-            return
-        
-        # رفع الصورة
-        uploaded_url = upload_image(photo_path)
-        if os.path.exists(photo_path):
-            os.remove(photo_path)
-        
-        if not uploaded_url:
-            await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
-            return
-        
-        # إنشاء الصورة المعدلة
-        task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
-        
-        if task_id:
-            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
-            
-            image_url = check_status(task_id, account['session_token'])
-            if image_url:
-                filename = download_image(image_url, account['email'])
-                if filename:
-                    await event.client.send_file(
-                        event.chat_id, 
-                        filename, 
-                        caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**"
-                    )
-                    os.remove(filename)
-                else:
-                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
-            else:
-                await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
-        else:
-            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
-            
-    except Exception as e:
-        error_msg = f"**❌ حدث خطأ في تعديل الصورة:**\n```{str(e)}```"
-        await event.respond(error_msg, buttons=keyboard)
-        print(f"Error in edit_image_handler: {traceback.format_exc()}")
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
 async def my_accounts_handler(event):
@@ -652,6 +560,63 @@ async def confirm_delete_all_handler(event):
         )
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
+
+@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
+async def edit_image_handler(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("**📤 أرسل الصورة التي تريد تعديلها:**")
+        photo_msg = await x.get_response()
+        
+        if not photo_msg.media:
+            await event.respond("**❌ لم ترسل صورة**", buttons=keyboard)
+            return
+        
+        # حفظ الصورة
+        photo_path = await photo_msg.download_media(file="temp_images/")
+        
+        await x.send_message("**✍️ أرسل وصف التعديل المطلوب:**")
+        prompt_msg = await x.get_response()
+        prompt = prompt_msg.text
+        
+        if not prompt or len(prompt.strip()) < 3:
+            await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
+            os.remove(photo_path)
+            return
+        
+        await event.respond("**⏳ جاري معالجة الصورة...**")
+        
+        account = get_or_create_account(event.sender_id)
+        if not account:
+            await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
+            os.remove(photo_path)
+            return
+        
+        # رفع الصورة
+        uploaded_url = upload_image(photo_path)
+        os.remove(photo_path)
+        
+        if not uploaded_url:
+            await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
+            return
+        
+        # إنشاء الصورة المعدلة
+        task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
+        
+        if task_id:
+            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
+            
+            image_url = check_status(task_id, account['session_token'])
+            if image_url:
+                filename = download_image(image_url, account['email'])
+                if filename:
+                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    os.remove(filename)
+                else:
+                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
+            else:
+                await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
+        else:
+            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
 
 @tgbot.on(events.CallbackQuery(data=re.compile(b"new_account")))
 async def new_account_handler(event):

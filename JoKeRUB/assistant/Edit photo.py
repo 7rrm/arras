@@ -356,21 +356,6 @@ async def safe_edit(event, text, buttons=None):
         except:
             pass
 
-async def wait_for_user_response(event):
-    """الانتظار لرد المستخدم"""
-    try:
-        # الانتظار لرسالة جديدة من المستخدم
-        async for message in event.client.iter_messages(
-            event.chat_id, 
-            limit=1, 
-            from_user=event.sender_id
-        ):
-            if message:
-                return message
-    except Exception as e:
-        print(f"Error waiting for response: {e}")
-    return None
-
 # ========== القائمة والأزرار ==========
 menu = '''
 🎨 **بوت إنشاء وتعديل الصور باستخدام الذكاء الاصطناعي**
@@ -391,6 +376,25 @@ keyboard = [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
 ]
+
+# ========== تخزين الحالات الجارية ==========
+user_sessions = {}  # تخزين العمليات الجارية
+
+class UserSession:
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.state = None  # 'waiting_prompt', 'waiting_photo'
+        self.prompt = None
+        self.photo_path = None
+
+def get_user_session(user_id):
+    if user_id not in user_sessions:
+        user_sessions[user_id] = UserSession(user_id)
+    return user_sessions[user_id]
+
+def clear_user_session(user_id):
+    if user_id in user_sessions:
+        del user_sessions[user_id]
 
 # ========== الإنلاين ==========
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -430,28 +434,80 @@ async def start(event):
     if event.sender_id == bot.uid:
         await safe_edit(event, menu, buttons=keyboard)
 
+# ========== أمر /cancel ==========
+@tgbot.on(events.NewMessage(pattern="/cancel", func=lambda x: x.is_private))
+async def cancel_handler(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    
+    if session.state:  # إذا كان هناك عملية جارية
+        # تنظيف أي ملفات مؤقتة
+        if session.photo_path and os.path.exists(session.photo_path):
+            try:
+                os.remove(session.photo_path)
+            except:
+                pass
+        
+        # مسح الجلسة
+        clear_user_session(user_id)
+        
+        await event.respond("**✅ تم إلغاء العملية والعودة للقائمة الرئيسية**", buttons=keyboard)
+    else:
+        await event.respond("**⚠️ لا توجد عملية جارية للإلغاء**", buttons=keyboard)
+
 # ========== زر العودة ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"back_to_menu")))
 async def back_to_menu_handler(event):
+    user_id = event.sender_id
+    clear_user_session(user_id)
     await safe_edit(event, menu, buttons=keyboard)
 
-# ========== معالجة الأزرار ==========
+# ========== زر إنشاء صورة جديدة ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"create_image")))
 async def create_image_handler(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("**✍️ أرسل وصف الصورة التي تريد إنشاءها:**")
-        prompt_msg = await x.get_response()
-        prompt = prompt_msg.text
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    session.state = 'waiting_prompt'
+    
+    # زر المطور فقط
+    developer_button = [
+        [Button.url("المـطور", "https://t.me/Lx5x5")]
+    ]
+    
+    await safe_edit(
+        event,
+        "**✍️ أرسل وصف الصورة التي تريد إنشاءها:**\n\n"
+        "يمكنك إرسال `/cancel` لإلغاء العملية",
+        buttons=developer_button
+    )
+
+# ========== معالجة الرسائل للإنشاء ==========
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
+async def handle_prompt_message(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    
+    # تجاهل الأوامر
+    if event.text.startswith('/'):
+        return
+    
+    if session.state == 'waiting_prompt':
+        prompt = event.text
         
         if not prompt or len(prompt.strip()) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
+            clear_user_session(user_id)
             return
         
+        session.prompt = prompt
+        
+        # عرض رسالة الانتظار
         await event.respond("**⏳ جاري إنشاء الصورة...**")
         
-        account = await get_or_create_account(event.sender_id)
+        account = await get_or_create_account(user_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
+            clear_user_session(user_id)
             return
         
         # تحديث الاستخدامات
@@ -478,8 +534,119 @@ async def create_image_handler(event):
                 await event.respond("**❌ فشل في إنشاء الصورة**", buttons=keyboard)
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
+        
+        clear_user_session(user_id)
 
+# ========== زر تعديل صورة ==========
+@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
+async def edit_image_handler(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    session.state = 'waiting_photo'
+    
+    # زر المطور فقط
+    developer_button = [
+        [Button.url("المـطور", "https://t.me/Lx5x5")]
+    ]
+    
+    await safe_edit(
+        event,
+        "**📤 أرسل الصورة التي تريد تعديلها:**\n\n"
+        "يمكنك إرسال `/cancel` لإلغاء العملية",
+        buttons=developer_button
+    )
 
+# ========== معالجة الصور للتعديل ==========
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.media))
+async def handle_photo_message(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    
+    if session.state == 'waiting_photo':
+        # حفظ الصورة
+        photo_path = await event.download_media(file="temp_images/")
+        session.photo_path = photo_path
+        
+        # طلب وصف التعديل
+        session.state = 'waiting_prompt_edit'
+        
+        await event.respond("**✍️ أرسل وصف التعديل المطلوب:**\n\n"
+                           "يمكنك إرسال `/cancel` لإلغاء العملية")
+
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
+async def handle_edit_prompt_message(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    
+    # تجاهل الأوامر
+    if event.text.startswith('/'):
+        return
+    
+    if session.state == 'waiting_prompt_edit' and session.photo_path:
+        prompt = event.text
+        
+        if not prompt or len(prompt.strip()) < 3:
+            await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
+            # تنظيف الملفات
+            if os.path.exists(session.photo_path):
+                try:
+                    os.remove(session.photo_path)
+                except:
+                    pass
+            clear_user_session(user_id)
+            return
+        
+        await event.respond("**⏳ جاري معالجة الصورة...**")
+        
+        account = await get_or_create_account(user_id)
+        if not account:
+            await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
+            # تنظيف الملفات
+            if os.path.exists(session.photo_path):
+                try:
+                    os.remove(session.photo_path)
+                except:
+                    pass
+            clear_user_session(user_id)
+            return
+        
+        # رفع الصورة
+        uploaded_url = upload_image(session.photo_path)
+        
+        # تنظيف الملف المؤقت
+        if os.path.exists(session.photo_path):
+            try:
+                os.remove(session.photo_path)
+            except:
+                pass
+        
+        if not uploaded_url:
+            await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
+            clear_user_session(user_id)
+            return
+        
+        # إنشاء الصورة المعدلة
+        task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
+        
+        if task_id:
+            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
+            
+            image_url = check_status(task_id, account['session_token'])
+            if image_url:
+                filename = download_image(image_url, account['email'])
+                if filename:
+                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    os.remove(filename)
+                else:
+                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
+            else:
+                await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
+        else:
+            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
+        
+        clear_user_session(user_id)
+
+# ========== حساباتي (بدون تغيير) ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
 async def my_accounts_handler(event):
     try:
@@ -490,7 +657,7 @@ async def my_accounts_handler(event):
         
         if not accounts:
             response = "**📭 لا توجد حسابات مرفوعة بعد.**"
-            await safe_edit(event, response, buttons=keyboard)
+            await event.respond(response, buttons=keyboard)
             return
         
         response = "**📋 حساباتك:**\n\n"
@@ -559,63 +726,7 @@ async def confirm_delete_all_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
-async def edit_image_handler(event):
-    async with bot.conversation(event.chat_id) as x:
-        await x.send_message("**📤 أرسل الصورة التي تريد تعديلها:**")
-        photo_msg = await x.get_response()
-        
-        if not photo_msg.media:
-            await event.respond("**❌ لم ترسل صورة**", buttons=keyboard)
-            return
-        
-        # حفظ الصورة
-        photo_path = await photo_msg.download_media(file="temp_images/")
-        
-        await x.send_message("**✍️ أرسل وصف التعديل المطلوب:**")
-        prompt_msg = await x.get_response()
-        prompt = prompt_msg.text
-        
-        if not prompt or len(prompt.strip()) < 3:
-            await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
-            os.remove(photo_path)
-            return
-        
-        await event.respond("**⏳ جاري معالجة الصورة...**")
-        
-        account = await get_or_create_account(event.sender_id)
-        if not account:
-            await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
-            os.remove(photo_path)
-            return
-        
-        # رفع الصورة
-        uploaded_url = upload_image(photo_path)
-        os.remove(photo_path)
-        
-        if not uploaded_url:
-            await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
-            return
-        
-        # إنشاء الصورة المعدلة
-        task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
-        
-        if task_id:
-            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
-            
-            image_url = check_status(task_id, account['session_token'])
-            if image_url:
-                filename = download_image(image_url, account['email'])
-                if filename:
-                    await bot.send_file(event.chat_id, filename, caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
-                    os.remove(filename)
-                else:
-                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
-            else:
-                await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
-        else:
-            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
-
+# ========== انشاء حساب (بدون تغيير) ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"new_account")))
 async def new_account_handler(event):
     try:
@@ -649,4 +760,4 @@ async def new_account_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور بنجاح مع الإصلاحات!")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع التعديلات المطلوبة!")

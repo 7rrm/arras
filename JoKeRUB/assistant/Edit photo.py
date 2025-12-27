@@ -303,7 +303,8 @@ def download_image(image_url, account_email):
     except:
         return None
 
-def get_or_create_account(user_id):
+async def get_or_create_account(user_id):
+    """الحصول على حساب نشط أو إنشاء حساب جديد بشكل متزامن"""
     # أولاً: حذف الحسابات المنتهية تلقائياً
     deleted_expired = delete_expired_accounts(user_id)
     if deleted_expired > 0:
@@ -318,7 +319,7 @@ def get_or_create_account(user_id):
             return acc
     
     # إذا لم يوجد حساب نشط، إنشاء حساب جديد
-    async def create_and_save():
+    try:
         email, password, session_token = await create_nanabanana_account()
         if session_token:
             new_account = {
@@ -332,13 +333,10 @@ def get_or_create_account(user_id):
             accounts.append(new_account)
             save_accounts(accounts)
             return new_account
-        return None
+    except Exception as e:
+        print(f"خطأ في إنشاء حساب جديد: {e}")
     
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    result = loop.run_until_complete(create_and_save())
-    loop.close()
-    return result
+    return None
 
 # ========== دوال مساعدة ==========
 async def safe_edit(event, text, buttons=None):
@@ -451,7 +449,7 @@ async def create_image_handler(event):
         
         await event.respond("**⏳ جاري إنشاء الصورة...**")
         
-        account = get_or_create_account(event.sender_id)
+        account = await get_or_create_account(event.sender_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
             return
@@ -585,7 +583,7 @@ async def edit_image_handler(event):
         
         await event.respond("**⏳ جاري معالجة الصورة...**")
         
-        account = get_or_create_account(event.sender_id)
+        account = await get_or_create_account(event.sender_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
             os.remove(photo_path)

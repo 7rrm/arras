@@ -145,9 +145,10 @@ async def bot_start(event):
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo"),
-                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -183,9 +184,10 @@ async def bot_start(event):
              Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo"),
-                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -199,6 +201,9 @@ async def bot_start(event):
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
             ]
         ]
     try:
@@ -229,19 +234,45 @@ async def bot_start(event):
     else:
         await check_bot_started_users(chat, event)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"paid_commands_menu$")))
+async def paid_commands_menu_handler(event):
+    await event.edit(
+        """**• مـرحبـاً بـك عـزيـزي 💎**
+        
+• **فـي قسـم الأوامـر المدفوعـة**
+• هـذه الأوامـر تـم تطويرها خصيصـاً
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• **استخـدم الأزرار بالأسفـل**""",
+        buttons=[
+            [
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+            ],
+            [
+                Button.inline("تـعديل وانشاء الصـور 🖼", data="edit_photo")
+            ],
+            [
+                Button.inline("رجــوع ↩️", data="styleback")
+            ],
+        ],
+        link_preview=False
+    )
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"termux_hack$")))
 async def termux_hack_handler(event):
     user_id = event.query.user_id
+    
+    # للمالك فقط يمكنه استخدام الخدمة
     if user_id == Config.OWNER_ID:
         await event.edit(
             "**- مرحـبا بك عزيزي المـالك **\n"
             "**- في قسم اختراق تيرمكس **\n"
             "**- لرؤية أوامـر الإختراق أرسل** /hack",
             buttons=[
-                [Button.inline("رجوع", data="styleback")]
+                [Button.inline("رجوع", data="paid_commands_menu")]
             ]
         )
     else:
+        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
         await event.edit(
             "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
             "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
@@ -249,23 +280,26 @@ async def termux_hack_handler(event):
             "• تواصـل مع المـطور **آراس**\n"
             "• @Lx5x5",
             buttons=[
-                [Button.inline("رجوع", data="styleback")]
+                [Button.inline("رجوع", data="paid_commands_menu")]
             ]
         )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"edit_photo$")))
-async def termux_hack_handler(event):
+async def edit_photo_handler(event):
     user_id = event.query.user_id
+    
+    # للمالك فقط يمكنه استخدام الخدمة
     if user_id == Config.OWNER_ID:
         await event.edit(
             "**- مرحـبا بك عزيزي المـالك **\n"
             "**- في قسم تعديل وإنشاء الصور **\n"
             "**- لرؤية أوامـر التعديل إرسل** /edit",
             buttons=[
-                [Button.inline("رجوع", data="styleback")]
+                [Button.inline("رجوع", data="paid_commands_menu")]
             ]
         )
     else:
+        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
         await event.edit(
             "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
             "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
@@ -273,9 +307,10 @@ async def termux_hack_handler(event):
             "• تواصـل مع المـطور **آراس**\n"
             "• @Lx5x5",
             buttons=[
-                [Button.inline("رجوع", data="styleback")]
+                [Button.inline("رجوع", data="paid_commands_menu")]
             ]
         )
+
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics
     chat = await event.get_chat()
@@ -965,8 +1000,10 @@ async def settings_toggle(event):
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -982,6 +1019,9 @@ async def settings_toggle(event):
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
             ],
             [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+            ],
+            [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
@@ -992,8 +1032,10 @@ async def settings_toggle(event):
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
-                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -1191,7 +1233,7 @@ async def settings_toggle(c_q: CallbackQuery):
 .""",
 
             buttons=[
-                [Button.inline("رجوع", data="styleback")],
+                [Button.inline("رجوع", data="decor_main_menu")],
             ],
         link_preview=False)
 

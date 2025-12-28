@@ -431,7 +431,8 @@ async def repo(event):
 # ========== الأمر الرئيسي ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
-    if event.sender_id == bot.uid:
+     if user_id == bot.uid or user_id in _sudousers_list():
+        await safe_edit(event, menu, buttons=keyboard)
         await safe_edit(event, menu, buttons=keyboard)
 
 # ========== أمر /cancel ==========

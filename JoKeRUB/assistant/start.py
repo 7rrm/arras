@@ -85,6 +85,9 @@ async def bot_start(event):
         return
     if int(chat.id) in kk:
         kk.remove(int(chat.id))
+
+    if int(chat.id) in dd:
+        dd.remove(int(chat.id))
     reply_to = await reply_id(event)
     mention = f"[{chat.first_name}](tg://user?id={chat.id})"
     my_mention = f"[{user.first_name}](tg://user?id={user.id})"
@@ -905,7 +908,13 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-on$")))
 async def settings_toggle(c_q: CallbackQuery):
     dd.append(int(c_q.query.user_id))
-    await c_q.edit("**- ارسـل الان الاسـم الذي تريـد زخرفتـه بالانكـلـش ✓**\n\n**- لـ الالغـاء ارسـل /cancle**")
+    await c_q.edit(
+        "**- ارسـل الان الاسـم الذي تريـد زخرفتـه بالانكـلـش ✓**\n\n"
+        "**- لـ الالغـاء ارسـل /cancle**",
+        buttons=[
+            [Button.inline("رجوع ↩️", data="decor_main_menu")]
+        ]
+    )
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-on$")))

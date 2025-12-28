@@ -142,14 +142,7 @@ async def bot_start(event):
                 Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
             ],
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
@@ -186,14 +179,7 @@ async def bot_start(event):
                         \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
         buttons = [
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+             Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
@@ -207,14 +193,7 @@ async def bot_start(event):
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1"),
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
@@ -893,7 +872,30 @@ async def settings_toggle(c_q: CallbackQuery):
     tt.remove(int(c_q.query.user_id))
     await c_q.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
 
-
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
+async def decor_main_menu_handler(event):
+    await event.edit(
+        """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **قائمـة الزخـارف الرئيسـية** 🎡
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+**اختر نوع الزخرفة التي تريدها:**""",
+        buttons=[
+            [
+                Button.inline("زخرفـة انكـلـش ✍🏻", data="zzk_bot-on")
+            ],
+            [
+                Button.inline("رمـوز تمبلـر 1 🎨", data="zzk_bot-1"),
+                Button.inline("رمـوز تمبلـر 2 🎨", data="zzk_bot-2")
+            ],
+            [
+                Button.inline("زغـارف أرقـام 🔢", data="zzk_bot-3")
+            ],
+            [
+                Button.inline("رجــوع ↩️", data="styleback")
+            ],
+        ],
+        link_preview=False
+    )
+    
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()
@@ -1018,7 +1020,7 @@ ____
 〖 〗. 《》 .  < > . « »  . ﹄﹃""",
 
             buttons=[
-                [Button.inline("رجوع", data="styleback")],
+                [Button.inline("رجوع", data="decor_main_menu")],
             ],
         link_preview=False)
     except Exception:
@@ -1051,7 +1053,7 @@ ____
 〖 〗. 《》 .  < > . « »  . ﹄﹃""",
 
             buttons=[
-                [Button.inline("رجوع", data="styleback")],
+                [Button.inline("رجوع", data="decor_main_menu")],
             ],
         link_preview=False)
 
@@ -1115,7 +1117,7 @@ async def settings_toggle(c_q: CallbackQuery):
 .""",
 
             buttons=[
-                [Button.inline("رجوع", data="styleback")],
+                [Button.inline("رجوع", data="decor_main_menu")],
             ],
         link_preview=False)
     except Exception:
@@ -1209,7 +1211,7 @@ async def settings_toggle(c_q: CallbackQuery):
 .""",
 
         buttons=[
-            [Button.inline("رجوع", data="styleback")],
+            [Button.inline("رجوع", data="decor_main_menu")],
         ],
     link_preview=False)
 
@@ -1243,7 +1245,7 @@ async def settings_toggle(c_q: CallbackQuery):
 .""",
 
         buttons=[
-            [Button.inline("رجوع", data="styleback")],
+            [Button.inline("رجوع", data="decor_main_menu")],
         ],
     link_preview=False)
 

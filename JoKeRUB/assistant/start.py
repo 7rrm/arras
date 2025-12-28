@@ -875,9 +875,16 @@ async def settings_toggle(c_q: CallbackQuery):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):
     await event.edit(
-        """ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗗𝗲𝗰𝗼𝗿 - **قائمـة الزخـارف الرئيسـية** 🎡
-**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
-**اختر نوع الزخرفة التي تريدها:**""",
+        """**• مرحبـاً بك عـزيـزي 🫂
+
+• في قسـم بـوت الزخرفـه 📨
+• هذا القسم يحتوي على عـدة أقسـام خدميه
+❶ زخـرفة انجلـش تمبلـر 🎡
+❷ رمـوز تمبلـر ممطروقـه 💠
+❸ جميـع زخـارف الارقـام 🌀
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ البـدء إستخـدم الازرار بالاسفـل ⌨
+.**""",
         buttons=[
             [
                 Button.inline("زخرفـة انكـلـش ✍🏻", data="zzk_bot-on")

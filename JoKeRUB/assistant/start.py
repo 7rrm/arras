@@ -930,14 +930,7 @@ async def settings_toggle(event):
                 Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
             ],
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
@@ -950,14 +943,7 @@ async def settings_toggle(event):
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
@@ -970,14 +956,7 @@ async def settings_toggle(event):
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
             [
-                Button.inline("زخرفـة انكـلـش", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 2 🎡", data="zzk_bot-2"),
-                Button.inline("رمـوز تمبلـر 1 🎡", data="zzk_bot-1")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🗽", data="zzk_bot-3")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")

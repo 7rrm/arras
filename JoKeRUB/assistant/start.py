@@ -146,6 +146,7 @@ async def bot_start(event):
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo"),
                 Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
             [
@@ -183,6 +184,7 @@ async def bot_start(event):
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo"),
                 Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
             ],
             [
@@ -232,7 +234,7 @@ async def termux_hack_handler(event):
     user_id = event.query.user_id
     if user_id == Config.OWNER_ID:
         await event.edit(
-            "**- مرحـبا بك عزيزي المـطور **\n"
+            "**- مرحـبا بك عزيزي المـالك **\n"
             "**- في قسم اختراق تيرمكس **\n"
             "**- لرؤية أوامـر الإختراق أرسل** /hack",
             buttons=[
@@ -250,7 +252,30 @@ async def termux_hack_handler(event):
                 [Button.inline("رجوع", data="styleback")]
             ]
         )
-        
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"edit_photo$")))
+async def termux_hack_handler(event):
+    user_id = event.query.user_id
+    if user_id == Config.OWNER_ID:
+        await event.edit(
+            "**- مرحـبا بك عزيزي المـالك **\n"
+            "**- في قسم تعديل وإنشاء الصور **\n"
+            "**- لرؤية أوامـر التعديل إرسل** /edit",
+            buttons=[
+                [Button.inline("رجوع", data="styleback")]
+            ]
+        )
+    else:
+        await event.edit(
+            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
+            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
+            "• لـ تنصيب بـوت مماثـل\n"
+            "• تواصـل مع المـطور **آراس**\n"
+            "• @Lx5x5",
+            buttons=[
+                [Button.inline("رجوع", data="styleback")]
+            ]
+        )
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics
     chat = await event.get_chat()
@@ -940,7 +965,8 @@ async def settings_toggle(event):
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -966,7 +992,8 @@ async def settings_toggle(event):
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5"),
+                Button.inline("لـ تـعديل وانشاء الصـور", data="edit_photo")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")

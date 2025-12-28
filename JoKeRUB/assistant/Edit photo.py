@@ -431,15 +431,8 @@ async def repo(event):
 # ========== الأمر الرئيسي ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
-    user_id = event.sender_id
-    
-    # القائمة البيضاء للمستخدمين المسموح لهم
-    allowed_users = [bot.uid, 5462630004]
-    
-    if user_id in allowed_users:
-        await safe_edit(event, menu, buttons=keyboard)
+     if event.sender_id == bot.uid:
      
-
 # ========== أمر /cancel ==========
 @tgbot.on(events.NewMessage(pattern="/cancel", func=lambda x: x.is_private))
 async def cancel_handler(event):

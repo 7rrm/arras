@@ -431,7 +431,8 @@ async def repo(event):
 # ========== الأمر الرئيسي ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
-     if event.sender_id == bot.uid:
+    if event.sender_id == bot.uid:  # ← هنا المشكلة
+        await safe_edit(event, menu, buttons=keyboard)
      
 # ========== أمر /cancel ==========
 @tgbot.on(events.NewMessage(pattern="/cancel", func=lambda x: x.is_private))

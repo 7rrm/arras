@@ -130,29 +130,43 @@ async def account_deletion_handler(event):
     
     try:
         # إذا كان المستخدم يرسل /start أو أي شيء آخر وهو في وضع الحذف
-        # نحتاج لمسح جلسته أولاً
         if user_id in active_users and (text == "/start" or text == "رجوع" or text == "الغاء"):
             clear_user_session(user_id)
-            # يمكنك إعادة إرسال قائمة البدء هنا إذا أردت
             return await l313l.tgbot.send_message(
                 event.chat_id,
-                "**• تم الخروج من وضع حذف الحساب\n• يمكنك الآن استخدام البوت بشكل طبيعي**"
+                "**• تم الخروج من وضع حذف الحساب\n• يمكنك الآن استخدام البوت بشكل طبيعي**",
+                buttons=Button.clear()
+            )
+        
+        # إخفاء الكيبورد
+        if text == "• اخفاء الكيبورد •":
+            return await l313l.tgbot.send_message(
+                event.chat_id,
+                "**• تم إخفاء الكيبورد ✅\n• لإعادة إظهاره أرسل 'حذف حسابي'**",
+                buttons=Button.clear()
             )
         
         # إلغاء العملية
         if "• إلغاء •" in text or text == "• إلغاء •":
             clear_user_session(user_id)
-            return await l313l.tgbot.send_message(event.chat_id, "**• تم إلغاء عملية حذف الحساب ✅**")
+            return await l313l.tgbot.send_message(
+                event.chat_id,
+                "**• تم إلغاء عملية حذف الحساب ✅**",
+                buttons=Button.clear()
+            )
         
         # بدء عملية حذف الحساب
         if "حذف حسابي" in text or text == "احذف حسابي":
-            clear_user_session(user_id)  # تنظيف أي جلسة قديمة أولاً
+            clear_user_session(user_id)
             active_users.append(user_id)
             steps[user_id] = 1
             await l313l.tgbot.send_message(
                 event.chat_id,
                 "**• مرحبًا بك عزيزي\n• في بوت حذف حسابات تيليجرام\n• يمكنك إرسال رقمك عبر الزر أدناه**",
-                buttons=[[Button.request_phone("• اضغط لحذف الحساب •", resize=True)]]
+                buttons=[
+                    [Button.request_phone("• اضغط لحذف الحساب •", resize=True)],
+                    [Button.text("• اخفاء الكيبورد •", resize=True)]
+                ]
             )
             delete_manager.remove(user_id)
             return
@@ -181,24 +195,25 @@ async def account_deletion_handler(event):
                         buttons=[[Button.text("• إلغاء •", resize=True)]]
                     )
                 elif res == 1:
-                    # إذا حصل على فلود تكرار، نظف الجلسة وأرسل رسالة
                     clear_user_session(user_id)
                     return await l313l.tgbot.send_message(
                         event.chat_id,
-                        "**• تم تجاوز الحد المسموح للمحاولات\n• لا يمكنك حذف الحساب الآن\n• حاول مرة أخرى بعد بضع ساعات**"
+                        "**• تم تجاوز الحد المسموح للمحاولات\n• لا يمكنك حذف الحساب الآن\n• حاول مرة أخرى بعد بضع ساعات**",
+                        buttons=Button.clear()
                     )
                 else:
                     clear_user_session(user_id)
                     return await l313l.tgbot.send_message(
                         event.chat_id,
-                        "**• حدث خطأ غير معروف\n• يرجى المحاولة مرة أخرى بعد بضع دقائق**"
+                        "**• حدث خطأ غير معروف\n• يرجى المحاولة مرة أخرى بعد بضع دقائق**",
+                        buttons=Button.clear()
                     )
             else:
-                # إذا أرسل شيئاً غير زر الهاتف، نظف الجلسة وأعطه خيار الخروج
                 clear_user_session(user_id)
                 return await l313l.tgbot.send_message(
                     event.chat_id,
-                    "**• تم إلغاء العملية\n• لإعادة المحاولة أرسل 'حذف حسابي'**"
+                    "**• تم إلغاء العملية\n• لإعادة المحاولة أرسل 'حذف حسابي'**",
+                    buttons=Button.clear()
                 )
         
         # الخطوة 2: التحقق من الكود
@@ -212,36 +227,43 @@ async def account_deletion_handler(event):
             res = delete_manager.check_code(user_id, code)
             
             if res == 0:
-                # حذف الحساب بنجاح
                 clear_user_session(user_id)
-                await l313l.tgbot.send_message(event.chat_id, "**• إلى اللقاء .. في أمان الله 🔚**")
+                await l313l.tgbot.send_message(
+                    event.chat_id,
+                    "**• إلى اللقاء .. في أمان الله 🔚**",
+                    buttons=Button.clear()
+                )
                 
-                # تنفيذ عملية الحذف النهائية
                 delete_manager.delete_account(user_id)
                 delete_manager.remove(user_id)
                 
             elif res == 1:
-                # إذا حصل على فلود تكرار في التحقق
                 clear_user_session(user_id)
                 return await l313l.tgbot.send_message(
                     event.chat_id,
-                    "**• تم تجاوز الحد المسموح للمحاولات\n• لا يمكنك حذف الحساب الآن\n• حاول مرة أخرى بعد بضع ساعات**"
+                    "**• تم تجاوز الحد المسموح للمحاولات\n• لا يمكنك حذف الحساب الآن\n• حاول مرة أخرى بعد بضع ساعات**",
+                    buttons=Button.clear()
                 )
             elif res == 4:
                 clear_user_session(user_id)
                 return await l313l.tgbot.send_message(
                     event.chat_id,
-                    "**• الكود غير صالح أو منتهي الصلاحية!\n• لإعادة المحاولة أرسل 'حذف حسابي'**"
+                    "**• الكود غير صالح أو منتهي الصلاحية!\n• لإعادة المحاولة أرسل 'حذف حسابي'**",
+                    buttons=Button.clear()
                 )
             else:
                 clear_user_session(user_id)
                 return await l313l.tgbot.send_message(
                     event.chat_id,
-                    "**• حدث خطأ غير معروف\n• يرجى المحاولة مرة أخرى بعد بضع دقائق**"
+                    "**• حدث خطأ غير معروف\n• يرجى المحاولة مرة أخرى بعد بضع دقائق**",
+                    buttons=Button.clear()
                 )
     
     except Exception as e:
         print(f"حدث خطأ في المعالج: {type(e).__name__}: {e}")
-        # في حالة أي خطأ، نظف الجلسة
         clear_user_session(user_id)
-        await l313l.tgbot.send_message(event.chat_id, "**• حدث خطأ غير متوقع\n• تم الخروج من وضع الحذف\n• يمكنك إعادة المحاولة لاحقاً**")
+        await l313l.tgbot.send_message(
+            event.chat_id,
+            "**• حدث خطأ غير متوقع\n• تم الخروج من وضع الحذف\n• يمكنك إعادة المحاولة لاحقاً**",
+            buttons=Button.clear()
+                )

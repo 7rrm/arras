@@ -139,16 +139,16 @@ async def bot_start(event):
 
         buttons = [
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+                Button.inline("‹ : 🗳 اضغـط لـ التواصـل : ›", data="ttk_bot-1")
             ],
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("‹ : زخـارف تمبلـر 🎡 : ›", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("‹ : ⚠️ لـ حـذف حسـابك : ›", data="zzk_bot-5")
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                Button.inline("‹ : الأوامـر المدفوعـة 💎 : ›", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -181,13 +181,13 @@ async def bot_start(event):
                         \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
         buttons = [
             [
-             Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+             Button.inline("‹ :🎡 زخـارف تمبلـر : ›", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("‹ : لـ حـذف حسـابك ⚠️ : ›", data="zzk_bot-5")
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                Button.inline("‹ : 💎 الأوامـر المدفوعـة : ›", data="paid_commands_menu")
             ],
             [
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
@@ -197,7 +197,7 @@ async def bot_start(event):
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("‹ : زخـارف تمبلـر 🎡 : ›", data="decor_main_menu")
             ],
             [
                 Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")

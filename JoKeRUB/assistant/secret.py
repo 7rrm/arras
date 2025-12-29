@@ -56,10 +56,10 @@ async def on_plug_in_callback_query_handler(event):
                         receiver_name = "المستخدم"
                     
                     # تحرير الرسالة الأصلية
-                    new_text = f"تم قراءة الهمسة  ◗ {receiver_name}  ◖."
+                    new_text = f"تم قراءة الهمسـة  ◗ {receiver_name}  ◖."
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
-                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
+                    btn = [[Button.switch_inline("• اضغـط للـرد •", query=f"secret {sender_id} \nهلو", same_peer=True)]]
                     
                     try:
                         await event.edit(new_text, buttons=btn, link_preview=False)

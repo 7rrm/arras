@@ -56,7 +56,7 @@ async def on_plug_in_callback_query_handler(event):
                         receiver_name = "المستخدم"
                     
                     # تحرير الرسالة الأصلية
-                    new_text = f"تم قراءة الهمسـة  ⧼ {receiver_name} ⧽ ."
+                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽** ."
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("• اضغـط للـرد •", query=f"secret {sender_id} \nهلو", same_peer=True)]]
@@ -67,7 +67,7 @@ async def on_plug_in_callback_query_handler(event):
                         LOGS.error(f"Error editing message: {e}")
                 
             else:
-                await event.answer("آراس _ عَـذراً عَـزيزي الهمسه ليست موجهه إلك .", cache_time=0, alert=True)
+                await event.answer("آراس | الهَمْسَة لَيْسَتْ لكَ.. لا تَكُنْ فَضُولِيًّا .", cache_time=0, alert=True)
         except KeyError:
             await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
     else:

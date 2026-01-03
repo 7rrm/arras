@@ -1,7 +1,7 @@
 import json
 import os
 import re
-
+from datetime import datetime
 from telethon.events import CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
 from telethon.tl.functions.messages import EditMessageRequest
@@ -45,6 +45,7 @@ async def on_plug_in_callback_query_handler(event):
                 # فقط المستقبل يمكنه تحديث حالة القراءة
                 if event.query.user_id in idlist and not message.get("read", False):
                     message["read"] = True
+                    message["read_time"] = int(time.time())  # حفظ وقت القراءة
                     jsondata[f"{timestamp}"] = message
                     json.dump(jsondata, open(file_name, "w"))
                     
@@ -55,8 +56,11 @@ async def on_plug_in_callback_query_handler(event):
                     except:
                         receiver_name = "المستخدم"
                     
-                    # تحرير الرسالة الأصلية
-                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽** ."
+                    # الحصول على الوقت الحالي بتنسيق 24 ساعة
+                    current_time = datetime.now().strftime("%H:%M")
+                    
+                    # تحرير الرسالة الأصلية مع الوقت
+                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽**\n**عَـند ( {current_time} )**"
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("• اضغـط للـرد •", query=f"secret {sender_id} \nهلو", same_peer=True)]]

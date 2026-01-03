@@ -66,7 +66,7 @@ async def on_plug_in_callback_query_handler(event):
                         receiver_name = "المستخدم"
                     
                     # تحرير الرسالة الأصلية مع إضافة الوقت
-                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽** \nعَـند ( {time_str} )"
+                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽** \nعَـند **╰** `{time_str}` **╮** ."
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("• اضغـط للـرد •", query=f"secret {sender_id} \nهلو", same_peer=True)]]

@@ -23,7 +23,7 @@ JEPVERSION = "3.1.3"
 
 if Config.UPSTREAM_REPO == "Ksidhdnkddbos":
     UPSTREAM_REPO_URL = "https://github.com/Ksidhdnkddbos/jepthon"
-    UPSTREAM_REPO_BRANCH = "HuRe"
+  #  UPSTREAM_REPO_BRANCH = "HuRe"
 else:
     UPSTREAM_REPO_URL = Config.UPSTREAM_REPO
 

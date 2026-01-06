@@ -341,3 +341,13 @@ async def delete_all_aljoker(event):
         await event.client(joker)
     except BaseException:
         pass
+
+@l313l.on(events.NewMessage(pattern="^\.فحصص$"))
+async def check_owner(event):
+    await event.reply(f"""
+    📊 معلومات التصحيح:
+    
+    l313l.uid = {l313l.uid}
+    event.sender_id = {event.sender_id}
+    هل أنا المالك؟ = {event.sender_id == l313l.uid}
+    """)

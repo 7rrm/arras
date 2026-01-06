@@ -11,6 +11,7 @@ from ..sql_helper.memes_sql import get_link, add_link, delete_link, BASE, SESSIO
 from telethon.errors.rpcerrorlist import YouBlockedUserError
 #ياقائم آل محمد
 from JoKeRUB import l313l
+from . import BOTLOG, BOTLOG_CHATID, l313l
 from ..helpers.utils import reply_id
 plugin_category = "tools"
 # الي يخمط ويكول من كتابتي الا امه انيجه وقد اعذر من انذر

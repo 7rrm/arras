@@ -74,7 +74,7 @@ from telethon import events
 song_enabled = False
 
 # معرف المستخدم الخاص بك
-my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+my_id = l313l.uid  # استبدل YOUR_USER_ID بمعرفك الفعلي
 
 # أمر تفعيل غنيلي
 @l313l.on(events.NewMessage(pattern="^\.تفعيل غنيلي$"))
@@ -143,7 +143,7 @@ from telethon import events
 poem_enabled = False
 
 # معرف المستخدم الخاص بك
-my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+my_id = l313l.uid  # استبدل YOUR_USER_ID بمعرفك الفعلي
 
 # أمر تفعيل الشعر
 @l313l.on(events.NewMessage(pattern="^\.تفعيل شعر$"))
@@ -213,7 +213,7 @@ from telethon import events
 remix_enabled = False
 
 # معرف المستخدم الخاص بك
-my_id = 5427469031  # استبدل YOUR_USER_ID بمعرفك الفعلي
+my_id = l313l.uid  # استبدل YOUR_USER_ID بمعرفك الفعلي
 
 # أمر تفعيل الريمكس
 @l313l.on(events.NewMessage(pattern="^\.تفعيل ريمكس$"))

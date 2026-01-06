@@ -1,5 +1,4 @@
-#all write Codes By Team Aljoker @jepthon
-#By Hussein @lMl10l
+
 import asyncio
 import random
 import re

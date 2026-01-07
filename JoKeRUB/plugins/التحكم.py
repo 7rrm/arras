@@ -138,7 +138,7 @@ async def add_sudo_user(event):
     sql.del_collection("sudousers_list")
     sql.add_collection("sudousers_list", sudousers, {})
     output = f"**⎉╎تـم رفـع**  {mentionuser(userdata['chat_name'],userdata['chat_id'])}  **مطـور مسـاعـد معـك فـي البـوت 🧑🏻‍💻...**\n\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت أراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -169,7 +169,7 @@ async def _(event):
     sql.del_collection("sudousers_list")
     sql.add_collection("sudousers_list", sudousers, {})
     output = f"**⎉╎تـم تنـزيـل**  {mentionuser(get_display_name(replied_user),replied_user.id)}  **مـن قـائمـة مطـورين البـوت 🧑🏻‍💻...**\n\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -193,7 +193,7 @@ async def _(event):
         return await edit_delete(
             event, "**•❐• لا يـوجـد هنـاك مطـورين في قائمــة مـطـورين البــوت الخـاص بـك الى الان**"
         )
-    result = "**•❐• قائمــة مـطـورين البــوت الخـاص بـك مـن 𝗭𝗧𝗵𝗼𝗻 :**\n\n"
+    result = "**•❐• قائمــة مـطـورين البــوت الخـاص بـك :**\n\n"
     for chat in sudochats:
         result += f"**🧑🏻‍💻╎المطــور :** {mentionuser(sudousers[str(chat)]['chat_name'],sudousers[str(chat)]['chat_id'])}\n\n"
         result += f"**- تـم رفعـه بتـاريـخ :** {sudousers[str(chat)]['date']}\n\n"
@@ -204,7 +204,7 @@ async def _(event):
 async def _(event):
     await clear_sudo_list()
     output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -212,7 +212,7 @@ async def _(event):
 async def _(event):
     await clear_sudo_list()
     output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -220,7 +220,7 @@ async def _(event):
 async def _(event):
     await clear_sudo_list()
     output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت اراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -228,7 +228,7 @@ async def _(event):
 async def _(event):
     await clear_sudo_list()
     output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت اراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
@@ -317,7 +317,7 @@ async def _(event):  # sourcery no-metrics
         sqllist.add_to_list("sudo_enabled_cmds", cmd)
     result = f"**⎉╎تـم تفعيـل التحكـم الكـامل لـ**  `{len(loadcmds)}` **امـر 🧑🏻‍💻✅**\n"
     output = (
-        result + "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**\n"
+        result + "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**\n"
     )
     if errors != "":
         output += "\n**- خطــأ :**\n" + errors
@@ -410,7 +410,7 @@ async def _(event):  # sourcery no-metrics
             sqllist.rm_from_list("sudo_enabled_cmds", cmd)
     result = f"**⎉╎تـم تعطيـل التحكـم الكـامل لـ**  `{count}` **امـر 🧑🏻‍💻✅**\n"
     output = (
-        result + "**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر 2-1 دقيقـه ▬▭ ...**\n"
+        result + "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**\n"
     )
     if errors != "":
         output += "\n**- خطــأ :**\n" + errors

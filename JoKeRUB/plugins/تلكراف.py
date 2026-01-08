@@ -24,44 +24,9 @@ def resize_image(image):
     im = Image.open(image)
     im.save(image, "PNG")
 
-# --- دالة الرفع الشاملة للميديا (من الكود الثاني) ---
+# --- دالة الرفع البسيطة والفعالة ---
 def upload_to_cloud(file_path):
-    # 1. المحاولة الأولى: Telegra.ph (مكتبة Telegraph)
-    try:
-        media_urls = upload_file(file_path)
-        return f"https://telegra.ph{media_urls[0]}"
-    except Exception:
-        pass  # فشل، ننتقل للتالي
-    
-    # 2. المحاولة الثانية: Telegra.ph عبر requests
-    try:
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        with open(file_path, 'rb') as f:
-            response = requests.post(
-                "https://telegra.ph/upload",
-                files={'file': ('file', f, 'image/jpeg')},
-                headers=headers,
-                timeout=10
-            )
-        if response.status_code == 200 and isinstance(response.json(), list):
-            return f"https://telegra.ph{response.json()[0]['src']}"
-    except Exception:
-        pass
-    
-    # 3. المحاولة الثالثة: Graph.org
-    try:
-        with open(file_path, 'rb') as f:
-            response = requests.post(
-                "https://graph.org/upload",
-                files={'file': ('file', f, 'image/jpeg')},
-                timeout=10
-            )
-        if response.status_code == 200 and isinstance(response.json(), list):
-            return f"https://graph.org{response.json()[0]['src']}"
-    except Exception:
-        pass
-    
-    # 4. المحاولة الرابعة: Catbox.moe
+    # فقط الطريقة التي تعمل: Catbox.moe
     try:
         with open(file_path, 'rb') as f:
             response = requests.post(
@@ -71,9 +36,9 @@ def upload_to_cloud(file_path):
                 timeout=20
             )
         if response.status_code == 200:
-            return response.text.strip()
+            return response.text.strip()  # يرجع رابط مباشر
     except Exception as e:
-        LOGS.error(f"All Upload Methods Failed: {e}")
+        LOGS.error(f"Upload to Catbox Failed: {e}")
     
     return None
 
@@ -95,7 +60,7 @@ def upload_to_cloud(file_path):
 )
 async def _(event):
     "للحصول على روابط Telegraph"
-    jokevent = await edit_or_reply(event, "` ⌔︙جـاري المعالجة...`")
+    jokevent = await edit_or_reply(event, "⌔︙جـار انشـاء رابـط تلكـراف .")
     optional_title = event.pattern_match.group(5)
     
     if not event.reply_to_msg_id:
@@ -106,20 +71,18 @@ async def _(event):
     input_str = (event.pattern_match.group(4)).strip()
     
     if input_str in ["ميديا", "m"]:
-        # --- تلكراف ميديا (معدل من الكود الثاني) ---
+        # --- تلكراف ميديا ---
         if not r_message.media:
             return await jokevent.edit("` ⌔︙الرد يجب أن يكون على صورة أو فيديو.`")
 
         downloaded_file_name = await event.client.download_media(
             r_message, Config.TEMP_DIR
         )
-        await jokevent.edit(f"` ⌔︙تـم التحـميل...`")
+        await jokevent.edit(f"`⌔︙تـم التحـميل...`")
         
-        # تحويل الصيغ إذا لزم
         if downloaded_file_name.endswith(".webp"):
             resize_image(downloaded_file_name)
         
-        # استخدام دالة الرفع المتعددة
         media_url = upload_to_cloud(downloaded_file_name)
         
         if media_url:
@@ -139,7 +102,7 @@ async def _(event):
             os.remove(downloaded_file_name)
             
     elif input_str in ["نص", "t"]:
-        # --- تلكراف نص (من الكود الأول) ---
+        # --- تلكراف نص ---
         user_object = await event.client.get_entity(r_message.sender_id)
         title_of_page = get_display_name(user_object)
         
@@ -148,7 +111,6 @@ async def _(event):
             
         page_content = r_message.message
         
-        # إذا كانت الرسالة تحتوي على ميديا ونص
         if r_message.media:
             if page_content != "":
                 title_of_page = page_content if len(page_content) < 100 else title_of_page
@@ -168,7 +130,6 @@ async def _(event):
             response = telegraph.create_page(title_of_page, html_content=page_content)
         except Exception as e:
             LOGS.info(f"Telegraph text error: {e}")
-            # إذا فشل، نحاول بعنوان عشوائي
             title_of_page = "".join(
                 random.choice(string.ascii_lowercase + string.ascii_uppercase)
                 for _ in range(12)

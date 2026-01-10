@@ -451,7 +451,9 @@ async def download_audio(event):
     await zedevent.delete()
 
 
-
+# ================================================================================================ #
+# =========================================ساوند كلاود================================================= #
+# ================================================================================================ #
 import os
 import yt_dlp
 from youtube_search import YoutubeSearch
@@ -617,7 +619,9 @@ async def _(event): #Code by T.me/zzzzl1l
 '''
         
 
-
+# ================================================================================================ #
+# =========================================ردود الخاص================================================= #
+# ================================================================================================ #
 
 @l313l.ar_cmd(
     pattern="تحميل صوت(?: |$)(.*)",
@@ -753,7 +757,7 @@ async def download_video(event):
                 ),
             )
             ul.close()
-            dia = types.InputMediaUploadedDocument(
+            media = types.InputMediaUploadedDocument(
                 file=uploaded,
                 mime_type=mime_type,
                 attributes=attributes,
@@ -771,8 +775,6 @@ async def download_video(event):
         except TypeError:
             await asyncio.sleep(2)
     await event.delete()
-
-
 
 from telethon import types, events
 from telethon.extensions import html, markdown
@@ -918,8 +920,8 @@ async def yoot_auto_search(event):
 # إعدادات التحكم للفيديو
 video_settings = {
     'admin_id': l313l.uid,  # أي دي المطور
-    'bot_username': '@J_NO0bot',  # البوت الجديد
-    'channels': ['JJNOO']  # القنوات الجديدة
+    'bot_username': '@Musicdark101_bot',  # البوت الجديد
+    'channels': ['@aRRaS_iD']  # القنوات الجديدة
 }
 
 # دالة التحقق من التفعيل للفيديو
@@ -1031,4 +1033,4 @@ async def video_auto_search(event):
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
-        await search_msg.edit(f"**⎉╎خطأ:** `{e}`
+        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")

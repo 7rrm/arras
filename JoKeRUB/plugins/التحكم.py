@@ -1,3 +1,4 @@
+"""
 import os
 from datetime import datetime
 import textwrap
@@ -604,3 +605,4 @@ l313l.loop.create_task(_init())
 @l313l.ar_cmd(pattern="المساعد")
 async def cmd(JoKeRUB):
     await edit_or_reply(JoKeRUB, ZelzalDV_cmd)
+"""

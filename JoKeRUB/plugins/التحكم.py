@@ -278,7 +278,6 @@ async def _(event):  # sourcery no-metrics
             + PLG_INFO["المجموعه"]
             + PLG_INFO["النظام"]
             + PLG_INFO["الفارات"]
-            + PLG_INFO["ssyy"]
             + PLG_INFO["المطور"]
             + ["gauth"]
             + ["greset"]

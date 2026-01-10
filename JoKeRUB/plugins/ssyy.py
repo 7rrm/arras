@@ -753,7 +753,7 @@ async def download_video(event):
                 ),
             )
             ul.close()
-            media = types.InputMediaUploadedDocument(
+            dia = types.InputMediaUploadedDocument(
                 file=uploaded,
                 mime_type=mime_type,
                 attributes=attributes,
@@ -771,6 +771,8 @@ async def download_video(event):
         except TypeError:
             await asyncio.sleep(2)
     await event.delete()
+
+
 
 from telethon import types, events
 from telethon.extensions import html, markdown
@@ -805,11 +807,9 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
 
-# إعدادات التحكم لليوتيوب
+# إعدادات التحكم
 youtube_settings = {
-    'admin_id': l313l.uid,  # أي دي المطور
-    'bot_username': '@W60yBot',  # البوت المستخدم لتحميل الصوت
-    'channels': ['@B_a_r']  # القنوات المطلوب الانضمام لها
+    'admin_id': l313l.uid  # أي دي المطور
 }
 
 # دالة التحقق من التفعيل
@@ -867,16 +867,12 @@ async def yoot_auto_search(event):
     search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
-        # الانضمام للقنوات المحددة في الإعدادات
-        for channel in youtube_settings['channels']:
-            try:
-                await event.client(JoinChannelRequest(channel))
-                await asyncio.sleep(0.5)
-            except Exception as e:
-                print(f"خطأ في الانضمام للقناة {channel}: {e}")
+        # الانضمام للقناة
+        await event.client(JoinChannelRequest("@B_a_r"))
+        await asyncio.sleep(0.5)
         
         # استخدام conversation للاستماع الفوري
-        async with event.client.conversation(youtube_settings['bot_username'], timeout=30) as conv:
+        async with event.client.conversation("@W60yBot", timeout=30) as conv:
             # إرسال الرسالة للبوت
             full_message = f"يوت {query}"
             await conv.send_message(full_message)
@@ -917,6 +913,7 @@ async def yoot_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+
 
 # إعدادات التحكم للفيديو
 video_settings = {
@@ -1034,5 +1031,4 @@ async def video_auto_search(event):
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
-        await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
-
+        await search_msg.edit(f"**⎉╎خطأ:** `{e}`

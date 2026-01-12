@@ -101,8 +101,8 @@ async def upload_reda(event):
 
 
 @l313l.ar_cmd(
-    pattern="الاوامر_المحسنة$",
-    command=("الاوامر_المحسنة", plugin_category),
+    pattern="الاوامرر$",
+    command=("الاوامرر", plugin_category),
     info={
         "header": "لعرض جميع أوامر السورس بشكل دقيق",
         "usage": "{tr}الاوامر_المحسنة",

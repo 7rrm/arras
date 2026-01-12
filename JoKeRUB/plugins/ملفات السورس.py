@@ -98,3 +98,74 @@ async def upload_reda(event):
     size = res["data"]["file"]["metadata"]["size"]["readable"]
     await edit_or_reply(event, f"**تم رفع الملف ✓**\n**᯽︙ الرابط:** {url}\n**᯽︙الحجم:** {size}")
     os.remove(file)
+
+
+@l313l.ar_cmd(
+    pattern="الاوامرر$",
+    command=("الاوامرر", plugin_category),
+    info={
+        "header": "لعرض جميع أوامر السورس",
+        "usage": "{tr}الاوامر",
+    },
+)
+async def show_all_commands(event):
+    "لعرض جميع أوامر السورس"
+    import os
+    import re
+    
+    commands_list = []
+    plugins_dir = "JoKeRUB/plugins"
+    
+    # البحث عن جميع الأوامر
+    pattern = r'\.ar_cmd\(pattern=["\']([^"\']+)["\']'
+    
+    for root, dirs, files in os.walk(plugins_dir):
+        for file in files:
+            if file.endswith('.py'):
+                filepath = os.path.join(root, file)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                        matches = re.findall(pattern, content)
+                        for cmd in matches:
+                            # البحث عن وصف الأمر
+                            desc_pattern = r'info=\{.*?"header":\s*["\']([^"\']+)["\']'
+                            desc_match = re.search(desc_pattern, content, re.DOTALL)
+                            description = desc_match.group(1) if desc_match else "لا يوجد وصف"
+                            
+                            commands_list.append({
+                                'command': cmd,
+                                'plugin': file,
+                                'description': description
+                            })
+                except:
+                    continue
+    
+    # ترتيب الأوامر
+    commands_list.sort(key=lambda x: x['command'])
+    
+    # إنشاء الرسالة
+    message = "**📋 قائمة جميع أوامر الجوكر:**\n\n"
+    
+    current_plugin = ""
+    for cmd_info in commands_list:
+        if cmd_info['plugin'] != current_plugin:
+            current_plugin = cmd_info['plugin']
+            message += f"\n**┏━━ {current_plugin} ━━**\n"
+        
+        message += f"**┣ ⦗** `{cmd_info['command']}` **⦘**\n"
+        message += f"**┗** {cmd_info['description']}\n"
+    
+    message += f"\n**📊 الإحصائيات:**\n"
+    message += f"**• عدد الملفات:** {len(set(c['plugin'] for c in commands_list))}\n"
+    message += f"**• عدد الأوامر:** {len(commands_list)}\n"
+    message += f"**• البادئة:** `{Config.COMMAND_HAND_LER}`"
+    
+    # تقسيم الرسالة إذا كانت طويلة
+    if len(message) > 4096:
+        parts = [message[i:i+4096] for i in range(0, len(message), 4096)]
+        for part in parts:
+            await event.edit(part)
+            await asyncio.sleep(1)
+    else:
+        await edit_or_reply(event, message)

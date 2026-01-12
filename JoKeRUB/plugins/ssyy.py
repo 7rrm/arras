@@ -882,7 +882,7 @@ async def yoot_auto_search(event):
                 
                 # الانتظار للرد الأول لمدة 2 ثانية فقط
                 try:
-                    first_response = await asyncio.wait_for(conv.get_response(), timeout=2)
+                    first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
                 except asyncio.TimeoutError:
                     # إذا لم يرد خلال 2 ثانية، انتقل للبوت الثاني
                     raise Exception("timeout")

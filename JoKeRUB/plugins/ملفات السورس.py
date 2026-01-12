@@ -101,108 +101,104 @@ async def upload_reda(event):
 
 
 @l313l.ar_cmd(
-    pattern="جميع_الاوامر$",
-    command=("جميع_الاوامر", plugin_category),
+    pattern="اوامر_الدقيقة$",
+    command=("اوامر_الدقيقة", plugin_category),
     info={
-        "header": "لعرض جميع أوامر السورس بدقة",
-        "usage": "{tr}جميع_الاوامر",
+        "header": "لعرض جميع أوامر السورس بدقة متناهية",
+        "usage": "{tr}اوامر_الدقيقة",
     },
 )
-async def show_all_commands_exact(event):
-    "لعرض جميع أوامر السورس بدقة"
+async def show_all_commands_precise(event):
+    "لعرض جميع أوامر السورس بدقة متناهية"
     import os
     import re
-    import ast
-    from pathlib import Path
     
-    plugins_dir = Path("JoKeRUB/plugins")
+    plugins_dir = "JoKeRUB/plugins"
     all_commands = {}
     
-    def extract_commands_from_file(file_path):
-        """استخراج الأوامر من ملف بايثون"""
-        commands = []
+    def extract_all_patterns(content):
+        """استخراج جميع الأنماط من المحتوى"""
+        patterns = []
         
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # النمط 1: @l313l.ar_cmd(pattern="...")
-            pattern1 = r'@l313l\.ar_cmd\s*\(\s*pattern\s*=\s*["\']([^"\']+)["\']'
-            matches1 = re.findall(pattern1, content, re.DOTALL)
-            commands.extend([('قياسي', cmd.strip()) for cmd in matches1])
-            
-            # النمط 2: @l313l.on(admin_cmd(pattern="..."))
-            pattern2 = r'@l313l\.on\s*\(\s*admin_cmd\s*\(\s*pattern\s*=\s*["\']([^"\']+)["\']'
-            matches2 = re.findall(pattern2, content, re.DOTALL)
-            commands.extend([('أدمن', cmd.strip()) for cmd in matches2])
-            
-            # النمط 3: @l313l.on(events.NewMessage(pattern="..."))
-            pattern3 = r'@l313l\.on\s*\(\s*events\.NewMessage\s*\(\s*pattern\s*=\s*["\']([^"\']+)["\']'
-            matches3 = re.findall(pattern3, content, re.DOTALL)
-            commands.extend([('حدث', cmd.strip()) for cmd in matches3])
-            
-            # النمط 4: command=("...", في @l313l.ar_cmd
-            pattern4 = r'command\s*=\s*\(\s*["\']([^"\']+)["\']'
-            matches4 = re.findall(pattern4, content)
-            commands.extend([('أمر مباشر', cmd.strip()) for cmd in matches4])
-            
-            # النمط 5: .ar_cmd( بدون pattern
-            pattern5 = r'\.ar_cmd\s*\(\s*["\']([^"\']+)["\']'
-            matches5 = re.findall(pattern5, content)
-            commands.extend([('ar_cmd قصير', cmd.strip()) for cmd in matches5])
-            
-        except Exception as e:
-            return []
+        # 1. أنماط @l313l.on(events.NewMessage(pattern=r'...'))
+        pattern1 = r"@l313l\.on\s*\(\s*events\.NewMessage\s*\(\s*pattern\s*=\s*r?['\"]([^'\"]+)['\"]"
+        matches1 = re.findall(pattern1, content, re.DOTALL)
+        patterns.extend([('حدث', match.strip()) for match in matches1])
         
-        return commands
+        # 2. أنماط @l313l.ar_cmd(pattern="...")
+        pattern2 = r'@l313l\.ar_cmd\s*\(\s*pattern\s*=\s*["\']([^"\']+)["\']'
+        matches2 = re.findall(pattern2, content, re.DOTALL)
+        patterns.extend([('قياسي', match.strip()) for match in matches2])
+        
+        # 3. أنماط pattern=r'^\.(.*)$' - أي شيء بعد r'
+        pattern3 = r"pattern\s*=\s*r['\"]([^'\"]+)['\"]"
+        matches3 = re.findall(pattern3, content, re.DOTALL)
+        patterns.extend([('نمط خام', match.strip()) for match in matches3])
+        
+        # 4. أنماط pattern='.أمر' بدون r
+        pattern4 = r"pattern\s*=\s*['\"]([^'\"]+)['\"]"
+        matches4 = re.findall(pattern4, content, re.DOTALL)
+        # تصفية المطابقات من pattern3
+        for match in matches4:
+            if match not in [m[1] for m in patterns]:
+                patterns.extend([('نمط عادي', match.strip())])
+        
+        # 5. البحث عن أي .on( أو .ar_cmd(
+        pattern5 = r'(?:@l313l\.on|@l313l\.ar_cmd)\([^)]*pattern\s*=\s*[^)]+\)'
+        matches5 = re.findall(pattern5, content, re.DOTALL)
+        for match in matches5:
+            # استخراج النمط من المطابقة الكاملة
+            pattern_match = re.search(r"pattern\s*=\s*['\"]([^'\"]+)['\"]", match)
+            if pattern_match:
+                cmd = pattern_match.group(1)
+                if '.on(' in match:
+                    patterns.append(('حدث', cmd.strip()))
+                else:
+                    patterns.append(('قياسي', cmd.strip()))
+        
+        return patterns
     
-    # جمع الأوامر من جميع الملفات
-    for file_path in plugins_dir.rglob("*.py"):
-        if file_path.is_file():
-            file_name = file_path.name
-            commands_list = extract_commands_from_file(file_path)
-            if commands_list:
-                all_commands[file_name] = commands_list
+    # مسح جميع الملفات
+    for root, dirs, files in os.walk(plugins_dir):
+        for file in files:
+            if file.endswith('.py'):
+                filepath = os.path.join(root, file)
+                try:
+                    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                        content = f.read()
+                    
+                    patterns = extract_all_patterns(content)
+                    if patterns:
+                        all_commands[file] = patterns
+                        
+                except Exception as e:
+                    continue
     
     # إنشاء الرسالة
-    message = "**📋 جميع أوامر سورس الجوكر:**\n\n"
-    total_commands_count = 0
-    
-    for file_name, commands in sorted(all_commands.items()):
-        if commands:
-            message += f"**━━━━━━━ {file_name.replace('.py', '')} ━━━━━━━**\n"
-            
-            for cmd_type, cmd_text in commands:
-                total_commands_count += 1
-                # تنظيف النص
-                clean_cmd = cmd_text
-                # إزالة الرموز الزائدة
-                clean_cmd = clean_cmd.replace('(?:', '').replace(')?', '').replace('\\s', ' ')
-                clean_cmd = clean_cmd.replace('|$', '').replace('$', '')
-                
-                message += f"• **{cmd_type}:** `{clean_cmd}`\n"
-            
-            message += "\n"
-    
-    message += f"**📊 الإحصائيات:**\n"
-    message += f"• **عدد الملفات:** {len(all_commands)}\n"
-    message += f"• **عدد الأوامر:** {total_commands_count}\n"
-    message += f"• **البادئة:** `{Config.COMMAND_HAND_LER}`"
-    
-    # إذا كانت الرسالة طويلة، حفظها في ملف
-    if len(message) > 4000:
-        filename = "جميع_اوامر_الجوكر.txt"
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(message)
+    if all_commands:
+        message = "**📋 جميع أوامر سورس الجوكر (الدقيقة):**\n\n"
+        total_commands = 0
         
-        await event.edit("**📁 تم حفظ جميع الأوامر في ملف نصي**")
-        await event.client.send_file(
-            event.chat_id,
-            filename,
-            caption="**📋 جميع أوامر سورس الجوكر**"
-        )
-        os.remove(filename)
-    else:
+        for file_name, commands in sorted(all_commands.items()):
+            if commands:
+                message += f"**━━━━━━━ {file_name.replace('.py', '')} ━━━━━━━**\n"
+                
+                for cmd_type, cmd_text in commands:
+                    total_commands += 1
+                    # تنظيف النص - إزالة r وعلامات الاقتباس الزائدة
+                    clean_cmd = cmd_text
+                    clean_cmd = clean_cmd.replace('r"', '').replace("r'", '')
+                    clean_cmd = clean_cmd.replace('^\.', '.')  # إزالة ^\.
+                    
+                    message += f"• **{cmd_type}:** `{clean_cmd}`\n"
+                
+                message += "\n"
+        
+        message += f"**📊 الإحصائيات:**\n"
+        message += f"• **عدد الملفات:** {len(all_commands)}\n"
+        message += f"• **عدد الأوامر:** {total_commands}\n"
+        message += f"• **البادئة:** `{Config.COMMAND_HAND_LER}`"
+        
         await edit_or_reply(event, message)
-
-
+    else:
+        await edit_or_reply(event, "**❌ لم يتم العثور على أي أوامر!**")

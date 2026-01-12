@@ -873,46 +873,89 @@ async def yoot_auto_search(event):
         await event.client(JoinChannelRequest("@B_a_r"))
         await asyncio.sleep(0.5)
         
-        # استخدام conversation للاستماع الفوري
-        async with event.client.conversation("@W60yBot", timeout=30) as conv:
-            # إرسال الرسالة للبوت
-            full_message = f"يوت {query}"
-            await conv.send_message(full_message)
-            
-            # الانتظار للرد الأول (تأكيد الاستلام)
-            first_response = await conv.get_response()
-            
-            # الانتظار للمقطع الصوتي مباشرة
-            audio_response = await conv.get_response()
-            
-            if audio_response.media:
-                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
-                caption = (
-                    f"<blockquote>\n"
-                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                    f"</blockquote>"
-                    f"<b>↯︰By: @Lx5x5 .</b>"
-                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
-                )
+        # أولاً: محاولة مع البوت الأول @W60yBot
+        try:
+            async with event.client.conversation("@W60yBot", timeout=30) as conv:
+                # إرسال الرسالة للبوت
+                full_message = f"يوت {query}"
+                await conv.send_message(full_message)
                 
-                # إرسال المقطع كرد على الرسالة الأصلية
-                await event.client.send_file(
-                    event.chat_id,
-                    audio_response.media,
-                    caption=caption,
-                    parse_mode=CustomParseMode("html"),
-                    reply_to=event.message.id  # الرد على الرسالة الأصلية
-                )
+                # الانتظار للرد الأول لمدة 2 ثانية فقط
+                try:
+                    first_response = await asyncio.wait_for(conv.get_response(), timeout=2)
+                except asyncio.TimeoutError:
+                    # إذا لم يرد خلال 2 ثانية، انتقل للبوت الثاني
+                    raise Exception("timeout")
                 
-                # حذف رسالة "جار البحث"
-                await search_msg.delete()
+                # الانتظار للمقطع الصوتي مباشرة
+                audio_response = await conv.get_response()
                 
-            else:
-                await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                if audio_response.media:
+                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                    caption = (
+                        f"<blockquote>\n"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f"</blockquote>"
+                        f"<b>↯︰By: @Lx5x5 .</b>"
+                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                    )
+                    
+                    # إرسال المقطع كرد على الرسالة الأصلية
+                    await event.client.send_file(
+                        event.chat_id,
+                        audio_response.media,
+                        caption=caption,
+                        parse_mode=CustomParseMode("html"),
+                        reply_to=event.message.id
+                    )
+                    
+                    # حذف رسالة "جار البحث"
+                    await search_msg.delete()
+                    return  # انتهى بنجاح مع البوت الأول
+                    
+                else:
+                    # إذا لم يكن هناك ميديا، جرب البوت الثاني
+                    raise Exception("no_media")
+        
+        except Exception as e:
+            # إذا فشل البوت الأول، جرب البوت الثاني @BaarxXxbot
+            async with event.client.conversation("@BaarxXxbot", timeout=30) as conv:
+                # إرسال الرسالة للبوت الثاني
+                await conv.send_message(f"يوت {query}")
+                
+                # الانتظار للرد الأول (تأكيد الاستلام)
+                first_response = await conv.get_response()
+                
+                # الانتظار للمقطع الصوتي
+                audio_response = await conv.get_response()
+                
+                if audio_response.media:
+                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
+                    caption = (
+                        f"<blockquote>\n"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f"</blockquote>"
+                        f"<b>↯︰By: @Lx5x5 .</b>"
+                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                    )
+                    
+                    # إرسال المقطع
+                    await event.client.send_file(
+                        event.chat_id,
+                        audio_response.media,
+                        caption=caption,
+                        parse_mode=CustomParseMode("html"),
+                        reply_to=event.message.id
+                    )
+                    
+                    await search_msg.delete()
+                else:
+                    await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
     except asyncio.TimeoutError:
-        await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
+        await search_msg.edit("**• عذراً، فشل التحميل حاول لاحقاً،**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 

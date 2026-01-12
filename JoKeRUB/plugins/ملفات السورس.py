@@ -101,19 +101,20 @@ async def upload_reda(event):
 
 
 @l313l.ar_cmd(
-    pattern="الاوامرر$",
-    command=("الاوامرر", plugin_category),
+    pattern="الاوامر$",
+    command=("الاوامر", plugin_category),
     info={
-        "header": "لعرض جميع أوامر السورس",
+        "header": "لعرض جميع أوامر السورس بشكل منظم",
         "usage": "{tr}الاوامر",
     },
 )
 async def show_all_commands(event):
-    "لعرض جميع أوامر السورس"
+    "لعرض جميع أوامر السورس بشكل منظم"
     import os
     import re
+    from collections import defaultdict
     
-    commands_list = []
+    commands_dict = defaultdict(list)
     plugins_dir = "JoKeRUB/plugins"
     
     # البحث عن جميع الأوامر
@@ -126,46 +127,65 @@ async def show_all_commands(event):
                 try:
                     with open(filepath, 'r', encoding='utf-8') as f:
                         content = f.read()
+                        # استخراج جميع الأوامر من الملف
                         matches = re.findall(pattern, content)
-                        for cmd in matches:
-                            # البحث عن وصف الأمر
-                            desc_pattern = r'info=\{.*?"header":\s*["\']([^"\']+)["\']'
-                            desc_match = re.search(desc_pattern, content, re.DOTALL)
-                            description = desc_match.group(1) if desc_match else "لا يوجد وصف"
-                            
-                            commands_list.append({
-                                'command': cmd,
-                                'plugin': file,
-                                'description': description
-                            })
-                except:
+                        if matches:
+                            for cmd in matches:
+                                # البحث عن وصف الأمر
+                                desc_pattern = r'info=\{[\s\S]*?"header":\s*["\']([^"\']+)["\'][\s\S]*?\}'
+                                desc_match = re.search(desc_pattern, content)
+                                description = desc_match.group(1).strip() if desc_match else "بدون وصف"
+                                
+                                # البحث عن الاستخدام
+                                usage_pattern = r'"usage":\s*["\']([^"\']+)["\']'
+                                usage_match = re.search(usage_pattern, content)
+                                usage = usage_match.group(1) if usage_match else cmd
+                                
+                                commands_dict[file].append({
+                                    'command': cmd,
+                                    'description': description,
+                                    'usage': usage
+                                })
+                except Exception as e:
                     continue
     
-    # ترتيب الأوامر
-    commands_list.sort(key=lambda x: x['command'])
-    
-    # إنشاء الرسالة
+    # إنشاء الرسالة المنظمة
     message = "**📋 قائمة جميع أوامر الجوكر:**\n\n"
+    total_commands = 0
+    total_plugins = len(commands_dict)
     
-    current_plugin = ""
-    for cmd_info in commands_list:
-        if cmd_info['plugin'] != current_plugin:
-            current_plugin = cmd_info['plugin']
-            message += f"\n**┏━━ {current_plugin} ━━**\n"
+    # ترتيب الملفات أبجدياً
+    sorted_plugins = sorted(commands_dict.items(), key=lambda x: x[0])
+    
+    for plugin_name, commands in sorted_plugins:
+        message += f"**━━━━━━ {plugin_name.replace('.py', '')} ━━━━━━**\n"
         
-        message += f"**┣ ⦗** `{cmd_info['command']}` **⦘**\n"
-        message += f"**┗** {cmd_info['description']}\n"
+        for cmd_info in commands:
+            total_commands += 1
+            # تنظيف صيغة الأمر
+            clean_cmd = cmd_info['command'].replace('(', '').replace(')', '').replace('|', ' | ')
+            message += f"• **الأمر:** `{clean_cmd}`\n"
+            message += f"  **الوصف:** {cmd_info['description']}\n"
+            message += f"  **الاستخدام:** `{cmd_info['usage']}`\n\n"
     
-    message += f"\n**📊 الإحصائيات:**\n"
-    message += f"**• عدد الملفات:** {len(set(c['plugin'] for c in commands_list))}\n"
-    message += f"**• عدد الأوامر:** {len(commands_list)}\n"
-    message += f"**• البادئة:** `{Config.COMMAND_HAND_LER}`"
+    message += f"**📊 الإحصائيات:**\n"
+    message += f"• **عدد الملفات:** {total_plugins}\n"
+    message += f"• **عدد الأوامر:** {total_commands}\n"
+    message += f"• **البادئة:** `{Config.COMMAND_HAND_LER}`\n"
+    message += f"• **المساعد:** @{Config.TG_BOT_USERNAME if hasattr(Config, 'TG_BOT_USERNAME') else 'بدون'}"
     
     # تقسيم الرسالة إذا كانت طويلة
-    if len(message) > 4096:
-        parts = [message[i:i+4096] for i in range(0, len(message), 4096)]
-        for part in parts:
-            await event.edit(part)
-            await asyncio.sleep(1)
+    if len(message) > 4000:
+        # حفظ في ملف بدلاً من تقسيمه
+        with open("جميع_الاوامر.txt", "w", encoding="utf-8") as f:
+            f.write(message)
+        
+        await event.edit("**📁 تم حفظ جميع الأوامر في ملف نصي**")
+        await event.client.send_file(
+            event.chat_id,
+            "جميع_الاوامر.txt",
+            caption="**📋 قائمة جميع أوامر الجوكر**"
+        )
+        os.remove("جميع_الاوامر.txt")
     else:
         await edit_or_reply(event, message)

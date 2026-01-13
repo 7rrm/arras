@@ -135,7 +135,6 @@ async def _(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"zdownload")))
 @check_owner
 async def _(event):
-    # أزرار البحث والتحميل - كل زرين في سطر
     buttons = [
         [
             Button.inline("اليوتيوب 🎵", data="yt_cmd"),
@@ -174,17 +173,17 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
 <b>⪼ الأستخدام :</b> <code>.تفعيل يوت</code> في الخاص & <code>.تعطيل يوت</code> في مجموعة محدده  
 
-<b>⦁ الأمر ⇚ ⟨</b> <code>.يوت</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.يوت</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل الأغاني من اليوتيوب 
 <b>⪼ الأستخدام :</b> <code>.يوت</code> + رابط & يوت + كلمة 
 </blockquote>"""
     
     await event.edit(
-        f"**🎵 أمر اليوتيوب**\n\n{text}",
+        f"**🎵 أمر اليوتيوب**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -196,17 +195,17 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل فيديو</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل فيديو</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
 <b>⪼ الأستخدام :</b> <code>.تفعيل فيديو</code> في الخاص & <code>.تعطيل فيديو</code> في مجموعة محدده  
 
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيديو</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.فيديو</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل الفيديو من اليوتيوب 
 <b>⪼ الأستخدام :</b> <code>.فيديو</code> + رابط & <code>.فيديو</code> + كلمة 
 </blockquote>"""
     
     await event.edit(
-        f"**📹 أمر الفيديو**\n\n{text}",
+        f"**📹 أمر الفيديو**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -218,13 +217,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.سناب</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.سناب</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل من سناب شات
 <b>⪼ الأستخدام :</b> <code>.سناب</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**👻 أمر السناب شات**\n\n{text}",
+        f"**👻 أمر السناب شات**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -236,13 +235,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل من فيسبوك
 <b>⪼ الأستخدام :</b> <code>.فيس</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**📘 أمر الفيسبوك**\n\n{text}",
+        f"**📘 أمر الفيسبوك**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -254,13 +253,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل من بنترست
 <b>⪼ الأستخدام :</b> <code>.بنترست</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**📌 أمر بنترست**\n\n{text}",
+        f"**📌 أمر بنترست**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -272,13 +271,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.ساوند</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.ساوند</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> لتحميل الأغاني من ساوند كلاود
 <b>⪼ الأستخدام :</b> <code>.ساوند</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**🎧 أمر ساوند كلاود**\n\n{text}",
+        f"**🎧 أمر ساوند كلاود**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -290,13 +289,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل صوت</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل صوت</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> تحميـل الاغـاني مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
 <b>⪼ الأستخدام :</b> <code>.تحميل صوت</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**🔊 أمر تحميل صوت**\n\n{text}",
+        f"**🔊 أمر تحميل صوت**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
@@ -308,13 +307,13 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل فيديو</code> <b>⟩</b></b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل فيديو</code> <b>⟩</b><br/>
 <b>⪼ الوصف :</b> تحميـل الفيديو مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
 <b>⪼ الأستخدام :</b> <code>.تحميل فيديو</code> + رابط (فقط رابط)
 </blockquote>"""
     
     await event.edit(
-        f"**📥 أمر تحميل فيديو**\n\n{text}",
+        f"**📥 أمر تحميل فيديو**\n{text}",
         parse_mode='HTML',
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],

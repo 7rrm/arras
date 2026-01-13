@@ -1,6 +1,8 @@
 import re
 from telethon.utils import get_display_name
 from telethon.tl.types import DocumentAttributeSticker, DocumentAttributeAnimated
+from telethon.tl.functions.channels import GetParticipantRequest
+from telethon.errors import UserNotParticipantError
 from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 from ..sql_helper import blacklist_sql as sql
@@ -9,8 +11,12 @@ from ..utils import is_admin
 plugin_category = "admin"
 
 #copyright for JoKeRUB © 2021
-@l313l.ar_cmd(incoming=True, groups_only=True)
+@l313l.ar_cmd(incoming=True)
 async def on_new_message(event):
+    # تخطي الرسائل في القنوات
+    if event.is_channel and not event.is_group:
+        return
+    
     # التحقق من أن الرسالة هي ملصق أو صورة متحركة
     if event.message.media:
         if hasattr(event.message.media, 'document'):
@@ -28,7 +34,7 @@ async def on_new_message(event):
                             await event.client.send_message(
                                 BOTLOG_CHATID,
                                 f"᯽︙ ليـس لدي صـلاحيات الـحذف في {get_display_name(await event.get_chat())}.\
-                                So removing blacklist stickers from this group",
+                                So removing blacklist stickers from this chat",
                             )
                             for word in sql.get_chat_blacklist(event.chat_id):
                                 sql.rm_from_blacklist(event.chat_id, word.lower())
@@ -37,19 +43,28 @@ async def on_new_message(event):
     # المنطق الأصلي لمنع الكلمات
     name = event.raw_text
     snips = sql.get_chat_blacklist(event.chat_id)
-    catadmin = await is_admin(event.client, event.chat_id, event.client.uid)
-    if not catadmin:
-        return
+    
+    # التحقق من الصلاحيات في المجموعات فقط
+    if event.is_group:
+        try:
+            catadmin = await is_admin(event.client, event.chat_id, event.client.uid)
+            if not catadmin:
+                return
+        except Exception:
+            return
+    
     for snip in snips:
         pattern = r"( |^|[^\w])" + re.escape(snip) + r"( |$|[^\w])"
         if re.search(pattern, name, flags=re.IGNORECASE):
             try:
                 await event.delete()
+                if event.is_private:
+                    await event.reply("᯽︙ تم حذف الرسالة لأنها تحتوي على كلمات محظورة.")
             except Exception:
                 await event.client.send_message(
                     BOTLOG_CHATID,
                     f"᯽︙ ليـس لدي صـلاحيات الـحذف في {get_display_name(await event.get_chat())}.\
-                     So removing blacklist words from this group",
+                     So removing blacklist words from this chat",
                 )
                 for word in snips:
                     sql.rm_from_blacklist(event.chat_id, word.lower())
@@ -65,11 +80,21 @@ async def on_new_message(event):
         "usage": "{tr}addblacklist <word(s) or sticker>",
         "examples": ["{tr}addblacklist fuck", "{tr}addblacklist <sticker>"],
     },
-    groups_only=True,
     require_admin=True,
 )
 async def _(event):
     "To add blacklist words or stickers to database"
+    # التحقق من الصلاحيات في المجموعات فقط
+    if event.is_group:
+        try:
+            from ..utils import is_admin
+            if not await is_admin(event.client, event.chat_id, event.client.uid):
+                await edit_or_reply(event, "᯽︙ هذا الأمر يتطلب صلاحيات مشرف في المجموعة.")
+                return
+        except Exception:
+            await edit_or_reply(event, "᯽︙ حدث خطأ في التحقق من الصلاحيات.")
+            return
+    
     if event.is_reply:
         reply_msg = await event.get_reply_message()
         if reply_msg.media:
@@ -84,7 +109,12 @@ async def _(event):
                             f"᯽︙ تم إضافة الملصق/الصورة المتحركة بقائمة المنع (ID: {file_id})."
                         )
                         return
+    
     text = event.pattern_match.group(1)
+    if not text:
+        await edit_or_reply(event, "᯽︙ يرجى كتابة الكلمة أو الكلمات لمنعها.")
+        return
+    
     to_blacklist = list(
         {trigger.strip() for trigger in text.split("\n") if trigger.strip()}
     )
@@ -93,9 +123,7 @@ async def _(event):
         sql.add_to_blacklist(event.chat_id, trigger.lower())
     await edit_or_reply(
         event,
-        "᯽︙ تم اضافة {} الكلمة في قائمة المنع بنجاح".format(
-            len(to_blacklist)
-        ),
+        f"᯽︙ تم اضافة {len(to_blacklist)} كلمة/كلمات في قائمة المنع بنجاح"
     )
 
 @l313l.ar_cmd(
@@ -108,11 +136,21 @@ async def _(event):
         "usage": "{tr}rmblacklist <word(s) or sticker>",
         "examples": ["{tr}rmblacklist fuck", "{tr}rmblacklist <sticker>"],
     },
-    groups_only=True,
     require_admin=True,
 )
 async def _(event):
     "To Remove Blacklist Words or Stickers from Database."
+    # التحقق من الصلاحيات في المجموعات فقط
+    if event.is_group:
+        try:
+            from ..utils import is_admin
+            if not await is_admin(event.client, event.chat_id, event.client.uid):
+                await edit_or_reply(event, "᯽︙ هذا الأمر يتطلب صلاحيات مشرف في المجموعة.")
+                return
+        except Exception:
+            await edit_or_reply(event, "᯽︙ حدث خطأ في التحقق من الصلاحيات.")
+            return
+    
     if event.is_reply:
         reply_msg = await event.get_reply_message()
         if reply_msg.media:
@@ -132,7 +170,12 @@ async def _(event):
                                 "᯽︙ الملصق/الصورة المتحركة غير موجودة في قائمة المنع."
                             )
                         return
+    
     text = event.pattern_match.group(1)
+    if not text:
+        await edit_or_reply(event, "᯽︙ يرجى كتابة الكلمة أو الكلمات لإزالتها من المنع.")
+        return
+    
     to_unblacklist = list(
         {trigger.strip() for trigger in text.split("\n") if trigger.strip()}
     )
@@ -141,7 +184,7 @@ async def _(event):
         for trigger in to_unblacklist
     )
     await edit_or_reply(
-        event, f"᯽︙ تم ازالة الكلمة {successful} / {len(to_unblacklist)} من قائمة المنع بنجاح"
+        event, f"᯽︙ تم ازالة {successful} / {len(to_unblacklist)} كلمة/كلمات من قائمة المنع بنجاح"
     )
 
 @l313l.ar_cmd(
@@ -152,16 +195,63 @@ async def _(event):
         "description": "Shows you the list of blacklist words or stickers in that specific chat",
         "usage": "{tr}listblacklist",
     },
-    groups_only=True,
     require_admin=True,
 )
 async def _(event):
     "To show the blacklist words or stickers in that specific chat"
+    # التحقق من الصلاحيات في المجموعات فقط
+    if event.is_group:
+        try:
+            from ..utils import is_admin
+            if not await is_admin(event.client, event.chat_id, event.client.uid):
+                await edit_or_reply(event, "᯽︙ هذا الأمر يتطلب صلاحيات مشرف في المجموعة.")
+                return
+        except Exception:
+            await edit_or_reply(event, "᯽︙ حدث خطأ في التحقق من الصلاحيات.")
+            return
+    
     all_blacklisted = sql.get_chat_blacklist(event.chat_id)
     OUT_STR = "᯽︙ قائمة المنع في الدردشة الحالية :\n"
     if len(all_blacklisted) > 0:
-        for trigger in all_blacklisted:
-            OUT_STR += f"👈 {trigger} \n"
+        for i, trigger in enumerate(all_blacklisted, 1):
+            if trigger.isdigit() and len(trigger) > 5:
+                OUT_STR += f"{i}👈 [ملصق/صورة متحركة] (ID: {trigger})\n"
+            else:
+                OUT_STR += f"{i}👈 `{trigger}`\n"
     else:
         OUT_STR = " ᯽︙ لم تقم باضافة كلمات أو ملصقات سوداء. ارسل  `.منع` لمنع كلمة أو ملصق."
     await edit_or_reply(event, OUT_STR)
+
+@l313l.ar_cmd(
+    pattern="مسح قائمة المنع$",
+    command=("مسح قائمة المنع", plugin_category),
+    info={
+        "header": "To clear all blacklist items from database",
+        "description": "Removes all blacklisted words and stickers from the current chat",
+        "usage": "{tr}clearblacklist",
+    },
+    require_admin=True,
+)
+async def _(event):
+    "To clear all blacklist items from database"
+    # التحقق من الصلاحيات في المجموعات فقط
+    if event.is_group:
+        try:
+            from ..utils import is_admin
+            if not await is_admin(event.client, event.chat_id, event.client.uid):
+                await edit_or_reply(event, "᯽︙ هذا الأمر يتطلب صلاحيات مشرف في المجموعة.")
+                return
+        except Exception:
+            await edit_or_reply(event, "᯽︙ حدث خطأ في التحقق من الصلاحيات.")
+            return
+    
+    all_blacklisted = sql.get_chat_blacklist(event.chat_id)
+    if not all_blacklisted:
+        await edit_or_reply(event, "᯽︙ قائمة المنع فارغة بالفعل.")
+        return
+    
+    # مسح جميع العناصر
+    for item in all_blacklisted:
+        sql.rm_from_blacklist(event.chat_id, item)
+    
+    await edit_or_reply(event, f"᯽︙ تم مسح {len(all_blacklisted)} عنصر من قائمة المنع بنجاح.")

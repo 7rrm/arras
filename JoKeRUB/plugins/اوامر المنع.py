@@ -86,9 +86,9 @@ async def on_new_message(event):
     info={
         "header": "To add blacklist words or stickers to database",
         "description": "The given word or sticker ID will be added to blacklist in that specific chat if any user sends then the message gets deleted.",
-        "note": "To block a sticker, reply to the sticker with the command `.منع`.",
-        "usage": "{tr}addblacklist <word(s) or sticker>",
-        "examples": ["{tr}addblacklist fuck", "{tr}addblacklist <sticker>"],
+        "note": "To block a sticker, reply to the sticker with the command `.منع`.\nTo block a text message, reply to the message with the command `.منع`.",
+        "usage": "{tr}addblacklist <word(s) or sticker or text message>",
+        "examples": ["{tr}addblacklist fuck", "{tr}addblacklist <sticker>", "{tr}addblacklist (reply to message)"],
     },
     require_admin=True,
 )
@@ -107,6 +107,8 @@ async def _(event):
     
     if event.is_reply:
         reply_msg = await event.get_reply_message()
+        
+        # الحالة 1: الرد على ملصق/صورة متحركة
         if reply_msg.media:
             if hasattr(reply_msg.media, 'document'):
                 attributes = reply_msg.media.document.attributes
@@ -119,10 +121,29 @@ async def _(event):
                             f"⌔︙ تم إضافة الملصق/الصورة المتحركة بقائمة المنع (ID: {file_id})."
                         )
                         return
+        
+        # الحالة 2: الرد على رسالة نصية
+        if reply_msg.text:
+            # نأخذ النص من الرسالة المردود عليها
+            text = reply_msg.text.strip()
+            
+            if not text:
+                await edit_or_reply(event, "⌔︙ الرسالة المردود عليها فارغة.")
+                return
+            
+            # نمنع النص الكامل
+            sql.add_to_blacklist(event.chat_id, text.lower())
+            
+            await edit_or_reply(
+                event,
+                f"⌔︙ تم منع النص التالي:\n`{text}`"
+            )
+            return
     
+    # الحالة 3: ليس هناك رد، نأخذ النص من الأمر نفسه
     text = event.pattern_match.group(1)
     if not text:
-        await edit_or_reply(event, "⌔︙ يرجى كتابة الكلمة أو الكلمات لمنعها.")
+        await edit_or_reply(event, "⌔︙ يرجى كتابة الكلمة أو الرد على رسالة لمنعها.")
         return
     
     to_blacklist = list(

@@ -1,12 +1,11 @@
 import re
-import html
 from telethon import Button, events
 from telethon.events import CallbackQuery
 from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
+HELP = "**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -119,7 +118,9 @@ async def _(event):
 @check_owner
 async def _(event):
     await event.edit(
-        "**🪁 أوامر الكلايش والتخصيص**\n\n**⎉╎اليك عـزيـزي قنـوات تخصيص كلايـش السـورس**\n**⎉╎القنوات تحتوي على كلايش متنوعه + اوامر اضافة الكلايش**",
+        "**🪁 أوامر الكلايش والتخصيص**\n\n"
+        "**⎉╎اليك عـزيـزي قنـوات تخصيص كلايـش السـورس**\n"
+        "**⎉╎القنوات تحتوي على كلايش متنوعه + اوامر اضافة الكلايش**",
         buttons=[
             [Button.url("كلايش حماية الخاص", "https://t.me/zzkrr")],
             [Button.url("كلايش الايدي", "https://t.me/zziddd")],
@@ -150,7 +151,7 @@ async def _(event):
         ],
         [
             Button.inline("تحميل صوت 🔊", data="dl_audio"),
-            Button.inline("تحميل فيديo 📥", data="dl_video"),
+            Button.inline("تحميل فيديو 📥", data="dl_video"),
         ],
         [
             Button.inline("رجــوع ↩️", data="ZEDHELP"),
@@ -166,159 +167,167 @@ async def _(event):
     )
 
 # =========================================================== #
-#               صفحات تفصيلية لكل أمر (بتنسيق الاقتباس)        #
+#               صفحات تفصيلية لكل أمر (بدون HTML)             #
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"yt_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
-<b>⪼ الأستخدام :</b> <code>.تفعيل يوت</code> في الخاص & <code>.تعطيل يوت</code> في مجموعة محدده  
-
-<b>⦁ الأمر ⇚ ⟨</b> <code>.يوت</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل الأغاني من اليوتيوب 
-<b>⪼ الأستخدام :</b> <code>.يوت</code> + رابط & يوت + كلمة 
-</blockquote>"""
+    text = (
+        "**🎵 أمر اليوتيوب**\n\n"
+        "**⦁ الأمر ⇚** `.تفعيل يوت` **⇚**\n\n"
+        "**⪼ الوصف :** لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده\n\n"
+        "**⪼ الأستخدام :** `.تفعيل يوت` في الخاص & `.تعطيل يوت` في مجموعة محدده\n\n"
+        "━━━━━━━━━━━━━━\n\n"
+        "**⦁ الأمر ⇚** `.يوت` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل الأغاني من اليوتيوب\n\n"
+        "**⪼ الأستخدام :** `.يوت` + رابط & يوت + كلمة"
+    )
     
     await event.edit(
-        f"🎵 أمر اليوتيوب\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"video_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل فيديو</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
-<b>⪼ الأستخدام :</b> <code>.تفعيل فيديو</code> في الخاص & <code>.تعطيل فيديو</code> في مجموعة محدده  
-
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيديو</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل الفيديو من اليوتيوب 
-<b>⪼ الأستخدام :</b> <code>.فيديو</code> + رابط & <code>.فيديو</code> + كلمة 
-</blockquote>"""
+    text = (
+        "**📹 أمر الفيديو**\n\n"
+        "**⦁ الأمر ⇚** `.تفعيل فيديو` **⇚**\n\n"
+        "**⪼ الوصف :** لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده\n\n"
+        "**⪼ الأستخدام :** `.تفعيل فيديو` في الخاص & `.تعطيل فيديو` في مجموعة محدده\n\n"
+        "━━━━━━━━━━━━━━\n\n"
+        "**⦁ الأمر ⇚** `.فيديو` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل الفيديو من اليوتيوب\n\n"
+        "**⪼ الأستخدام :** `.فيديو` + رابط & `.فيديو` + كلمة"
+    )
     
     await event.edit(
-        f"📹 أمر الفيديو\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"snap_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.سناب</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل من سناب شات
-<b>⪼ الأستخدام :</b> <code>.سناب</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**👻 أمر السناب شات**\n\n"
+        "**⦁ الأمر ⇚** `.سناب` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل من سناب شات\n\n"
+        "**⪼ الأستخدام :** `.سناب` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"👻 أمر السناب شات\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"fb_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل من فيسبوك
-<b>⪼ الأستخدام :</b> <code>.فيس</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**📘 أمر الفيسبوك**\n\n"
+        "**⦁ الأمر ⇚** `.فيس` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل من فيسبوك\n\n"
+        "**⪼ الأستخدام :** `.فيس` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"📘 أمر الفيسبوك\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"pint_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل من بنترست
-<b>⪼ الأستخدام :</b> <code>.بنترست</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**📌 أمر بنترست**\n\n"
+        "**⦁ الأمر ⇚** `.بنترست` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل من بنترست\n\n"
+        "**⪼ الأستخدام :** `.بنترست` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"📌 أمر بنترست\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"sound_cmd")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.ساوند</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> لتحميل الأغاني من ساوند كلاود
-<b>⪼ الأستخدام :</b> <code>.ساوند</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**🎧 أمر ساوند كلاود**\n\n"
+        "**⦁ الأمر ⇚** `.ساوند` **⇚**\n\n"
+        "**⪼ الوصف :** لتحميل الأغاني من ساوند كلاود\n\n"
+        "**⪼ الأستخدام :** `.ساوند` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"🎧 أمر ساوند كلاود\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"dl_audio")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل صوت</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> تحميـل الاغـاني مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
-<b>⪼ الأستخدام :</b> <code>.تحميل صوت</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**🔊 أمر تحميل صوت**\n\n"
+        "**⦁ الأمر ⇚** `.تحميل صوت` **⇚**\n\n"
+        "**⪼ الوصف :** تحميـل الاغـاني مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط\n\n"
+        "**⪼ الأستخدام :** `.تحميل صوت` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"🔊 أمر تحميل صوت\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"dl_video")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل فيديو</code> <b>⟩</b>\n
-<b>⪼ الوصف :</b> تحميـل الفيديو مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
-<b>⪼ الأستخدام :</b> <code>.تحميل فيديو</code> + رابط (فقط رابط)
-</blockquote>"""
+    text = (
+        "**📥 أمر تحميل فيديو**\n\n"
+        "**⦁ الأمر ⇚** `.تحميل فيديو` **⇚**\n\n"
+        "**⪼ الوصف :** تحميـل الفيديو مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط\n\n"
+        "**⪼ الأستخدام :** `.تحميل فيديو` + رابط (فقط رابط)"
+    )
     
     await event.edit(
-        f"📥 أمر تحميل فيديو\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجوع للبحث والتحميل ↩️", data="zdownload")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 # =========================================================== #
@@ -328,37 +337,36 @@ async def _(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"botvr")))
 @check_owner
 async def _(event):
-    text = """<blockquote>
-<b>⦁ اسم السورس :</b> <code>l313l</code>
-<b>⦁ المطور :</b> <code>مطور السورس</code>
-<b>⦁ الرابط :</b> <code>https://github.com/username/l313l</code>
-<b>⦁ قناة السورس :</b> <code>@l3_3_3l</code>
-</blockquote>"""
+    text = (
+        "**🌐 معلومات السورس**\n\n"
+        "**⦁ اسم السورس :** `l313l`\n\n"
+        "**⦁ المطور :** `مطور السورس`\n\n"
+        "**⦁ الرابط :** `https://github.com/username/l313l`\n\n"
+        "**⦁ قناة السورس :** `@l3_3_3l`"
+    )
     
     await event.edit(
-        f"**🌐 معلومات السورس**\n\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجــوع ↩️", data="ZEDHELP")],
-        ]
+        ],
+        link_preview=False
     )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"acccount")))
 @check_owner
 async def _(event):
-    # يمكنك إضافة معلومات الحساب هنا
-    text = """<blockquote>
-<b>⦁ لمعرفة معلومات حسابك :</b>
-<b>⪼ استخدام :</b> <code>.ايدي</code>
-<b>⪼ أو :</b> <code>.معلوماتي</code>
-</blockquote>"""
+    text = (
+        "**🚹 معلومات الحساب**\n\n"
+        "**⦁ لمعرفة معلومات حسابك :**\n\n"
+        "**⪼ استخدام :** `.ايدي`\n\n"
+        "**⪼ أو :** `.معلوماتي`"
+    )
     
     await event.edit(
-        f"**🚹 معلومات الحساب**\n\n{text}",
-        parse_mode='HTML',
+        text,
         buttons=[
             [Button.inline("رجــوع ↩️", data="ZEDHELP")],
-        ]
-    )
-
-# يمكنك إضافة باقي الأزرار بنفس الطريقة...
+        ],
+        link_preview=False
+)

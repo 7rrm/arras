@@ -26,17 +26,10 @@ from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbi
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery
-from l313l.razan.resources.assistant import *
-from l313l.razan.resources.mybot import *
-from JoKeRUB import l313l
 from ..core import check_owner
 from ..Config import Config
 
-plugin_category = "العروض"
-LOGS = logging.getLogger(__name__)
-
-
-HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 ♥️](https://t.me/ZThon)\n\n"
+HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗟𝟯𝟭𝟯𝗟 ♥️](https://t.me/l3_3_3l)\n\n"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -93,7 +86,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
             await event.answer([result] if result else None)
 
-@l313l.ar_cmd(pattern="مساعدة")
+@l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
@@ -147,7 +140,7 @@ async def _(event):
 @check_owner
 async def _(event):
     await event.edit(
-        "[ᯓ 𝗭𝗧𝗵𝗼𝗻 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اوامــر تخصيص الكلايـش 🪁](t.me/ZThon) .\n\n**⎉╎اليك عـزيـزي قنـوات تخصيص كلايـش السـورس**\n**⎉╎القنوات تحتوي على كلايش متنوعه + اوامر اضافة الكلايش**",
+        "**🪁 أوامر الكلايش والتخصيص**\n\n**⎉╎اليك عـزيـزي قنـوات تخصيص كلايـش السـورس**\n**⎉╎القنوات تحتوي على كلايش متنوعه + اوامر اضافة الكلايش**",
         buttons=[
             [Button.url("كلايش حماية الخاص", "https://t.me/zzkrr")],
             [Button.url("كلايش الايدي", "https://t.me/zziddd")],

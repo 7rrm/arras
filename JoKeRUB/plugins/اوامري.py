@@ -97,7 +97,7 @@ async def repo(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"zdownload")))
 @check_owner
 async def _(event):
-    commands_text = """<blockquote>
+    commands_text_page1 = """<blockquote>
 <b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b>
 <b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
 <b>⪼ الأستخدام :</b> <code>.تفعيل يوت</code> في الخاص & <code>.تعطيل يوت</code> في مجموعة محدده  
@@ -121,7 +121,23 @@ async def _(event):
 <b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b>
 <b>⪼ الوصف :</b> لتحميل من فيسبوك
 <b>⪼ الأستخدام :</b> <code>.فيس</code> + رابط (فقط رابط)
+</blockquote>"""
+    
+    buttons_page1 = [
+        [Button.inline("الصفحة التالية ➡️", data="zdownload2")],
+        [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ROE")]
+    ]
+    
+    await event.edit(
+        f"**🎯 أوامر البحث والتحميل - الصفحة 1/2:**\n\n{commands_text_page1}",
+        parse_mode='HTML',
+        buttons=buttons_page1
+    )
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"zdownload2")))
+@check_owner
+async def _(event):
+    commands_text_page2 = """<blockquote>
 <b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b>
 <b>⪼ الوصف :</b> لتحميل من بنترست
 <b>⪼ الأستخدام :</b> <code>.بنترست</code> + رابط (فقط رابط)
@@ -139,12 +155,15 @@ async def _(event):
 <b>⪼ الأستخدام :</b> <code>.تحميل فيديو</code> + رابط (فقط رابط)
 </blockquote>"""
     
-    buttons = [[Button.inline("رجوع للقائمة الرئيسية ↩️", data="ROE")]]
+    buttons_page2 = [
+        [Button.inline("⬅️ الصفحة السابقة", data="zdownload")],
+        [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ROE")]
+    ]
     
     await event.edit(
-        f"**🎯 أوامر البحث والتحميل:**\n\n{commands_text}",
+        f"**🎯 أوامر البحث والتحميل - الصفحة 2/2:**\n\n{commands_text_page2}",
         parse_mode='HTML',
-        buttons=buttons
+        buttons=buttons_page2
     )
 
 

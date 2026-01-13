@@ -6,7 +6,7 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗟𝟯𝟭𝟯𝗟 ♥️](https://t.me/l3_3_3l)\n\n"
+HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 

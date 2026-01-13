@@ -1,3 +1,4 @@
+"""
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery
@@ -277,3 +278,4 @@ async def _(event):
 
 # يمكنك إضافة المزيد من الأزرار بنفس الطريقة
 # كل زر سيعرض محتواه مع زر رجوع فقط
+"""

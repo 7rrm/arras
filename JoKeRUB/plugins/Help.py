@@ -1,28 +1,3 @@
-import asyncio
-import contextlib
-import re
-import random
-import time
-import psutil
-import html
-import shutil
-import os
-import base64
-import requests
-from requests import get
-import psutil
-from datetime import datetime
-from platform import python_version
-
-from telethon import Button, events, version
-from telethon.events import CallbackQuery
-from telethon.tl.functions.messages import ImportChatInviteRequest as Get
-from telethon.tl.types import MessageEntityMentionName
-from telethon.tl.functions.photos import GetUserPhotosRequest
-from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
-from telethon.utils import pack_bot_file_id
-from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
-
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery

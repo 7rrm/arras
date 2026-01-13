@@ -23,17 +23,14 @@ from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
 from telethon.utils import pack_bot_file_id
 from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 
-from . import StartTime, l313l, zedversion, mention
-from ..core import check_owner, pool
+import re
+from telethon import Button, events
+from telethon.events import CallbackQuery
+from l313l.razan.resources.assistant import *
+from l313l.razan.resources.mybot import *
+from JoKeRUB import l313l
+from ..core import check_owner
 from ..Config import Config
-from ..utils import Zed_Vip, Zed_Dev
-from ..helpers import reply_id
-from ..helpers.utils import _format
-from ..core.logger import logging
-from ..core.managers import edit_or_reply, edit_delete
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import zedalive, check_data_base_heal_th, get_readable_time
-from . import BOTLOG, BOTLOG_CHATID, spamwatch, mention
 
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)

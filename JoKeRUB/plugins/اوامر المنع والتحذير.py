@@ -295,7 +295,7 @@ async def _(event):
 #   ════════════════════════════════════════════════════════════   #
 #                ⌔︙ اوامر التحذير ⌔︙   #
 #   ════════════════════════════════════════════════════════════   #
-
+"""
 import html
 
 from JoKeRUB import l313l
@@ -400,3 +400,4 @@ async def _(event):
         return await edit_or_reply(event, "**▸┊يجب الرد على المستخدم أولاً!**")
     sql.reset_warns(str(reply_message.sender_id), event.chat_id)
     await edit_or_reply(event, "**▸┊تم إعادة ضبط التحذيرات!**")
+""

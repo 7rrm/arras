@@ -3,13 +3,14 @@ from telethon import Button, events
 from telethon.events import CallbackQuery
 from ..core import check_owner
 from ..Config import Config
-from . import l313l
+from . import l313l  # ⬅️ هذا هو المفتاح! يجب استيراد l313l
 
 HELP = f"**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊في قائمـة المسـاعـده والشـروحـات\n🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗟𝟯𝟭𝟯𝗟 ♥️](https://t.me/l3_3_3l)\n\n"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
+    @check_owner
     async def inline_handler(event):
         builder = event.builder
         result = None
@@ -18,9 +19,40 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if query.startswith("مساعدة"):
             buttons = [
                 [Button.inline("البـحـث والتحميـل 🪄", data="zdownload")],
-                [Button.inline("السـورس 🌐", data="botvr")],
-                [Button.inline("الحساب 🚹", data="acccount")],
-                [Button.inline("رجوع", data="ZEDHELP")]
+                [
+                    Button.inline("السـورس 🌐", data="botvr"),
+                    Button.inline("الحساب 🚹", data="acccount"),
+                ],
+                [
+                    Button.inline("الإذاعـة 🏟️", data="broadcastz"),
+                ],
+                [
+                    Button.inline("الكلايـش & التخصيص 🪁", data="kalaysh"),
+                ],
+                [
+                    Button.inline("المجمـوعـة 2⃣", data="groupv2"),
+                    Button.inline("المجمـوعـة 1⃣", data="groupv1"),
+                ],
+                [
+                    Button.inline("حماية المجموعات 🛗", data="grouppro"),
+                ],
+                [
+                    Button.inline("التسليـه & التحشيش 🎃", data="funzed"),
+                ],
+                [
+                    Button.inline("المرفقـات 🪁", data="extras"),
+                    Button.inline("الادوات 💡", data="toolzed"),
+                ],
+                [
+                    Button.inline("الفـارات 🎈", data="varszed"),
+                ],
+                [
+                    Button.inline("الذكـاء الاصطنـاعـي 🛸", data="ZEDAI"),
+                ],
+                [
+                    Button.inline("السوبـرات 🎡", data="superzzz"),
+                    Button.inline("التجميـع 🛗", data="pointzzz"),
+                ],
             ]
             result = builder.article(
                 title="قائمة المساعدة",
@@ -30,20 +62,65 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
             await event.answer([result] if result else None)
 
-@l313l.on(events.NewMessage(pattern=r"^\.مساعدة$"))
+@l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "مساعدة")
     await response[0].click(event.chat_id)
     await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"ZEDHELP")))
+@check_owner
+async def _(event):
+    butze = [
+        [Button.inline("البـحـث والتحميـل 🪄", data="zdownload")],
+        [
+            Button.inline("السـورس 🌐", data="botvr"),
+            Button.inline("الحساب 🚹", data="acccount"),
+        ],
+        [
+            Button.inline("الإذاعـة 🏟️", data="broadcastz"),
+        ],
+        [
+            Button.inline("الكلايـش & التخصيص 🪁", data="kalaysh"),
+        ],
+        [
+            Button.inline("المجمـوعـة 2⃣", data="groupv2"),
+            Button.inline("المجمـوعـة 1⃣", data="groupv1"),
+        ],
+        [
+            Button.inline("حماية المجموعات 🛗", data="grouppro"),
+        ],
+        [
+            Button.inline("التسليـه & التحشيش 🎃", data="funzed"),
+        ],
+        [
+            Button.inline("المرفقـات 🪁", data="extras"),
+            Button.inline("الادوات 💡", data="toolzed"),
+        ],
+        [
+            Button.inline("الفـارات 🎈", data="varszed"),
+        ],
+        [
+            Button.inline("الذكـاء الاصطنـاعـي 🛸", data="ZEDAI"),
+        ],
+        [
+            Button.inline("السوبـرات 🎡", data="superzzz"),
+            Button.inline("التجميـع 🛗", data="pointzzz"),
+        ],
+    ]
+    await event.edit(HELP, buttons=butze, link_preview=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"kalaysh")))
+@check_owner
 async def _(event):
     await event.edit(
-        HELP,
+        "**🪁 أوامر الكلايش والتخصيص**\n\n**⎉╎اليك عـزيـزي قنـوات تخصيص كلايـش السـورس**\n**⎉╎القنوات تحتوي على كلايش متنوعه + اوامر اضافة الكلايش**",
         buttons=[
-            [Button.inline("البـحـث والتحميـل 🪄", data="zdownload")],
-            [Button.inline("الكلايـش", data="kalaysh")],
-            [Button.inline("رجوع", data="back")]
+            [Button.url("كلايش حماية الخاص", "https://t.me/zzkrr")],
+            [Button.url("كلايش الايدي", "https://t.me/zziddd")],
+            [Button.url("كلايش الفحص", "https://t.me/zzclll")],
+            [Button.inline("رجــوع", data="ZEDHELP")],
         ],
-        link_preview=False
-    )
+    link_preview=False)

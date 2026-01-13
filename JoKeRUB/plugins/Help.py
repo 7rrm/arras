@@ -174,11 +174,11 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل يوت</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
 <b>⪼ الأستخدام :</b> <code>.تفعيل يوت</code> في الخاص & <code>.تعطيل يوت</code> في مجموعة محدده  
 
-<b>⦁ الأمر ⇚ ⟨</b> <code>.يوت</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.يوت</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل الأغاني من اليوتيوب 
 <b>⪼ الأستخدام :</b> <code>.يوت</code> + رابط & يوت + كلمة 
 </blockquote>"""
@@ -196,11 +196,11 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل فيديو</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تفعيل فيديو</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتفعيل/تعطيل استخدام الامر لدى الآخرين في المحادثات الخاصة & مجموعة محدده
 <b>⪼ الأستخدام :</b> <code>.تفعيل فيديو</code> في الخاص & <code>.تعطيل فيديو</code> في مجموعة محدده  
 
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيديو</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.فيديو</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل الفيديو من اليوتيوب 
 <b>⪼ الأستخدام :</b> <code>.فيديو</code> + رابط & <code>.فيديو</code> + كلمة 
 </blockquote>"""
@@ -218,7 +218,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.سناب</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.سناب</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل من سناب شات
 <b>⪼ الأستخدام :</b> <code>.سناب</code> + رابط (فقط رابط)
 </blockquote>"""
@@ -236,7 +236,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.فيس</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل من فيسبوك
 <b>⪼ الأستخدام :</b> <code>.فيس</code> + رابط (فقط رابط)
 </blockquote>"""
@@ -254,7 +254,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.بنترست</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل من بنترست
 <b>⪼ الأستخدام :</b> <code>.بنترست</code> + رابط (فقط رابط)
 </blockquote>"""
@@ -272,7 +272,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.ساوند</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.ساوند</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> لتحميل الأغاني من ساوند كلاود
 <b>⪼ الأستخدام :</b> <code>.ساوند</code> + رابط (فقط رابط)
 </blockquote>"""
@@ -290,7 +290,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل صوت</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل صوت</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> تحميـل الاغـاني مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
 <b>⪼ الأستخدام :</b> <code>.تحميل صوت</code> + رابط (فقط رابط)
 </blockquote>"""
@@ -308,7 +308,7 @@ async def _(event):
 @check_owner
 async def _(event):
     text = """<blockquote>
-<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل فيديو</code> <b>⟩</b>
+<b>⦁ الأمر ⇚ ⟨</b> <code>.تحميل فيديو</code> <b>⟩</b></b>
 <b>⪼ الوصف :</b> تحميـل الفيديو مـن يوتيوب .. فيسبوك .. انستا .. الـخ عـبر الرابـط
 <b>⪼ الأستخدام :</b> <code>.تحميل فيديو</code> + رابط (فقط رابط)
 </blockquote>"""

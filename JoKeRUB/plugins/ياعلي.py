@@ -9,11 +9,13 @@ import requests
 from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
+import logging
+
 
 REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 EDIT_TEXT = "**🖼️︙ لأستخدام بوت تعديل الصور أضغط على الزر**"
-EDIT_PIC = "https://graph.org/file/8cd3d864e765b2d00521b-69d50ff95377d95199.jpg"
+EDIT_PIC = "https://graph.org/file/c00c3a5e933e190dbe53e-fbcab545545de622ea.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -24,6 +26,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         result = None
         joker = Bot_Username.replace("@", "")
         query = event.text
+        
+        logger.info(f"Inline Query Received: {query} from user: {event.query.user_id}")
         
         if not query or event.query.user_id != bot.uid:
             return
@@ -82,31 +86,21 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         
         if result:
             await event.answer([result])
+            logger.info(f"Result sent for query: {query}")
         else:
             await event.answer([])
+            logger.warning(f"No result for query: {query}")
 
 @bot.on(admin_cmd(outgoing=True, pattern="هاك"))
 async def repo(event):
     if event.fwd_from:
         return
-    
-    try:
-        lMl10l = Config.TG_BOT_USERNAME
-        if event.reply_to_msg_id:
-            await event.get_reply_message()
-        
-        # إرسال الاستعلام المضمن
-        response = await bot.inline_query(lMl10l, "هاك")
-        
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
-        else:
-            await event.edit("**⚠️︙ لم يتم العثور على نتيجة**")
-            return
-    
-    except Exception as e:
-        await event.edit(f"**❌︙ حدث خطأ:** `{e}`")
-    
+    lMl10l = Config.TG_BOT_USERNAME
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+    await bot.send_message(lMl10l, "/hack")
+    response = await bot.inline_query(lMl10l, "هاك")
+    await response[0].click(event.chat_id)
     await event.delete()
 
 @bot.on(admin_cmd(outgoing=True, pattern="صور"))
@@ -114,25 +108,21 @@ async def photo_edit_command(event):
     if event.fwd_from:
         return
     
-    try:
-        bot_user = Config.TG_BOT_USERNAME
-        
-        if event.reply_to_msg_id:
-            await event.get_reply_message()
-        
-        # إرسال الاستعلام المضمن
-        response = await bot.inline_query(bot_user, "صور")
-        
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
-        else:
-            await event.edit("**⚠️︙ لم يتم العثور على نتيجة**")
-            return
+    bot_user = Config.TG_BOT_USERNAME
     
-    except Exception as e:
-        await event.edit(f"**❌︙ حدث خطأ:** `{e}`")
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+    
+    await bot.send_message(bot_user, "/edit")
+    response = await bot.inline_query(bot_user, "صور")
+    
+    if response:
+        await response[0].click(event.chat_id)
     
     await event.delete()
+
+
+
 
 ########################################
 #################الاشـتـراك###################

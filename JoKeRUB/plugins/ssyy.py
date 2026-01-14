@@ -304,7 +304,6 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
-
 @l313l.ar_cmd(pattern="بنترست(?: |$)([\s\S]*)")
 async def Ahmed_pin(event):
     link = event.pattern_match.group(1)
@@ -324,6 +323,7 @@ async def Ahmed_pin(event):
     try:
         async with borg.conversation(chat) as conv:
             try:
+                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
                 purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
                 await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
@@ -343,13 +343,14 @@ async def Ahmed_pin(event):
                 parse_mode="html",
             )
             
-            # حذف المحادثة باستخدام نفس الطريقة
+            # حذف المحادثة مع البوت باستخدام الدالة الموجودة
             await delete_conv(event, chat, purgeflag)
                 
     except asyncio.TimeoutError:
         await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
+
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

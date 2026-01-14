@@ -305,65 +305,50 @@ async def download_video(event):
     await event.delete()
 
 
-@l313l.ar_cmd(pattern="بنترست(?: |$)(.*)")
-async def download_video(event):
-    msg = event.pattern_match.group(1)
-    rmsg = await event.get_reply_message()
-    if not msg and rmsg:
-        msg = rmsg.text
-    urls = extractor.find_urls(msg)
-    if not urls:
-        return await edit_or_reply(event, "**- قـم بادخــال رابـط مع الامـر او بالــرد ع رابـط ليتـم التحميـل**")
-    zedevent = await edit_or_reply(event, "**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
-    reply_to_id = await reply_id(event)
-    for url in urls:
-        ytdl_data = await ytdl_down(zedevent, video_opts, url)
-        if ytdl_down is None:
-            return
+@l313l.ar_cmd(pattern="بنترست(?: |$)([\s\S]*)")
+async def Ahmed_pin(event):
+    link = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    if not link and reply:
+        link = reply.text
+    if not link:
+        return await edit_delete(event, "**- ارسـل (.بنترست) + رابـط او بالـرد ع رابـط**", 10)
+    if "pin" not in link:
+        return await edit_delete(
+            event, "**- احتـاج الـى رابــط من بنتـرسـت .. للتحميــل ؟!**", 10
+        )
+    chat = "@GoPinterestBot"
+    dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
+    async with borg.conversation(chat) as conv:
         try:
-            f = pathlib.Path("zed_ytv.mp4")
-            print(f)
-            catthumb = pathlib.Path("zed_ytv.jpg")
-            if not os.path.exists(catthumb):
-                catthumb = pathlib.Path("zed_ytv.webp")
-            if not os.path.exists(catthumb):
-                catthumb = None
-            await zedevent.edit(
-                f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
-                \n**{ytdl_data['title']}**"
-            )
-            ul = io.open(f, "rb")
-            c_time = time()
-            attributes, mime_type = await fix_attributes(
-                f, ytdl_data, supports_streaming=True
-            )
-            uploaded = await event.client.fast_upload_file(
-                file=ul,
-                progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                    progress(
-                        d, t, zedevent, c_time, "Upload :", file_name=ytdl_data["title"]
-                    )
-                ),
-            )
-            ul.close()
-            media = types.InputMediaUploadedDocument(
-                file=uploaded,
-                mime_type=mime_type,
-                attributes=attributes,
-            )
-            await event.client.send_file(
-                event.chat_id,
-                file=media,
-                reply_to=reply_to_id,
-                caption=f'**⎉╎المقطــع :** `{ytdl_data["title"]}`\n**⎉╎الرابـط : {msg}**\n**⎉╎تم  التحميـل .. بنجـاح ✅**"',
-                thumb=catthumb,
-            )
-            os.remove(f)
-            if catthumb:
-                os.remove(catthumb)
-        except TypeError:
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            await conv.get_response()
             await asyncio.sleep(2)
-    await event.delete()
+            dragoiq = await conv.get_response()
+            await dra.delete()
+            await borg.send_file(
+                event.chat_id,
+                dragoiq,
+                caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
+                parse_mode="html",
+            )
+        except YouBlockedUserError:
+            await dragoiq(unblock("GoPinterestBot"))
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(link)
+            await conv.get_response()
+            await asyncio.sleep(2)
+            dragoiq = await conv.get_response()
+            await dra.delete()
+            await borg.send_file(
+                event.chat_id,
+                dragoiq,
+                caption=f"<b>↯︙تم التحميـل من بنتـرسـت  بنجاح</b>",
+                parse_mode="html",
+            )
 
 
 @l313l.ar_cmd(

@@ -9,12 +9,13 @@ import requests
 from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
-#ياعلي
-#اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
-#Reda
+
 REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
+EDIT_TEXT = "**🖼️︙ لأستخدام بوت تعديل الصور أضغط على الزر**"
+EDIT_PIC = "https://graph.org/file/8cd3d864e765b2d00521b-69d50ff95377d95199.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
+
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
     @tgbot.on(events.InlineQuery)
@@ -23,12 +24,19 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         result = None
         joker = Bot_Username.replace("@", "")
         query = event.text
-        await bot.get_me()
-        if query.startswith("هاك") and event.query.user_id == bot.uid:
+        
+        if not query or event.query.user_id != bot.uid:
+            return
+        
+        # نظام الهاك
+        if query.startswith("هاك"):
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
+                    JOKER_PIC, 
+                    text=REH, 
+                    buttons=buttons, 
+                    link_preview=False
                 )
             elif JOKER_PIC:
                 result = builder.document(
@@ -45,38 +53,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     buttons=buttons,
                     link_preview=False,
                 )
-        await event.answer([result] if result else None)
-
-@bot.on(admin_cmd(outgoing=True, pattern="هاك"))
-async def repo(event):
-    if event.fwd_from:
-        return
-    lMl10l = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    await bot.send_message(lMl10l, "/hack")
-    response = await bot.inline_query(lMl10l, "هاك")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-
-EDIT_TEXT = "**🖼️︙ لأستخدام بوت تعديل الصور أضغط على الزر**"
-EDIT_PIC = "https://graph.org/file/8cd3d864e765b2d00521b-69d50ff95377d95199.jpg"
-BOT_USER = Config.TG_BOT_USERNAME
-
-if Config.TG_BOT_USERNAME is not None and tgbot is not None:
-    
-    @tgbot.on(events.InlineQuery)
-    async def inline_photo_editor(event):
-        builder = event.builder
-        result = None
-        bot_user = BOT_USER.replace("@", "")
-        query = event.text
-        await bot.get_me()
         
-        if query.startswith("صور") and event.query.user_id == bot.uid:
-            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{bot_user}")
-            
+        # نظام تعديل الصور
+        elif query.startswith("صور"):
+            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             if EDIT_PIC and EDIT_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     EDIT_PIC, 
@@ -100,23 +80,57 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     link_preview=False,
                 )
         
-        await event.answer([result] if result else None)
+        if result:
+            await event.answer([result])
+        else:
+            await event.answer([])
+
+@bot.on(admin_cmd(outgoing=True, pattern="هاك"))
+async def repo(event):
+    if event.fwd_from:
+        return
+    
+    try:
+        lMl10l = Config.TG_BOT_USERNAME
+        if event.reply_to_msg_id:
+            await event.get_reply_message()
+        
+        # إرسال الاستعلام المضمن
+        response = await bot.inline_query(lMl10l, "هاك")
+        
+        if response and len(response) > 0:
+            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
+        else:
+            await event.edit("**⚠️︙ لم يتم العثور على نتيجة**")
+            return
+    
+    except Exception as e:
+        await event.edit(f"**❌︙ حدث خطأ:** `{e}`")
+    
+    await event.delete()
 
 @bot.on(admin_cmd(outgoing=True, pattern="صور"))
 async def photo_edit_command(event):
     if event.fwd_from:
         return
     
-    bot_user = Config.TG_BOT_USERNAME
+    try:
+        bot_user = Config.TG_BOT_USERNAME
+        
+        if event.reply_to_msg_id:
+            await event.get_reply_message()
+        
+        # إرسال الاستعلام المضمن
+        response = await bot.inline_query(bot_user, "صور")
+        
+        if response and len(response) > 0:
+            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
+        else:
+            await event.edit("**⚠️︙ لم يتم العثور على نتيجة**")
+            return
     
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    
-    await bot.send_message(bot_user, "/edit")
-    response = await bot.inline_query(bot_user, "صور")
-    
-    if response:
-        await response[0].click(event.chat_id)
+    except Exception as e:
+        await event.edit(f"**❌︙ حدث خطأ:** `{e}`")
     
     await event.delete()
 

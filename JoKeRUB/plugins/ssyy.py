@@ -304,50 +304,49 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
-@l313l.ar_cmd(pattern="بنترست(?: |$)(.*)")
-async def download_pinterest(event):
-    # الحصول على الرابط
+@l313l.ar_cmd(pattern="بنترست(?: |$)([\s\S]*)")
+async def Ahmed_pin(event):
     link = event.pattern_match.group(1)
     reply = await event.get_reply_message()
-    
     if not link and reply:
         link = reply.text
-    
     if not link:
-        return await event.edit("**✕ أرسل الأمر مع رابط Pinterest أو رد على الرابط**")
-    
+        return await edit_delete(event, "**- ارسـل (.بنترست) + رابـط او بالـرد ع رابـط**", 10)
     if "pin" not in link:
-        return await event.edit("**✕ هذا ليس رابط Pinterest!**")
+        return await edit_delete(
+            event, "**- احتـاج الـى رابــط من بنتـرسـت .. للتحميــل ؟!**", 10
+        )
     
-    await event.edit("**⏳ جاري التحميل من Pinterest...**")
+    dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
     
     try:
-        # إرسال الرابط إلى البوت
-        async with event.client.conversation("@TIKTOKDOWNLOADROBOT", timeout=60) as conv:
-            # إرسال الرابط
-            await conv.send_message(link)
-            
-            # انتظار رد البوت
-            response = await conv.get_response()
-            
-            # التحقق مما إذا كان البوت أرسل فيديو أو صورة
-            if response.media:
-                # إعادة إرسال الوسائط إلى الدردشة الحالية
-                await event.client.send_file(
+        async with borg.conversation("@TIKTOKDOWNLOADROBOT") as conv:
+            try:
+                await conv.send_message(link)
+                
+                # تجاهل الرد الأول (⏳)
+                await conv.get_response()
+                
+                # الحصول على الرد الثاني (الوسائط)
+                dragoiq = await conv.get_response()
+                
+                await dra.delete()
+                await borg.send_file(
                     event.chat_id,
-                    response.media,
-                    caption=f"**✅ تم التحميل بنجاح**\n__via @TIKTOKDOWNLOADROBOT__"
+                    dragoiq,
+                    caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
+                    parse_mode="html",
                 )
-                await event.delete()
-            else:
-                # إذا لم تكن هناك وسائط
-                await event.edit(f"**⚠️ لم يتم العثور على وسائط في الرد**\n\n{response.text}")
+                
+            except YouBlockedUserError:
+                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT أولاً**")
+            except Exception as conv_error:
+                await dra.edit(f"**↯︙خطأ في المحادثة:**\n`{str(conv_error)}`")
                 
     except asyncio.TimeoutError:
-        await event.edit("**⏱️ انتهى وقت الانتظار. حاول مرة أخرى.**")
+        await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
     except Exception as e:
-        await event.edit(f"**❌ حدث خطأ:**\n`{str(e)}`")
-
+        await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

@@ -316,7 +316,7 @@ async def download_pinterest(event):
     if not link:
         return await event.edit("**✕ أرسل الأمر مع رابط Pinterest أو رد على الرابط**")
     
-    if "pinterest" not in link:
+    if "pin" not in link:
         return await event.edit("**✕ هذا ليس رابط Pinterest!**")
     
     await event.edit("**⏳ جاري التحميل من Pinterest...**")

@@ -317,7 +317,7 @@ async def Ahmed_pin(event):
         return await edit_delete(
             event, "**- احتـاج الـى رابــط من بنتـرسـت .. للتحميــل ؟!**", 10
         )
-    chat = "@GoPinterestBot"
+    chat = "@TIKTOKDOWNLOADROBOT"
     dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
     async with borg.conversation(chat) as conv:
         try:
@@ -335,7 +335,7 @@ async def Ahmed_pin(event):
                 parse_mode="html",
             )
         except YouBlockedUserError:
-            await dragoiq(unblock("GoPinterestBot"))
+            await dragoiq(unblock("TIKTOKDOWNLOADROBOT"))
             await conv.send_message("/start")
             await conv.get_response()
             await conv.send_message(link)

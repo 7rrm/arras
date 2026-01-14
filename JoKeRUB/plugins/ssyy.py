@@ -304,6 +304,7 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
+
 @l313l.ar_cmd(pattern="بنترست(?: |$)([\s\S]*)")
 async def Ahmed_pin(event):
     link = event.pattern_match.group(1)
@@ -320,8 +321,7 @@ async def Ahmed_pin(event):
     dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
     
     try:
-        # إضافة delete=True لحذف المحادثة تلقائياً عند الانتهاء
-        async with borg.conversation("@TIKTOKDOWNLOADROBOT", delete=True) as conv:
+        async with borg.conversation("@TIKTOKDOWNLOADROBOT", delete=True) as conv:  # تغيير هنا
             try:
                 await conv.send_message(link)
                 
@@ -348,7 +348,6 @@ async def Ahmed_pin(event):
         await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
-
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

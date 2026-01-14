@@ -319,30 +319,32 @@ async def Ahmed_pin(event):
         )
     
     dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
+    chat = "@TIKTOKDOWNLOADROBOT"
     
     try:
-        async with borg.conversation("@TIKTOKDOWNLOADROBOT", delete=True) as conv:  # تغيير هنا
+        async with borg.conversation(chat) as conv:
             try:
-                await conv.send_message(link)
-                
-                # تجاهل الرد الأول (⏳)
-                await conv.get_response()
-                
-                # الحصول على الرد الثاني (الوسائط)
-                dragoiq = await conv.get_response()
-                
-                await dra.delete()
-                await borg.send_file(
-                    event.chat_id,
-                    dragoiq,
-                    caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
-                    parse_mode="html",
-                )
-                
+                purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
-                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT أولاً**")
-            except Exception as conv_error:
-                await dra.edit(f"**↯︙خطأ في المحادثة:**\n`{str(conv_error)}`")
+                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                return
+            
+            # تجاهل الرد الأول (⏳)
+            await conv.get_response()
+            
+            # الحصول على الرد الثاني (الوسائط)
+            dragoiq = await conv.get_response()
+            
+            await dra.delete()
+            await borg.send_file(
+                event.chat_id,
+                dragoiq,
+                caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
+                parse_mode="html",
+            )
+            
+            # حذف المحادثة باستخدام نفس الطريقة
+            await delete_conv(event, chat, purgeflag)
                 
     except asyncio.TimeoutError:
         await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")

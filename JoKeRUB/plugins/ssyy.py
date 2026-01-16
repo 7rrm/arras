@@ -440,7 +440,7 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-
+'''
 import os
 import yt_dlp
 from youtube_search import YoutubeSearch
@@ -471,7 +471,6 @@ def parse_duration(duration_str):
 
 @l313l.ar_cmd(pattern="بحث(?: |$)(.*)")
 async def yt_audio_search(event):
-    audio_file = None  # ← تعريف المتغير هنا
     # الحصول على الاستعلام من الرسالة
     reply = await event.get_reply_message()
     if event.pattern_match.group(1):
@@ -521,14 +520,6 @@ async def yt_audio_search(event):
             info_dict = ydl.extract_info(link, download=True)
             audio_file = ydl.prepare_filename(info_dict)
             
-            # إذا كان الملف غير موجود، حاول تغيير الامتداد
-            if not os.path.exists(audio_file):
-                # حاول مع امتداد m4a
-                audio_file = f"{video_id}.m4a"
-                if not os.path.exists(audio_file):
-                    # حاول مع امتداد webm
-                    audio_file = f"{video_id}.webm"
-            
         await zedevent.edit("**╮ ❐ جـارِ الرفـع ▬▬ . . 🎧♥️╰**")
         await event.client.send_file(
             event.chat_id,
@@ -553,9 +544,8 @@ async def yt_audio_search(event):
     except Exception as e:
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
-        if audio_file and os.path.exists(audio_file):  # ← تحقق قبل الحذف
-            remove_if_exists(audio_file)
-
+        remove_if_exists(audio_file)
+'''
 
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l

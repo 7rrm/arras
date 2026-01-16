@@ -440,7 +440,7 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
-'''
+
 import os
 import yt_dlp
 from youtube_search import YoutubeSearch
@@ -483,19 +483,24 @@ async def yt_audio_search(event):
     zedevent = await edit_or_reply(event, "**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     ydl_ops = {
-            "format":"worstaudio[ext=m4a]",
-            "socket_timeout": 5,
-            "http_chunk_size": 5242880,
-            "noplaylist": True,
-            "extract_flat": True,
-            "fragment_retries": 2,
-            "retries": 2,
-            "quiet": True,
-            "no_warnings": True,
-            "geo_bypass": True,
-            "cookiefile": get_cookies_file(),
-            "outtmpl": "%(id)s.%(ext)s"
-    }
+    "format": "bestaudio/best",
+    "postprocessors": [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'm4a',
+        'preferredquality': '128',
+    }],
+    "socket_timeout": 5,
+    "http_chunk_size": 5242880,
+    "noplaylist": True,
+    "extract_flat": True,
+    "fragment_retries": 2,
+    "retries": 2,
+    "quiet": True,
+    "no_warnings": True,
+    "geo_bypass": True,
+    "cookiefile": get_cookies_file(),
+    "outtmpl": "%(id)s.%(ext)s"
+}
     
     try:
         # البحث باستخدام YoutubeSearch
@@ -545,7 +550,8 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
-'''
+
+
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
     reply = await event.get_reply_message()

@@ -115,7 +115,7 @@ async def song_search(event):
 
 
 
-
+"""
 @l313l.ar_cmd(
     pattern="فيديو(?:\s|$)([\s\S]*)",
     command=("فيديو", plugin_category),
@@ -187,7 +187,7 @@ async def _(event):
         if files and os.path.exists(files):
             os.remove(files)
 
-
+"""
 @l313l.ar_cmd(pattern="اسم الاغنية$")
 async def shazamcmd(event):
     reply = await event.get_reply_message()

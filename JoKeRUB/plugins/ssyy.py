@@ -440,6 +440,7 @@ async def download_audio(event):
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #
+'''
 import os
 import yt_dlp
 from youtube_search import YoutubeSearch
@@ -544,7 +545,6 @@ async def yt_audio_search(event):
         await zedevent.edit(f"**- فشـل التحميـل** \n**- الخطأ:** `{str(e)}`")
     finally:
         remove_if_exists(audio_file)
-
 '''
 @l313l.ar_cmd(pattern="فيديو(?: |$)(.*)")
 async def _(event): #Code by T.me/zzzzl1l
@@ -601,8 +601,6 @@ async def _(event): #Code by T.me/zzzzl1l
         await zedevent.delete()
     except Exception as e:
         print(e)
-
-'''
         
 
 # ================================================================================================ #

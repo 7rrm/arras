@@ -1088,8 +1088,8 @@ async def song_search_simple(event):
         return await edit_delete(event, "**⚠️ يرجى كتابة اسم الأغنية**\nمثال: `.بحث احبك`", 10)
     
     catevent = await edit_or_reply(event, "**- جارِ البحث عن الأغنيةة**")
-    
-        try:
+
+    try:
             await event.client(JoinChannelRequest("@b_a_r"))
         except:
             pass  

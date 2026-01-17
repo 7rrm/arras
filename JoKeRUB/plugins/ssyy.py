@@ -1088,8 +1088,9 @@ async def song_search_simple(event):
         return await edit_delete(event, "**⚠️ يرجى كتابة اسم الأغنية**\nمثال: `.بحث احبك`", 10)
     
     catevent = await edit_or_reply(event, "**- جارِ البحث عن الأغنيةة**")
-
+    
     try:
+        try:
             await event.client(JoinChannelRequest("@b_a_r"))
         except:
             pass  
@@ -1097,15 +1098,13 @@ async def song_search_simple(event):
         bot_username = "@BaarxXxbot"
         
         await event.client.send_message(bot_username, f"يوت {query}")
-        
         await asyncio.sleep(10)
-        
         messages = await event.client.get_messages(bot_username, limit=5)
         
         file_found = False
         for msg in messages:
+            
             if msg.media and (msg.audio or (msg.document and msg.document.mime_type.startswith('audio/'))):
-                
                 await event.client.send_file(
                     event.chat_id,
                     msg.media,
@@ -1119,12 +1118,12 @@ async def song_search_simple(event):
         await catevent.delete()
         
         if not file_found:
-            
             error_msg = await event.respond("**❌ لم يتم العثور على الملف الصوتي**")
             await asyncio.sleep(5)
             await error_msg.delete()
             
     except Exception as e:
+        
         await catevent.edit(f"**❌ حدث خطأ:**\n`{str(e)[:100]}`")
         await asyncio.sleep(5)
         await catevent.delete()

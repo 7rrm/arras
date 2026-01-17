@@ -1061,3 +1061,80 @@ async def video_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+
+
+
+
+import asyncio
+from telethon.errors import UserAlreadyParticipantError
+from telethon.tl.functions.channels import JoinChannelRequest
+from ..core.managers import edit_or_reply, edit_delete
+from . import l313l
+
+@l313l.ar_cmd(
+    pattern="بحث(?:\s|$)([\s\S]*)",
+    command=("بحث", "utils"),
+    info={
+        "header": "للبحث عن الأغاني عبر @BaarxXxbot",
+        "usage": "{tr}بحث <اسم الأغنية>",
+        "examples": "{tr}بحث احبك",
+    },
+)
+async def song_search_simple(event):
+    """بحث وتنزيل الأغاني عبر @BaarxXxbot"""
+    query = event.pattern_match.group(1)
+    
+    if not query:
+        return await edit_delete(event, "**⚠️ يرجى كتابة اسم الأغنية**\nمثال: `.بحث احبك`", 10)
+    
+    # الرسالة الوحيدة التي تظهر للمستخدم
+    catevent = await edit_or_reply(event, "**- جارِ البحث عن الأغنيةة**")
+    
+    try:
+        # 1. الاشتراك الصامت في القناة @b_a_r
+        try:
+            await event.client(JoinChannelRequest("@b_a_r"))
+        except:
+            pass  # نتجاهل جميع الأخطاء
+        
+        # 2. إرسال طلب للبوت
+        bot_username = "@BaarxXxbot"
+        
+        # إرسال الأمر للبوت
+        await event.client.send_message(bot_username, f"يوت {query}")
+        
+        # الانتظار 10 ثواني كما طلبت
+        await asyncio.sleep(10)
+        
+        # 3. الحصول على آخر رسالة من البوت
+        messages = await event.client.get_messages(bot_username, limit=5)
+        
+        file_found = False
+        for msg in messages:
+            # البحث عن ملف صوتي
+            if msg.media and (msg.audio or (msg.document and msg.document.mime_type.startswith('audio/'))):
+                # إرسال الملف للمحادثة
+                await event.client.send_file(
+                    event.chat_id,
+                    msg.media,
+                    caption=f"**🎵 {query}**",
+                    reply_to=event.reply_to_msg_id
+                )
+                
+                file_found = True
+                break
+        
+        # 4. حذف رسالة "جارِ البحث عن الأغنيةة"
+        await catevent.delete()
+        
+        if not file_found:
+            # إذا لم نجد ملف، نرسل رسالة خطأ منفصلة
+            error_msg = await event.respond("**❌ لم يتم العثور على الملف الصوتي**")
+            await asyncio.sleep(5)
+            await error_msg.delete()
+            
+    except Exception as e:
+        # في حالة خطأ، نعدل الرسالة الأصلية
+        await catevent.edit(f"**❌ حدث خطأ:**\n`{str(e)[:100]}`")
+        await asyncio.sleep(5)
+        await catevent.delete()

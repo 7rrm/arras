@@ -171,7 +171,6 @@ async def get_user_rating(client, user_id):
         if stars_rating:
             level = stars_rating.level
             
-            # ⚡ أقصى سرعة - شروط مباشرة
             if level == 1:
                 level_display = '<a href="emoji/5217498259404130179">🎖</a>'
             elif level == 2:
@@ -674,7 +673,6 @@ async def zzz_info(zthon_user, event):
         quoted_content += f"<b>- الحساب  ⤎  بـريميـوم</b> "
         quoted_content += f'<a href="emoji/5877323064202499941">❤️</a> \n'
     
-    # ✅ إضافة المستوى والنقاط
     if rating_info['success'] and rating_info['has_rating']:
         quoted_content += f"<b>- المسـتوى ⤎ </b> {rating_info['level_display']} \n"
         quoted_content += f"<b>- النقـاط  ⤎ </b> {rating_info['stars']}/{rating_info['next_level_stars']} "
@@ -683,11 +681,9 @@ async def zzz_info(zthon_user, event):
         quoted_content += f"<b>- المسـتوى ⤎ </b> ❤️\n"
         quoted_content += f"<b>- النقـاط  ⤎ </b> 0/0 🎁\n"
     
-    # ✅ إضافة سطر الإنشاء
     quoted_content += f"<b>- الإنشـاء   ⤎</b>  {zzzsinc}"
     quoted_content += f'<a href="emoji/5233515377861879701">❤️</a> \n'
     
-    # ✅ وضع الجزء المطلوب داخل الاقتباس
     ZThon += f"<blockquote>{quoted_content}</blockquote>"
     
     return ZThon
@@ -724,7 +720,6 @@ async def fetch_info(replied_user, event):
     if main_username:
         usernames.append(f"@{main_username}")
     
-    # إضافة اليوزرات الإضافية باستخدام list comprehension (أسرع)
     if hasattr(replied_user, 'usernames') and replied_user.usernames:
         usernames.extend(
             f"@{u.username}" for u in replied_user.usernames 
@@ -732,7 +727,6 @@ async def fetch_info(replied_user, event):
         )
     
     username = " - ".join(usernames) if usernames else "لا يـوجـد"
-    # ⚡⚡⚡ نهاية الكود الأسرع ⚡⚡⚡
     
     user_bio = FullUser.about
     is_bot = replied_user.bot
@@ -806,9 +800,9 @@ async def fetch_info(replied_user, event):
         rotbat = "العضـو 𓅫"
 ################# Dev ZilZal #################
     #zid = int(gvarstatus("ZThon_Vip"))
-    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت زدثــون"  
+    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن بـوت آراس"  
     ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " 
-    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᶻᵗʰᵒᶰ ─┄─┄─┄─⋆" 
+    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ᵃᴿᴿᵃˢ ─┄─┄─┄─⋆" 
     if gvarstatus("ZID_TEMPLATE") is None:
         if Zel_Uid in Zed_Dev or (gvarstatus("ZThon_Vip") and Zel_Uid == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:

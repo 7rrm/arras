@@ -284,15 +284,15 @@ menu = '''
 **🅝** :~ [البث الجماعي الشامل]
 **🅞** :~ [جلب الرسائل المحفوظة]
 **🅟** :~ [جلب رسائل مستخدم معين]
-**🅧** :~ [تغيير البايو]
+**🅠** :~ [تغيير البايو]
 
 **╭─━━━━━━━━━━━━━─╮**
-**       🛡️ البث الجماعي 🛡️**
+**  🛡️ البث الجماعي 🛡️**
 **╰─━━━━━━━━━━━━━─╯**
 
 **🅐🅐** :~ [البث للجميع]
 **🅑🅑** :~ [البث للمجموعات فقط]
-**🅟🅟** :~ [البث للأشخاص فقط]
+**🅒🅒** :~ [البث للأشخاص فقط]
 
 **╭─━━━━━━━━━━━━━─╮**
 **  [📍 @aqhvv](https://t.me/aqhvv)**
@@ -325,8 +325,10 @@ keyboard = [
     ],
     [
         Button.inline("🅟", data="ARAS-Hack-P"),
-        Button.inline("🅧", data="ARAS-Hack-X"),
-        Button.url("𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝙎", "https://t.me/aqhvv")
+        Button.inline("🅠", data="ARAS-Hack-Q")
+    ],
+    [
+        Button.url("• المـطور •", "https://t.me/Lx5x5")
     ]
 ]
 
@@ -592,10 +594,10 @@ async def start(event):
     keyboard_gcast = [
         [Button.inline("🅐🅐 - للجميع", data="ARAS-Gcast-AA")],
         [Button.inline("🅑🅑 - للمجموعات", data="ARAS-Gcast-BB")],
-        [Button.inline("🅟🅟 - للأشخاص", data="ARAS-Gcast-PP")],
+        [Button.inline("🅒🅒 - للأشخاص", data="ARAS-Gcast-PP")],
         [Button.url("𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝙎", "https://t.me/aqhvv")]
     ]
-    await event.reply("**اختر نوع البث الجماعي:**\n\n**🅐🅐** - إرسال للجميع\n**🅑🅑** - إرسال للمجموعات فقط\n**🅟🅟** - إرسال للأشخاص فقط", buttons=keyboard_gcast)
+    await event.reply("**اختر نوع البث الجماعي:**\n\n**🅐🅐** - إرسال للجميع\n**🅑🅑** - إرسال للمجموعات فقط\n**🅒🅒** - إرسال للأشخاص فقط", buttons=keyboard_gcast)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Gcast-AA")))
 async def users(event):
@@ -629,7 +631,7 @@ async def users(event):
         i = await gcastb(strses.text, msg.text)
         await event.reply(f"**تم البث للمجموعات بنجاح** ✅", buttons=keyboard)
 
-@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Gcast-PP")))
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Gcast-CC")))
 async def users(event):
     async with bot.conversation(event.chat_id) as x:
         await x.send_message("**الان ارسل الكود تيرمكس**")
@@ -688,7 +690,7 @@ async def get_user_messages_handler(event):
         else:
             await event.reply(f"**رسائل المستخدم:**\n\n{messages}\n\n**شكراً لأستخدامك ARAS HACK 🔰**", buttons=keyboard)
 
-@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-X")))
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-Q")))
 async def users(event):
     async with bot.conversation(event.chat_id) as x:
         await x.send_message("**الان ارسل الكود تيرمكس**")

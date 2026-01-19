@@ -80,9 +80,37 @@ from JoKeRUB import l313l
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete
 from telethon.extensions import html
+from telethon.extensions import markdown
 
 DECORATIVE_EMOJI_ID = "5447181973544008180"  # إيموجي قبل النص
 DECORATIVE_EMOJII_ID = "5447389832781264371"  # إيموجي بعد النص
+
+# ========== الكلاس المطلوب ==========
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
 
 # ========== الأمر الرئيسي ==========
 @l313l.on(admin_cmd(pattern="تشويش مزخرف"))
@@ -94,21 +122,45 @@ async def toggle_spoiler_decor(event):
         delgvar("spoiler_decor")
         await edit_delete(event, "**✗ تم تعطيل التشويش المزخرف**")
 
-# ========== المعالج السريع ==========
+# ========== المعالج مع الكلاس ==========
 @l313l.on(events.NewMessage(outgoing=True))
-async def fast_decor_spoiler(event):
-    if not event.message.text or event.message.media or event.message.text.startswith('.'):
+async def handle_spoiler_decor(event):
+    if not event.message.text or event.message.media:
         return
     
-    if gvarstatus("spoiler_decor"):
-        text = event.message.text
-        formatted = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">✨</a><tg-spoiler>{text}</tg-spoiler><a href="emoji/{DECORATIVE_EMOJII_ID}">✨</a>\nهذا يأتي بعد النص'
+    # تخطي الأوامر
+    if event.message.text.startswith('.'):
+        return
+    
+    if not gvarstatus("spoiler_decor"):
+        return
+    
+    text = event.message.text
+    
+    # بناء النص مع التشويش والزخرفة
+    formatted_text = (
+        f'<a href="emoji/{DECORATIVE_EMOJI_ID}">✨</a>'
+        f'<tg-spoiler>{text}</tg-spoiler>'
+        f'<a href="emoji/{DECORATIVE_EMOJII_ID}">✨</a>'
+        f'\nهذا يأتي بعد النص'
+    )
+    
+    try:
+        # استخدام CustomParseMode للتحويل
+        parse_mode = CustomParseMode("html")
+        parsed_text, entities = parse_mode.parse(formatted_text)
         
+        # إرسال الرسالة المعدلة
+        await event.edit(
+            parsed_text,
+            parse_mode=None,  # نستخدم الكيانيات مباشرة
+            formatting_entities=entities
+        )
+    except Exception as e:
+        # إذا فشل التحويل المتقدم، استخدم الطريقة البسيطة
         try:
-            await event.edit(formatted, parse_mode="html")
+            simple_text = f"✨ [{text}](spoiler) ✨\nهذا يأتي بعد النص"
+            await event.edit(simple_text, parse_mode="markdown")
         except:
-            try:
-                simple = f"✨ [{text}](spoiler) ✨\nهذا يأتي بعد النص"
-                await event.edit(simple, parse_mode="markdown")
-            except:
-                pass
+            # إذا فشل كل شيء، تجاهل
+            pass

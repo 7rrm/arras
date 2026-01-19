@@ -103,7 +103,6 @@ async def set_not_afk(event):
                 f"📊 **تقرير انتهاء السليب**\n✧︙ المدة: {endtime}\n✧︙ الساعة: {current_time}",
             )
 
-
 @l313l.ar_cmd(
     incoming=True, func=lambda e: bool(e.mentioned or e.is_private), edited=False
 )
@@ -139,72 +138,62 @@ async def on_afk(event):
         msg = None
         if AFK_.afk_type == "media":
             if AFK_.reason:
-                # استخدام CustomParseMode مثل كود الأوامر
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
+                # استخدام تنسيق HTML بدلاً من Markdown
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             else:
                 # حالة بدون سبب
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             
             if event.chat_id:
-                try:
-                    msg = await event.client.send_message(
-                        event.chat_id,
-                        message_to_reply,
-                        file=AFK_.media_afk.media,
-                        link_preview=False,
-                        parse_mode=CustomParseMode("html")  # هنا الاستخدام
-                    )
-                except Exception as e:
-                    # إذا فشل، نرسل بدون إيموجيات بريميوم
-                    LOGS.error(f"خطأ في إرسال الإيموجيات البريميوم: {e}")
-                    msg = await event.reply(f"🌙 **أنا الآن في وضع عـدم الإتصال**\n\n⏰ **مُـنذ :** {endtime}\n\n📝 **السبب:** {AFK_.reason}\n\n🔔 **سيتم الرد عند العودة**", file=AFK_.media_afk.media)
+                msg = await event.client.send_message(
+                    event.chat_id,
+                    message_to_reply,
+                    file=AFK_.media_afk.media,
+                    link_preview=False,
+                    parse_mode=CustomParseMode("html")
+                )
         
         elif AFK_.afk_type == "text":
             if AFK_.msg_link and AFK_.reason:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             elif AFK_.reason:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             else:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             
             if event.chat_id:
-                try:
-                    msg = await event.client.send_message(
-                        event.chat_id,
-                        message_to_reply,
-                        link_preview=False,
-                        parse_mode=CustomParseMode("html")  # هنا الاستخدام
-                    )
-                except Exception as e:
-                    # إذا فشل، نرسل بدون إيموجيات بريميوم
-                    LOGS.error(f"خطأ في إرسال الإيموجيات البريميوم: {e}")
-                    msg = await event.reply(f"🌙 **أنا الآن في وضع عـدم الإتصال**\n\n⏰ **مُـنذ :** {endtime}\n\n📝 **السبب:** {AFK_.reason if AFK_.reason else ''}\n\n🔔 **سيتم الرد عند العودة**")
+                msg = await event.client.send_message(
+                    event.chat_id,
+                    message_to_reply,
+                    link_preview=False,
+                    parse_mode=CustomParseMode("html")
+                )
         
         if msg:
             if event.chat_id in AFK_.last_afk_message:
@@ -237,7 +226,6 @@ async def on_afk(event):
                 parse_mode="html",
                 link_preview=False,
             )
-
 
 @l313l.ar_cmd(
     pattern="سليب(?:\s|$)([\s\S]*)",

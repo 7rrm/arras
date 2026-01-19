@@ -79,68 +79,81 @@ from telethon import events, types
 from JoKeRUB import l313l
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete
-from telethon.extensions import html
-from telethon.extensions import markdown
+from telethon.extensions import html, markdown
 
-DECORATIVE_EMOJI_ID = "5447181973544008180"  # إيموجي قبل النص
-DECORATIVE_EMOJII_ID = "5447389832781264371"  # إيموجي بعد النص
+# إيموجيات الزخرفة
+EMOJI_BEFORE_ID = "5447181973544008180"  # إيموجي قبل النص
+EMOJI_AFTER_ID = "5447389832781264371"   # إيموجي بعد النص
 
-# ========== كلاس الإيموجي المخصص ==========
+# ========== كلاس التحليل المخصص ==========
 class CustomParseMode:
+    """
+    محلل نصوص مخصص للتليثون يدعم:
+    1. التشويش (Spoiler)
+    2. الإيموجيات المخصصة (Custom Emoji)
+    """
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
 
     def parse(self, text):
-        if self.parse_mode == 'html':
+        if self.parse_mode == 'markdown':
+            text, entities = markdown.parse(text)
+        elif self.parse_mode == 'html':
             text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
+        else:
+            raise ValueError("Invalid parse mode. Use 'markdown' or 'html'.")
 
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
+        # تحويل الروابط الخاصة إلى كيانات تليثون
+        for i, e in enumerate(entities):
+            if isinstance(e, types.MessageEntityTextUrl):
+                if e.url == 'spoiler':  # تشويش
+                    entities[i] = types.MessageEntitySpoiler(e.offset, e.length)
+                elif e.url.startswith('emoji/'):  # إيموجي مخصص
+                    entities[i] = types.MessageEntityCustomEmoji(
+                        e.offset, 
+                        e.length, 
+                        int(e.url.split('/')[1])
+                    )
+        return text, entities
 
-# ========== أوامر خط مزخرف (التشويش + الإيموجيات) ==========
+# ========== أوامر التحكم ==========
 @l313l.on(admin_cmd(pattern="(خط مزخرف|تفعيل خط مزخرف)"))
 async def enable_decorative_line(event):
     """تفعيل خط مزخرف مع تشويش"""
-    is_decorative = gvarstatus("decorative_line")
-    if not is_decorative:
+    is_active = gvarstatus("decorative_line")
+    if not is_active:
         addgvar("decorative_line", "on")
-        await edit_delete(event, "**⎉╎تم تفعيـل خـط المـزخرف بالتشويش ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل خط مزخرف)**")
+        await edit_delete(event, 
+            "**⎉╎تم تفعيل خط المزخرف مع التشويش ✓**\n"
+            "**⎉╎لتعطيله اكتب (.تعطيل خط مزخرف)**"
+        )
         return
-    if is_decorative:
-        await edit_delete(event, "**⎉╎خـط المـزخرف مفعـل .. مسبقـاً ✓**\n**⎉╎لـ تعطيله اكتب (.تعطيل خط مزخرف)**")
-        return
+    await edit_delete(event, 
+        "**⎉╎خط المزخرف مفعل مسبقاً ✓**\n"
+        "**⎉╎لتعطيله اكتب (.تعطيل خط مزخرف)**"
+    )
 
 @l313l.on(admin_cmd(pattern="(تعطيل خط مزخرف|إيقاف خط مزخرف)"))
 async def disable_decorative_line(event):
     """تعطيل خط مزخرف مع تشويش"""
-    is_decorative = gvarstatus("decorative_line")
-    if is_decorative:
+    is_active = gvarstatus("decorative_line")
+    if is_active:
         delgvar("decorative_line")
-        await edit_delete(event, "**⎉╎تم تعطيـل خـط المـزخرف .. بنجـاح ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل خط مزخرف)**")
+        await edit_delete(event, 
+            "**⎉╎تم تعطيل خط المزخرف ✓**\n"
+            "**⎉╎لتشغيله اكتب (.تفعيل خط مزخرف)**"
+        )
         return
-    if not is_decorative:
-        await edit_delete(event, "**⎉╎خـط المـزخرف معطـل .. مسبقـاً ✓**\n**⎉╎لـ تفعيله اكتب (.تفعيل خط مزخرف)**")
-        return
+    await edit_delete(event, 
+        "**⎉╎خط المزخرف معطل مسبقاً ✓**\n"
+        "**⎉╎لتشغيله اكتب (.تفعيل خط مزخرف)**"
+    )
 
 # ========== المعالج الرئيسي ==========
 @l313l.on(events.NewMessage(outgoing=True))
 async def handle_decorative_spoiler(event):
     """معالجة الرسائل مع التشويش والإيموجيات"""
+    
     # التحقق من وجود نص وليس وسائط
     if not event.message.text or event.message.media:
         return
@@ -149,43 +162,56 @@ async def handle_decorative_spoiler(event):
     if event.message.text.startswith('.'):
         return
     
-    # التحقق من تفعيل خط مزخرف
-    is_decorative = gvarstatus("decorative_line")
-    if not is_decorative:
+    # التحقق من تفعيل الميزة
+    if not gvarstatus("decorative_line"):
         return
     
     text = event.message.text
     
     try:
-        # الطريقة 1: HTML مع الإيموجيات المخصصة (الأفضل)
-        formatted_html = (
-            f'<a href="emoji/{DECORATIVE_EMOJI_ID}">💫</a> '
-            f'<tg-spoiler>{text}</tg-spoiler> '
-            f'<a href="emoji/{DECORATIVE_EMOJII_ID}">💫</a>'
+        # الطريقة 1: HTML (الأفضل)
+        # بناء النص مع إيموجي قبل + نص مشوش + إيموجي بعد
+        decorated_text = (
+            f'<a href="emoji/{EMOJI_BEFORE_ID}">✨</a> '  # إيموجي قبل
+            f'<a href="spoiler">{text}</a> '              # نص مشوش
+            f'<a href="emoji/{EMOJI_AFTER_ID}">✨</a>'   # إيموجي بعد
         )
         
-        # استخدام CustomParseMode لتحويل HTML
-        parse_mode = CustomParseMode("html")
-        parsed_text, entities = parse_mode.parse(formatted_html)
+        # استخدام CustomParseMode للتحليل
+        parser = CustomParseMode("html")
+        parsed_text, entities = parser.parse(decorated_text)
         
-        # تعديل الرسالة
+        # إرسال الرسالة المعدلة
         await event.edit(
             parsed_text,
-            parse_mode=None,
-            formatting_entities=entities
+            parse_mode=None,              # لا تستخدم parse_mode العادي
+            formatting_entities=entities  # أرسل الكيانات مباشرة
         )
         
     except Exception as e:
         # إذا فشلت طريقة HTML، جرب Markdown
         try:
-            # الطريقة 2: Markdown مع التشويش
-            formatted_markdown = f"💫 **[{text}](spoiler)** 💫"
-            await event.edit(formatted_markdown, parse_mode=CustomParseMode("markdown"))
-        except:
-            # إذا فشلت جميع الطرق، استخدم HTML عادي
+            # الطريقة 2: Markdown
+            decorated_md = (
+                f'[✨](emoji/{EMOJI_BEFORE_ID}) '  # إيموجي قبل
+                f'[{text}](spoiler) '              # نص مشوش
+                f'[✨](emoji/{EMOJI_AFTER_ID})'   # إيموجي بعد
+            )
+            
+            parser = CustomParseMode("markdown")
+            parsed_text, entities = parser.parse(decorated_md)
+            
+            await event.edit(
+                parsed_text,
+                parse_mode=None,
+                formatting_entities=entities
+            )
+            
+        except Exception as e2:
+            # الطريقة 3: HTML عادي (بدون CustomParseMode)
             try:
-                formatted_simple = f'💫 <tg-spoiler>{text}</tg-spoiler> 💫'
-                await event.edit(formatted_simple, parse_mode="html")
+                simple_html = f'✨ <tg-spoiler>{text}</tg-spoiler> ✨'
+                await event.edit(simple_html, parse_mode="html")
             except:
-                # تجاهل أي خطأ نهائي
+                # إذا فشل كل شيء، تجاهل
                 pass

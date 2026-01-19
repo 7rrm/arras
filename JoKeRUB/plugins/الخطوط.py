@@ -77,159 +77,38 @@ async def handle_text_formatting(event):
 #########################
 from telethon import events, types
 from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete
 from telethon.extensions import html
 
-# كلاس التحليل المخصص (كما في كود الأوامر)
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
+DECORATIVE_EMOJI_ID = "5447181973544008180"  # إيموجي قبل النص
+DECORATIVE_EMOJII_ID = "5447389832781264371"  # إيموجي بعد النص
 
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
-# الإيموجي الثابت للزخرفة
-DECORATIVE_EMOJI_ID = "5447389832781264371"
-#DECORATIVE_EMOJII_ID = "5447389832781264371"وقفته
-
-# الأمر الرئيسي لتفعيل خط مزخرف
-@l313l.on(admin_cmd(pattern="(خط مزخرف|خط المزخرف)"))
-async def decorative_toggle(event):
-    if not gvarstatus("decorative"):
-        addgvar("decorative", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط مزخرف بنجاح ✓**")
+# ========== الأمر الرئيسي ==========
+@l313l.on(admin_cmd(pattern="تشويش مزخرف"))
+async def toggle_spoiler_decor(event):
+    if not gvarstatus("spoiler_decor"):
+        addgvar("spoiler_decor", "on")
+        await edit_delete(event, "**✓ تم تفعيل التشويش المزخرف**")
     else:
-        delgvar("decorative")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط مزخرف ✓**")
+        delgvar("spoiler_decor")
+        await edit_delete(event, "**✗ تم تعطيل التشويش المزخرف**")
 
+# ========== المعالج السريع ==========
 @l313l.on(events.NewMessage(outgoing=True))
-async def handle_decorative_formatting(event):
-    if not event.message.text or event.message.media:
+async def fast_decor_spoiler(event):
+    if not event.message.text or event.message.media or event.message.text.startswith('.'):
         return
     
-    # التحقق من تفعيل خط مزخرف
-    if gvarstatus("decorative"):
+    if gvarstatus("spoiler_decor"):
         text = event.message.text
-        
-        # تخطي إذا كان النص يبدأ بنقطة (أوامر)
-        if text.startswith('.'):
-            return
-        
-        # تنسيق النص مع الإيموجي من الجانبين
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a>{text}'
+        formatted = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">✨</a><tg-spoiler>{text}</tg-spoiler><a href="emoji/{DECORATIVE_EMOJII_ID}">✨</a>\nهذا يأتي بعد النص'
         
         try:
-            # استخدام CustomParseMode مع event.edit()
-            # ننشئ الكيانيات يدوياً
-            parse_mode = CustomParseMode("html")
-            parsed_text, entities = parse_mode.parse(formatted_text)
-            
-            # نعدل الرسالة الأصلية
-            await event.edit(
-                parsed_text,
-                parse_mode=None,  # نستخدم الكيانيات مباشرة
-                formatting_entities=entities
-            )
-        except Exception as e:
-            # في حال فشل، نستخدم الطريقة العادية
+            await event.edit(formatted, parse_mode="html")
+        except:
             try:
-                await event.edit(formatted_text)
-            except:
-                pass
-
-
-from telethon import events, types
-from JoKeRUB import l313l
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..core.managers import edit_delete
-from telethon.extensions import html
-
-# كلاس التحليل المخصص
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
-# الإيموجي الثابت
-DECORATIVE_EMOJI_ID = "5447389832781264371"
-
-# الأمر الجديد: ./خط مزخرف
-@l313l.on(admin_cmd(pattern="/(خط مزخرف|خط المزخرف)"))
-async def decorative_toggle_bold(event):
-    if not gvarstatus("decorative_bold"):
-        addgvar("decorative_bold", "on")
-        await edit_delete(event, "**᯽︙ تم تفعيل خط مزخرف (غامق + نقطة) بنجاح ✓**")
-    else:
-        delgvar("decorative_bold")
-        await edit_delete(event, "**᯽︙ تم إيقاف خط مزخرف (غامق + نقطة) ✓**")
-
-# معالج الرسائل للنوع الجديد فقط
-@l313l.on(events.NewMessage(outgoing=True))
-async def handle_decorative_formatting(event):
-    if not event.message.text or event.message.media:
-        return
-    
-    text = event.message.text
-    
-    # تخطي الأوامر
-    if text.startswith('.'):
-        return
-    
-    # التحقق من تفعيل النوع الجديد فقط
-    if gvarstatus("decorative_bold"):
-        formatted_text = f'<a href="emoji/{DECORATIVE_EMOJI_ID}">❤️</a><b>{text}</b> .'
-        
-        try:
-            parse_mode = CustomParseMode("html")
-            parsed_text, entities = parse_mode.parse(formatted_text)
-            
-            await event.edit(
-                parsed_text,
-                parse_mode=None,
-                formatting_entities=entities
-            )
-        except Exception as e:
-            try:
-                await event.edit(formatted_text)
+                simple = f"✨ [{text}](spoiler) ✨\nهذا يأتي بعد النص"
+                await event.edit(simple, parse_mode="markdown")
             except:
                 pass

@@ -114,9 +114,9 @@ async def on_afk(event):  # sourcery no-metrics
         if AFK_.afk_type == "media":
             if AFK_.reason:
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع السليب**
+🌙 **أنا الآن في وضع اعـدم الإتصال**
 
-⏰ **مضى منذ:** {endtime}
+⏰ **مُـنذ :** {endtime}
 
 📝 **السبب:** {AFK_.reason}
 
@@ -124,9 +124,9 @@ async def on_afk(event):  # sourcery no-metrics
 """
             else:
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع السليب**
+🌙 **أنا الآن في وضع عـدم الإتصال**
 
-⏰ **مضى منذ:** {endtime}
+⏰ **مُـنذ :** {endtime}
 
 🔔 **سيتم الرد عند العودة**
 """
@@ -135,9 +135,9 @@ async def on_afk(event):  # sourcery no-metrics
         elif AFK_.afk_type == "text":
             if AFK_.msg_link and AFK_.reason:
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع السليب**
+🌙 **أنا الآن في وضع عـدم الإتصال**
 
-⏰ **مضى منذ:** {endtime}
+⏰ **مُـنذ :** {endtime}
 
 📝 **السبب:** {AFK_.reason}
 
@@ -145,9 +145,9 @@ async def on_afk(event):  # sourcery no-metrics
 """
             elif AFK_.reason:
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع السليب**
+🌙 **أنا الآن في وضع عـدم الإتصال**
 
-⏰ **مضى منذ:** {endtime}
+⏰ **مُـنذ :** {endtime}
 
 📝 **السبب:** {AFK_.reason}
 
@@ -155,9 +155,9 @@ async def on_afk(event):  # sourcery no-metrics
 """
             else:
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع السليب**
+🌙 **أنا الآن في وضع عـدم الإتصال**
 
-⏰ **مضى منذ:** {endtime}
+⏰ **مُـنذ :** {endtime}
 
 🔔 **سيتم الرد عند العودة**
 """

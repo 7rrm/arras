@@ -138,7 +138,6 @@ async def on_afk(event):
         msg = None
         if AFK_.afk_type == "media":
             if AFK_.reason:
-                # استخدام تنسيق HTML بدلاً من Markdown
                 message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
@@ -147,7 +146,6 @@ async def on_afk(event):
 
 <a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             else:
-                # حالة بدون سبب
                 message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
@@ -155,8 +153,8 @@ async def on_afk(event):
 <a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             
             if event.chat_id:
-                msg = await event.client.send_message(
-                    event.chat_id,
+                # استخدام event.reply() بدلاً من event.client.send_message()
+                msg = await event.reply(
                     message_to_reply,
                     file=AFK_.media_afk.media,
                     link_preview=False,
@@ -188,8 +186,8 @@ async def on_afk(event):
 <a href="emoji/5933974679269151927">🌙</a> <b>سيتم الرد عند العودة</b> <a href="emoji/5891169510483823323">🔔</a>"""
             
             if event.chat_id:
-                msg = await event.client.send_message(
-                    event.chat_id,
+                # استخدام event.reply() بدلاً من event.client.send_message()
+                msg = await event.reply(
                     message_to_reply,
                     link_preview=False,
                     parse_mode=CustomParseMode("html")

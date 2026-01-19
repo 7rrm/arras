@@ -168,22 +168,21 @@ async def handle_decorative_spoiler(event):
     
     text = event.message.text
     
-    try:
-        # الطريقة 1: HTML (الأفضل)
-        # بناء النص مع إيموجي قبل + نص مشوش + إيموجي بعد
-        decorated_text = (
-            f'<a href="emoji/{EMOJI_BEFORE_ID}">✨</a> '  # إيموجي قبل
-            f'<a href="spoiler">{text}</a> '              # نص مشوش
-            f'<a href="emoji/{EMOJI_AFTER_ID}">✨</a>'   # إيموجي بعد
-        )
-        
-        # استخدام CustomParseMode للتحليل
-        parser = CustomParseMode("html")
-        parsed_text, entities = parser.parse(decorated_text)
-        
-        # إرسال الرسالة المعدلة
-        await event.edit(
-            parsed_text,
-            parse_mode=None,              # لا تستخدم parse_mode العادي
-            formatting_entities=entities  # أرسل الكيانات مباشرة
-        )
+    # الطريقة الوحيدة: HTML
+    # بناء النص مع إيموجي قبل + نص مشوش + إيموجي بعد
+    decorated_text = (
+        f'<a href="emoji/{EMOJI_BEFORE_ID}">✨</a> '  # إيموجي قبل
+        f'<a href="spoiler">{text}</a> '              # نص مشوش
+        f'<a href="emoji/{EMOJI_AFTER_ID}">✨</a>'   # إيموجي بعد
+    )
+    
+    # استخدام CustomParseMode للتحليل
+    parser = CustomParseMode("html")
+    parsed_text, entities = parser.parse(decorated_text)
+    
+    # إرسال الرسالة المعدلة
+    await event.edit(
+        parsed_text,
+        parse_mode=None,              # لا تستخدم parse_mode العادي
+        formatting_entities=entities  # أرسل الكيانات مباشرة
+    )

@@ -187,31 +187,3 @@ async def handle_decorative_spoiler(event):
             parse_mode=None,              # لا تستخدم parse_mode العادي
             formatting_entities=entities  # أرسل الكيانات مباشرة
         )
-        
-    except Exception as e:
-        # إذا فشلت طريقة HTML، جرب Markdown
-        try:
-            # الطريقة 2: Markdown
-            decorated_md = (
-                f'[✨](emoji/{EMOJI_BEFORE_ID}) '  # إيموجي قبل
-                f'[{text}](spoiler) '              # نص مشوش
-                f'[✨](emoji/{EMOJI_AFTER_ID})'   # إيموجي بعد
-            )
-            
-            parser = CustomParseMode("markdown")
-            parsed_text, entities = parser.parse(decorated_md)
-            
-            await event.edit(
-                parsed_text,
-                parse_mode=None,
-                formatting_entities=entities
-            )
-            
-        except Exception as e2:
-            # الطريقة 3: HTML عادي (بدون CustomParseMode)
-            try:
-                simple_html = f'✨ <tg-spoiler>{text}</tg-spoiler> ✨'
-                await event.edit(simple_html, parse_mode="html")
-            except:
-                # إذا فشل كل شيء، تجاهل
-                pass

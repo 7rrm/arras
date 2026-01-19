@@ -79,13 +79,15 @@ from telethon import events, types
 from JoKeRUB import l313l
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete
-from telethon.extensions import html
+from telethon.extensions import html, markdown
 
+# ========== كلاس التحليل المخصص ==========
 class CustomParseMode:
     def __init__(self, parse_mode):
         self.parse_mode = parse_mode
+    
     def parse(self, text):
-        text, entities = html.parse(text)
+        text, entities = html.parse(text)  # ⚡ مباشرة HTML
         for i, e in enumerate(entities):
             if isinstance(e, types.MessageEntityTextUrl):
                 if e.url == 'spoiler':
@@ -94,23 +96,46 @@ class CustomParseMode:
                     entities[i] = types.MessageEntityCustomEmoji(e.offset, e.length, int(e.url.split('/')[1]))
         return text, entities
 
-@l313l.on(admin_cmd(pattern="خط مزخرف"))
-async def toggle_decor(event):
-    if not gvarstatus("decor"):
-        addgvar("decor", "on")
-        await edit_delete(event, "**✓ تم تفعيل خط المزخرف**")
+# ========== أوامر التحكم ==========
+@l313l.on(admin_cmd(pattern="(خط مزخرف|تفعيل خط مزخرف)"))
+async def enable_decorative_line(event):
+    if not gvarstatus("decorative_line"):
+        addgvar("decorative_line", "on")
+        await edit_delete(event, "**⎉╎تم تفعيل خط المزخرف مع التشويش ✓**")
     else:
-        delgvar("decor")
-        await edit_delete(event, "**✗ تم تعطيل خط المزخرف**")
+        await edit_delete(event, "**⎉╎خط المزخرف مفعل مسبقاً ✓**")
 
+@l313l.on(admin_cmd(pattern="(تعطيل خط مزخرف|إيقاف خط مزخرف)"))
+async def disable_decorative_line(event):
+    if gvarstatus("decorative_line"):
+        delgvar("decorative_line")
+        await edit_delete(event, "**⎉╎تم تعطيل خط المزخرف ✓**")
+    else:
+        await edit_delete(event, "**⎉╎خط المزخرف معطل مسبقاً ✓**")
+
+# ========== المعالج الرئيسي ==========
 @l313l.on(events.NewMessage(outgoing=True))
-async def handler(event):
+async def handle_decorative_spoiler(event):
     if not event.message.text or event.message.media or event.message.text.startswith('.'):
         return
-    if not gvarstatus("decor"):
+    
+    if not gvarstatus("decorative_line"):
         return
     
-    decorated = f'<a href="emoji/5447181973544008180">✨</a><a href="spoiler">{event.message.text}</a><a href="emoji/5447389832781264371">✨</a>'
+    text = event.message.text
+    
+    # إيموجيات مباشرة في الكود بدون متغيرات
+    decorated_text = (
+        f'<a href="emoji/5447181973544008180">✨</a> '  # إيموجي قبل
+        f'<a href="spoiler">{text}</a> '                # نص مشوش
+        f'<a href="emoji/5447389832781264371">✨</a>'   # إيموجي بعد
+    )
+    
     parser = CustomParseMode("html")
-    parsed, ents = parser.parse(decorated)
-    await event.edit(parsed, parse_mode=None, formatting_entities=ents)
+    parsed_text, entities = parser.parse(decorated_text)
+    
+    await event.edit(
+        parsed_text,
+        parse_mode=None,
+        formatting_entities=entities
+    )

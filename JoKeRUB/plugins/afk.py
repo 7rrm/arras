@@ -16,7 +16,32 @@ plugin_category = "utils"
 
 LOGS = logging.getLogger(__name__)
 
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
 
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+        
 
 class AFK:
     def __init__(self):
@@ -82,7 +107,7 @@ async def set_not_afk(event):
 @l313l.ar_cmd(
     incoming=True, func=lambda e: bool(e.mentioned or e.is_private), edited=False
 )
-async def on_afk(event):  # sourcery no-metrics
+async def on_afk(event):
     if AFK_.afk_on is False:
         return
     back_alivee = datetime.now()
@@ -104,6 +129,7 @@ async def on_afk(event):  # sourcery no-metrics
             endtime += f"{h} الساعات {m} الدقائق {s} الثواني"
         else:
             endtime += f"{m} الدقائق {s} الثواني" if m > 0 else f"{s} الثواني"
+    
     current_message_text = event.message.message.lower()
     if "afk" in current_message_text or "#afk" in current_message_text:
         return False
@@ -113,59 +139,73 @@ async def on_afk(event):  # sourcery no-metrics
         msg = None
         if AFK_.afk_type == "media":
             if AFK_.reason:
+                # هنا نفس الإيموجي (5933974679269151927) قبل وبعد كل سطر!
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع اعـدم الإتصال**
+<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
 
-⏰ **مُـنذ :** {endtime}
+<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-📝 **السبب:** {AFK_.reason}
+<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-🔔 **سيتم الرد عند العودة**
+<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>
 """
             else:
+                # حالة بدون سبب
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع عـدم الإتصال**
+<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
 
-⏰ **مُـنذ :** {endtime}
+<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-🔔 **سيتم الرد عند العودة**
+<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>
 """
             if event.chat_id:
-                msg = await event.reply(message_to_reply, file=AFK_.media_afk.media)
+                msg = await event.reply(
+                    message_to_reply, 
+                    file=AFK_.media_afk.media,
+                    parse_mode="html"
+                )
         elif AFK_.afk_type == "text":
             if AFK_.msg_link and AFK_.reason:
+                # حالة مع رابط
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع عـدم الإتصال**
+<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
 
-⏰ **مُـنذ :** {endtime}
+<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-📝 **السبب:** {AFK_.reason}
+<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-🔔 **سيتم الرد عند العودة**
+<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>
 """
             elif AFK_.reason:
+                # حالة مع سبب عادي
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع عـدم الإتصال**
+<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
 
-⏰ **مُـنذ :** {endtime}
+<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-📝 **السبب:** {AFK_.reason}
+<a href="emoji/5933974679269151927">🌙</a> **السبب:** {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>
 
-🔔 **سيتم الرد عند العودة**
+<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>
 """
             else:
+                # حالة بدون سبب
                 message_to_reply = f"""
-🌙 **أنا الآن في وضع عـدم الإتصال**
+<a href="emoji/5933974679269151927">🌙</a> **أنا الآن في وضع عـدم الإتصال** <a href="emoji/5897962422169243693">⏰</a>
 
-⏰ **مُـنذ :** {endtime}
+<a href="emoji/5933974679269151927">🌙</a> **مُـنذ :** {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-🔔 **سيتم الرد عند العودة**
+<a href="emoji/5933974679269151927">🌙</a> **سيتم الرد عند العودة** <a href="emoji/5891169510483823323">🔔</a>
 """
             if event.chat_id:
-                msg = await event.reply(message_to_reply)
+                msg = await event.reply(
+                    message_to_reply,
+                    parse_mode="html"
+                )
+        
         if event.chat_id in AFK_.last_afk_message:
             await AFK_.last_afk_message[event.chat_id].delete()
         AFK_.last_afk_message[event.chat_id] = msg
+        
         if event.is_private:
             return
         hmm = await event.get_chat()
@@ -191,7 +231,7 @@ async def on_afk(event):  # sourcery no-metrics
                 resalt,
                 parse_mode="html",
                 link_preview=False,
-            )
+    )
 
 
 @l313l.ar_cmd(

@@ -13,63 +13,9 @@ from ..helpers.utils import _format
 from . import BOTLOG, BOTLOG_CHATID
 
 plugin_category = "utils"
+
 LOGS = logging.getLogger(__name__)
 
-# ==================== الكلايش المرتبة ====================
-class Messages:
-    """فئة تحتوي على جميع الكلايش المرتبة"""
-    
-    # رسائل تعطيل AFK
-    DISABLE_AFK = "✅ **تم تعطيل وضع السليب بنجاح**\n✧︙ عـودة إلى الـوضع الـطبيعي"
-    BOTLOG_DISABLE_AFK = "📊 **تقرير انتهاء السليب**\n✧︙ المدة: {duration}\n✧︙ الساعة: {time}"
-    
-    # رسائل تفعيل AFK
-    AFK_ENABLED_WITH_REASON = "✅ **تم تفعيل وضع السليب**\n✧︙ السبب: {reason}"
-    AFK_ENABLED_NO_REASON = "✅ **تم تفعيل وضع السليب**\n✧︙ تم التفعيل بدون سبب"
-    
-    # رسائل الرد التلقائي
-    AFK_REPLY_MEDIA_REASON = """
-    🌙 **أنا الآن في وضع عدم الاتصال**\n
-    ⏰ **مُـنذ :** {duration}\n
-    📝 **السبب:** {reason}\n
-    🔔 **سيتم الرد عند العودة**
-    """
-    
-    AFK_REPLY_MEDIA_NO_REASON = """
-    🌙 **أنا الآن في وضع عدم الاتصال**\n
-    ⏰ **مُـنذ :** {duration}\n
-    🔔 **سيتم الرد عند العودة**
-    """
-    
-    AFK_REPLY_TEXT_REASON = """
-    🌙 **أنا الآن في وضع عدم الاتصال**\n
-    ⏰ **مُـنذ :** {duration}\n
-    📝 **السبب:** {reason}\n
-    🔔 **سيتم الرد عند العودة**
-    """
-    
-    AFK_REPLY_TEXT_NO_REASON = """
-    🌙 **أنا الآن في وضع عدم الاتصال**\n
-    ⏰ **مُـنذ :** {duration}\n
-    🔔 **سيتم الرد عند العودة**
-    """
-    
-    # رسائل BOTLOG
-    BOTLOG_AFK_ENABLED_REASON = "✅ **تم تفعيل السليب**\n✧︙ السبب: {reason}\n✧︙ الوقت: {time}"
-    BOTLOG_AFK_ENABLED_NO_REASON = "✅ **تم تفعيل السليب**\n✧︙ الوقت: {time}"
-    
-    # رسائل الأخطاء
-    MEDIA_AFK_ERROR = "⚠️ **خطأ في السليب الميديا**\n✧︙ يرجى الرد على صورة أو فيديو"
-    BOTLOG_ERROR = "⚠️ **خطأ في الإعدادات**\n✧︙ يرجى إضافة متغير المجموعة الخاصة"
-    STICKER_ERROR = "⚠️ **نوع غير مدعوم**\n✧︙ يرجى الرد على صورة وليس ملصق"
-    
-    # رسائل المساعدة
-    HELP_TEXT = """
-    🛌 **أوامر السليب**\n
-    **• `.سليب <السبب>`** - تفعيل وضع السليب\n
-    **• `.سليب_ميديا <السبب>`** - السليب مع صورة (بالرد)\n
-    **• اكتب أي رسالة** - لتعطيل السليب
-    """
 
 
 class AFK:
@@ -112,14 +58,13 @@ async def set_not_afk(event):
             endtime += f"{h} الساعات {m} الدقائق {s} الثواني"
         else:
             endtime += f"{m} الدقائق {s} الثواني" if m > 0 else f"{s} الثواني"
-    
     current_message = event.message.message
     if (("afk" not in current_message) or ("#afk" not in current_message)) and (
         "on" in AFK_.USERAFK_ON
     ):
         shite = await event.client.send_message(
             event.chat_id,
-            Messages.DISABLE_AFK,
+            "✅ **تم تعطيل وضع السليب بنجاح**\n✧︙ عـودة إلى الـوضع الـطبيعي",
         )
         AFK_.USERAFK_ON = {}
         AFK_.afk_time = None
@@ -130,10 +75,7 @@ async def set_not_afk(event):
             current_time = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
             await event.client.send_message(
                 BOTLOG_CHATID,
-                Messages.BOTLOG_DISABLE_AFK.format(
-                    duration=endtime,
-                    time=current_time
-                ),
+                f"📊 **تقرير انتهاء السليب**\n✧︙ المدة: {endtime}\n✧︙ الساعة: {current_time}",
             )
 
 
@@ -162,7 +104,6 @@ async def on_afk(event):  # sourcery no-metrics
             endtime += f"{h} الساعات {m} الدقائق {s} الثواني"
         else:
             endtime += f"{m} الدقائق {s} الثواني" if m > 0 else f"{s} الثواني"
-    
     current_message_text = event.message.message.lower()
     if "afk" in current_message_text or "#afk" in current_message_text:
         return False
@@ -172,38 +113,59 @@ async def on_afk(event):  # sourcery no-metrics
         msg = None
         if AFK_.afk_type == "media":
             if AFK_.reason:
-                message_to_reply = Messages.AFK_REPLY_MEDIA_REASON.format(
-                    duration=endtime,
-                    reason=AFK_.reason
-                )
+                message_to_reply = f"""
+🌙 **أنا الآن في وضع السليب**
+
+⏰ **مضى منذ:** {endtime}
+
+📝 **السبب:** {AFK_.reason}
+
+🔔 **سيتم الرد عند العودة**
+"""
             else:
-                message_to_reply = Messages.AFK_REPLY_MEDIA_NO_REASON.format(
-                    duration=endtime
-                )
+                message_to_reply = f"""
+🌙 **أنا الآن في وضع السليب**
+
+⏰ **مضى منذ:** {endtime}
+
+🔔 **سيتم الرد عند العودة**
+"""
             if event.chat_id:
                 msg = await event.reply(message_to_reply, file=AFK_.media_afk.media)
         elif AFK_.afk_type == "text":
             if AFK_.msg_link and AFK_.reason:
-                message_to_reply = Messages.AFK_REPLY_TEXT_REASON.format(
-                    duration=endtime,
-                    reason=AFK_.reason
-                )
+                message_to_reply = f"""
+🌙 **أنا الآن في وضع السليب**
+
+⏰ **مضى منذ:** {endtime}
+
+📝 **السبب:** {AFK_.reason}
+
+🔔 **سيتم الرد عند العودة**
+"""
             elif AFK_.reason:
-                message_to_reply = Messages.AFK_REPLY_TEXT_REASON.format(
-                    duration=endtime,
-                    reason=AFK_.reason
-                )
+                message_to_reply = f"""
+🌙 **أنا الآن في وضع السليب**
+
+⏰ **مضى منذ:** {endtime}
+
+📝 **السبب:** {AFK_.reason}
+
+🔔 **سيتم الرد عند العودة**
+"""
             else:
-                message_to_reply = Messages.AFK_REPLY_TEXT_NO_REASON.format(
-                    duration=endtime
-                )
+                message_to_reply = f"""
+🌙 **أنا الآن في وضع السليب**
+
+⏰ **مضى منذ:** {endtime}
+
+🔔 **سيتم الرد عند العودة**
+"""
             if event.chat_id:
                 msg = await event.reply(message_to_reply)
-        
         if event.chat_id in AFK_.last_afk_message:
             await AFK_.last_afk_message[event.chat_id].delete()
         AFK_.last_afk_message[event.chat_id] = msg
-        
         if event.is_private:
             return
         hmm = await event.get_chat()
@@ -236,19 +198,20 @@ async def on_afk(event):  # sourcery no-metrics
     pattern="سليب(?:\s|$)([\s\S]*)",
     command=("سليب", plugin_category),
     info={
-        "header": "تفعيل وضع السليب لحسابك",
-        "description": "عندما تكون في وضع السليب، سيرد البوت تلقائياً بأنك غير متصل",
-        "options": "يمكنك إضافة رابط بعد السبب باستخدام فاصلة منقوطة ;",
+        "header": "Enables afk for your account",
+        "description": "When you are in afk if any one tags you then your bot will reply as he is offline.\
+        AFK mean away from keyboard.",
+        "options": "If you want AFK reason with hyperlink use [ ; ] after reason, then paste the media link.",
         "usage": [
-            "{tr}سليب <السبب>",
-            "{tr}سليب <السبب> ; <رابط>",
+            "{tr}afk <reason>",
+            "{tr}afk <reason> ; <link>",
         ],
-        "examples": "{tr}سليب نائم",
-        "note": "سيتم تعطيل السليب عند كتابة أي رسالة",
+        "examples": "{tr}afk Let Me Sleep",
+        "note": "Switches off AFK when you type back anything, anywhere. You can use #afk in message to continue in afk without breaking it",
     },
 )
 async def _(event):
-    "لتفعيل وضع السليب (AFK)"
+    "To mark yourself as afk i.e. Away from keyboard"
     AFK_.USERAFK_ON = {}
     AFK_.afk_time = None
     AFK_.last_afk_message = {}
@@ -257,7 +220,6 @@ async def _(event):
     start_1 = datetime.now()
     AFK_.afk_on = True
     AFK_.afk_star = start_1.replace(microsecond=0)
-    
     if not AFK_.USERAFK_ON:
         input_str = event.pattern_match.group(1)
         if ";" in input_str:
@@ -267,42 +229,29 @@ async def _(event):
         else:
             AFK_.reason = input_str
             AFK_.msg_link = False
-        
         last_seen_status = await event.client(
             functions.account.GetPrivacyRequest(types.InputPrivacyKeyStatusTimestamp())
         )
         if isinstance(last_seen_status.rules, types.PrivacyValueAllowAll):
             AFK_.afk_time = datetime.now()
-        
         AFK_.USERAFK_ON = f"on: {AFK_.reason}"
-        
         if AFK_.reason:
             await edit_delete(
-                event, 
-                Messages.AFK_ENABLED_WITH_REASON.format(reason=AFK_.reason), 
-                5
+                event, f"✅ **تم تفعيل وضع السليب**\n✧︙ السبب: {AFK_.reason}", 5
             )
         else:
-            await edit_delete(
-                event, 
-                Messages.AFK_ENABLED_NO_REASON, 
-                5
-            )
-        
+            await edit_delete(event, f"✅ **تم تفعيل وضع السليب**\n✧︙ تم التفعيل بدون سبب", 5)
         if BOTLOG:
             current_time = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
             if AFK_.reason:
                 await event.client.send_message(
                     BOTLOG_CHATID,
-                    Messages.BOTLOG_AFK_ENABLED_REASON.format(
-                        reason=AFK_.reason,
-                        time=current_time
-                    ),
+                    f"✅ **تم تفعيل السليب**\n✧︙ السبب: {AFK_.reason}\n✧︙ الوقت: {current_time}",
                 )
             else:
                 await event.client.send_message(
                     BOTLOG_CHATID,
-                    Messages.BOTLOG_AFK_ENABLED_NO_REASON.format(time=current_time),
+                    f"✅ **تم تفعيل السليب**\n✧︙ الوقت: {current_time}",
                 )
 
 
@@ -310,27 +259,29 @@ async def _(event):
     pattern="سليب_ميديا(?:\s|$)([\s\S]*)",
     command=("سليب_ميديا", plugin_category),
     info={
-        "header": "تفعيل وضع السليب مع وسائط",
-        "description": "تفعيل وضع السليب مع إمكانية إرفاق صورة أو فيديو",
-        "options": "يجب الرد على صورة أو فيديو عند استخدام الأمر",
+        "header": "Enables afk for your account",
+        "description": "When you are in afk if any one tags you then your bot will reply as he is offline.\
+         AFK mean away from keyboard. Here it supports media unlike afk command",
+        "options": "If you want AFK reason with hyperlink use [ ; ] after reason, then paste the media link.",
         "usage": [
-            "{tr}سليب_ميديا <السبب>",
+            "{tr}mafk <reason> and reply to media",
         ],
-        "examples": "{tr}سليب_ميديا نائم",
-        "note": "يجب أن يكون لديك مجموعة BOTLOG مفعلة",
+        "examples": "{tr}mafk Let Me Sleep",
+        "note": "Switches off AFK when you type back anything, anywhere. You can use #afk in message to continue in afk without breaking it",
     },
 )
 async def _(event):
-    "لتفعيل وضع السليب مع وسائط"
+    "To mark yourself as afk i.e. Away from keyboard (supports media)"
     reply = await event.get_reply_message()
     media_t = media_type(reply)
-    
     if media_t == "Sticker" or not media_t:
-        return await edit_or_reply(event, Messages.STICKER_ERROR)
-    
+        return await edit_or_reply(
+            event, "⚠️ **نوع غير مدعوم**\n✧︙ يرجى الرد على صورة وليس ملصق"
+        )
     if not BOTLOG:
-        return await edit_or_reply(event, Messages.BOTLOG_ERROR)
-    
+        return await edit_or_reply(
+            event, "⚠️ **خطأ في الإعدادات**\n✧︙ يرجى إضافة متغير المجموعة الخاصة"
+        )
     AFK_.USERAFK_ON = {}
     AFK_.afk_time = None
     AFK_.last_afk_message = {}
@@ -340,59 +291,46 @@ async def _(event):
     start_1 = datetime.now()
     AFK_.afk_on = True
     AFK_.afk_star = start_1.replace(microsecond=0)
-    
     if not AFK_.USERAFK_ON:
         input_str = event.pattern_match.group(1)
         AFK_.reason = input_str
-        
         last_seen_status = await event.client(
             functions.account.GetPrivacyRequest(types.InputPrivacyKeyStatusTimestamp())
         )
         if isinstance(last_seen_status.rules, types.PrivacyValueAllowAll):
             AFK_.afk_time = datetime.now()
-        
         AFK_.USERAFK_ON = f"on: {AFK_.reason}"
-        
         if AFK_.reason:
             await edit_delete(
-                event, 
-                Messages.AFK_ENABLED_WITH_REASON.format(reason=AFK_.reason), 
-                5
+                event, f"✅ **تم تفعيل وضع السليب**\n✧︙ السبب: {AFK_.reason}", 5
             )
         else:
-            await edit_delete(
-                event, 
-                Messages.AFK_ENABLED_NO_REASON, 
-                5
-            )
-        
+            await edit_delete(event, f"✅ **تم تفعيل وضع السليب**\n✧︙ تم التفعيل بدون سبب", 5)
         AFK_.media_afk = await reply.forward_to(BOTLOG_CHATID)
-        
-        if BOTLOG:
+        if AFK_.reason:
             current_time = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
-            if AFK_.reason:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    Messages.BOTLOG_AFK_ENABLED_REASON.format(
-                        reason=AFK_.reason,
-                        time=current_time
-                    ),
-                )
-            else:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    Messages.BOTLOG_AFK_ENABLED_NO_REASON.format(time=current_time),
-                )
-
-
+            await event.client.send_message(
+                BOTLOG_CHATID,
+                f"✅ **تم تفعيل السليب**\n✧︙ السبب: {AFK_.reason}\n✧︙ الوقت: {current_time}",
+            )
+        else:
+            current_time = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
+            await event.client.send_message(
+                BOTLOG_CHATID,
+                f"✅ **تم تفعيل السليب**\n✧︙ الوقت: {current_time}",
+            )
 CMD_HELP.update(
     {
-        "السليب": """
-🛌 **أوامر وضع السليب**\n
-**• `.سليب <السبب>`** - لتفعيل وضع السليب\n
-**• `.سليب_ميديا <السبب>`** - لتفعيل وضع السليب مع صورة (بالرد على الصورة)\n
-**• اكتب أي رسالة** - لتعطيل وضع السليب تلقائياً\n
+    "السليب": """
+🛌 **أوامر وضع السليب**
+
+**• `.سليب <السبب>`** - لتفعيل وضع السليب
+
+**• `.سليب_ميديا <السبب>`** - لتفعيل وضع السليب مع صورة (بالرد على الصورة)
+
+**• اكتب أي رسالة** - لتعطيل وضع السليب تلقائياً
+
 **• يمكن استخدام #afk في الرسائل** للبقاء في وضع السليب
-        """
+"""
     }
 )

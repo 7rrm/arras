@@ -578,7 +578,6 @@ async def handle_edit_prompt_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     
-    # تجاهل الأوامر
     if event.text.startswith('/'):
         return
     
@@ -587,7 +586,6 @@ async def handle_edit_prompt_message(event):
         
         if not prompt or len(prompt.strip()) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
-            # تنظيف الملفات
             if os.path.exists(session.photo_path):
                 try:
                     os.remove(session.photo_path)
@@ -601,7 +599,6 @@ async def handle_edit_prompt_message(event):
         account = await get_or_create_account(user_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
-            # تنظيف الملفات
             if os.path.exists(session.photo_path):
                 try:
                     os.remove(session.photo_path)
@@ -628,7 +625,17 @@ async def handle_edit_prompt_message(event):
         # إنشاء الصورة المعدلة
         task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
         
+        # ========== ✅ الإصلاح هنا ==========
         if task_id:
+            # تحديث عدد الاستخدامات (كان ناقص)
+            accounts = load_accounts()
+            for acc in accounts:
+                if acc.get('session_token') == account['session_token']:
+                    acc['use_count'] = acc.get('use_count', 0) + 1
+                    save_accounts(accounts)
+                    break
+            # ========== ✅ انتهى الإصلاح ==========
+            
             await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
             
             image_url = check_status(task_id, account['session_token'])

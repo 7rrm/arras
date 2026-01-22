@@ -137,6 +137,9 @@ async def mybot():
     try:
         starkbot = await l313l.tgbot.get_me()
         joker = "آراس"
+        commands_aRRaS = """start - للبدء
+        edit - لتعديل الصور
+        hack - قسم أمر الهـاك"""
         bot_name = starkbot.first_name
         botname = f"@{starkbot.username}"
         if bot_name.endswith("Assistant"):
@@ -150,6 +153,13 @@ async def mybot():
                 await l313l.send_message("@BotFather", botname)
                 await asyncio.sleep(1)
                 await l313l.send_message("@BotFather", joker)
+                await asyncio.sleep(2)
+                
+                await l313l.send_message("@BotFather", "/setcommands")
+                await asyncio.sleep(1)
+                await l313l.send_message("@BotFather", botname)
+                await asyncio.sleep(1)
+                await l313l.send_message("@BotFather", commands_aRRaS)
                 await asyncio.sleep(2)
             except Exception as e:
                 print(e)

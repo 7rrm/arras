@@ -46,8 +46,8 @@ plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
 #Code by T.me/zzzzl1l
 zed_dev = Zed_Dev
-zel_dev = (5427469031, 6269975462, 1985225531)
-zelzal = (8277718687, 5427469031, 5280339206)
+zel_dev = (5427469031, 8277718687, 1985225531)
+zelzal = (5427469031, 5280339206)
 Zel_Uid = l313l.uid
 
 ZED_BLACKLIST = [
@@ -172,7 +172,7 @@ async def fetch_info(event):
         rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
         rotbat = "مـطـور 𐏕" 
-    elif user_id == (await zedub.get_me()).id:
+    elif user_id == (await l313l.get_me()).id:
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
@@ -228,7 +228,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await l313l.get_me()
         
-        if query.startswith("idid") and event.query.user_id == Zel_Uid:
+        if query.startswith("idid") and event.query.user_id == l313l.uid:
             #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
                 #return
             if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):

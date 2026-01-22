@@ -303,7 +303,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 @l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
     input_str = event.pattern_match.group(1)
     reply = event.reply_to_msg_id
     if input_str and reply:
@@ -324,7 +324,7 @@ async def who(event):
 @l313l.ar_cmd(pattern="like(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
     input_str = event.pattern_match.group(1)
     reply = event.reply_to_msg_id
     if input_str and reply:
@@ -332,7 +332,7 @@ async def who(event):
     if input_str or reply:
         return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
     zed = await edit_or_reply(event, "⇆")
     if event.reply_to_msg_id:
         await event.get_reply_message()
@@ -345,7 +345,7 @@ async def who(event):
 @l313l.ar_cmd(pattern="المعجبين$")
 async def on_like_list(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع **")
     count = 1
     likers = get_likes(l313l.uid)
     if likers:

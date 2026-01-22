@@ -46,8 +46,8 @@ plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
 #Code by T.me/zzzzl1l
 zed_dev = Zed_Dev
-zel_dev = (5176749470, 5427469031, 6269975462, 1985225531)
-zelzal = (925972505, 5427469031, 5280339206)
+zel_dev = (8277718687, 5427469031, 6269975462, 1985225531)
+zelzal = (8277718687, 5427469031, 5280339206)
 Zel_Uid = l313l.uid
 
 ZED_BLACKLIST = [

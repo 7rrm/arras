@@ -228,7 +228,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await l313l.get_me()
         
-        if query.startswith("idid") and event.query.user_id == l313l.uid:
+        if query.startswith("idid") and event.query.user_id == Zel_Uid:
             #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
                 #return
             if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):

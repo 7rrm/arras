@@ -25,7 +25,7 @@ from .pluginManager import get_message_link, restart_script
 
 LOGS = logging.getLogger(__name__)
 
-DEVJOKR = [1374312239, 5564802580]
+DEVJOKR = [1374312239, 5427469031]
 class REGEX:
     def __init__(self):
         self.regex = ""
@@ -150,15 +150,26 @@ class HuReClient(TelegramClient):
                         pastelink = await paste_message(
                             ftext, pastetype="s", markdown=False
                         )
-                        text = "**تقرير خطا الجوكر**\n\n"
-                        link = "[هنا](https://t.me/jepthonSupport)"
-                        text += "إذا كنت تريد يمكنك الإبلاغ عن ذلك"
-                        text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n"
-                        text += "لا يتم تسجيل اي خطا فقط التاريخ والوقت\n\n"
-                        text += f"**⌯︙تقرير الخطأ : ** [{new['error']}]({pastelink})"
-                        await check.client.send_message(
-                            Config.PRIVATE_GROUP_BOT_API_ID, text, link_preview=False
-                        )
+                        text = f"""
+╭─ ❖ ∙ تقرير خطأ الجوكر ∙ ❖ ─╮
+│
+├─ 📌 • طريقة الإبلاغ:
+│   └─ يمكنك الإبلاغ عبر إعادة توجيه الرسالة إلى
+│       [دعم الجوكر](https://t.me/jepthonSupport)
+│
+├─ 🔒 • سياسة الخصوصية:
+│   └─ لا يتم حفظ أي بيانات شخصية
+│       فقط التاريخ والوقت
+│
+╰─ 🚨 • تفاصيل الخطأ:
+    └─ ⌯ نوع الخطأ: [{new['error']}]({pastelink})
+"""
+
+await check.client.send_message(
+    Config.PRIVATE_GROUP_BOT_API_ID, 
+    text.strip(), 
+    link_preview=False
+)
 
             from .session import l313l
 

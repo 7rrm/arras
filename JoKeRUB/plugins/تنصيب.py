@@ -3,7 +3,7 @@ from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
-ROZ_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
+ROZ_PIC = "https://graph.org/file/648886430c260b5622255-a86c6bd61e139652b6.jpg"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
@@ -14,8 +14,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("السورس") and event.query.user_id == bot.uid:
             buttons = [
-                [Button.url("المطـور 👨🏼‍💻", "https://t.me/lx5x5")],
-                [Button.url("قنـاة الـمطور 📢", "https://t.me/aqhvv")]
+                [Button.url("∙ المـطور ∙", "https://t.me/lx5x5")]
             ]
             if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(ROZ_PIC, text=ROZ, buttons=buttons, link_preview=False)

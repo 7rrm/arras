@@ -150,26 +150,23 @@ class HuReClient(TelegramClient):
                         pastelink = await paste_message(
                             ftext, pastetype="s", markdown=False
                         )
-                        text = f"""
-╭─ ❖ ∙ تقرير خطأ الجوكر ∙ ❖ ─╮
-│
-├─ 📌 • طريقة الإبلاغ:
-│   └─ يمكنك الإبلاغ عبر إعادة توجيه الرسالة إلى
-│       [دعم الجوكر](https://t.me/jepthonSupport)
-│
-├─ 🔒 • سياسة الخصوصية:
-│   └─ لا يتم حفظ أي بيانات شخصية
-│       فقط التاريخ والوقت
-│
-╰─ 🚨 • تفاصيل الخطأ:
-    └─ ⌯ نوع الخطأ: [{new['error']}]({pastelink})
-"""
-
-await check.client.send_message(
-    Config.PRIVATE_GROUP_BOT_API_ID, 
-    text.strip(), 
-    link_preview=False
-)
+                        text = f"""╭─ ❖ ∙ تقرير خطا ∙ ❖ ─╮
+                        │
+                        ├─ 📌 • طريقة الإبلاغ:
+                        │   └─ يمكنك الإبلاغ عبر إعادة توجيه الرسالة إلى
+                        │       [⌯ المـطور ⌯](https://t.me/Lx5x5)
+                        │
+                        ├─ 🔒 • سياسة الخصوصية:
+                        │   └─ لا يتم حفظ أي بيانات شخصية
+                        │       فقط التاريخ والوقت
+                        │
+                        ╰─ 🚨 • تفاصيل الخطأ:
+                        └─ ⌯ نوع الخطأ: [{new['error']}]({pastelink})"""
+                        await check.client.send_message(
+                        Config.PRIVATE_GROUP_BOT_API_ID, 
+                        text.strip(), 
+                        link_preview=False
+                        )
 
             from .session import l313l
 

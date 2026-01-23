@@ -495,7 +495,7 @@ async def _(event): # Code by t.me/zzzzl1l
             f.write("="*50 + "\n\n")
         
         # البحث في الرسائل
-        messages = await l313l.get_messages(chat, filter=InputMessagesFilterEmpty(), limit=100)
+        messages = await l313l.get_messages(chat, filter=InputMessagesFilterEmpty(), limit=250)
         
         for message in messages:
             if message.message and search_word in message.message:
@@ -550,7 +550,7 @@ l {counter} نتيجة l  **العدد -**
         if os.path.exists(file_name):
             os.remove(file_name)
 
-@l313l.ar_cmd(pattern="بحث (.*)")
+@l313l.ar_cmd(pattern="كلمة (.*)")
 async def search_all(event):
     search_word = event.pattern_match.group(1)
     

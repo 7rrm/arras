@@ -550,101 +550,85 @@ l {counter} نتيجة l  **العدد -**
         if os.path.exists(file_name):
             os.remove(file_name)
 
-@l313l.ar_cmd(pattern="كلمة (.*)")
+@l313l.ar_cmd(pattern="بحث (.*)")
 async def search_all(event):
     search_word = event.pattern_match.group(1)
-    await event.edit(f"**⏳ جاري البحث عن كلمة: `{search_word}` في جميع الدردشات...**")
     
+    # إنشاء اسم ملف فريد
+    import random
     l = 'qwertyuiopasdfghjklxcvbnmz'
-    i = str(''.join(random.choice(l) for i in range(3))) + '.txt'
+    file_name = str(''.join(random.choice(l) for i in range(3))) + '.txt'
+    
+    # رسالة بداية واحدة فقط
+    await event.edit(f"**⏳ جاري البحث عن `{search_word}` في جميع المحادثات...**")
+    
     counter = 0
     
-    # الحصول على جميع الدردشات (قنوات، مجموعات، دردشات خاصة)
-    dialogs = await l313l.get_dialogs(limit=None)
-    
-    total_dialogs = len(dialogs)
-    await event.edit(f"**⏳ البحث في {total_dialogs} دردشة...**")
-    
-    results_per_chat = {}
-    
-    # البحث في كل دردشة
-    for idx, dialog in enumerate(dialogs, 1):
-        try:
-            chat = dialog.entity
-            chat_id = chat.id
-            chat_name = dialog.name or "بدون اسم"
-            
-            # تحديث حالة التقدم
-            if idx % 10 == 0:
-                await event.edit(f"**⏳ جاري البحث... ({idx}/{total_dialogs})**")
-            
-            # تجنب دردشات النظام
-            if isinstance(chat, types.User) and chat.bot:
-                continue
-            
-            # البحث في الدردشة
-            chat_results = []
-            async for message in l313l.iter_messages(
-                chat_id, 
-                search=search_word,
-                limit=20  # 20 نتيجة كحد أقصى من كل دردشة
-            ):
-                if message.message and search_word in message.message:
-                    link = f'https://t.me/c/{chat_id}/{message.id}'
-                    chat_results.append(link)
-            
-            if chat_results:
-                results_per_chat[chat_name] = chat_results
-                counter += len(chat_results)
+    try:
+        # الحصول على جميع الدردشات
+        dialogs = await l313l.get_dialogs(limit=None)
+        
+        results_per_chat = {}
+        
+        # البحث في كل دردشة
+        for dialog in dialogs:
+            try:
+                chat = dialog.entity
+                chat_id = chat.id
+                chat_name = dialog.name or "بدون اسم"
                 
-        except Exception as e:
-            continue
-    
-    # إذا كانت النتائج كثيرة جداً، ننشئ ملف نصي
-    if counter > 0:
-        # إنشاء ملف النتائج
-        with open(i, 'w', encoding='utf-8') as f:
+                # البحث في الدردشة
+                chat_results = []
+                async for message in l313l.iter_messages(
+                    chat_id, 
+                    search=search_word,
+                    limit=20
+                ):
+                    if message.message and search_word in message.message:
+                        link = f'https://t.me/c/{chat_id}/{message.id}'
+                        chat_results.append(link)
+                
+                if chat_results:
+                    results_per_chat[chat_name] = chat_results
+                    counter += len(chat_results)
+                    
+            except Exception:
+                continue
+        
+        # إنشاء ملف النتائج (دائماً)
+        with open(file_name, 'w', encoding='utf-8') as f:
             f.write(f"نتائج البحث عن: {search_word}\n")
             f.write(f"العدد الإجمالي: {counter} نتيجة\n")
             f.write("="*50 + "\n\n")
             
             for chat_name, links in results_per_chat.items():
                 f.write(f"📌 **{chat_name}** ({len(links)} نتيجة):\n")
-                for link_idx, link in enumerate(links[:5], 1):  # 5 روابط فقط من كل دردشة
+                for link_idx, link in enumerate(links[:5], 1):
                     f.write(f"  {link_idx}. {link}\n")
                 if len(links) > 5:
                     f.write(f"  ... و {len(links) - 5} نتيجة أخرى\n")
                 f.write("\n")
         
-        # إرسال الملف إذا كان كبيراً
-        if os.path.getsize(i) > 3000:  # إذا كان حجم الملف كبيراً
-            await event.delete()
-            await l313l.send_file(
-                event.chat_id,
-                i,
-                caption=f"**نتائج البحث عن: {search_word}**\n**العدد الإجمالي: {counter} نتيجة**\n\n*تم حفظ النتائج في ملف نصي*",
-                reply_to=event.message.id
-            )
-        else:
-            # إرسال النتائج كرسالة إذا كانت قصيرة
-            with open(i, 'r', encoding='utf-8') as f:
-                results_text = f.read()
-            
-            if len(results_text) > 4000:
-                # تقسيم الرسالة إذا كانت طويلة
-                parts = [results_text[i:i+4000] for i in range(0, len(results_text), 4000)]
-                await event.edit(f"**نتائج البحث عن: {search_word}**\n**العدد: {counter} نتيجة**\n\n{parts[0]}")
-                
-                for part in parts[1:]:
-                    await event.reply(part)
-            else:
-                await event.edit(f"**نتائج البحث عن: {search_word}**\n**العدد: {counter} نتيجة**\n\n{results_text}")
+        # حذف رسالة "جاري البحث"
+        await event.delete()
         
-        # حذف الملف المؤقت
-        os.remove(i)
+        # إرسال الملف دائماً (حتى لو كانت النتائج قصيرة)
+        await l313l.send_file(
+            event.chat_id,
+            file_name,
+            caption=f"**نتائج البحث عن: `{search_word}`**\n**العدد الإجمالي: {counter} نتيجة**\n\n*تم حفظ النتائج في الملف المرفق*",
+            reply_to=event.message.id
+        )
         
-    else:
-        await event.edit(f"**❌ لم يتم العثور على أي نتائج لكلمة: `{search_word}`**")
+    except Exception as e:
+        await event.edit(f"**⚠️ حدث خطأ:** `{str(e)}`")
+    
+    finally:
+        # تنظيف الملف المؤقت
+        import os
+        if os.path.exists(file_name):
+            os.remove(file_name)
+
 
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #

@@ -436,6 +436,62 @@ async def download_audio(event):
             os.remove(_path)
     await zedevent.delete()
 
+@l313l.ar_cmd(pattern="تلي (.*)")
+async def _(event): # Code by t.me/zzzzl1l
+    search = event.pattern_match.group(1)
+    l = 'qwertyuiopasdfghjklxcvbnmz'
+    result = await l313l(functions.contacts.SearchRequest(
+        q=search,
+        limit=20
+    ))
+    json = result.to_dict()
+    i = str(''.join(random.choice(l) for i in range(3))) + '.txt'
+    counter = 0
+    for item in json['chats']:
+        channel_id = item["username"]
+        links = f'https://t.me/{channel_id}'
+        counter += 1
+        open(i, 'a').write(f"{counter}• {links}\n")
+    link = open(i, 'r').read()
+    if not link:
+        await event.edit("**- لا توجد نتائج في البحث**")
+    else:
+        await event.edit(f'''
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 - **بـحـث تيليـجـࢪام**
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+l {search} l  **🔎 نتائـج البحث عـن -**
+l قنوات + مجموعات l **يشمـل -**
+
+{link}
+        ''')
+
+
+@l313l.ar_cmd(pattern="كلمه (.*)")
+async def _(event): # Code by t.me/zzzzl1l
+    search_word = event.pattern_match.group(1)
+    chat = await event.get_chat()
+    chat_name = chat.title
+    l = 'qwertyuiopasdfghjklxcvbnmz'
+    messages = await l313l.get_messages(chat, filter=InputMessagesFilterEmpty(), limit=100)
+    i = str(''.join(random.choice(l) for i in range(3))) + '.txt'
+    counter = 0
+    for message in messages:
+        if message.message and search_word in message.message:
+            links = f'https://t.me/c/{chat.id}/{message.id}'
+            counter += 1
+            open(i, 'a').write(f"{counter}• {links}\n")
+    link = open(i, 'r').read()
+    if not link:
+        await event.edit("**- لا توجد نتائج في البحث**")
+    else:
+        await event.edit(f'''
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 - **بـحـث تيليـجـࢪام**
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+l {search_word} l  **نتائـج البحث عـن -**
+l {chat_name} l  **فـي المجموعـة -**
+
+{link}
+        ''')
 
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #

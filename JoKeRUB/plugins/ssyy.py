@@ -33,6 +33,8 @@ from yt_dlp.utils import (
     XAttrMetadataError,
 )
 
+from telethon import functions
+from telethon.tl.types import InputMessagesFilterEmpty
 from telethon import events
 from telethon.tl import types
 from telethon.utils import get_attributes

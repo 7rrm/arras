@@ -550,102 +550,102 @@ l {counter} نتيجة l  **العدد -**
         if os.path.exists(file_name):
             os.remove(file_name)
 
-
-@l313l.ar_cmd(pattern="بحث (.*)")
+@l313l.ar_cmd(pattern="كلمة (.*)")
 async def search_all(event):
-    """بحث في جميع المحادثات"""
     search_word = event.pattern_match.group(1)
+    await event.edit(f"**⏳ جاري البحث عن كلمة: `{search_word}` في جميع الدردشات...**")
     
-    # إنشاء اسم ملف فريد
-    file_name = f"بحث_شامل_{search_word}_{random.randint(1000, 9999)}.txt"
-    
-    # رسالة البداية
-    await event.edit(f"**⏳ جاري البحث عن `{search_word}` في جميع المحادثات...**")
-    
+    l = 'qwertyuiopasdfghjklxcvbnmz'
+    i = str(''.join(random.choice(l) for i in range(3))) + '.txt'
     counter = 0
     
-    try:
-        # كتابة رأس الملف
-        with open(file_name, 'w', encoding='utf-8') as f:
-            f.write(f"🔍 نتائج البحث الشامل عن: {search_word}\n")
-            f.write(f"📅 التاريخ: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-            f.write("="*50 + "\n\n")
-        
-        # الحصول على جميع الدردشات
-        dialogs = await l313l.get_dialogs()
-        
-        for dialog in dialogs:
-            try:
-                chat = dialog.entity
-                chat_id = chat.id
-                chat_name = dialog.name or f"دردشة_{chat_id}"
-                
-                # البحث في كل دردشة (10 رسائل كحد أقصى من كل واحدة)
-                messages = await l313l.get_messages(
-                    chat_id, 
-                    filter=InputMessagesFilterEmpty(), 
-                    limit=10
-                )
-                
-                chat_results = []
-                for message in messages:
-                    if message.message and search_word in message.message:
-                        link = f'https://t.me/c/{chat_id}/{message.id}'
-                        chat_results.append(link)
-                        counter += 1
-                
-                # حفظ نتائج هذه الدردشة إذا وجدت
-                if chat_results:
-                    with open(file_name, 'a', encoding='utf-8') as f:
-                        f.write(f"📌 **{chat_name}** ({len(chat_results)} نتيجة):\n")
-                        for link in chat_results:
-                            f.write(f"  • {link}\n")
-                        f.write("-"*30 + "\n\n")
-                        
-            except Exception:
+    # الحصول على جميع الدردشات (قنوات، مجموعات، دردشات خاصة)
+    dialogs = await l313l.get_dialogs(limit=None)
+    
+    total_dialogs = len(dialogs)
+    await event.edit(f"**⏳ البحث في {total_dialogs} دردشة...**")
+    
+    results_per_chat = {}
+    
+    # البحث في كل دردشة
+    for idx, dialog in enumerate(dialogs, 1):
+        try:
+            chat = dialog.entity
+            chat_id = chat.id
+            chat_name = dialog.name or "بدون اسم"
+            
+            # تحديث حالة التقدم
+            if idx % 10 == 0:
+                await event.edit(f"**⏳ جاري البحث... ({idx}/{total_dialogs})**")
+            
+            # تجنب دردشات النظام
+            if isinstance(chat, types.User) and chat.bot:
                 continue
-        
-        # تحديث رأس الملف بالعدد النهائي
-        with open(file_name, 'r+', encoding='utf-8') as f:
-            content = f.read()
-            f.seek(0)
-            f.write(f"🔍 نتائج البحث الشامل عن: {search_word}\n")
-            f.write(f"📅 التاريخ: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
-            f.write(f"✅ العدد الإجمالي للنتائج: {counter} نتيجة\n")
+            
+            # البحث في الدردشة
+            chat_results = []
+            async for message in l313l.iter_messages(
+                chat_id, 
+                search=search_word,
+                limit=20  # 20 نتيجة كحد أقصى من كل دردشة
+            ):
+                if message.message and search_word in message.message:
+                    link = f'https://t.me/c/{chat_id}/{message.id}'
+                    chat_results.append(link)
+            
+            if chat_results:
+                results_per_chat[chat_name] = chat_results
+                counter += len(chat_results)
+                
+        except Exception as e:
+            continue
+    
+    # إذا كانت النتائج كثيرة جداً، ننشئ ملف نصي
+    if counter > 0:
+        # إنشاء ملف النتائج
+        with open(i, 'w', encoding='utf-8') as f:
+            f.write(f"نتائج البحث عن: {search_word}\n")
+            f.write(f"العدد الإجمالي: {counter} نتيجة\n")
             f.write("="*50 + "\n\n")
-            lines = content.split('\n')
-            if len(lines) > 4:
-                f.write('\n'.join(lines[4:]))
+            
+            for chat_name, links in results_per_chat.items():
+                f.write(f"📌 **{chat_name}** ({len(links)} نتيجة):\n")
+                for link_idx, link in enumerate(links[:5], 1):  # 5 روابط فقط من كل دردشة
+                    f.write(f"  {link_idx}. {link}\n")
+                if len(links) > 5:
+                    f.write(f"  ... و {len(links) - 5} نتيجة أخرى\n")
+                f.write("\n")
         
-        # حذف رسالة "جاري البحث"
-        await event.delete()
-        
-        # إرسال الملف
-        if counter > 0:
+        # إرسال الملف إذا كان كبيراً
+        if os.path.getsize(i) > 3000:  # إذا كان حجم الملف كبيراً
+            await event.delete()
             await l313l.send_file(
                 event.chat_id,
-                file_name,
-                caption=f'''
-ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 - **بـحـث شـامل**
-⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-l {search_word} l  **نتائـج البحث عـن -**
-l جميع المحادثات l  **فـي -**
-l {counter} نتيجة l  **العدد -**
-
-*تم حفظ النتائج في الملف المرفق*
-                ''',
+                i,
+                caption=f"**نتائج البحث عن: {search_word}**\n**العدد الإجمالي: {counter} نتيجة**\n\n*تم حفظ النتائج في ملف نصي*",
                 reply_to=event.message.id
             )
         else:
-            await event.respond(f"**❌ لم يتم العثور على أي نتائج لكلمة `{search_word}`**")
+            # إرسال النتائج كرسالة إذا كانت قصيرة
+            with open(i, 'r', encoding='utf-8') as f:
+                results_text = f.read()
             
-    except Exception as e:
-        await event.edit(f"**⚠️ حدث خطأ:** `{str(e)}`")
-    
-    finally:
-        # تنظيف الملف المؤقت
-        if os.path.exists(file_name):
-            os.remove(file_name)
+            if len(results_text) > 4000:
+                # تقسيم الرسالة إذا كانت طويلة
+                parts = [results_text[i:i+4000] for i in range(0, len(results_text), 4000)]
+                await event.edit(f"**نتائج البحث عن: {search_word}**\n**العدد: {counter} نتيجة**\n\n{parts[0]}")
+                
+                for part in parts[1:]:
+                    await event.reply(part)
+            else:
+                await event.edit(f"**نتائج البحث عن: {search_word}**\n**العدد: {counter} نتيجة**\n\n{results_text}")
+        
+        # حذف الملف المؤقت
+        os.remove(i)
+        
+    else:
+        await event.edit(f"**❌ لم يتم العثور على أي نتائج لكلمة: `{search_word}`**")
+
 # ================================================================================================ #
 # =========================================ساوند كلاود================================================= #
 # ================================================================================================ #

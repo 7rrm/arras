@@ -474,7 +474,7 @@ from telethon import types
 from datetime import datetime
 
 
-@l313l.ar_cmd(pattern="كلمة (.*)")
+@l313l.ar_cmd(pattern="بحث (.*)")
 async def search_all(event):
     """بحث شامل في جميع الدردشات - يرسل النتائج في ملف دائماً"""
     search_word = event.pattern_match.group(1)

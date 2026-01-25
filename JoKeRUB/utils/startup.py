@@ -166,6 +166,42 @@ hack - قسم أمر الهـاك"""
     except Exception as e:
         print(e)
 
+async def send_install_notification():
+    """
+    إرسال رسالة تأكيد تنصيب السورس إلى المطور
+    """
+    try:
+        # إرسال الرسالة إلى المطور
+        await l313l.send_message(
+            "Lx5x5",  # أو يمكنك استخدام: Config.OWNER_ID
+            "**🎉 تم تنصيب سورس آراس (ᥲRRᥲS) بنجاح!**\n\n"
+            "📊 **معلومات التنصيب:**\n"
+            f"⏰ الوقت: {time.ctime()}\n"
+            f"🆔 آيدي البوت: {l313l.uid if hasattr(l313l, 'uid') else 'غير محدد'}\n"
+            f"👤 يوزر البوت: {Config.TG_BOT_USERNAME}\n\n"
+            "✅ **الحالة:**\n"
+            "- البوت يعمل بشكل طبيعي\n"
+            "- تم تحميل جميع الإضافات\n\n"
+            "✨ سورس آراس - @lxx5x5"
+        )
+        
+        LOGS.info("✅ تم إرسال إشعار التنصيب إلى المطور Lx5x5")
+        
+        # يمكنك إضافة إرسال إلى قناة/مجموعة أخرى إذا أردت
+        if BOTLOG_CHATID:
+            try:
+                await l313l.send_message(
+                    BOTLOG_CHATID,
+                    "**🔔 إشعار جديد:**\n"
+                    "تم تنصيب سورس آراس على خادم جديد\n"
+                    f"الوقت: {time.ctime()}"
+                )
+            except Exception as e:
+                LOGS.warning(f"لم يتم إرسال الإشعار إلى BOTLOG: {e}")
+                
+    except Exception as e:
+        LOGS.error(f"❌ فشل إرسال إشعار التنصيب الى المطور: {str(e)}")
+
 
 async def add_bot_to_logger_group(chat_id):
     """

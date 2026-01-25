@@ -25,6 +25,7 @@ from JoKeRUB.utils import admin_cmd
 from ..Config import Config
 import asyncio, aiohttp, random, json, requests, re, time, os
 import logging
+import uuid
 logging.getLogger().setLevel(logging.WARNING)
 
 # إعدادات الملفات
@@ -82,69 +83,106 @@ def delete_expired_accounts(user_id=None):
     save_accounts(remaining_accounts)
     return deleted_count
 
-# ========== دوال إنشاء البريد ==========
-async def create_email_account():
-    email_url = "https://api.mail.tm"
-    email_headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
-    
+# ========== دوال إنشاء البريد باستخدام temp-mail.io ==========
+async def create_temp_mail():
+    """إنشاء بريد مؤقت باستخدام temp-mail.io"""
     try:
-        async with aiohttp.ClientSession(headers=email_headers) as session:
-            domains_resp = await session.get(f"{email_url}/domains")
-            domains_data = await domains_resp.json()
-            domain = domains_data["hydra:member"][0]["domain"]
-            
-            username = ''.join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(12))
-            email = f"{username}@{domain}"
-            password = f"Pass{random.randint(1000, 9999)}!"
-            
-            payload = {"address": email, "password": password}
-            await session.post(f"{email_url}/accounts", json=payload)
-            
-            token_resp = await session.post(f"{email_url}/token", json=payload)
-            token_data = await token_resp.json()
-            token = token_data.get("token")
-            
-            return email, password, token
-    except:
-        return False, False, False
+        # إنشاء عنوان بريد إلكتروني عشوائي
+        random_name = ''.join(random.choice('abcdefghijklmnopqrstuvwxyz1234567890') for _ in range(10))
+        domains = ["1secmail.com", "1secmail.org", "1secmail.net"]
+        domain = random.choice(domains)
+        
+        email = f"{random_name}@{domain}"
+        
+        return email, email  # نعيد الإيميل مرتين لأن temp-mail لا يحتاج كلمة مرور
+        
+    except Exception as e:
+        print(f"Error creating temp mail: {e}")
+        return None, None
 
-async def wait_for_verification_code(token, email):
-    headers = {
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0",
-        "Authorization": f"Bearer {token}"
-    }
-    
-    timeout = 300
+async def get_messages_from_temp_mail(email):
+    """الحصول على الرسائل من temp-mail.io"""
+    try:
+        # تقسيم الإيميل إلى اسم و دومين
+        username, domain = email.split('@')
+        
+        # رابط API للحصول على الرسائل
+        url = f"https://www.1secmail.com/api/v1/?action=getMessages&login={username}&domain={domain}"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    messages = await response.json()
+                    return messages
+                else:
+                    return []
+                    
+    except Exception as e:
+        print(f"Error getting messages: {e}")
+        return []
+
+async def get_message_content(email, message_id):
+    """الحصول على محتوى رسالة محددة"""
+    try:
+        username, domain = email.split('@')
+        
+        url = f"https://www.1secmail.com/api/v1/?action=readMessage&login={username}&domain={domain}&id={message_id}"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    message_data = await response.json()
+                    return message_data
+                else:
+                    return None
+                    
+    except Exception as e:
+        print(f"Error getting message content: {e}")
+        return None
+
+async def wait_for_verification_code_temp_mail(email, timeout=300):
+    """انتظار كود التحقق من temp-mail.io"""
     start_time = time.time()
     
-    async with aiohttp.ClientSession(headers=headers) as session:
-        while time.time() - start_time < timeout:
-            try:
-                messages_resp = await session.get("https://api.mail.tm/messages")
-                inbox = await messages_resp.json()
-                messages = inbox.get("hydra:member", [])
+    while time.time() - start_time < timeout:
+        try:
+            messages = await get_messages_from_temp_mail(email)
+            
+            for message in messages:
+                # تحميل محتوى الرسالة
+                message_data = await get_message_content(email, message['id'])
                 
-                for msg in messages:
-                    sender = msg.get('from', {}).get('address', '')
-                    if 'nanabanana.ai' in sender:
-                        msg_id = msg["id"]
-                        msg_resp = await session.get(f"https://api.mail.tm/messages/{msg_id}")
-                        full_msg = await msg_resp.json()
-                        text_content = full_msg.get('text', '')
-                        matches = re.findall(r'\b\d{6}\b', text_content)
-                        if matches:
-                            return matches[0]
-                await asyncio.sleep(5)
-            except:
-                await asyncio.sleep(5)
+                if message_data:
+                    # البحث في محتوى الرسالة
+                    text_content = message_data.get('textBody', '') or message_data.get('htmlBody', '')
+                    
+                    # البحث عن كود التحقق (6 أرقام)
+                    matches = re.findall(r'\b\d{6}\b', text_content)
+                    if matches:
+                        return matches[0]
+                    
+                    # أو البحث عن أنماط أخرى للكود
+                    matches = re.findall(r'code[:\s]*(\d{6})', text_content, re.IGNORECASE)
+                    if matches:
+                        return matches[0]
+                        
+                    matches = re.findall(r'verification[:\s]*(\d{6})', text_content, re.IGNORECASE)
+                    if matches:
+                        return matches[0]
+            
+            await asyncio.sleep(10)  # انتظار 10 ثواني قبل المحاولة مجدداً
+            
+        except Exception as e:
+            print(f"Error waiting for verification code: {e}")
+            await asyncio.sleep(10)
+    
     return None
 
 # ========== دوال NanoBanana ==========
 async def create_nanabanana_account():
-    email, password, mail_token = await create_email_account()
+    email, _ = await create_temp_mail()
     
-    if not email or not mail_token:
+    if not email:
         return None, None, None
     
     nana_headers = {
@@ -152,6 +190,7 @@ async def create_nanabanana_account():
         'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
     }
     
+    # الحصول على CSRF token
     csrf_response = requests.get("https://nanabanana.ai/api/auth/csrf", headers=nana_headers)
     csrf_token = None
     csrf_cookie = None
@@ -168,37 +207,72 @@ async def create_nanabanana_account():
     
     cookies_dict = csrf_response.cookies.get_dict()
     
-    verification_headers = {**nana_headers, 'Content-Type': "application/json", 'origin': "https://nanabanana.ai", 'referer': "https://nanabanana.ai/ar/ai-image", 'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    # إعداد رؤوس طلب التحقق
+    verification_headers = {**nana_headers, 'Content-Type': "application/json", 'origin': "https://nanabanana.ai", 'referer': "https://nanabanana.ai/ar/ai-image"}
     
+    # إضافة الكوكيز
+    cookie_str = f"__Host-authjs.csrf-token={csrf_cookie}"
     for key, value in cookies_dict.items():
         if key != '__Host-authjs.csrf-token':
-            verification_headers['Cookie'] += f"; {key}={value}"
+            cookie_str += f"; {key}={value}"
     
+    verification_headers['Cookie'] = cookie_str
+    
+    # إرسال طلب التحقق
     verification_payload = {"email": email}
-    requests.post("https://nanabanana.ai/api/auth/email-verification", data=json.dumps(verification_payload), headers=verification_headers)
+    verification_response = requests.post(
+        "https://nanabanana.ai/api/auth/email-verification", 
+        data=json.dumps(verification_payload), 
+        headers=verification_headers
+    )
     
-    code = await wait_for_verification_code(mail_token, email)
+    print(f"Email verification response: {verification_response.status_code}")
+    
+    # انتظار كود التحقق
+    code = await wait_for_verification_code_temp_mail(email)
     
     if not code:
+        print("No verification code received")
         return None, None, None
     
-    callback_headers = {**nana_headers, 'x-auth-return-redirect': "1", 'origin': "https://nanabanana.ai", 'referer': "https://nanabanana.ai/ar/ai-image", 'Cookie': f"__Host-authjs.csrf-token={csrf_cookie}"}
+    print(f"Received verification code: {code}")
     
-    for key, value in cookies_dict.items():
-        if key != '__Host-authjs.csrf-token':
-            callback_headers['Cookie'] += f"; {key}={value}"
+    # إتمام التسجيل
+    callback_headers = {
+        **nana_headers, 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'x-auth-return-redirect': "1", 
+        'origin': "https://nanabanana.ai", 
+        'referer': "https://nanabanana.ai/ar/ai-image",
+        'Cookie': cookie_str
+    }
     
-    callback_payload = {'email': email, 'code': code, 'redirect': "false", 'csrfToken': csrf_token, 'callbackUrl': "https://nanabanana.ai/ar/ai-image"}
-    final_response = requests.post("https://nanabanana.ai/api/auth/callback/email-verification", data=callback_payload, headers=callback_headers)
+    callback_payload = {
+        'email': email, 
+        'code': code, 
+        'redirect': "false", 
+        'csrfToken': csrf_token, 
+        'callbackUrl': "https://nanabanana.ai/ar/ai-image"
+    }
     
+    final_response = requests.post(
+        "https://nanabanana.ai/api/auth/callback/email-verification", 
+        data=callback_payload, 
+        headers=callback_headers
+    )
+    
+    print(f"Final response status: {final_response.status_code}")
+    
+    # استخراج session token
     final_cookies = final_response.cookies.get_dict()
     session_token = None
     if '__Secure-authjs.session-token' in final_cookies:
         session_token = final_cookies['__Secure-authjs.session-token']
     
     if session_token:
-        return email, password, session_token
+        return email, "temp_mail_no_password", session_token
     else:
+        print(f"No session token found. Cookies: {final_cookies}")
         return None, None, None
 
 def upload_image(image_path):
@@ -431,7 +505,7 @@ async def repo(event):
 # ========== الأمر الرئيسي ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
-    if event.sender_id == bot.uid:  # ← هنا المشكلة
+    if event.sender_id == bot.uid:
         await safe_edit(event, menu, buttons=keyboard)
      
 # ========== أمر /cancel ==========
@@ -625,16 +699,14 @@ async def handle_edit_prompt_message(event):
         # إنشاء الصورة المعدلة
         task_id = create_or_edit_image(account['session_token'], prompt, [uploaded_url])
         
-        # ========== ✅ الإصلاح هنا ==========
         if task_id:
-            # تحديث عدد الاستخدامات (كان ناقص)
+            # تحديث عدد الاستخدامات
             accounts = load_accounts()
             for acc in accounts:
                 if acc.get('session_token') == account['session_token']:
                     acc['use_count'] = acc.get('use_count', 0) + 1
                     save_accounts(accounts)
                     break
-            # ========== ✅ انتهى الإصلاح ==========
             
             await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
             
@@ -653,7 +725,7 @@ async def handle_edit_prompt_message(event):
         
         clear_user_session(user_id)
 
-# ========== حساباتي (بدون تغيير) ==========
+# ========== حساباتي ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
 async def my_accounts_handler(event):
     try:
@@ -733,7 +805,7 @@ async def confirm_delete_all_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-# ========== انشاء حساب (بدون تغيير) ==========
+# ========== انشاء حساب ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"new_account")))
 async def new_account_handler(event):
     try:
@@ -767,4 +839,4 @@ async def new_account_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور بنجاح مع التعديلات المطلوبة!")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع استخدام temp-mail.io!")

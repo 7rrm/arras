@@ -32,7 +32,7 @@ logging.getLogger('telethon').setLevel(logging.WARNING)
 ##Reda hands here
 cmdhr = Config.COMMAND_HAND_LER
 Zed_Vip = (8277718687, 5427469031)
-Zed_Dev = (8461813715, 5427469031, 8277718687)
+Zed_Dev = (5427469031, 8277718687)
 bot = l313l
 ENV = bool(os.environ.get("ENV", False))
 

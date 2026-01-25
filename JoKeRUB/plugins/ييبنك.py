@@ -31,7 +31,7 @@ async def jokerping(event):
     ms = (end - start).microseconds / 1000
     EMOJI = gvarstatus("ALIVE_EMOJI") or "✇ ◅"
     PING_TEXT = gvarstatus("PING_TEXT") or "**[ 𝗜 𝗝𝘂𝘀𝘁 𝗔𝘀𝗸𝗲𝗱 𝗙𝗼𝗿 𝗦𝗼𝗺𝗲 𝗣𝗲𝗮𝗰𝗲 . ](t.me/lx5x5)**"
-    PING_IMG = gvarstatus("PING_PIC") or Config.P_PIC or "https://files.catbox.moe/lk9b93.jpg"
+    PING_IMG = gvarstatus("PING_PIC") or Config.P_PIC or "https://files.catbox.moe/z46y7v.jpg"
     HuRe_caption = gvarstatus("PING_TEMPLATE") or temp
     caption = HuRe_caption.format(
         PING_TEXT=PING_TEXT,

@@ -1084,13 +1084,13 @@ async def fetch_info_en(replied_user, event):
     
     ################# Dev ZilZal #################
     if user_id in zelzal: 
-        rotbat = "مطـور السـورس 𓄂" 
+        rotbat = "مطـور السـورس 𓄂\n" 
     elif user_id in zel_dev:
-        rotbat = "مـطـور 𐏕" 
+        rotbat = "مـطـور 𐏕\n" 
     elif user_id == (await event.client.get_me()).id:
-        rotbat = "مـالك الحساب 𓀫" 
+        rotbat = "مـالك الحساب 𓀫\n" 
     else:
-        rotbat = "العضـو 𓅫"
+        rotbat = "العضـو 𓅫\n"
     ################# Dev ZilZal #################
     
     if gvarstatus("ZID_TEMPLATE_EN") is None:

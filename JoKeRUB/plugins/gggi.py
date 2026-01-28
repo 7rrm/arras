@@ -1092,126 +1092,126 @@ async def fetch_info_en(replied_user, event):
     else:
         rotbat = "العضـو 𓅫"
     if gvarstatus("ZID_TEMPLATE_EN") is None:
-        if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
-            if mypremium == True:
-                caption = f"┏───────────────┓\n"
-                caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
-                caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
-                if zilzal == True:
-                    caption += f'<a href="emoji/{emoji_id}">❤️</a>'
-                caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b>  {username}"
-                caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
-                
-                if zilzal == True:
-                    caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> ᴘʀᴇᴍɪᴜᴍ"
-                    caption += f'<a href="emoji/5832422209074762334">❤️</a>'
-                
-                caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
-                if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
-                    if zilzal == True or user_id in zelzal:
-                        caption += f"𝕍𝕀ℙ"
-                        caption += f'<a href="emoji/5832653669157310552">❤️</a>'
-                else:
-                    caption += f"ꜰʀᴇᴇ"
-                
-                caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
-                caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count}"
-                caption += f'<a href="emoji/5407064810040864883">❤️</a>'
-                caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
-                caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz}"
-                caption += f'<a href="emoji/5253742260054409879">❤️</a>'
-                caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
-                
-                if user_id != (await event.client.get_me()).id: 
-                    caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
-                
-                caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc}"
-                caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
-                caption += f"\n┗────────────────┛"
+    if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+        if mypremium == True:
+            caption = f"┏───────────────┓\n"
+            caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➪ </b> "  # ⭐ تغيير هنا
+            caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
+            if zilzal == True:
+                caption += f'<a href="emoji/{emoji_id}">❤️</a>'
+            caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➪ </b>  {username}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}I𝑑 ➪ </b> <code>{user_id}</code>"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➪ </b> {rotbat}"  # ⭐ تغيير هنا
+            
+            if zilzal == True:
+                caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➪ </b> P𝑟𝑒𝑚𝑖𝑢𝑚"  # ⭐ تغيير هنا
+                caption += f'<a href="emoji/5832422209074762334">❤️</a>'
+            
+            caption += f"\n│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➪ </b> "  # ⭐ تغيير هنا
+            if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+                if zilzal == True or user_id in zelzal:
+                    caption += f"𝕍𝕀ℙ"
+                    caption += f'<a href="emoji/5832653669157310552">❤️</a>'
             else:
-                caption = f"┏───────────────┓\n"
-                caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
-                caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-                caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"
-                caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
-                caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
-                if zilzal == True:
-                    caption += f"ᴘʀᴇᴍɪᴜᴍ 🌟"
-                else:
-                    caption += f"ɴᴏʀᴍᴀʟ"
-                
-                caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
-                if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
-                    if zilzal == True or user_id in zelzal:
-                        caption += f"𝕍𝕀ℙ"
-                else:
-                    caption += f"ꜰʀᴇᴇ"
-                
-                caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
-                caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count} 🎁"
-                caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
-                caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz} 💌"
-                caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
-                
-                if user_id != (await event.client.get_me()).id: 
-                    caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
-                
-                caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc} 🗓"
-                caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
-                caption += f"\n┗────────────────┛"
+                caption += f"F𝑟𝑒𝑒"  # ⭐ تغيير هنا
+            
+            caption += f"\n│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➪ </b> {replied_user_profile_photos_count}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➪ </b> {gifts_count}"
+            caption += f'<a href="emoji/5407064810040864883">❤️</a>'
+            caption += f"\n│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➪ </b> {level_message}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➪ </b> {zzz}"  # ⭐ تغيير هنا
+            caption += f'<a href="emoji/5253742260054409879">❤️</a>'
+            caption += f"\n│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➪ </b> {zelzzz}"  # ⭐ تغيير هنا
+            
+            if user_id != (await event.client.get_me()).id: 
+                caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}"  # ⭐ تغيير هنا
+            
+            caption += f"\n│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➪ </b> {zzzsinc}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}B𝑖𝑜 ➪ </b> {user_bio}"  # ⭐ تغيير هنا
+            caption += f"\n┗────────────────┛"
         else:
             caption = f"┏───────────────┓\n"
-            caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
+            caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➪ </b> "  # ⭐ تغيير هنا
             caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-            caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"
-            caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
-            caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
-            caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
+            caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➪ </b> {username}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}I𝑑 ➪ </b> <code>{user_id}</code>"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➪ </b> {rotbat}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➪ </b> "  # ⭐ تغيير هنا
             if zilzal == True:
-                caption += f"ᴘʀᴇᴍɪᴜᴍ 🌟"
+                caption += f"P𝑟𝑒𝑚𝑖𝑢𝑚 🌟"  # ⭐ تغيير هنا
             else:
-                caption += f"ɴᴏʀᴍᴀʟ"
+                caption += f"N𝑜𝑟𝑚𝑎𝑙"  # ⭐ تغيير هنا
             
-            caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
+            caption += f"\n│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➪ </b> "  # ⭐ تغيير هنا
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
                     caption += f"𝕍𝕀ℙ"
             else:
-                caption += f"ꜰʀᴇᴇ"
+                caption += f"F𝑟𝑒𝑒"  # ⭐ تغيير هنا
             
-            caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
-            caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count} 🎁"
-            caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
-            caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz} 💌"
-            caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
+            caption += f"\n│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➪ </b> {replied_user_profile_photos_count}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➪ </b> {gifts_count} 🎁"
+            caption += f"\n│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➪ </b> {level_message}"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➪ </b> {zzz} 💌"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➪ </b> {zelzzz}"  # ⭐ تغيير هنا
             
             if user_id != (await event.client.get_me()).id: 
-                caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
+                caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}"  # ⭐ تغيير هنا
             
-            caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc} 🗓"
-            caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
+            caption += f"\n│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➪ </b> {zzzsinc} 🗓"  # ⭐ تغيير هنا
+            caption += f"\n│<b>{EN_EMOJI}B𝑖𝑜 ➪ </b> {user_bio}"  # ⭐ تغيير هنا
             caption += f"\n┗────────────────┛"
     else:
-        zzz_caption = gvarstatus("ZID_TEMPLATE_EN")
-        caption = zzz_caption.format(
-            znam=full_name,
-            zusr=username,
-            zidd=user_id,
-            zrtb=rotbat,
-            zpre=zpre,
-            zvip=zvip,
-            zpic=replied_user_profile_photos_count,
-            zgft=gifts_count,
-            zlvl=level_message,
-            zmsg=zzz,
-            ztmg=zelzzz,
-            zcom=common_chat,
-            zsnc=zzzsinc,
-            zbio=user_bio,
-        )
-    return photo, caption
+        caption = f"┏───────────────┓\n"
+        caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➪ </b> "  # ⭐ تغيير هنا
+        caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
+        caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➪ </b> {username}"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}I𝑑 ➪ </b> <code>{user_id}</code>"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➪ </b> {rotbat}"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➪ </b> "  # ⭐ تغيير هنا
+        if zilzal == True:
+            caption += f"P𝑟𝑒𝑚𝑖𝑢𝑚 🌟"  # ⭐ تغيير هنا
+        else:
+            caption += f"N𝑜𝑟𝑚𝑎𝑙"  # ⭐ تغيير هنا
+        
+        caption += f"\n│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➪ </b> "  # ⭐ تغيير هنا
+        if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+            if zilzal == True or user_id in zelzal:
+                caption += f"𝕍𝕀ℙ"
+        else:
+            caption += f"F𝑟𝑒𝑒"  # ⭐ تغيير هنا
+        
+        caption += f"\n│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➪ </b> {replied_user_profile_photos_count}"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➪ </b> {gifts_count} 🎁"
+        caption += f"\n│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➪ </b> {level_message}"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➪ </b> {zzz} 💌"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➪ </b> {zelzzz}"  # ⭐ تغيير هنا
+        
+        if user_id != (await event.client.get_me()).id: 
+            caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}"  # ⭐ تغيير هنا
+        
+        caption += f"\n│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➪ </b> {zzzsinc} 🗓"  # ⭐ تغيير هنا
+        caption += f"\n│<b>{EN_EMOJI}B𝑖𝑜 ➪ </b> {user_bio}"  # ⭐ تغيير هنا
+        caption += f"\n┗────────────────┛"
+else:
+    zzz_caption = gvarstatus("ZID_TEMPLATE_EN")
+    caption = zzz_caption.format(
+        znam=full_name,
+        zusr=username,
+        zidd=user_id,
+        zrtb=rotbat,
+        zpre=zpre,
+        zvip=zvip,
+        zpic=replied_user_profile_photos_count,
+        zgft=gifts_count,
+        zlvl=level_message,
+        zmsg=zzz,
+        ztmg=zelzzz,
+        zcom=common_chat,
+        zsnc=zzzsinc,
+        zbio=user_bio,
+    )
+return photo, caption
 
 # إضافة الأمر i للغة الإنجليزية
 # إضافة الأمر i للغة الإنجليزية

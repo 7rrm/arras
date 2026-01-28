@@ -1107,7 +1107,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}"
                 
                 if zilzal == True:
-                    caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b>"
+                    caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريمـيوم"
                     caption += f'<a href="emoji/5832422209074762334">❤️</a> \n'  # ⭐ إضافة \n هنا
                 
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):

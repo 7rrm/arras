@@ -993,7 +993,7 @@ async def who(event):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 # نفس جزء إعداد النصوص وإضافة هذه السطور مع المتغيرات الإنجليزية
-#EN_TEXT = gvarstatus("CUSTOM_ALIVE_EN_TEXT") or "•⎚• User Information from ARAS Bot"
+EN_TEXT = gvarstatus("CUSTOM_ALIVE_EN_TEXT") or "•⎚• User Information from ARAS Bot"
 EN_EMOJI = gvarstatus("CUSTOM_ALIVE_EN_EMOJI") or "● "
 EN_FONT = gvarstatus("CUSTOM_ALIVE_EN_FONT") or "┏───────────────┓\n┗────────────────┛"
 

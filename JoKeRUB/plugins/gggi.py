@@ -1091,9 +1091,8 @@ async def fetch_info_en(replied_user, event):
     else:
         rotbat = "العضـو 𓅫"
     if gvarstatus("ZID_TEMPLATE_EN") is None:
-    if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
-        if mypremium == True:
-            # ✅ فقط المربع بدون إيموجيات
+        if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
+              if mypremium == True:
             caption = f"┏───────────────┓\n"
             caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➪ </b> "
             caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '

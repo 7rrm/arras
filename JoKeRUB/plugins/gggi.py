@@ -33,7 +33,7 @@ LOGS = logging.getLogger(__name__)
 
 zed_dev = (5280339206, 5427469031)
 zel_dev = (6349091574, 5427469031)
-zelzal = (5427469031, 5280339206)
+zelzal = (5427469031, 6349091574)
 Zel_Uid = l313l.uid
 #zedub.parse_mode = CustomParseMode('markdown')  # TODO: Choose parsemode
 

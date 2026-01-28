@@ -1178,7 +1178,7 @@ async def fetch_info_en(replied_user, event):
                     caption += f"<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪  {common_chat}</b>\n"
                 caption += f"<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪</b>  {zzzsinc}  🗓\n" 
                 caption += f"<b>{EN_EMOJI}ʙɪᴏ ➪</b>  {user_bio}\n"
-                caption += f"ٴ<b>{EN_FONT}</b>"
+                caption += f"<b>{EN_FONT}</b>"
         else:
             caption = f"<b> {EN_TEXT} </b>\n"
             caption += f"ٴ<b>{EN_FONT}</b>\n"
@@ -1201,7 +1201,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪  {common_chat}</b>\n"
             caption += f"<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪</b>  {zzzsinc}  🗓\n" 
             caption += f"<b>{EN_EMOJI}ʙɪᴏ ➪</b>  {user_bio}\n"
-            caption += f"ٴ<b>{EN_FONT}</b>"
+            caption += f"<b>{EN_FONT}</b>"
     else:
         zzz_caption = gvarstatus("ZID_TEMPLATE_EN")
         caption = zzz_caption.format(
@@ -1224,8 +1224,8 @@ async def fetch_info_en(replied_user, event):
 
 # إضافة الأمر i للغة الإنجليزية
 @l313l.ar_cmd(
-    pattern="i(?: |$)(.*)",
-    command=("i", plugin_category),
+    pattern="اا(?: |$)(.*)",
+    command=("اا", plugin_category),
     info={
         "header": "Short command to display user info in English",
         "usage": " {tr}i by reply or {tr}i + username/userid",

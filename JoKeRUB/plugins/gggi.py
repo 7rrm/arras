@@ -1128,48 +1128,48 @@ async def fetch_info_en(replied_user, event):
                 # ✅ حالة: المستخدم مطور أو VIP لكنه ليس بريميوم
                 caption = f"┏──────────────────┓\n"
                 caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➜ </b> "
-                caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-                caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➜ </b> {username}"
-                caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}"
+                caption += f'<a href="tg://user?id={user_id}">{full_name}</a> \n'
+                caption += f"│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➜ </b> {username}\n"
+                caption += f"│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code> \n"
+                caption += f"│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
                 if zilzal == True:
-                    caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريميـوم 🌟\n"
+                    caption += f"│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريميـوم 🌟\n"
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ"
+                        caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ"\n
                 caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}"
-                caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count} 🎁\n"
-                caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}"
-                caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz} 💌\n"
+                caption += f"│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count} 🎁\n"
+                caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}\n"
+                caption += f"│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz} 💌\n"
                 caption += f"│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➜ </b> {zelzzz}\n"
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➜ </b> {common_chat}\n"
                 caption += f"│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➜ </b> {zzzsinc} 🗓\n"
-                caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}"
-                caption += f"┗───────────────────┛\n"
+                caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}\n"
+                caption += f"┗───────────────────┛"
         else:
             # ✅ حالة: المستخدم عادي (ليس مطور ولا VIP)
             caption = f"┏──────────────────┓\n"
             caption += f"│<b>{EN_EMOJI}N𝑎𝑚𝑒 ➜ </b> "
-            caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-            caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➜ </b> {username}"
-            caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>"
-            caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}"
+            caption += f'<a href="tg://user?id={user_id}">{full_name}</a> \n'
+            caption += f"│<b>{EN_EMOJI}U𝑠𝑒𝑟N𝑎𝑚𝑒 ➜ </b> {username}\n"
+            caption += f"│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code> \n"
+            caption += f"│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
             if zilzal == True:
-                caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريميـوم 🌟\n"
+                caption += f"│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريميـوم 🌟\n"
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
-                    caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ"
+                    caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ \n"
             caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}"
-            caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count} 🎁\n"
-            caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}"
-            caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz} 💌\n"
+            caption += f"│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count} 🎁\n"
+            caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}\n"
+            caption += f"│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz} 💌\n"
             caption += f"│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➜ </b> {zelzzz}\n"
             if user_id != (await event.client.get_me()).id: 
                 caption += f"│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}\n"
             caption += f"│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➜ </b> {zzzsinc} 🗓\n"
-            caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}"
-            caption += f"\n┗───────────────────┛"
+            caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}\n"
+            caption += f"┗───────────────────┛"
     else:
         # ✅ حالة: قالب مخصص
         zzz_caption = gvarstatus("ZID_TEMPLATE_EN")

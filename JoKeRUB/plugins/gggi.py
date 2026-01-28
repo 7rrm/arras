@@ -969,28 +969,6 @@ async def who(event):
             
         except (TypeError, ChatSendMediaForbiddenError):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
-    else:
-        try:
-            # نفس المنطق للقالب المخصص
-            uploaded_file = await event.client.upload_file(photo)
-            spoiler_media = InputMediaUploadedPhoto(
-                file=uploaded_file,
-                spoiler=True  # ✅ التشويش مفعل
-            )
-            
-            await event.client.send_message(
-                event.chat_id,
-                message=quoted_caption,
-                file=spoiler_media,
-                reply_to=message_id_to_reply,
-                parse_mode=CustomParseMode("html")
-            )
-            
-            os.remove(photo)
-            await zed.delete()
-            
-        except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 # نفس جزء إعداد النصوص وإضافة هذه السطور مع المتغيرات الإنجليزية
 EN_TEXT = gvarstatus("CUSTOM_ALIVE_EN_TEXT") or "•⎚• User Information from ARAS Bot"
@@ -1118,7 +1096,7 @@ async def fetch_info_en(replied_user, event):
     if gvarstatus("ZID_TEMPLATE_EN") is None:
         if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
-                #caption = f"<b>{EN_TEXT}</b>\n"
+                caption = f"<b>{EN_TEXT}</b>\n"
                 caption += f"┏───────────────┓\n"
                 caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
@@ -1153,7 +1131,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
                 caption += f"\n┗────────────────┛"
             else:
-                #caption = f"<b>{EN_TEXT}</b>\n"
+                caption = f"<b>{EN_TEXT}</b>\n"
                 caption += f"┏───────────────┓\n"
                 caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
@@ -1186,7 +1164,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
                 caption += f"\n┗────────────────┛"
         else:
-            #caption = f"<b>{EN_TEXT}</b>\n"
+            caption = f"<b>{EN_TEXT}</b>\n"
             caption += f"┏───────────────┓\n"
             caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
             caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
@@ -1238,7 +1216,7 @@ async def fetch_info_en(replied_user, event):
         )
     return photo, caption
 
-
+# إضافة الأمر i للغة الإنجليزية
 @l313l.ar_cmd(
     pattern="i(?: |$)(.*)",
     command=("i", plugin_category),

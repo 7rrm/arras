@@ -1118,9 +1118,9 @@ async def fetch_info_en(replied_user, event):
                 caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}\n"
                 caption += f"│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz}"
                 caption += f'<a href="emoji/5253742260054409879">❤️</a> \n'  # ⭐ إضافة \n هنا
-                caption += f"│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➜ </b> {zelzzz}"
+                caption += f"│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➜ </b> {zelzzz}\n"
                 if user_id != (await event.client.get_me()).id: 
-                    caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}\n"
+                    caption += f"│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}\n"
                 caption += f"│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➜ </b> {zzzsinc}\n"
                 caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}\n"
                 caption += f"┗───────────────────┛"

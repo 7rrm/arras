@@ -1136,7 +1136,7 @@ async def fetch_info_en(replied_user, event):
                     caption += f"│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريميـوم 🌟\n"
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ"\n
+                        caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b> 𝕍𝕀ℙ\n"
                 caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}"
                 caption += f"│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count} 🎁\n"
                 caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}\n"

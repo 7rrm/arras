@@ -999,7 +999,7 @@ EN_FONT = gvarstatus("CUSTOM_ALIVE_EN_FONT") or "⋆─┄─┄─┄─ ᵃᴿ
 
 # إضافة دالة جديدة للمعلومات الإنجليزية
 async def fetch_info_en(replied_user, event):
-        """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
+    """وظيفة لجمع المعلومات مع استخدام التاريخ الثابت"""
     FullUser = (await event.client(GetFullUserRequest(replied_user.id))).full_user
     replied_user_profile_photos = await event.client(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)

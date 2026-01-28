@@ -971,7 +971,6 @@ async def who(event):
             await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 # نفس جزء إعداد النصوص وإضافة هذه السطور مع المتغيرات الإنجليزية
-EN_TEXT = gvarstatus("CUSTOM_ALIVE_EN_TEXT") or "•⎚• User Information from ARAS Bot"
 EN_EMOJI = gvarstatus("CUSTOM_ALIVE_EN_EMOJI") or "● "
 EN_FONT = gvarstatus("CUSTOM_ALIVE_EN_FONT") or "┏───────────────┓\n┗────────────────┛"
 
@@ -1096,8 +1095,7 @@ async def fetch_info_en(replied_user, event):
     if gvarstatus("ZID_TEMPLATE_EN") is None:
         if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
-                caption = f"<b>{EN_TEXT}</b>\n"
-                caption += f"┏───────────────┓\n"
+                caption = f"┏───────────────┓\n"
                 caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:
@@ -1131,8 +1129,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
                 caption += f"\n┗────────────────┛"
             else:
-                caption = f"<b>{EN_TEXT}</b>\n"
-                caption += f"┏───────────────┓\n"
+                caption = f"┏───────────────┓\n"
                 caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
                 caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"
@@ -1164,8 +1161,7 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
                 caption += f"\n┗────────────────┛"
         else:
-            caption = f"<b>{EN_TEXT}</b>\n"
-            caption += f"┏───────────────┓\n"
+            caption = f"┏───────────────┓\n"
             caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
             caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
             caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"

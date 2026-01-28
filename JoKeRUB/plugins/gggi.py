@@ -1091,7 +1091,6 @@ async def fetch_info_en(replied_user, event):
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
-    
     if gvarstatus("ZID_TEMPLATE_EN") is None:
         if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
@@ -1103,23 +1102,25 @@ async def fetch_info_en(replied_user, event):
                 caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b>  {username}"
                 caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
                 caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
-                caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
+                
                 if zilzal == True:
-                    caption += f"ᴘʀᴇᴍɪᴜᴍ"
-                else:
-                    caption += f"ɴᴏʀᴍᴀʟ"
+                    caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> ᴘʀᴇᴍɪᴜᴍ"
+                    caption += f'<a href="emoji/5832422209074762334">❤️</a>'
                 
                 caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"𝕍𝕀ℙ"
+                        caption += f'<a href="emoji/5832653669157310552">❤️</a>'
                 else:
                     caption += f"ꜰʀᴇᴇ"
                 
                 caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
                 caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count}"
+                caption += f'<a href="emoji/5407064810040864883">❤️</a>'
                 caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
                 caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz}"
+                caption += f'<a href="emoji/5253742260054409879">❤️</a>'
                 caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
                 
                 if user_id != (await event.client.get_me()).id: 

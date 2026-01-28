@@ -1104,7 +1104,7 @@ async def fetch_info_en(replied_user, event):
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
                 caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟 N𝑎𝑚𝑒 ➜ </b> {username}"
                 caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}"
+                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
                 
                 if zilzal == True:
                     caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريمـيوم"
@@ -1112,7 +1112,7 @@ async def fetch_info_en(replied_user, event):
                 
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"\n│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b>"
+                        caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'  # ⭐ إضافة \n هنا
                 
                 caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}"

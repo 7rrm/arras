@@ -1104,7 +1104,7 @@ async def fetch_info_en(replied_user, event):
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
                 caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟 N𝑎𝑚𝑒 ➜ </b> {username}"
                 caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}"
+                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
                 if zilzal == True:
                     caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريمـيوم"
                     caption += f'<a href="emoji/5832422209074762334">❤️</a> \n'  # ⭐ إضافة \n هنا

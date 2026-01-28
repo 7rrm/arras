@@ -1103,27 +1103,27 @@ async def fetch_info_en(replied_user, event):
                 if zilzal == True:
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
                 caption += f"\n│<b>{EN_EMOJI}U𝑠𝑒𝑟 N𝑎𝑚𝑒 ➜ </b> {username}"
-                caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>"
-                caption += f"\n│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
+                caption += f"\n│<b>{EN_EMOJI}I𝑑 ➜ </b> <code>{user_id}</code>\n"
+                caption += f"│<b>{EN_EMOJI}R𝑎𝑛𝑘 ➜ </b> {rotbat}\n"
                 if zilzal == True:
-                    caption += f"\n│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريمـيوم"
+                    caption += f"│<b>{EN_EMOJI}A𝑐𝑐𝑜𝑢𝑛𝑡 ➜ </b> بـريمـيوم"
                     caption += f'<a href="emoji/5832422209074762334">❤️</a> \n'  # ⭐ إضافة \n هنا
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
                         caption += f"│<b>{EN_EMOJI}S𝑢𝑏𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 ➜ </b>"
                         caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'  # ⭐ إضافة \n هنا
-                caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}"
-                caption += f"\n│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count}"
+                caption += f"│<b>{EN_EMOJI}P𝑟𝑜𝑓𝑖𝑙𝑒 P𝑖𝑐𝑠 ➜ </b> {replied_user_profile_photos_count}\n"
+                caption += f"│<b>{EN_EMOJI}G𝑖𝑓𝑡𝑠 ➜ </b> {gifts_count}"
                 caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'  # ⭐ إضافة \n هنا
-                caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}"
-                caption += f"\n│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz}"
+                caption += f"│<b>{EN_EMOJI}L𝑒𝑣𝑒𝑙 ➜ </b> {level_message}\n"
+                caption += f"│<b>{EN_EMOJI}M𝑒𝑠𝑠𝑎𝑔𝑒𝑠 ➜ </b> {zzz}"
                 caption += f'<a href="emoji/5253742260054409879">❤️</a> \n'  # ⭐ إضافة \n هنا
                 caption += f"│<b>{EN_EMOJI}I𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑜𝑛 ➜ </b> {zelzzz}"
                 if user_id != (await event.client.get_me()).id: 
-                    caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}"
-                caption += f"\n│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➜ </b> {zzzsinc}"
-                caption += f"\n│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}"
-                caption += f"\n┗───────────────────┛"
+                    caption += f"\n│<b>{EN_EMOJI}Sℎ𝑎𝑟𝑒𝑑 G𝑟𝑜𝑢𝑝𝑠 ➪ </b> {common_chat}\n"
+                caption += f"│<b>{EN_EMOJI}C𝑟𝑒𝑎𝑡𝑖𝑜𝑛 D𝑎𝑡𝑒 ➜ </b> {zzzsinc}\n"
+                caption += f"│<b>{EN_EMOJI}B𝑖𝑜 ➜ </b> {user_bio}\n"
+                caption += f"┗───────────────────┛"
             else:
                 # ✅ حالة: المستخدم مطور أو VIP لكنه ليس بريميوم
                 caption = f"┏──────────────────┓\n"

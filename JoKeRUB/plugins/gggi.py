@@ -1261,15 +1261,8 @@ async def who_en(event):
     if not message_id_to_reply:
         message_id_to_reply = None
     
-    # تقسيم العنوان عن المحتوى
-    # العنوان خارج الاقتباس
-    title = "<b>•⎚• User Information from ARAS Bot .</b>\n"
-    
-    # إضافة الاقتباس فقط للمحتوى الداخلي
-    quoted_content = f"<blockquote>{caption}</blockquote>"
-    
-    # الجمع بين العنوان والمحتوى المقتبس
-    final_caption = f"{title}{quoted_content}"
+    # إضافة الاقتباس مع الحفاظ على الإيموجي
+    quoted_caption = f"<blockquote>{caption}</blockquote>"
     
     if gvarstatus("ZID_TEMPLATE_EN") is None:
         try:
@@ -1283,7 +1276,7 @@ async def who_en(event):
             # إرسال رسالة واحدة مع الصورة المشوشة والمعلومات
             await event.client.send_message(
                 event.chat_id,
-                message=final_caption,
+                message=quoted_caption,
                 file=spoiler_media,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html")
@@ -1293,7 +1286,7 @@ async def who_en(event):
             await zed.delete()
             
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(final_caption, parse_mode=CustomParseMode("html"))
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
     else:
         try:
             # نفس المنطق للقالب المخصص
@@ -1305,7 +1298,7 @@ async def who_en(event):
             
             await event.client.send_message(
                 event.chat_id,
-                message=final_caption,
+                message=quoted_caption,
                 file=spoiler_media,
                 reply_to=message_id_to_reply,
                 parse_mode=CustomParseMode("html")
@@ -1315,7 +1308,7 @@ async def who_en(event):
             await zed.delete()
             
         except (TypeError, ChatSendMediaForbiddenError):
-            await zed.edit(final_caption, parse_mode=CustomParseMode("html"))
+            await zed.edit(quoted_caption, parse_mode=CustomParseMode("html"))
 
 @l313l.ar_cmd(pattern="الانشاء(?: |$)(.*)")
 async def zelzalll(event):

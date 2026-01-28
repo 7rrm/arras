@@ -1084,11 +1084,11 @@ async def fetch_info_en(replied_user, event):
     
     ################# Dev ZilZal #################
     if user_id in zelzal: 
-        rotbat = "مطـور السـورس 𓄂\n" 
+        rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
-        rotbat = "مـطـور 𐏕\n" 
+        rotbat = "مـطـور 𐏕" 
     elif user_id == (await event.client.get_me()).id:
-        rotbat = "مـالك الحساب 𓀫\n" 
+        rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫\n"
     ################# Dev ZilZal #################

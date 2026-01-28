@@ -995,7 +995,7 @@ async def who(event):
 # نفس جزء إعداد النصوص وإضافة هذه السطور مع المتغيرات الإنجليزية
 EN_TEXT = gvarstatus("CUSTOM_ALIVE_EN_TEXT") or "•⎚• User Information from ARAS Bot"
 EN_EMOJI = gvarstatus("CUSTOM_ALIVE_EN_EMOJI") or "● "
-EN_FONT = gvarstatus("CUSTOM_ALIVE_EN_FONT") or "⋆─┄─┄─┄─ ᵃᴿᴿᵃˢ ─┄─┄─┄─⋆"
+EN_FONT = gvarstatus("CUSTOM_ALIVE_EN_FONT") or "┏───────────────┓\n┗────────────────┛"
 
 # إضافة دالة جديدة للمعلومات الإنجليزية
 async def fetch_info_en(replied_user, event):
@@ -1044,17 +1044,19 @@ async def fetch_info_en(replied_user, event):
     verified = replied_user.verified
     zilzal = (await event.client.get_entity(user_id)).premium
     mypremium = (await event.client.get_entity(Zel_Uid)).premium
-    #zid = int(gvarstatus("ZThon_Vip"))
+    
     if zilzal == True or user_id in zelzal:
         zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
     else:
         zpre = "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
+    
     if user_id in Zed_Dev:
         zvip = "𝕍𝕀ℙ 💎"
     elif gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip")):
         zvip = "𝕍𝕀ℙ 💎"
     else:
         zvip = "ℕ𝕆ℕ𝔼"
+    
     if (zilzal == True and mypremium == True):
         emoji_status = (await event.client.get_entity(user_id)).emoji_status
         if isinstance(emoji_status, EmojiStatusEmpty): 
@@ -1066,23 +1068,26 @@ async def fetch_info_en(replied_user, event):
                     emoji_id = 5834880210268329130
             except Exception:
                     emoji_id = 5834880210268329130
+    
     photo = await event.client.download_profile_photo(
         user_id,
         Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg",
         download_big=True,
     )
+    
     first_name = (
         first_name.replace("\u2060", "")
         if first_name
         else ("هذا المستخدم ليس له اسم أول")
     )
-    #full_name = full_name or first_name
+    
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) 
     zzz = zmsg.total
     gifts_info = await get_gifts_count(event.client, user_id)
     gifts_count = gifts_info['total_count']
+    
     if zzz < 100: 
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -1099,7 +1104,8 @@ async def fetch_info_en(replied_user, event):
         zelzzz = "غنبله  💣"
     else:
         zelzzz = "نار وشرار  🏆"
-################# Dev ZilZal #################
+    
+    ################# Dev ZilZal #################
     if user_id in zelzal: 
         rotbat = "مطـور السـورس 𓄂" 
     elif user_id in zel_dev:
@@ -1108,100 +1114,110 @@ async def fetch_info_en(replied_user, event):
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
+    
     if gvarstatus("ZID_TEMPLATE_EN") is None:
         if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
             if mypremium == True:
-                caption = f"<b>✦ User Information ARAS Source </b>"
-                caption += f'<a href="emoji/4909197170365695119">❤️</a>\n'
-                caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
-                caption += f'<a href="emoji/6325684673145997914">❤️</a>'
-                caption += f'<a href="emoji/6323205570778107774">❤️</a>'
-                caption += f'<a href="emoji/6323518746908428943">❤️</a>'
-                caption += f'<a href="emoji/5834774412338927340">❤️</a>'
-                caption += f'<a href="emoji/6325480992911919689">❤️</a>'
-                caption += f'<a href="emoji/6323564170482551899">❤️</a>'
-                caption += f'<a href="emoji/6323191058083613275">❤️</a>'
-                caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
-                caption += f"<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
+                caption = f"<b>{EN_TEXT}</b>\n"
+                caption += f"┏───────────────┓\n"
+                caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
-                caption += f"\n<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪  @{username}</b>"
-                caption += f"\n<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>\n"
-                caption += f"<b>{EN_EMOJI}ʀᴀɴᴋ ➪ {rotbat} </b>\n"
+                caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b>  {username}"
+                caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
+                caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
+                caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
                 if zilzal == True:
-                    caption += f"<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪  ᴘʀᴇᴍɪᴜᴍ</b>"
-                    caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
+                    caption += f"ᴘʀᴇᴍɪᴜᴍ"
+                else:
+                    caption += f"ɴᴏʀᴍᴀʟ"
+                
+                caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b>"
-                        caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
-                caption += f"<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{EN_EMOJI}ɢɪғᴛs ➪</b>  {gifts_count} "
-                caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'
-                caption += f"<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ {level_message}</b>\n"
-                caption += f"<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪</b>  {zzz} "
-                caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪</b>  {zelzzz}\n" 
+                        caption += f"𝕍𝕀ℙ"
+                else:
+                    caption += f"ꜰʀᴇᴇ"
+                
+                caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
+                caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count}"
+                caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
+                caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz}"
+                caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
+                
                 if user_id != (await event.client.get_me()).id: 
-                    caption += f"<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪  {common_chat}</b>\n"
-                caption += f"<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{EN_EMOJI}ʙɪᴏ ➪</b>  {user_bio}\n"
-                caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
-                caption += f'<a href="emoji/6325684673145997914">❤️</a>'
-                caption += f'<a href="emoji/6323205570778107774">❤️</a>'
-                caption += f'<a href="emoji/6323518746908428943">❤️</a>'
-                caption += f'<a href="emoji/5834774412338927340">❤️</a>'
-                caption += f'<a href="emoji/6325480992911919689">❤️</a>'
-                caption += f'<a href="emoji/6323564170482551899">❤️</a>'
-                caption += f'<a href="emoji/6323191058083613275">❤️</a>'
-                caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
+                    caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
+                
+                caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc}"
+                caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
+                caption += f"\n┗────────────────┛"
             else:
-                caption = f"<b> {EN_TEXT} </b>\n"
-                caption += f"ٴ<b>{EN_FONT}</b>\n"
-                caption += f"<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
+                caption = f"<b>{EN_TEXT}</b>\n"
+                caption += f"┏───────────────┓\n"
+                caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-                caption += f"\n<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪  @{username}</b>"
-                caption += f"\n<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>\n"
-                caption += f"<b>{EN_EMOJI}ʀᴀɴᴋ ➪ {rotbat} </b>\n"
+                caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"
+                caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
+                caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
+                caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
                 if zilzal == True:
-                    caption += f"<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪  ᴘʀᴇᴍɪᴜᴍ 🌟</b>\n"
+                    caption += f"ᴘʀᴇᴍɪᴜᴍ 🌟"
+                else:
+                    caption += f"ɴᴏʀᴍᴀʟ"
+                
+                caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪  𝕍𝕀ℙ</b>\n"
-                caption += f"<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{EN_EMOJI}ɢɪғᴛs ➪</b>  {gifts_count}  🎁\n"
-                caption += f"<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ {level_message}</b>\n"
-                caption += f"<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪</b>  {zzz}  💌\n"
-                caption += f"<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪</b>  {zelzzz}\n" 
+                        caption += f"𝕍𝕀ℙ"
+                else:
+                    caption += f"ꜰʀᴇᴇ"
+                
+                caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
+                caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count} 🎁"
+                caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
+                caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz} 💌"
+                caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
+                
                 if user_id != (await event.client.get_me()).id: 
-                    caption += f"<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪  {common_chat}</b>\n"
-                caption += f"<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{EN_EMOJI}ʙɪᴏ ➪</b>  {user_bio}\n"
-                caption += f"<b>{EN_FONT}</b>"
+                    caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
+                
+                caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc} 🗓"
+                caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
+                caption += f"\n┗────────────────┛"
         else:
-            caption = f"<b> {EN_TEXT} </b>\n"
-            caption += f"ٴ<b>{EN_FONT}</b>\n"
-            caption += f"<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
+            caption = f"<b>{EN_TEXT}</b>\n"
+            caption += f"┏───────────────┓\n"
+            caption += f"│<b>{EN_EMOJI}ɴᴀᴍᴇ ➪ </b> "
             caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-            caption += f"\n<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪  @{username}</b>"
-            caption += f"\n<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>\n"
-            caption += f"<b>{EN_EMOJI}ʀᴀɴᴋ ➪ {rotbat} </b>\n"
+            caption += f"\n│<b>{EN_EMOJI}ᴜsᴇʀɴᴀᴍᴇ ➪ </b> {username}"
+            caption += f"\n│<b>{EN_EMOJI}ɪᴅ ➪ </b> <code>{user_id}</code>"
+            caption += f"\n│<b>{EN_EMOJI}ʀᴀɴᴋ ➪ </b> {rotbat}"
+            caption += f"\n│<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪ </b> "
             if zilzal == True:
-                caption += f"<b>{EN_EMOJI}ᴀᴄᴄᴏᴜɴᴛ ➪  ᴘʀᴇᴍɪᴜᴍ 🌟</b>\n"
+                caption += f"ᴘʀᴇᴍɪᴜᴍ 🌟"
+            else:
+                caption += f"ɴᴏʀᴍᴀʟ"
+            
+            caption += f"\n│<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪ </b> "
             if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                 if zilzal == True or user_id in zelzal:
-                    caption += f"<b>{EN_EMOJI}sᴜʙsᴄʀɪᴘᴛɪᴏɴ ➪  𝕍𝕀ℙ</b>\n"
-            caption += f"<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪</b>  {replied_user_profile_photos_count}\n"
-            caption += f"<b>{EN_EMOJI}ɢɪғᴛs ➪</b>  {gifts_count}  🎁\n"
-            caption += f"<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ {level_message}</b>\n"
-            caption += f"<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪</b>  {zzz}  💌\n"
-            caption += f"<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪</b>  {zelzzz}\n" 
+                    caption += f"𝕍𝕀ℙ"
+            else:
+                caption += f"ꜰʀᴇᴇ"
+            
+            caption += f"\n│<b>{EN_EMOJI}ᴘʀᴏғɪʟᴇ ᴘɪᴄs ➪ </b> {replied_user_profile_photos_count}"
+            caption += f"\n│<b>{EN_EMOJI}ɢɪғᴛs ➪ </b> {gifts_count} 🎁"
+            caption += f"\n│<b>{EN_EMOJI}ʟᴇᴠᴇʟ ➪ </b> {level_message}"
+            caption += f"\n│<b>{EN_EMOJI}ᴍᴇssᴀɢᴇs ➪ </b> {zzz} 💌"
+            caption += f"\n│<b>{EN_EMOJI}ɪɴᴛᴇʀᴀᴄᴛɪᴏɴ ➪ </b> {zelzzz}"
+            
             if user_id != (await event.client.get_me()).id: 
-                caption += f"<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪  {common_chat}</b>\n"
-            caption += f"<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪</b>  {zzzsinc}  🗓\n" 
-            caption += f"<b>{EN_EMOJI}ʙɪᴏ ➪</b>  {user_bio}\n"
-            caption += f"<b>{EN_FONT}</b>"
+                caption += f"\n│<b>{EN_EMOJI}sʜᴀʀᴇᴅ ɢʀᴏᴜᴘs ➪ </b> {common_chat}"
+            
+            caption += f"\n│<b>{EN_EMOJI}ᴄʀᴇᴀᴛɪᴏɴ ᴅᴀᴛᴇ ➪ </b> {zzzsinc} 🗓"
+            caption += f"\n│<b>{EN_EMOJI}ʙɪᴏ ➪ </b> {user_bio}"
+            caption += f"\n┗────────────────┛"
     else:
         zzz_caption = gvarstatus("ZID_TEMPLATE_EN")
         caption = zzz_caption.format(
@@ -1224,8 +1240,8 @@ async def fetch_info_en(replied_user, event):
 
 # إضافة الأمر i للغة الإنجليزية
 @l313l.ar_cmd(
-    pattern="اا(?: |$)(.*)",
-    command=("اا", plugin_category),
+    pattern="i(?: |$)(.*)",
+    command=("i", plugin_category),
     info={
         "header": "Short command to display user info in English",
         "usage": " {tr}i by reply or {tr}i + username/userid",

@@ -1101,32 +1101,6 @@ async def _(event):
     while iscuto[0] == "on":  # ♾️ حذف الحد الأقصى
         crys[0] += 1
         
-        # تحديث الحالة كل 100 محاولة
-        if crys[0] % 100 == 0:
-            try:
-                await event.client.send_message(
-                    event.chat_id,
-                    f"**⎉╎لا زال التثبيت جاري...**\n**⎉╎المحاولة:** {crys[0]}\n**⎉╎المدة:** {crys[0] // 2} ثانية",
-                    silent=True
-                )
-            except:
-                pass
-        
-        # تحديث الحالة كل 500 محاولة
-        if crys[0] % 500 == 0:
-            try:
-                await event.client.send_message(
-                    event.chat_id,
-                    f"**⎉╎ملخص التثبيت:**\n"
-                    f"**⎉╎اليوزر:** {zelzal}\n"
-                    f"**⎉╎المحاولات:** {crys[0]}\n"
-                    f"**⎉╎المدة التقريبية:** {crys[0] // 120} دقيقة\n"
-                    f"**⎉╎الحالة:** مستمر ♾️",
-                    silent=True
-                )
-            except:
-                pass
-        
         # فحص سريع
         is_available = await check_user_fast(username)
         
@@ -1172,8 +1146,7 @@ async def _(event):
     # إذا وصلنا هنا، تم إيقاف التثبيت يدوياً
     iscuto[0] = "off"
     await edit_or_reply(event, f"**⎉╎تم إيقاف التثبيت**\n**⎉╎اليوزر:** {zelzal}\n**⎉╎آخر محاولة:** {crys[0]}")
-    crys[0] = 0
-                    
+    crys[0] = 0                    
 
 @l313l.ar_cmd(pattern="تثبيت_حساب (.*)")
 async def _(event):

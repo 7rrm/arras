@@ -1033,9 +1033,6 @@ import aiohttp
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
-# أضف في بداية الملف مع باقي الواردات
-# ================================
-
 @l313l.ar_cmd(pattern="تثبيت_قناة (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
@@ -1050,7 +1047,7 @@ async def _(event):
         ch = await l313l(
             functions.channels.CreateChannelRequest(
                 title=f"قناة {username}",
-                about=f"تم تثبيت اليـوزر - {username} | @aqhvv",
+                about=f"تم تثبيت اليـوزر - {username} | @Lx5x5",
             )
         )
         ch = ch.updates[1].channel_id if hasattr(ch, 'updates') else ch.chats[0].id

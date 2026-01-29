@@ -1140,8 +1140,7 @@ async def _(event):
                         f"**- Done:** @{username} ✅\n"
                         f"**Hunting Log :** {crys[0]}\n"
                         f"**- Save:** ❲ Channel ❳\n"
-                        f"**- By :** [آراس](https://t.me/{lx5x5)",
-                        link_preview=True
+                        f"**- By :** @lx5x5"
                     )
                     
                     # إرسال إشعار للمطور

@@ -1024,78 +1024,148 @@ async def _(event):
     if zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎امـر خاطـئ .. تصفح اوامـر التثبيت**\n**⎉╎لـ الاوامـر العامـه للتثبيت .. ارسـل** ( `.التثبيت` )")
 
+import aiohttp
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
+
+# أضف في بداية الملف مع باقي الواردات
+# ================================
+
 @l313l.ar_cmd(pattern="تثبيت_قناة (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if not zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.تثبيت_قناة`** + اليـوزر)**")
+    
+    username = zelzal.replace("@", "")
+    
+    # إنشاء القناة أولاً
     try:
         zuz = f"@{l313l.me.username}" if l313l.me.username else ""
         ch = await l313l(
             functions.channels.CreateChannelRequest(
-                title="التـثبيت الخاص ب Lx5x5",
-                about=f"تم تثبيت اليـوزر - @aqhvv | {zuz} ",
+                title=f"قناة {username}",
+                about=f"تم تثبيت اليـوزر - {username} | @aqhvv",
             )
         )
-        try:
-            ch = ch.updates[1].channel_id
-        except Exception:
-            ch = ch.chats[0].id
-        await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت .. بنجـاح ☑️**\n**⎉╎اليـوزر المثبت ( {zelzal} )**\n**⎉╎لمعرفـة تقـدم عمليـة التثبيت (**`.حالة تثبيت_القناة`**)**\n**⎉╎لـ ايقـاف عمليـة التثبيت (**`.ايقاف تثبيت_القناة`**)**")
+        ch = ch.updates[1].channel_id if hasattr(ch, 'updates') else ch.chats[0].id
     except Exception as e:
-        await l313l.send_message(
-            event.chat_id, f"**- اووبـس .. خطـأ فـي إنشـاء القنـاة ؟!**\n**- تفاصيـل الخطـأ :**\n`{str(e)}`"
-        )
-        cmodels = False
-
+        await edit_or_reply(event, f"**⎉╎خطأ في إنشاء القناة:**\n`{str(e)}`")
+        return
+    
+    await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت السريع ⚡**\n**⎉╎اليـوزر:** {zelzal}\n**⎉╎المحاولة كل:** 0.5 ثانية")
+    
+    # 🔥 إصدار سريع باستخدام aiohttp ومحاولات متتابعة
     iscuto.clear()
     iscuto.append("on")
-    username = zelzal.replace("@", "") 
-    cmodels = True
-    while cmodels:
-        isch = await checker_user(username)
-        if isch == True:
-            try:
-                await l313l(
-                    functions.channels.UpdateUsernameRequest(
-                        channel=ch, username=username
-                    )
+    crys[0] = 0
+    max_attempts = 1000  # حد أقصى للمحاولات
+    
+    async def check_user_fast(username):
+        """فحص سريع باستخدام aiohttp"""
+        url = f"https://t.me/{username}"
+        try:
+            async with aiohttp.ClientSession(
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                },
+                timeout=aiohttp.ClientTimeout(total=2)
+            ) as session:
+                async with session.get(url) as response:
+                    text = await response.text()
+                    return 'tgme_username_link' in text
+        except:
+            return False
+    
+    async def try_assign_username():
+        """محاولة تعيين اليوزر"""
+        try:
+            await l313l(
+                functions.channels.UpdateUsernameRequest(
+                    channel=ch, username=username
                 )
+            )
+            return True
+        except FloodWaitError as zed:
+            await asyncio.sleep(zed.seconds + 2)
+            return False
+        except Exception as e:
+            # تجاهل الأخطاء الشائعة
+            error_msg = str(e)
+            if any(x in error_msg for x in ["USERNAME_PURCHASE_AVAILABLE", "username is already taken"]):
+                return False
+            else:
+                raise e
+    
+    # 🔄 حلقة المحاولات السريعة
+    while iscuto[0] == "on" and crys[0] < max_attempts:
+        crys[0] += 1
+        
+        # تحديث الحالة كل 50 محاولة
+        if crys[0] % 50 == 0:
+            try:
                 await event.client.send_message(
                     event.chat_id,
-                    f"- Done : @{username} ✅\n- Save: ❲ Channel ❳\n- By : @Lx5x5 \n- Hunting Log {crys[0]}",
+                    f"**⎉╎لا زال التثبيت جاري...**\n**⎉╎المحاولة:** {crys[0]}",
+                    silent=True
                 )
-                break
-            except FloodWaitError as zed: #Code by t.me/zzzzl1l
-                wait_time = zed.seconds
-                await sleep(wait_time + 10)
+            except:
                 pass
-            except telethon.errors.rpcerrorlist.UsernameInvalidError:
-                pass
-            except telethon.errors.FloodError as e:
-                flood_error = e.seconds
-                await sleep(flood_error + 10)
-                pass
-            except Exception as eee:
-                if "USERNAME_PURCHASE_AVAILABLE" in str(eee):
-                    pass
-                if "username is already taken" in str(eee):
-                    pass
-                else:
-                    await l313l.send_message(
+        
+        # فحص سريع
+        is_available = await check_user_fast(username)
+        
+        if is_available:
+            try:
+                success = await try_assign_username()
+                if success:
+                    # 📢 إرسال إشعار النجاح
+                    await event.client.send_message(
                         event.chat_id,
-                        f"""- خطأ مع @{username} , الخطأ :{str(eee)}""",
+                        f"**⎉╎تم التثبيت بنجاح! ✅**\n"
+                        f"**⎉╎اليوزر:** @{username}\n"
+                        f"**⎉╎المحاولات:** {crys[0]}\n"
+                        f"**⎉╎النوع:** قناة\n"
+                        f"**⎉╎الرابط:** https://t.me/{username}",
+                        link_preview=False
                     )
-                    break
-        else:
-            pass
-        crys[0] += 1
-
-        await asyncio.sleep(5)
-    iscuto.clear()
-    iscuto.append("off")
+                    
+                    # إرسال إشعار للمطور
+                    try:
+                        await event.client.send_message(
+                            "@Lx5x5",
+                            f"🎯 **تثبيت ناجح**\n"
+                            f"👤 @{username}\n"
+                            f"🔢 المحاولات: {crys[0]}\n"
+                            f"📊 تم بواسطة: @{l313l.me.username if l313l.me.username else 'بوت'}",
+                            silent=True
+                        )
+                    except:
+                        pass
+                    
+                    iscuto[0] = "off"
+                    crys[0] = 0
+                    return
+                    
+            except Exception as e:
+                await edit_or_reply(event, f"**⎉╎خطأ في التعيين:**\n`{str(e)}`")
+                iscuto[0] = "off"
+                crys[0] = 0
+                return
+        
+        # انتظار قصير جداً
+        await asyncio.sleep(0.5)  # 500ms فقط بدل 5 ثواني!
+    
+    # إذا وصلنا هنا، لم ينجح التثبيت
+    iscuto[0] = "off"
     crys[0] = 0
-    return await l313l.send_message(event.chat_id, "**- تم الانتهاء من التثبيت .. بنجـاح ✅**")
+    
+    if crys[0] >= max_attempts:
+        await edit_or_reply(event, f"**⎉╎تم الوصول للحد الأقصى ({max_attempts} محاولة)**\n**⎉╎اليوزر:** {zelzal} **لا يزال غير متاح**")
+    else:
+        await edit_or_reply(event, f"**⎉╎تم إيقاف التثبيت**\n**⎉╎اليوزر:** {zelzal}\n**⎉╎آخر محاولة:** {crys[0]}")
+
 
 
 @l313l.ar_cmd(pattern="تثبيت_حساب (.*)")

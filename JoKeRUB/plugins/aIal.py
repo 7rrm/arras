@@ -1053,13 +1053,12 @@ async def _(event):
         await edit_or_reply(event, f"**⎉╎خطأ في إنشاء القناة:**\n`{str(e)}`")
         return
     
-    await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت السريع ⚡**\n**⎉╎اليـوزر:** {zelzal}\n**⎉╎المحاولة كل:** 0.5 ثانية")
+    await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت السريع ⚡**\n**⎉╎اليـوزر:** {zelzal}\n**⎉╎المحاولة كل:** 1 ثانية\n**⎉╎عدد المحاولات:** غير محدود ♾️")
     
     # 🔥 إصدار سريع باستخدام aiohttp ومحاولات متتابعة
     iscuto.clear()
     iscuto.append("on")
     crys[0] = 0
-    max_attempts = 1000  # حد أقصى للمحاولات
     
     async def check_user_fast(username):
         """فحص سريع باستخدام aiohttp"""
@@ -1098,16 +1097,31 @@ async def _(event):
             else:
                 raise e
     
-    # 🔄 حلقة المحاولات السريعة
-    while iscuto[0] == "on" and crys[0] < max_attempts:
+    # 🔄 حلقة المحاولات السريعة - عدد غير محدود
+    while iscuto[0] == "on":  # ♾️ حذف الحد الأقصى
         crys[0] += 1
         
-        # تحديث الحالة كل 50 محاولة
-        if crys[0] % 50 == 0:
+        # تحديث الحالة كل 100 محاولة
+        if crys[0] % 100 == 0:
             try:
                 await event.client.send_message(
                     event.chat_id,
-                    f"**⎉╎لا زال التثبيت جاري...**\n**⎉╎المحاولة:** {crys[0]}",
+                    f"**⎉╎لا زال التثبيت جاري...**\n**⎉╎المحاولة:** {crys[0]}\n**⎉╎المدة:** {crys[0] // 2} ثانية",
+                    silent=True
+                )
+            except:
+                pass
+        
+        # تحديث الحالة كل 500 محاولة
+        if crys[0] % 500 == 0:
+            try:
+                await event.client.send_message(
+                    event.chat_id,
+                    f"**⎉╎ملخص التثبيت:**\n"
+                    f"**⎉╎اليوزر:** {zelzal}\n"
+                    f"**⎉╎المحاولات:** {crys[0]}\n"
+                    f"**⎉╎المدة التقريبية:** {crys[0] // 120} دقيقة\n"
+                    f"**⎉╎الحالة:** مستمر ♾️",
                     silent=True
                 )
             except:
@@ -1123,12 +1137,11 @@ async def _(event):
                     # 📢 إرسال إشعار النجاح
                     await event.client.send_message(
                         event.chat_id,
-                        f"**⎉╎تم التثبيت بنجاح! ✅**\n"
-                        f"**⎉╎اليوزر:** @{username}\n"
-                        f"**⎉╎المحاولات:** {crys[0]}\n"
-                        f"**⎉╎النوع:** قناة\n"
-                        f"**⎉╎الرابط:** https://t.me/{username}",
-                        link_preview=False
+                        f"**- Done:** @{username} ✅\n"
+                        f"**Hunting Log :** {crys[0]}\n"
+                        f"**- Save:** ❲ Channel ❳\n"
+                        f"**- By :** [آراس](https://t.me/{lx5x5)",
+                        link_preview=True
                     )
                     
                     # إرسال إشعار للمطور
@@ -1155,18 +1168,13 @@ async def _(event):
                 return
         
         # انتظار قصير جداً
-        await asyncio.sleep(0.5)  # 500ms فقط بدل 5 ثواني!
+        await asyncio.sleep(1)  # 500ms فقط بدل 5 ثواني!
     
-    # إذا وصلنا هنا، لم ينجح التثبيت
+    # إذا وصلنا هنا، تم إيقاف التثبيت يدوياً
     iscuto[0] = "off"
+    await edit_or_reply(event, f"**⎉╎تم إيقاف التثبيت**\n**⎉╎اليوزر:** {zelzal}\n**⎉╎آخر محاولة:** {crys[0]}")
     crys[0] = 0
-    
-    if crys[0] >= max_attempts:
-        await edit_or_reply(event, f"**⎉╎تم الوصول للحد الأقصى ({max_attempts} محاولة)**\n**⎉╎اليوزر:** {zelzal} **لا يزال غير متاح**")
-    else:
-        await edit_or_reply(event, f"**⎉╎تم إيقاف التثبيت**\n**⎉╎اليوزر:** {zelzal}\n**⎉╎آخر محاولة:** {crys[0]}")
-
-
+                    
 
 @l313l.ar_cmd(pattern="تثبيت_حساب (.*)")
 async def _(event):

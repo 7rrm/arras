@@ -1113,9 +1113,9 @@ async def _(event):
                     # 📢 إرسال إشعار النجاح
                     await event.client.send_message(
                         event.chat_id,
-                        f"**- Done:** @{username} ✅\n"
-                        f"**Hunting Log :** {crys[0]}\n"
-                        f"**- Save:** ❲ Channel ❳\n"
+                        f"**- Done :** @{username} ✅\n"
+                        f"**- Hunting Log :** {crys[0]}\n"
+                        f"**- Save :** ❲ Channel ❳\n"
                         f"**- By :** @lx5x5"
                     )
                     
@@ -1212,9 +1212,9 @@ async def _(event):
                     # 📢 إرسال إشعار النجاح
                     await event.client.send_message(
                         event.chat_id,
-                        f"**- Done:** @{username} ✅\n"
-                        f"**Hunting Log :** {arys[0]}\n"
-                        f"**- Save:** ❲ Account ❳\n"
+                        f"**- Done :** @{username} ✅\n"
+                        f"**- Hunting Log :** {arys[0]}\n"
+                        f"**- Save :** ❲ Account ❳\n"
                         f"**- By :** @lx5x5"
                     )
                     

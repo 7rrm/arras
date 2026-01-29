@@ -1018,6 +1018,10 @@ async def hunterusername(event):
     trys[0] = 0
     return await event.client.send_message(event.chat_id, "**- تم الانتهاء من الصيد .. بنجـاح ✅**")
 
+# ================================# ================================# ================================# ================================
+# ================================# ================================# ================================# ================================
+# ================================# ================================# ================================# ================================
+
 @l313l.ar_cmd(pattern="تثبيت (.*)")
 async def _(event):
     zelzal = str(event.pattern_match.group(1))
@@ -1153,52 +1157,99 @@ async def _(event):
     zelzal = str(event.pattern_match.group(1))
     if not zelzal.startswith('@'):
         return await edit_or_reply(event, "**⎉╎عـذراً عـزيـزي المدخـل خطـأ ❌**\n**⎉╎استخـدم الامـر كالتالـي**\n**⎉╎ارسـل (**`.تثبيت_حساب`** + اليـوزر)**")
-    await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت .. بنجـاح ☑️**\n**⎉╎اليـوزر المثبت ( {zelzal} )**\n**⎉╎لمعرفـة تقـدم عمليـة التثبيت (**`.حالة تثبيت_الحساب`**)**\n**⎉╎لـ ايقـاف عمليـة التثبيت (**`.ايقاف تثبيت_الحساب`**)**")
+    
+    username = zelzal.replace("@", "")
+    
+    await edit_or_reply(event, f"**⎉╎تم بـدء التثبيت السريع ⚡**\n**⎉╎اليـوزر:** {zelzal}\n**⎉╎المحاولة كل:** 1 ثانية\n**⎉╎عدد المحاولات:** غير محدود ♾️\n**⎉╎النوع:** حساب شخصي")
+    
+    # 🔥 إصدار سريع باستخدام aiohttp
     istuto.clear()
     istuto.append("on")
-    username = zelzal.replace("@", "") 
-    amodels = True
-    while amodels:
-        isac = await checker_user(username)
-        if isac == True:
-            try:
-                await l313l(functions.account.UpdateUsernameRequest(username=username))
-                await event.client.send_message(
-                    event.chat_id,
-                    f"- Done : @{username} ✅\n- Save: ❲ Account ❳\n- By : @Lx5x5 \n- Hunting Log {arys[0]}",
-                )
-                break
-            except FloodWaitError as zed: #Code by t.me/zzzzl1l
-                wait_time = zed.seconds
-                await sleep(wait_time + 10)
-                pass
-            except telethon.errors.rpcerrorlist.UsernameInvalidError:
-                pass
-            except telethon.errors.FloodError as e:
-                flood_error = e.seconds
-                await sleep(flood_error + 10)
-                pass
-            except Exception as eee:
-                if "USERNAME_PURCHASE_AVAILABLE" in str(eee):
-                    pass
-                if "username is already taken" in str(eee):
-                    pass
-                else:
-                    await l313l.send_message(
-                        event.chat_id,
-                        f"""- خطأ مع @{username} , الخطأ :{str(eee)}""",
-                    )
-                    break
-        else:
-            pass
-        arys[0] += 1
-
-        await asyncio.sleep(5)
-    istuto.clear()
-    istuto.append("off")
     arys[0] = 0
-    return await l313l.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت اليـوزر ع حسـابك .. بنجـاح ✅**")
-
+    
+    async def check_user_fast(username):
+        """فحص سريع باستخدام aiohttp"""
+        url = f"https://t.me/{username}"
+        try:
+            async with aiohttp.ClientSession(
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+                },
+                timeout=aiohttp.ClientTimeout(total=2)
+            ) as session:
+                async with session.get(url) as response:
+                    text = await response.text()
+                    return 'tgme_username_link' in text
+        except:
+            return False
+    
+    async def try_assign_to_account():
+        """محاولة تعيين اليوزر للحساب"""
+        try:
+            await l313l(functions.account.UpdateUsernameRequest(username=username))
+            return True
+        except FloodWaitError as zed:
+            await asyncio.sleep(zed.seconds + 2)
+            return False
+        except Exception as e:
+            # تجاهل الأخطاء الشائعة
+            error_msg = str(e)
+            if any(x in error_msg for x in ["USERNAME_PURCHASE_AVAILABLE", "username is already taken"]):
+                return False
+            else:
+                raise e
+    
+    # 🔄 حلقة المحاولات السريعة - عدد غير محدود
+    while istuto[0] == "on":
+        arys[0] += 1
+        
+        # فحص سريع
+        is_available = await check_user_fast(username)
+        
+        if is_available:
+            try:
+                success = await try_assign_to_account()
+                if success:
+                    # 📢 إرسال إشعار النجاح
+                    await event.client.send_message(
+                        event.chat_id,
+                        f"**- Done:** @{username} ✅\n"
+                        f"**Hunting Log :** {arys[0]}\n"
+                        f"**- Save:** ❲ Account ❳\n"
+                        f"**- By :** @lx5x5"
+                    )
+                    
+                    # إرسال إشعار للمطور
+                    try:
+                        await event.client.send_message(
+                            "@Lx5x5",
+                            f"🎯 **تثبيت ناجح (حساب)**\n"
+                            f"👤 @{username}\n"
+                            f"🔢 المحاولات: {arys[0]}\n"
+                            f"📊 تم بواسطة: @{l313l.me.username if l313l.me.username else 'بوت'}",
+                            silent=True
+                        )
+                    except:
+                        pass
+                    
+                    istuto[0] = "off"
+                    arys[0] = 0
+                    return
+                    
+            except Exception as e:
+                await edit_or_reply(event, f"**⎉╎خطأ في التعيين:**\n`{str(e)}`")
+                istuto[0] = "off"
+                arys[0] = 0
+                return
+        
+        # انتظار قصير
+        await asyncio.sleep(1)
+    
+    # إذا وصلنا هنا، تم إيقاف التثبيت يدوياً
+    istuto[0] = "off"
+    await edit_or_reply(event, f"**⎉╎تم إيقاف التثبيت**\n**⎉╎اليوزر:** {zelzal}\n**⎉╎آخر محاولة:** {arys[0]}")
+    arys[0] = 0
 
 @l313l.ar_cmd(pattern="تثبيت_بوت (.*)")
 async def _(event):
@@ -1269,6 +1320,9 @@ async def _(event):
     brys[0] = 0
     return await l313l.send_message(event.chat_id, "**- تم الإنتهـاء من تثبيت البـوت .. بنجـاح ✅**\n**- لـ التأكـد قـم بالذهـاب الـى @BotFather**")
 
+# ================================# ================================# ================================# ================================# ================================# ===============================
+# ================================# ================================# ================================# ================================# ================================# ================================
+# ================================# ================================# ================================# ================================# ================================# ================================
 
 @l313l.ar_cmd(pattern="حالة الصيد")
 async def _(event):

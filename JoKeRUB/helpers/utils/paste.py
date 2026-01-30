@@ -2,8 +2,8 @@ import json
 
 import requests
 
-from JoKeRUB import BOTLOG_CHATID
-from JoKeRUB.utils.logger import logging
+from ...Config import Config
+from ...core.logger import logging
 
 LOGS = logging.getLogger("JoKeRUB")
 
@@ -106,59 +106,3 @@ async def n_paste(message, extension=None):
         )
         return {
             "url": purl,
-            "raw": f"nekobin.com/raw/{response['result']['key']}",
-            "bin": "Neko",
-        }
-    return {"error": "Unable to reach nekobin."}
-
-
-async def d_paste(message, extension=None):
-    siteurl = "http://catbin.up.railway.app/documents"
-    data = {"content": message}
-    try:
-        response = requests.post(
-            url=siteurl,
-            data=json.dumps(data),
-            headers=headers)
-    except Exception as e:
-        return {"error": str(e)}
-    if response.ok:
-        response = response.json()
-        purl = (
-            f"http://catbin.up.railway.app/{response['key']}.{extension}"
-            if extension
-            else f"http://catbin.up.railway.app/{response['key']}"
-        )
-        return {
-            "url": purl,
-            "raw": f"http://catbin.up.railway.app/raw/{response['key']}",
-            "bin": "Dog",
-        }
-    return {"error": "Unable to reach dogbin."}
-
-
-async def pastetext(text_to_print, pastetype=None, extension=None):
-    response = {"error": "something went wrong"}
-    if pastetype is not None:
-        if pastetype == "p":
-            response = await p_paste(text_to_print, extension)
-        elif pastetype == "s" and extension:
-            response = await s_paste(text_to_print, extension)
-        elif pastetype == "s":
-            response = await s_paste(text_to_print)
-        elif pastetype == "d":
-            response = await d_paste(text_to_print, extension)
-        elif pastetype == "n":
-            response = await n_paste(text_to_print, extension)
-    if "error" in response:
-        response = await p_paste(text_to_print, extension)
-    if "error" in response:
-        response = await n_paste(text_to_print, extension)
-    if "error" in response:
-        if extension:
-            response = await s_paste(text_to_print, extension)
-        else:
-            response = await s_paste(text_to_print)
-    if "error" in response:
-        response = await d_paste(text_to_print, extension)
-    return response

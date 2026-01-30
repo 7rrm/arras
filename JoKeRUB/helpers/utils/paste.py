@@ -2,8 +2,8 @@ import json
 
 import requests
 
-from ...Config import Config
-from ...core.logger import logging
+from JoKeRUB import BOTLOG_CHATID
+from JoKeRUB.utils.logger import logging
 
 LOGS = logging.getLogger("JoKeRUB")
 
@@ -14,13 +14,13 @@ headers = {
 
 
 async def p_paste(message, extension=None):
-    """
-    To Paste the given message/text/code to paste.pelkum.dev
-    """
     siteurl = "https://pasty.lus.pm/api/v1/pastes"
     data = {"content": message}
     try:
-        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
+        response = requests.post(
+            url=siteurl,
+            data=json.dumps(data),
+            headers=headers)
     except Exception as e:
         return {"error": str(e)}
     if response.ok:
@@ -31,10 +31,10 @@ async def p_paste(message, extension=None):
             else f"https://pasty.lus.pm/{response['id']}.txt"
         )
         try:
-            from ...core.session import l313l
+            from userbot import bot
 
             await l313l.send_message(
-                Config.BOTLOG_CHATID,
+                BOTLOG_CHATID,
                 f"**You have created a new paste in pasty bin.** Link to pasty is [here]({purl}). You can delete that paste by using this token `{response['deletionToken']}`",
             )
         except Exception as e:
@@ -48,9 +48,6 @@ async def p_paste(message, extension=None):
 
 
 async def s_paste(message, extension="txt"):
-    """
-    To Paste the given message/text/code to spaceb.in
-    """
     siteurl = "https://spaceb.in/api/v1/documents/"
     try:
         response = requests.post(
@@ -71,9 +68,6 @@ async def s_paste(message, extension="txt"):
 
 
 def spaste(message, extension="txt"):
-    """
-    To Paste the given message/text/code to spaceb.in
-    """
     siteurl = "https://spaceb.in/api/v1/documents/"
     try:
         response = requests.post(
@@ -94,13 +88,13 @@ def spaste(message, extension="txt"):
 
 
 async def n_paste(message, extension=None):
-    """
-    To Paste the given message/text/code to nekobin
-    """
     siteurl = "https://nekobin.com/api/documents"
     data = {"content": message}
     try:
-        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
+        response = requests.post(
+            url=siteurl,
+            data=json.dumps(data),
+            headers=headers)
     except Exception as e:
         return {"error": str(e)}
     if response.ok:
@@ -119,13 +113,13 @@ async def n_paste(message, extension=None):
 
 
 async def d_paste(message, extension=None):
-    """
-    To Paste the given message/text/code to dogbin
-    """
     siteurl = "http://catbin.up.railway.app/documents"
     data = {"content": message}
     try:
-        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
+        response = requests.post(
+            url=siteurl,
+            data=json.dumps(data),
+            headers=headers)
     except Exception as e:
         return {"error": str(e)}
     if response.ok:

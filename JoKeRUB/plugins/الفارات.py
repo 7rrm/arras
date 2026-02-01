@@ -7,7 +7,6 @@ import requests
 import urllib3
 from telethon import events
 from JoKeRUB import l313l
-from ...helpers.utils.paste import pastetext
 
 from ..Config import Config
 from ..core.managers import edit_delete, edit_or_reply

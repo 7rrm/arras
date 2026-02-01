@@ -138,14 +138,13 @@ async def mybot():
         starkbot = await l313l.tgbot.get_me()
         joker = "آراس"
         commands_aRRaS = """start - للبدء
-edit - لتعديل الصور
 hack - قسم أمر الهـاك"""
         bot_name = starkbot.first_name
         botname = f"@{starkbot.username}"
         if bot_name.endswith("Assistant"):
             print("تم تشغيل البوت")
         if starkbot.bot_inline_placeholder:
-            print("Aljoker ForEver")
+            print("Source of Aras")
         else:
             try:
                 await l313l.send_message("@BotFather", "/setinline")
@@ -249,8 +248,7 @@ async def load_plugins(folder, extfolder=None):
             BOTLOG_CHATID,
             f'- تم بنجاح استدعاء الاوامر الاضافيه \n**عدد الملفات التي استدعيت:** `{success}`\n**فشل في استدعاء :** `{", ".join(failure)}`',
         )
-#شعندك هنا تبحوش ياحلو 😉
-#سورس الجوكر عمك
+        
 async def aljoker_the_best(l313l, group_name):
     async for dialog in l313l.iter_dialogs():
         if dialog.is_group and dialog.title == group_name:

@@ -1,7 +1,10 @@
+
 import json
 import requests
+import heroku3
 from ...Config import Config
 from ...core.logger import logging
+from ...helpers.utils import edit_or_reply, edit_delete
 
 LOGS = logging.getLogger("JoKeRUB")
 
@@ -10,7 +13,7 @@ headers = {
     "content-type": "application/json",
 }
 
-
+# --- وظائف Paste المتبقية (1، 2، 3) ---
 async def p_paste(message, extension=None):
     """
     To Paste the given message/text/code to paste.pelkum.dev (الخدمة 1)
@@ -30,7 +33,6 @@ async def p_paste(message, extension=None):
         )
         try:
             from ...core.session import l313l
-
             await l313l.send_message(
                 Config.BOTLOG_CHATID,
                 f"**You have created a new paste in pasty bin.** Link to pasty is [here]({purl}). You can delete that paste by using this token `{response['deletionToken']}`",

@@ -788,7 +788,7 @@ async def _(dyno):
     
     # تحميل اللوكات
     await edit_or_reply(dyno, "**📥 جاري تحميل سجل اللوك...**")
-    data = app.get_log(lines=300)
+    data = app.get_log(lines=200)
     
     # إنشاء اسم ملف مع التاريخ والوقت
     timestamp = datetime.now().strftime("%Y%m%d")

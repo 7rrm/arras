@@ -1,4 +1,3 @@
-
 from JoKeRUB import bot, l313l
 #By Source joker @ucriss
 from telethon import events, functions, types, Button
@@ -36,7 +35,7 @@ os.makedirs("temp_images", exist_ok=True)
 bot = borg = tgbot
 Bot_Username = Config.TG_BOT_USERNAME or "NanoBananaBot"
 
-# ========== دوال البريد المؤقت ==========
+# ========== دوال البريد المؤقت (temp-mail.io) ==========
 class TempMail:
     def __init__(self):
         self.base_url = "https://api.internal.temp-mail.io/api/v3"
@@ -69,7 +68,7 @@ class TempMail:
         return []
     
     def wait_for_verification_code(self, email, timeout=300):
-        """انتظار كود التحقق"""
+        """انتظار كود التحقق من nanabanana"""
         start_time = time.time()
         
         while time.time() - start_time < timeout:
@@ -79,6 +78,7 @@ class TempMail:
                 body_text = message.get('body_text', '')
                 body_html = message.get('body_html', '')
                 
+                # البحث في نص الرسالة
                 text_content = body_text + body_html
                 
                 # البحث عن كود 6 أرقام
@@ -86,14 +86,15 @@ class TempMail:
                 if matches:
                     return matches[0]
                 
-                # البحث عن رابط التحقق
+                # أو البحث عن رابط التحقق
                 links = re.findall(r'https://nanabanana\.ai/api/auth/callback/email\?[^\s"\']+', text_content)
                 if links:
+                    # استخراج الكود من الرابط
                     match = re.search(r'code=(\d{6})', links[0])
                     if match:
                         return match.group(1)
             
-            time.sleep(5)
+            time.sleep(5)  # انتظار 5 ثواني بين المحاولات
         
         return None
 
@@ -113,6 +114,7 @@ def get_user_accounts(user_id):
     return [acc for acc in accounts if acc.get('user_id') == user_id]
 
 def delete_user_accounts(user_id):
+    """حذف جميع حسابات مستخدم معين"""
     accounts = load_accounts()
     user_accs_before = len(get_user_accounts(user_id))
     
@@ -121,6 +123,7 @@ def delete_user_accounts(user_id):
     return user_accs_before
 
 def delete_expired_accounts(user_id=None):
+    """حذف الحسابات المنتهية (5/5)"""
     accounts = load_accounts()
     deleted_count = 0
     
@@ -139,223 +142,270 @@ def delete_expired_accounts(user_id=None):
     save_accounts(remaining_accounts)
     return deleted_count
 
-# ========== نانو بانانا مع متصفح حقيقي ==========
-class NanoBananaBrowser:
-    """استخدام متصفح حقيقي لتجاوز Cloudflare"""
-    
+# ========== دوال NanoBanana (محدثة) ==========
+class NanoBananaAPI:
     def __init__(self):
         self.base_url = "https://nanabanana.ai"
-        self.use_playwright = False
-        
-        # حاول استيراد Playwright
-        try:
-            from playwright.sync_api import sync_playwright
-            self.playwright = sync_playwright
-            self.use_playwright = True
-            print("✅ Playwright جاهز للاستخدام")
-        except ImportError:
-            print("⚠️ Playwright غير مثبت، استخدم: pip install playwright")
-            print("⚠️ ثم: playwright install chromium")
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+            'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+        })
+        self.csrf_token = None
+        self.csrf_cookie = None
     
-    def create_account_with_browser(self, email):
-        """إنشاء حساب باستخدام متصفح حقيقي"""
-        if not self.use_playwright:
-            print("❌ Playwright غير مثبت")
-            return None, None
-        
-        print(f"🌐 فتح متصفح لإنشاء حساب: {email}")
-        
+    def get_csrf_token(self):
+        """الحصول على CSRF token"""
         try:
-            with self.playwright() as p:
-                # تشغيل متصفح Chrome (headless)
-                browser = p.chromium.launch(headless=True)
-                context = browser.new_context(
-                    viewport={'width': 1920, 'height': 1080},
-                    user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                    locale='ar-EG'
-                )
-                page = context.new_page()
-                
-                # 1. زيارة الموقع
-                page.goto(f"{self.base_url}/ar/ai-image", wait_until='networkidle')
-                time.sleep(2)
-                
-                # 2. النقر على تسجيل الدخول
+            response = self.session.get(f"{self.base_url}/api/auth/csrf", timeout=10)
+            if response.status_code == 200:
                 try:
-                    page.click("text=تسجيل الدخول", timeout=5000)
+                    data = json.loads(response.text)
+                    self.csrf_token = data.get("csrfToken")
                 except:
-                    # قد يكون الزر بلغة أخرى
-                    page.click("text=Sign in", timeout=5000)
-                
-                time.sleep(2)
-                
-                # 3. اختيار البريد الإلكتروني
-                try:
-                    page.click("text=البريد الإلكتروني", timeout=5000)
-                except:
-                    page.click("text=Email", timeout=5000)
-                
-                time.sleep(1)
-                
-                # 4. إدخال البريد
-                email_input = page.locator('input[type="email"]')
-                email_input.fill(email)
-                time.sleep(1)
-                
-                # 5. النقر على زر الإرسال
-                submit_button = page.locator('button[type="submit"]')
-                submit_button.click()
-                
-                # 6. انتظار إرسال البريد
-                print(f"📨 انتظار إرسال البريد...")
-                time.sleep(5)
-                
-                # 7. الحصول على حالة الصفحة
-                page_content = page.content()
-                
-                # 8. التحقق من نجاح العملية
-                if "تم إرسال" in page_content or "sent" in page_content.lower():
-                    print("✅ تم إرسال طلب التحقق بنجاح")
-                    
-                    # 9. الحصول على الكوكيز
-                    cookies = context.cookies()
-                    session_token = None
-                    
-                    for cookie in cookies:
-                        if 'session' in cookie['name'].lower() or 'authjs' in cookie['name'].lower():
-                            session_token = cookie['value']
-                            break
-                    
-                    # 10. إغلاق المتصفح
-                    browser.close()
-                    
-                    return session_token
-                
-                else:
-                    print(f"❌ لم يظهر تأكيد الإرسال")
-                    print(f"📄 محتوى الصفحة: {page_content[:500]}")
-                    browser.close()
-                    return None
-                    
+                    pass
+            
+            if '__Host-authjs.csrf-token' in response.cookies:
+                self.csrf_cookie = response.cookies.get('__Host-authjs.csrf-token')
+            
+            return self.csrf_token is not None
         except Exception as e:
-            print(f"❌ خطأ في المتصفح: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+            print(f"Error getting CSRF: {e}")
+            return False
     
-    def create_account_manual(self, email):
-        """إنشاء حساب باستخدام طريقة يدوية"""
-        print(f"🔧 محاولة إنشاء حساب يدوياً: {email}")
+    def send_verification_request(self, email):
+        """إرسال طلب التحقق بالبريد"""
+        url = f"{self.base_url}/api/auth/email-verification"
+        
+        headers = {
+            'Content-Type': "application/json",
+            'origin': "https://nanabanana.ai",
+            'referer': "https://nanabanana.ai/ar/ai-image",
+        }
+        
+        # إضافة الكوكيز
+        if self.csrf_cookie:
+            headers['Cookie'] = f"__Host-authjs.csrf-token={self.csrf_cookie}"
+        
+        payload = {"email": email}
         
         try:
-            # جلسة requests تحاكي المتصفح
-            session = requests.Session()
-            session.headers.update({
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language': 'ar,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Sec-Fetch-User': '?1',
-            })
+            response = self.session.post(url, 
+                                        json=payload, 
+                                        headers=headers, 
+                                        timeout=15)
+            return response.status_code == 200
+        except Exception as e:
+            print(f"Error sending verification: {e}")
+            return False
+    
+    def verify_account(self, email, code):
+        """التحقق من الحساب باستخدام الكود"""
+        url = f"{self.base_url}/api/auth/callback/email-verification"
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'x-auth-return-redirect': "1",
+            'origin': "https://nanabanana.ai",
+            'referer': "https://nanabanana.ai/ar/ai-image",
+        }
+        
+        # إضافة الكوكيز
+        if self.csrf_cookie:
+            headers['Cookie'] = f"__Host-authjs.csrf-token={self.csrf_cookie}"
+        
+        payload = {
+            'email': email,
+            'code': code,
+            'redirect': "false",
+            'csrfToken': self.csrf_token,
+            'callbackUrl': "https://nanabanana.ai/ar/ai-image"
+        }
+        
+        try:
+            response = self.session.post(url, 
+                                        data=payload, 
+                                        headers=headers, 
+                                        timeout=15,
+                                        allow_redirects=True)
             
-            # 1. زيارة الصفحة الرئيسية
-            print("🌐 زيارة الصفحة الرئيسية...")
-            response = session.get(f"{self.base_url}/ar/ai-image", timeout=10)
+            # استخراج session token من الكوكيز
+            if '__Secure-authjs.session-token' in response.cookies:
+                session_token = response.cookies.get('__Secure-authjs.session-token')
+                return session_token
             
-            # 2. استخراج CSRF token من HTML
-            csrf_token = None
-            csrf_patterns = [
-                r'name="csrfToken" value="([^"]+)"',
-                r'"csrfToken":"([^"]+)"',
-                r'csrfToken["\']?\s*[:=]\s*["\']([^"\']+)["\']'
-            ]
-            
-            for pattern in csrf_patterns:
-                matches = re.findall(pattern, response.text)
-                if matches:
-                    csrf_token = matches[0]
-                    print(f"✅ وجدت CSRF: {csrf_token[:50]}...")
-                    break
-            
-            # 3. البحث عن رابط API
-            api_url = f"{self.base_url}/api/auth/signin/email"
-            
-            # 4. إرسال طلب التسجيل
-            print(f"📨 إرسال طلب تسجيل...")
-            payload = {
-                'email': email,
-                'callbackUrl': f"{self.base_url}/ar/ai-image",
-                'redirect': 'false',
-                'csrfToken': csrf_token,
-                'json': 'true'
-            }
-            
+        except Exception as e:
+            print(f"Error verifying account: {e}")
+        
+        return None
+    
+    def get_session_info(self):
+        """الحصول على معلومات الجلسة"""
+        try:
             headers = {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Origin': self.base_url,
-                'Referer': f"{self.base_url}/ar/ai-image",
+                'content-type': "application/json",
+                'referer': "https://nanabanana.ai/",
             }
-            
-            response = session.post(api_url, data=payload, headers=headers, timeout=15)
-            
-            print(f"📊 الاستجابة: {response.status_code}")
-            print(f"📝 النص: {response.text[:200]}")
-            
-            if response.status_code in [200, 201]:
-                print("✅ تم إرسال طلب التحقق")
-                return "manual_session_token"
-            else:
-                print("❌ فشل إرسال الطلب")
+            response = self.session.get(f"{self.base_url}/api/auth/session", 
+                                       headers=headers, 
+                                       timeout=10)
+            if response.status_code == 200:
+                try:
+                    data = json.loads(response.text)
+                    if data and 'user' in data:
+                        return data['user'].get('id'), data['user'].get('email')
+                except:
+                    pass
+        except:
+            pass
+        return None, None
+    
+    def upload_image(self, image_path):
+        """رفع صورة إلى السيرفر"""
+        url = f"{self.base_url}/api/upload"
+        try:
+            if not os.path.exists(image_path):
                 return None
-                
+            
+            with open(image_path, 'rb') as f:
+                file_content = f.read()
+            
+            files = [('file', (os.path.basename(image_path), file_content, 'image/jpeg'))]
+            response = self.session.post(url, files=files, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("url")
         except Exception as e:
-            print(f"❌ خطأ في الطريقة اليدوية: {e}")
-            return None
+            print(f"Error uploading image: {e}")
+        return None
+    
+    def create_image(self, session_token, prompt, image_urls=None):
+        """إنشاء صورة جديدة"""
+        url = f"{self.base_url}/api/image-generation-nano-banana/create"
+        
+        cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
+        headers = {
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+            'Content-Type': "application/json",
+            'Cookie': cookie_string
+        }
+        
+        payload = {
+            "prompt": prompt,
+            "output_format": "png",
+            "image_size": "auto",
+            "enable_pro": False,
+            "width": 1024,
+            "height": 1024,
+            "steps": 20,
+            "guidance_scale": 7.5,
+            "is_public": False
+        }
+        
+        if image_urls:
+            payload["image_urls"] = image_urls
+        
+        try:
+            response = requests.post(url, 
+                                   data=json.dumps(payload), 
+                                   headers=headers, 
+                                   timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("task_id")
+        except Exception as e:
+            print(f"Error creating image: {e}")
+        
+        return None
+    
+    def check_status(self, task_id, session_token, max_attempts=40, delay=5):
+        """التحقق من حالة الصورة"""
+        url = f"{self.base_url}/api/image-generation-nano-banana/status"
+        
+        cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
+        headers = {
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+            'Content-Type': "application/json",
+            'Cookie': cookie_string
+        }
+        
+        for attempt in range(max_attempts):
+            try:
+                payload = {"taskId": task_id}
+                response = requests.post(url, 
+                                       data=json.dumps(payload), 
+                                       headers=headers, 
+                                       timeout=30)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if "generations" in data and len(data["generations"]) > 0:
+                        generation = data["generations"][0]
+                        status = generation.get("status", "unknown")
+                        if status == "succeed":
+                            image_url = generation.get("url", "")
+                            return image_url
+                        elif status == "failed":
+                            return None
+            except Exception as e:
+                print(f"Error checking status (attempt {attempt+1}): {e}")
+            
+            time.sleep(delay)
+        
+        return None
 
 # ========== دوال مساعدة ==========
 async def create_nanabanana_account():
-    """إنشاء حساب جديد باستخدام الطريقة المناسبة"""
-    print("\n" + "="*60)
-    print("🚀 محاولة إنشاء حساب جديد")
-    print("="*60)
-    
-    # 1. إنشاء بريد مؤقت
+    """إنشاء حساب جديد في nanabanana"""
+    # إنشاء بريد مؤقت
     temp_mail = TempMail()
     email = temp_mail.create_email()
     
     if not email:
-        print("❌ فشل إنشاء بريد")
         return None, None, None
     
-    print(f"✅ البريد: {email}")
+    # إعداد API
+    api = NanoBananaAPI()
     
-    # 2. محاولة الطريقة الأولى: المتصفح الحقيقي
-    browser = NanoBananaBrowser()
+    # الحصول على CSRF token
+    if not api.get_csrf_token():
+        print("Failed to get CSRF token")
+        return None, None, None
     
-    if browser.use_playwright:
-        print("\n🖥️ جرب طريقة المتصفح الحقيقي...")
-        session_token = browser.create_account_with_browser(email)
-    else:
-        print("\n🔧 جرب الطريقة اليدوية...")
-        session_token = browser.create_account_manual(email)
+    # إرسال طلب التحقق
+    if not api.send_verification_request(email):
+        print("Failed to send verification request")
+        return None, None, None
+    
+    print(f"Verification request sent to: {email}")
+    
+    # انتظار كود التحقق
+    code = temp_mail.wait_for_verification_code(email)
+    
+    if not code:
+        print("No verification code received")
+        return None, None, None
+    
+    print(f"Received verification code: {code}")
+    
+    # التحقق من الحساب
+    session_token = api.verify_account(email, code)
     
     if not session_token:
-        print("❌ فشل إنشاء الحساب")
+        print("Failed to verify account")
         return None, None, None
     
-    print(f"\n✅ تم إنشاء الحساب بنجاح!")
-    print(f"🔑 Session Token: {session_token[:50]}...")
+    print(f"Account verified successfully, session token: {session_token[:20]}...")
     
-    print("="*60)
-    print("🎉 اكتملت العملية!")
-    print("="*60)
+    # الحصول على معلومات المستخدم
+    user_id, user_email = api.get_session_info()
     
-    return email, "temp_mail_password", session_token
+    if user_id:
+        print(f"User ID: {user_id}, Email: {user_email}")
+    
+    return email, "temp_mail_no_password", session_token
 
 def download_image(image_url, account_email):
     """تحميل الصورة"""
@@ -376,16 +426,19 @@ def download_image(image_url, account_email):
 
 async def get_or_create_account(user_id):
     """الحصول على حساب نشط أو إنشاء حساب جديد"""
+    # حذف الحسابات المنتهية أولاً
     deleted_expired = delete_expired_accounts(user_id)
     if deleted_expired > 0:
-        print(f"🗑️ تم حذف {deleted_expired} حساب منتهي")
+        print(f"تم حذف {deleted_expired} حساب منتهي للمستخدم {user_id}")
     
     accounts = get_user_accounts(user_id)
     
+    # البحث عن حساب نشط
     for acc in accounts:
         if acc.get('use_count', 0) < 5:
             return acc
     
+    # إنشاء حساب جديد
     try:
         email, password, session_token = await create_nanabanana_account()
         if session_token:
@@ -398,6 +451,7 @@ async def get_or_create_account(user_id):
                 'created_at': datetime.now().isoformat()
             }
             
+            # حفظ الحساب
             all_accounts = load_accounts()
             all_accounts.append(new_account)
             save_accounts(all_accounts)
@@ -454,6 +508,7 @@ class UserSession:
         self.state = None
         self.prompt = None
         self.photo_path = None
+        self.api = None
 
 def get_user_session(user_id):
     if user_id not in user_sessions:
@@ -579,86 +634,27 @@ async def handle_prompt_message(event):
                 break
         
         # إنشاء الصورة
-        print(f"🎨 جاري إنشاء صورة: {prompt}")
+        api = NanoBananaAPI()
+        task_id = api.create_image(account['session_token'], prompt)
         
-        # استخدم API مباشرة
-        import requests
-        
-        url = "https://nanabanana.ai/api/image-generation-nano-banana/create"
-        cookie_string = f"__Secure-authjs.session-token={account['session_token']}"
-        
-        headers = {
-            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-            'Content-Type': "application/json",
-            'Cookie': cookie_string
-        }
-        
-        payload = {
-            "prompt": prompt,
-            "output_format": "png",
-            "image_size": "auto",
-            "enable_pro": False,
-            "width": 1024,
-            "height": 1024,
-            "steps": 20,
-            "guidance_scale": 7.5,
-            "is_public": False
-        }
-        
-        try:
-            response = requests.post(url, 
-                                   data=json.dumps(payload), 
-                                   headers=headers, 
-                                   timeout=30)
+        if task_id:
+            await event.respond(f"**✅ تم بدء إنشاء الصورة\n📝 رقم المهمة: {task_id}**")
             
-            if response.status_code == 200:
-                data = response.json()
-                task_id = data.get("task_id")
-                
-                if task_id:
-                    await event.respond(f"**✅ تم بدء إنشاء الصورة\n📝 رقم المهمة: {task_id}**")
-                    
-                    # التحقق من الحالة
-                    status_url = "https://nanabanana.ai/api/image-generation-nano-banana/status"
-                    for attempt in range(40):
-                        time.sleep(5)
-                        
-                        status_response = requests.post(status_url, 
-                                                      data=json.dumps({"taskId": task_id}), 
-                                                      headers=headers, 
-                                                      timeout=30)
-                        
-                        if status_response.status_code == 200:
-                            status_data = status_response.json()
-                            if "generations" in status_data and status_data["generations"]:
-                                generation = status_data["generations"][0]
-                                if generation.get("status") == "succeed":
-                                    image_url = generation.get("url")
-                                    
-                                    if image_url:
-                                        filename = download_image(image_url, account['email'])
-                                        if filename:
-                                            await bot.send_file(event.chat_id, filename, 
-                                                              caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**")
-                                            os.remove(filename)
-                                        else:
-                                            await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
-                                    else:
-                                        await event.respond("**❌ لا يوجد رابط للصورة**", buttons=keyboard)
-                                    break
-                                elif generation.get("status") == "failed":
-                                    await event.respond("**❌ فشل في إنشاء الصورة**", buttons=keyboard)
-                                    break
-                    
-                    else:
-                        await event.respond("**⏰ انتهى وقت الانتظار**", buttons=keyboard)
+            # التحقق من الحالة
+            image_url = api.check_status(task_id, account['session_token'])
+            
+            if image_url:
+                filename = download_image(image_url, account['email'])
+                if filename:
+                    await bot.send_file(event.chat_id, filename, 
+                                      caption=f"**✅ تم إنشاء الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    os.remove(filename)
                 else:
-                    await event.respond("**❌ لم يتم إنشاء المهمة**", buttons=keyboard)
+                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
             else:
-                await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
-                
-        except Exception as e:
-            await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
+                await event.respond("**❌ فشل في إنشاء الصورة**", buttons=keyboard)
+        else:
+            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
         
         clear_user_session(user_id)
 
@@ -727,98 +723,8 @@ async def handle_edit_prompt_message(event):
             return
         
         # رفع الصورة
-        try:
-            upload_url = "https://nanabanana.ai/api/upload"
-            
-            with open(session.photo_path, 'rb') as f:
-                files = {'file': (os.path.basename(session.photo_path), f, 'image/jpeg')}
-                upload_response = requests.post(upload_url, files=files, timeout=30)
-            
-            if upload_response.status_code == 200:
-                upload_data = upload_response.json()
-                uploaded_url = upload_data.get("url")
-                
-                if uploaded_url:
-                    # إنشاء الصورة المعدلة
-                    create_url = "https://nanabanana.ai/api/image-generation-nano-banana/create"
-                    cookie_string = f"__Secure-authjs.session-token={account['session_token']}"
-                    
-                    headers = {
-                        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-                        'Content-Type': "application/json",
-                        'Cookie': cookie_string
-                    }
-                    
-                    payload = {
-                        "prompt": prompt,
-                        "output_format": "png",
-                        "image_size": "auto",
-                        "enable_pro": False,
-                        "width": 1024,
-                        "height": 1024,
-                        "steps": 20,
-                        "guidance_scale": 7.5,
-                        "is_public": False,
-                        "image_urls": [uploaded_url]
-                    }
-                    
-                    response = requests.post(create_url, 
-                                           data=json.dumps(payload), 
-                                           headers=headers, 
-                                           timeout=30)
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        task_id = data.get("task_id")
-                        
-                        if task_id:
-                            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
-                            
-                            # التحقق من الحالة
-                            status_url = "https://nanabanana.ai/api/image-generation-nano-banana/status"
-                            for attempt in range(40):
-                                time.sleep(5)
-                                
-                                status_response = requests.post(status_url, 
-                                                              data=json.dumps({"taskId": task_id}), 
-                                                              headers=headers, 
-                                                              timeout=30)
-                                
-                                if status_response.status_code == 200:
-                                    status_data = status_response.json()
-                                    if "generations" in status_data and status_data["generations"]:
-                                        generation = status_data["generations"][0]
-                                        if generation.get("status") == "succeed":
-                                            image_url = generation.get("url")
-                                            
-                                            if image_url:
-                                                filename = download_image(image_url, account['email'])
-                                                if filename:
-                                                    await bot.send_file(event.chat_id, filename, 
-                                                                      caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
-                                                    os.remove(filename)
-                                                else:
-                                                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
-                                            else:
-                                                await event.respond("**❌ لا يوجد رابط للصورة**", buttons=keyboard)
-                                            break
-                                        elif generation.get("status") == "failed":
-                                            await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
-                                            break
-                            
-                            else:
-                                await event.respond("**⏰ انتهى وقت الانتظار**", buttons=keyboard)
-                        else:
-                            await event.respond("**❌ لم يتم إنشاء المهمة**", buttons=keyboard)
-                    else:
-                        await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
-                else:
-                    await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
-            else:
-                await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
-                
-        except Exception as e:
-            await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
+        api = NanoBananaAPI()
+        uploaded_url = api.upload_image(session.photo_path)
         
         # تنظيف الملف المؤقت
         if os.path.exists(session.photo_path):
@@ -826,6 +732,39 @@ async def handle_edit_prompt_message(event):
                 os.remove(session.photo_path)
             except:
                 pass
+        
+        if not uploaded_url:
+            await event.respond("**❌ فشل في رفع الصورة**", buttons=keyboard)
+            clear_user_session(user_id)
+            return
+        
+        # إنشاء الصورة المعدلة
+        task_id = api.create_image(account['session_token'], prompt, [uploaded_url])
+        
+        if task_id:
+            # تحديث الاستخدامات
+            accounts = load_accounts()
+            for acc in accounts:
+                if acc.get('session_token') == account['session_token']:
+                    acc['use_count'] = acc.get('use_count', 0) + 1
+                    save_accounts(accounts)
+                    break
+            
+            await event.respond(f"**✅ تم بدء تعديل الصورة\n📝 رقم المهمة: {task_id}**")
+            
+            image_url = api.check_status(task_id, account['session_token'])
+            if image_url:
+                filename = download_image(image_url, account['email'])
+                if filename:
+                    await bot.send_file(event.chat_id, filename, 
+                                      caption=f"**✅ تم تعديل الصورة بنجاح!\n📧 الحساب: {account['email']}**")
+                    os.remove(filename)
+                else:
+                    await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
+            else:
+                await event.respond("**❌ فشل في تعديل الصورة**", buttons=keyboard)
+        else:
+            await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
         
         clear_user_session(user_id)
 
@@ -933,11 +872,4 @@ async def new_account_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور بنجاح!")
-print("🖥️ يستخدم Playwright لتجاوز Cloudflare")
-
-# نصيحة التثبيت
-print("\n⚠️ **للتثبيت إذا لزم:**")
-print("1. pip install playwright")
-print("2. playwright install chromium")
-print("3. تأكد من وجود Chrome/Chromium على السيرفر")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع API محسن!")

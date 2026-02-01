@@ -1,7 +1,5 @@
-
 import json
 import requests
-import heroku3
 from ...Config import Config
 from ...core.logger import logging
 
@@ -12,7 +10,7 @@ headers = {
     "content-type": "application/json",
 }
 
-# --- وظائف Paste المتبقية (1، 2، 3) ---
+
 async def p_paste(message, extension=None):
     """
     To Paste the given message/text/code to paste.pelkum.dev (الخدمة 1)
@@ -94,6 +92,7 @@ async def n_paste(message, extension=None):
     return {"error": "Unable to reach nekobin."}
 
 
+# هذه هي الدالة التي كانت ناقصة!
 async def pastetext(text_to_print, pastetype=None, extension=None):
     """
     الدالة الرئيسية مع الخدمات 1، 2، 3 فقط

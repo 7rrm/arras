@@ -782,9 +782,25 @@ async def _(dyno):
         return await dyno.reply(
             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
         )
+    
     data = app.get_log()
-    await edit_or_reply(
-        dyno, data, deflink=True, linktext="**اخر 200 سطر في لوك هيروكو: **"
+    
+    # استخدام وظيفة pastetext لصق النص
+    paste_result = await pastetext(data, "p", "txt")
+    
+    if "error" in paste_result:
+        # إذا فشل الصق، جرب خدمات أخرى
+        paste_result = await pastetext(data, "n")
+    
+    if "error" in paste_result:
+        paste_result = await pastetext(data, "s", "txt")
+    
+    if "error" in paste_result:
+        # إذا فشلت جميع خدمات الصق، أرسل النص كما هو
+        return await edit_or_reply(
+            dyno, 
+            f"**اخر 200 سطر في لوك هيروكو:**\n\n{data[:3000]}...\n\n*ملاحظة: فشل رفع النص الكامل على خدمات الصق*",
+            deflink=False
     )
 
 

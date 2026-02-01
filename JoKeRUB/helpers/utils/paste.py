@@ -4,7 +4,6 @@ import requests
 import heroku3
 from ...Config import Config
 from ...core.logger import logging
-from ...helpers.utils import edit_or_reply, edit_delete
 
 LOGS = logging.getLogger("JoKeRUB")
 

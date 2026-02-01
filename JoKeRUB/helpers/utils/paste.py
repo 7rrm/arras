@@ -93,9 +93,36 @@ async def n_paste(message, extension=None):
     return {"error": "Unable to reach nekobin."}
 
 
+async def h_paste(message, extension=None):
+    """
+    To Paste the given message/text/code to hastebin.com (الخدمة 4 الجديدة)
+    """
+    siteurl = "https://hastebin.com/documents"
+    data = {"content": message}
+    try:
+        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
+    except Exception as e:
+        return {"error": str(e)}
+    
+    if response.ok:
+        response = response.json()
+        key = response['key']
+        purl = (
+            f"https://hastebin.com/{key}.{extension}"
+            if extension
+            else f"https://hastebin.com/{key}"
+        )
+        return {
+            "url": purl,
+            "raw": f"https://hastebin.com/raw/{key}",
+            "bin": "Hastebin",
+        }
+    return {"error": "Unable to reach hastebin.com."}
+
+
 async def pastetext(text_to_print, pastetype=None, extension=None):
     """
-    الدالة الرئيسية مع الخدمات 1، 2، 3 فقط
+    الدالة الرئيسية مع الخدمات 1، 2، 3، 4
     """
     response = {"error": "something went wrong"}
     
@@ -109,16 +136,20 @@ async def pastetext(text_to_print, pastetype=None, extension=None):
             response = await s_paste(text_to_print)
         elif pastetype == "n":
             response = await n_paste(text_to_print, extension)
+        elif pastetype == "h":  # الخدمة الجديدة
+            response = await h_paste(text_to_print, extension)
     
     # تسلسل المحاولات إذا فشلت الخدمة المحددة
     if "error" in response:
-        response = await p_paste(text_to_print, extension)
+        response = await p_paste(text_to_print, extension)      # الخدمة 1
     if "error" in response:
-        response = await n_paste(text_to_print, extension)
+        response = await n_paste(text_to_print, extension)      # الخدمة 3
+    if "error" in response:
+        response = await h_paste(text_to_print, extension)      # الخدمة 4 الجديدة
     if "error" in response:
         if extension:
-            response = await s_paste(text_to_print, extension)
+            response = await s_paste(text_to_print, extension)  # الخدمة 2
         else:
-            response = await s_paste(text_to_print)
+            response = await s_paste(text_to_print)             # الخدمة 2
     
     return response

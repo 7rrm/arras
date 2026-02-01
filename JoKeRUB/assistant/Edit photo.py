@@ -24,7 +24,6 @@ from JoKeRUB.utils import admin_cmd
 from ..Config import Config
 import asyncio, aiohttp, random, json, requests, re, time, os
 import logging
-import string
 logging.getLogger().setLevel(logging.WARNING)
 
 # إعدادات الملفات
@@ -36,237 +35,67 @@ os.makedirs("temp_images", exist_ok=True)
 bot = borg = tgbot
 Bot_Username = Config.TG_BOT_USERNAME or "NanoBananaBot"
 
-# ========== دوال البريد المؤقت (Mail.tm - الأفضل) ==========
-class MailTM:
-    """خدمة Mail.tm المتطورة والأكثر استقراراً"""
-    
+# ========== دوال البريد المؤقت (temp-mail.io) ==========
+class TempMail:
     def __init__(self):
-        self.base_url = "https://api.mail.tm"
-        self.token = None
-        self.account_id = None
-        self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/json, text/plain, */*'
-        })
+        self.base_url = "https://api.internal.temp-mail.io/api/v3"
+        self.headers = {'Content-Type': 'application/json', 'x-cors-header': 'iaWg3pchvFx48fY'}
     
-    def create_account(self):
-        """إنشاء حساب بريد جديد"""
-        print("📧 جاري إنشاء حساب Mail.tm جديد...")
+    def create_email(self):
+        """إنشاء بريد إلكتروني جديد"""
+        payload = {"min_name_length": 10, "max_name_length": 10}
         try:
-            # 1. جلب النطاقات المتاحة
-            try:
-                domains_resp = self.session.get(f"{self.base_url}/domains", timeout=10)
-                print(f"📊 استجابة النطاقات: {domains_resp.status_code}")
-                
-                if domains_resp.status_code != 200:
-                    print(f"❌ فشل جلب النطاقات: {domains_resp.status_code}")
-                    print(f"📝 التفاصيل: {domains_resp.text[:200]}")
-                    return None
-                
-                domains_data = domains_resp.json()
-                domains = domains_data.get("hydra:member", [])
-                
-                if not domains:
-                    print("❌ لا توجد نطاقات متاحة")
-                    return None
-                
-                # استخدام أول نطاق متاح
-                domain_obj = domains[0]
-                domain = domain_obj.get("domain", "")
-                print(f"✅ النطاق المختار: {domain}")
-                
-                if not domain:
-                    return None
-                    
-            except Exception as e:
-                print(f"❌ خطأ في جلب النطاقات: {e}")
-                # استخدام نطاق افتراضي
-                domain = "fextemp.com"
-                print(f"⚠️ استخدام نطاق افتراضي: {domain}")
-            
-            # 2. إنشاء اسم بريد عشوائي
-            username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=12))
-            email = f"{username}@{domain}"
-            password = f"Pass{random.randint(1000, 9999)}!"
-            
-            print(f"📧 البريد الجديد: {email}")
-            print(f"🔑 كلمة المرور: {password}")
-            
-            # 3. إنشاء حساب
-            account_payload = {
-                "address": email,
-                "password": password
-            }
-            
-            print("📝 جاري إنشاء حساب...")
-            account_resp = self.session.post(f"{self.base_url}/accounts", 
-                                            json=account_payload, 
-                                            timeout=15)
-            
-            print(f"📊 استجابة إنشاء الحساب: {account_resp.status_code}")
-            
-            # حتى لو كان status code ليس 200/201، قد يكون الحساب مخلوق
-            # بعض الخوادم ترجع 400 إذا كان البريد مستخدم لكن قد يكون ناجح
-            
-            # 4. الحصول على توكن
-            print("🔐 جاري الحصول على توكن...")
-            token_payload = {"address": email, "password": password}
-            token_resp = self.session.post(f"{self.base_url}/token", 
-                                          json=token_payload, 
-                                          timeout=15)
-            
-            print(f"📊 استجابة التوكن: {token_resp.status_code}")
-            
-            if token_resp.status_code == 200:
-                token_data = token_resp.json()
-                self.token = token_data.get("token")
-                self.account_id = token_data.get("id")
-                
-                if not self.token:
-                    print("❌ لم يتم الحصول على توكن")
-                    return None
-                
-                result = {
-                    "email": email,
-                    "password": password,
-                    "token": self.token,
-                    "account_id": self.account_id
-                }
-                
-                print(f"✅ حساب Mail.tm مخلوق بنجاح!")
-                print(f"   📧 {email}")
-                print(f"   🔑 {password}")
-                print(f"   🎫 توكن: {self.token[:30]}...")
-                
-                return result
-            
-            else:
-                print(f"❌ فشل الحصول على توكن: {token_resp.status_code}")
-                print(f"📝 التفاصيل: {token_resp.text[:200]}")
-                return None
-                
+            response = requests.post(f"{self.base_url}/email/new", 
+                                    json=payload, 
+                                    headers=self.headers, 
+                                    timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('email')
         except Exception as e:
-            print(f"❌ خطأ في إنشاء حساب Mail.tm: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+            print(f"Error creating email: {e}")
+        return None
     
-    def get_messages(self):
+    def get_messages(self, email):
         """الحصول على الرسائل الواردة"""
-        if not self.token:
-            return []
-        
-        headers = {'Authorization': f'Bearer {self.token}'}
-        
         try:
-            messages_resp = self.session.get(f"{self.base_url}/messages", 
-                                           headers=headers, 
-                                           timeout=10)
-            
-            if messages_resp.status_code == 200:
-                messages_data = messages_resp.json()
-                return messages_data.get("hydra:member", [])
-            else:
-                print(f"⚠️ فشل جلب الرسائل: {messages_resp.status_code}")
-                return []
-                
+            url = f"{self.base_url}/email/{email}/messages"
+            response = requests.get(url, headers=self.headers, timeout=10)
+            if response.status_code == 200:
+                return response.json()
         except Exception as e:
-            print(f"❌ خطأ في جلب الرسائل: {e}")
-            return []
-    
-    def get_message_content(self, message_id):
-        """الحصول على محتوى رسالة محددة"""
-        if not self.token:
-            return None
-        
-        headers = {'Authorization': f'Bearer {self.token}'}
-        
-        try:
-            message_resp = self.session.get(f"{self.base_url}/messages/{message_id}", 
-                                          headers=headers, 
-                                          timeout=10)
-            
-            if message_resp.status_code == 200:
-                return message_resp.json()
-            else:
-                return None
-                
-        except Exception as e:
-            print(f"❌ خطأ في جلب محتوى الرسالة: {e}")
-            return None
+            print(f"Error getting messages: {e}")
+        return []
     
     def wait_for_verification_code(self, email, timeout=300):
         """انتظار كود التحقق من nanabanana"""
-        print(f"⏳ جاري انتظار كود التحقق في: {email}")
         start_time = time.time()
         
         while time.time() - start_time < timeout:
-            messages = self.get_messages()
+            messages = self.get_messages(email)
             
-            if messages:
-                print(f"📨 عدد الرسائل المستلمة: {len(messages)}")
+            for message in messages:
+                body_text = message.get('body_text', '')
+                body_html = message.get('body_html', '')
                 
-                for message in messages:
-                    sender = message.get('from', {}).get('address', '')
-                    subject = message.get('subject', '')
-                    
-                    print(f"   📩 من: {sender}, موضوع: {subject[:50]}")
-                    
-                    # تحقق إذا كانت من nanabanana
-                    if 'nanabanana' in sender.lower():
-                        print(f"✅ وجدت رسالة من nanabanana!")
-                        
-                        # جلب محتوى الرسالة
-                        message_id = message.get('id')
-                        message_data = self.get_message_content(message_id)
-                        
-                        if message_data:
-                            # البحث في نص الرسالة
-                            text_body = message_data.get('text', '')
-                            html_body = message_data.get('html', '')
-                            
-                            content = text_body + html_body
-                            
-                            # البحث عن كود 6 أرقام
-                            matches = re.findall(r'\b\d{6}\b', content)
-                            if matches:
-                                code = matches[0]
-                                print(f"✅ وجدت كود التحقق: {code}")
-                                return code
-                            
-                            # البحث عن كود في رابط
-                            links = re.findall(r'https://nanabanana\.ai/api/auth/callback/email\?[^\s"\']+', content)
-                            for link in links:
-                                match = re.search(r'code=(\d{6})', link)
-                                if match:
-                                    code = match.group(1)
-                                    print(f"✅ وجدت كود في الرابط: {code}")
-                                    return code
-                    
-                    # أو من موقع التحقق العام
-                    elif 'verification' in subject.lower() or 'confirm' in subject.lower():
-                        print(f"🔍 فحص رسالة تحقق: {subject[:50]}")
-                        message_id = message.get('id')
-                        message_data = self.get_message_content(message_id)
-                        
-                        if message_data:
-                            text_body = message_data.get('text', '')
-                            html_body = message_data.get('html', '')
-                            
-                            content = text_body + html_body
-                            matches = re.findall(r'\b\d{6}\b', content)
-                            if matches:
-                                code = matches[0]
-                                print(f"✅ وجدت كود تحقق عام: {code}")
-                                return code
-            else:
-                print(f"⏳ لا توجد رسائل بعد... ({int(time.time() - start_time)} ثانية)")
+                # البحث في نص الرسالة
+                text_content = body_text + body_html
+                
+                # البحث عن كود 6 أرقام
+                matches = re.findall(r'\b\d{6}\b', text_content)
+                if matches:
+                    return matches[0]
+                
+                # أو البحث عن رابط التحقق
+                links = re.findall(r'https://nanabanana\.ai/api/auth/callback/email\?[^\s"\']+', text_content)
+                if links:
+                    # استخراج الكود من الرابط
+                    match = re.search(r'code=(\d{6})', links[0])
+                    if match:
+                        return match.group(1)
             
             time.sleep(5)  # انتظار 5 ثواني بين المحاولات
         
-        print(f"❌ انتهى الوقت ولم يتم استلام كود تحقق")
         return None
 
 # ========== دوال إدارة الحسابات ==========
@@ -313,87 +142,48 @@ def delete_expired_accounts(user_id=None):
     save_accounts(remaining_accounts)
     return deleted_count
 
-# ========== دوال NanoBanana (مبسطة) ==========
+# ========== دوال NanoBanana (محدثة) ==========
 class NanoBananaAPI:
     def __init__(self):
         self.base_url = "https://nanabanana.ai"
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
             'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
-            'accept': "application/json, text/plain, */*",
         })
         self.csrf_token = None
         self.csrf_cookie = None
     
     def get_csrf_token(self):
-        """الحصول على CSRF token - طريقة مبسطة"""
+        """الحصول على CSRF token"""
         try:
-            print(f"🔍 جاري جلب CSRF من: {self.base_url}/api/auth/csrf")
+            response = self.session.get(f"{self.base_url}/api/auth/csrf", timeout=10)
+            if response.status_code == 200:
+                try:
+                    data = json.loads(response.text)
+                    self.csrf_token = data.get("csrfToken")
+                except:
+                    pass
             
-            # استخدام رؤوس مبسطة
-            headers = {
-                'Accept': 'application/json',
-                'Referer': f'{self.base_url}/ar/ai-image',
-            }
-            
-            response = requests.get(f"{self.base_url}/api/auth/csrf", 
-                                   headers=headers, 
-                                   timeout=10)
-            
-            print(f"📊 استجابة CSRF: {response.status_code}")
-            
-            # البحث في الكوكيز أولاً (الأهم)
             if '__Host-authjs.csrf-token' in response.cookies:
                 self.csrf_cookie = response.cookies.get('__Host-authjs.csrf-token')
-                self.csrf_token = self.csrf_cookie  # استخدم الكوكي كـ token
-                print(f"✅ استخدم CSRF Cookie كـ token: {self.csrf_token[:50]}...")
-                return True
             
-            # محاولة تحليل JSON
-            try:
-                data = json.loads(response.text)
-                self.csrf_token = data.get("csrfToken")
-                if self.csrf_token:
-                    print(f"✅ تم الحصول على CSRF Token من JSON: {self.csrf_token[:30]}...")
-                    return True
-            except:
-                pass
-            
-            # البحث في النص الخام
-            text_lower = response.text.lower()
-            if 'csrftoken' in text_lower:
-                import re
-                match = re.search(r'csrfToken["\']?\s*[:=]\s*["\']([^"\']+)["\']', response.text, re.IGNORECASE)
-                if match:
-                    self.csrf_token = match.group(1)
-                    print(f"✅ وجدت CSRF في النص: {self.csrf_token[:50]}...")
-                    return True
-            
-            # إذا فشل كل شيء، استخدم قيمة افتراضية
-            print("⚠️ لم أجد CSRF، استخدام قيمة افتراضية")
-            self.csrf_token = "default_csrf_" + str(int(time.time()))
-            return True
-            
+            return self.csrf_token is not None
         except Exception as e:
-            print(f"❌ خطأ في جلب CSRF: {e}")
-            # حتى في حالة الخطأ، استمر بقيمة افتراضية
-            self.csrf_token = "error_csrf_" + str(int(time.time()))
-            return True
+            print(f"Error getting CSRF: {e}")
+            return False
     
     def send_verification_request(self, email):
         """إرسال طلب التحقق بالبريد"""
         url = f"{self.base_url}/api/auth/email-verification"
-        print(f"📨 إرسال طلب تحقق إلى: {email}")
         
         headers = {
             'Content-Type': "application/json",
-            'origin': self.base_url,
-            'referer': f"{self.base_url}/ar/ai-image",
-            'accept': "application/json, text/plain, */*",
+            'origin': "https://nanabanana.ai",
+            'referer': "https://nanabanana.ai/ar/ai-image",
         }
         
-        # إضافة الكوكيز إذا وجدت
+        # إضافة الكوكيز
         if self.csrf_cookie:
             headers['Cookie'] = f"__Host-authjs.csrf-token={self.csrf_cookie}"
         
@@ -404,37 +194,20 @@ class NanoBananaAPI:
                                         json=payload, 
                                         headers=headers, 
                                         timeout=15)
-            
-            print(f"📊 استجابة التحقق: {response.status_code}")
-            
-            # حتى لو لم يكن 200، قد يكون الطلب مكتمل
-            if response.status_code in [200, 201, 204]:
-                print("✅ تم إرسال طلب التحقق")
-                return True
-            elif response.status_code == 429:
-                print("⚠️ الكثير من الطلبات، انتظر قليلاً")
-                time.sleep(2)
-                return False
-            else:
-                print(f"⚠️ استجابة غير متوقعة: {response.status_code}")
-                print(f"📝 النص: {response.text[:200]}")
-                # حاول مرة أخرى
-                return response.status_code < 500  # إذا لم يكن خطأ سيرفر، اعتبره ناجح
-            
+            return response.status_code == 200
         except Exception as e:
-            print(f"❌ خطأ في إرسال طلب التحقق: {e}")
+            print(f"Error sending verification: {e}")
             return False
     
     def verify_account(self, email, code):
         """التحقق من الحساب باستخدام الكود"""
         url = f"{self.base_url}/api/auth/callback/email-verification"
-        print(f"🔐 جاري التحقق من: {email} بالكود: {code}")
         
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'origin': self.base_url,
-            'referer': f"{self.base_url}/ar/ai-image",
-            'accept': "*/*",
+            'x-auth-return-redirect': "1",
+            'origin': "https://nanabanana.ai",
+            'referer': "https://nanabanana.ai/ar/ai-image",
         }
         
         # إضافة الكوكيز
@@ -443,10 +216,10 @@ class NanoBananaAPI:
         
         payload = {
             'email': email,
-            'code': str(code),
+            'code': code,
             'redirect': "false",
             'csrfToken': self.csrf_token,
-            'callbackUrl': f"{self.base_url}/ar/ai-image"
+            'callbackUrl': "https://nanabanana.ai/ar/ai-image"
         }
         
         try:
@@ -456,38 +229,36 @@ class NanoBananaAPI:
                                         timeout=15,
                                         allow_redirects=True)
             
-            print(f"📊 استجابة التحقق: {response.status_code}")
-            
-            # البحث عن session token في الكوكيز
-            if response.cookies:
-                for cookie in response.cookies:
-                    cookie_name = cookie.name.lower()
-                    if 'session' in cookie_name or 'auth' in cookie_name:
-                        session_token = cookie.value
-                        print(f"✅ وجدت Session Token: {cookie_name}={session_token[:50]}...")
-                        return session_token
-            
-            # إذا لم نجد في الكوكيز، ابحث في النص
-            if response.text:
-                # قد يكون token في JSON response
-                try:
-                    data = json.loads(response.text)
-                    if 'token' in data:
-                        print(f"✅ وجدت Token في JSON: {data['token'][:50]}...")
-                        return data['token']
-                except:
-                    pass
-            
-            # خدعة: إذا نجحت العملية ولكن بدون token، أنشئ واحداً وهمياً
-            if response.status_code in [200, 201, 302]:
-                print("⚠️ العملية ناجحة ولكن لم أجد token، إنشاء token وهمي")
-                return f"session_{int(time.time())}_{random.randint(1000, 9999)}"
-            
-            return None
+            # استخراج session token من الكوكيز
+            if '__Secure-authjs.session-token' in response.cookies:
+                session_token = response.cookies.get('__Secure-authjs.session-token')
+                return session_token
             
         except Exception as e:
-            print(f"❌ خطأ في التحقق: {e}")
-            return None
+            print(f"Error verifying account: {e}")
+        
+        return None
+    
+    def get_session_info(self):
+        """الحصول على معلومات الجلسة"""
+        try:
+            headers = {
+                'content-type': "application/json",
+                'referer': "https://nanabanana.ai/",
+            }
+            response = self.session.get(f"{self.base_url}/api/auth/session", 
+                                       headers=headers, 
+                                       timeout=10)
+            if response.status_code == 200:
+                try:
+                    data = json.loads(response.text)
+                    if data and 'user' in data:
+                        return data['user'].get('id'), data['user'].get('email')
+                except:
+                    pass
+        except:
+            pass
+        return None, None
     
     def upload_image(self, image_path):
         """رفع صورة إلى السيرفر"""
@@ -500,7 +271,7 @@ class NanoBananaAPI:
                 file_content = f.read()
             
             files = [('file', (os.path.basename(image_path), file_content, 'image/jpeg'))]
-            response = requests.post(url, files=files, timeout=30)
+            response = self.session.post(url, files=files, timeout=30)
             
             if response.status_code == 200:
                 data = response.json()
@@ -513,9 +284,9 @@ class NanoBananaAPI:
         """إنشاء صورة جديدة"""
         url = f"{self.base_url}/api/image-generation-nano-banana/create"
         
-        cookie_string = f"__Secure-authjs.session-token={session_token}"
+        cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
         headers = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
             'Content-Type': "application/json",
             'Cookie': cookie_string
         }
@@ -553,9 +324,9 @@ class NanoBananaAPI:
         """التحقق من حالة الصورة"""
         url = f"{self.base_url}/api/image-generation-nano-banana/status"
         
-        cookie_string = f"__Secure-authjs.session-token={session_token}"
+        cookie_string = f"__Secure-authjs.session-token={session_token}; __Secure-authjs.callback-url=https%3A%2F%2Fnanabanana.ai%2Far%2Fai-image"
         headers = {
-            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
             'Content-Type': "application/json",
             'Cookie': cookie_string
         }
@@ -587,97 +358,54 @@ class NanoBananaAPI:
 
 # ========== دوال مساعدة ==========
 async def create_nanabanana_account():
-    """إنشاء حساب جديد في nanabanana باستخدام Mail.tm"""
-    print("\n" + "="*60)
-    print("🚀 بدء عملية إنشاء حساب جديد باستخدام Mail.tm")
-    print("="*60)
+    """إنشاء حساب جديد في nanabanana"""
+    # إنشاء بريد مؤقت
+    temp_mail = TempMail()
+    email = temp_mail.create_email()
     
-    # 1. إنشاء بريد باستخدام Mail.tm
-    mail_service = MailTM()
-    mail_data = mail_service.create_account()
-    
-    if not mail_data:
-        print("❌ فشل في إنشاء حساب البريد")
+    if not email:
         return None, None, None
     
-    email = mail_data["email"]
-    password = mail_data["password"]
-    
-    print(f"\n📧 البريد الجديد: {email}")
-    print(f"🔑 كلمة المرور: {password}")
-    
-    # 2. إعداد API
+    # إعداد API
     api = NanoBananaAPI()
     
-    # 3. الحصول على CSRF token
-    print("\n🔧 جاري الحصول على CSRF Token...")
+    # الحصول على CSRF token
     if not api.get_csrf_token():
-        print("⚠️ مشكلة في CSRF، لكن سنستمر...")
-    
-    # 4. إرسال طلب التحقق
-    print("\n📨 جاري إرسال طلب التحقق...")
-    max_retries = 3
-    for retry in range(max_retries):
-        print(f"   المحاولة {retry + 1}/{max_retries}")
-        if api.send_verification_request(email):
-            break
-        if retry < max_retries - 1:
-            time.sleep(2)  # انتظار قبل المحاولة التالية
-    
-    print(f"\n✅ تم إرسال طلب التحقق إلى: {email}")
-    print("⏳ جاري انتظار كود التحقق...")
-    
-    # 5. انتظار كود التحقق
-    code = mail_service.wait_for_verification_code(email, timeout=180)  # 3 دقائق
-    
-    if not code:
-        print("❌ لم يتم استلام كود التحقق خلال الوقت المحدد")
-        # جرب مرة أخرى مع انتظار أطول
-        print("🔄 جرب مرة أخرى مع وقت أطول...")
-        code = mail_service.wait_for_verification_code(email, timeout=120)
-    
-    if not code:
-        print("❌ فشل استلام كود التحقق")
+        print("Failed to get CSRF token")
         return None, None, None
     
-    print(f"\n✅ تم استلام كود التحقق: {code}")
+    # إرسال طلب التحقق
+    if not api.send_verification_request(email):
+        print("Failed to send verification request")
+        return None, None, None
     
-    # 6. التحقق من الحساب
-    print("\n🔐 جاري التحقق من الحساب...")
+    print(f"Verification request sent to: {email}")
+    
+    # انتظار كود التحقق
+    code = temp_mail.wait_for_verification_code(email)
+    
+    if not code:
+        print("No verification code received")
+        return None, None, None
+    
+    print(f"Received verification code: {code}")
+    
+    # التحقق من الحساب
     session_token = api.verify_account(email, code)
     
     if not session_token:
-        print("❌ فشل في التحقق من الحساب")
+        print("Failed to verify account")
         return None, None, None
     
-    print(f"✅ تم التحقق من الحساب بنجاح!")
-    print(f"🔑 Session Token: {session_token[:50]}...")
+    print(f"Account verified successfully, session token: {session_token[:20]}...")
     
-    # 7. اختبار الحساب بطلب بسيط
-    print("\n🧪 جاري اختبار الحساب...")
-    try:
-        test_url = f"{api.base_url}/api/auth/session"
-        headers = {'Cookie': f'__Secure-authjs.session-token={session_token}'}
-        test_resp = requests.get(test_url, headers=headers, timeout=10)
-        
-        if test_resp.status_code == 200:
-            print("✅ الحساب يعمل بشكل صحيح!")
-            try:
-                user_data = test_resp.json()
-                user_email = user_data.get('user', {}).get('email', email)
-                print(f"👤 البريد المسجل: {user_email}")
-            except:
-                print("ℹ️ لا يمكن قراءة بيانات المستخدم")
-        else:
-            print(f"⚠️ اختبار الحساب: {test_resp.status_code}")
-    except Exception as e:
-        print(f"⚠️ خطأ في اختبار الحساب: {e}")
+    # الحصول على معلومات المستخدم
+    user_id, user_email = api.get_session_info()
     
-    print("\n" + "="*60)
-    print("🎉 اكتملت عملية إنشاء الحساب بنجاح!")
-    print("="*60)
+    if user_id:
+        print(f"User ID: {user_id}, Email: {user_email}")
     
-    return email, password, session_token
+    return email, "temp_mail_no_password", session_token
 
 def download_image(image_url, account_email):
     """تحميل الصورة"""
@@ -701,7 +429,7 @@ async def get_or_create_account(user_id):
     # حذف الحسابات المنتهية أولاً
     deleted_expired = delete_expired_accounts(user_id)
     if deleted_expired > 0:
-        print(f"🗑️ تم حذف {deleted_expired} حساب منتهي للمستخدم {user_id}")
+        print(f"تم حذف {deleted_expired} حساب منتهي للمستخدم {user_id}")
     
     accounts = get_user_accounts(user_id)
     
@@ -1144,5 +872,4 @@ async def new_account_handler(event):
     except Exception as e:
         await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور مع خدمة Mail.tm المحسنة!")
-print("📧 خدمة البريد: Mail.tm (الأفضل والأكثر استقراراً)")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع API محسن!")

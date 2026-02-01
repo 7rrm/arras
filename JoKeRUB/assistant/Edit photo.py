@@ -143,13 +143,24 @@ def delete_expired_accounts(user_id=None):
     return deleted_count
 
 # ========== دوال NanoBanana (محدثة) ==========
+# ========== دوال NanoBanana (محسّن مع إصلاح الأخطاء) ==========
 class NanoBananaAPI:
     def __init__(self):
         self.base_url = "https://nanabanana.ai"
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Mobile Safari/537.36",
+            'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
             'accept-language': "ar-EG,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+            'accept': "application/json, text/plain, */*",
+            'accept-encoding': "gzip, deflate, br",
+            'origin': self.base_url,
+            'referer': f"{self.base_url}/ar/ai-image",
+            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
         })
         self.csrf_token = None
         self.csrf_cookie = None
@@ -157,70 +168,124 @@ class NanoBananaAPI:
     def get_csrf_token(self):
         """الحصول على CSRF token"""
         try:
+            print(f"🔍 جاري جلب CSRF من: {self.base_url}/api/auth/csrf")
             response = self.session.get(f"{self.base_url}/api/auth/csrf", timeout=10)
+            print(f"📊 استجابة CSRF: {response.status_code}")
+            
             if response.status_code == 200:
                 try:
                     data = json.loads(response.text)
                     self.csrf_token = data.get("csrfToken")
-                except:
-                    pass
+                    print(f"✅ تم الحصول على CSRF Token: {self.csrf_token[:30]}..." if self.csrf_token else "❌ لم يتم الحصول على CSRF Token")
+                except Exception as e:
+                    print(f"❌ خطأ في تحليل JSON: {e}")
+                    print(f"📝 النص المستلم: {response.text[:200]}")
             
-            if '__Host-authjs.csrf-token' in response.cookies:
-                self.csrf_cookie = response.cookies.get('__Host-authjs.csrf-token')
+            # البحث عن الكوكيز
+            print(f"🔍 جاري البحث عن CSRF Cookie...")
+            cookies_found = []
+            for cookie in response.cookies:
+                cookies_found.append(f"{cookie.name}={cookie.value[:30]}...")
+            
+            if cookies_found:
+                print(f"🍪 الكوكيز الموجودة: {', '.join(cookies_found)}")
+            
+            csrf_cookie_names = ['__Host-authjs.csrf-token', 'csrf-token', 'X-CSRF-Token', 'csrf_token']
+            for cookie_name in csrf_cookie_names:
+                if cookie_name in response.cookies:
+                    self.csrf_cookie = response.cookies.get(cookie_name)
+                    print(f"✅ وجدت CSRF Cookie: {cookie_name} = {self.csrf_cookie[:30]}...")
+                    break
             
             return self.csrf_token is not None
         except Exception as e:
-            print(f"Error getting CSRF: {e}")
+            print(f"❌ خطأ في جلب CSRF: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def send_verification_request(self, email):
         """إرسال طلب التحقق بالبريد"""
         url = f"{self.base_url}/api/auth/email-verification"
+        print(f"🚀 إرسال طلب تحقق إلى: {url}")
+        print(f"📧 البريد المستخدم: {email}")
         
         headers = {
             'Content-Type': "application/json",
-            'origin': "https://nanabanana.ai",
-            'referer': "https://nanabanana.ai/ar/ai-image",
+            'origin': self.base_url,
+            'referer': f"{self.base_url}/ar/ai-image",
+            'accept': "application/json, text/plain, */*",
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-dest': 'empty',
         }
         
-        # إضافة الكوكيز
+        # إضافة الكوكيز إذا وجدت
         if self.csrf_cookie:
-            headers['Cookie'] = f"__Host-authjs.csrf-token={self.csrf_cookie}"
+            cookie_header = f"__Host-authjs.csrf-token={self.csrf_cookie}"
+            print(f"🍪 إضافة CSRF Cookie: {self.csrf_cookie[:30]}...")
+            headers['Cookie'] = cookie_header
         
         payload = {"email": email}
+        print(f"📦 Payload: {json.dumps(payload)}")
         
         try:
             response = self.session.post(url, 
                                         json=payload, 
                                         headers=headers, 
                                         timeout=15)
-            return response.status_code == 200
+            
+            print(f"📊 استجابة التحقق: {response.status_code}")
+            print(f"📝 نص الاستجابة: {response.text[:200]}")
+            
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    print(f"✅ طلب التحقق ناجح: {data}")
+                    return True
+                except:
+                    print(f"⚠️ استجابة بدون JSON: {response.text[:100]}")
+                    return True
+            else:
+                print(f"❌ فشل طلب التحقق: {response.status_code}")
+                print(f"📝 نص الخطأ: {response.text[:200]}")
+                return False
+                
         except Exception as e:
-            print(f"Error sending verification: {e}")
+            print(f"❌ خطأ في إرسال طلب التحقق: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def verify_account(self, email, code):
         """التحقق من الحساب باستخدام الكود"""
         url = f"{self.base_url}/api/auth/callback/email-verification"
+        print(f"🔐 جاري التحقق من الحساب: {email}")
         
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'x-auth-return-redirect': "1",
-            'origin': "https://nanabanana.ai",
-            'referer': "https://nanabanana.ai/ar/ai-image",
+            'origin': self.base_url,
+            'referer': f"{self.base_url}/ar/ai-image",
+            'accept': "*/*",
+            'sec-fetch-site': 'same-origin',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-dest': 'empty',
         }
         
         # إضافة الكوكيز
         if self.csrf_cookie:
             headers['Cookie'] = f"__Host-authjs.csrf-token={self.csrf_cookie}"
+            print(f"🍪 استخدام CSRF Cookie للتحقق")
         
         payload = {
             'email': email,
-            'code': code,
+            'code': str(code),
             'redirect': "false",
             'csrfToken': self.csrf_token,
-            'callbackUrl': "https://nanabanana.ai/ar/ai-image"
+            'callbackUrl': f"{self.base_url}/ar/ai-image"
         }
+        
+        print(f"📦 Payload التحقق: {payload}")
         
         try:
             response = self.session.post(url, 
@@ -229,15 +294,37 @@ class NanoBananaAPI:
                                         timeout=15,
                                         allow_redirects=True)
             
-            # استخراج session token من الكوكيز
-            if '__Secure-authjs.session-token' in response.cookies:
-                session_token = response.cookies.get('__Secure-authjs.session-token')
-                return session_token
+            print(f"📊 استجابة التحقق: {response.status_code}")
+            
+            # طباعة الكوكيز المستلمة
+            if response.cookies:
+                print(f"🍪 الكوكيز المستلمة:")
+                for cookie in response.cookies:
+                    print(f"  - {cookie.name}: {cookie.value[:50]}...")
+            
+            # البحث عن session token في الكوكيز
+            session_cookie_names = ['__Secure-authjs.session-token', 'session-token', 'auth_token', 'token']
+            session_token = None
+            
+            for cookie_name in session_cookie_names:
+                if cookie_name in response.cookies:
+                    session_token = response.cookies.get(cookie_name)
+                    print(f"✅ وجدت Session Token: {cookie_name} = {session_token[:50]}...")
+                    break
+            
+            if not session_token:
+                print(f"❌ لم يتم العثور على Session Token في الكوكيز")
+                print(f"🔍 البحث في نص الاستجابة...")
+                if response.text:
+                    print(f"📝 نص الاستجابة: {response.text[:500]}")
+            
+            return session_token
             
         except Exception as e:
-            print(f"Error verifying account: {e}")
-        
-        return None
+            print(f"❌ خطأ في التحقق: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
     
     def get_session_info(self):
         """الحصول على معلومات الجلسة"""
@@ -359,53 +446,100 @@ class NanoBananaAPI:
 # ========== دوال مساعدة ==========
 async def create_nanabanana_account():
     """إنشاء حساب جديد في nanabanana"""
+    print("\n" + "="*50)
+    print("🚀 بدء عملية إنشاء حساب جديد")
+    print("="*50)
+    
     # إنشاء بريد مؤقت
     temp_mail = TempMail()
     email = temp_mail.create_email()
     
     if not email:
+        print("❌ فشل في إنشاء البريد المؤقت")
         return None, None, None
+    
+    print(f"✅ تم إنشاء البريد: {email}")
     
     # إعداد API
     api = NanoBananaAPI()
     
     # الحصول على CSRF token
+    print("\n🔧 جاري الحصول على CSRF Token...")
     if not api.get_csrf_token():
-        print("Failed to get CSRF token")
+        print("❌ فشل في الحصول على CSRF Token")
         return None, None, None
     
     # إرسال طلب التحقق
+    print("\n📨 جاري إرسال طلب التحقق...")
     if not api.send_verification_request(email):
-        print("Failed to send verification request")
+        print("❌ فشل في إرسال طلب التحقق")
         return None, None, None
     
-    print(f"Verification request sent to: {email}")
+    print(f"✅ تم إرسال طلب التحقق إلى: {email}")
     
     # انتظار كود التحقق
+    print("\n⏳ جاري انتظار كود التحقق...")
     code = temp_mail.wait_for_verification_code(email)
     
     if not code:
-        print("No verification code received")
+        print("❌ لم يتم استلام كود التحقق")
         return None, None, None
     
-    print(f"Received verification code: {code}")
+    print(f"✅ تم استلام كود التحقق: {code}")
     
     # التحقق من الحساب
+    print("\n🔐 جاري التحقق من الحساب...")
     session_token = api.verify_account(email, code)
     
     if not session_token:
-        print("Failed to verify account")
+        print("❌ فشل في التحقق من الحساب")
         return None, None, None
     
-    print(f"Account verified successfully, session token: {session_token[:20]}...")
+    print(f"✅ تم التحقق من الحساب بنجاح!")
+    print(f"🔑 Session Token: {session_token[:50]}...")
     
-    # الحصول على معلومات المستخدم
-    user_id, user_email = api.get_session_info()
+    # الحصول على معلومات المستخدم (اختياري)
+    try:
+        user_id, user_email = api.get_session_info()
+        if user_id:
+            print(f"👤 معلومات المستخدم: ID={user_id}, Email={user_email}")
+    except:
+        print("⚠️ لم يتم الحصول على معلومات المستخدم (قد يكون هذا طبيعياً)")
     
-    if user_id:
-        print(f"User ID: {user_id}, Email: {user_email}")
+    print("="*50)
+    print("✅ اكتملت عملية إنشاء الحساب!")
+    print("="*50 + "\n")
     
     return email, "temp_mail_no_password", session_token
+
+def test_connection():
+    """اختبار الاتصال بموقع nanabanana.ai"""
+    print("\n" + "="*50)
+    print("🔧 اختبار الاتصال ب nanabanana.ai")
+    print("="*50)
+    
+    try:
+        # اختبار الوصول إلى الموقع
+        response = requests.get("https://nanabanana.ai", timeout=10)
+        print(f"🌐 اختبار الموقع الرئيسي: {response.status_code}")
+        
+        # اختبار API
+        response = requests.get("https://nanabanana.ai/api/auth/csrf", timeout=10)
+        print(f"🔧 اختبار API CSRF: {response.status_code}")
+        
+        if response.status_code == 200:
+            print("✅ الاتصال يعمل بشكل صحيح")
+        else:
+            print(f"❌ مشكلة في الاتصال: {response.status_code}")
+            print(f"📝 التفاصيل: {response.text[:200]}")
+            
+    except Exception as e:
+        print(f"❌ خطأ في الاتصال: {e}")
+    
+    print("="*50)
+
+# تشغيل اختبار الاتصال عند بدء التشغيل
+test_connection()
 
 def download_image(image_url, account_email):
     """تحميل الصورة"""

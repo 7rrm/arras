@@ -787,12 +787,12 @@ async def _(dyno):
         )
     
     # تحميل اللوكات
-    await edit_or_reply(dyno, "**📥 جاري تحميل اللوكات...**")
+    await edit_or_reply(dyno, "**📥 جاري تحميل سجل اللوك...**")
     data = app.get_log()
     
     # إنشاء اسم ملف مع التاريخ والوقت
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"لوك_الجوكر_{timestamp}.txt"
+    timestamp = datetime.now().strftime("%Y%m%d")
+    filename = f"Source_aRaS_{timestamp}.txt"
     
     try:
         # حفظ اللوكات في ملف
@@ -804,18 +804,17 @@ async def _(dyno):
         await dyno.client.send_file(
             dyno.chat_id,
             filename,
-            caption=f"**📄 | لوك هيروكو | الجوكر 🖤**\n\n"
+            caption=f"**📄 | لوك هيروكو | آراس 🖤**\n\n"
                    f"📊 **آخر 200 سطر من سجلات هيروكو**\n"
                    f"⏰ **الوقت:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
                    f"🔗 **التطبيق:** `{HEROKU_APP_NAME}`\n"
                    f"📁 **حجم الملف:** {len(data)} حرف\n\n"
-                   f"📌 *ملاحظة:* يمكنك فتح الملف لعرض السجلات كاملة",
+                   f"📌 **ملاحظة:** يمكنك فتح الملف لعرض السجلات كاملة",
             force_document=True
         )
         
         # حذف الملف المؤقت
         os.remove(filename)
-        await edit_delete(dyno, "**✅ تم إرسال ملف اللوكات بنجاح**")
         
     except Exception as e:
         await edit_or_reply(dyno, f"**❌ حدث خطأ:**\n`{str(e)}`")

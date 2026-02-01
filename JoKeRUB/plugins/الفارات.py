@@ -767,6 +767,7 @@ async def dyno_usage(dyno):
         f"**|**  [`{percentage}`**%**]"
     )
 
+
 import heroku3
 import os
 from datetime import datetime
@@ -786,21 +787,22 @@ async def _(dyno):
             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
         )
     
-    # تحميل اللوكات
-    await edit_or_reply(dyno, "**📥 جاري تحميل سجل اللوك...**")
-    data = app.get_log(lines=122)
+    # رسالة التحميل
+    msg = await edit_or_reply(dyno, "**📥 جاري تحميل سجل اللوك...**")
     
-    # إنشاء اسم ملف مع التاريخ والوقت
+    data = app.get_log(lines=119)
     timestamp = datetime.now().strftime("%Y%m%d")
     filename = f"Source_aRaS_{timestamp}.txt"
     
     try:
-        # حفظ اللوكات في ملف
+        # حفظ الملف
         with open(filename, 'w', encoding='utf-8') as file:
             file.write(data)
         
+        # تحديث الرسالة
+        await msg.edit("**📤 جاري إرسال الملف...**")
+        
         # إرسال الملف
-        await edit_or_reply(dyno, "**📤 جاري إرسال الملف...**")
         await dyno.client.send_file(
             dyno.chat_id,
             filename,
@@ -813,15 +815,19 @@ async def _(dyno):
             force_document=True
         )
         
-        # حذف الملف المؤقت
+        # حذف الرسالة المؤقتة
+        await msg.delete()
+        
+        # حذف الملف
         os.remove(filename)
         
     except Exception as e:
-        await edit_or_reply(dyno, f"**❌ حدث خطأ:**\n`{str(e)}`")
-        # تنظيف الملف إذا كان موجوداً
+        # حذف الرسالة أولاً
+        await msg.delete()
+        # ثم إرسال رسالة الخطأ
+        await edit_or_reply(dyno, f"**❌ حدث خطأ:**\n`{str(e)}`", time=10)
         if os.path.exists(filename):
             os.remove(filename)
-
 
 def prettyjson(obj, indent=4, maxlinelength=80):
     items, _ = getsubitems(

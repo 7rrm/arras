@@ -1,3 +1,4 @@
+
 from JoKeRUB import bot, l313l
 #By Source joker @ucriss
 from telethon import events, functions, types, Button
@@ -5,7 +6,7 @@ from datetime import timedelta
 from JoKeRUB.utils import admin_cmd
 import asyncio
 from ..Config import Config
-import os, asyncio, re
+import os, asyncio, re, traceback
 from os import system
 from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon import TelegramClient as tg
@@ -24,7 +25,7 @@ from JoKeRUB.utils import admin_cmd
 from ..Config import Config
 import asyncio, aiohttp, random, json, requests, re, time, os
 import logging
-logging.getLogger().setLevel(logging.WARNING)  # ⬅️ نفس كود الاختراق
+logging.getLogger().setLevel(logging.WARNING)
 
 # إعدادات الملفات
 accounts_file = "accounts/accounts_data.json"
@@ -49,6 +50,37 @@ def save_accounts(accounts):
 def get_user_accounts(user_id):
     accounts = load_accounts()
     return [acc for acc in accounts if acc.get('user_id') == user_id]
+
+def delete_user_accounts(user_id):
+    """حذف جميع حسابات مستخدم معين"""
+    accounts = load_accounts()
+    user_accs_before = len(get_user_accounts(user_id))
+    
+    # الاحتفاظ بحسابات المستخدمين الآخرين فقط
+    remaining_accounts = [acc for acc in accounts if acc.get('user_id') != user_id]
+    
+    save_accounts(remaining_accounts)
+    return user_accs_before
+
+def delete_expired_accounts(user_id=None):
+    """حذف الحسابات المنتهية (5/5)"""
+    accounts = load_accounts()
+    deleted_count = 0
+    
+    remaining_accounts = []
+    for acc in accounts:
+        if user_id and acc.get('user_id') != user_id:
+            remaining_accounts.append(acc)
+            continue
+            
+        if acc.get('use_count', 0) >= 5:
+            deleted_count += 1
+            continue  # تخطي الحساب المنتهي (حذفه)
+        else:
+            remaining_accounts.append(acc)
+    
+    save_accounts(remaining_accounts)
+    return deleted_count
 
 # ========== دوال إنشاء البريد ==========
 async def create_email_account():
@@ -271,16 +303,23 @@ def download_image(image_url, account_email):
     except:
         return None
 
-def get_or_create_account(user_id):
+async def get_or_create_account(user_id):
+    """الحصول على حساب نشط أو إنشاء حساب جديد بشكل متزامن"""
+    # أولاً: حذف الحسابات المنتهية تلقائياً
+    deleted_expired = delete_expired_accounts(user_id)
+    if deleted_expired > 0:
+        print(f"تم حذف {deleted_expired} حساب منتهي تلقائياً للمستخدم {user_id}")
+    
     accounts = load_accounts()
     user_accs = get_user_accounts(user_id)
     
-    if user_accs:
-        for acc in user_accs:
-            if acc.get('use_count', 0) < 5:
-                return acc
+    # البحث عن حساب نشط (أقل من 5 استخدامات)
+    for acc in user_accs:
+        if acc.get('use_count', 0) < 5:
+            return acc
     
-    async def create_and_save():
+    # إذا لم يوجد حساب نشط، إنشاء حساب جديد
+    try:
         email, password, session_token = await create_nanabanana_account()
         if session_token:
             new_account = {
@@ -294,15 +333,44 @@ def get_or_create_account(user_id):
             accounts.append(new_account)
             save_accounts(accounts)
             return new_account
-        return None
+    except Exception as e:
+        print(f"خطأ في إنشاء حساب جديد: {e}")
     
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    result = loop.run_until_complete(create_and_save())
-    loop.close()
-    return result
+    return None
 
-# ========== القائمة والأزرار ==========
+# ========== دوال مساعدة ==========
+async def safe_edit(event, text, buttons=None):
+    """تعديل الرسالة بأمان مع منع الأخطاء"""
+    try:
+        if buttons:
+            await event.edit(text, buttons=buttons)
+        else:
+            await event.edit(text)
+    except Exception as e:
+        # إذا كانت الرسالة نفسها، أرسل رسالة جديدة
+        try:
+            if buttons:
+                await event.respond(text, buttons=buttons)
+            else:
+                await event.respond(text)
+        except:
+            pass
+
+async def wait_for_user_response(event):
+    """الانتظار لرد المستخدم"""
+    try:
+        # الانتظار لرسالة جديدة من المستخدم
+        async for message in event.client.iter_messages(
+            event.chat_id, 
+            limit=1, 
+            from_user=event.sender_id
+        ):
+            if message:
+                return message
+    except Exception as e:
+        print(f"Error waiting for response: {e}")
+    return None
+
 # ========== القائمة والأزرار ==========
 menu = '''
 🎨 **بوت إنشاء وتعديل الصور باستخدام الذكاء الاصطناعي**
@@ -312,18 +380,19 @@ menu = '''
 
 keyboard = [
     [  
-        Button.inline("🖼️ إنشاء صورة جديدة", data="create_image"), 
-        Button.inline("✏️ تعديل صورة", data="edit_image"),
+        Button.inline("‹ : إنشاء صورة جديدة 🎚 : ›", data="create_image"), 
+        Button.inline("‹ :🪞 تعديل صورة : ›", data="edit_image"),
     ],
     [
-        Button.inline("📋 حساباتي", data="my_accounts"),
-        Button.inline("🆕 إنشاء حساب جديد", data="new_account"),
+        Button.inline("‹ : حساباتي 📜: ›", data="my_accounts"),
+        Button.inline("‹ :🎐 انشاء حساب : ›", data="new_account"),
     ],
     [
         Button.url("المـطور", "https://t.me/Lx5x5")
     ]
 ]
-# ========== الإنلاين (نسخة صحيحة) ==========
+
+# ========== الإنلاين ==========
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
@@ -354,13 +423,17 @@ async def repo(event):
     response = await bot.inline_query(lMl10l, "صور")
     await response[0].click(event.chat_id)
     await event.delete()
-# ========== الأمر الرئيسي (مثل /hack) ==========
+
+# ========== الأمر الرئيسي ==========
 @tgbot.on(events.NewMessage(pattern="/edit", func=lambda x: x.is_private))
 async def start(event):
     if event.sender_id == bot.uid:
-        async with bot.conversation(event.chat_id) as x:
-            await x.send_message(f"{menu}", buttons=keyboard)
-    
+        await safe_edit(event, menu, buttons=keyboard)
+
+# ========== زر العودة ==========
+@tgbot.on(events.CallbackQuery(data=re.compile(b"back_to_menu")))
+async def back_to_menu_handler(event):
+    await safe_edit(event, menu, buttons=keyboard)
 
 # ========== معالجة الأزرار ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"create_image")))
@@ -376,7 +449,7 @@ async def create_image_handler(event):
         
         await event.respond("**⏳ جاري إنشاء الصورة...**")
         
-        account = get_or_create_account(event.sender_id)
+        account = await get_or_create_account(event.sender_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
             return
@@ -406,6 +479,86 @@ async def create_image_handler(event):
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
 
+
+@tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
+async def my_accounts_handler(event):
+    try:
+        # حذف الحسابات المنتهية أولاً
+        deleted_count = delete_expired_accounts(event.sender_id)
+        
+        accounts = get_user_accounts(event.sender_id)
+        
+        if not accounts:
+            response = "**📭 لا توجد حسابات مرفوعة بعد.**"
+            await safe_edit(event, response, buttons=keyboard)
+            return
+        
+        response = "**📋 حساباتك:**\n\n"
+        
+        for i, acc in enumerate(accounts, 1):
+            use_count = acc.get('use_count', 0)
+            email = acc['email']
+            created_date = acc.get('created_at', 'غير معروف')[:10]
+            
+            response += f"**{i}. {email}**\n"
+            response += f"   استخدامات: {use_count}/5\n"
+            response += f"   تاريخ: {created_date}\n"
+            
+            if use_count >= 5:
+                response += "   ⚠️ **الحساب منتهي**\n"
+            else:
+                response += "   ✅ **الحساب نشط**\n"
+            
+            response += "\n"
+        
+        if deleted_count > 0:
+            response += f"\n🗑️ **تم حذف {deleted_count} حساب منتهي تلقائياً**\n"
+        
+        # إضافة زر حذف جميع الحسابات
+        delete_buttons = [
+            [Button.inline("🗑️ حذف جميع الحسابات", data="delete_all_accounts")],
+            [Button.inline("🔙 رجوع", data="back_to_menu")]
+        ]
+        
+        await safe_edit(event, response, buttons=delete_buttons)
+        
+    except Exception as e:
+        error_msg = f"**❌ حدث خطأ في عرض الحسابات:**\n```{str(e)}```"
+        await event.respond(error_msg, buttons=keyboard)
+
+@tgbot.on(events.CallbackQuery(data=re.compile(b"delete_all_accounts")))
+async def delete_all_accounts_handler(event):
+    try:
+        # تأكيد الحذف
+        confirm_buttons = [
+            [Button.inline("✅ نعم، احذف الكل", data="confirm_delete_all")],
+            [Button.inline("❌ لا، إلغاء", data="my_accounts")]
+        ]
+        
+        await safe_edit(
+            event,
+            "**⚠️ هل أنت متأكد من حذف جميع حساباتك؟**\n"
+            "❌ هذه العملية لا يمكن التراجع عنها!\n"
+            "🗑️ سيتم حذف جميع الحسابات نهائياً.",
+            buttons=confirm_buttons
+        )
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
+
+@tgbot.on(events.CallbackQuery(data=re.compile(b"confirm_delete_all")))
+async def confirm_delete_all_handler(event):
+    try:
+        deleted_count = delete_user_accounts(event.sender_id)
+        
+        await safe_edit(
+            event,
+            f"**✅ تم حذف {deleted_count} حساب بنجاح!**\n"
+            f"🗑️ تم مسح جميع حساباتك من قاعدة البيانات.",
+            buttons=keyboard
+        )
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
+
 @tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
 async def edit_image_handler(event):
     async with bot.conversation(event.chat_id) as x:
@@ -430,7 +583,7 @@ async def edit_image_handler(event):
         
         await event.respond("**⏳ جاري معالجة الصورة...**")
         
-        account = get_or_create_account(event.sender_id)
+        account = await get_or_create_account(event.sender_id)
         if not account:
             await event.respond("**❌ فشل في إنشاء أو استرجاع الحساب**", buttons=keyboard)
             os.remove(photo_path)
@@ -463,47 +616,37 @@ async def edit_image_handler(event):
         else:
             await event.respond("**❌ فشل في بدء العملية**", buttons=keyboard)
 
-@tgbot.on(events.CallbackQuery(data=re.compile(b"my_accounts")))
-async def my_accounts_handler(event):
-    accounts = get_user_accounts(event.sender_id)
-    
-    if not accounts:
-        response = "**📭 لا توجد حسابات مرفوعة بعد.**"
-    else:
-        response = "**📋 حساباتك:**\n\n"
-        for i, acc in enumerate(accounts, 1):
-            response += f"**{i}. {acc['email']}**\n"
-            response += f"   استخدامات: {acc.get('use_count', 0)}/5\n"
-            response += f"   تاريخ: {acc.get('created_at', 'غير معروف')[:10]}\n\n"
-    
-    await event.edit(response, buttons=keyboard)
-
 @tgbot.on(events.CallbackQuery(data=re.compile(b"new_account")))
 async def new_account_handler(event):
-    await event.edit("**⏳ جاري إنشاء حساب جديد...**")
-    
-    email, password, session_token = await create_nanabanana_account()
-    if session_token:
-        accounts = load_accounts()
-        new_account = {
-            'user_id': event.sender_id,
-            'email': email,
-            'password': password,
-            'session_token': session_token,
-            'use_count': 0,
-            'created_at': datetime.now().isoformat()
-        }
-        accounts.append(new_account)
-        save_accounts(accounts)
+    try:
+        await safe_edit(event, "**⏳ جاري إنشاء حساب جديد...**")
         
-        await event.edit(
-            f"**✅ تم إنشاء حساب جديد!\n\n"
-            f"📧 **{email}**\n"
-            f"🔑 **{password}**\n\n"
-            f"**تم الحفظ تلقائياً.**",
-            buttons=keyboard
-        )
-    else:
-        await event.edit("**❌ فشل في إنشاء الحساب**", buttons=keyboard)
+        email, password, session_token = await create_nanabanana_account()
+        if session_token:
+            accounts = load_accounts()
+            new_account = {
+                'user_id': event.sender_id,
+                'email': email,
+                'password': password,
+                'session_token': session_token,
+                'use_count': 0,
+                'created_at': datetime.now().isoformat()
+            }
+            accounts.append(new_account)
+            save_accounts(accounts)
+            
+            await safe_edit(
+                event,
+                f"**✅ تم إنشاء حساب جديد!**\n\n"
+                f"📧 `{email}`\n"
+                f"🔑 `{password}`\n\n"
+                f"**تم الحفظ تلقائياً.**",
+                buttons=keyboard
+            )
+        else:
+            await safe_edit(event, "**❌ فشل في إنشاء الحساب**", buttons=keyboard)
+            
+    except Exception as e:
+        await event.respond(f"**❌ حدث خطأ: {str(e)}**", buttons=keyboard)
 
-print("✅ تم تحميل بوت تعديل الصور بنجاح!")
+print("✅ تم تحميل بوت تعديل الصور بنجاح مع الإصلاحات!")

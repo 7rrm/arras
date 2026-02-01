@@ -95,41 +95,34 @@ async def n_paste(message, extension=None):
     return {"error": "Unable to reach nekobin."}
 
 
-async def dpaste_io(message, extension=None):
+async def d_paste(message, extension=None):
     """
-    Alternative paste service using dpaste.org
+    To Paste the given message/text/code to dogbin
     """
-    siteurl = "https://dpaste.org/api/"
-    data = {"content": message, "syntax": "text"}
+    siteurl = "https://del.dog/documents"
+    data = {"content": message}
     try:
-        response = requests.post(url=siteurl, data=data, timeout=10)
+        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
     except Exception as e:
         return {"error": str(e)}
-    
     if response.ok:
-        # dpaste.org returns plain text URL
-        paste_url = response.text.strip()
+        response = response.json()
+        purl = (
+            f"https://del.dog/{response['key']}.{extension}"
+            if extension
+            else f"https://del.dog/{response['key']}"
+        )
         return {
-            "url": paste_url,
-            "raw": paste_url + ".txt",
-            "bin": "dpaste",
+            "url": purl,
+            "raw": f"https://del.dog/raw/{response['key']}",
+            "bin": "Dog",
         }
-    return {"error": f"Unable to reach dpaste.org. Status: {response.status_code}"}
+    return {"error": "Unable to reach dogbin."}
 
 
 async def pastetext(text_to_print, pastetype=None, extension=None):
     response = {"error": "something went wrong"}
-    
-    # قائمة بالمواقع بالمحاولة
-    paste_functions = [
-        (p_paste, "p"),
-        (n_paste, "n"),
-        (s_paste, "s"),
-        (dpaste_io, "dpaste"),  # أضف البديل الجديد
-    ]
-    
     if pastetype is not None:
-        # محاولة الموقع المحدد أولاً
         if pastetype == "p":
             response = await p_paste(text_to_print, extension)
         elif pastetype == "s" and extension:
@@ -137,22 +130,18 @@ async def pastetext(text_to_print, pastetype=None, extension=None):
         elif pastetype == "s":
             response = await s_paste(text_to_print)
         elif pastetype == "d":
-            # تجربة dpaste كبديل لـ del.dog
-            response = await dpaste_io(text_to_print, extension)
+            response = await d_paste(text_to_print, extension)
         elif pastetype == "n":
             response = await n_paste(text_to_print, extension)
-    
-    # إذا فشل الموقع المحدد، جرب الباقي
     if "error" in response:
-        for paste_func, _ in paste_functions:
-            try:
-                if paste_func == s_paste and extension:
-                    response = await paste_func(text_to_print, extension)
-                else:
-                    response = await paste_func(text_to_print)
-                if "error" not in response:
-                    break
-            except:
-                continue
-    
+        response = await p_paste(text_to_print, extension)
+    if "error" in response:
+        response = await n_paste(text_to_print, extension)
+    if "error" in response:
+        if extension:
+            response = await s_paste(text_to_print, extension)
+        else:
+            response = await s_paste(text_to_print)
+    if "error" in response:
+        response = await d_paste(text_to_print, extension)
     return response

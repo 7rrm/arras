@@ -767,6 +767,11 @@ async def dyno_usage(dyno):
         f"**|**  [`{percentage}`**%**]"
     )
 
+import heroku3
+import os
+from ...helpers.utils import edit_or_reply, edit_delete
+from datetime import datetime
+
 @l313l.ar_cmd(pattern="لوك$")
 async def _(dyno):
     if (HEROKU_APP_NAME is None) or (HEROKU_API_KEY is None):
@@ -781,10 +786,43 @@ async def _(dyno):
         return await dyno.reply(
             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
         )
+    
+    # تحميل اللوكات
+    await edit_or_reply(dyno, "**📥 جاري تحميل اللوكات...**")
     data = app.get_log()
-    await edit_or_reply(
-        dyno, data, deflink=True, linktext="**اخر 200 سطر في لوك هيروكو: **"
-    )
+    
+    # إنشاء اسم ملف مع التاريخ والوقت
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"لوك_الجوكر_{timestamp}.txt"
+    
+    try:
+        # حفظ اللوكات في ملف
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(data)
+        
+        # إرسال الملف
+        await edit_or_reply(dyno, "**📤 جاري إرسال الملف...**")
+        await dyno.client.send_file(
+            dyno.chat_id,
+            filename,
+            caption=f"**📄 | لوك هيروكو | الجوكر 🖤**\n\n"
+                   f"📊 **آخر 200 سطر من سجلات هيروكو**\n"
+                   f"⏰ **الوقت:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                   f"🔗 **التطبيق:** `{HEROKU_APP_NAME}`\n"
+                   f"📁 **حجم الملف:** {len(data)} حرف\n\n"
+                   f"📌 *ملاحظة:* يمكنك فتح الملف لعرض السجلات كاملة",
+            force_document=True
+        )
+        
+        # حذف الملف المؤقت
+        os.remove(filename)
+        await edit_delete(dyno, "**✅ تم إرسال ملف اللوكات بنجاح**")
+        
+    except Exception as e:
+        await edit_or_reply(dyno, f"**❌ حدث خطأ:**\n`{str(e)}`")
+        # تنظيف الملف إذا كان موجوداً
+        if os.path.exists(filename):
+            os.remove(filename)
 
 
 def prettyjson(obj, indent=4, maxlinelength=80):

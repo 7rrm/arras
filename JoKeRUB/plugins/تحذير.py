@@ -85,8 +85,8 @@ async def _(event):
 
 
 @l313l.ar_cmd(
-    pattern="ح(ذف)? ?التحذير$",
-    command=("حذف التحذير", plugin_category),
+    pattern="مسح التحذيرات$",
+    command=("مسح التحذيرات", plugin_category),
     info={
         "header": "لحذف تحذيرات المستخدم الذي تم الرد عليه",
         "usage": [

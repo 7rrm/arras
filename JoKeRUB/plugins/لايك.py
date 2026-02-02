@@ -139,7 +139,6 @@ async def fetch_info(event):
         photo_path,
         download_big=True,
     )
-    print(f"مسار الصورة: {photo_path}")  # أضف هذا السطر
     first_name = (
         first_name.replace("\u2060", "")
         if first_name

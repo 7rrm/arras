@@ -838,7 +838,7 @@ async def search_photo(event):
     else:
         await event.reply(f"لم يتم العثور على صور لـ '{prompt}")
         
-
+"""
 #ها هم تريد تخمط بمحرم ؟ روح شوفلك موكب واضرب زنجيل احسن من ماتخمط
 Ya_Hussein = False
 active_joker = []
@@ -868,7 +868,7 @@ async def disable_emoji_blocker(event):
     Ya_Hussein = False
     active_joker.remove(event.chat_id)
     await event.edit("**✧︙ تم تعطيل امر منع الايموجي المُميز بنجاح ✓ **")
-
+"""
 remove_members_aljoker = {}  # المتغير الصحيح
 
 @l313l.on(events.ChatAction)

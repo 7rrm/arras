@@ -222,7 +222,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
     @check_owner
-    async def inline_handler(event):
+    async def inline_handler_like(event):
         builder = event.builder
         result = None
         query = event.text

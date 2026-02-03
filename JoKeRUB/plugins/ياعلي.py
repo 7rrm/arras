@@ -10,11 +10,13 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# الإيموجي المميز
+# نفس الإيموجي المميز
 CUSTOM_EMOJI = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
 
-# نفس النمط تماماً
-REH = f"""🎉 <b>كود الهاك</b>\n{CUSTOM_EMOJI}\n\nلأستخدام البوت اضغط على الزر"""
+# بنفس الطريقة بالضبط: message ثم message +=
+REH = "🎉 <b>كود الهاك</b>\n"
+REH += f'{CUSTOM_EMOJI}\n\n'
+REH += "لأستخدام البوت اضغط على الزر"
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME

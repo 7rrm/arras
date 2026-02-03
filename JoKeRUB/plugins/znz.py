@@ -8,6 +8,9 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
+# أضف هذا في الأعلى مع باقي الاستيرادات
+from telethon.extensions import html, markdown
+from telethon import types
 from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery

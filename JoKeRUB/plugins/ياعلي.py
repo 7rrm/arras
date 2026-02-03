@@ -10,16 +10,14 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# نفس الإيموجي المميز
-CUSTOM_EMOJI = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
-
-# بنفس الطريقة بالضبط: message ثم message +=
-REH = "🎉 <b>كود الهاك</b>\n"
-REH += f'{CUSTOM_EMOJI}\n\n'
-REH += "لأستخدام البوت اضغط على الزر"
+# في telethon لا نستخدم <tg-emoji> بل نستخدم الكائن المناسب
+from telethon.tl.types import MessageEntityCustomEmoji
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
+
+# طريقة telethon للإيموجي المخصص
+EMOJI_ID = 5368324170671202286  # نفس الـ ID
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -32,34 +30,37 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            # زر واحد فقط
+            # في telethon نستخدم الرسالة مع entities للإيموجي المخصص
+            text = "🎉 كود الهاك\n\nلأستخدام البوت اضغط على الزر"
+            
+            # إنشاء كائن الإيموجي المخصص
+            # نحتاج إلى تحديد مكان الإيموجي في النص
+            entities = [
+                MessageEntityCustomEmoji(
+                    offset=len("🎉 كود الهاك\n"),  # بعد هذا النص
+                    length=1,  # طول الإيموجي (1 حرف)
+                    document_id=EMOJI_ID  # نفس الـ ID
+                )
+            ]
+            
             buttons = Button.url("• اضغط هنا •", f"https://t.me/{joker}")
             
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, 
-                    text=REH, 
-                    buttons=buttons, 
-                    parse_mode='HTML',
+                    text=text, 
+                    buttons=buttons,
                     link_preview=False
                 )
-            elif JOKER_PIC:
-                result = builder.document(
-                    JOKER_PIC,
-                    title="كود الهاك",
-                    text=REH,
-                    buttons=buttons,
-                    parse_mode='HTML',
-                    link_preview=False,
-                )
             else:
+                # استخدام طريقة دعم الإيموجيات المخصصة
                 result = builder.article(
                     title="كود الهاك",
-                    text=REH,
+                    text=text,
                     buttons=buttons,
-                    parse_mode='HTML',
                     link_preview=False,
                 )
+        
         await event.answer([result] if result else None)
 
 @bot.on(admin_cmd(outgoing=True, pattern="هاك"))

@@ -581,7 +581,7 @@ async def _(event):  # sourcery no-metrics
         )
     )
 
-@l313l.ar_cmd(pattern="مغادرة الكروبات")
+@l313l.ar_cmd(pattern="مغادرة الكروبات$")
 async def reda_groups(event):
     await event.edit("**✧︙ جارِ مغادرة جميع الكروبات...**")
     kept_count = 0  # عداد للكروبات المحتفظ بها (بدون تخزين الأسماء)
@@ -651,7 +651,7 @@ async def Hussein(event):
 
 from telethon.tl.types import Channel, Chat
 
-@l313l.ar_cmd(pattern="مغادرة القنوات")
+@l313l.ar_cmd(pattern="مغادرة القنوات$")
 async def hussein(event):
     processing_msg = await event.edit("**᯽︙ جارِ تصفية القنوات فقط...**")
     kept_count = 0  # عداد للقنوات المحتفظ بها
@@ -679,7 +679,7 @@ async def hussein(event):
             try:
                 await event.client.delete_dialog(entity.id)
                 left += 1
-                await asyncio.sleep(0.7)
+                await asyncio.sleep(0.6)
             except Exception as e:
                 print(f"خطأ في {entity.title}: {e}")
 
@@ -692,7 +692,7 @@ async def hussein(event):
         await processing_msg.edit(f"**خطأ:**\n`{str(e)}`")
         
 
-@l313l.ar_cmd(pattern="تصفية الخاص")
+@l313l.ar_cmd(pattern="تصفية الخاص$")
 async def hussein(event):
     await event.edit("**✧︙ جارِ حذف جميع الرسائل الخاصة الموجودة في حسابك ...**")
     dialogs = await event.client.get_dialogs()
@@ -704,7 +704,7 @@ async def hussein(event):
                 print(f"حدث خطأ أثناء حذف المحادثة الخاصة: {e}")
     await event.edit("**᯽︙ تم تصفية جميع محادثاتك الخاصة بنجاح ✓ **")
 
-@l313l.ar_cmd(pattern="تصفية البوتات")
+@l313l.ar_cmd(pattern="تصفية البوتات$")
 async def Hussein(event):
     await event.edit("**✧︙ جارٍ تصفية محادثات البوتات...**")
     
@@ -732,7 +732,7 @@ async def Hussein(event):
 
 from telethon.tl.functions.contacts import BlockRequest
 
-@l313l.ar_cmd(pattern="حظر_البوتات")
+@l313l.ar_cmd(pattern="حظر_البوتات$")
 async def Hussein(event):
     await event.edit("**✧︙ جارٍ تصفية وحظر البوتات...**")
     

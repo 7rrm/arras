@@ -61,7 +61,7 @@ nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
+ddd = '<a href="emoji/5368324170671202286">🔥</a>'
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
@@ -153,7 +153,7 @@ async def inline_handler(event):
                     text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
-                    parse_mode='html'
+                    parse_mode=CustomParseMode("html")
                 ),
             )
             await event.answer(results)

@@ -10,16 +10,21 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# الإيموجي المميز (Fire emoji custom)
-FIRE_EMOJI = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
+# 🎯 الإيموجي المميز بنفس الطريقة
+CUSTOM_EMOJI = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
 
-# رسالة البوت المحدثة مع الإيموجي
-REH = f"""**{FIRE_EMOJI} ᯽︙ محاكاة اختراق حسابات {FIRE_EMOJI}**
+# ✨ رسالة متميزة مع نفس الإيموجي
+REH = f"""{CUSTOM_EMOJI} **᯽︙ محاكاة اختراق الحسابات** {CUSTOM_EMOJI}
 
-⚠️ **هذه نكتة وليست حقيقية!**
-{'-'*30}
+🎭 *هذه مجرد نكتة للترفيه*
+╔════════════════╗
+    ⚠️ تنبيه ⚠️
+╚════════════════╝
+• هذه ليست أداة اختراق حقيقية
+• مجرد محاكاة للترفيه
+• حافظ على أمان حسابك دائماً
 
-🤖 لأستخدام محاكاة الاختراق اضغط على الزر"""
+{CUSTOM_EMOJI} **لبدء المحاكاة اضغط على الزر** {CUSTOM_EMOJI}"""
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
@@ -34,16 +39,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await bot.get_me()
         
-        # إضافة نكتة في النص مع إيموجي
-        joke_text = f"🎭 **{FIRE_EMOJI} نكتة الاختراق {FIRE_EMOJI}**\n"
-        joke_text += f"🤡 هذا مجرد مزاح!\n"
-        joke_text += "🛡️ حماية حسابك مسؤوليتك"
-        
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            # 🎨 تصميم الأزرار مع إيموجي
+            # 🎨 تصميم الأزرار مع نفس النمط
             buttons = [
-                [Button.url(f"{FIRE_EMOJI} جرب النكتة", f"https://t.me/{joker}")],
-                [Button.url("📞 المطور", "https://t.me/lx5x5")]
+                [Button.url(f"{CUSTOM_EMOJI} بدء المحاكاة", f"https://t.me/{joker}")],
+                [Button.url("👤 المطور", "https://t.me/lx5x5")]
             ]
             
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
@@ -51,21 +51,24 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     JOKER_PIC, 
                     text=REH, 
                     buttons=buttons, 
+                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
                     link_preview=False
                 )
             elif JOKER_PIC:
                 result = builder.document(
                     JOKER_PIC,
-                    title=f"🎭 محاكاة الاختراق {FIRE_EMOJI}",
+                    title=f"{CUSTOM_EMOJI} محاكاة الاختراق",
                     text=REH,
                     buttons=buttons,
+                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
                     link_preview=False,
                 )
             else:
                 result = builder.article(
-                    title=f"🎭 محاكاة الاختراق {FIRE_EMOJI}",
+                    title=f"{CUSTOM_EMOJI} محاكاة الاختراق",
                     text=REH,
                     buttons=buttons,
+                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
                     link_preview=False,
                 )
         await event.answer([result] if result else None)
@@ -76,19 +79,38 @@ async def repo(event):
         return
     lMl10l = Config.TG_BOT_USERNAME
     
-    # إضافة رسالة توضيحية بأنها نكتة
-    await edit_or_reply(event, f"**{FIRE_EMOJI} جاري تحميل النكتة... {FIRE_EMOJI}**")
+    # رسالة البدء بنفس الإيموجي
+    start_msg = f"{CUSTOM_EMOJI} **جاري تحضير المحاكاة...** {CUSTOM_EMOJI}"
+    await edit_or_reply(event, start_msg)
     
     if event.reply_to_msg_id:
         await event.get_reply_message()
     
+    # إرسال الأمر للبوت
     await bot.send_message(lMl10l, "/hack")
+    
+    # البحث عن النتيجة
     response = await bot.inline_query(lMl10l, "هاك")
-    await response[0].click(event.chat_id)
     
-    # رسالة تأكيد أنها نكتة
-    await edit_delete(event, f"**{FIRE_EMOJI} تم إرسال النكتة! {FIRE_EMOJI}**\nتذكر: هذا مجرد مزاح 🎭", 10)
-    
+    if response:
+        await response[0].click(event.chat_id)
+        
+        # رسالة النهاية بنفس الإيموجي
+        end_msg = f"""
+{CUSTOM_EMOJI} **تم إرسال المحاكاة بنجاح!** {CUSTOM_EMOJI}
+
+🎯 *تذكر:*
+• هذه مجرد نكتة للترفيه
+• لا تحاول اختراق أي حساب حقيقي
+• حماية الحسابات مسؤولية أخلاقية
+
+{CUSTOM_EMOJI} استمتع بالتجربة {CUSTOM_EMOJI}"""
+        
+        await edit_delete(event, end_msg, 15)
+    else:
+        error_msg = f"{CUSTOM_EMOJI} **حدث خطأ في تحميل المحاكاة**"
+        await edit_delete(event, error_msg, 10)
+
 #################الاشـتـراك###################
 #######################################
 

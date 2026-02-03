@@ -14,8 +14,8 @@ from ..core.managers import edit_delete, edit_or_reply
 #اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
 #Reda
 
-# أضف الإيموجي بريميوم هنا داخل النص
-REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>"
+# النص مع إيموجي بريميوم
+REH = '<b>᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر</b>\n<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
@@ -32,32 +32,33 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if query.startswith("هاك") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             
-            # تأكد من استخدام parse_mode='html' هنا
+            # الحل: استخدام InputBotInlineMessageText مع parse_mode
+            from telethon.tl.types import InputBotInlineMessageText
+            
+            message_text = InputBotInlineMessageText(
+                message=REH,
+                entities=None,
+                no_webpage=True,
+                parse_mode="html"  # هذا هو المهم!
+            )
+            
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    JOKER_PIC,
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي بريميوم
-                )
-            elif JOKER_PIC:
-                result = builder.document(
-                    JOKER_PIC,
+                    file=JOKER_PIC,
+                    type="photo",
                     title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي بريميوم
+                    description="اضغط للاختراق",
+                    text=message_text,
+                    buttons=buttons
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي بريميوم
+                    description="اضغط للاختراق",
+                    text=message_text,
+                    buttons=buttons
                 )
+                
         await event.answer([result] if result else None)
 
 @bot.on(admin_cmd(outgoing=True, pattern="هاك"))

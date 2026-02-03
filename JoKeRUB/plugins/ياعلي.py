@@ -10,14 +10,34 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# في telethon لا نستخدم <tg-emoji> بل نستخدم الكائن المناسب
-from telethon.tl.types import MessageEntityCustomEmoji
+# استخدم نفس الكلاس الموجود لديك
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = telethon.extensions.html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        else:
+            raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return telethon.extensions.html.unparse(text, entities)
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
-
-# طريقة telethon للإيموجي المخصص
-EMOJI_ID = 5368324170671202286  # نفس الـ ID
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -30,37 +50,51 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            # في telethon نستخدم الرسالة مع entities للإيموجي المخصص
-            text = "🎉 كود الهاك\n\nلأستخدام البوت اضغط على الزر"
+            # النص مع إيموجي بريميوم بنفس طريقة الكود الذي يعمل لديك
+            message_text = (
+                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗛𝗮𝗰𝗸 - كود الهاك\n"
+                f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
+                f"⌔╎نورت عـزيـزي "
+                f"<a href='emoji/5368324170671202286'>🔥</a>\n"
+                f"⌔╎للاسـتفادة من البوت "
+                f"<a href='emoji/5368324170671202286'>🔥</a>\n"
+                f"⌔╎اضـغط على الزر ادنـاه "
+                f"<a href='emoji/5368324170671202286'>🔥</a>"
+            )
             
-            # إنشاء كائن الإيموجي المخصص
-            # نحتاج إلى تحديد مكان الإيموجي في النص
-            entities = [
-                MessageEntityCustomEmoji(
-                    offset=len("🎉 كود الهاك\n"),  # بعد هذا النص
-                    length=1,  # طول الإيموجي (1 حرف)
-                    document_id=EMOJI_ID  # نفس الـ ID
-                )
+            buttons = [
+                [Button.url(f"• اضغط هنا عزيزي •", f"https://t.me/{joker}")]
             ]
             
-            buttons = Button.url("• اضغط هنا •", f"https://t.me/{joker}")
+            # معالجة النص مع الإيموجي المخصص
+            parse_mode = CustomParseMode("html")
+            text, entities = parse_mode.parse(message_text)
             
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, 
-                    text=text, 
-                    buttons=buttons,
+                    text=text,
+                    entities=entities,
+                    buttons=buttons, 
                     link_preview=False
                 )
-            else:
-                # استخدام طريقة دعم الإيموجيات المخصصة
-                result = builder.article(
-                    title="كود الهاك",
+            elif JOKER_PIC:
+                result = builder.document(
+                    JOKER_PIC,
+                    title="Aljoker 🤡",
                     text=text,
+                    entities=entities,
                     buttons=buttons,
                     link_preview=False,
                 )
-        
+            else:
+                result = builder.article(
+                    title="Aljoker 🤡",
+                    text=text,
+                    entities=entities,
+                    buttons=buttons,
+                    link_preview=False,
+                )
         await event.answer([result] if result else None)
 
 @bot.on(admin_cmd(outgoing=True, pattern="هاك"))
@@ -68,10 +102,8 @@ async def repo(event):
     if event.fwd_from:
         return
     lMl10l = Config.TG_BOT_USERNAME
-    
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    
     await bot.send_message(lMl10l, "/hack")
     response = await bot.inline_query(lMl10l, "هاك")
     await response[0].click(event.chat_id)

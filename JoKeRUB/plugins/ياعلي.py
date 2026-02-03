@@ -9,12 +9,14 @@ import requests
 from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
-# استخدم هذا الكود المؤكد العمل مع جميع الإصدارات
+
 from JoKeRUB import l313l, bot
 from telethon import Button, events
 from ..Config import Config
 
-REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر** 🔥✨"
+# دمج الإيموجي مع النص باستخدام HTML
+REH = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر</b> 🔥✨'
+
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
 
@@ -34,12 +36,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 result = builder.photo(
                     JOKER_PIC,
                     text=REH,
+                    parse_mode="html",  # إضافة parse_mode
                     buttons=buttons
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
                     text=REH,
+                    parse_mode="html",  # إضافة parse_mode
                     buttons=buttons
                 )
         await event.answer([result] if result else None)
@@ -50,24 +54,12 @@ async def repo(event):
         return
     lMl10l = Config.TG_BOT_USERNAME
     
-    # أرسل رسالة منفصلة بالإيموجي المميز
-    try:
-        await event.client.send_message(
-            event.chat_id,
-            '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>',
-            parse_mode="html",
-            reply_to=event.reply_to_msg_id
-        )
-    except:
-        pass  # إذا فشل، تخطى
-    
-    # ثم أرسل الإنلاين
+    # أرسل الإنلاين مباشرة بدون رسالة منفصلة
     await bot.send_message(lMl10l, "/hack")
     response = await bot.inline_query(lMl10l, "هاك")
     if response:
         await response[0].click(event.chat_id)
     await event.delete()
-
 #################الاشـتـراك###################
 #######################################
 

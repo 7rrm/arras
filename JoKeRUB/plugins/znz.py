@@ -132,6 +132,8 @@ async def inline_handler(event):
                     text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode="HTML"
+                    
                 ),
             )
             await event.answer(results)
@@ -198,7 +200,6 @@ async def inline_handler(event):
                     text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
-                    parse_mode="html"
                 ),
             )
             await event.answer(results)

@@ -8,6 +8,7 @@ from telethon import Button, events
 from telethon.errors import UserIsBlockedError
 from telethon.events import CallbackQuery, StopPropagation
 from telethon.utils import get_display_name
+from telethon.tl.types import MessageEntityCustomEmoji  # إضافة مهمة
 
 from . import Config, l313l
 
@@ -52,26 +53,23 @@ async def check_bot_started_users(user, event):
     usernaam = f"@{user.username}" if user.username else "لايوجـد"
     if check is None:
         start_date = str(datetime.now().strftime("%B %d, %Y"))
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
+        notification = f"**🎉 مـرحبـاً سيـدي المـطـور 🧑🏻‍💻**\
+                \n**✨ شخـص جـديـد بـدأ الاسـتخـدام فـي البـوت**\
+                \n\n**📌 الاسـم : **{get_display_name(user)}\
+                \n**🆔 الايـدي : **`{user.id}`\
+                \n**👤 اليـوزر :** {usernaam}"
     else:
         start_date = check.date
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
+        notification = f"**🔄 عـودة مستخـدم**\
+                \n\n**📌 الاسـم : **{get_display_name(user)}\
+                \n**🆔 الايـدي : **`{user.id}`\
+                \n**👤 اليـوزر :** {usernaam}"
     try:
         add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
     except Exception as e:
         LOGS.error(str(e))
     if BOTLOG:
         await event.client.send_message(BOTLOG_CHATID, notification)
-
-
 
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
@@ -97,21 +95,29 @@ async def bot_start(event):
     my_last = user.last_name
     my_fullname = f"{my_first} {my_last}" if my_last else my_first
     my_username = f"@{user.username}" if user.username else my_mention
+    
     if gvarstatus("START_BUTUN") is not None:
-        zz_txt = "⌔ قنـاتـي ⌔"
+        zz_txt = "📢 قنـاتـي"
         zz_ch = gvarstatus("START_BUTUN")
     elif user.username:
-        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+        zz_txt = "📨 لـ التواصـل خـاص"
         zz_ch = user.username
     else:
-        zz_txt = "⌔ قنـاة المـطور ⌔"
+        zz_txt = "👨‍💻 قنـاة المـطور"
         zz_ch = "aqhvv"
+    
     zid = 5427469031
     if gvarstatus("ZThon_Vip") is None:
         zid = 5427469031
     else:
         zid = int(gvarstatus("ZThon_Vip"))
+    
     custompic = gvarstatus("BOT_START_PIC") or None
+    
+    # تعريف الإيموجي البريميوم
+    # يمكنك تغيير emoji_id حسب الإيموجي البريميوم الذي تملكه
+    PREMIUM_EMOJI_ID = 5368324170671202286  # مثال لإيموجي نار 🔥 بريميوم
+    
     if chat.id != Config.OWNER_ID:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -129,33 +135,39 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            start_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\
-                        \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                        \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                        \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                        \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                        \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
-        # ... (الكود السابق يبقى كما هو حتى جزء الأزرار)
-
+            # إنشاء رسالة مع إيموجي بريميوم
+            start_msg = f"🎉 **<b>مـرحبـاً بـك عـزيـزي {mention}</b>**\n\n"
+            
+            # إضافة الإيموجي البريميوم
+            premium_emoji_text = f'<emoji id="{PREMIUM_EMOJI_ID}">🔥</emoji>'
+            start_msg += f"{premium_emoji_text}\n\n"
+            
+            start_msg += (
+                f"**✨ انـا البـوت الخـاص بـ {my_fullname}**\n"
+                f"**💌 يمكنك التواصـل مـع مـالكـي مـن هنـا**\n"
+                f"**📨 فقـط ارسـل رسـالتك وانتظـر الـرد**\n"
+                f"**🎨 إننـي ايضـاً بـوت زخرفـة & حـذف حسابات**\n"
+                f"**⚡ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+            )
+        
         buttons = [
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+                Button.inline("🗳 اضغـط لـ التواصـل", data="ttk_bot-1")
             ],
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("🎡 زخـارف تمبلـر", data="decor_main_menu")
             ],
             [
                 Button.inline("⚠️ لـ حـذف حسـابك", data="zzk_bot-5")
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                Button.inline("💎 الأوامـر المدفوعـة", data="paid_commands_menu")
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                Button.url(f"📱 {zz_txt}", f"https://t.me/{zz_ch}")
             ]
         ]
-
-# ... (الكود الأوسط يبقى كما هو)
+        
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -173,39 +185,59 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            start_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\
-                        \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                        \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                        \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                        \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                        \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+            start_msg = f"🎉 **<b>مـرحبـاً بـك عـزيـزي {mention}</b>**\n\n"
+            
+            # إضافة إيموجي بريميوم مختلف للمالك
+            owner_emoji_text = f'<emoji id="5368324170671202287">👑</emoji>'  # تاج بريميوم
+            start_msg += f"{owner_emoji_text}\n\n"
+            
+            start_msg += (
+                f"**👑 مرحباً يا مالك البوت**\n"
+                f"**✨ أنا البـوت الخـاص بـك {my_fullname}**\n"
+                f"**💼 يمكنك إدارة البوت من خلال الأوامر**"
+            )
+        
         buttons = [
             [
-             Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("🎡 زخـارف تمبلـر", data="decor_main_menu")
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("⚠️ لـ حـذف حسـابك", data="zzk_bot-5")
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                Button.inline("💎 الأوامـر المدفوعـة", data="paid_commands_menu")
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                Button.url(f"📢 {zz_txt}", f"https://t.me/{zz_ch}")
             ]
         ]
     else:
-        start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        start_msg = f"🎉 **<b>مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻</b>**\n\n"
+        
+        # إيموجي بريميوم للمطورين
+        dev_emoji_text = f'<emoji id="5368324170671202288">⚡</emoji>'  # صاعقة بريميوم
+        start_msg += f"{dev_emoji_text}\n\n"
+        
+        start_msg += (
+            f"**✨ أنا البـوت المسـاعـد الخـاص بـك**\n"
+            f"**🤖 (تواصـل📨 + زخرفـه🎨)**\n"
+            f"**💌 يستطيـع اي شخص التواصل بك من خـلالي**\n\n"
+            f"**🎨 لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n"
+            f"**🛠 لرؤيـة اوامـري الخاصـه بـك اضغـط : /help**"
+        )
+        
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("🎡 زخـارف تمبلـر", data="decor_main_menu")
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                Button.inline("⚠️ حـذف حسـابك", data="zzk_bot-5")
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                Button.inline("💎 الأوامـر المدفوعـة", data="paid_commands_menu")
             ]
         ]
+    
     try:
         if custompic:
             await event.client.send_file(
@@ -215,6 +247,7 @@ async def bot_start(event):
                 link_preview=False,
                 buttons=buttons,
                 reply_to=reply_to,
+                parse_mode='html'
             )
         else:
             await event.client.send_message(
@@ -223,6 +256,7 @@ async def bot_start(event):
                 link_preview=False,
                 buttons=buttons,
                 reply_to=reply_to,
+                parse_mode='html'
             )
     except Exception as e:
         if BOTLOG:
@@ -230,9 +264,15 @@ async def bot_start(event):
                 BOTLOG_CHATID,
                 f"** - سيـدي المطـور 🧑🏻‍💻**\n**- حـدث خطـأ عنـد اشتـراك احـد الاشخـاص فـي البـوت المسـاعـد ؟!**.\\\x1f                \n`{e}`",
             )
-
     else:
         await check_bot_started_users(chat, event)
+
+# دالة إضافية لمعرفة الإيموجيات المتاحة
+async def get_available_emojis(event):
+    """دالة للحصول على قائمة الإيموجيات البريميوم المتاحة"""
+    cmd = event.pattern_match.group(1)
+    if not cmd:
+        return
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"paid_commands_menu$")))
 async def paid_commands_menu_handler(event):

@@ -9,14 +9,12 @@ import requests
 from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
+# استخدم هذا الكود المؤكد العمل مع جميع الإصدارات
+from JoKeRUB import l313l, bot
+from telethon import Button, events
+from ..Config import Config
 
-#ياعلي
-#اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
-#Reda
-
-# النص مع إيموجي بريميوم
-REH = '<b>᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر</b>\n<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
-
+REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر** 🔥✨"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
 
@@ -32,33 +30,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if query.startswith("هاك") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             
-            # الحل: استخدام InputBotInlineMessageText مع parse_mode
-            from telethon.tl.types import InputBotInlineMessageText
-            
-            message_text = InputBotInlineMessageText(
-                message=REH,
-                entities=None,
-                no_webpage=True,
-                parse_mode="html"  # هذا هو المهم!
-            )
-            
-            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
+            if JOKER_PIC:
                 result = builder.photo(
-                    file=JOKER_PIC,
-                    type="photo",
-                    title="Aljoker 🤡",
-                    description="اضغط للاختراق",
-                    text=message_text,
+                    JOKER_PIC,
+                    text=REH,
                     buttons=buttons
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    description="اضغط للاختراق",
-                    text=message_text,
+                    text=REH,
                     buttons=buttons
                 )
-                
         await event.answer([result] if result else None)
 
 @bot.on(admin_cmd(outgoing=True, pattern="هاك"))
@@ -66,11 +49,23 @@ async def repo(event):
     if event.fwd_from:
         return
     lMl10l = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
+    
+    # أرسل رسالة منفصلة بالإيموجي المميز
+    try:
+        await event.client.send_message(
+            event.chat_id,
+            '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>',
+            parse_mode="html",
+            reply_to=event.reply_to_msg_id
+        )
+    except:
+        pass  # إذا فشل، تخطى
+    
+    # ثم أرسل الإنلاين
     await bot.send_message(lMl10l, "/hack")
     response = await bot.inline_query(lMl10l, "هاك")
-    await response[0].click(event.chat_id)
+    if response:
+        await response[0].click(event.chat_id)
     await event.delete()
 
 #################الاشـتـراك###################

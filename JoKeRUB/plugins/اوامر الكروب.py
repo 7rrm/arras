@@ -730,6 +730,46 @@ async def Hussein(event):
     
     await event.edit(f"**✧︙ تم الانتهاء! \nتم مسح `{len(bots_to_clear)}` محادثة بوت \n(لم يتم مسح البوتات المؤرشفة)**")
 
+from telethon.tl.functions.contacts import BlockRequest
+
+@l313l.ar_cmd(pattern="$تصفية وحظر البوتات")
+async def Hussein(event):
+    await event.edit("**✧︙ جارٍ تصفية وحظر البوتات...**")
+    
+    dialogs = await event.client.get_dialogs()
+    
+    bots_to_clear = []
+    for dialog in dialogs:
+        if dialog.is_user and dialog.entity.bot and not dialog.archived:
+            bots_to_clear.append(dialog.entity)
+    
+    cleared_count = 0
+    blocked_count = 0
+    
+    for bot in bots_to_clear:
+        try:
+            # 1. مسح المحادثة أولاً
+            await event.client(DeleteHistoryRequest(
+                peer=bot.id,
+                max_id=0,
+                just_clear=True
+            ))
+            cleared_count += 1
+            
+            # 2. ثم حظر البوت
+            await event.client(BlockRequest(id=bot.id))
+            blocked_count += 1
+            
+            await asyncio.sleep(1)  # تجنب حظر من تيليجرام
+            
+        except Exception as e:
+            print(f"خطأ مع البوت {bot.id}: {e}")
+    
+    await event.edit(f"**✧︙ تم الانتهاء!**\n"
+                     f"**تم مسح:** `{cleared_count}` محادثة بوت\n"
+                     f"**تم حظر:** `{blocked_count}` بوت\n"
+                     f"(لم يتم التعامل مع البوتات المؤرشفة)")
+
 lastResponse = None
 async def process_gpt(question):
     global lastResponse

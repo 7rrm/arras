@@ -34,7 +34,12 @@ nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = '<tg-emoji emoji-id="6323136954380585694">❤️</tg-emoji>'
+# في الأعلى بعد الاستيرادات
+emoji_premium = '<tg-emoji emoji-id="6323136954380585694">❤️</tg-emoji>'  # قلب مميز
+emoji_fire = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'  # نار مميزة
+
+# تعديل المتغيرات الموجودة:
+ddd = emoji_premium  # بدلاً من "💌"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved

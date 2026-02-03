@@ -10,31 +10,12 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# استخدم نفس الكلاس الموجود لديك
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
+#ياعلي
+#اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
+#Reda
 
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = telethon.extensions.html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        else:
-            raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return telethon.extensions.html.unparse(text, entities)
+# أضف الإيموجي بريميوم هنا داخل النص
+REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>"
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
@@ -48,50 +29,34 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         joker = Bot_Username.replace("@", "")
         query = event.text
         await bot.get_me()
-        
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            # النص مع إيموجي بريميوم
-            message_text = (
-                f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗛𝗮𝗰𝗸 - كود الهاك\n"
-                f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n\n"
-                f"⌔╎نورت عـزيـزي "
-                f"<a href='emoji/5368324170671202286'>🔥</a>\n"
-                f"⌔╎للاسـتفادة من البوت "
-                f"<a href='emoji/5368324170671202286'>🔥</a>\n"
-                f"⌔╎اضـغط على الزر ادنـاه "
-                f"<a href='emoji/5368324170671202286'>🔥</a>"
-            )
+            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             
-            # تحويل النص إلى HTML مباشرة (بدون entities)
-            # لأن InlineBuilder لا يقبل entities مباشرة
-            buttons = [
-                [Button.url(f"• اضغط هنا عزيزي •", f"https://t.me/{joker}")]
-            ]
-            
+            # تأكد من استخدام parse_mode='html' هنا
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
-                    JOKER_PIC, 
-                    text=message_text,  # استخدام النص مباشرة
-                    parse_mode='html',  # إضافة parse_mode هنا
-                    buttons=buttons, 
-                    link_preview=False
+                    JOKER_PIC,
+                    text=REH,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode='html'  # مهم للإيموجي بريميوم
                 )
             elif JOKER_PIC:
                 result = builder.document(
                     JOKER_PIC,
                     title="Aljoker 🤡",
-                    text=message_text,  # استخدام النص مباشرة
-                    parse_mode='html',  # إضافة parse_mode هنا
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
+                    parse_mode='html'  # مهم للإيموجي بريميوم
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    text=message_text,  # استخدام النص مباشرة
-                    parse_mode='html',  # إضافة parse_mode هنا
+                    text=REH,
                     buttons=buttons,
                     link_preview=False,
+                    parse_mode='html'  # مهم للإيموجي بريميوم
                 )
         await event.answer([result] if result else None)
 
@@ -102,22 +67,10 @@ async def repo(event):
     lMl10l = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    
-    # إرسال الأمر للبوت
     await bot.send_message(lMl10l, "/hack")
-    
-    # البحث عن النتيجة مع معالجة الخطأ
-    try:
-        response = await bot.inline_query(lMl10l, "هاك")
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id)
-            await event.delete()
-        else:
-            error_msg = "⚠️ لم يتم العثور على نتائج للاستعلام"
-            await edit_delete(event, error_msg, 10)
-    except Exception as e:
-        error_msg = f"⚠️ حدث خطأ: {str(e)}"
-        await edit_delete(event, error_msg, 10)
+    response = await bot.inline_query(lMl10l, "هاك")
+    await response[0].click(event.chat_id)
+    await event.delete()
 
 #################الاشـتـراك###################
 #######################################

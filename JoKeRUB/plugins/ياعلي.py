@@ -10,21 +10,11 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# 🎯 الإيموجي المميز بنفس الطريقة
+# الإيموجي المميز
 CUSTOM_EMOJI = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
 
-# ✨ رسالة متميزة مع نفس الإيموجي
-REH = f"""{CUSTOM_EMOJI} **᯽︙ محاكاة اختراق الحسابات** {CUSTOM_EMOJI}
-
-🎭 *هذه مجرد نكتة للترفيه*
-╔════════════════╗
-    ⚠️ تنبيه ⚠️
-╚════════════════╝
-• هذه ليست أداة اختراق حقيقية
-• مجرد محاكاة للترفيه
-• حافظ على أمان حسابك دائماً
-
-{CUSTOM_EMOJI} **لبدء المحاكاة اضغط على الزر** {CUSTOM_EMOJI}"""
+# نفس النمط تماماً
+REH = f"""🎉 <b>كود الهاك</b>\n{CUSTOM_EMOJI}\n\nلأستخدام البوت اضغط على الزر"""
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
@@ -40,35 +30,32 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            # 🎨 تصميم الأزرار مع نفس النمط
-            buttons = [
-                [Button.url(f"{CUSTOM_EMOJI} بدء المحاكاة", f"https://t.me/{joker}")],
-                [Button.url("👤 المطور", "https://t.me/lx5x5")]
-            ]
+            # زر واحد فقط
+            buttons = Button.url("• اضغط هنا •", f"https://t.me/{joker}")
             
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, 
                     text=REH, 
                     buttons=buttons, 
-                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
+                    parse_mode='HTML',
                     link_preview=False
                 )
             elif JOKER_PIC:
                 result = builder.document(
                     JOKER_PIC,
-                    title=f"{CUSTOM_EMOJI} محاكاة الاختراق",
+                    title="كود الهاك",
                     text=REH,
                     buttons=buttons,
-                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
+                    parse_mode='HTML',
                     link_preview=False,
                 )
             else:
                 result = builder.article(
-                    title=f"{CUSTOM_EMOJI} محاكاة الاختراق",
+                    title="كود الهاك",
                     text=REH,
                     buttons=buttons,
-                    parse_mode='HTML',  # ✅ مهم لتفعيل الإيموجي المخصص
+                    parse_mode='HTML',
                     link_preview=False,
                 )
         await event.answer([result] if result else None)
@@ -79,37 +66,13 @@ async def repo(event):
         return
     lMl10l = Config.TG_BOT_USERNAME
     
-    # رسالة البدء بنفس الإيموجي
-    start_msg = f"{CUSTOM_EMOJI} **جاري تحضير المحاكاة...** {CUSTOM_EMOJI}"
-    await edit_or_reply(event, start_msg)
-    
     if event.reply_to_msg_id:
         await event.get_reply_message()
     
-    # إرسال الأمر للبوت
     await bot.send_message(lMl10l, "/hack")
-    
-    # البحث عن النتيجة
     response = await bot.inline_query(lMl10l, "هاك")
-    
-    if response:
-        await response[0].click(event.chat_id)
-        
-        # رسالة النهاية بنفس الإيموجي
-        end_msg = f"""
-{CUSTOM_EMOJI} **تم إرسال المحاكاة بنجاح!** {CUSTOM_EMOJI}
-
-🎯 *تذكر:*
-• هذه مجرد نكتة للترفيه
-• لا تحاول اختراق أي حساب حقيقي
-• حماية الحسابات مسؤولية أخلاقية
-
-{CUSTOM_EMOJI} استمتع بالتجربة {CUSTOM_EMOJI}"""
-        
-        await edit_delete(event, end_msg, 15)
-    else:
-        error_msg = f"{CUSTOM_EMOJI} **حدث خطأ في تحميل المحاكاة**"
-        await edit_delete(event, error_msg, 10)
+    await response[0].click(event.chat_id)
+    await event.delete()
 
 #################الاشـتـراك###################
 #######################################

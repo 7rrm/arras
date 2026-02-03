@@ -732,7 +732,7 @@ async def Hussein(event):
 
 from telethon.tl.functions.contacts import BlockRequest
 
-@l313l.ar_cmd(pattern="$تصفية وحظر البوتات")
+@l313l.ar_cmd(pattern="حظر_البوتات")
 async def Hussein(event):
     await event.edit("**✧︙ جارٍ تصفية وحظر البوتات...**")
     

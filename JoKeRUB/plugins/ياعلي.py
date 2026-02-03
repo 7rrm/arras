@@ -9,17 +9,12 @@ import requests
 from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
-
-from JoKeRUB import l313l, bot
-from telethon import Button, events
-from ..Config import Config
-
-# دمج الإيموجي مع النص باستخدام HTML
-REH = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> <b>᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر</b> 🔥✨'
-
+#ياعلي
+#اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
+#Reda
+REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
-
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
     @tgbot.on(events.InlineQuery)
@@ -31,20 +26,24 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("هاك") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
-            
-            if JOKER_PIC:
+            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
+                    JOKER_PIC, text=REH, buttons=buttons, link_preview=False
+                )
+            elif JOKER_PIC:
+                result = builder.document(
                     JOKER_PIC,
+                    title="Aljoker 🤡",
                     text=REH,
-                    parse_mode="html",  # إضافة parse_mode
-                    buttons=buttons
+                    buttons=buttons,
+                    link_preview=False,
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
                     text=REH,
-                    parse_mode="html",  # إضافة parse_mode
-                    buttons=buttons
+                    buttons=buttons,
+                    link_preview=False,
                 )
         await event.answer([result] if result else None)
 
@@ -53,13 +52,13 @@ async def repo(event):
     if event.fwd_from:
         return
     lMl10l = Config.TG_BOT_USERNAME
-    
-    # أرسل الإنلاين مباشرة بدون رسالة منفصلة
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
     await bot.send_message(lMl10l, "/hack")
     response = await bot.inline_query(lMl10l, "هاك")
-    if response:
-        await response[0].click(event.chat_id)
+    await response[0].click(event.chat_id)
     await event.delete()
+
 #################الاشـتـراك###################
 #######################################
 

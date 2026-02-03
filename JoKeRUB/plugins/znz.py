@@ -8,9 +8,6 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
-# أضف هذا في الأعلى مع باقي الاستيرادات
-from telethon.extensions import html, markdown
-from telethon import types
 from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
@@ -27,33 +24,6 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
-# كلاس التحليل المخصص لدعم الإيموجيات البريميوم
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
@@ -64,7 +34,7 @@ nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = '<a href="emoji/5368324170671202286">🔥</a>'
+ddd = "💌"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
@@ -156,7 +126,6 @@ async def inline_handler(event):
                     text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
-                    parse_mode=CustomParseMode("html")
                 ),
             )
             await event.answer(results)

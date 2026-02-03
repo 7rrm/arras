@@ -33,8 +33,9 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
-ddd = '<tg-emoji emoji-id="6323136954380585694">❤️</tg-emoji>'  # إيموجي قلب مميز
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+ddd = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
+bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -56,11 +57,12 @@ async def inline_handler(event):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
-    
-    # تعريف الإيموجي المميز
-    premium_heart = '<tg-emoji emoji-id="6323136954380585694">❤️</tg-emoji>'
-    premium_fire = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
-    
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+        malathid = Config.OWNER_ID
+    elif query_user_id == user_id: #or query_user_id == int(user_id):
+        malathid = user_id
+    else:
+        malathid = None
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
@@ -113,19 +115,18 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("🔥 اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
             results = []
-            # النص مع الإيموجي المميز
-            message_text = f"{ttt} {zelzal} {premium_heart}"
             results.append(
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=message_text,
+                    text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='html'
                 ),
             )
             await event.answer(results)
@@ -181,17 +182,15 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("❤️ اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
             results = []
-            # النص مع الإيموجي المميز
-            message_text = f"{ttt} {zelzal} {premium_heart}"
             results.append(
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=message_text,
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),

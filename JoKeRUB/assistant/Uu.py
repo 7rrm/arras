@@ -1,49 +1,15 @@
-from telethon import events
+from telethon import Button, events
+from telethon.tl.types import MessageEntityTextUrl, MessageEntityCustomEmoji
 from . import l313l
 from ..helpers import reply_id
 
-# تعريف إيموجي بريميوم
-PREMIUM_EMOJI_ID = 5368324170671202286  # إيموجي النار 🔥
-
 @l313l.bot_cmd(
-    pattern="^/test$",
+    pattern="^/start$",
     incoming=True,
     func=lambda e: e.is_private,
 )
-async def test_command(event):
-    """نسخة مبسطة بدون أزرار - فقط الرسالة"""
-    
-    # الحصول على الدردشة
-    chat = await event.get_chat()
-    reply_to = await reply_id(event)
-    
-    # بناء الرسالة بالضبط مثل المثال
-    message = "🎉 <b>تم بنجاح!</b>\n"
-    
-    # إضافة الإيموجي البريميوم بنفس الطريقة
-    message += f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>\n\n'
-    message += "للتواصل مع المطور:"
-    
-    # إرسال الرسالة بدون أزرار
-    await event.client.send_message(
-        chat.id,
-        message,
-        parse_mode='html',
-        reply_to=reply_to,
-        link_preview=False
-    )
-
-# ==========================================================
-# نسخة مطابقة 100% للكود المطلوب
-# ==========================================================
-
-@l313l.bot_cmd(
-    pattern="^/exact$",
-    incoming=True,
-    func=lambda e: e.is_private,
-)
-async def exact_match(event):
-    """مطابق 100% للكود المطلوب"""
+async def start_command(event):
+    """نسخة مطابقة لـ python-telegram-bot"""
     
     chat = await event.get_chat()
     reply_to = await reply_id(event)
@@ -51,204 +17,235 @@ async def exact_match(event):
     # نفس الرسالة حرفياً
     message = "🎉 <b>تم بنجاح!</b>\n"
     
-    # نفس سطر الإيموجي بالضبط (معدل للـ Telethon)
-    message += f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>\n\n'
+    # محاولة الإيموجي البريميوم - الطريقة التي تعمل مع Telethon
+    # استخدم <a href="emoji/ID"> بدل <tg-emoji emoji-id="ID">
+    message += f'<a href="emoji/5368324170671202286">🔥</a>\n\n'
     message += "للتواصل مع المطور:"
     
-    # إرسال بدون أي إضافات
+    # زر واحد للمطور
+    buttons = [
+        [Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]
+    ]
+    
+    # إرسال الرسالة
     await event.client.send_message(
         chat.id,
         message,
         parse_mode='html',
+        buttons=buttons,
+        reply_to=reply_to,
+        link_preview=False
+    )
+
+# ==========================================================
+# إذا لم تعمل الطريقة الأولى، جرب هذه الطرق البديلة:
+# ==========================================================
+
+@l313l.bot_cmd(
+    pattern="^/start2$",
+    incoming=True,
+    func=lambda e: e.is_private,
+)
+async def start_method2(event):
+    """الطريقة الثانية - باستخدام MessageEntity مباشرة"""
+    
+    chat = await event.get_chat()
+    reply_to = await reply_id(event)
+    
+    # النص بدون HTML
+    message_text = "🎉 تم بنجاح!\n🔥\n\nللتواصل مع المطور:"
+    
+    # إنشاء entities يدوياً
+    from telethon.tl.types import MessageEntityBold, MessageEntityCustomEmoji
+    
+    entities = [
+        # جعل "تم بنجاح!" عريض
+        MessageEntityBold(offset=2, length=9),
+        # إضافة إيموجي بريميوم
+        MessageEntityCustomEmoji(
+            offset=len("🎉 تم بنجاح!\n"),
+            length=len("🔥"),
+            document_id=5368324170671202286
+        )
+    ]
+    
+    buttons = [
+        [Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]
+    ]
+    
+    await event.client.send_message(
+        chat.id,
+        message_text,
+        entities=entities,
+        buttons=buttons,
         reply_to=reply_to
     )
 
-# ==========================================================
-# نسخة بإيموجيات متعددة
-# ==========================================================
-
 @l313l.bot_cmd(
-    pattern="^/multi$",
+    pattern="^/start3$",
     incoming=True,
     func=lambda e: e.is_private,
 )
-async def multi_emojis(event):
-    """رسالة مع عدة إيموجيات بريميوم"""
+async def start_method3(event):
+    """الطريقة الثالثة - محاكاة كاملة"""
     
     chat = await event.get_chat()
     
-    message = "🎭 <b>إيموجيات بريميوم:</b>\n\n"
+    # إذا كان الإيموجي البريميوم لا يعمل، استخدم هذا الحل:
     
-    # إيموجيات متعددة
-    message += f'<a href="emoji/5368324170671202286">🔥</a> '
-    message += f'<a href="emoji/5368324170671202287">👑</a> '
-    message += f'<a href="emoji/5368324170671202288">⚡</a>\n\n'
-    
-    message += "هذه إيموجيات بريميوم خاصة"
-    
-    await event.client.send_message(
-        chat.id,
-        message,
-        parse_mode='html'
-    )
+    # الحل 1: استخدام صورة بدلاً من إيموجي
+    try:
+        # أولاً أرسل الرسالة النصية
+        message = "🎉 <b>تم بنجاح!</b>\n\nللتواصل مع المطور:"
+        
+        buttons = [
+            [Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]
+        ]
+        
+        await event.client.send_message(
+            chat.id,
+            message,
+            parse_mode='html',
+            buttons=buttons
+        )
+        
+        # ثم أرسل الإيموجي كرسالة منفصلة
+        await event.client.send_message(
+            chat.id,
+            "🔥",  # إيموجي عادي
+            parse_mode='html'
+        )
+        
+    except Exception as e:
+        # الحل 2: استخدام Unicode إيموجي مميز
+        message = "🎉 <b>تم بنجاح!</b>\n"
+        message += "🔥\n\n"  # إيموجي Unicode عادي
+        message += "للتواصل مع المطور:"
+        
+        buttons = [
+            [Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]
+        ]
+        
+        await event.client.send_message(
+            chat.id,
+            message,
+            parse_mode='html',
+            buttons=buttons
+        )
 
 # ==========================================================
-# نسخة مع نص عربي
+# دالة لتشخيص المشكلة
 # ==========================================================
 
 @l313l.bot_cmd(
-    pattern="^/arabic$",
+    pattern="^/checkemoji$",
     incoming=True,
     func=lambda e: e.is_private,
 )
-async def arabic_message(event):
-    """رسالة عربية مع إيموجي بريميوم"""
+async def check_emoji_problem(event):
+    """تشخيص مشكلة الإيموجي البريميوم"""
     
     chat = await event.get_chat()
     
-    message = "🎊 <b>تمت العملية بنجاح!</b>\n"
-    message += f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>\n\n'
-    message += "مرحباً بك في البوت الخاص بي\n"
-    message += "يمكنك التواصل مع المطور عبر الخاص"
+    # اختبار 1: إيموجي عادي
+    await event.reply("🔥 إيموجي عادي (يجب أن يعمل)")
     
-    await event.client.send_message(
-        chat.id,
-        message,
-        parse_mode='html'
-    )
+    # اختبار 2: إيموجي بريميوم بطريقة Telethon
+    try:
+        await event.client.send_message(
+            chat.id,
+            '<a href="emoji/5368324170671202286">🔥</a> إيموجي بريميوم',
+            parse_mode='html'
+        )
+        await event.reply("✅ الإيموجي البريميوم يعمل!")
+    except Exception as e:
+        await event.reply(f"❌ فشل الإيموجي البريميوم:\n{str(e)}")
+    
+    # اختبار 3: معرف إذا كان البوت بريميوم
+    try:
+        bot_entity = await event.client.get_entity("me")
+        if hasattr(bot_entity, 'premium'):
+            await event.reply(f"🔍 حالة البوت:\nPremium: {bot_entity.premium}")
+        else:
+            await event.reply("🔍 لا يمكن التحقق من حالة البوت")
+    except Exception as e:
+        await event.reply(f"🔍 خطأ في التحقق: {str(e)}")
 
 # ==========================================================
-# نسخة لاختبار أنواع مختلفة
-# ==========================================================
-
-@l313l.bot_cmd(
-    pattern="^/simple$",
-    incoming=True,
-    func=lambda e: e.is_private,
-)
-async def simple_test(event):
-    """أبسط نسخة ممكنة"""
-    
-    chat = await event.get_chat()
-    
-    # فقط الإيموجي البريميوم
-    message = f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>'
-    
-    await event.client.send_message(
-        chat.id,
-        message,
-        parse_mode='html'
-    )
-
-@l313l.bot_cmd(
-    pattern="^/textonly$",
-    incoming=True,
-    func=lambda e: e.is_private,
-)
-async def text_only(event):
-    """نص فقط مع إيموجي بريميوم في المنتصف"""
-    
-    chat = await event.get_chat()
-    
-    message = "هذا هو النص الأول\n"
-    message += f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>\n'
-    message += "هذا هو النص الثاني"
-    
-    await event.client.send_message(
-        chat.id,
-        message,
-        parse_mode='html'
-    )
-
-# ==========================================================
-# دالة مساعدة لعرض جميع الإيموجيات
+# الحل النهائي: استخدام إيموجيات خاصة بدلاً من البريميوم
 # ==========================================================
 
 @l313l.bot_cmd(
-    pattern="^/showemojis$",
+    pattern="^/finalstart$",
     incoming=True,
     func=lambda e: e.is_private,
 )
-async def show_all_emojis(event):
-    """عرض جميع الإيموجيات البريميوم المتاحة"""
+async def final_solution(event):
+    """الحل النهائي - أفضل بديل"""
     
     chat = await event.get_chat()
+    reply_to = await reply_id(event)
     
-    # قائمة الإيموجيات البريميوم
-    emojis = [
-        {"id": 5368324170671202286, "char": "🔥", "desc": "نار بريميوم"},
-        {"id": 5368324170671202287, "char": "👑", "desc": "تاج بريميوم"},
-        {"id": 5368324170671202288, "char": "⚡", "desc": "صاعقة بريميوم"},
-        {"id": 5210763312597326700, "char": "❤️", "desc": "قلب بريميوم"},
+    # استخدام إيموجيات Unicode مميزة بدلاً من البريميوم
+    message = "✨ <b>تم بنجاح!</b>\n"
+    
+    # إيموجيات Unicode مميزة (ليست بريميوم ولكنها جذابة)
+    special_emojis = "🔥🌟⭐🎯🎖️🏆💫🎭"
+    
+    # اختر إيموجي عشوائي
+    import random
+    selected_emoji = random.choice(special_emojis)
+    
+    message += f"{selected_emoji}\n\n"
+    message += "للتواصل مع المطور:"
+    
+    buttons = [
+        [Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]
     ]
     
-    message = "<b>🎨 الإيموجيات البريميوم المتاحة:</b>\n\n"
-    
-    for emoji in emojis:
-        message += f'<a href="emoji/{emoji["id"]}">{emoji["char"]}</a> - {emoji["desc"]}\n'
-    
-    message += "\n<b>ملاحظة:</b> تأكد أن البوت يملك هذه الإيموجيات"
-    
     await event.client.send_message(
         chat.id,
         message,
-        parse_mode='html'
+        parse_mode='html',
+        buttons=buttons,
+        reply_to=reply_to,
+        link_preview=False
     )
 
 # ==========================================================
-# رد على الرسائل العادية (اختياري)
+# إذا أردت نفس الكود بالضبط مع التعديل البسيط
 # ==========================================================
 
 @l313l.bot_cmd(
-    pattern="^مرحبا$",
+    pattern="^/exactcopy$",
     incoming=True,
     func=lambda e: e.is_private,
 )
-async def hello_response(event):
-    """رد تلقائي مع إيموجي بريميوم"""
-    
-    chat = await event.get_chat()
-    
-    message = f"مرحباً {chat.first_name} 👋\n"
-    message += f'<a href="emoji/{PREMIUM_EMOJI_ID}">🔥</a>\n'
-    message += "كيف يمكنني مساعدتك؟"
-    
-    await event.reply(
-        message,
-        parse_mode='html'
-    )
-
-# ==========================================================
-# نسخة نهائية تشبه تماماً المطلوب
-# ==========================================================
-
-@l313l.bot_cmd(
-    pattern="^/final$",
-    incoming=True,
-    func=lambda e: e.is_private,
-)
-async def final_version(event):
+async def exact_copy(event):
     """
-    النسخة النهائية المطابقة تماماً للطلب
-    بدون أزرار - فقط رسالة - فقط إيموجي
+    أقرب نسخة ممكنة للكود الأصلي
+    فقط استبدل <tg-emoji> بـ <a href="emoji/">
     """
     
     chat = await event.get_chat()
     reply_to = await reply_id(event)
     
-    # الرسالة بالضبط كما طلبت
+    # الكود الأصلي مع تعديل بسيط
     message = "🎉 <b>تم بنجاح!</b>\n"
     
-    # الإيموجي البريميوم
-    message += f'<a href="emoji/5368324170671202286">🔥</a>\n\n'
+    # في python-telegram-bot: '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
+    # في Telethon: '<a href="emoji/5368324170671202286">🔥</a>'
+    message += '<a href="emoji/5368324170671202286">🔥</a>\n\n'
     
     message += "للتواصل مع المطور:"
     
-    # الإرسال النهائي
+    # زر واحد للمطور
+    keyboard = [[Button.url("👤 تواصل مع المطور", "https://t.me/lx5x5")]]
+    
     await event.client.send_message(
         chat.id,
         message,
         parse_mode='html',
-        reply_to=reply_to,
-        link_preview=False
+        buttons=keyboard,
+        reply_to=reply_to
     )

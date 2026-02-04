@@ -45,13 +45,16 @@ hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n<b>⌔╎الهمسـة لـ</b>"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
 ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
-ddd = "💌"
+ddd = "<tg-emoji emoji-id='5210763312597326700'>💌</tg-emoji>"
 Zel_Uid = l313l.uid
+
+# معرف الإيموجي البريميوم
+PREMIUM_EMOJI_ID = "5210763312597326700"
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -96,7 +99,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 async def repozedub(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+        return await edit_or_reply(event, f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>⛔</tg-emoji> <b>عـذࢪاً .. ؏ـزيـزي\nهــذا الامــر ليــس مجــانــي📵.</b>")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -111,10 +114,27 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
+    
     if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        # زر الإرسال مع إيموجي بريميوم
+        bbb = [(Button.switch_inline(
+            f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضـغـط هنـا", 
+            query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
+            same_peer=True
+        ))]
     else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        bbb = [(Button.switch_inline(
+            f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضـغـط هنـا", 
+            query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
+            same_peer=True
+        ))]
+    
+    # إنشاء رابط المستخدم
+    if username and username != "@None":
+        zelzal = username
+    else:
+        zelzal = f'<a href="tg://user?id={user_id}">{full_name}</a>'
+    
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()

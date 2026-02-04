@@ -111,10 +111,38 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
+    
+    # إضافة إيموجيات بريميوم هنا
+    emoji_line1 = '<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>'
+    emoji_line2 = '<tg-emoji emoji-id="5258215850745275216">⚓</tg-emoji>'
+    
     if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    
+    # النص مع الإيموجيات البريميوم
+    message_text = f'''ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه {emoji_line1}
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+⌔╎لـ أࢪسـال همسـه سـريـه الى @Gz_aaL {emoji_line2}'''
+    
+    # إنشاء رسالة باستخدام الإيموجيات البريميوم
+    response = await event.client.inline_query(
+        Config.TG_BOT_USERNAME,
+        f"zelzal @Gz_aaL {emoji_line1} {emoji_line2}"
+    )
+    
+    # أو يمكنك استخدام رسالة مباشرة مع تحليل HTML
+    try:
+        await event.reply(
+            message_text,
+            buttons=bbb,
+            parse_mode='html'
+        )
+    except:
+        # إذا فشل إرسال الرسالة مع الإيموجيات، أرسل النسخة العادية
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        if response:
+            await response[0].click(event.chat_id)
+    
     await event.delete()

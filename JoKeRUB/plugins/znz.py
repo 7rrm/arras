@@ -12,7 +12,7 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.types import InputBotInlineMessageText
+from telethon.tl.functions.messages import SendMessageRequest
 
 from . import l313l
 from ..Config import Config
@@ -27,7 +27,6 @@ LOGS = logging.getLogger(__name__)
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
-    builder = event.builder
     query = event.text
     string = query.lower()
     query_user_id = event.query.user_id
@@ -96,17 +95,20 @@ async def inline_handler(event):
             # زر فتح الهمسة
             btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتـح الهمسـه", data=f"secret_{timestamp}")]]
             
-            # استخدم InputBotInlineMessageText بدلاً من builder.article
-            result = builder.article(
+            # إرسال كرسالة إنلاين بسيطة
+            result = types.InputBotInlineResult(
+                id=str(timestamp),
+                type="article",
                 title=f"همسـة {zilzal}",
                 description="همسـة سريـه",
-                text=text_content,
-                buttons=btn,
-                link_preview=False,
-                # جرب بدون parse_mode
+                send_message=types.InputBotInlineMessageText(
+                    message=text_content,
+                    entities=[],
+                    no_webpage=True
+                )
             )
             
-            await event.answer([result] if result else None)
+            await event.answer([result])
             
             if jsondata:
                 jsondata.update(new_msg)
@@ -116,27 +118,39 @@ async def inline_handler(event):
         
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # زر الإرسال
-                btn = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
-            else:
-                return
-            
-            # نص زر الهمسة
-            text_content = f'''\
+                # نص زر الهمسة
+                text_content = f'''\
 <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 <tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
 <b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>'''
-            
-            result = builder.article(
-                title="همسـه سريـه",
-                description="أرسـال همسـه سريـه",
-                text=text_content,
-                buttons=btn,
-                link_preview=False,
-                # جرب بدون parse_mode
-            )
-            
-            await event.answer([result])
+                
+                # إرسال زر الهمسة
+                result = types.InputBotInlineResult(
+                    id="zelzal_btn",
+                    type="article",
+                    title="همسـه سريـه",
+                    description="أرسـال همسـه سريـه",
+                    send_message=types.InputBotInlineMessageText(
+                        message=text_content,
+                        entities=[],
+                        no_webpage=True,
+                        reply_markup=types.ReplyInlineMarkup(
+                            rows=[
+                                types.KeyboardButtonRow(
+                                    buttons=[
+                                        types.KeyboardButtonSwitchInline(
+                                            text="<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه",
+                                            query=f"secret {gvarstatus('hmsa_id')} \nهلو",
+                                            same_peer=True
+                                        )
+                                    ]
+                                )
+                            ]
+                        )
+                    )
+                )
+                
+                await event.answer([result])
     
     else:
         return

@@ -1,44 +1,28 @@
 import json
 import math
+import asyncio
 import os
-import aiohttp
-import requests
 import random
 import re
 import time
-from uuid import uuid4
-import sys
-import asyncio
-from validators.url import url
-from subprocess import run as runapp
-from datetime import datetime
-from pySmartDL import SmartDL
 from pathlib import Path
-from platform import python_version
-from telethon import Button, functions, events, types, custom
+from uuid import uuid4
+
+from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
-from telethon.utils import get_display_name
-from telethon.tl.types import InputMessagesFilterDocument
-from telethon.tl.types import MessageEntityMentionName
-from telethon.tl.functions.photos import GetUserPhotosRequest
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
-from telethon.tl.functions.messages import SetInlineBotResultsRequest
+from telethon.tl.functions.users import GetUsersRequest
 
 from . import l313l
 from ..Config import Config
-from ..helpers.functions import rand_key
+from ..helpers import reply_id
+from ..sql_helper.globals import gvarstatus
 from ..core.logger import logging
-from ..core.managers import edit_delete, edit_or_reply
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.utils import reply_id, _format
-from . import media_type, progress
-from ..utils import Zed_Dev, load_module, remove_plugin
-from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
-from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
+from ..helpers.utils import _format
+from . import mention
 
-LOGS = logging.getLogger(os.path.basename(__name__))
+LOGS = logging.getLogger(__name__)
+tr = Config.COMMAND_HAND_LER
 
 scc = "secret"
 hmm = "همسـة"
@@ -49,114 +33,167 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
 ddd = "💌"
-Zel_Uid = l313l.uid
+bbb = None
 
-async def get_user_from_event(event):
-    if event.reply_to_msg_id:
-        previous_message = await event.get_reply_message()
-        user_object = await event.client.get_entity(previous_message.sender_id)
+# Copyright (C) 2023 Zilzalll . All Rights Reserved
+@l313l.tgbot.on(InlineQuery)
+async def inline_handler(event):
+    builder = event.builder
+    result = None
+    query = event.text
+    string = query.lower()
+    query.split(" ", 2)
+    str_y = query.split(" ", 1)
+    string.split()
+    query_user_id = event.query.user_id
+    user_id = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else None
+    full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
+    username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
+    zelzal = None
+    if gvarstatus("hmsa_user"):
+        if username.startswith("@"):
+            zelzal = gvarstatus("hmsa_user")
+        else:
+            zelzal = f"[{full_name}](tg://user?id={user_id})"
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+        malathid = Config.OWNER_ID
+    elif query_user_id == user_id: #or query_user_id == int(user_id):
+        malathid = user_id
     else:
-        user = event.pattern_match.group(1)
-        if user.isnumeric():
-            user = int(user)
-        if event.message.entities:
-            probable_user_mention_entity = event.message.entities[0]
-            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                user_obj = await event.client.get_entity(user_id)
-                return user_obj
-        if isinstance(user, int) or user.startswith("@"):
-            user_obj = await event.client.get_entity(user)
-            return user_obj
-        try:
-            user_object = await event.client.get_entity(user)
-        except (TypeError, ValueError) as err:
-            await event.edit(str(err))
-            return None
-    return user_object
-
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
-    FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
-    first_name = zthon_user.first_name
-    full_name = FullUser.private_forward_name
-    user_id = zthon_user.id
-    username = zthon_user.username
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else None
-    )
-    full_name = full_name or first_name
-    username = "@{}".format(username) if username else "None"
-    return user_id, full_name, username
-
-@l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repozedub(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    
-    # إنشاء زر الإنلاين
-    if gvarstatus("hmsa_id"):
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    
-    # النص بنفس نمط كود القراءة
-    message_text = f'''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">📠</tg-emoji>
-⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> <tg-emoji emoji-id="5258215850745275216">⚓</tg-emoji>
-<b>@Gz_aaL</b> <tg-emoji emoji-id="5839380464116175529">✅</tg-emoji>'''
-    
-    # محاولة إرسال الرسالة
-    try:
-        # محاولة استخدام inline_query
-        response = await event.client.inline_query(
-            Config.TG_BOT_USERNAME,
-            "zelzal"
-        )
-        if response:
-            # محاولة تحرير النص ليشمل الإيموجيات البريميوم
+        malathid = None
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+        inf = re.compile("secret (.*) (.*)")
+        match2 = re.findall(inf, query)
+        if match2:
+            user_list = []
+            zilzal = ""
+            query = query[7:]
+            info_type = [hmm, ymm, fmm]
+            if "|" in query:
+                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
+                users = iris.split(" ")
+            else:
+                user, query = query.split(" ", 1)
+                users = [user]
+            for user in users:
+                usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
+                try:
+                    u = await l313l.get_entity(usr)
+                except ValueError:
+                    u = await l313l(GetUsersRequest(usr))
+                if u.username:
+                    zilzal += f"@{u.username}"
+                else:
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                user_list.append(u.id)
+                zilzal += " "
+            zilzal = zilzal[:-1]
+            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
             try:
-                # إذا كان البوت يدعم تحرير النص
-                await event.delete()
-                await response[0].click(event.chat_id)
-                # قد تحتاج هنا إلى تعديل الرسالة بعد إرسالها
-            except:
-                # بديل: إرسال رسالة مباشرة
-                await event.delete()
-                await event.client.send_message(
-                    event.chat_id,
-                    message_text,
-                    buttons=bbb,
-                    parse_mode='html'
-                )
-    except Exception as e:
-        LOGS.error(f"Error in ahmss: {e}")
-        # بديل: إرسال رسالة مباشرة
-        try:
-            await event.delete()
-            await event.client.send_message(
-                event.chat_id,
-                message_text,
-                buttons=bbb,
-                parse_mode='html'
+                jsondata = json.load(open(old_msg))
+            except Exception:
+                jsondata = False
+            timestamp = int(time.time() * 2)
+            new_msg = {
+                str(timestamp): {"userid": user_list, "text": query}
+            }  # Code by T.me/zzzzl1l
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            result = builder.article(
+                title=f"{hmm} {zilzal}",
+                description=f"{dss}",
+                text=f"{hss} {zilzal} \n**{dss}**",
+                buttons=buttons,
+                link_preview=False,
             )
-        except:
-            await event.delete()
+            await event.answer([result] if result else None)
+            if jsondata:
+                jsondata.update(new_msg)
+                json.dump(jsondata, open(old_msg, "w"))
+            else:
+                json.dump(new_msg, open(old_msg, "w"))
+        elif string == "zelzal":
+            if gvarstatus("hmsa_id"):
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+            else:
+                return
+            results = []
+            results.append(
+                builder.article(
+                    title=f"{nmm}",
+                    description=f"{mnn}",
+                    text=f"{ttt} {zelzal} **{ddd}**",
+                    buttons=bbb,
+                    link_preview=False,
+                ),
+            )
+            await event.answer(results)
+    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
+        inf = re.compile("secret (.*) (.*)")
+        match2 = re.findall(inf, query)
+        if match2:
+            user_list = []
+            zilzal = ""
+            query = query[7:]
+            info_type = [hmm, ymm, fmm]
+            if "|" in query:
+                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
+                users = iris.split(" ")
+            else:
+                user, query = query.split(" ", 1)
+                users = [user]
+            for user in users:
+                usr = int(user) if user.isdigit() else user
+                try:
+                    u = await l313l.get_entity(usr)
+                except ValueError:
+                    u = await l313l(GetUsersRequest(usr))
+                if u.username:
+                    zilzal += f"@{u.username}"
+                else:
+                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                user_list.append(u.id)
+                zilzal += " "
+            zilzal = zilzal[:-1]
+            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
+            try:
+                jsondata = json.load(open(old_msg))
+            except Exception:
+                jsondata = False
+            timestamp = int(time.time() * 2)
+            new_msg = {
+                str(timestamp): {"userid": user_list, "text": query}
+            }  # Code by T.me/zzzzl1l
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            result = builder.article(
+                title=f"{hmm} {zilzal}",
+                description=f"{dss}",
+                text=f"{hss} {zilzal} \n{dss}",
+                buttons=buttons,
+                link_preview=False,
+            )
+            await event.answer([result] if result else None)
+            if jsondata:
+                jsondata.update(new_msg)
+                json.dump(jsondata, open(old_msg, "w"))
+            else:
+                json.dump(new_msg, open(old_msg, "w"))
+        elif string == "zelzal":
+            if gvarstatus("hmsa_id"):
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+            else:
+                return
+            results = []
+            results.append(
+                builder.article(
+                    title=f"{nmm}",
+                    description=f"{mnn}",
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    buttons=bbb,
+                    link_preview=False,
+                ),
+            )
+            await event.answer(results)
+    else:
+        return

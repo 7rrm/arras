@@ -1,4 +1,6 @@
 from JoKeRUB import bot
+from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
+import asyncio
 from telethon import Button, events
 from ..Config import Config
 

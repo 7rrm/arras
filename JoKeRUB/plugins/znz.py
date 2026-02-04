@@ -29,13 +29,16 @@ hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n<b>⌔╎الهمسـة لـ</b>"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = "💌"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b>"
+ddd = "<tg-emoji emoji-id='5210763312597326700'>💌</tg-emoji>"
 bbb = None
+
+# معرف الإيموجي البريميوم
+PREMIUM_EMOJI_ID = "5210763312597326700"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -56,7 +59,7 @@ async def inline_handler(event):
         if username.startswith("@"):
             zelzal = gvarstatus("hmsa_user")
         else:
-            zelzal = f"[{full_name}](tg://user?id={user_id})"
+            zelzal = f'<a href="tg://user?id={user_id}">{full_name}</a>'
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         malathid = Config.OWNER_ID
     elif query_user_id == user_id: #or query_user_id == int(user_id):
@@ -86,7 +89,7 @@ async def inline_handler(event):
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                    zilzal += f'<a href="tg://user?id={u.id}">{u.first_name}</a>'
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
@@ -99,13 +102,25 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            
+            # زر فتح الهمسة مع إيموجي بريميوم
+            button_text = f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>🔓</tg-emoji> فتح الهمسة"
+            buttons = [[Button.inline(button_text, data=f"{scc}_{timestamp}")]]
+            
+            # نص النتيجة مع إيموجي بريميوم
+            result_text = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>الهمسـة لـ</b> {zilzal}
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👁️</tg-emoji> <b>هو فقط من يستطيع رؤيتها</b>'''
+            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
+                text=result_text,
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -115,17 +130,24 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline(f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
+            
+            # نص النتيجة للهمسة
             results = []
             results.append(
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
+                    text=f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>''',
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='html'
                 ),
             )
             await event.answer(results)
@@ -152,7 +174,7 @@ async def inline_handler(event):
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
+                    zilzal += f'<a href="tg://user?id={u.id}">{u.first_name}</a>'
                 user_list.append(u.id)
                 zilzal += " "
             zilzal = zilzal[:-1]
@@ -165,13 +187,25 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            
+            # زر فتح الهمسة مع إيموجي بريميوم
+            button_text = f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>🔓</tg-emoji> فتح الهمسة"
+            buttons = [[Button.inline(button_text, data=f"{scc}_{timestamp}")]]
+            
+            # نص النتيجة مع إيموجي بريميوم
+            result_text = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>الهمسـة لـ</b> {zilzal}
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👁️</tg-emoji> <b>هو فقط من يستطيع رؤيتها</b>'''
+            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=result_text,
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -181,7 +215,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline(f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
             results = []
@@ -189,9 +223,14 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    text=f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>''',
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='html'
                 ),
             )
             await event.answer(results)

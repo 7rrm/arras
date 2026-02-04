@@ -61,24 +61,30 @@ async def on_plug_in_callback_query_handler(event):
                     # إنشاء منشن للمستقبل (الذي ضغط على الزر)
                     try:
                         receiver = await l313l.get_entity(event.query.user_id)
-                        receiver_name = f"[{get_display_name(receiver)}](tg://user?id={event.query.user_id})"
+                        receiver_name = f'<a href="tg://user?id={event.query.user_id}">{get_display_name(receiver)}</a>'
                     except:
                         receiver_name = "المستخدم"
                     
-                    # تحرير الرسالة الأصلية مع إضافة الوقت
-                    new_text = f"تم قراءة الهمسـة **⧼** {receiver_name} **⧽** \nعَـند **╮** {time_str} **╰** ."
+                    # تحرير الرسالة الأصلية مع إضافة الوقت والإيموجي البريميوم
+                    # معرف الإيموجي البريميوم
+                    PREMIUM_EMOJI_ID = "5210763312597326700"
+                    
+                    new_text = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>تم قراءة الهمسـة</b> <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✅</tg-emoji>
+<b>قـرأهـا</b> {receiver_name}
+<b>عَـند</b> <code>{time_str}</code>'''
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
-                    btn = [[Button.switch_inline("• اضغـط للـرد •", query=f"secret {sender_id} \nهلو", same_peer=True)]]
+                    btn = [[Button.switch_inline("<tg-emoji emoji-id='5210763312597326700'>💌</tg-emoji> اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
                     
                     try:
-                        await event.edit(new_text, buttons=btn, link_preview=False)
+                        await event.edit(new_text, buttons=btn, parse_mode='html')
                     except Exception as e:
                         LOGS.error(f"Error editing message: {e}")
                 
             else:
-                await event.answer("آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", cache_time=0, alert=True)
+                await event.answer("<tg-emoji emoji-id='5210763312597326700'>⛔</tg-emoji> آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", cache_time=0, alert=True)
         except KeyError:
-            await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
+            await event.answer("<tg-emoji emoji-id='5210763312597326700'>⚠️</tg-emoji> عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
     else:
-        await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
+        await event.answer("<tg-emoji emoji-id='5210763312597326700'>❌</tg-emoji> عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)

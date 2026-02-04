@@ -33,7 +33,7 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
 ddd = "💌"
 bbb = None
 
@@ -119,15 +119,18 @@ async def inline_handler(event):
             else:
                 return
             
-            # إضافة إيموجي بريميوم هنا
-            emoji_premium = '<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>'
+            # إنشاء النص بنفس نمط كود القراءة
+            message_text = f'''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">📠</tg-emoji>
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> <tg-emoji emoji-id="5258215850745275216">⚓</tg-emoji>
+<b>@Gz_aaL</b> <tg-emoji emoji-id="5839380464116175529">✅</tg-emoji>'''
             
             results = []
             results.append(
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} @Gz_aaL {emoji_premium}",
+                    text=message_text,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'
@@ -190,15 +193,18 @@ async def inline_handler(event):
             else:
                 return
             
-            # إضافة إيموجي بريميوم هنا
-            emoji_premium = '<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>'
+            # إنشاء النص بنفس نمط كود القراءة
+            message_text = f'''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">📠</tg-emoji>
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> <tg-emoji emoji-id="5258215850745275216">⚓</tg-emoji>
+<b>@Gz_aaL</b> <tg-emoji emoji-id="5839380464116175529">✅</tg-emoji>'''
             
             results = []
             results.append(
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} @Gz_aaL {emoji_premium}",
+                    text=message_text,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'

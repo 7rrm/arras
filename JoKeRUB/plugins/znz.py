@@ -42,229 +42,120 @@ bbb = None
 PREMIUM_EMOJI_ID = "5210763312597326700"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
+
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
     result = None
     query = event.text
     string = query.lower()
-    query.split(" ", 2)
-    str_y = query.split(" ", 1)
-    string.split()
+    
     query_user_id = event.query.user_id
     user_id = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else None
     full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
     username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
-    zelzal = None
     
-    if gvarstatus("hmsa_user"):
-        if username.startswith("@"):
-            zelzal = gvarstatus("hmsa_user")
-        else:
-            zelzal = f'📌 {full_name}'
-    
+    # التحقق من الصلاحيات
+    allowed = False
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
-        malathid = Config.OWNER_ID
+        allowed = True
     elif query_user_id == user_id:
-        malathid = user_id
-    else:
-        malathid = None
+        allowed = True
     
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            user_list = []
-            zilzal = ""
-            query = query[7:]
-            info_type = [hmm, ymm, fmm]
-            
-            if "|" in query:
-                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
-                users = iris.split(" ")
-            else:
-                user, query = query.split(" ", 1)
-                users = [user]
-            
-            for user in users:
-                usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
-                try:
-                    u = await l313l.get_entity(usr)
-                except ValueError:
-                    u = await l313l(GetUsersRequest(usr))
-                if u.username:
-                    zilzal += f"@{u.username}"
-                else:
-                    zilzal += f"📌 {u.first_name}"
-                user_list.append(u.id)
-                zilzal += " "
-            
-            zilzal = zilzal[:-1]
-            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = False
-            
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {"userid": user_list, "text": query}
-            }
-            
-            # نص النتيجة مع إيموجي بريميوم في HTML
-            result_text = f'''<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>الهمسـة لـ</b> {zilzal}
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👁️</tg-emoji> <b>هو فقط من يستطيع رؤيتها</b>'''
-            
-            # زر فتح الهمسة
-            buttons = [[Button.inline("🔓 فتح الهمسة", data=f"{scc}_{timestamp}")]]
-            
-            # استخدام InputBotInlineResult مع parse_mode
-            result = InputBotInlineResult(
-                id=str(timestamp),
-                type="article",
-                title=f"همسة لـ {zilzal}",
-                description="اضغط لفتح الهمسة السرية",
-                send_message=InputBotInlineMessageText(
-                    message=result_text,
-                    entities=None,
-                    no_webpage=True,
-                    parse_mode='html'
-                ),
-                thumb=None
-            )
-            
-            await event.answer([result] if result else None, private=False)
-            
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-                
-        elif string == "zelzal":
-            if not gvarstatus("hmsa_id"):
-                return
-            
-            # نص النتيجة للهمسة مع إيموجي بريميوم
-            result_text = f'''<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>'''
-            
-            result = InputBotInlineResult(
-                id="whisper_main",
-                type="article",
-                title="همسة سرية",
-                description="أرسل همسة سرية",
-                send_message=InputBotInlineMessageText(
-                    message=result_text,
-                    entities=None,
-                    no_webpage=True,
-                    parse_mode='html'
-                ),
-                thumb=None
-            )
-            
-            await event.answer([result], private=False)
-    
-    elif query_user_id == user_id:
-        # نفس الكود للمستخدمين العاديين
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            user_list = []
-            zilzal = ""
-            query = query[7:]
-            info_type = [hmm, ymm, fmm]
-            
-            if "|" in query:
-                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
-                users = iris.split(" ")
-            else:
-                user, query = query.split(" ", 1)
-                users = [user]
-            
-            for user in users:
-                usr = int(user) if user.isdigit() else user
-                try:
-                    u = await l313l.get_entity(usr)
-                except ValueError:
-                    u = await l313l(GetUsersRequest(usr))
-                if u.username:
-                    zilzal += f"@{u.username}"
-                else:
-                    zilzal += f"📌 {u.first_name}"
-                user_list.append(u.id)
-                zilzal += " "
-            
-            zilzal = zilzal[:-1]
-            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = False
-            
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {"userid": user_list, "text": query}
-            }
-            
-            # نص النتيجة مع إيموجي بريميوم
-            result_text = f'''<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>الهمسـة لـ</b> {zilzal}
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👁️</tg-emoji> <b>هو فقط من يستطيع رؤيتها</b>'''
-            
-            result = InputBotInlineResult(
-                id=str(timestamp),
-                type="article",
-                title=f"همسة لـ {zilzal}",
-                description="اضغط لفتح الهمسة السرية",
-                send_message=InputBotInlineMessageText(
-                    message=result_text,
-                    entities=None,
-                    no_webpage=True,
-                    parse_mode='html'
-                ),
-                thumb=None
-            )
-            
-            await event.answer([result] if result else None, private=False)
-            
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-                
-        elif string == "zelzal":
-            if not gvarstatus("hmsa_id"):
-                return
-            
-            # نص النتيجة للهمسة
-            result_text = f'''<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>'''
-            
-            result = InputBotInlineResult(
-                id="whisper_main",
-                type="article",
-                title="همسة سرية",
-                description="أرسل همسة سرية",
-                send_message=InputBotInlineMessageText(
-                    message=result_text,
-                    entities=None,
-                    no_webpage=True,
-                    parse_mode='html'
-                ),
-                thumb=None
-            )
-            
-            await event.answer([result], private=False)
-    else:
+    if not allowed:
         return
+    
+    # معالجة أمر secret
+    inf = re.compile("secret (.*) (.*)")
+    match2 = re.findall(inf, query)
+    
+    if match2:
+        user_list = []
+        zilzal = ""
+        query_text = query[7:]  # إزالة "secret "
+        
+        if "|" in query_text:
+            iris, msg_text = query_text.replace(" |", "|").replace("| ", "|").split("|")
+            users = iris.split(" ")
+        else:
+            user, msg_text = query_text.split(" ", 1)
+            users = [user]
+        
+        for user in users:
+            usr = int(user) if user.isdigit() else user
+            try:
+                u = await l313l.get_entity(usr)
+            except ValueError:
+                u = await l313l(GetUsersRequest(usr))
+            
+            if u.username:
+                zilzal += f"@{u.username}"
+            else:
+                zilzal += f"👤 {u.first_name}"
+            user_list.append(u.id)
+            zilzal += " "
+        
+        zilzal = zilzal[:-1]
+        old_msg = os.path.join("./JoKeRUB", f"{query_user_id}.txt")
+        
+        try:
+            jsondata = json.load(open(old_msg))
+        except Exception:
+            jsondata = False
+        
+        timestamp = int(time.time() * 2)
+        new_msg = {
+            str(timestamp): {"userid": user_list, "text": msg_text, "sender_id": query_user_id}
+        }
+        
+        # حفظ البيانات
+        if jsondata:
+            jsondata.update(new_msg)
+            json.dump(jsondata, open(old_msg, "w"))
+        else:
+            json.dump(new_msg, open(old_msg, "w"))
+        
+        # إنشاء النتيجة
+        result = builder.article(
+            title=f"📩 همسة سرية لـ {zilzal}",
+            description="اضغط لفتح الهمسة",
+            text=f'''📠 **ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه**
+┄─┄─┄─┄┄─┄─┄─┄─┄┄
+📍 **الهمسـة لـ** {zilzal}
+👁️ **هو فقط من يستطيع رؤيتها**
+
+🔓 **اضغط الزر بالأسفل لفتح الهمسة**''',
+            buttons=[[Button.inline("🔓 فتح الهمسة", data=f"secret_{timestamp}")]],
+            link_preview=False
+        )
+        
+        await event.answer([result] if result else None)
+    
+    # معالجة أمر zelzal
+    elif string == "zelzal":
+        if not gvarstatus("hmsa_id"):
+            return
+        
+        if username and username.startswith("@"):
+            zelzal_display = username
+        else:
+            zelzal_display = f"👤 {full_name}"
+        
+        result = builder.article(
+            title="📨 أرسل همسة سرية",
+            description=f"إلى {zelzal_display}",
+            text=f'''📠 **ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه**
+┄─┄─┄─┄┄─┄─┄─┄─┄┄
+📍 **لـ أرسال همسـه سـريـه الى** {zelzal_display}
+💌 **اكتب رسالتك بعد الضغط على الزر**''',
+            buttons=[[
+                Button.switch_inline(
+                    "💌 اضغـط هنـا للكتابة",
+                    query=f"secret {user_id} ",
+                    same_peer=True
+                )
+            ]],
+            link_preview=False
+        )
+        
+        await event.answer([result] if result else None)

@@ -12,6 +12,7 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
+from telethon.tl.types import InputBotInlineMessageText
 
 from . import l313l
 from ..Config import Config
@@ -23,20 +24,6 @@ from . import mention
 
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
-
-# متغيرات الإيموجي المميز
-scc = "secret"
-hmm = "همسـة"
-ymm = "يستطيـع"
-fmm = "<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> • فتـح الهمسـه •"
-dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "✅ ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ"
-nmm = "همسـه سريـه"
-mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
-bmm = "اضغـط للـرد"
-ttt = "✅ ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
-ddd = "📨"
-bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -71,7 +58,7 @@ async def inline_handler(event):
             user_list = []
             zilzal = ""
             query = query[7:]
-            info_type = [hmm, ymm, fmm]
+            info_type = ["همسـة", "يستطيـع", "• فتـح الهمسـه •"]
             if "|" in query:
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
@@ -100,11 +87,19 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            
+            # النص مع الإيموجي المميز
+            secret_text = f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
+<b>⌔╎الهمسـة لـ</b> {zilzal}
+<b><tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا</b>'''
+            
+            buttons = [[Button.inline("<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> • فتـح الهمسـه •", data=f"secret_{timestamp}")]]
+            
             result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n⌔╎<tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا',
+                title=f"همسة لـ {zilzal}",
+                description=f"همسة سرية",
+                text=secret_text,
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -117,15 +112,21 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
+            
+            # النص مع الإيموجي المميز
+            zelzal_text = f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>'''
+            
             results = []
             results.append(
                 builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>',
+                    title=f"ارسال همسة",
+                    description=f"ارسال همسة سريه",
+                    text=zelzal_text,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'
@@ -139,7 +140,7 @@ async def inline_handler(event):
             user_list = []
             zilzal = ""
             query = query[7:]
-            info_type = [hmm, ymm, fmm]
+            info_type = ["همسـة", "يستطيـع", "• فتـح الهمسـه •"]
             if "|" in query:
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
@@ -168,11 +169,19 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            
+            # النص مع الإيموجي المميز
+            secret_text = f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
+<b>⌔╎الهمسـة لـ</b> {zilzal}
+<b><tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا</b>'''
+            
+            buttons = [[Button.inline("<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> • فتـح الهمسـه •", data=f"secret_{timestamp}")]]
+            
             result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n⌔╎<tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا',
+                title=f"همسة لـ {zilzal}",
+                description=f"همسة سرية",
+                text=secret_text,
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -185,15 +194,21 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
+            
+            # النص مع الإيموجي المميز
+            zelzal_text = f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>'''
+            
             results = []
             results.append(
                 builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>',
+                    title=f"ارسال همسة",
+                    description=f"ارسال همسة سريه",
+                    text=zelzal_text,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'

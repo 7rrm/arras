@@ -29,7 +29,7 @@ scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> • فتـح الهمسـه •"
-dss = "هو فقط من يستطيع ࢪؤيتهـا"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
 hss = "✅ ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
@@ -104,10 +104,7 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
-<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
-<b>⌔╎الهمسـة لـ</b> {zilzal}
-<b><tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا</b>''',
+                text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n⌔╎<tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا',
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -128,9 +125,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
-<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
-<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>''',
+                    text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>',
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'
@@ -177,10 +172,7 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
-<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
-<b>⌔╎الهمسـة لـ</b> {zilzal}
-<b><tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا</b>''',
+                text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ {zilzal}\n⌔╎<tg-emoji emoji-id="5258215850745275216">✅</tg-emoji> هو فقط من يستطيع ࢪؤيتهـا',
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -201,9 +193,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f'''<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> <b> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
-<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
-<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>''',
+                    text=f'<tg-emoji emoji-id="5210740682414644888">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى {zelzal} <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji>',
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'

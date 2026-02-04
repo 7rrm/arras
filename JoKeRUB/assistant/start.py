@@ -112,6 +112,15 @@ async def bot_start(event):
     else:
         zid = int(gvarstatus("ZThon_Vip"))
     custompic = gvarstatus("BOT_START_PIC") or None
+    
+    # معرفات الإيموجي البريميوم
+    emoji_fire = "5368324170671202286"  # 🔥
+    emoji_bot = "5372914225344664706"   # 🤖
+    emoji_envelope = "5372914225344664707"  # 💌
+    emoji_art = "5372914225344664708"   # 🎨
+    emoji_down = "5372914225344664709"  # 👇
+    emoji_crown = "5372914225344664710"  # 👑
+    
     if chat.id != Config.OWNER_ID:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -129,14 +138,15 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            start_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\
-                        \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                        \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                        \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                        \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                        \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
-        # ... (الكود السابق يبقى كما هو حتى جزء الأزرار)
+            start_msg =f'''\
+<tg-emoji emoji-id="{emoji_fire}">🔥</tg-emoji> **⌔ مـرحباً بـك عزيـزي  {mention} **
 
+<tg-emoji emoji-id="{emoji_bot}">🤖</tg-emoji> **انـا البـوت الخـاص بـ** {my_fullname}
+<tg-emoji emoji-id="{emoji_envelope}">💌</tg-emoji> **يمكنك التواصـل مـع مـالكـي مـن هنـا 💌**
+<tg-emoji emoji-id="{emoji_envelope}">💌</tg-emoji> **فقـط ارسـل رسـالتك وانتظـر الـرد 📨**
+<tg-emoji emoji-id="{emoji_art}">🎨</tg-emoji> **إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️**
+<tg-emoji emoji-id="{emoji_down}">👇</tg-emoji> **لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل** '''
+            
         buttons = [
             [
                 Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
@@ -154,8 +164,6 @@ async def bot_start(event):
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
-
-# ... (الكود الأوسط يبقى كما هو)
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -173,12 +181,15 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            start_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\
-                        \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                        \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                        \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                        \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                        \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+            # الرسالة مع Emoji Premium للمطور
+            start_msg = f'''\
+<tg-emoji emoji-id="{emoji_crown}">👑</tg-emoji> **⌔ مـرحباً بـك عزيـزي  {mention} **
+
+<tg-emoji emoji-id="{emoji_bot}">🤖</tg-emoji> **انـا البـوت الخـاص بـ** {my_fullname}
+<tg-emoji emoji-id="{emoji_envelope}">💌</tg-emoji> **يمكنك التواصـل مـع مـالكـي مـن هنـا 💌**
+<tg-emoji emoji-id="{emoji_envelope}">💌</tg-emoji> **فقـط ارسـل رسـالتك وانتظـر الـرد 📨**
+<tg-emoji emoji-id="{emoji_art}">🎨</tg-emoji> **إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️**
+<tg-emoji emoji-id="{emoji_down}">👇</tg-emoji> **لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**'''
         buttons = [
             [
              Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
@@ -194,7 +205,15 @@ async def bot_start(event):
             ]
         ]
     else:
-        start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        # رسالة المطور مع Emoji Premium
+        start_msg = f'''\
+<tg-emoji emoji-id="{emoji_fire}">🔥</tg-emoji> **⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**
+
+<tg-emoji emoji-id="{emoji_bot}">🤖</tg-emoji> **انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**
+<tg-emoji emoji-id="{emoji_envelope}">💌</tg-emoji> **يستطيـع اي شخص التواصل بك من خـلالي 💌**
+
+<tg-emoji emoji-id="{emoji_art}">🎨</tg-emoji> **لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**
+<tg-emoji emoji-id="{emoji_down}">👇</tg-emoji> **لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **'''
         buttons = [
             [
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
@@ -215,6 +234,7 @@ async def bot_start(event):
                 link_preview=False,
                 buttons=buttons,
                 reply_to=reply_to,
+                parse_mode='html'  # مهم: يجب إضافة هذا
             )
         else:
             await event.client.send_message(
@@ -223,6 +243,7 @@ async def bot_start(event):
                 link_preview=False,
                 buttons=buttons,
                 reply_to=reply_to,
+                parse_mode='html'  # مهم: يجب إضافة هذا
             )
     except Exception as e:
         if BOTLOG:

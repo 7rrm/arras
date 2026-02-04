@@ -10,8 +10,8 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# النص مع الإيموجي المميز
-REH = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>"
+# النص بدون الإيموجي في المتن
+REH_TEXT = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
 
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
@@ -27,30 +27,47 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         if query.startswith("هاك") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
+            
+            # إنشاء نص مع إيموجي مخصص
+            message_text = REH_TEXT
+            entities = []
+            
+            # إضافة الإيموجي المميز في النهاية
+            # EMOJI_ID هنا ضع الـ
+            emoji_entity = types.MessageEntityCustomEmoji(
+                offset=len(message_text),
+                length=1,  # طول حرف واحد
+                document_id=5368324170671202286  # ID الإيموجي
+            )
+            
+            # أضف الإيموجي كحرف نائب
+            message_text += "🔥"  # هذا مجرد نائب، سيتم استبداله بالإيموجي المخصص
+            entities.append(emoji_entity)
+            
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, 
-                    text=REH, 
+                    text=message_text, 
                     buttons=buttons, 
                     link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي المميز
+                    entities=entities  # إضافة الكيانات هنا
                 )
             elif JOKER_PIC:
                 result = builder.document(
                     JOKER_PIC,
                     title="Aljoker 🤡",
-                    text=REH,
+                    text=message_text,
                     buttons=buttons,
                     link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي المميز
+                    entities=entities  # إضافة الكيانات هنا
                 )
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    text=REH,
+                    text=message_text,
                     buttons=buttons,
                     link_preview=False,
-                    parse_mode='html'  # مهم للإيموجي المميز
+                    entities=entities  # إضافة الكيانات هنا
                 )
         await event.answer([result] if result else None)
 

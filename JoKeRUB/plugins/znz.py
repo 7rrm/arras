@@ -12,6 +12,7 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
+from telethon.tl.types import InputBotInlineMessageText
 
 from . import l313l
 from ..Config import Config
@@ -95,13 +96,14 @@ async def inline_handler(event):
             # زر فتح الهمسة
             btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتـح الهمسـه", data=f"secret_{timestamp}")]]
             
+            # استخدم InputBotInlineMessageText بدلاً من builder.article
             result = builder.article(
                 title=f"همسـة {zilzal}",
                 description="همسـة سريـه",
                 text=text_content,
                 buttons=btn,
                 link_preview=False,
-                parse_mode='html'
+                # جرب بدون parse_mode
             )
             
             await event.answer([result] if result else None)
@@ -131,7 +133,7 @@ async def inline_handler(event):
                 text=text_content,
                 buttons=btn,
                 link_preview=False,
-                parse_mode='html'
+                # جرب بدون parse_mode
             )
             
             await event.answer([result])

@@ -10,22 +10,13 @@ from telethon import Button, events
 from telethon.tl.functions.messages import ExportChatInviteRequest
 from ..core.managers import edit_delete, edit_or_reply
 
-# ========== الدالة الجديدة ==========
-async def send_with_custom_emoji(chat_id, text):
-    """دالة لإرسال رسائل مع إيموجي مخصص"""
-    try:
-        # طريقة 1: باستخدام HTML
-        await bot.send_message(
-            chat_id,
-            f"{text}\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>",
-            parse_mode='html'
-        )
-    except Exception as e:
-        print(f"Error: {e}")
-# ========== نهاية الدالة ==========
-
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
 Bot_Username = Config.TG_BOT_USERNAME
+
+# تعريف الدالة هنا لتكون متاحة للجميع
+async def create_custom_message(text):
+    """إنشاء نص مع إيموجي مميز"""
+    return f"{text}\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -39,14 +30,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if query.startswith("هاك") and event.query.user_id == bot.uid:
             buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
             
-            # استخدام النص مع الإيموجي المميز
-            custom_text = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
-            emoji_text = f"{custom_text}\n<tg-emoji emoji-id=\"5368324170671202286\">🔥</tg-emoji>"
+            # استخدام الدالة لإنشاء النص
+            base_text = "**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**"
+            custom_message = await create_custom_message(base_text)
             
             if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
                 result = builder.photo(
                     JOKER_PIC, 
-                    text=emoji_text, 
+                    text=custom_message, 
                     buttons=buttons, 
                     link_preview=False,
                     parse_mode='html'
@@ -55,7 +46,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 result = builder.document(
                     JOKER_PIC,
                     title="Aljoker 🤡",
-                    text=emoji_text,
+                    text=custom_message,
                     buttons=buttons,
                     link_preview=False,
                     parse_mode='html'
@@ -63,7 +54,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             else:
                 result = builder.article(
                     title="Aljoker 🤡",
-                    text=emoji_text,
+                    text=custom_message,
                     buttons=buttons,
                     link_preview=False,
                     parse_mode='html'

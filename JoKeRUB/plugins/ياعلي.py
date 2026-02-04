@@ -1,96 +1,37 @@
-from JoKeRUB import l313l, bot
-import time
-from telethon.tl import types
-from JoKeRUB import BOTLOG_CHATID
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-import asyncio
-from ..Config import Config
-import requests
+from JoKeRUB import bot
 from telethon import Button, events
-from telethon.tl.functions.messages import ExportChatInviteRequest
-from ..core.managers import edit_delete, edit_or_reply
+from ..Config import Config
 
-# ياعلي
-# اخ اخ اخ اخ اخ اخ اخممممممط ياطويل العمر اخمطط 😂
-# Reda
-
-# النص مع إيموجي بريميوم باستخدام HTML
-REH = '<b>᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر</b>\n<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
-
+REH = '**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**\n<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
 JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
-Bot_Username = Config.TG_BOT_USERNAME
 
-if Config.TG_BOT_USERNAME is not None and tgbot is not None:
+if Config.TG_BOT_USERNAME and tgbot:
     
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
-        builder = event.builder
-        result = None
-        joker = Bot_Username.replace("@", "")
-        query = event.text
-        await bot.get_me()
+        if event.query.user_id != bot.uid or not event.text.startswith("هاك"):
+            return
         
-        if query.startswith("هاك") and event.query.user_id == bot.uid:
-            buttons = [[Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")]]
-            
-            # **الجزء المهم**: استخدام parse_mode='html' في البناء
-            if JOKER_PIC and JOKER_PIC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = await builder.photo(
-                    file=JOKER_PIC,
-                    type="photo",
-                    text=REH,
-                    buttons=buttons,
-                    parse_mode='html'  # ✅ هذا ما يجعل الإيموجي يعمل
-                )
-            elif JOKER_PIC:
-                result = await builder.document(
-                    file=JOKER_PIC,
-                    title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    parse_mode='html'  # ✅ هذا ما يجعل الإيموجي يعمل
-                )
-            else:
-                result = await builder.article(
-                    title="Aljoker 🤡",
-                    text=REH,
-                    buttons=buttons,
-                    parse_mode='html'  # ✅ هذا ما يجعل الإيموجي يعمل
-                )
+        button = [[Button.url("• اضغط هنا •", f"https://t.me/{Config.TG_BOT_USERNAME.replace('@', '')}")]]
         
-        if result:
-            await event.answer([result])
-        else:
-            await event.answer([])
+        result = await event.builder.photo(
+            file=JOKER_PIC,
+            text=REH,
+            buttons=button,
+            parse_mode='html'
+        )
+        
+        await event.answer([result])
 
-@bot.on(admin_cmd(outgoing=True, pattern="هاك"))
+@bot.on(admin_cmd(pattern="هاك"))
 async def repo(event):
-    if event.fwd_from:
-        return
-    
-    lMl10l = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    
-    # أرسل رسالة مؤقتة
-    msg = await event.edit("**جاري التحميل...**")
-    
     try:
-        # استدعاء الإنلاين
-        response = await bot.inline_query(lMl10l, "هاك")
-        
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
-            await msg.delete()
-        else:
-            await msg.edit("**⚠️ لم يتم العثور على النتيجة**")
-            await asyncio.sleep(3)
-            await msg.delete()
-            
-    except Exception as e:
-        await msg.edit(f"**حدث خطأ:** `{str(e)}`")
-        await asyncio.sleep(3)
-        await msg.delete()
+        response = await bot.inline_query(Config.TG_BOT_USERNAME, "هاك")
+        if response:
+            await response[0].click(event.chat_id)
+    except:
+        pass
+    await event.delete()
 
 #################الاشـتـراك###################
 #######################################

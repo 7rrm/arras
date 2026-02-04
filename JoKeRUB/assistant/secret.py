@@ -65,10 +65,6 @@ async def on_plug_in_callback_query_handler(event):
                     except:
                         receiver_name = "المستخدم"
                     
-                    # تحرير الرسالة الأصلية مع إضافة الوقت والإيموجي البريميوم
-                    # معرف الإيموجي البريميوم
-                    PREMIUM_EMOJI_ID = "5210763312597326700"
-                    
                     new_text = f'''\
 <tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b> تم قراءة الهمسـة </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
 <b>قـرأهـا</b> {receiver_name}</b> <tg-emoji emoji-id="5258215850745275216">✅</tg-emoji>

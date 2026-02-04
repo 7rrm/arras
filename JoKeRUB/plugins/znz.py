@@ -24,23 +24,6 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
-scc = "secret"
-hmm = "همسـة"
-ymm = "يستطيـع"
-fmm = "• فتـح الهمسـه •"
-dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = '''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
-<b>⌔╎الهمسـة لـ</b>'''
-nmm = "همسـه سريـه"
-mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
-bmm = "اضغـط للـرد"
-ttt = '''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
-<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b>'''
-ddd = "<tg-emoji emoji-id=\"5377453360531279468\">💌</tg-emoji>"
-bbb = None
-
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
@@ -74,7 +57,6 @@ async def inline_handler(event):
             user_list = []
             zilzal = ""
             query = query[7:]
-            info_type = [hmm, ymm, fmm]
             if "|" in query:
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
@@ -103,11 +85,17 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            text_content = f'''\
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+<b>⌔╎الهمسـة لـ</b> {zilzal}
+<b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
+            
+            buttons = [[Button.inline("• فتـح الهمسـه •", data=f"secret_{timestamp}")]]
             result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n<b>{dss}</b>",
+                title=f"همسـة {zilzal}",
+                description="هو فقط من يستطيع ࢪؤيتهـا",
+                text=text_content,
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -124,11 +112,16 @@ async def inline_handler(event):
             else:
                 return
             results = []
+            text_content = f'''\
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>'''
+            
             results.append(
                 builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} {ddd}",
+                    title="همسـه سريـه",
+                    description="ارسـال همسـه سريـه لـ (شخـص/اشخـاص).",
+                    text=text_content,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'
@@ -142,7 +135,6 @@ async def inline_handler(event):
             user_list = []
             zilzal = ""
             query = query[7:]
-            info_type = [hmm, ymm, fmm]
             if "|" in query:
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
@@ -171,11 +163,17 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+            text_content = f'''\
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+<b>⌔╎الهمسـة لـ</b> {zilzal}
+<b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
+            
+            buttons = [[Button.inline("• فتـح الهمسـه •", data=f"secret_{timestamp}")]]
             result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n<b>{dss}</b>",
+                title=f"همسـة {zilzal}",
+                description="هو فقط من يستطيع ࢪؤيتهـا",
+                text=text_content,
                 buttons=buttons,
                 link_preview=False,
                 parse_mode='html'
@@ -192,11 +190,16 @@ async def inline_handler(event):
             else:
                 return
             results = []
+            text_content = f'''\
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>'''
+            
             results.append(
                 builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} {ddd}",
+                    title="همسـه سريـه",
+                    description="ارسـال همسـه سريـه لـ (شخـص/اشخـاص).",
+                    text=text_content,
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'

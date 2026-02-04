@@ -96,7 +96,7 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 async def repozedub(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -111,10 +111,29 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
+    
+    # استخدم الاسم المعروض للمستلم
+    receiver_name = full_name if full_name else (f"@{username}" if username else "المستخدم")
+    
+    # رسالة الهمسة مع إيموجي بريميوم HTML
+    premium_message = f'''\
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>𝗮𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽 - همسـة سـريـه</b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>
+<b>⌔╎اضغـط الـزر بالاسفـل</b> <tg-emoji emoji-id="5258215850745275216">⚓</tg-emoji>
+<b>⌔╎لـ اࢪسـال همسـه سـࢪيـه الى</b> {receiver_name}
+<tg-emoji emoji-id="5291726645658944556">💌</tg-emoji>'''
+    
+    # إرسال الرسالة مباشرة مع زر الإنلاين
+    await event.reply(
+        premium_message,
+        buttons=[
+            [Button.switch_inline(
+                "اضـغـط هنـا", 
+                query=f"secret {user_id} \nهلو", 
+                same_peer=True
+            )]
+        ],
+        parse_mode='html',
+        link_preview=False
+    )
     await event.delete()

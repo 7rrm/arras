@@ -29,16 +29,16 @@ hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = f'''<tg-emoji emoji-id="5352102704090211931">ᯓ</tg-emoji> <b>𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
-<tg-emoji emoji-id="5377453360531279468">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+hss = '''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
 <b>⌔╎الهمسـة لـ</b>'''
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = f'''<tg-emoji emoji-id="5352102704090211931">ᯓ</tg-emoji> <b>𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
-<tg-emoji emoji-id="5377453360531279468">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
+ttt = '''<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
 <b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b>'''
-ddd = "<tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>"
+ddd = "<tg-emoji emoji-id=\"5377453360531279468\">💌</tg-emoji>"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
@@ -120,7 +120,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("<tg-emoji emoji-id="5377453360531279468">📥</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
             results = []
@@ -188,7 +188,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("<tg-emoji emoji-id="5377453360531279468">📥</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
             else:
                 return
             results = []

@@ -130,19 +130,18 @@ async def repozedub(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>'''
 
-    # إنشاء زر الهمسة
-    whisper_button = [
-        [Button.switch_inline(
-            f"💌 اضـغـط هنـا لإرسـال هـمسـة",
-            query=f"secret {user_id} ",
-            same_peer=True
-        )]
-    ]
-    
-    # إرسال الرسالة مع الزر
-    await edit_or_reply(
-        event,
+    # إرسال الرسالة مع الزر باستخدام event.reply بدلاً من edit_or_reply
+    await event.reply(
         message_text,
-        buttons=whisper_button,
+        buttons=[
+            [Button.switch_inline(
+                f"💌 اضـغـط هنـا لإرسـال هـمسـة",
+                query=f"secret {user_id} ",
+                same_peer=True
+            )]
+        ],
         parse_mode='html'
     )
+    
+    # حذف رسالة الأمر الأصلية
+    await event.delete()

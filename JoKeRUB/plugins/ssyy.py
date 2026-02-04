@@ -1130,6 +1130,7 @@ async def yoot_auto_search(event):
                     await search_msg.delete()
                 else:
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                    await delete_conv(event, chat, purgeflag)
         
     except asyncio.TimeoutError:
         await search_msg.edit("**• عذراً، فشل التحميل حاول لاحقاً،**")
@@ -1249,6 +1250,7 @@ async def video_auto_search(event):
                 
             else:
                 await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                await delete_conv(event, chat, purgeflag)
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")

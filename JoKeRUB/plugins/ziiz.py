@@ -40,6 +40,17 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(os.path.basename(__name__))
 
+scc = "secret"
+hmm = "همسـة"
+ymm = "يستطيـع"
+fmm = "• فتـح الهمسـه •"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+nmm = "همسـه سريـه"
+mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
+bmm = "اضغـط للـرد"
+ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ddd = "💌"
 Zel_Uid = l313l.uid
 
 async def get_user_from_event(event):
@@ -83,37 +94,27 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
+    global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
-    
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**⎉╎يرجـى الـرد على شخـص او كتـابة معـرفه/ايـدي الشـخص**")
-    
+        return
     zthon_user = await get_user_from_event(event)
-    if not zthon_user:
-        return await edit_or_reply(event, "**⎉╎لم أستطـع العثـور على المستخـدم**")
-    
     try:
         user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError) as e:
-        LOGS.error(f"Error getting user info: {e}")
-        return await edit_or_reply(event, "**⎉╎خطـأ في جلب معلومـات المستخـدم**")
-    
+    except (AttributeError, TypeError):
+        return
     delgvar("hmsa_id")
     delgvar("hmsa_name")
     delgvar("hmsa_user")
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    
-    try:
-        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id, reply_to=event.reply_to_msg_id)
-            await event.delete()
-        else:
-            await edit_or_reply(event, "**⎉╎خطـأ في إنشـاء الهمسـة. يـرجى المحاولـة لاحقـاً**")
-    except Exception as e:
-        LOGS.error(f"Error in repozedub: {e}")
-        await edit_or_reply(event, f"**⎉╎خطـأ: {str(e)}**")
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    await response[0].click(event.chat_id)
+    await event.delete()

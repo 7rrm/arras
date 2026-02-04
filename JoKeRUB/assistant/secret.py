@@ -75,7 +75,7 @@ async def on_plug_in_callback_query_handler(event):
 <b>عَـند</b> <code>{time_str}</code>'''
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
-                    btn = [[Button.switch_inline("<tg-emoji emoji-id='5210763312597326700'>💌</tg-emoji> اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
+                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
                     
                     try:
                         await event.edit(new_text, buttons=btn, parse_mode='html')
@@ -83,8 +83,9 @@ async def on_plug_in_callback_query_handler(event):
                         LOGS.error(f"Error editing message: {e}")
                 
             else:
-                await event.answer("<tg-emoji emoji-id='5210763312597326700'>⛔</tg-emoji> آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", cache_time=0, alert=True)
+                await event.answer("آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", cache_time=0, alert=True)
         except KeyError:
-            await event.answer("<tg-emoji emoji-id='5210763312597326700'>⚠️</tg-emoji> عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
+            await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
     else:
-        await event.answer("<tg-emoji emoji-id='5210763312597326700'>❌</tg-emoji> عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
+        await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
+        

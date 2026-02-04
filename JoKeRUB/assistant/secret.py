@@ -70,9 +70,9 @@ async def on_plug_in_callback_query_handler(event):
                     PREMIUM_EMOJI_ID = "5210763312597326700"
                     
                     new_text = f'''\
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>تم قراءة الهمسـة</b> <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✅</tg-emoji>
-<b>قـرأهـا</b> {receiver_name}
-<b>عَـند</b> <code>{time_str}</code>'''
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b> تم قراءة الهمسـة </b> <tg-emoji emoji-id="5210740682414644888">✅</tg-emoji>
+<b>قـرأهـا</b> {receiver_name}</b> <tg-emoji emoji-id="5258215850745275216">✅</tg-emoji>
+<b>عَـند</b> <code>{time_str}</code> </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]

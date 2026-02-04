@@ -41,7 +41,7 @@ async def inline_handler(event):
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
     
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -84,12 +84,14 @@ async def inline_handler(event):
 <b>⌔╎الهمسـة لـ</b> {zilzal}
 <b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
             
-            buttons = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
+            # زر بنفس نمط القراءة
+            btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
+            
             result = builder.article(
                 title=f"همسـة {zilzal}",
                 description="همسـة سريـه",
                 text=text_content,
-                buttons=buttons,
+                buttons=btn,
                 link_preview=False,
                 parse_mode='html'
             )
@@ -103,7 +105,7 @@ async def inline_handler(event):
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
                 # زر بنفس نمط القراءة
-                bbb = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
+                btn = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
             else:
                 return
             
@@ -117,7 +119,7 @@ async def inline_handler(event):
                 title="همسـه سريـه",
                 description="أرسـال همسـه سريـه",
                 text=text_content,
-                buttons=bbb,
+                buttons=btn,
                 link_preview=False,
                 parse_mode='html'
             )
@@ -166,12 +168,14 @@ async def inline_handler(event):
 <b>⌔╎الهمسـة لـ</b> {zilzal}
 <b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
             
-            buttons = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
+            # زر بنفس نمط القراءة
+            btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
+            
             result = builder.article(
                 title=f"همسـة {zilzal}",
                 description="همسـة سريـه",
                 text=text_content,
-                buttons=buttons,
+                buttons=btn,
                 link_preview=False,
                 parse_mode='html'
             )
@@ -185,7 +189,7 @@ async def inline_handler(event):
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
                 # زر بنفس نمط القراءة
-                bbb = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
+                btn = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
             else:
                 return
             
@@ -199,7 +203,7 @@ async def inline_handler(event):
                 title="همسـه سريـه",
                 description="أرسـال همسـه سريـه",
                 text=text_content,
-                buttons=bbb,
+                buttons=btn,
                 link_preview=False,
                 parse_mode='html'
             )

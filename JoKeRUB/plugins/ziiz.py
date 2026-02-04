@@ -25,6 +25,7 @@ from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import BotInlineResult, InputBotInlineMessageMediaAuto, DocumentAttributeImageSize, InputWebDocument, InputBotInlineResult
 from telethon.tl.functions.messages import SetInlineBotResultsRequest
+from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
 
 from . import l313l
 from ..Config import Config
@@ -97,17 +98,19 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
-    global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>⛔</tg-emoji> <b>عـذࢪاً .. ؏ـزيـزي\nهــذا الامــر ليــس مجــانــي📵.</b>")
+        return await edit_or_reply(event, f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>⛔</tg-emoji> <b>عـذࢪاً .. ؏ـزيـزي\nهــذا الامــر ليــس مجــانــي📵.</b>", parse_mode='html')
+    
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
-        return
+        return await edit_or_reply(event, f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>⚠️</tg-emoji> <b>يجب الرد على شخص أو كتابة معرفه</b>", parse_mode='html')
+    
     zthon_user = await get_user_from_event(event)
     try:
         user_id, full_name, username = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
-        return
+        return await edit_or_reply(event, f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>❌</tg-emoji> <b>لم أستطع العثور على المستخدم</b>", parse_mode='html')
+    
     delgvar("hmsa_id")
     delgvar("hmsa_name")
     delgvar("hmsa_user")
@@ -115,26 +118,31 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     
-    if gvarstatus("hmsa_id"):
-        # زر الإرسال مع إيموجي بريميوم
-        bbb = [(Button.switch_inline(
-            f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضـغـط هنـا", 
-            query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
-            same_peer=True
-        ))]
-    else:
-        bbb = [(Button.switch_inline(
-            f"<tg-emoji emoji-id='{PREMIUM_EMOJI_ID}'>💌</tg-emoji> اضـغـط هنـا", 
-            query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
-            same_peer=True
-        ))]
-    
     # إنشاء رابط المستخدم
     if username and username != "@None":
         zelzal = username
     else:
-        zelzal = f'<a href="tg://user?id={user_id}">{full_name}</a>'
+        zelzal = f'📌 {full_name}'
     
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    # إنشاء رسالة HTML مع إيموجي بريميوم
+    message_text = f'''<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📠</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">⋆</tg-emoji>┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📍</tg-emoji> <b>لـ أࢪسـال همسـه سـريـه الى</b> {zelzal}
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji>'''
+
+    # إنشاء زر الهمسة
+    whisper_button = [
+        [Button.switch_inline(
+            f"💌 اضـغـط هنـا لإرسـال هـمسـة",
+            query=f"secret {user_id} ",
+            same_peer=True
+        )]
+    ]
+    
+    # إرسال الرسالة مع الزر
+    await edit_or_reply(
+        event,
+        message_text,
+        buttons=whisper_button,
+        parse_mode='html'
+    )

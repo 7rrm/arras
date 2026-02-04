@@ -31,7 +31,6 @@ PREMIUM_EMOJI_ID = "5210763312597326700"
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
-    result = None
     query = event.text
     string = query.lower()
     

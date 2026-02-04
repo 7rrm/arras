@@ -1250,7 +1250,7 @@ async def video_auto_search(event):
                 
             else:
                 await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                await delete_conv(event, bot_username, purgeflag)
+                await delete_conv(event, video_settings['bot_username'], purgeflag)
         
     except asyncio.TimeoutError:
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")

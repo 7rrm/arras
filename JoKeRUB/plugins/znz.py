@@ -24,18 +24,18 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
+# متغيرات الإيموجي المميز
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
-fmm = "• فتـح الهمسـه •"
+fmm = "<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> • فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+hss = "<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n<b>⌔╎الهمسـة لـ</b>"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ttt_new = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه الى {zelzal} <tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji>"
-ddd = "💌"
+ttt = "<tg-emoji emoji-id=\"5210740682414644888\">✅</tg-emoji> ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b>"
+ddd = "<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji>"
 bbb = None
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
@@ -104,9 +104,10 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
+                text=f"{hss} {zilzal} \n<b>{dss}</b>",
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -124,7 +125,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=ttt_new.format(zelzal=zelzal),
+                    text=f"{ttt} {zelzal} <b>{ddd}</b>",
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'
@@ -171,9 +172,10 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=f"{hss} {zilzal} \n<b>{dss}</b>",
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -191,7 +193,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=ttt_new.format(zelzal=zelzal),
+                    text=f"{ttt} {zelzal} <b>{ddd}</b>",
                     buttons=bbb,
                     link_preview=False,
                     parse_mode='html'

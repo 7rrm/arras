@@ -22,7 +22,6 @@ from ..helpers.utils import _format
 from . import mention
 
 LOGS = logging.getLogger(__name__)
-tr = Config.COMMAND_HAND_LER
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -35,57 +34,66 @@ async def inline_handler(event):
     full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
     username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
     zelzal = None
+    
     if gvarstatus("hmsa_user"):
         if username.startswith("@"):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
     
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+    # للمطورين والمستخدم المسجل
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS or query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
+        
         if match2:
             user_list = []
             zilzal = ""
             query = query[7:]
+            
             if "|" in query:
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
             else:
                 user, query = query.split(" ", 1)
                 users = [user]
+            
             for user in users:
                 usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
                 try:
                     u = await l313l.get_entity(usr)
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
+                
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
                     zilzal += f"[{u.first_name}](tg://user?id={u.id})"
                 user_list.append(u.id)
                 zilzal += " "
+            
             zilzal = zilzal[:-1]
             old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
+            
             try:
                 jsondata = json.load(open(old_msg))
             except Exception:
                 jsondata = False
+            
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # نفس نمط القراءة بالضبط
+            # نص الهمسة بنفس نمط البوت مع إيموجي بريميوم
             text_content = f'''\
-<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 <tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
 <b>⌔╎الهمسـة لـ</b> {zilzal}
 <b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
             
-            # زر بنفس نمط القراءة
-            btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
+            # زر فتح الهمسة
+            btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتـح الهمسـه", data=f"secret_{timestamp}")]]
             
             result = builder.article(
                 title=f"همسـة {zilzal}",
@@ -95,7 +103,9 @@ async def inline_handler(event):
                 link_preview=False,
                 parse_mode='html'
             )
+            
             await event.answer([result] if result else None)
+            
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
@@ -104,14 +114,14 @@ async def inline_handler(event):
         
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # زر بنفس نمط القراءة
+                # زر الإرسال
                 btn = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
             else:
                 return
             
-            # النص بنفس نمط القراءة
+            # نص زر الهمسة
             text_content = f'''\
-<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
+<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 <tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
 <b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>'''
             
@@ -123,90 +133,7 @@ async def inline_handler(event):
                 link_preview=False,
                 parse_mode='html'
             )
-            await event.answer([result])
-    
-    elif query_user_id == user_id:
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            user_list = []
-            zilzal = ""
-            query = query[7:]
-            if "|" in query:
-                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
-                users = iris.split(" ")
-            else:
-                user, query = query.split(" ", 1)
-                users = [user]
-            for user in users:
-                usr = int(user) if user.isdigit() else user
-                try:
-                    u = await l313l.get_entity(usr)
-                except ValueError:
-                    u = await l313l(GetUsersRequest(usr))
-                if u.username:
-                    zilzal += f"@{u.username}"
-                else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
-                user_list.append(u.id)
-                zilzal += " "
-            zilzal = zilzal[:-1]
-            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = False
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {"userid": user_list, "text": query}
-            }
             
-            # نفس نمط القراءة بالضبط
-            text_content = f'''\
-<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
-<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
-<b>⌔╎الهمسـة لـ</b> {zilzal}
-<b>⌔╎هو فقط من يستطيع ࢪؤيتهـا</b>'''
-            
-            # زر بنفس نمط القراءة
-            btn = [[Button.inline("<tg-emoji emoji-id=\"5258215850745275216\">🔓</tg-emoji> فتح الهمسة", data=f"secret_{timestamp}")]]
-            
-            result = builder.article(
-                title=f"همسـة {zilzal}",
-                description="همسـة سريـه",
-                text=text_content,
-                buttons=btn,
-                link_preview=False,
-                parse_mode='html'
-            )
-            await event.answer([result] if result else None)
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-        
-        elif string == "zelzal":
-            if gvarstatus("hmsa_id"):
-                # زر بنفس نمط القراءة
-                btn = [[Button.switch_inline("<tg-emoji emoji-id=\"5210763312597326700\">📨</tg-emoji> اضغـط لـ أࢪسـال همسـه", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
-            else:
-                return
-            
-            # النص بنفس نمط القراءة
-            text_content = f'''\
-<tg-emoji emoji-id="5210763312597326700">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="5377453360531279468">📠</tg-emoji>
-<tg-emoji emoji-id="5210740682414644888">⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</tg-emoji>
-<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {zelzal} <tg-emoji emoji-id="5377453360531279468">💌</tg-emoji>'''
-            
-            result = builder.article(
-                title="همسـه سريـه",
-                description="أرسـال همسـه سريـه",
-                text=text_content,
-                buttons=btn,
-                link_preview=False,
-                parse_mode='html'
-            )
             await event.answer([result])
     
     else:

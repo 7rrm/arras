@@ -1,38 +1,66 @@
-from JoKeRUB import bot
-from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
-import asyncio
+from JoKeRUB import l313l, bot
 from telethon import Button, events
+from telethon.tl.types import MessageEntityCustomEmoji
 from ..Config import Config
 
-REH = '**᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر**\n<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>'
-JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
+# نص بدون HTML tags
+REH = "᯽︙ لأستخدام بوت اختراق الحساب عن طريق كود التيرمكس أضغط على الزر\n🔥"
 
-if Config.TG_BOT_USERNAME and tgbot:
+JOKER_PIC = "https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg"
+Bot_Username = Config.TG_BOT_USERNAME
+
+if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
-        if event.query.user_id != bot.uid or not event.text.startswith("هاك"):
-            return
+        builder = event.builder
+        result = None
+        joker = Bot_Username.replace("@", "")
+        query = event.text
+        await bot.get_me()
         
-        button = [[Button.url("• اضغط هنا •", f"https://t.me/{Config.TG_BOT_USERNAME.replace('@', '')}")]]
-        
-        result = await event.builder.photo(
-            file=JOKER_PIC,
-            text=REH,
-            buttons=button,
-            parse_mode='html'
-        )
-        
-        await event.answer([result])
+        if query.startswith("هاك") and event.query.user_id == bot.uid:
+            buttons = Button.url("• اضغط هنا عزيزي •", f"https://t.me/{joker}")
+            
+            # إنشاء entities للإيموجي المميز
+            # 🔥 موجود في نهاية النص (آخر حرفين)
+            entities = [
+                MessageEntityCustomEmoji(
+                    offset=len(REH) - 2,  # موقع الإيموجي في النص
+                    length=2,  # طول الإيموجي
+                    document_id=5368324170671202286  # ID الإيموجي المميز
+                )
+            ]
+            
+            if JOKER_PIC:
+                result = builder.photo(
+                    JOKER_PIC,
+                    text=REH,
+                    buttons=buttons,
+                    entities=entities  # ← أضف entities هنا
+                )
+            else:
+                result = builder.article(
+                    title="Aljoker 🤡",
+                    text=REH,
+                    buttons=buttons,
+                    entities=entities  # ← أضف entities هنا
+                )
+        await event.answer([result] if result else None)
 
-@bot.on(admin_cmd(pattern="هاك"))
+@bot.on(admin_cmd(outgoing=True, pattern="هاك"))
 async def repo(event):
+    if event.fwd_from:
+        return
+    
     try:
-        response = await bot.inline_query(Config.TG_BOT_USERNAME, "هاك")
+        response = await bot.inline_query(Bot_Username, "هاك")
         if response:
             await response[0].click(event.chat_id)
-    except:
-        pass
+    except Exception as e:
+        await event.edit(f"خطأ: {e}")
+        await asyncio.sleep(2)
+    
     await event.delete()
 
 #################الاشـتـراك###################

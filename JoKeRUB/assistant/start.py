@@ -52,24 +52,16 @@ async def check_bot_started_users(user, event):
     usernaam = f"@{user.username}" if user.username else "لايوجـد"
     if check is None:
         start_date = str(datetime.now().strftime("%B %d, %Y"))
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
+        notification = f"<b>مرحبـاً سيـدي 🧑🏻‍💻</b>\n<b>شخـص قام بالدخـول لـ البـوت المسـاعـد 💡</b>\n\n<b>الاسـم : </b>{get_display_name(user)}\n<b>الايـدي : </b><code>{user.id}</code>\n<b>اليـوزر :</b> {usernaam}"
     else:
         start_date = check.date
-        notification = f"**- مرحبـاً سيـدي 🧑🏻‍💻**\
-                \n**- شخـص قام بالدخـول لـ البـوت المسـاعـد 💡**\
-                \n\n**- الاسـم : **{get_display_name(user)}\
-                \n**- الايـدي : **`{user.id}`\
-                \n**- اليـوزر :** {usernaam}"
+        notification = f"<b>مرحبـاً سيـدي 🧑🏻‍💻</b>\n<b>شخـص قام بالدخـول لـ البـوت المسـاعـد 💡</b>\n\n<b>الاسـم : </b>{get_display_name(user)}\n<b>الايـدي : </b><code>{user.id}</code>\n<b>اليـوزر :</b> {usernaam}"
     try:
         add_starter_to_db(user.id, get_display_name(user), start_date, user.username)
     except Exception as e:
         LOGS.error(str(e))
     if BOTLOG:
-        await event.client.send_message(BOTLOG_CHATID, notification)
+        await event.client.send_message(BOTLOG_CHATID, notification, parse_mode='html')
 
 
 
@@ -86,8 +78,11 @@ async def bot_start(event):
     if int(chat.id) in kk:
         kk.remove(int(chat.id))
     reply_to = await reply_id(event)
-    mention = f"[{chat.first_name}](tg://user?id={chat.id})"
-    my_mention = f"[{user.first_name}](tg://user?id={user.id})"
+    
+    # استخدام HTML للجميع
+    mention = f'<a href="tg://user?id={chat.id}">{chat.first_name}</a>'
+    my_mention = f'<a href="tg://user?id={user.id}">{user.first_name}</a>'
+    
     first = chat.first_name
     last = chat.last_name
     fullname = f"{first} {last}" if last else first
@@ -97,6 +92,7 @@ async def bot_start(event):
     my_last = user.last_name
     my_fullname = f"{my_first} {my_last}" if my_last else my_first
     my_username = f"@{user.username}" if user.username else my_mention
+    
     if gvarstatus("START_BUTUN") is not None:
         zz_txt = "⌔ قنـاتـي ⌔"
         zz_ch = gvarstatus("START_BUTUN")
@@ -106,15 +102,17 @@ async def bot_start(event):
     else:
         zz_txt = "⌔ قنـاة المـطور ⌔"
         zz_ch = "aqhvv"
+    
     zid = 5427469031
     if gvarstatus("ZThon_Vip") is None:
         zid = 5427469031
     else:
         zid = int(gvarstatus("ZThon_Vip"))
+    
     custompic = gvarstatus("BOT_START_PIC") or None
     
-    # معرف الإيموجي البريميوم - استخدم نفس المعرف من الكود الناجح
-    PREMIUM_EMOJI_ID = "5368324170671202286"
+    # معرف الإيموجي البريميوم الجديد
+    PREMIUM_EMOJI_ID = "5210763312597326700"
     
     if chat.id != Config.OWNER_ID:
         customstrmsg = gvarstatus("START_TEXT") or None
@@ -133,13 +131,15 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            # رسالة البداية بنفس طريقة الكود الناجح
-            start_msg = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> **⌔ مـرحباً بـك عزيـزي  ' + mention + ' **\n\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">🤖</tg-emoji> **انـا البـوت الخـاص بـ** ' + my_fullname + '\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">💌</tg-emoji> **يمكنك التواصـل مـع مـالكـي مـن هنـا 💌**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">📨</tg-emoji> **فقـط ارسـل رسـالتك وانتظـر الـرد 📨**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">🎨</tg-emoji> **إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">👇</tg-emoji> **لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**'
+            # رسالة البداية بـ HTML كامل مع الإيموجي البريميوم
+            start_msg = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
+
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يمكنك التواصـل مـع مـالكـي مـن هنـا</b> 💌
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>فقـط ارسـل رسـالتك وانتظـر الـرد</b> 📨
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
             
         buttons = [
             [
@@ -158,6 +158,7 @@ async def bot_start(event):
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
+        
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -175,16 +176,19 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
-            # رسالة للمطور المميز
-            start_msg = '<tg-emoji emoji-id="5368324170671202286">👑</tg-emoji> **⌔ مـرحباً بـك عزيـزي  ' + mention + ' **\n\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">🤖</tg-emoji> **انـا البـوت الخـاص بـ** ' + my_fullname + '\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">💌</tg-emoji> **يمكنك التواصـل مـع مـالكـي مـن هنـا 💌**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">📨</tg-emoji> **فقـط ارسـل رسـالتك وانتظـر الـرد 📨**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">🎨</tg-emoji> **إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️**\n' + \
-                        '<tg-emoji emoji-id="5368324170671202286">👇</tg-emoji> **لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**'
+            # رسالة للمطور المميز بـ HTML
+            start_msg = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👑</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
+
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يمكنك التواصـل مـع مـالكـي مـن هنـا</b> 💌
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>فقـط ارسـل رسـالتك وانتظـر الـرد</b> 📨
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
+        
         buttons = [
             [
-             Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
             ],
             [
                 Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
@@ -196,13 +200,18 @@ async def bot_start(event):
                 Button.url(zz_txt, f"https://t.me/{zz_ch}")
             ]
         ]
+        
     else:
-        # رسالة للمالك الأساسي
-        start_msg = '<tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji> **⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n\n' + \
-                    '<tg-emoji emoji-id="5368324170671202286">🤖</tg-emoji> **انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n' + \
-                    '<tg-emoji emoji-id="5368324170671202286">💌</tg-emoji> **يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n' + \
-                    '<tg-emoji emoji-id="5368324170671202286">🎨</tg-emoji> **لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n' + \
-                    '<tg-emoji emoji-id="5368324170671202286">👇</tg-emoji> **لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **'
+        # رسالة للمالك الأساسي بـ HTML
+        start_msg = f'''\
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🔥</tg-emoji> <b>⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..</b>
+
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انا البـوت المسـاعـد الخـاص بـك</b> (تواصـل📨 + زخرفـه🎨) 🤖🦾
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يستطيـع اي شخص التواصل بك من خـلالي</b> 💌
+
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>لـ زخرفـة اسـم اضغـط الـزر بالاسفـل</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لرؤيـة اوامـري الخاصـه بـك اضغـط :</b> <code>/help</code>'''
+        
         buttons = [
             [
                 Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
@@ -215,18 +224,19 @@ async def bot_start(event):
             ]
         ]
     
-    # الطريقة المؤكدة من الكود الناجح
+    # إرسال الرسالة بنفس الطريقة الناجحة
     try:
         if custompic:
-            # أولاً: أرسل الصورة
+            # أرسل الصورة مع وصف HTML
             await event.client.send_file(
                 chat.id,
                 file=custompic,
-                caption="🎉 **مرحباً بك في البوت المساعد**",
+                caption='<b>🎉 مرحباً بك في البوت المساعد</b>',
                 link_preview=False,
                 reply_to=reply_to,
+                parse_mode='html'
             )
-            # ثانياً: أرسل الرسالة مع الإيموجي البريميوم
+            # أرسل الرسالة الرئيسية مع الإيموجي البريميوم
             await event.reply(
                 start_msg,
                 buttons=buttons,
@@ -234,7 +244,7 @@ async def bot_start(event):
                 link_preview=False
             )
         else:
-            # إرسال مباشر بنفس طريقة الكود الناجح
+            # إرسال مباشر
             await event.reply(
                 start_msg,
                 buttons=buttons,
@@ -242,26 +252,11 @@ async def bot_start(event):
                 link_preview=False
             )
             
-        LOGS.info(f"تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم")
+        LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم HTML")
         
     except Exception as e:
-        LOGS.error(f"خطأ في إرسال رسالة البداية: {str(e)}")
+        LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
         
-        # محاولة بديلة بدون إيموجي بريميوم
-        try:
-            fallback_msg = f"**⌔ مـرحباً بـك عزيـزي  {mention} **\n\n**انـا البـوت الخـاص بـ** {my_fullname}"
-            await event.reply(
-                fallback_msg,
-                buttons=buttons,
-                link_preview=False
-            )
-        except Exception as e2:
-            LOGS.error(f"خطأ في الرسالة البديلة: {str(e2)}")
-            if BOTLOG:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    f"**❌ خطأ في البوت المساعد:**\n`{str(e2)}`",
-                )
 
     await check_bot_started_users(chat, event)
 

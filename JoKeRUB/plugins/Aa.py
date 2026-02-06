@@ -218,15 +218,6 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
 **⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     addgvar("pmpermit_text", USER_BOT_NO_WARN)
     PM_WARNS[str(chat.id)] += 1
-    
-    # الحصول على زر القناة إذا موجود
-    pmchannel = gvarstatus("pmchannel")
-    buttons = None
-    if pmchannel:
-        # إزالة @ إذا موجود
-        channel_username = pmchannel.replace('@', '')
-        buttons = [[Button.url("قناة السورس", f"https://t.me/{channel_username}")]]
-    
     try:
         if gvarstatus("pmmenu") is None:
             results = await event.client.inline_query(
@@ -242,39 +233,20 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             else:
                 CAT_IMG = None
             if CAT_IMG is not None:
-                if buttons:
-                    msg = await event.client.send_file(
-                        chat.id,
-                        CAT_IMG,
-                        caption=USER_BOT_NO_WARN,
-                        reply_to=reply_to_id,
-                        buttons=buttons,
-                        force_document=False,
-                    )
-                else:
-                    msg = await event.client.send_file(
-                        chat.id,
-                        CAT_IMG,
-                        caption=USER_BOT_NO_WARN,
-                        reply_to=reply_to_id,
-                        force_document=False,
-                    )
+                msg = await event.client.send_file(
+                    chat.id,
+                    CAT_IMG,
+                    caption=USER_BOT_NO_WARN,
+                    reply_to=reply_to_id,
+                    force_document=False,
+                )
             else:
-                if buttons:
-                    msg = await event.client.send_message(
-                        chat.id, USER_BOT_NO_WARN, reply_to=reply_to_id, buttons=buttons
-                    )
-                else:
-                    msg = await event.client.send_message(
-                        chat.id, USER_BOT_NO_WARN, reply_to=reply_to_id
-                    )
+                msg = await event.client.send_message(
+                    chat.id, USER_BOT_NO_WARN, reply_to=reply_to_id
+                )
     except Exception as e:
         LOGS.error(e)
-        if buttons:
-            msg = await event.reply(USER_BOT_NO_WARN, buttons=buttons)
-        else:
-            msg = await event.reply(USER_BOT_NO_WARN)
-    
+        msg = await event.reply(USER_BOT_NO_WARN)
     try:
         if str(chat.id) in PMMESSAGE_CACHE:
             await event.client.delete_messages(chat.id, PMMESSAGE_CACHE[str(chat.id)])
@@ -683,6 +655,8 @@ async def block_p_m(event):
         user, reason = await get_user_from_event(event)
         if not user:
             return
+    #if not reason:
+        #reason = "**⎉╎ لـم يـذكـر 💭**"
     if user.id in Zed_Dev:
         return await edit_delete(event, "**- عـذࢪاً .. عـزيـزي ؟!**\n**- لا تستطيـع حظـࢪ مطـوࢪيـن السـوࢪس**", 10)
     try:
@@ -798,7 +772,7 @@ async def variable(event):
         else:
             delgvar("pmute")
             await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
-
+'''
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
 @l313l.ar_cmd(pattern=r"زر حماية الخاص (.*)")
 async def variable(event):
@@ -811,7 +785,7 @@ async def variable(event):
     await asyncio.sleep(1.5)
     addgvar("pmchannel", input_str)
     await zed.edit("**⎉╎تم تغييـر قنـاة زر حمايـة الخـاص .. بنجـاح ☑️**\n**⎉╎يـوزر زر قنـاة حمايـة الخـاص\n{}**".format(input_str))
-
+'''
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
 @l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")

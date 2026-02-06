@@ -18,46 +18,35 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         
         if query.startswith("مساعدة"):
             buttons = [
-                [Button.inline("م1 - أوامر الإدارة 👮", data="m1_main")],
+                [Button.inline("اوامر الادارة 👮", data="admin_commands")],
                 [
-                    Button.inline("م2 - أوامر المجموعة 👥", data="m2_main"),
-                    Button.inline("م3 - الترحيب والردود 🎭", data="m3_main"),
+                    Button.inline("اوامر التنظيف 🧹", data="clean_cmd"),
+                    Button.inline("اوامر المسح 🗑️", data="delete_cmd"),
                 ],
+                [Button.inline("اوامر الوقت والتاريخ 📅", data="time_date_cmd")],
                 [
-                    Button.inline("م4 - حماية الخاص 🛡️", data="m4_main"),
-                    Button.inline("م5 - المنشن والانتحال 🎯", data="m5_main"),
+                    Button.inline("اوامر الوقتي 🔄", data="timely_cmd"),
+                    Button.inline("اوامر الصلاة 🕌", data="prayer_cmd"),
                 ],
+                [Button.inline("اوامر المساعدة 🆘", data="help_commands")],
                 [
-                    Button.inline("م6 - التحميل والترجمة 📥", data="m6_main"),
-                    Button.inline("م7 - المنع والقفل 🔒", data="m7_main"),
+                    Button.inline("اوامر الروابط 🔗", data="link_commands"),
+                    Button.inline("اوامر الكشف 🔍", data="detect_commands"),
                 ],
+                [Button.inline("اوامر التسلية والميمز 😂", data="fun_meme_commands")],
                 [
-                    Button.inline("م8 - التنظيف والتكرار 🧹", data="m8_main"),
-                    Button.inline("م9 - التخصيص والفارات ⚙️", data="m9_main"),
+                    Button.inline("اوامر الاذاعة 📢", data="broadcast_commands"),
+                    Button.inline("اوامر التحويل 🔄", data="convert_commands"),
                 ],
+                [Button.inline("اوامر الجهات 👥", data="contacts_commands")],
                 [
-                    Button.inline("م10 - الوقتي والتشغيل ⏰", data="m10_main"),
-                    Button.inline("م11 - الكشف والروابط 🔍", data="m11_main"),
+                    Button.inline("اوامر الحساب 👤", data="account_commands"),
+                    Button.inline("اوامر الفارات ⚙️", data="var_commands"),
                 ],
+                [Button.inline("اوامر التجميع 💰", data="collect_commands")],
                 [
-                    Button.inline("م12 - المساعدة والإذاعة 🆘", data="m12_main"),
-                    Button.inline("م13 - الإرسال والأذكار 📿", data="m13_main"),
-                ],
-                [
-                    Button.inline("م14 - الملصقات وكوكل 🎨", data="m14_main"),
-                    Button.inline("م15 - التسلية والميمز 😂", data="m15_main"),
-                ],
-                [
-                    Button.inline("م16 - الصيغ والجهات 🔄", data="m16_main"),
-                    Button.inline("م17 - التمبلر والزغرفة ✨", data="m17_main"),
-                ],
-                [
-                    Button.inline("م18 - الحساب والترفيه 🎮", data="m18_main"),
-                    Button.inline("م19 - الميوزك والتشغيل 🎵", data="m19_main"),
-                ],
-                [
-                    Button.inline("م20 - تجميع النقاط وبوت وعد 💰", data="m20_main"),
-                    Button.inline("م21 - الذاتية للبصمات والصور 🎭", data="m21_main"),
+                    Button.inline("اوامر وعد 🏦", data="w3d_commands"),
+                    Button.inline("اوامر الاذكار 📿", data="azkar_commands"),
                 ],
             ]
             result = builder.article(
@@ -84,78 +73,70 @@ async def help(event):
 @check_owner
 async def _(event):
     butze = [
-        [Button.inline("م1 - أوامر الإدارة 👮", data="m1_main")],
+        [Button.inline("اوامر الادارة 👮", data="admin_commands")],
         [
-            Button.inline("م2 - أوامر المجموعة 👥", data="m2_main"),
-            Button.inline("م3 - الترحيب والردود 🎭", data="m3_main"),
+            Button.inline("اوامر التنظيف 🧹", data="clean_cmd"),
+            Button.inline("اوامر المسح 🗑️", data="delete_cmd"),
         ],
+        [Button.inline("اوامر الوقت والتاريخ 📅", data="time_date_cmd")],
         [
-            Button.inline("م4 - حماية الخاص 🛡️", data="m4_main"),
-            Button.inline("م5 - المنشن والانتحال 🎯", data="m5_main"),
+            Button.inline("اوامر الوقتي 🔄", data="timely_cmd"),
+            Button.inline("اوامر الصلاة 🕌", data="prayer_cmd"),
         ],
+        [Button.inline("اوامر المساعدة 🆘", data="help_commands")],
         [
-            Button.inline("م6 - التحميل والترجمة 📥", data="m6_main"),
-            Button.inline("م7 - المنع والقفل 🔒", data="m7_main"),
+            Button.inline("اوامر الروابط 🔗", data="link_commands"),
+            Button.inline("اوامر الكشف 🔍", data="detect_commands"),
         ],
+        [Button.inline("اوامر التسلية والميمز 😂", data="fun_meme_commands")],
         [
-            Button.inline("م8 - التنظيف والتكرار 🧹", data="m8_main"),
-            Button.inline("م9 - التخصيص والفارات ⚙️", data="m9_main"),
+            Button.inline("اوامر الاذاعة 📢", data="broadcast_commands"),
+            Button.inline("اوامر التحويل 🔄", data="convert_commands"),
         ],
+        [Button.inline("اوامر الجهات 👥", data="contacts_commands")],
         [
-            Button.inline("م10 - الوقتي والتشغيل ⏰", data="m10_main"),
-            Button.inline("م11 - الكشف والروابط 🔍", data="m11_main"),
+            Button.inline("اوامر الحساب 👤", data="account_commands"),
+            Button.inline("اوامر الفارات ⚙️", data="var_commands"),
         ],
+        [Button.inline("اوامر التجميع 💰", data="collect_commands")],
         [
-            Button.inline("م12 - المساعدة والإذاعة 🆘", data="m12_main"),
-            Button.inline("م13 - الإرسال والأذكار 📿", data="m13_main"),
-        ],
-        [
-            Button.inline("م14 - الملصقات وكوكل 🎨", data="m14_main"),
-            Button.inline("م15 - التسلية والميمز 😂", data="m15_main"),
-        ],
-        [
-            Button.inline("م16 - الصيغ والجهات 🔄", data="m16_main"),
-            Button.inline("م17 - التمبلر والزغرفة ✨", data="m17_main"),
-        ],
-        [
-            Button.inline("م18 - الحساب والترفيه 🎮", data="m18_main"),
-            Button.inline("م19 - الميوزك والتشغيل 🎵", data="m19_main"),
-        ],
-        [
-            Button.inline("م20 - تجميع النقاط وبوت وعد 💰", data="m20_main"),
-            Button.inline("م21 - الذاتية للبصمات والصور 🎭", data="m21_main"),
+            Button.inline("اوامر وعد 🏦", data="w3d_commands"),
+            Button.inline("اوامر الاذكار 📿", data="azkar_commands"),
         ],
     ]
     await event.edit(HELP, buttons=butze, link_preview=False)
 
 # =========================================================== #
-#                         م1 - أوامر الإدارة                 #
+#                      أوامر الإدارة الرئيسية                #
 # =========================================================== #
 
-# صفحة م1 الرئيسية (الازرار الفرعية)
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_main")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"admin_commands")))
 @check_owner
 async def _(event):
     await event.edit(
-        "**👮 أوامر الإدارة - م1**\n\n"
+        "**👮 أوامر الإدارة**\n\n"
         "**⎉╎اختر الأمر الذي تريد معرفته:**",
         buttons=[
+            [Button.inline("اوامر الحظر 🚫", data="ban_cmd")],
             [
-                Button.inline("اوامر الحظر 🚫", data="m1_ban"),
-                Button.inline("اوامر الكتم 🤫", data="m1_mute"),
+                Button.inline("اوامر الكتم 🤫", data="mute_cmd"),
+                Button.inline("اوامر التثبيت 📌", data="pin_cmd"),
             ],
+            [Button.inline("اوامر الاشراف 👥", data="super_cmd")],
             [
-                Button.inline("اوامر التثبيت 📌", data="m1_pin"),
-                Button.inline("اوامر الاشراف 👥", data="m1_super"),
+                Button.inline("اوامر التحذيرات ⚠️", data="warn_cmd"),
+                Button.inline("اوامر الملكية 👑", data="ownership_cmd"),
             ],
-            [Button.inline("اوامر التحذيرات ⚠️", data="m1_warn")],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر الحظر
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_ban")))
+# =========================================================== #
+#               صفحة تفصيلية لأوامر الحظر                     #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"ban_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -180,14 +161,17 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم1 ↩️", data="m1_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر الكتم
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_mute")))
+# =========================================================== #
+#               صفحة تفصيلية لأوامر الكتم                     #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"mute_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -212,14 +196,17 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم1 ↩️", data="m1_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر التثبيت
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_pin")))
+# =========================================================== #
+#               صفحة تفصيلية لأوامر التثبيت                   #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"pin_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -244,14 +231,17 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم1 ↩️", data="m1_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر الاشراف
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_super")))
+# =========================================================== #
+#               صفحة تفصيلية لأوامر الاشراف                   #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"super_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -276,14 +266,17 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم1 ↩️", data="m1_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر التحذيرات
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m1_warn")))
+# =========================================================== #
+#               صفحة تفصيلية لأوامر التحذيرات                 #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"warn_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -305,56 +298,25 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم1 ↩️", data="m1_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
 # =========================================================== #
-#                         م2 - أوامر المجموعة                 #
+#               صفحة تفصيلية لأوامر الملكية                   #
 # =========================================================== #
 
-# صفحة م2 الرئيسية
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m2_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**👥 أوامر المجموعة - م2**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التفاعل 📱", data="m2_interact"),
-                Button.inline("اوامر الاعدادات ⚙️", data="m2_settings"),
-            ],
-            [
-                Button.inline("اوامر الصوت 🎤", data="m2_voice"),
-                Button.inline("اوامر الترتيب 📊", data="m2_order"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# صفحة تفصيلية لأوامر التفاعل
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m2_interact")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"ownership_cmd")))
 @check_owner
 async def _(event):
     text = (
-        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التفاعل 𓆪**\n"
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الملكية 𓆪**\n"
         "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "**☑️ ⦗ `.تفاعل` ⦘**\n"
-        "❐ قياس تفاعل المجموعة\n"
-        "❐ طريقة الاستخدام: `.تفاعل`\n\n"
-        "**☑️ ⦗ `.نشاط` ⦘**\n"
-        "❐ عرض النشاط اليومي\n"
-        "❐ طريقة الاستخدام: `.نشاط`\n\n"
-        "**☑️ ⦗ `.تاج` ⦘**\n"
-        "❐ منح تاج لأكثر الأعضاء تفاعلاً\n"
-        "❐ طريقة الاستخدام: `.تاج`\n\n"
-        "**☑️ ⦗ `.اكثر تفاعل` ⦘**\n"
-        "❐ عرض أكثر الأعضاء تفاعلاً\n"
-        "❐ طريقة الاستخدام: `.اكثر تفاعل`\n\n"
+        "**☑️ ⦗ `.ملكية` ⦘**\n"
+        "❐ نقل ملكية القناة لشخص\n"
+        "❐ طريقة الاستخدام: `.ملكية معرف الشخص`\n\n"
         "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
         "⌔︙Dev : @Lx5x5"
     )
@@ -362,218 +324,17 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم2 ↩️", data="m2_main")],
+            [Button.inline("رجوع لأوامر الإدارة ↩️", data="admin_commands")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
 # =========================================================== #
-#                     م3 - الترحيب والردود                    #
+#                صفحة تفصيلية لأوامر التنظيف                  #
 # =========================================================== #
 
-# صفحة م3 الرئيسية
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m3_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🎭 الترحيب والردود - م3**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر الترحيب 🤗", data="m3_welcome"),
-                Button.inline("اوامر الردود 🔄", data="m3_reply"),
-            ],
-            [
-                Button.inline("ترحيب البوت 🤖", data="m3_botwelcome"),
-                Button.inline("كلايش الترحيب 📝", data="m3_welcometext"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# صفحة تفصيلية لأوامر الترحيب
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m3_welcome")))
-@check_owner
-async def _(event):
-    text = (
-        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الترحيب 𓆪**\n"
-        "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "**☑️ ⦗ `.ترحيب` ⦘**\n"
-        "❐ وضع رسالة ترحيب للمجموعة\n"
-        "❐ طريقة الاستخدام: `.ترحيب النص`\n\n"
-        "**☑️ ⦗ `.الترحيب` ⦘**\n"
-        "❐ عرض رسالة الترحيب الحالية\n"
-        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
-        "**☑️ ⦗ `.حذف الترحيب` ⦘**\n"
-        "❐ حذف رسالة الترحيب\n"
-        "❐ طريقة الاستخدام: `.حذف الترحيب`\n\n"
-        "**☑️ ⦗ `.تفعيل الترحيب` ⦘**\n"
-        "❐ تفعيل الترحيب التلقائي\n"
-        "❐ طريقة الاستخدام: `.تفعيل الترحيب`\n\n"
-        "**☑️ ⦗ `.تعطيل الترحيب` ⦘**\n"
-        "❐ تعطيل الترحيب التلقائي\n"
-        "❐ طريقة الاستخدام: `.تعطيل الترحيب`\n\n"
-        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
-        "⌔︙Dev : @Lx5x5"
-    )
-    
-    await event.edit(
-        text,
-        buttons=[
-            [Button.inline("رجوع لم3 ↩️", data="m3_main")],
-            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# صفحة تفصيلية لأوامر الردود
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m3_reply")))
-@check_owner
-async def _(event):
-    text = (
-        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الردود 𓆪**\n"
-        "━━━━━━━━━━━━━━━━━━━━\n\n"
-        "**☑️ ⦗ `.رد اضف` ⦘**\n"
-        "❐ إضافة رد تلقائي\n"
-        "❐ طريقة الاستخدام: `.رد اضف الكلمة الرد`\n\n"
-        "**☑️ ⦗ `.رد حذف` ⦘**\n"
-        "❐ حذف رد تلقائي\n"
-        "❐ طريقة الاستخدام: `.رد حذف الكلمة`\n\n"
-        "**☑️ ⦗ `.الردود` ⦘**\n"
-        "❐ عرض قائمة الردود\n"
-        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
-        "**☑️ ⦗ `.مسح الردود` ⦘**\n"
-        "❐ حذف جميع الردود\n"
-        "❐ طريقة الاستخدام: `.مسح الردود`\n\n"
-        "**☑️ ⦗ `.رد` ⦘**\n"
-        "❐ تشغيل رد تلقائي\n"
-        "❐ طريقة الاستخدام: `.رد الكلمة`\n\n"
-        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
-        "⌔︙Dev : @Lx5x5"
-    )
-    
-    await event.edit(
-        text,
-        buttons=[
-            [Button.inline("رجوع لم3 ↩️", data="m3_main")],
-            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# =========================================================== #
-#                    باقي الصفحات الرئيسية                    #
-# =========================================================== #
-
-# م4 - حماية الخاص
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m4_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🛡️ حماية الخاص - م4**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر الحماية 🔐", data="m4_protection"),
-                Button.inline("اوامر السماح ✅", data="m4_allow"),
-            ],
-            [
-                Button.inline("اوامر القائمة 📋", data="m4_list"),
-                Button.inline("اوامر التلكراف 📧", data="m4_telegram"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م5 - المنشن والانتحال
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m5_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🎯 المنشن والانتحال - م5**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر المنشن @", data="m5_mention"),
-                Button.inline("اوامر الانتحال 🎭", data="m5_impersonate"),
-            ],
-            [
-                Button.inline("اوامر التاك #️⃣", data="m5_tag"),
-                Button.inline("اوامر الاعادة 🔄", data="m5_restore"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م6 - التحميل والترجمة
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m6_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**📥 التحميل والترجمة - م6**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التحميل 📥", data="m6_download"),
-                Button.inline("اوامر الترجمة 🌐", data="m6_translate"),
-            ],
-            [
-                Button.inline("اوامر اليوتيوب 🎵", data="m6_youtube"),
-                Button.inline("اوامر انستجرام 📷", data="m6_instagram"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م7 - المنع والقفل
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m7_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🔒 المنع والقفل - م7**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر القفل 🔒", data="m7_lock"),
-                Button.inline("اوامر الفتح 🔓", data="m7_unlock"),
-            ],
-            [
-                Button.inline("اوامر المنع 🚫", data="m7_block"),
-                Button.inline("قائمة المنع 📋", data="m7_blocklist"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م8 - التنظيف والتكرار
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m8_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🧹 التنظيف والتكرار - م8**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التنظيف 🧹", data="m8_clean"),
-                Button.inline("اوامر المسح 🗑️", data="m8_delete"),
-            ],
-            [
-                Button.inline("اوامر التكرار 🔁", data="m8_repeat"),
-                Button.inline("اوامر المؤقت ⏳", data="m8_temporary"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# صفحة تفصيلية لأوامر التنظيف
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m8_clean")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"clean_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -601,14 +362,16 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم8 ↩️", data="m8_main")],
-            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# صفحة تفصيلية لأوامر المسح
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m8_delete")))
+# =========================================================== #
+#                صفحة تفصيلية لأوامر المسح                    #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"delete_cmd")))
 @check_owner
 async def _(event):
     text = (
@@ -627,284 +390,1066 @@ async def _(event):
     await event.edit(
         text,
         buttons=[
-            [Button.inline("رجوع لم8 ↩️", data="m8_main")],
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#           صفحة تفصيلية لأوامر الوقت والتاريخ               #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"time_date_cmd")))
+@check_owner
+async def _(event):
+    await event.edit(
+        "**📅 أوامر الوقت والتاريخ**\n\n"
+        "**⎉╎اختر الأمر الذي تريد معرفته:**",
+        buttons=[
+            [Button.inline("اوامر الوقت والتاريخ ⏰", data="time_date_detailed")],
+            [
+                Button.inline("اوامر الرسائل الموقته ⏳", data="temp_msg_cmd"),
+                Button.inline("اوامر اللستة 📋", data="list_cmd"),
+            ],
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الوقت والتاريخ
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"time_date_detailed")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الوقت والتاريخ 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.تاريخ` ⦘**\n"
+        "❐ عرض سجل أسماء الحساب\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.الوقت` ⦘**\n"
+        "❐ عرض الوقت على شكل ملصق\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.وقت` ⦘**\n"
+        "❐ عرض الوقت على شكل كتابة\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.مؤقت` ⦘**\n"
+        "❐ إرسال رسالة مؤقتة\n"
+        "❐ طريقة الاستخدام: `.مؤقت 5 النص`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للوقت والتاريخ ↩️", data="time_date_cmd")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الرسائل الموقتة
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"temp_msg_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الرسائل الموقتة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.ضبط_المؤقت` ⦘**\n"
+        "❐ ضبط وقت حذف الرسائل تلقائياً\n"
+        "❐ طريقة الاستخدام: `.ضبط_المؤقت 10`\n\n"
+        "**☑️ ⦗ `.تعطيل_المؤقت` ⦘**\n"
+        "❐ إيقاف حذف الرسائل التلقائي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.مؤقت` ⦘**\n"
+        "❐ إرسال رسالة مؤقتة\n"
+        "❐ طريقة الاستخدام: `.مؤقت 5 النص`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للوقت والتاريخ ↩️", data="time_date_cmd")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر اللستة
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"list_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر اللستة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.لستة` ⦘**\n"
+        "❐ صنع لستة شفافة للمنشور\n"
+        "❐ طريقة الاستخدام: مع المنشور\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للوقت والتاريخ ↩️", data="time_date_cmd")],
             [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
 # =========================================================== #
-#                استمرار باقي الصفحات الرئيسية                #
+#               صفحة تفصيلية لأوامر الوقتي                   #
 # =========================================================== #
 
-# م9 - التخصيص والفارات
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m9_main")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"timely_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الوقتي 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.تفعيل_وقتي` ⦘**\n"
+        "❐ تفعيل إرسال الوقت التلقائي\n"
+        "❐ طريقة الاستخدام: في المجموعة\n\n"
+        "**☑️ ⦗ `.تعطيل_وقتي` ⦘**\n"
+        "❐ تعطيل إرسال الوقت التلقائي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#               صفحة تفصيلية لأوامر الصلاة                   #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"prayer_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصلاة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.صلاة` ⦘**\n"
+        "❐ الحصول على أوقات الصلاة\n"
+        "❐ طريقة الاستخدام: `.صلاة المحافظة`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر المساعدة                #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"help_commands")))
 @check_owner
 async def _(event):
     await event.edit(
-        "**⚙️ التخصيص والفارات - م9**\n\n"
+        "**🆘 أوامر المساعدة**\n\n"
         "**⎉╎اختر الأمر الذي تريد معرفته:**",
         buttons=[
+            [Button.inline("اوامر المساعدة 🆘", data="help_detailed")],
             [
-                Button.inline("اوامر الفارات 🎈", data="m9_vars"),
-                Button.inline("اوامر التخصيص 🪁", data="m9_custom"),
-            ],
-            [
-                Button.inline("اوامر الجلب 📥", data="m9_get"),
-                Button.inline("اوامر الوضع 🛠️", data="m9_set"),
+                Button.inline("اوامر كوكل 🔎", data="google_cmd"),
+                Button.inline("اوامر السرعة ⚡", data="speed_cmd"),
             ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م10 - الوقتي والتشغيل
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m10_main")))
+# صفحة تفصيلية لأوامر المساعدة
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"help_detailed")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المساعدة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.موقع` ⦘**\n"
+        "❐ الحصول على مكان في الخريطة\n"
+        "❐ طريقة الاستخدام: `.موقع المكان`\n\n"
+        "**☑️ ⦗ `.جد بكج` ⦘**\n"
+        "❐ معرفة وجود البكج أو المكتبة\n"
+        "❐ طريقة الاستخدام: `.جد بكج الاسم`\n\n"
+        "**☑️ ⦗ `.صورة` ⦘**\n"
+        "❐ الحصول على صورة الحساب\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.صوره كلها` ⦘**\n"
+        "❐ الحصول على جميع صور الحساب\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.سرعة النت` ⦘**\n"
+        "❐ قياس سرعة الانترنت\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.بنك` ⦘**\n"
+        "❐ قياس سرعة البنك\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.حساب` ⦘**\n"
+        "❐ لأرسال رابط لحساب الشخص\n"
+        "❐ طريقة الاستخدام: `.حساب + ايدي الشخص`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للمساعدة ↩️", data="help_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر كوكل
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"google_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر كوكل 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.صور` ⦘**\n"
+        "❐ الحصول على صور من جوجل\n"
+        "❐ طريقة الاستخدام: `.صور 10 النص`\n\n"
+        "**☑️ ⦗ `.استخرج` ⦘**\n"
+        "❐ استخراج النصوص من الصور\n"
+        "❐ طريقة الاستخدام: `.استخرج عربي بالرد`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للمساعدة ↩️", data="help_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر السرعة
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"speed_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السرعة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.سرعة النت` ⦘**\n"
+        "❐ قياس سرعة الانترنت\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.بنك` ⦘**\n"
+        "❐ قياس سرعة البنك\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للمساعدة ↩️", data="help_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الروابط                 #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"link_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الروابط 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.دنس` ⦘**\n"
+        "❐ كشف نظام دومين الموقع\n"
+        "❐ طريقة الاستخدام: `.دنس الرابط`\n\n"
+        "**☑️ ⦗ `.مصغر` ⦘**\n"
+        "❐ تصغير الرابط\n"
+        "❐ طريقة الاستخدام: بالرد على الرابط\n\n"
+        "**☑️ ⦗ `.رابط_مخفي` ⦘**\n"
+        "❐ إخفاء الرابط في مسافة معينة\n"
+        "❐ طريقة الاستخدام: بالرد على الرابط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الكشف                   #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"detect_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكشف 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.الايدي` ⦘**\n"
+        "❐ عرض معلومات الكروب\n"
+        "❐ طريقة الاستخدام: أرسل الامر في الكروب\n\n"
+        "**☑️ ⦗ `.ايدي` ⦘**\n"
+        "❐ عرض معلومات العضو بشكل مبسط\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.ا` ⦘ او ⦗ `.i` ⦘**\n"
+        "❐ عرض معلومات العضو بشكل مبسط **نسخه الايموجي المميز** ال i تضهر الكليشة بالغة الانكليزيه\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.كشف` ⦘**\n"
+        "❐ عرض معلومات العضو\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "**☑️ ⦗ `.لايك` ⦘**\n"
+        "❐ عرض معلوماتك\n"
+        "❐ طريقة الاستخدام: ارسل الامر فقط\n\n"
+        "**☑️ ⦗ `.المعجبين` ⦘**\n"
+        "❐ لـ عرض معجبينك\n"
+        "❐ طريقة الاستخدام: ارسل الامر فقط\n\n"
+        "**☑️ ⦗ `.مسح المعجبين` ⦘**\n"
+        "❐ لـ مسح معجبينك\n"
+        "❐ طريقة الاستخدام: بالرد على الشخص\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#              صفحة تفصيلية لأوامر التسلية والميمز           #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"fun_meme_commands")))
 @check_owner
 async def _(event):
     await event.edit(
-        "**⏰ الوقتي والتشغيل - م10**\n\n"
+        "**😂 أوامر التسلية والميمز**\n\n"
         "**⎉╎اختر الأمر الذي تريد معرفته:**",
         buttons=[
+            [Button.inline("اوامر التسلية 🎮", data="fun_cmd")],
             [
-                Button.inline("اوامر الوقتي 🔄", data="m10_timely"),
-                Button.inline("اوامر التشغيل ⚡", data="m10_run"),
+                Button.inline("اوامر التحشيش 🤣", data="meme_cmd"),
+                Button.inline("اوامر البلي والكت 🎯", data="play_cmd"),
             ],
             [
-                Button.inline("اوامر التحديث 🔄", data="m10_update"),
-                Button.inline("اوامر الاطفاء 🔌", data="m10_shutdown"),
+                Button.inline("اوامر النسب 📊", data="rate_cmd"),
+                Button.inline("اوامر الرفع ⬆️", data="raise_cmd"),
             ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م11 - الكشف والروابط
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m11_main")))
+# صفحة تفصيلية لأوامر التسلية
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"fun_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التسلية 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.تسلية 1` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 2` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 3` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 4` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 5` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 6` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 7` ⦘**\n"
+        "**☑️ ⦗ `.تسلية 8` ⦘**\n"
+        "**☑️ ⦗ `.رفع ادمن` ⦘**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للتسلية والميمز ↩️", data="fun_meme_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر التحشيش
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"meme_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحشيش 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**جميع الأوامر تستخدم بالرد على الشخص**\n\n"
+        "**⦗ `.رفع تاج` ⦘** - **⦗ `.رفع بكلبي` ⦘** - **⦗ `.رفع مطي` ⦘**\n"
+        "**⦗ `.رفع جلب` ⦘** - **⦗ `.رفع قرد` ⦘** - **⦗ `.رفع مرتي` ⦘**\n"
+        "**⦗ `.رفع زوجي` ⦘** - **⦗ `.نسبة الانوثة` ⦘** - **⦗ `.نسبة الحب` ⦘**\n"
+        "**⦗ `.نسبة الغباء` ⦘** - **⦗ `.رفع زاحف` ⦘** - **⦗ `.رفع كحبة` ⦘**\n"
+        "**⦗ `.رفع فرخ` ⦘** - **⦗ `.رزله` ⦘** - **⦗ `.رفع صاك` ⦘**\n"
+        "**⦗ `.رفع حاته` ⦘** - **⦗ `.رفع بقره` ⦘** - **⦗ `.رفع ايجة` ⦘**\n"
+        "**⦗ `.رفع زبال` ⦘** - **⦗ `.رفع كواد` ⦘** - **⦗ `.رفع ديوث` ⦘**\n"
+        "**⦗ `.رفع مجنب` ⦘** - **⦗ `.رفع مميز` ⦘** - **⦗ `.رفع ادمن` ⦘**\n"
+        "**⦗ `.رفع منشئ` ⦘** - **⦗ `.رفع مالك` ⦘** - **⦗ `.رفع وصخ` ⦘**\n"
+        "**⦗ `.نسبة الكذب` ⦘** - **⦗ `.نسبة الدياثه` ⦘**\n"
+        "**⦗ `.نسبة الشذوذ` ⦘** - **⦗ `.نسبة الجمال` ⦘**\n"
+        "**⦗ `.نسبة الخيانه` ⦘**\n\n"
+        "**☑️ ⦗ `.رفع` + كلمة  ⦘**\n"
+        "❐ لـ رفع الشخص بالكلمة التي وضعتها\n"
+        "❐ طريقة الاستخدام: ارسل الامر مع وضع كلمة\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للتسلية والميمز ↩️", data="fun_meme_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر البلي والكت
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"play_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البلي والكت 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.بلي` ⦘**\n"
+        "**☑️ ⦗ `.كت` ⦘**\n"
+        "**☑️ ⦗ `.خيروك` ⦘**\n"
+        "**☑️ ⦗ `.غنيلي` ⦘**\n"
+        "**☑️ ⦗ `.شعر` ⦘**\n"
+        "**☑️ ⦗ `.فلم` ⦘**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للتسلية والميمز ↩️", data="fun_meme_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر النسب
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"rate_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر النسب 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**جميع الأوامر تستخدم بالرد على الشخص**\n\n"
+        "**☑️ ⦗ `.نسبة الانوثة` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الحب` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الغباء` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الكذب` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الدياثه` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الشذوذ` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الجمال` ⦘**\n"
+        "**☑️ ⦗ `.نسبة الخيانه` ⦘**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للتسلية والميمز ↩️", data="fun_meme_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الرفع
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"raise_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الرفع 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**جميع الأوامر تستخدم بالرد على الشخص**\n\n"
+        "**☑️ ⦗ `.رفع تاج` ⦘**\n"
+        "**☑️ ⦗ `.رفع بكلبي` ⦘**\n"
+        "**☑️ ⦗ `.رفع مطي` ⦘**\n"
+        "**☑️ ⦗ `.رفع جلب` ⦘**\n"
+        "**☑️ ⦗ `.رفع قرد` ⦘**\n"
+        "**☑️ ⦗ `.رفع مرتي` ⦘**\n"
+        "**☑️ ⦗ `.رفع زوجي` ⦘**\n"
+        "**☑️ ⦗ `.رفع زاحف` ⦘**\n"
+        "**☑️ ⦗ `.رفع كحبة` ⦘**\n"
+        "**☑️ ⦗ `.رفع فرخ` ⦘**\n"
+        "**☑️ ⦗ `.رفع صاك` ⦘**\n"
+        "**☑️ ⦗ `.رفع حاته` ⦘**\n"
+        "**☑️ ⦗ `.رفع بقره` ⦘**\n"
+        "**☑️ ⦗ `.رفع ايجة` ⦘**\n"
+        "**☑️ ⦗ `.رفع زبال` ⦘**\n"
+        "**☑️ ⦗ `.رفع كواد` ⦘**\n"
+        "**☑️ ⦗ `.رفع ديوث` ⦘**\n"
+        "**☑️ ⦗ `.رفع مجنب` ⦘**\n"
+        "**☑️ ⦗ `.رفع مميز` ⦘**\n"
+        "**☑️ ⦗ `.رفع ادمن` ⦘**\n"
+        "**☑️ ⦗ `.رفع منشئ` ⦘**\n"
+        "**☑️ ⦗ `.رفع مالك` ⦘**\n"
+        "**☑️ ⦗ `.رفع وصخ` ⦘**\n\n"
+        "**☑️ ⦗ `.رفع` + كلمة ⦘**\n"
+        "❐ لـ رفع الشخص بالكلمة التي وضعتها\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للتسلية والميمز ↩️", data="fun_meme_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الاذاعة                 #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"broadcast_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الإذاعة 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.وجه` ⦘**\n"
+        "❐ إذاعة نص للمجموعات\n"
+        "❐ طريقة الاستخدام: `.وجه النص`\n\n"
+        "**☑️ ⦗ `.حول` ⦘**\n"
+        "❐ إذاعة نص للخاص\n"
+        "❐ طريقة الاستخدام: `.حول النص`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر التحويل                 #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"convert_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحويل 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.تحويل صورة` ⦘**\n"
+        "❐ تحويل الملصق إلى صورة\n"
+        "❐ طريقة الاستخدام: بالرد على الملصق\n\n"
+        "**☑️ ⦗ `.تحويل ملصق` ⦘**\n"
+        "❐ تحويل الصورة إلى ملصق\n"
+        "❐ طريقة الاستخدام: بالرد على الصورة\n\n"
+        "**☑️ ⦗ `.تحويل voice` ⦘**\n"
+        "❐ تحويل المقطع إلى بصمة صوتية\n"
+        "❐ طريقة الاستخدام: بالرد على المقطع\n\n"
+        "**☑️ ⦗ `.تحويل mp3` ⦘**\n"
+        "❐ تحويل البصمة إلى مقطع mp3\n"
+        "❐ طريقة الاستخدام: بالرد على البصمة\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الجهات                  #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"contacts_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الجهات 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.ضيف` ⦘**\n"
+        "❐ إضافة أعضاء من مجموعة أخرى\n"
+        "❐ طريقة الاستخدام: `.ضيف رابط المجموعة`\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الحساب                  #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"account_commands")))
 @check_owner
 async def _(event):
     await event.edit(
-        "**🔍 الكشف والروابط - م11**\n\n"
+        "**👤 أوامر الحساب**\n\n"
         "**⎉╎اختر الأمر الذي تريد معرفته:**",
         buttons=[
             [
-                Button.inline("اوامر الكشف 🔍", data="m11_detect"),
-                Button.inline("اوامر الروابط 🔗", data="m11_links"),
+                Button.inline("اوامر الحساب 📊", data="account_detailed"),
+                Button.inline("اوامر الترفيه 🎮", data="entertainment_cmd"),
             ],
             [
-                Button.inline("اوامر الكوكل 🔎", data="m11_google"),
-                Button.inline("اوامر الاستخراج 📄", data="m11_extract"),
+                Button.inline("اوامر الالعاب الذكية 🧠", data="smart_games_cmd"),
+                Button.inline("اوامر الميمز 🎭", data="meme_voices_cmd"),
             ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م12 - المساعدة والإذاعة
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m12_main")))
+# صفحة تفصيلية لأوامر الحساب
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"account_detailed")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحساب 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.كروباتي مالك` ⦘** , **⦗ `.كروباتي ادمن` ⦘**\n"
+        "**⦗ `.كروباتي الكل` ⦘**\n"
+        "❐ لـ عرض قوائم بمجموعاتك\n\n"
+        "**☑️ ⦗ `.قنواتي مالك` ⦘** - **⦗ `.قنواتي ادمن` ⦘**\n"
+        "**⦗ `.قنواتي الكل` ⦘**\n"
+        "❐ لـ عرض قوائم بقنواتك\n\n"
+        "**☑️ ⦗ `.معلوماتي` ⦘**\n"
+        "❐ لـ عرض قائمة ب عدد الاشخاص والكروبات الموجودة في حسابك\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.حسابي` ⦘**\n"
+        "❐ نسخه مبسطه من أمر معلوماتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.مغادرة القنوات` ⦘**\n\n"
+        "**☑️ ⦗ `.مغادرة الكروبات` ⦘**\n\n"
+        "**☑️ ⦗ `.تصفية الخاص` ⦘**\n\n"
+        "**☑️ ⦗ `.تصفية البوتات` ⦘**\n"
+        "**☑️ ⦗ `.حظر_البوتات` ⦘**\n\n"
+        "**الفرق بين ( `.تصفية البوتات` ) و ( `.حظر_البوتات` )**\n"
+        "**تصفية البوتات**: هي حذف المحادثة فقط يعني ب أمكان البوت يراسلك\n"
+        "**حظر_البوتات:** هي حذف وحظر البوتات ولا يمكن البوت أن يراسلك\n\n"
+        "**❐ إذا أردت دردشة معينه لاتنشمل في التصفية**\n"
+        "**__قم **__بوضعها في الأرشيف\n\n"
+        "**❐ طريقة الاستخدام: إرسال الأمر فقط**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الحساب ↩️", data="account_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الترفيه
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"entertainment_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الترفيه 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.بلي` ⦘**\n"
+        "**☑️ ⦗ `.كت` ⦘**\n"
+        "**☑️ ⦗ `.خيروك` ⦘**\n"
+        "**☑️ ⦗ `.غنيلي` ⦘**\n"
+        "**☑️ ⦗ `.شعر` ⦘**\n"
+        "**☑️ ⦗ `.فلم` ⦘**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الحساب ↩️", data="account_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الألعاب الذكية
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"smart_games_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الألعاب الذكية 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.محيبس` ⦘**\n"
+        "❐ لعبة محيبس تستطيع أستخدامها انت أو شخص أخر\n"
+        "❐ فكرة العبة: أيجاد المحبس\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.نرد2` ⦘**\n"
+        "❐ لعبة نرد ذكية تستطيع لعبها ويا مجموعة من الاشخاص\n"
+        "❐ فكرة العبة: أقل شخص يحصل على نقاط بعد رمي النرد يخرج من العبة\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.احكام` ⦘**\n"
+        "❐ لعبة ذكية تسمح بالمشاركة عده أشخاص\n"
+        "❐ فكرة العبة: عند بدء العبة سيختار البوت 2 أشخاص __الاول__ الحاكم و__الثاني__المحكوم\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الحساب ↩️", data="account_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الميمز
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"meme_voices_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر بصمات الميمز 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.ميمز` ⦘**\n"
+        "❐ بوضع رابط المقطع الصوتي مع الامر واسم الميمز\n"
+        "❐ مثال : .ميمز + رابط البصمه + اسم الميمز الي تريده\n\n"
+        "**☑️ ⦗ `.ازالة` ⦘**\n"
+        "❐ إزالة بصمة معينة بوضع أسمها مع الامر\n\n"
+        "**☑️ ⦗ `.قائمة الميمز` ⦘**\n"
+        "❐ عرض قائمة البصمات المضافة\n\n"
+        "**☑️ ⦗ `.ازالة_البصمات` ⦘**\n"
+        "❐ إزالة جميع البصمات المضافة\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الحساب ↩️", data="account_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الفارات                  #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"var_commands")))
 @check_owner
 async def _(event):
     await event.edit(
-        "**🆘 المساعدة والإذاعة - م12**\n\n"
+        "**⚙️ أوامر الفارات**\n\n"
         "**⎉╎اختر الأمر الذي تريد معرفته:**",
         buttons=[
+            [Button.inline("اوامر الفارات 🎈", data="vars_detailed")],
             [
-                Button.inline("اوامر المساعدة 🆘", data="m12_help"),
-                Button.inline("اوامر الاذاعه 📢", data="m12_broadcast"),
+                Button.inline("اوامر التخصيص 🪁", data="custom_cmd"),
+                Button.inline("اوامر الاسم 🏷️", data="name_cmd"),
             ],
             [
-                Button.inline("اوامر التوجيه 📨", data="m12_forward"),
-                Button.inline("اوامر الاستعلام ❓", data="m12_inquiry"),
+                Button.inline("اوامر البايو 📝", data="bio_cmd"),
+                Button.inline("الكروب الوقتي 🕒", data="group_timely_cmd"),
             ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م13 - الإرسال والأذكار
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m13_main")))
+# صفحة تفصيلية لأوامر الفارات
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"vars_detailed")))
 @check_owner
 async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الفارات 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.جلب` ⦘**\n"
+        "❐ جلب قيمة فار معين\n"
+        "❐ طريقة الاستخدام: `.جلب اسم الفار`\n\n"
+        "**☑️ ⦗ `.وضع توقيت` ⦘**\n"
+        "❐ وضع المنطقة الزمنية\n"
+        "❐ طريقة الاستخدام: بالرد على المنطقة\n\n"
+        "**☑️ ⦗ `.وضع رمز الاسم` ⦘**\n"
+        "❐ وضع رمز الاسم\n"
+        "❐ طريقة الاستخدام: بالرد على الرمز\n\n"
+        "**☑️ ⦗ `.وضع الكروب` ⦘**\n"
+        "❐ وضع اسم الكروب\n"
+        "❐ طريقة الاستخدام: بالرد على الاسم\n\n"
+        "**☑️ ⦗ `.وضع البايو` ⦘**\n"
+        "❐ وضع البايو\n"
+        "❐ طريقة الاستخدام: بالرد على النبذة\n\n"
+        "**☑️ ⦗ `.وضع لون وقتي` ⦘**\n"
+        "❐ وضع لون الوقتي\n"
+        "❐ طريقة الاستخدام: بالرد على اللون\n\n"
+        "**☑️ ⦗ `.وضع الصورة` ⦘**\n"
+        "❐ وضع الصورة الشخصية\n"
+        "❐ طريقة الاستخدام: بالرد على رابط الصورة\n\n"
+        "**☑️ ⦗ `.وضع صورة الكروب` ⦘**\n"
+        "❐ وضع صورة الكروب\n"
+        "❐ طريقة الاستخدام: بالرد على رابط الصورة\n\n"
+        "**☑️ ⦗ `.وضع زخرفة الارقام` ⦘**\n"
+        "❐ وضع زخرفة الأرقام\n"
+        "❐ طريقة الاستخدام: بالرد على الأرقام\n\n"
+        "**☑️ ⦗ `.وضع اسم` ⦘**\n"
+        "❐ وضع الاسم\n"
+        "❐ طريقة الاستخدام: بالرد على الاسم\n\n"
+        "**☑️ ⦗ `.وضع كروب التخزين` ⦘**\n"
+        "❐ وضع كروب التخزين\n"
+        "❐ طريقة الاستخدام: بالرد على الأيدي\n\n"
+        "**☑️ ⦗ `.وضع كروب الحفظ` ⦘**\n"
+        "❐ وضع كروب الحفظ\n"
+        "❐ طريقة الاستخدام: بالرد على الأيدي\n\n"
+        "**تنويه: استخدم (محو) بدل (وضع) لحذف الفار**\n\n"
+        "**•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•**\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
     await event.edit(
-        "**📿 الإرسال والأذكار - م13**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
+        text,
         buttons=[
-            [
-                Button.inline("اوامر الاذكار 📿", data="m13_azkar"),
-                Button.inline("اوامر الإرسال 📨", data="m13_send"),
-            ],
-            [
-                Button.inline("اوامر الصلاة 🕌", data="m13_prayer"),
-                Button.inline("اوامر الدعاء 🙏", data="m13_dua"),
-            ],
+            [Button.inline("رجوع لأوامر الفارات ↩️", data="var_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الاسم
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"name_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاسم 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.اسم وقتي` ⦘**\n"
+        "❐ إضافة اسم وقتي في خانة 1\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.اسم وقتي2` ⦘**\n"
+        "❐ إضافة اسم وقتي في خانة 2\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.انهاء اسم وقتي` ⦘**\n"
+        "❐ إنهاء الاسم الوقتي 1 و 2\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.اوامر الاسم الوقتي` ⦘**\n"
+        "❐ لـ عرض الاوامر الخاصه ب اسم الوقتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.الصورة الوقتية` ⦘**\n"
+        "❐ وضع صورة تتغير مع الوقت\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.انهاء الصورة الوقتية` ⦘**\n"
+        "❐ إنهاء الصورة الوقتية\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الفارات ↩️", data="var_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر البايو
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"bio_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البايو 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.بايو وقتي` ⦘**\n"
+        "❐ إضافة بايو وقتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.انهاء البايو الوقتي` ⦘**\n"
+        "❐ إنهاء البايو الوقتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الفارات ↩️", data="var_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# صفحة تفصيلية لأوامر الكروب الوقتي
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"group_timely_cmd")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكروب الوقتي 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.كروب وقتي` ⦘**\n"
+        "❐ إضافة كروب وقتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.انهاء كروب وقتي` ⦘**\n"
+        "❐ إنهاء الكروب الوقتي\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.كروب صورة وقتي` ⦘**\n"
+        "❐ تشغيل الصورة الوقتية للمجموعة\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.انهاء كروب صورة وقتي` ⦘**\n"
+        "❐ إنهاء الصورة الوقتية للمجموعة\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
+            [Button.inline("رجوع لأوامر الفارات ↩️", data="var_commands")],
+            [Button.inline("القائمة الرئيسية 🏠", data="ZEDHELP")],
+        ],
+        link_preview=False
+    )
+
+# =========================================================== #
+#                صفحة تفصيلية لأوامر التجميع                  #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"collect_commands")))
+@check_owner
+async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التجميع 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.تجميع العرب` ⦘**\n"
+        "**☑️ ⦗ `.تجميع دعمكم` ⦘**\n"
+        "**☑️ ⦗ `.تجميع الجوكر` ⦘**\n"
+        "**☑️ ⦗ `.تجميع المليار` ⦘**\n"
+        "**☑️ ⦗ `.تجميع العقاب` ⦘**\n"
+        "**☑️ ⦗ `.تجميع المليون` ⦘**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
+    await event.edit(
+        text,
+        buttons=[
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م14 - الملصقات وكوكل
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m14_main")))
+# =========================================================== #
+#                صفحة تفصيلية لأوامر وعد                     #
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"w3d_commands")))
 @check_owner
 async def _(event):
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر وعد 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.راتب وعد` ⦘**\n"
+        "❐ تجميع الأموال كل 10 دقائق\n"
+        "❐ طريقة الاستخدام: في المجموعة\n\n"
+        "**☑️ ⦗ `.ايقاف راتب وعد` ⦘**\n"
+        "❐ إيقاف تجميع الراتب\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.سرقة وعد` ⦘**\n"
+        "❐ سرقة أموال شخص كل 10 دقائق\n"
+        "❐ طريقة الاستخدام: `.سرقة وعد ايدي الشخص`\n\n"
+        "**☑️ ⦗ `.ايقاف سرقة وعد` ⦘**\n"
+        "❐ إيقاف سرقة الأموال\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.بخشيش وعد` ⦘**\n"
+        "❐ أخذ بخشيش كل 10 دقائق\n"
+        "❐ طريقة الاستخدام: في المجموعة\n\n"
+        "**☑️ ⦗ `.ايقاف بخشيش وعد` ⦘**\n"
+        "❐ إيقاف أخذ البخشيش\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "**☑️ ⦗ `.استثمار وعد` ⦘**\n"
+        "❐ استثمار الأموال كل 20 دقيقة\n"
+        "❐ طريقة الاستخدام: في المجموعة\n\n"
+        "**☑️ ⦗ `.ايقاف استثمار وعد` ⦘**\n"
+        "❐ إيقاف الاستثمار\n"
+        "❐ طريقة الاستخدام: إرسال الأمر فقط\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
+    )
+    
     await event.edit(
-        "**🎨 الملصقات وكوكل - م14**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
+        text,
         buttons=[
-            [
-                Button.inline("اوامر الملصقات 🎭", data="m14_stickers"),
-                Button.inline("اوامر الكوكل 🔎", data="m14_google"),
-            ],
-            [
-                Button.inline("اوامر الصور 🖼️", data="m14_images"),
-                Button.inline("اوامر البحث 🔍", data="m14_search"),
-            ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False
     )
 
-# م15 - التسلية والميمز
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m15_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**😂 التسلية والميمز - م15**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التسلية 🎮", data="m15_fun"),
-                Button.inline("اوامر التحشيش 🤣", data="m15_memes"),
-            ],
-            [
-                Button.inline("اوامر النسب 📊", data="m15_rates"),
-                Button.inline("اوامر الرفع ⬆️", data="m15_raise"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
+# =========================================================== #
+#                صفحة تفصيلية لأوامر الاذكار                 #
+# =========================================================== #
 
-# م16 - الصيغ والجهات
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m16_main")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"azkar_commands")))
 @check_owner
 async def _(event):
-    await event.edit(
-        "**🔄 الصيغ والجهات - م16**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التحويل 🔄", data="m16_convert"),
-                Button.inline("اوامر الجهات 👥", data="m16_contacts"),
-            ],
-            [
-                Button.inline("اوامر الصيغ 📁", data="m16_formats"),
-                Button.inline("اوامر النقل 📤", data="m16_transfer"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
+    text = (
+        "**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الأذكار 𓆪**\n"
+        "━━━━━━━━━━━━━━━━━━━━\n\n"
+        "**☑️ ⦗ `.اذكار الصباح` ⦘**\n"
+        "**☑️ ⦗ `.اذكار المساء` ⦘**\n"
+        "**☑️ ⦗ `.اذكار النوم` ⦘**\n"
+        "**☑️ ⦗ `.اذكار الصلاة` ⦘**\n"
+        "**☑️ ⦗ `.اذكار الاستيقاظ` ⦘**\n"
+        "**☑️ ⦗ `.احاديث` ⦘**\n\n"
+        "**❐ عرض الأذكار**\n"
+        "**❐ طريقة الاستخدام: إرسال الأمر فقط**\n\n"
+        "•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n"
+        "⌔︙Dev : @Lx5x5"
     )
-
-# م17 - التمبلر والزغرفة
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m17_main")))
-@check_owner
-async def _(event):
+    
     await event.edit(
-        "**✨ التمبلر والزغرفة - م17**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
+        text,
         buttons=[
-            [
-                Button.inline("اوامر الزغرفة ✨", data="m17_decoration"),
-                Button.inline("اوامر التمبلر 📝", data="m17_tumbler"),
-            ],
-            [
-                Button.inline("اوامر الخطوط 🖋️", data="m17_fonts"),
-                Button.inline("اوامر التنسيق 🎨", data="m17_formatting"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م18 - الحساب والترفيه
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m18_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🎮 الحساب والترفيه - م18**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر الحساب 👤", data="m18_account"),
-                Button.inline("اوامر الترفيه 🎮", data="m18_entertainment"),
-            ],
-            [
-                Button.inline("اوامر الالعاب 🎯", data="m18_games"),
-                Button.inline("اوامر المغادرة 🚪", data="m18_leave"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م19 - الميوزك والتشغيل
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m19_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🎵 الميوزك والتشغيل - م19**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر الميوزك 🎵", data="m19_music"),
-                Button.inline("اوامر التشغيل ▶️", data="m19_play"),
-            ],
-            [
-                Button.inline("اوامر التحميل 🎧", data="m19_download"),
-                Button.inline("اوامر القوائم 📋", data="m19_playlists"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م20 - تجميع النقاط وبوت وعد
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m20_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**💰 تجميع النقاط وبوت وعد - م20**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("اوامر التجميع 💰", data="m20_collect"),
-                Button.inline("اوامر وعد 🏦", data="m20_w3d"),
-            ],
-            [
-                Button.inline("اوامر الراتب 💸", data="m20_salary"),
-                Button.inline("اوامر السرقة 🎯", data="m20_steal"),
-            ],
-            [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
-        ],
-        link_preview=False
-    )
-
-# م21 - الذاتية للبصمات والصور
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"m21_main")))
-@check_owner
-async def _(event):
-    await event.edit(
-        "**🎭 الذاتية للبصمات والصور - م21**\n\n"
-        "**⎉╎اختر الأمر الذي تريد معرفته:**",
-        buttons=[
-            [
-                Button.inline("الصوره الذاتيه 📸", data="m21_selfphoto"),
-                Button.inline("البصمه الذاتيه 🎤", data="m21_selfvoice"),
-            ],
-            [
-                Button.inline("اوامر الحفظ 💾", data="m21_save"),
-                Button.inline("اوامر الجلب 📥", data="m21_get"),
-            ],
             [Button.inline("رجوع للقائمة الرئيسية ↩️", data="ZEDHELP")],
         ],
         link_preview=False

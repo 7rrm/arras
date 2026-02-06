@@ -63,7 +63,11 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
                 del PMMESSAGE_CACHE[str(chat.id)]
         except Exception as e:
             LOGS.info(str(e))
+        
+        # التحقق من نوع العقوبة (كتم أم حظر)
+        controlmute = gvarstatus("pmute") or None
         custompmblock = gvarstatus("pmblock") or None
+        
         if custompmblock is not None:
             USER_BOT_WARN_ZERO = custompmblock.format(
                 mention=mention,
@@ -82,12 +86,26 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
                 remwarns=remwarns,
             )  # ترجمه وكتابة فريق الجوكر
         else:
-            USER_BOT_WARN_ZERO = f"- حذࢪتك وكتلك لا تكࢪࢪ تَم حظࢪك بنجاح ما ٱكدر اخليك تزعج المالك \n- - بباي 🙁🤍"
-        msg = await event.reply(USER_BOT_WARN_ZERO)
-        await event.client(functions.contacts.BlockRequest(chat.id))
-        the_message = f"#المحظورين_الحمايه\
-                            \n[{get_display_name(chat)}](tg://user?id={chat.id}) تم حظره\
-                            \n- عدد الرسائل: {PM_WARNS[str(chat.id)]}"
+            if controlmute is not None:
+                USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم ڪتمـك تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
+            else:
+                USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم حـظـرڪ تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
+        
+        if controlmute is not None:
+            msg = await event.reply(USER_BOT_WARN_ZERO)
+            # هنا يمكن إضافة دالة الكتم إذا كانت موجودة في SQL
+            the_message = f"#حمـايـة_الخـاص\
+                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
+                            \n** ⎉╎تم كتمـه .. تلقائيـاً**\
+                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
+        else:
+            msg = await event.reply(USER_BOT_WARN_ZERO)
+            await event.client(functions.contacts.BlockRequest(chat.id))
+            the_message = f"#حمـايـة_الخـاص\
+                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
+                            \n** ⎉╎تم حظـره .. تلقائيـاً**\
+                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
+        
         del PM_WARNS[str(chat.id)]
         sql.del_collection("pmwarns")
         sql.del_collection("pmmessagecache")
@@ -100,6 +118,8 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             )
         except BaseException:
             return
+    
+    # رسالة الترحيب
     custompmpermit = gvarstatus("pmpermit_txt") or None
     if custompmpermit is not None:
         USER_BOT_NO_WARN = custompmpermit.format(
@@ -118,14 +138,40 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             warns=warns,
             remwarns=remwarns,
         )
+    elif gvarstatus("pmute") is not None:
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
+**•─────────────────•**
+
+❞ **مرحبـاً**  {mention} ❝
+
+**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
+**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
+**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم ڪتمـك تلقـائياً . . .**
+
+**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     elif gvarstatus("pmmenu") is None:
-        USER_BOT_NO_WARN = f"""᯽︙ اهلا بك {mention} \n مالك الحساب غير موجود حاليا الرجاء الانتظار وعدم تكرار الرسائل. 
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
+**•─────────────────•**
 
-لديك {warns}/{totalwarns} من التحذيرات لا تكرر الرسائل. """
+❞ **مرحبـاً**  {mention} ❝
+
+**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
+**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
+**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم حظـرك تلقـائياً . . .**
+
+**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     else:
-        USER_BOT_NO_WARN = f"""᯽︙ اهلا بك {mention} \n مالك الحساب غير موجود حاليا الرجاء الانتظار وعدم تكرار الرسائل. 
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
+**•─────────────────•**
 
-لديك {warns}/{totalwarns} من التحذيرات لا تكرر الرسائل. """
+❞ **مرحبـاً**  {mention} ❝
+
+**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
+**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
+**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم حظـرك تلقـائياً . . .**
+
+**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
+    
     addgvar("pmpermit_text", USER_BOT_NO_WARN)
     PM_WARNS[str(chat.id)] += 1
     try:
@@ -157,12 +203,14 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
     except Exception as e:
         LOGS.error(e)
         msg = await event.reply(USER_BOT_NO_WARN)
+    
     try:
         if str(chat.id) in PMMESSAGE_CACHE:
             await event.client.delete_messages(chat.id, PMMESSAGE_CACHE[str(chat.id)])
             del PMMESSAGE_CACHE[str(chat.id)]
     except Exception as e:
         LOGS.info(str(e))
+    
     PMMESSAGE_CACHE[str(chat.id)] = msg.id
     sql.del_collection("pmwarns")
     sql.del_collection("pmmessagecache")
@@ -898,3 +946,19 @@ async def approve_p_m(event):
         file_name="قائمة الحماية الجوكر.txt",
         caption="قائمة المسموح لهم الحالية\n سورس الجوكر \n @jepthon",
     )
+
+
+# أمر عقوبة الخاص المضاف
+@l313l.ar_cmd(pattern="عقوبة الخاص (الكتم|الحظر)$")
+async def variable(event):
+    input_str = event.pattern_match.group(1)
+    zed = await edit_or_reply(event, "**⎉╎جـاري تغييـر عقـوبـة الخـاص 🚷...**")
+    
+    if input_str == "الكتم":
+        # تفعيل الكتم
+        addgvar("pmute", "true")
+        await zed.edit("**⎉╎تم تغييـر عقـوبة الخـاص إلى {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تشغيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
+    elif input_str == "الحظر":
+        # تعطيل الكتم (استخدام الحظر)
+        delgvar("pmute")
+        await zed.edit("**⎉╎تم تغييـر عقـوبة الخـاص إلى {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تشغيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))

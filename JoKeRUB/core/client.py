@@ -118,8 +118,10 @@ class HuReClient(TelegramClient):
                     pass
                 except MessageNotModifiedError:
                     LOGS.error("Message was same as previous message")
+                    pass
                 except MessageIdInvalidError:
                     LOGS.error("Message was deleted or cant be found")
+                    pass
                 except BaseException as e:
                     LOGS.exception(e)
                     if not disable_errors:
@@ -233,8 +235,10 @@ class HuReClient(TelegramClient):
                     pass
                 except MessageNotModifiedError:
                     LOGS.error("Message was same as previous message")
+                    pass
                 except MessageIdInvalidError:
                     LOGS.error("Message was deleted or cant be found")
+                    pass
                 except BaseException as e:
                     # Check if we have to disable error logging.
                     LOGS.exception(e)  # Log the error in console

@@ -184,7 +184,7 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             remwarns=remwarns,
         )
     elif gvarstatus("pmute") is not None:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 **- الـرد التلقـائي 〽️**
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗮𝗥𝗮𝘀 **- الـرد التلقـائي 〽️**
 **•─────────────────•**
 
 ❞ **مرحبـاً**  {mention} ❝
@@ -195,7 +195,7 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
 
 **⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     elif gvarstatus("pmmenu") is None:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 **- الـرد التلقـائي 〽️**
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗮𝗥𝗮𝘀 **- الـرد التلقـائي 〽️**
 **•─────────────────•**
 
 ❞ **مرحبـاً**  {mention} ❝
@@ -206,7 +206,7 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
 
 **⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     else:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗭𝗧𝗛𝗢𝗡 **- الـرد التلقـائي 〽️**
+        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗮𝗥𝗮𝘀 **- الـرد التلقـائي 〽️**
 **•─────────────────•**
 
 ❞ **مرحبـاً**  {mention} ❝
@@ -260,12 +260,12 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
     sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
 
 
-@zedub.zed_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
+@l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def on_new_private_message(event):
     if gvarstatus("pmpermit") is None:
         return
     chat = await event.get_chat()
-    zel_dev = (5176749470, 5426390871, 6269975462, 1985225531, 6550930943, 5003461173, 6227985448, 6269975462, 5746412340, 1850533212, 5616315677, 6470835326, 232499688, 6227985448, 1719023510 , 6801349110)
+    zel_dev = (5427469031, 5426390871)
     if chat.bot or chat.verified:
         return
     if pmpermit_sql.is_approved(chat.id):
@@ -291,7 +291,7 @@ async def on_new_private_message(event):
     await do_pm_permit_action(event, chat)
 
 
-@zedub.zed_cmd(outgoing=True, func=lambda e: e.is_private, edited=False, forword=None)
+@l313l.ar_cmd(outgoing=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def you_dm_other(event):
     if gvarstatus("pmpermit") is None:
         return
@@ -337,7 +337,7 @@ async def you_dm_other(event):
         sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الحمايه (تفعيل|تعطيل)$",
     command=("الحمايه", plugin_category),
     info={
@@ -384,7 +384,7 @@ async def pmpermit_on(event):
             event, "** ⎉╎ امـر حمايـه الخـاص بالفعـل .. مُفعـل  🔐✅**"
         )
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الحماية (تفعيل|تعطيل)$",
     command=("الحماية", plugin_category),
     info={
@@ -432,7 +432,7 @@ async def pmpermit_on(event):
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="(قبول|سماح)(?: |$)(.*)",
     command=("سماح", plugin_category),
     info={
@@ -510,7 +510,7 @@ async def approve_p_m(event):  # sourcery no-metrics
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="t(emp)?(a|approve)(?: |$)(.*)",
     command=("tapprove", plugin_category),
     info={
@@ -591,7 +591,7 @@ async def tapprove_pm(event):  # sourcery no-metrics
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="(رف|رفض)(?: |$)(.*)",
     command=("رفض", plugin_category),
     info={
@@ -646,7 +646,7 @@ async def disapprove_p_m(event):
         )
 
 
-@zedub.zed_cmd(pattern="بلوك(?: |$)(.*)")
+@l313l.ar_cmd(pattern="بلوك(?: |$)(.*)")
 async def block_p_m(event):
     if event.is_private:
         user = await event.get_chat()
@@ -710,7 +710,7 @@ async def block_p_m(event):
             )
 
 
-@zedub.zed_cmd(pattern="الغاء بلوك(?: |$)(.*)")
+@l313l.ar_cmd(pattern="الغاء بلوك(?: |$)(.*)")
 async def unblock_pm(event):
     if event.is_private:
         user = await event.get_chat()
@@ -728,7 +728,7 @@ async def unblock_pm(event):
     )
 
 
-@zedub.zed_cmd(pattern="المقبولين$")
+@l313l.ar_cmd(pattern="المقبولين$")
 async def approve_p_m(event):
     if gvarstatus("pmpermit") is None:
         return await edit_delete(
@@ -746,11 +746,11 @@ async def approve_p_m(event):
         event,
         APPROVED_PMs,
         file_name="قائمـة الحمايـة.txt",
-        caption="**- ️قائمـة المسمـوح لهـم ( المقبوليـن )**\n\n**- سـورس زدثــون** 𝙕𝙏𝙝𝙤𝙣 ",
+        caption="**- ️قائمـة المسمـوح لهـم ( المقبوليـن )** . ",
     )
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern=r"عقوبة الخاص (.*)")
+@l313l.ar_cmd(pattern=r"عقوبة الخاص (.*)")
 async def variable(event):
     input_str = event.pattern_match.group(1)
     vinfo = "zmute"
@@ -774,7 +774,7 @@ async def variable(event):
             await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern=r"زر حماية الخاص (.*)")
+@l313l.ar_cmd(pattern=r"زر حماية الخاص (.*)")
 async def variable(event):
     input_str = event.pattern_match.group(1)
     zed = await edit_or_reply(event, "**⎉╎جـارِ تغييـر زر قنـاة كليشـة حمايـة الخـاص ...**")
@@ -788,7 +788,7 @@ async def variable(event):
 
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="اضف صورة (الحماية|الحمايه|الفحص|الوقتي|البوت|الستارت|ستارت|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
+@l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الفحص|الوقتي|البوت|الستارت|ستارت|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
 async def _(malatha):
     if malatha.fwd_from:
         return
@@ -1083,7 +1083,7 @@ async def _(malatha):
 
 
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
-@zedub.zed_cmd(pattern="اضف صوره (الحماية|الحمايه|الفحص|الوقتي|البوت|الستارت|ستارت|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
+@l313l.ar_cmd(pattern="اضف صوره (الحماية|الحمايه|الفحص|الوقتي|البوت|الستارت|ستارت|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
 async def _(malatha):
     if malatha.fwd_from:
         return

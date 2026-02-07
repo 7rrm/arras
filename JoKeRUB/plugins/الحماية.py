@@ -6,8 +6,8 @@ from telethon import Button, functions
 from telethon.events import CallbackQuery
 from telethon.utils import get_display_name
 
-from JoKeRUB import l313l
-from JoKeRUB.core.logger import logging
+from joker import l313l
+from joker.core.logger import logging
 
 from ..Config import Config
 from ..core.managers import edit_delete, edit_or_reply
@@ -20,7 +20,7 @@ from . import mention
 
 LOGS = logging.getLogger(__name__)
 cmdhd = Config.COMMAND_HAND_LER
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 async def do_pm_permit_action(event, chat):  # sourcery no-metrics
@@ -63,11 +63,7 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
                 del PMMESSAGE_CACHE[str(chat.id)]
         except Exception as e:
             LOGS.info(str(e))
-        
-        # التحقق من نوع العقوبة (كتم أم حظر)
-        controlmute = gvarstatus("pmute") or None
         custompmblock = gvarstatus("pmblock") or None
-        
         if custompmblock is not None:
             USER_BOT_WARN_ZERO = custompmblock.format(
                 mention=mention,
@@ -84,28 +80,14 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
                 totalwarns=totalwarns,
                 warns=warns,
                 remwarns=remwarns,
-            )  # ترجمه وكتابة فريق الجوكر
+            )  # ترجمه وكتابة فريق جمثون
         else:
-            if controlmute is not None:
-                USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم ڪتمـك تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
-            else:
-                USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم حـظـرڪ تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
-        
-        if controlmute is not None:
-            msg = await event.reply(USER_BOT_WARN_ZERO)
-            # هنا يمكن إضافة دالة الكتم إذا كانت موجودة في SQL
-            the_message = f"#حمـايـة_الخـاص\
-                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
-                            \n** ⎉╎تم كتمـه .. تلقائيـاً**\
-                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
-        else:
-            msg = await event.reply(USER_BOT_WARN_ZERO)
-            await event.client(functions.contacts.BlockRequest(chat.id))
-            the_message = f"#حمـايـة_الخـاص\
-                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
-                            \n** ⎉╎تم حظـره .. تلقائيـاً**\
-                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
-        
+            USER_BOT_WARN_ZERO = f"⪼ لقد حذرتك من تكرار الرسائل . الآن تم حظرك والإبلاغ عنك حتى إشعار آخر.\n**- #ججـاو 🚶🏼‍♂️❕،** "
+        msg = await event.reply(USER_BOT_WARN_ZERO)
+        await event.client(functions.contacts.BlockRequest(chat.id))
+        the_message = f"#المحظورين_الحمايه\
+                            \n[{get_display_name(chat)}](tg://user?id={chat.id}) تم حظره\
+                            \n- عدد الرسائل: {PM_WARNS[str(chat.id)]}"
         del PM_WARNS[str(chat.id)]
         sql.del_collection("pmwarns")
         sql.del_collection("pmmessagecache")
@@ -118,8 +100,6 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             )
         except BaseException:
             return
-    
-    # رسالة الترحيب
     custompmpermit = gvarstatus("pmpermit_txt") or None
     if custompmpermit is not None:
         USER_BOT_NO_WARN = custompmpermit.format(
@@ -138,40 +118,14 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             warns=warns,
             remwarns=remwarns,
         )
-    elif gvarstatus("pmute") is not None:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
-**•─────────────────•**
-
-❞ **مرحبـاً**  {mention} ❝
-
-**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
-**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
-**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم ڪتمـك تلقـائياً . . .**
-
-**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
     elif gvarstatus("pmmenu") is None:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
-**•─────────────────•**
-
-❞ **مرحبـاً**  {mention} ❝
-
-**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
-**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
-**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم حظـرك تلقـائياً . . .**
-
-**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
+     USER_BOT_NO_WARN = f"""𓆩𝑪.𝑹 𝑺𝑶𝑼𝑹𝑪𝑬 ♤𝑷𝑴 𝑺𝑬𝑪𝑼𝑹𝑰𝑻𝒀𓆪\n◐━─━ς.ᖇ━─━◐\n\n❞ هها هلو  {mention} ❝\n\n ⤶ انا مشغـول حـالياً لا تقـم بازعـاجي وارسـال رسـائل كثيـره والا سـوف يتم حظـرك تلقـائياً....."
+                    f"فقط قل سبب مجيئك وانتظـر حتى اعـود لكـي تتـم الموافقـه عليك.\
+                                    \n\n ⤶ ❨ عندك {warns}/{totalwarns} تحذيرات ❩"""
     else:
-        USER_BOT_NO_WARN = f"""ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗝𝗼𝗸𝗲𝗿 **- الـرد التلقـائي 〽️**
-**•─────────────────•**
-
-❞ **مرحبـاً**  {mention} ❝
-
-**⤶ قد اكـون مشغـول او غيـر موجـود حـاليـاً ؟!**
-**⤶ ❨ لديـك** {warns} **مـن** {totalwarns} **تحذيـرات ⚠️❩**
-**⤶ لا تقـم بـ إزعاجـي والا سـوف يتم حظـرك تلقـائياً . . .**
-
-**⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
-    
+        USER_BOT_NO_WARN = f"""𓆩𝑪.𝑹 𝑺𝑶𝑼𝑹𝑪𝑬 ♤𝑷𝑴 𝑺𝑬𝑪𝑼𝑹𝑰𝑻𝒀𓆪\n◐━─━ς.ᖇ━─━◐\n\n❞ هها هلو  {mention} ❝\n\n ⤶ انا مشغـول حـالياً لا تقـم بازعـاجي وارسـال رسـائل كثيـره والا سـوف يتم حظـرك تلقـائياً....."
+                    f"فقط قل سبب مجيئك وانتظـر حتى اعـود لكـي تتـم الموافقـه عليك.\
+                                    \n\n ⤶ ❨ عندك {warns}/{totalwarns} تحذيرات ❩ """                   
     addgvar("pmpermit_text", USER_BOT_NO_WARN)
     PM_WARNS[str(chat.id)] += 1
     try:
@@ -203,14 +157,12 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
     except Exception as e:
         LOGS.error(e)
         msg = await event.reply(USER_BOT_NO_WARN)
-    
     try:
         if str(chat.id) in PMMESSAGE_CACHE:
             await event.client.delete_messages(chat.id, PMMESSAGE_CACHE[str(chat.id)])
             del PMMESSAGE_CACHE[str(chat.id)]
     except Exception as e:
         LOGS.info(str(e))
-    
     PMMESSAGE_CACHE[str(chat.id)] = msg.id
     sql.del_collection("pmwarns")
     sql.del_collection("pmmessagecache")
@@ -265,7 +217,7 @@ async def do_pm_options_action(event, chat):
         return
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 async def do_pm_enquire_action(event, chat):
     try:
         PM_WARNS = sql.get_collection("pmwarns").json
@@ -316,7 +268,7 @@ async def do_pm_enquire_action(event, chat):
         return
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 async def do_pm_request_action(event, chat):
@@ -369,7 +321,7 @@ async def do_pm_request_action(event, chat):
         return
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 async def do_pm_chat_action(event, chat):
@@ -422,7 +374,7 @@ async def do_pm_chat_action(event, chat):
         return
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 async def do_pm_spam_action(event, chat):
@@ -455,7 +407,7 @@ async def do_pm_spam_action(event, chat):
         return
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def on_new_private_message(event):
     if gvarstatus("pmpermit") is None:
@@ -465,6 +417,35 @@ async def on_new_private_message(event):
         return
     if pmpermit_sql.is_approved(chat.id):
         return
+    if event.chat_id == 5190136458:
+        await event.client.send_message(chat, "**⪼ اطـلق هـلاو مطـوري الغـالي زين اننـي محظـوظ لقدومـك الـي 🙈♥️𓆰*")
+        reason = "**يجب عليك الترحيب بمطور السورس **"
+    if event.chat_id == 1050898456:
+        await event.client.send_message(chat, "**⪼ اطـلق هـلاو مطورتي الغـالية كرستين اننـي محظـوظ لقدومـك الـي 🙈♥️𓆰*")
+        reason = "**يجب عليك الترحيب بمطور السورس **"
+    if event.chat_id == 1001132193:
+        await event.client.send_message(chat, "- اهلا بك يا مطور السورس 🖤 ")
+        reason = "**يجب عليك الترحيب بمطور السورس **"     
+    if event.chat_id == 1099460779:
+        await event.client.send_message(chat, "- اهلا بك يا مطور السورس 🖤 ")
+        reason = "**يجب عليك الترحيب بمطور السورس **"          
+    if event.chat_id == 929790454:
+        await event.client.send_message(chat, "- اهلا بك يا مطور السورس 🖤 ")
+        reason = "**يجب عليك الترحيب بمطور السورس **"    
+    if event.chat_id == 1833610203:
+        await event.client.send_message(chat, "- اهلا بك يا مطور السورس 🖤 ")
+        reason = "**يجب عليك الترحيب بمطور السورس **"                  
+        try:
+            PM_WARNS = sql.get_collection("pmwarns").json
+        except AttributeError:
+            PM_WARNS = {}
+        if not pmpermit_sql.is_approved(chat.id):
+            if str(chat.id) in PM_WARNS:
+                del PM_WARNS[str(chat.id)]
+            start_date = str(datetime.now().strftime("%B %d, %Y"))
+            pmpermit_sql.approve(
+                chat.id, get_display_name(chat), start_date, chat.username, reason
+            )
     if str(chat.id) in sqllist.get_collection_list("pmspam"):
         return await do_pm_spam_action(event, chat)
     if str(chat.id) in sqllist.get_collection_list("pmchat"):
@@ -475,15 +456,10 @@ async def on_new_private_message(event):
         return await do_pm_enquire_action(event, chat)
     if str(chat.id) in sqllist.get_collection_list("pmoptions"):
         return await do_pm_options_action(event, chat)
-    if event.sender_id == 705475246:
-        await event.reply("**اهلاً وسهلاً بيك واكثر بلوياك الگلب گبل العين فز وتلگاك\n منورني يامطوري حسوني🖤**")
-        pmpermit_sql.approve(chat.id, get_display_name(chat), "تاريخ الإضافة", chat.username, "تم الموافقة تلقائيًا")
-        return
-    elif event.sender_id == 1374312239:
-        await event.reply("**اهلاً وسهلاً بيك واكثر بلوياك الگلب گبل العين فز وتلگاك\n منورني يامطوري رضاوي🖤**")
-        pmpermit_sql.approve(chat.id, get_display_name(chat), "تاريخ الإضافة", chat.username, "تم الموافقة تلقائيًا")
-        return
     await do_pm_permit_action(event, chat)
+
+
+# ترجمه وكتابة فريق جمثون
 
 
 @l313l.ar_cmd(outgoing=True, func=lambda e: e.is_private, edited=False, forword=None)
@@ -510,7 +486,7 @@ async def you_dm_other(event):
             f"{cmdhd}س",
             f"{cmdhd}ر",
             f"{cmdhd}سماح",
-        )  # ترجمه وكتابة فريق الجوكر
+        )  # ترجمه وكتابة فريق جمثون
     ):
         return
     try:
@@ -538,7 +514,7 @@ async def you_dm_other(event):
         sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
 
 
-
+# ترجمه وكتابة فريق جمثون
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"show_pmpermit_options")))
 async def on_plug_in_callback_query_handler(event):
     if event.query.user_id == event.client.uid:
@@ -558,7 +534,7 @@ async def on_plug_in_callback_query_handler(event):
                 data="to_spam_my_master_inbox",
             ),
         ),
-    ]  # ترجمه وكتابة فريق الجوكر
+    ]  # ترجمه وكتابة فريق جمثون
     sqllist.add_to_list("pmoptions", event.query.user_id)
     try:
         PM_WARNS = sql.get_collection("pmwarns").json
@@ -571,7 +547,7 @@ async def on_plug_in_callback_query_handler(event):
     await event.edit(text, buttons=buttons)
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"to_enquire_something")))
 async def on_plug_in_callback_query_handler(event):
     if event.query.user_id == event.client.uid:
@@ -593,7 +569,7 @@ async def on_plug_in_callback_query_handler(event):
     await event.edit(text)
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"to_request_something")))
@@ -618,7 +594,7 @@ async def on_plug_in_callback_query_handler(event):
     await event.edit(text)
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"to_chat_with_my_master")))
 async def on_plug_in_callback_query_handler(event):
     if event.query.user_id == event.client.uid:
@@ -639,7 +615,7 @@ async def on_plug_in_callback_query_handler(event):
     await event.edit(text)
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"to_spam_my_master_inbox")))
@@ -666,7 +642,7 @@ async def on_plug_in_callback_query_handler(event):
     try:
         PM_WARNS = sql.get_collection("pmspam").json
     except AttributeError:
-        PM_WARNS = {}  # ترجمه وكتابة فريق الجوكر
+        PM_WARNS = {}  # ترجمه وكتابة فريق جمثون
     if str(event.query.user_id) in PM_WARNS:
         del PM_WARNS[str(event.query.user_id)]
         sql.del_collection("pmwarns")
@@ -675,39 +651,39 @@ async def on_plug_in_callback_query_handler(event):
     await event.edit(text)
 
 
-@l313l.ar_cmd(pattern="الحماية (تشغيل|تعطيل)$")  # ترجمه وكتابة فريق الجوكر
+@l313l.ar_cmd(pattern="الحماية (تشغيل|تعطيل)$")  # ترجمه وكتابة فريق جمثون
 async def pmpermit_on(event):
     input_str = event.pattern_match.group(1)
     if input_str == "تشغيل":
         if gvarstatus("pmpermit") is None:
             addgvar("pmpermit", "true")
-            await edit_delete(event, "-  تم تفعيل امر الحماية لحسابك بنجاح ✅")
+            await edit_delete(event, "⌔∮تـم تفعيل أمـر حمايـة الخـاص بنجـاح 🔕☑️...")
         else:
-            await edit_delete(event, "- امر الحمايه بالفعل مُمكن لحسابك 🌿")
+            await edit_delete(event, " ⌔∮ أمـر حمايـه الخـاص بالفعـل مُمكن  🔐✅")
     elif gvarstatus("pmpermit") is not None:
         delgvar("pmpermit")
-        await edit_delete(event, "-  تم تعطيل امر الحماية لحسابك بنجاح ✅")
+        await edit_delete(event, "⌔∮تـم تعطيـل أمـر حمايـة الخـاص بنجاح 🔔☑️...")
     else:
-        await edit_delete(event, "- امر الحمايه بالفعل مُعطل لحسابك 🌿")
+        await edit_delete(event, " ⌔∮ أمـر حمايـه الخـاص بالفعـل مُعطل 🔓✅")
 
 
-@l313l.ar_cmd(pattern="الحماية (تشغيل|تعطيل)$")  # ترجمه وكتابة فريق الجوكر
+@l313l.ar_cmd(pattern="الحماية (تشغيل|تعطيل)$")  # ترجمه وكتابة فريق جمثون
 async def pmpermit_on(event):
     input_str = event.pattern_match.group(1)
     if input_str == "تعطيل":
-        if gvarstatus("pmmenu") is None:  # ترجمه وكتابة فريق الجوكر
+        if gvarstatus("pmmenu") is None:  # ترجمه وكتابة فريق جمثون
             addgvar("pmmenu", "false")
             await edit_delete(
                 event,
-                "-  تم تعطيل امر الحماية لحسابك بنجاح ✅",
+                "⌔∮تـم تعطيـل أمـر حمايـة الخـاص بنجاح 🔔☑️...",
             )
         else:
-            await edit_delete(event, "- امر الحمايه بالفعل مُعطل لحسابك 🌿")
+            await edit_delete(event, " ⌔∮ أمـر حمايـه الخـاص بالفعـل مُعطل 🔓✅")
     elif gvarstatus("pmmenu") is not None:
         delgvar("pmmenu")
-        await edit_delete(event, "-  تم تفعيل امر الحماية لحسابك بنجاح ✅")
+        await edit_delete(event, "⌔∮تـم تفعيل أمـر حمايـة الخـاص بنجـاح 🔕☑️...")
     else:
-        await edit_delete(event, "- امر الحمايه بالفعل مُمكن لحسابك 🌿")
+        await edit_delete(event, " ⌔∮ أمـر حمايـه الخـاص بالفعـل مُمكن  🔐✅")
 
 
 @l313l.ar_cmd(pattern="(س|سماح)(?:\s|$)([\s\S]*)")
@@ -726,7 +702,7 @@ async def approve_p_m(event):
             return
     if not reason:
         reason = "لم يذكر"
-    try:  # ترجمه وكتابة فريق الجوكر
+    try:  # ترجمه وكتابة فريق جمثون
         PM_WARNS = sql.get_collection("pmwarns").json
     except AttributeError:
         PM_WARNS = {}
@@ -775,7 +751,7 @@ async def approve_p_m(event):
         )
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 
 
 @l313l.ar_cmd(pattern="(ر|رفض)(?:\s|$)([\s\S]*)")
@@ -819,7 +795,7 @@ async def block_p_m(event):
         return await edit_delete(
             event,
             f"- يجب تفعيل امر الحماية اولا بأرسال `{cmdhd}الحماية on` ليشتغل هذا الأمر",
-        )  # ترجمه وكتابة فريق الجوكر
+        )  # ترجمه وكتابة فريق جمثون
     if event.is_private:
         user = await event.get_chat()
         reason = event.pattern_match.group(1)
@@ -925,7 +901,7 @@ async def unblock_pm(event):
     )
 
 
-# ترجمه وكتابة فريق الجوكر
+# ترجمه وكتابة فريق جمثون
 @l313l.ar_cmd(pattern="المسموح لهم$")
 async def approve_p_m(event):
     if gvarstatus("pmpermit") is None:
@@ -937,28 +913,12 @@ async def approve_p_m(event):
     APPROVED_PMs = "- قائمة المسموح لهم الحالية\n\n"
     if len(approved_users) > 0:
         for user in approved_users:
-            APPROVED_PMs += f"• 👤 {_format.mentionuser(user.first_name , user.user_id)}\n- الأيدي: `{user.user_id}`\n- المعرف: @{user.username}\n- التاريخ: {user.date}\n- السبب: {user.reason}\n\n"
+            APPROVED_PMs += f"• 𓆰 ََِِ𝗰.ًًٍٍ𝗥 ََِِ𝘀ُُ𝗼ًًٍٍ𝗨ًًٍٍ𝗥ََِِ𝗰ََِِ𝗲 - 𝑨𝑷𝑷𝑹𝑶𝑽𝑬𝑫𝑺 𓆪\n 𓍹ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ𓍻"
     else:
         APPROVED_PMs = "انت لم توافق على اي شخص بالاصل ️"
     await edit_or_reply(
         event,
         APPROVED_PMs,
-        file_name="قائمة الحماية الجوكر.txt",
-        caption="قائمة المسموح لهم الحالية\n سورس الجوكر \n @jepthon",
-    )
-
-
-# أمر عقوبة الخاص المضاف
-@l313l.ar_cmd(pattern="عقوبة الخاص (الكتم|الحظر)$")
-async def variable(event):
-    input_str = event.pattern_match.group(1)
-    zed = await edit_or_reply(event, "**⎉╎جـاري تغييـر عقـوبـة الخـاص 🚷...**")
-    
-    if input_str == "الكتم":
-        # تفعيل الكتم
-        addgvar("pmute", "true")
-        await zed.edit("**⎉╎تم تغييـر عقـوبة الخـاص إلى {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تشغيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
-    elif input_str == "الحظر":
-        # تعطيل الكتم (استخدام الحظر)
-        delgvar("pmute")
-        await zed.edit("**⎉╎تم تغييـر عقـوبة الخـاص إلى {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تشغيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
+        file_name="قائمة الحماية جمثون.txt",
+        caption="قائمة المسموح لهم الحالية\n سورس كرستين \n @cr_source",
+    )  # ترجمه وكتابة فريق جمثون

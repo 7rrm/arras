@@ -42,7 +42,7 @@ async def prayer_times(event):
     city = event.pattern_match.group(1).strip()
     
     if not city:
-        city = gvarstatus("prayer_default_city") or "بغداد"
+        city = gvarstatus("prayer_default_city") or "كربلاء"
     
     if city not in IRAQ_CITIES:
         await edit_or_reply(

@@ -27,6 +27,22 @@ IRAQ_CITIES = {
     "السليمانية": "Sulaymaniyah"
 }
 
+# أسماء الأشهر العربية
+ARABIC_MONTHS = {
+    "January": "يناير",
+    "February": "فبراير", 
+    "March": "مارس",
+    "April": "أبريل",
+    "May": "مايو",
+    "June": "يونيو",
+    "July": "يوليو",
+    "August": "أغسطس",
+    "September": "سبتمبر",
+    "October": "أكتوبر",
+    "November": "نوفمبر",
+    "December": "ديسمبر"
+}
+
 @l313l.ar_cmd(
     pattern="صلاة(?:\s+(\S+))?$",
     command=("صلاة", plugin_category),
@@ -96,10 +112,15 @@ async def prayer_times(event):
         gregorian = data["data"]["date"]["gregorian"]
         hijri = data["data"]["date"]["hijri"]
         
-        # تنسيق الرسالة - مثل البوت البايثون
+        # تنسيق التاريخ الميلادي بالعربية
+        english_month = gregorian["month"]["en"]
+        arabic_month = ARABIC_MONTHS.get(english_month, english_month)
+        
+        # تنسيق الرسالة - بطريقة أبسط
         message = (
             f"🕌 <b>أوقات الصلاة في {city}</b>\n\n"
-            f"📅 {gregorian['readable']} | {hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ\n\n"
+            f"📅 <b>التاريخ الميلادي:</b> {gregorian['day']} {arabic_month} {gregorian['year']}\n"
+            f"📅 <b>التاريخ الهجري:</b> {hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ\n\n"
             
             f"⏰ <b>الفجر:</b> {timings['Fajr']}\n"
             f"🌞 <b>الشروق:</b> {timings['Sunrise']}\n"

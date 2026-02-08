@@ -61,17 +61,20 @@ async def prayer_times(event):
     # الحصول على المدينة من الأمر
     city_input = event.pattern_match.group(1)
     
+    # الحصول على البادئة من الكوماند (مثل . أو !)
+    cmd_prefix = event.pattern_match.group(1)[0] if event.pattern_match.group(1) else "."
+    
     # إذا لم يحدد المستخدم مدينة
     if not city_input:
         await edit_or_reply(
             event,
             "**❌ يجب تحديد المدينة**\n\n"
             "**📝 الاستخدام الصحيح:**\n"
-            f"`{event.pattern_match.group(1)[0]}صلاة <اسم المدينة>`\n\n"
+            f"`{cmd_prefix}صلاة <اسم المدينة>`\n\n"
             "**مثال:**\n"
-            f"`{event.pattern_match.group(1)[0]}صلاة كربلاء`\n"
-            f"`{event.pattern_match.group(1)[0]}صلاة بغداد`\n"
-            f"`{event.pattern_match.group(1)[0]}صلاة النجف`"
+            f"`{cmd_prefix}صلاة كربلاء`\n"
+            f"`{cmd_prefix}صلاة بغداد`\n"
+            f"`{cmd_prefix}صلاة النجف`"
         )
         return
     

@@ -1,5 +1,6 @@
 import json
 import requests
+import aiohttp
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from . import l313l, edit_delete, edit_or_reply
 import asyncio
@@ -42,7 +43,7 @@ async def prayer_times(event):
     city = event.pattern_match.group(1).strip()
     
     if not city:
-        city = gvarstatus("prayer_default_city") or "كربلاء"
+        city = gvarstatus("prayer_default_city") or "بغداد"
     
     if city not in IRAQ_CITIES:
         await edit_or_reply(
@@ -55,21 +56,23 @@ async def prayer_times(event):
     english_city = IRAQ_CITIES[city]
     
     try:
-        # جلب البيانات من API
+        # استخدام aiohttp مباشرة
         url = f"http://api.aladhan.com/v1/timingsByCity"
         params = {
             "city": english_city,
-            "country": "IQ",  # العراق فقط
-            "method": 2,  # طريقة الحساب
+            "country": "IQ",
+            "method": 2,  # طريقة أم القرى - مناسبة للعراق
         }
         
-        async with event.client._session.get(url, params=params) as response:
-            if response.status != 200:
-                await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
-                return
-                
-            data = await response.json()
-            
+        # إنشاء جلسة جديدة
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, timeout=10) as response:
+                if response.status != 200:
+                    await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
+                    return
+                    
+                data = await response.json()
+        
         # استخراج البيانات
         timings = data["data"]["timings"]
         gregorian = data["data"]["date"]["gregorian"]
@@ -79,31 +82,37 @@ async def prayer_times(event):
         message = (
             f"<b>🕌 أوقات الصلاة في {city}</b>\n\n"
             f"<b>📅 التاريخ:</b>\n"
-            f"الميلادي: {gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}\n"
-            f"الهجري: {hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ\n\n"
+            f"الميلادي: <code>{gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}</code>\n"
+            f"الهجري: <code>{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ</code>\n\n"
             f"<b>⏰ الأوقات:</b>\n"
-            f"• <b>الفجر:</b> {timings['Fajr']}\n"
-            f"• <b>الشروق:</b> {timings['Sunrise']}\n"
-            f"• <b>الظهر:</b> {timings['Dhuhr']}\n"
-            f"• <b>العصر:</b> {timings['Asr']}\n"
-            f"• <b>المغرب:</b> {timings['Maghrib']}\n"
-            f"• <b>العشاء:</b> {timings['Isha']}\n"
+            f"• <b>🌄 الفجر:</b> <code>{timings['Fajr']}</code>\n"
+            f"• <b>🌅 الشروق:</b> <code>{timings['Sunrise']}</code>\n"
+            f"• <b>☀️ الظهر:</b> <code>{timings['Dhuhr']}</code>\n"
+            f"• <b>⛅ العصر:</b> <code>{timings['Asr']}</code>\n"
+            f"• <b>🌇 المغرب:</b> <code>{timings['Maghrib']}</code>\n"
+            f"• <b>🌙 العشاء:</b> <code>{timings['Isha']}</code>\n"
         )
         
         # إضافة وقت الإمساك إذا موجود
         if 'Imsak' in timings:
-            message += f"• <b>الإمساك:</b> {timings['Imsak']}\n"
+            message += f"• <b>🕋 الإمساك:</b> <code>{timings['Imsak']}</code>\n"
         
         # إضافة منتصف الليل إذا موجود
         if 'Midnight' in timings:
-            message += f"• <b>منتصف الليل:</b> {timings['Midnight']}\n"
+            message += f"• <b>🌃 منتصف الليل:</b> <code>{timings['Midnight']}</code>\n"
         
-        message += f"\n<b>📍 الموقع:</b> {city}، العراق 🇮🇶"
+        message += f"\n<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
         
         await edit_or_reply(event, message, parse_mode="HTML")
         
+    except aiohttp.ClientError as e:
+        await edit_delete(event, f"**❌ خطأ في الاتصال بالإنترنت: {str(e)}**", 10)
+    except asyncio.TimeoutError:
+        await edit_delete(event, f"**⏱️ انتهت مهلة الاتصال بمدينة {city}**", 10)
+    except KeyError as e:
+        await edit_delete(event, f"**⚠️ خطأ في البيانات: المفتاح {str(e)} غير موجود**", 10)
     except Exception as e:
-        await edit_delete(event, f"**❌ حدث خطأ: {str(e)}**", 10)
+        await edit_delete(event, f"**❌ حدث خطأ غير متوقع: {str(e)}**", 10)
 
 @l313l.ar_cmd(
     pattern="مدن صلاة$",
@@ -223,7 +232,7 @@ async def prayer_now(event):
     english_city = IRAQ_CITIES[city]
     
     try:
-        # جلب البيانات من API
+        # استخدام aiohttp مباشرة
         url = f"http://api.aladhan.com/v1/timingsByCity"
         params = {
             "city": english_city,
@@ -231,12 +240,14 @@ async def prayer_now(event):
             "method": 2,
         }
         
-        async with event.client._session.get(url, params=params) as response:
-            if response.status != 200:
-                await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
-                return
-                
-            data = await response.json()
+        # إنشاء جلسة جديدة
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, timeout=10) as response:
+                if response.status != 200:
+                    await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
+                    return
+                    
+                data = await response.json()
         
         # استخراج البيانات
         timings = data["data"]["timings"]
@@ -276,28 +287,40 @@ async def prayer_now(event):
             time_diff = next_time - datetime.strptime(current_time, "%H:%M")
             hours, remainder = divmod(time_diff.seconds, 3600)
             minutes = remainder // 60
-            time_remaining = f"{hours} ساعة {minutes} دقيقة"
+            
+            if hours == 0:
+                time_remaining = f"{minutes} دقيقة"
+            elif minutes == 0:
+                time_remaining = f"{hours} ساعة"
+            else:
+                time_remaining = f"{hours} ساعة {minutes} دقيقة"
         
         # تنسيق الرسالة
         message = (
             f"<b>🕌 أوقات الصلاة في {city}</b>\n\n"
-            f"<b>⏰ الوقت الحالي:</b> {current_time}\n\n"
+            f"<b>⏰ الوقت الحالي:</b> <code>{current_time}</code>\n\n"
         )
         
         if current_prayer:
-            message += f"<b>🕌 الصلاة الحالية:</b> {current_prayer[0]} ({current_prayer[1]})\n"
+            message += f"<b>🕌 الصلاة الحالية:</b> <code>{current_prayer[0]} ({current_prayer[1]})</code>\n"
         
         if next_prayer and time_remaining:
-            message += f"<b>⏳ الصلاة القادمة:</b> {next_prayer[0]} ({next_prayer[1]})\n"
-            message += f"<b>🕐 الوقت المتبقي:</b> {time_remaining}\n\n"
+            message += f"<b>⏳ الصلاة القادمة:</b> <code>{next_prayer[0]} ({next_prayer[1]})</code>\n"
+            message += f"<b>🕐 الوقت المتبقي:</b> <code>{time_remaining}</code>\n\n"
         
         message += (
-            f"<b>📅 اليوم:</b> {gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}\n"
-            f"<b>📅 هجري:</b> {hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ\n\n"
-            f"<b>📍 الموقع:</b> {city}، العراق 🇮🇶"
+            f"<b>📅 اليوم:</b> <code>{gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}</code>\n"
+            f"<b>📅 هجري:</b> <code>{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ</code>\n\n"
+            f"<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
         )
         
         await edit_or_reply(event, message, parse_mode="HTML")
         
+    except aiohttp.ClientError as e:
+        await edit_delete(event, f"**❌ خطأ في الاتصال بالإنترنت: {str(e)}**", 10)
+    except asyncio.TimeoutError:
+        await edit_delete(event, f"**⏱️ انتهت مهلة الاتصال بمدينة {city}**", 10)
+    except KeyError as e:
+        await edit_delete(event, f"**⚠️ خطأ في البيانات: المفتاح {str(e)} غير موجود**", 10)
     except Exception as e:
-        await edit_delete(event, f"**❌ حدث خطأ: {str(e)}**", 10)
+        await edit_delete(event, f"**❌ حدث خطأ غير متوقع: {str(e)}**", 10)

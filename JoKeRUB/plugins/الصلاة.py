@@ -29,6 +29,38 @@ IRAQ_CITIES = {
     "السليمانية": "Sulaymaniyah"
 }
 
+# أسماء الأشهر العربية
+ARABIC_MONTHS = {
+    "January": "يناير",
+    "February": "فبراير", 
+    "March": "مارس",
+    "April": "أبريل",
+    "May": "مايو",
+    "June": "يونيو",
+    "July": "يوليو",
+    "August": "أغسطس",
+    "September": "سبتمبر",
+    "October": "أكتوبر",
+    "November": "نوفمبر",
+    "December": "ديسمبر"
+}
+
+# الأشهر الهجرية
+HIJRI_MONTHS = {
+    "1": "محرم",
+    "2": "صفر",
+    "3": "ربيع الأول",
+    "4": "ربيع الثاني",
+    "5": "جمادى الأولى",
+    "6": "جمادى الآخرة",
+    "7": "رجب",
+    "8": "شعبان",
+    "9": "رمضان",
+    "10": "شوال",
+    "11": "ذو القعدة",
+    "12": "ذو الحجة"
+}
+
 @l313l.ar_cmd(
     pattern="صلاة(?: |$)(.*)",
     command=("صلاة", plugin_category),
@@ -78,12 +110,20 @@ async def prayer_times(event):
         gregorian = data["data"]["date"]["gregorian"]
         hijri = data["data"]["date"]["hijri"]
         
+        # تحويل اسم الشهر الميلادي للعربية
+        english_month = gregorian["month"]["en"]
+        arabic_month = ARABIC_MONTHS.get(english_month, english_month)
+        
+        # تحويل اسم الشهر الهجري
+        hijri_month_num = hijri["month"]["number"]
+        hijri_month_ar = HIJRI_MONTHS.get(hijri_month_num, hijri["month"]["en"])
+        
         # تنسيق الرسالة
         message = (
             f"<b>🕌 أوقات الصلاة في {city}</b>\n\n"
             f"<b>📅 التاريخ:</b>\n"
-            f"الميلادي: <code>{gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}</code>\n"
-            f"الهجري: <code>{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ</code>\n\n"
+            f"الميلادي: <code>{gregorian['day']} {arabic_month} {gregorian['year']}</code>\n"
+            f"الهجري: <code>{hijri['day']} {hijri_month_ar} {hijri['year']} هـ</code>\n\n"
             f"<b>⏰ الأوقات:</b>\n"
             f"• <b>🌄 الفجر:</b> <code>{timings['Fajr']}</code>\n"
             f"• <b>🌅 الشروق:</b> <code>{timings['Sunrise']}</code>\n"
@@ -254,6 +294,14 @@ async def prayer_now(event):
         gregorian = data["data"]["date"]["gregorian"]
         hijri = data["data"]["date"]["hijri"]
         
+        # تحويل اسم الشهر الميلادي للعربية
+        english_month = gregorian["month"]["en"]
+        arabic_month = ARABIC_MONTHS.get(english_month, english_month)
+        
+        # تحويل اسم الشهر الهجري
+        hijri_month_num = hijri["month"]["number"]
+        hijri_month_ar = HIJRI_MONTHS.get(hijri_month_num, hijri["month"]["en"])
+        
         # الحصول على الوقت الحالي
         now = datetime.now()
         current_time = now.strftime("%H:%M")
@@ -272,20 +320,35 @@ async def prayer_now(event):
         next_prayer = None
         time_remaining = None
         
+        # البحث عن الصلاة الحالية والقادمة
         for i, (prayer_name, prayer_time) in enumerate(prayer_times):
-            prayer_hour, prayer_minute = map(int, prayer_time.split(':'))
-            
             if current_time < prayer_time:
                 next_prayer = (prayer_name, prayer_time)
                 if i > 0:
                     current_prayer = prayer_times[i-1]
                 break
         
+        # إذا لم توجد صلاة قادمة (أي الوقت بعد العشاء)
+        if not next_prayer:
+            current_prayer = prayer_times[-1]  # العشاء
+            next_prayer = prayer_times[0]      # الفجر (غداً)
+        
         # حساب الوقت المتبقي
         if next_prayer:
-            next_time = datetime.strptime(next_prayer[1], "%H:%M")
-            time_diff = next_time - datetime.strptime(current_time, "%H:%M")
-            hours, remainder = divmod(time_diff.seconds, 3600)
+            next_time_str = next_prayer[1]
+            next_time = datetime.strptime(next_time_str, "%H:%M")
+            current_time_dt = datetime.strptime(current_time, "%H:%M")
+            
+            # إذا كانت الصلاة القادمة في اليوم التالي (بعد منتصف الليل)
+            if next_time < current_time_dt:
+                next_time = datetime.strptime("23:59", "%H:%M")
+                time_diff = (next_time - current_time_dt).seconds
+                time_diff += 60  # إضافة دقيقة للانتقال للغد
+                time_diff += (datetime.strptime(next_prayer[1], "%H:%M") - datetime.strptime("00:00", "%H:%M")).seconds
+            else:
+                time_diff = (next_time - current_time_dt).seconds
+            
+            hours, remainder = divmod(time_diff, 3600)
             minutes = remainder // 60
             
             if hours == 0:
@@ -309,8 +372,8 @@ async def prayer_now(event):
             message += f"<b>🕐 الوقت المتبقي:</b> <code>{time_remaining}</code>\n\n"
         
         message += (
-            f"<b>📅 اليوم:</b> <code>{gregorian['day']} {gregorian['month']['ar']} {gregorian['year']}</code>\n"
-            f"<b>📅 هجري:</b> <code>{hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ</code>\n\n"
+            f"<b>📅 اليوم:</b> <code>{gregorian['day']} {arabic_month} {gregorian['year']}</code>\n"
+            f"<b>📅 هجري:</b> <code>{hijri['day']} {hijri_month_ar} {hijri['year']} هـ</code>\n\n"
             f"<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
         )
         
@@ -324,3 +387,110 @@ async def prayer_now(event):
         await edit_delete(event, f"**⚠️ خطأ في البيانات: المفتاح {str(e)} غير موجود**", 10)
     except Exception as e:
         await edit_delete(event, f"**❌ حدث خطأ غير متوقع: {str(e)}**", 10)
+
+@l313l.ar_cmd(
+    pattern="صلاة (\S+)(?:\s+(\d+))?$",
+    command=("صلاة", plugin_category),
+    info={
+        "header": "عرض أوقات الصلاة لمدينة مع طريقة حساب معينة",
+        "usage": "{tr}صلاة <المدينة> [رقم الطريقة]",
+        "examples": [
+            "{tr}صلاة بغداد",
+            "{tr}صلاة كربلاء 1",
+            "{tr}صلاة النجف 2"
+        ],
+        "methods": "1: الأزهر، 2: أم القرى، 3: ISNA، 4: رابطة العالم الإسلامي"
+    },
+)
+async def prayer_with_method(event):
+    """أوقات الصلاة بطريقة حساب محددة"""
+    args = event.pattern_match.groups()
+    city = args[0].strip()
+    method = args[1] if args[1] else "2"  # الافتراضي أم القرى
+    
+    if not city:
+        city = gvarstatus("prayer_default_city") or "بغداد"
+    
+    if city not in IRAQ_CITIES:
+        await edit_or_reply(
+            event,
+            f"**❌ المدينة غير مدعومة**\n"
+            f"**المدن المتاحة:** {', '.join(IRAQ_CITIES.keys())}"
+        )
+        return
+    
+    # طرق الحساب وأسماؤها
+    method_names = {
+        "1": "جامعة الأزهر (مصر)",
+        "2": "أم القرى (السعودية)",
+        "3": "ISNA (أمريكا الشمالية)",
+        "4": "رابطة العالم الإسلامي",
+        "5": "الكويت",
+        "7": "سنغافورة",
+        "8": "فرنسا",
+        "9": "تركيا",
+        "10": "الجزائر"
+    }
+    
+    method_name = method_names.get(method, f"الطريقة {method}")
+    
+    english_city = IRAQ_CITIES[city]
+    
+    try:
+        # استخدام aiohttp مباشرة
+        url = f"http://api.aladhan.com/v1/timingsByCity"
+        params = {
+            "city": english_city,
+            "country": "IQ",
+            "method": method,
+        }
+        
+        # إنشاء جلسة جديدة
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params, timeout=10) as response:
+                if response.status != 200:
+                    await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
+                    return
+                    
+                data = await response.json()
+        
+        # استخراج البيانات
+        timings = data["data"]["timings"]
+        gregorian = data["data"]["date"]["gregorian"]
+        hijri = data["data"]["date"]["hijri"]
+        
+        # تحويل اسم الشهر الميلادي للعربية
+        english_month = gregorian["month"]["en"]
+        arabic_month = ARABIC_MONTHS.get(english_month, english_month)
+        
+        # تحويل اسم الشهر الهجري
+        hijri_month_num = hijri["month"]["number"]
+        hijri_month_ar = HIJRI_MONTHS.get(hijri_month_num, hijri["month"]["en"])
+        
+        # تنسيق الرسالة
+        message = (
+            f"<b>🕌 أوقات الصلاة في {city}</b>\n"
+            f"<b>📊 طريقة الحساب:</b> <code>{method_name}</code>\n\n"
+            f"<b>📅 التاريخ:</b>\n"
+            f"الميلادي: <code>{gregorian['day']} {arabic_month} {gregorian['year']}</code>\n"
+            f"الهجري: <code>{hijri['day']} {hijri_month_ar} {hijri['year']} هـ</code>\n\n"
+            f"<b>⏰ الأوقات:</b>\n"
+            f"• <b>🌄 الفجر:</b> <code>{timings['Fajr']}</code>\n"
+            f"• <b>🌅 الشروق:</b> <code>{timings['Sunrise']}</code>\n"
+            f"• <b>☀️ الظهر:</b> <code>{timings['Dhuhr']}</code>\n"
+            f"• <b>⛅ العصر:</b> <code>{timings['Asr']}</code>\n"
+            f"• <b>🌇 المغرب:</b> <code>{timings['Maghrib']}</code>\n"
+            f"• <b>🌙 العشاء:</b> <code>{timings['Isha']}</code>\n\n"
+            f"<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
+        )
+        
+        await edit_or_reply(event, message, parse_mode="HTML")
+        
+    except aiohttp.ClientError as e:
+        await edit_delete(event, f"**❌ خطأ في الاتصال بالإنترنت: {str(e)}**", 10)
+    except asyncio.TimeoutError:
+        await edit_delete(event, f"**⏱️ انتهت مهلة الاتصال**", 10)
+    except KeyError as e:
+        await edit_delete(event, f"**⚠️ خطأ في البيانات: {str(e)}**", 10)
+    except Exception as e:
+        await edit_delete(event, f"**❌ حدث خطأ: {str(e)}**", 10)

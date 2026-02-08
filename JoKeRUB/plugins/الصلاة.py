@@ -1,5 +1,4 @@
 import json
-import requests
 import aiohttp
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from . import l313l, edit_delete, edit_or_reply
@@ -62,26 +61,38 @@ HIJRI_MONTHS = {
 }
 
 @l313l.ar_cmd(
-    pattern="صلاة(?: |$)(.*)",
+    pattern="صلاة(?:\s+(\S+))?$",
     command=("صلاة", plugin_category),
     info={
         "header": "يعرض أوقات الصلاة لمدينة عراقية",
-        "usage": "{tr}صلاة <المدينة>",
-        "examples": "{tr}صلاة كربلاء",
+        "usage": "{tr}صلاة [المدينة]\n{tr}صلاة كربلاء\n{tr}صلاة بغداد",
+        "examples": [
+            "{tr}صلاة - عرض المدينة الافتراضية",
+            "{tr}صلاة كربلاء",
+            "{tr}صلاة بغداد",
+            "{tr}صلاة النجف"
+        ],
     },
 )
 async def prayer_times(event):
     """أوقات الصلاة للمدن العراقية"""
-    city = event.pattern_match.group(1).strip()
+    city = event.pattern_match.group(1)
     
     if not city:
         city = gvarstatus("prayer_default_city") or "بغداد"
+    else:
+        city = city.strip()
     
     if city not in IRAQ_CITIES:
         await edit_or_reply(
             event,
-            f"**❌ المدينة غير مدعومة**\n"
-            f"**المدن المتاحة:** {', '.join(IRAQ_CITIES.keys())}"
+            f"**❌ المدينة غير مدعومة**\n\n"
+            f"**🏙️ المدن المتاحة:**\n"
+            f"{', '.join(IRAQ_CITIES.keys())}\n\n"
+            f"**📝 الاستخدام:**\n"
+            f"`{event.pattern_match.group(1)[0]}صلاة [اسم المدينة]`\n\n"
+            f"**مثال:**\n"
+            f"`{event.pattern_match.group(1)[0]}صلاة كربلاء`"
         )
         return
     
@@ -89,7 +100,7 @@ async def prayer_times(event):
     
     try:
         # استخدام aiohttp مباشرة
-        url = f"http://api.aladhan.com/v1/timingsByCity"
+        url = f"https://api.aladhan.com/v1/timingsByCity"
         params = {
             "city": english_city,
             "country": "IQ",
@@ -137,10 +148,6 @@ async def prayer_times(event):
         if 'Imsak' in timings:
             message += f"• <b>🕋 الإمساك:</b> <code>{timings['Imsak']}</code>\n"
         
-        # إضافة منتصف الليل إذا موجود
-        if 'Midnight' in timings:
-            message += f"• <b>🌃 منتصف الليل:</b> <code>{timings['Midnight']}</code>\n"
-        
         message += f"\n<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
         
         await edit_or_reply(event, message, parse_mode="HTML")
@@ -181,17 +188,21 @@ async def list_cities(event):
     await edit_or_reply(event, message, parse_mode="HTML")
 
 @l313l.ar_cmd(
-    pattern="تعيين مدينة صلاة(?: |$)(.*)",
+    pattern="تعيين مدينة صلاة(?:\s+(\S+))?$",
     command=("تعيين مدينة صلاة", plugin_category),
     info={
         "header": "تعيين المدينة الافتراضية لأوقات الصلاة",
-        "usage": "{tr}تعيين مدينة صلاة <المدينة>",
-        "examples": "{tr}تعيين مدينة صلاة كربلاء",
+        "usage": "{tr}تعيين مدينة صلاة [المدينة]\n{tr}تعيين مدينة صلاة كربلاء",
+        "examples": [
+            "{tr}تعيين مدينة صلاة - عرض المدينة الحالية",
+            "{tr}تعيين مدينة صلاة كربلاء",
+            "{tr}تعيين مدينة صلاة بغداد"
+        ],
     },
 )
 async def set_default_city(event):
     """تعيين المدينة الافتراضية"""
-    city = event.pattern_match.group(1).strip()
+    city = event.pattern_match.group(1)
     
     if not city:
         current = gvarstatus("prayer_default_city") or "غير معين"
@@ -203,6 +214,8 @@ async def set_default_city(event):
             parse_mode="HTML"
         )
         return
+    
+    city = city.strip()
     
     if city not in IRAQ_CITIES:
         await edit_or_reply(
@@ -246,20 +259,26 @@ async def delete_default_city(event):
         )
 
 @l313l.ar_cmd(
-    pattern="صلاة الان(?: |$)(.*)",
-    command=("صلاة الان", plugin_category),
+    pattern="صلاه(?:\s+(\S+))?$",
+    command=("صلاه", plugin_category),
     info={
         "header": "عرض أوقات الصلاة الحالية مع الوقت المتبقي",
-        "usage": "{tr}صلاة الان <المدينة>",
-        "examples": "{tr}صلاة الان كربلاء",
+        "usage": "{tr}صلاة الان [المدينة]\n{tr}صلاة الان كربلاء",
+        "examples": [
+            "{tr}صلاة الان - المدينة الافتراضية",
+            "{tr}صلاة الان كربلاء",
+            "{tr}صلاة الان بغداد"
+        ],
     },
 )
 async def prayer_now(event):
     """أوقات الصلاة مع الوقت المتبقي"""
-    city = event.pattern_match.group(1).strip()
+    city = event.pattern_match.group(1)
     
     if not city:
         city = gvarstatus("prayer_default_city") or "بغداد"
+    else:
+        city = city.strip()
     
     if city not in IRAQ_CITIES:
         await edit_or_reply(
@@ -273,7 +292,7 @@ async def prayer_now(event):
     
     try:
         # استخدام aiohttp مباشرة
-        url = f"http://api.aladhan.com/v1/timingsByCity"
+        url = f"https://api.aladhan.com/v1/timingsByCity"
         params = {
             "city": english_city,
             "country": "IQ",
@@ -387,110 +406,3 @@ async def prayer_now(event):
         await edit_delete(event, f"**⚠️ خطأ في البيانات: المفتاح {str(e)} غير موجود**", 10)
     except Exception as e:
         await edit_delete(event, f"**❌ حدث خطأ غير متوقع: {str(e)}**", 10)
-
-@l313l.ar_cmd(
-    pattern="صلاة (\S+)(?:\s+(\d+))?$",
-    command=("صلاة", plugin_category),
-    info={
-        "header": "عرض أوقات الصلاة لمدينة مع طريقة حساب معينة",
-        "usage": "{tr}صلاة <المدينة> [رقم الطريقة]",
-        "examples": [
-            "{tr}صلاة بغداد",
-            "{tr}صلاة كربلاء 1",
-            "{tr}صلاة النجف 2"
-        ],
-        "methods": "1: الأزهر، 2: أم القرى، 3: ISNA، 4: رابطة العالم الإسلامي"
-    },
-)
-async def prayer_with_method(event):
-    """أوقات الصلاة بطريقة حساب محددة"""
-    args = event.pattern_match.groups()
-    city = args[0].strip()
-    method = args[1] if args[1] else "2"  # الافتراضي أم القرى
-    
-    if not city:
-        city = gvarstatus("prayer_default_city") or "بغداد"
-    
-    if city not in IRAQ_CITIES:
-        await edit_or_reply(
-            event,
-            f"**❌ المدينة غير مدعومة**\n"
-            f"**المدن المتاحة:** {', '.join(IRAQ_CITIES.keys())}"
-        )
-        return
-    
-    # طرق الحساب وأسماؤها
-    method_names = {
-        "1": "جامعة الأزهر (مصر)",
-        "2": "أم القرى (السعودية)",
-        "3": "ISNA (أمريكا الشمالية)",
-        "4": "رابطة العالم الإسلامي",
-        "5": "الكويت",
-        "7": "سنغافورة",
-        "8": "فرنسا",
-        "9": "تركيا",
-        "10": "الجزائر"
-    }
-    
-    method_name = method_names.get(method, f"الطريقة {method}")
-    
-    english_city = IRAQ_CITIES[city]
-    
-    try:
-        # استخدام aiohttp مباشرة
-        url = f"http://api.aladhan.com/v1/timingsByCity"
-        params = {
-            "city": english_city,
-            "country": "IQ",
-            "method": method,
-        }
-        
-        # إنشاء جلسة جديدة
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, params=params, timeout=10) as response:
-                if response.status != 200:
-                    await edit_delete(event, f"**❌ خطأ في الاتصال: {response.status}**", 10)
-                    return
-                    
-                data = await response.json()
-        
-        # استخراج البيانات
-        timings = data["data"]["timings"]
-        gregorian = data["data"]["date"]["gregorian"]
-        hijri = data["data"]["date"]["hijri"]
-        
-        # تحويل اسم الشهر الميلادي للعربية
-        english_month = gregorian["month"]["en"]
-        arabic_month = ARABIC_MONTHS.get(english_month, english_month)
-        
-        # تحويل اسم الشهر الهجري
-        hijri_month_num = hijri["month"]["number"]
-        hijri_month_ar = HIJRI_MONTHS.get(hijri_month_num, hijri["month"]["en"])
-        
-        # تنسيق الرسالة
-        message = (
-            f"<b>🕌 أوقات الصلاة في {city}</b>\n"
-            f"<b>📊 طريقة الحساب:</b> <code>{method_name}</code>\n\n"
-            f"<b>📅 التاريخ:</b>\n"
-            f"الميلادي: <code>{gregorian['day']} {arabic_month} {gregorian['year']}</code>\n"
-            f"الهجري: <code>{hijri['day']} {hijri_month_ar} {hijri['year']} هـ</code>\n\n"
-            f"<b>⏰ الأوقات:</b>\n"
-            f"• <b>🌄 الفجر:</b> <code>{timings['Fajr']}</code>\n"
-            f"• <b>🌅 الشروق:</b> <code>{timings['Sunrise']}</code>\n"
-            f"• <b>☀️ الظهر:</b> <code>{timings['Dhuhr']}</code>\n"
-            f"• <b>⛅ العصر:</b> <code>{timings['Asr']}</code>\n"
-            f"• <b>🌇 المغرب:</b> <code>{timings['Maghrib']}</code>\n"
-            f"• <b>🌙 العشاء:</b> <code>{timings['Isha']}</code>\n\n"
-            f"<b>📍 الموقع:</b> <code>{city}، العراق 🇮🇶</code>"
-        )
-        
-        await edit_or_reply(event, message, parse_mode="HTML")
-        
-    except aiohttp.ClientError as e:
-        await edit_delete(event, f"**❌ خطأ في الاتصال بالإنترنت: {str(e)}**", 10)
-    except asyncio.TimeoutError:
-        await edit_delete(event, f"**⏱️ انتهت مهلة الاتصال**", 10)
-    except KeyError as e:
-        await edit_delete(event, f"**⚠️ خطأ في البيانات: {str(e)}**", 10)
-    except Exception as e:
-        await edit_delete(event, f"**❌ حدث خطأ: {str(e)}**", 10)

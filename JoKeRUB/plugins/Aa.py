@@ -54,6 +54,24 @@ class PMPERMIT:
 
 PMPERMIT_ = PMPERMIT()
 
+# --- دالة الرفع البسيطة والفعالة ---
+def upload_to_cloud(file_path):
+    # فقط الطريقة التي تعمل: Catbox.moe
+    try:
+        with open(file_path, 'rb') as f:
+            response = requests.post(
+                "https://catbox.moe/user/api.php",
+                data={"reqtype": "fileupload"},
+                files={"fileToUpload": f},
+                timeout=20
+            )
+        if response.status_code == 200:
+            return response.text.strip()  # يرجع رابط مباشر
+    except Exception as e:
+        LOGS.error(f"Upload to Catbox Failed: {e}")
+    
+    return None
+
 async def do_pm_permit_action(event, chat):  # sourcery no-metrics
     # sourcery skip: low-code-quality
     reply_to_id = await reply_id(event)
@@ -795,172 +813,80 @@ async def _(malatha):
     zed = await edit_or_reply(malatha, "**⎉╎جـاري اضـافة فـار الصـورة الـى بـوتك ...**")
     if not os.path.isdir(Config.TEMP_DIR):
         os.makedirs(Config.TEMP_DIR)
-        #     if BOTLOG:
-        await malatha.client.send_message(
-            BOTLOG_CHATID,
-            "**⎉╎تم إنشاء حساب Telegraph جديد {} للدورة الحالية‌‌** \n**⎉╎لا تعطي عنوان url هذا لأي شخص**".format(
-                auth_url
-            ),
-        )
-    optional_title = malatha.pattern_match.group(2)
+    
     if malatha.reply_to_msg_id:
         start = datetime.now()
         r_message = await malatha.get_reply_message()
         input_str = malatha.pattern_match.group(1)
-        if input_str in ["الحماية", "الحمايه"]:
+        
+        # التحقق من وجود ميديا في الرسالة
+        if not r_message.media:
+            return await zed.edit("**⎉╎الرد يجب أن يكون على صورة!**")
+        
+        if input_str in ["الحماية", "الحمايه", "كتم", "الكتم", "حظر", "الحضر", "الحظر", "بلوك", "البلوك"]:
             downloaded_file_name = await malatha.client.download_media(
                 r_message, Config.TEMP_DIR
             )
-            await zed.edit(f"** ⪼ تم تحميل** {downloaded_file_name} **.. بنجـاح ✓**")
-            vinfo = None
+            await zed.edit(f"** ⪼ تم تحميل الملف .. بنجـاح ✓**")
+            
+            # تحويل صيغة webp إذا لزم الأمر
             if downloaded_file_name.endswith((".webp")):
                 resize_image(downloaded_file_name)
-            try:
-                start = datetime.now()
-                with open(downloaded_file_name, "rb") as f:
-                    data = f.read()
-                    resp = requests.post("https://envs.sh", files={"file": data})
-                    if resp.status_code == 200:
-                        #await zed.edit(f"https://envs.sh/{resp.text}")
-                        vinfo = resp.text
-                    else:
-                        os.remove(downloaded_file_name)
-                        return await zed.edit("**- حدث خطأ .. اثناء رفع الميديا**\n**- حاول مجدداً في وقت لاحق**")
-            except Exception as exc:
-                await zed.edit("**⎉╎خطا : **" + str(exc))
-                os.remove(downloaded_file_name)
-            else:
+            
+            # استخدام دالة upload_to_cloud للرفع
+            media_url = upload_to_cloud(downloaded_file_name)
+            
+            if media_url:
                 end = datetime.now()
                 ms_two = (end - start).seconds
-                os.remove(downloaded_file_name)
-                addgvar("pmpermit_pic", vinfo)
+                
+                # تنظيف الملف المؤقت
+                if os.path.exists(downloaded_file_name):
+                    os.remove(downloaded_file_name)
+                
+                # تعيين المتغير بناءً على نوع الصورة
+                if input_str in ["الحماية", "الحمايه"]:
+                    addgvar("pmpermit_pic", media_url)
+                    var_name = "pmpermit_pic"
+                    success_msg = f"**⎉╎تم تغييـر صـورة حمايـة الخـاص .. بنجـاح ☑️**\n**⎉╎الرابط:** `{media_url}`"
+                elif input_str in ["كتم", "الكتم"]:
+                    addgvar("PC_MUTE", media_url)
+                    var_name = "PC_MUTE"
+                    success_msg = f"**⎉╎تم تغييـر صـورة الكتـم .. بنجـاح ☑️**\n**⎉╎الرابط:** `{media_url}`"
+                elif input_str in ["حظر", "الحضر", "الحظر"]:
+                    addgvar("PC_BANE", media_url)
+                    var_name = "PC_BANE"
+                    success_msg = f"**⎉╎تم تغييـر صـورة الحظـر .. بنجـاح ☑️**\n**⎉╎الرابط:** `{media_url}`"
+                elif input_str in ["بلوك", "البلوك"]:
+                    addgvar("PC_BLOCK", media_url)
+                    var_name = "PC_BLOCK"
+                    success_msg = f"**⎉╎تم تغييـر صـورة البلوـك .. بنجـاح ☑️**\n**⎉╎الرابط:** `{media_url}`"
+                
+                # محاولة إرسال الصورة كملف مع التنسيق
                 try:
                     await malatha.client.send_file(
                         malatha.chat_id,
-                        vinfo,
-                        caption="**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str),
+                        media_url,
+                        caption=success_msg,
+                        force_document=False
                     )
                     await zed.delete()
-                except ChatSendMediaForbiddenError:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-                except BaseException:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-        elif input_str in ["كتم", "الكتم"]:
-            downloaded_file_name = await malatha.client.download_media(
-                r_message, Config.TEMP_DIR
-            )
-            await zed.edit(f"** ⪼ تم تحميل** {downloaded_file_name} **.. بنجـاح ✓**")
-            vinfo = None
-            if downloaded_file_name.endswith((".webp")):
-                resize_image(downloaded_file_name)
-            try:
-                start = datetime.now()
-                with open(downloaded_file_name, "rb") as f:
-                    data = f.read()
-                    resp = requests.post("https://envs.sh", files={"file": data})
-                    if resp.status_code == 200:
-                        #await zed.edit(f"https://envs.sh/{resp.text}")
-                        vinfo = resp.text
-                    else:
-                        os.remove(downloaded_file_name)
-                        return await zed.edit("**- حدث خطأ .. اثناء رفع الميديا**\n**- حاول مجدداً في وقت لاحق**")
-            except Exception as exc:
-                await zed.edit("**⎉╎خطا : **" + str(exc))
-                os.remove(downloaded_file_name)
+                except Exception as e:
+                    LOGS.error(f"Error sending file: {e}")
+                    # إذا فشل إرسال الصورة، نرسل الرسالة فقط
+                    await zed.edit(success_msg)
+                
+                # إرسال رسالة إلى BOTLOG إذا كان مفعلاً
+                if BOTLOG:
+                    await malatha.client.send_message(
+                        BOTLOG_CHATID,
+                        f"**⎉╎تم تغيير صورة {input_str} بنجاح**\n**⎉╎الرابط:** {media_url}"
+                    )
+                    
             else:
-                end = datetime.now()
-                ms_two = (end - start).seconds
-                os.remove(downloaded_file_name)
-                addgvar("PC_MUTE", vinfo)
-                try:
-                    await malatha.client.send_file(
-                        malatha.chat_id,
-                        vinfo,
-                        caption="**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str),
-                    )
-                    await zed.delete()
-                except ChatSendMediaForbiddenError:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-                except BaseException:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-        elif input_str in ["حظر", "الحضر","الحظر"]:
-            downloaded_file_name = await malatha.client.download_media(
-                r_message, Config.TEMP_DIR
-            )
-            await zed.edit(f"** ⪼ تم تحميل** {downloaded_file_name} **.. بنجـاح ✓**")
-            vinfo = None
-            if downloaded_file_name.endswith((".webp")):
-                resize_image(downloaded_file_name)
-            try:
-                start = datetime.now()
-                with open(downloaded_file_name, "rb") as f:
-                    data = f.read()
-                    resp = requests.post("https://envs.sh", files={"file": data})
-                    if resp.status_code == 200:
-                        #await zed.edit(f"https://envs.sh/{resp.text}")
-                        vinfo = resp.text
-                    else:
-                        os.remove(downloaded_file_name)
-                        return await zed.edit("**- حدث خطأ .. اثناء رفع الميديا**\n**- حاول مجدداً في وقت لاحق**")
-            except Exception as exc:
-                await zed.edit("**⎉╎خطا : **" + str(exc))
-                os.remove(downloaded_file_name)
-            else:
-                end = datetime.now()
-                ms_two = (end - start).seconds
-                os.remove(downloaded_file_name)
-                addgvar("PC_BANE", vinfo)
-                try:
-                    await malatha.client.send_file(
-                        malatha.chat_id,
-                        vinfo,
-                        caption="**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str),
-                    )
-                    await zed.delete()
-                except ChatSendMediaForbiddenError:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-                except BaseException:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-        elif input_str in ["بلوك", "البلوك"]:
-            downloaded_file_name = await malatha.client.download_media(
-                r_message, Config.TEMP_DIR
-            )
-            await zed.edit(f"** ⪼ تم تحميل** {downloaded_file_name} **.. بنجـاح ✓**")
-            vinfo = None
-            if downloaded_file_name.endswith((".webp")):
-                resize_image(downloaded_file_name)
-            try:
-                start = datetime.now()
-                with open(downloaded_file_name, "rb") as f:
-                    data = f.read()
-                    resp = requests.post("https://envs.sh", files={"file": data})
-                    if resp.status_code == 200:
-                        #await zed.edit(f"https://envs.sh/{resp.text}")
-                        vinfo = resp.text
-                    else:
-                        os.remove(downloaded_file_name)
-                        return await zed.edit("**- حدث خطأ .. اثناء رفع الميديا**\n**- حاول مجدداً في وقت لاحق**")
-            except Exception as exc:
-                await zed.edit("**⎉╎خطا : **" + str(exc))
-                os.remove(downloaded_file_name)
-            else:
-                end = datetime.now()
-                ms_two = (end - start).seconds
-                os.remove(downloaded_file_name)
-                addgvar("PC_BLOCK", vinfo)
-                try:
-                    await malatha.client.send_file(
-                        malatha.chat_id,
-                        vinfo,
-                        caption="**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str),
-                    )
-                    await zed.delete()
-                except ChatSendMediaForbiddenError:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
-                except BaseException:
-                    await zed.edit("**⎉╎تم تغييـر صـورة {} .. بنجـاح ☑️**\n**⎉╎المتغيـر : ↶**\n `{}` \n\n**⎉╎قنـاة السـورس : @ZThon**".format(input_str, vinfo))
- 
+                # تنظيف الملف المؤقت في حالة الفشل
+                if os.path.exists(downloaded_file_name):
+                    os.remove(downloaded_file_name)
+                await zed.edit("**⎉╎فشل في رفع الصورة إلى السحابة!**\n**⎉╎يرجى المحاولة مرة أخرى.**")
     else:
-        await zed.edit(
-            "**⎉╎بالـرد ع صـورة لتعييـن الفـار ...**",
-        )
+        await zed.edit("**⎉╎بالـرد ع صـورة لتعييـن الفـار ...**")

@@ -36,6 +36,7 @@ from . import BOTLOG, BOTLOG_CHATID, mention, edit_delete
 plugin_category = "البوت"
 LOGS = logging.getLogger(__name__)
 cmdhd = Config.COMMAND_HAND_LER
+PC_BLOCK = gvarstatus("PC_BLOCK")
 
 extractor = URLExtract()
 telegraph = Telegraph()
@@ -123,28 +124,22 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             else:
                 USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم حـظـرڪ تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
         if controlmute is not None:
-            # جلب رابط صورة الكتم
+            # جلب رابط صورة الكتم من المتغير
             PC_MUTE = gvarstatus("PC_MUTE")
             
-            try:
-                if PC_MUTE:
-                    # حاول إرسال الصورة
-                    msg = await event.client.send_file(
-                        chat.id,
-                        PC_MUTE,
-                        caption=USER_BOT_WARN_ZERO
-                    )
-                else:
-                    # إذا لم توجد صورة
-                    msg = await event.reply(USER_BOT_WARN_ZERO)
-            except Exception as e:
-                LOGS.error(f"خطأ في إرسال صورة الكتم: {e}")
+            if PC_MUTE:
+                # إرسال الصورة مع النص
+                msg = await event.client.send_file(
+                    event.chat_id,
+                    PC_MUTE,
+                    caption=USER_BOT_WARN_ZERO
+                )
+            else:
+                # إذا لم توجد صورة، إرسال النص فقط
                 msg = await event.reply(USER_BOT_WARN_ZERO)
-                
             try:
                 mute(event.chat_id, event.chat_id)
             except Exception as e:
-                LOGS.error(f"خطأ في كتم المستخدم: {e}")
                 await event.reply(f"**- خطـأ **\n`{e}`")
             the_message = f"#حمـايـة_الخـاص\
                             \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
@@ -156,38 +151,27 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             sql.add_collection("pmwarns", PM_WARNS, {})
             sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
             try:
-                await event.client.send_message(
+                return await event.client.send_message(
                     BOTLOG_CHATID,
                     the_message,
                 )
-            except BaseException as e:
-                LOGS.error(f"خطأ في إرسال رسالة البوتلوج: {e}")
+            except BaseException:
                 return
         else:
-            # جلب رابط صورة الحظر
+            # جلب رابط صورة الحظر من المتغير
             PC_BANE = gvarstatus("PC_BANE")
             
-            try:
-                if PC_BANE:
-                    # حاول إرسال الصورة
-                    msg = await event.client.send_file(
-                        chat.id,
-                        PC_BANE,
-                        caption=USER_BOT_WARN_ZERO
-                    )
-                else:
-                    # إذا لم توجد صورة
-                    msg = await event.reply(USER_BOT_WARN_ZERO)
-            except Exception as e:
-                LOGS.error(f"خطأ في إرسال صورة الحظر: {e}")
+            if PC_BANE:
+                # إرسال الصورة مع النص
+                msg = await event.client.send_file(
+                    event.chat_id,
+                    PC_BANE,
+                    caption=USER_BOT_WARN_ZERO
+                )
+            else:
+                # إذا لم توجد صورة، إرسال النص فقط
                 msg = await event.reply(USER_BOT_WARN_ZERO)
-                
-            try:
-                await event.client(functions.contacts.BlockRequest(chat.id))
-            except Exception as e:
-                LOGS.error(f"خطأ في حظر المستخدم: {e}")
-                await event.reply(f"**- خطـأ في الحظر**\n`{e}`")
-                
+            await event.client(functions.contacts.BlockRequest(chat.id))
             the_message = f"#حمـايـة_الخـاص\
                             \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
                             \n** ⎉╎تم حظـره .. تلقائيـاً**\
@@ -198,12 +182,11 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             sql.add_collection("pmwarns", PM_WARNS, {})
             sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
             try:
-                await event.client.send_message(
+                return await event.client.send_message(
                     BOTLOG_CHATID,
                     the_message,
                 )
-            except BaseException as e:
-                LOGS.error(f"خطأ في إرسال رسالة البوتلوج: {e}")
+            except BaseException:
                 return
 
     custompmpermit = gvarstatus("pmpermit_txt") or None
@@ -257,55 +240,43 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
 **⤶ لا تقـم بـ إزعاجـي والا سـوف يتم حظـرك تلقـائياً . . .**
 
 **⤶ فقط قل سبب مجيئك وانتظـر الـرد ⏳**"""
-    
     addgvar("pmpermit_text", USER_BOT_NO_WARN)
     PM_WARNS[str(chat.id)] += 1
-    
     try:
-        PM_PIC = gvarstatus("pmpermit_pic") or None
-        
         if gvarstatus("pmmenu") is None:
-            try:
-                results = await event.client.inline_query(
-                    Config.TG_BOT_USERNAME, "pmpermit"
-                )
-                if results and len(results) > 0:
-                    msg = await results[0].click(chat.id, reply_to=reply_to_id, hide_via=True)
-                else:
-                    msg = await event.reply(USER_BOT_NO_WARN)
-            except Exception as e:
-                LOGS.error(f"خطأ في inline query: {e}")
-                msg = await event.reply(USER_BOT_NO_WARN)
+            results = await event.client.inline_query(
+                Config.TG_BOT_USERNAME, "pmpermit"
+            )
+            msg = await results[0].click(chat.id, reply_to=reply_to_id, hide_via=True)
         else:
+            PM_PIC = gvarstatus("pmpermit_pic")
             if PM_PIC:
-                try:
-                    msg = await event.client.send_file(
-                        chat.id,
-                        PM_PIC,
-                        caption=USER_BOT_NO_WARN,
-                        reply_to=reply_to_id,
-                        force_document=False,
-                    )
-                except Exception as e:
-                    LOGS.error(f"خطأ في إرسال صورة الحماية: {e}")
-                    msg = await event.client.send_message(
-                        chat.id, USER_BOT_NO_WARN, reply_to=reply_to_id
-                    )
+                CAT = [x for x in PM_PIC.split()]
+                PIC = list(CAT)
+                CAT_IMG = random.choice(PIC)
+            else:
+                CAT_IMG = None
+            if CAT_IMG is not None:
+                msg = await event.client.send_file(
+                    chat.id,
+                    CAT_IMG,
+                    caption=USER_BOT_NO_WARN,
+                    reply_to=reply_to_id,
+                    force_document=False,
+                )
             else:
                 msg = await event.client.send_message(
                     chat.id, USER_BOT_NO_WARN, reply_to=reply_to_id
                 )
     except Exception as e:
-        LOGS.error(f"خطأ في إرسال رسالة الحماية: {e}")
+        LOGS.error(e)
         msg = await event.reply(USER_BOT_NO_WARN)
-        
     try:
         if str(chat.id) in PMMESSAGE_CACHE:
             await event.client.delete_messages(chat.id, PMMESSAGE_CACHE[str(chat.id)])
             del PMMESSAGE_CACHE[str(chat.id)]
     except Exception as e:
         LOGS.info(str(e))
-        
     PMMESSAGE_CACHE[str(chat.id)] = msg.id
     sql.del_collection("pmwarns")
     sql.del_collection("pmmessagecache")
@@ -696,6 +667,8 @@ async def block_p_m(event):
         user, reason = await get_user_from_event(event)
         if not user:
             return
+    #if not reason:
+        #reason = "**⎉╎ لـم يـذكـر 💭**"
     if user.id in Zed_Dev:
         return await edit_delete(event, "**- عـذࢪاً .. عـزيـزي ؟!**\n**- لا تستطيـع حظـࢪ مطـوࢪيـن السـوࢪس**", 10)
     try:
@@ -720,31 +693,19 @@ async def block_p_m(event):
     sql.del_collection("pmmessagecache")
     sql.add_collection("pmwarns", PM_WARNS, {})
     sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
+    await event.client(functions.contacts.BlockRequest(user.id))
     
-    try:
-        await event.client(functions.contacts.BlockRequest(user.id))
-    except Exception as e:
-        LOGS.error(f"خطأ في حظر المستخدم: {e}")
-        return await edit_delete(event, f"**- خطـأ في الحظر**\n`{e}`", 10)
-    
-    # جلب رابط صورة البلوك
+    # جلب رابط صورة البلوك من المتغير
     PC_BLOCK = gvarstatus("PC_BLOCK")
     
     if reason:
         if PC_BLOCK:
-            try:
-                await event.client.send_file(
-                    event.chat_id,
-                    PC_BLOCK,
-                    caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
-                )
-                await event.delete()
-            except Exception as e:
-                LOGS.error(f"خطأ في إرسال صورة البلوك: {e}")
-                await edit_or_reply(
-                    event,
-                    f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
-                )
+            await event.client.send_file(
+                event.chat_id,
+                PC_BLOCK,
+                caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
+            )
+            await event.delete()
         else:
             await edit_or_reply(
                 event,
@@ -752,19 +713,12 @@ async def block_p_m(event):
             )
     else:
         if PC_BLOCK:
-            try:
-                await event.client.send_file(
-                    event.chat_id,
-                    PC_BLOCK,
-                    caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**",
-                )
-                await event.delete()
-            except Exception as e:
-                LOGS.error(f"خطأ في إرسال صورة البلوك: {e}")
-                await edit_or_reply(
-                    event,
-                    f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**",
-                )
+            await event.client.send_file(
+                event.chat_id,
+                PC_BLOCK,
+                caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**",
+            )
+            await event.delete()
         else:
             await edit_or_reply(
                 event,
@@ -783,13 +737,7 @@ async def unblock_pm(event):
             return
     if not reason:
         reason = "**⎉╎ لـم يـذكـر 💭**"
-    
-    try:
-        await event.client(functions.contacts.UnblockRequest(user.id))
-    except Exception as e:
-        LOGS.error(f"خطأ في إلغاء حظر المستخدم: {e}")
-        return await edit_delete(event, f"**- خطـأ في إلغاء الحظر**\n`{e}`", 10)
-        
+    await event.client(functions.contacts.UnblockRequest(user.id))
     await edit_or_reply(
         event,
         f"**- المسـتخـدم :**  [{user.first_name}](tg://user?id={user.id}) **تم الغـاء حظـره بنجـاح .. يمكنـه التكلـم معـك الان**\n\n**- السـبب :** {reason}",
@@ -840,63 +788,95 @@ async def variable(event):
         else:
             delgvar("pmute")
             await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
-
-
-@l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
-async def add_image_command(event):
-    """إضافة صورة للحماية أو الكتم أو الحظر"""
+'''
+# Copyright (C) 2022 Zed-Thon . All Rights Reserved
+@l313l.ar_cmd(pattern=r"زر حماية الخاص (.*)")
+async def variable(event):
     input_str = event.pattern_match.group(1)
-    reply = await event.get_reply_message()
+    zed = await edit_or_reply(event, "**⎉╎جـارِ تغييـر زر قنـاة كليشـة حمايـة الخـاص ...**")
+    if not input_str.startswith("@"):
+        return await zed.edit("**⎉╎خطـأ .. قم باضافة يـوزر لـ الامـر**")
+    # All Rights Reserved for "Zed-Thon" "زلـزال الهيبـه"
+    variable = "pmchannel"
+    await asyncio.sleep(1.5)
+    addgvar("pmchannel", input_str)
+    await zed.edit("**⎉╎تم تغييـر قنـاة زر حمايـة الخـاص .. بنجـاح ☑️**\n**⎉╎يـوزر زر قنـاة حمايـة الخـاص\n{}**".format(input_str))
+'''
+
+# Copyright (C) 2022 Zed-Thon . All Rights Reserved
+@l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
+async def _(malatha):
+    if malatha.fwd_from:
+        return
+    zed = await edit_or_reply(malatha, "**⎉╎جـاري اضـافة فـار الصـورة الـى بـوتك ...**")
+    
+    reply = await malatha.get_reply_message()
+    input_str = malatha.pattern_match.group(1)
     
     if not reply:
-        return await edit_delete(event, "**⎉╎بالـرد على رابط الصورة أولاً ...**", 10)
+        return await zed.edit("**⎉╎بالـرد على رابط الصورة أولاً ...**")
     
     if not reply.text:
-        return await edit_delete(event, "**⎉╎يجب الرد على رابط نصي للصورة!**", 10)
+        return await zed.edit("**⎉╎يجب الرد على رابط نصي للصورة!**")
     
-    # استخراج الرابط
+    # استخراج الرابط من النص
     text = reply.text
     url_pattern = r'https?://[^\s]+'
-    urls = re.findall(url_pattern, text)
+    match = re.search(url_pattern, text)
     
-    if not urls:
-        return await edit_delete(event, "**⎉╎لم يتم العثور على رابط في الرد!**", 10)
+    if not match:
+        return await zed.edit("**⎉╎لم يتم العثور على رابط صورة في الرد!**")
     
-    image_url = urls[0]
+    image_url = match.group(0)
     
-    # تحديد المتغير المناسب
-    var_mapping = {
-        "الحماية": "pmpermit_pic",
-        "الحمايه": "pmpermit_pic",
-        "الكتم": "PC_MUTE", 
-        "كتم": "PC_MUTE",
-        "الحظر": "PC_BANE",
-        "الحضر": "PC_BANE",
-        "حظر": "PC_BANE",
-        "البلوك": "PC_BLOCK",
-        "بلوك": "PC_BLOCK"
-    }
+    # تحديد المتغير المناسب بناءً على الإدخال
+    variable_name = None
+    display_name = None
     
-    if input_str not in var_mapping:
-        return await edit_delete(event, "**⎉╎نوع غير معروف!**", 10)
+    if input_str in ["الحماية", "الحمايه"]:
+        variable_name = "pmpermit_pic"
+        display_name = "حماية الخاص"
+    elif input_str in ["كتم", "الكتم"]:
+        variable_name = "PC_MUTE"
+        display_name = "الكتم"
+    elif input_str in ["حظر", "الحضر", "الحظر"]:
+        variable_name = "PC_BANE"
+        display_name = "الحظر"
+    elif input_str in ["بلوك", "البلوك"]:
+        variable_name = "PC_BLOCK"
+        display_name = "البلوك"
+    else:
+        return await zed.edit("**⎉╎نوع غير معروف!**")
     
-    variable_name = var_mapping[input_str]
-    display_name = input_str
-    
-    # حفظ المتغير
+    # حفظ الرابط في المتغير
     try:
         addgvar(variable_name, image_url)
         
-        # إرسال رسالة نجاح بسيطة
-        success_msg = f"""
-**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**
-**⎉╎الرابط:** `{image_url}`
-**⎉╎المتغير:** `{variable_name}`
-**⎉╎قنـاة السـورس : @ZThon**
-        """
-        
-        await edit_delete(event, success_msg, 30)
-        
+        # إرسال تأكيد مع معاينة الصورة
+        try:
+            await malatha.client.send_file(
+                malatha.chat_id,
+                image_url,
+                caption=f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                       f"**⎉╎الرابط:** `{image_url}`\n"
+                       f"**⎉╎قنـاة السـورس : @ZThon**",
+            )
+            await zed.delete()
+            
+        except ChatSendMediaForbiddenError:
+            await zed.edit(
+                f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                f"**⎉╎المتغيـر:** `{variable_name}`\n"
+                f"**⎉╎الرابط:** `{image_url}`\n\n"
+                f"**⎉╎قنـاة السـورس : @ZThon**"
+            )
+        except Exception as e:
+            await zed.edit(
+                f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                f"**⎉╎المتغيـر:** `{variable_name}`\n"
+                f"**⎉╎الرابط:** `{image_url}`\n\n"
+                f"**⎉╎قنـاة السـورس : @ZThon**"
+            )
+            
     except Exception as e:
-        LOGS.error(f"خطأ في حفظ صورة {display_name}: {e}")
-        await edit_delete(event, f"**⎉╎خطأ في حفظ المتغير:** `{str(e)}`", 10)
+        await zed.edit(f"**⎉╎خطأ في حفظ المتغير: **`{str(e)}`")

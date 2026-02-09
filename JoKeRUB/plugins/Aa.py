@@ -124,15 +124,27 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             else:
                 USER_BOT_WARN_ZERO = f"**⤶ لقـد حذرتـڪ مـسـبـقـاً مـن الـتـڪـرار 📵** \n**⤶ تـم حـظـرڪ تلقـائيـاً .. الان لا يـمـڪـنـڪ ازعـاجـي🔕**\n\n**⤶ تحيـاتـي** {my_mention}  🫡"
         if controlmute is not None:
-            msg = await event.reply(USER_BOT_WARN_ZERO)
+            # جلب رابط صورة الكتم من المتغير
+            PC_MUTE = gvarstatus("PC_MUTE")
+            
+            if PC_MUTE:
+                # إرسال الصورة مع النص
+                msg = await event.client.send_file(
+                    event.chat_id,
+                    PC_MUTE,
+                    caption=USER_BOT_WARN_ZERO
+                )
+            else:
+                # إذا لم توجد صورة، إرسال النص فقط
+                msg = await event.reply(USER_BOT_WARN_ZERO)
             try:
                 mute(event.chat_id, event.chat_id)
             except Exception as e:
                 await event.reply(f"**- خطـأ **\n`{e}`")
             the_message = f"#حمـايـة_الخـاص\
-                                \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
-                                \n** ⎉╎تم كتمـه .. تلقائيـاً**\
-                                \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
+                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
+                            \n** ⎉╎تم ڪتمـه .. تلقائيـاً**\
+                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
             del PM_WARNS[str(chat.id)]
             sql.del_collection("pmwarns")
             sql.del_collection("pmmessagecache")
@@ -146,12 +158,24 @@ async def do_pm_permit_action(event, chat):  # sourcery no-metrics
             except BaseException:
                 return
         else:
-            msg = await event.reply(USER_BOT_WARN_ZERO)
+            # جلب رابط صورة الحظر من المتغير
+            PC_BANE = gvarstatus("PC_BANE")
+            
+            if PC_BANE:
+                # إرسال الصورة مع النص
+                msg = await event.client.send_file(
+                    event.chat_id,
+                    PC_BANE,
+                    caption=USER_BOT_WARN_ZERO
+                )
+            else:
+                # إذا لم توجد صورة، إرسال النص فقط
+                msg = await event.reply(USER_BOT_WARN_ZERO)
             await event.client(functions.contacts.BlockRequest(chat.id))
             the_message = f"#حمـايـة_الخـاص\
-                                \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
-                                \n** ⎉╎تم حظـره .. تلقائيـاً**\
-                                \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
+                            \n** ⎉╎المستخـدم** [{get_display_name(chat)}](tg://user?id={chat.id}) .\
+                            \n** ⎉╎تم حظـره .. تلقائيـاً**\
+                            \n** ⎉╎عـدد رسـائله :** {PM_WARNS[str(chat.id)]}"
             del PM_WARNS[str(chat.id)]
             sql.del_collection("pmwarns")
             sql.del_collection("pmmessagecache")
@@ -453,18 +477,6 @@ async def approve_p_m(event):  # sourcery no-metrics
     if event.is_private:
         user = await event.get_chat()
         reason = event.pattern_match.group(2)
-        if is_muted(user.id, event.chat_id):
-            try:
-                unmute(user.id, event.chat_id)
-            except Exception as e:
-                await event.edit(f"**- خطــأ **\n`{e}`")
-            await event.edit("**- تـم الغــاء كتــم الشخـص هنـا .. بنجــاح ✓**")
-            if BOTLOG:
-                await event.client.send_message(
-                    BOTLOG_CHATID,
-                    "#الغــاء_كــتـم_حمـايـة_الخـاص\n"
-                    f"**- الشخـص :** [{user.first_name}](tg://user?id={user.id})\n",
-                )
     else:
         user, reason = await get_user_from_event(event, secondgroup=True)
         if not user:
@@ -682,8 +694,12 @@ async def block_p_m(event):
     sql.add_collection("pmwarns", PM_WARNS, {})
     sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
     await event.client(functions.contacts.BlockRequest(user.id))
+    
+    # جلب رابط صورة البلوك من المتغير
+    PC_BLOCK = gvarstatus("PC_BLOCK")
+    
     if reason:
-        if PC_BLOCK is not None:
+        if PC_BLOCK:
             await event.client.send_file(
                 event.chat_id,
                 PC_BLOCK,
@@ -696,7 +712,7 @@ async def block_p_m(event):
                 f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
             )
     else:
-        if PC_BLOCK is not None:
+        if PC_BLOCK:
             await event.client.send_file(
                 event.chat_id,
                 PC_BLOCK,
@@ -787,6 +803,7 @@ async def variable(event):
     await zed.edit("**⎉╎تم تغييـر قنـاة زر حمايـة الخـاص .. بنجـاح ☑️**\n**⎉╎يـوزر زر قنـاة حمايـة الخـاص\n{}**".format(input_str))
 '''
 
+# Copyright (C) 2022 Zed-Thon . All Rights Reserved
 @l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
 async def _(malatha):
     if malatha.fwd_from:
@@ -797,40 +814,25 @@ async def _(malatha):
     input_str = malatha.pattern_match.group(1)
     
     if not reply:
-        return await zed.edit("**⎉╎بالـرد على رابط Telegraph للصورة أولاً ...**")
+        return await zed.edit("**⎉╎بالـرد على رابط الصورة أولاً ...**")
     
     if not reply.text:
         return await zed.edit("**⎉╎يجب الرد على رابط نصي للصورة!**")
     
     # استخراج الرابط من النص
     text = reply.text
-    url_pattern = r'https?://telegra\.ph/[^\s]+'
+    url_pattern = r'https?://[^\s]+'
     match = re.search(url_pattern, text)
     
     if not match:
-        url_pattern2 = r'https?://graph\.org/[^\s]+'
-        match = re.search(url_pattern2, text)
-        
-    if not match:
-        return await zed.edit("**⎉╎لم يتم العثور على رابط Telegraph في الرد!**")
+        return await zed.edit("**⎉╎لم يتم العثور على رابط صورة في الرد!**")
     
     image_url = match.group(0)
     
-    # اختبار الرابط للتأكد أنه صورة
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.head(image_url) as resp:
-                if resp.status != 200:
-                    return await zed.edit("**⎉╎الرابط غير صالح أو لا يمكن الوصول إليه!**")
-                
-                content_type = resp.headers.get('content-type', '')
-                if not content_type.startswith('image/'):
-                    return await zed.edit("**⎉╎الرابط ليس لصورة!**")
-    except Exception:
-        return await zed.edit("**⎉╎خطأ في التحقق من الرابط!**")
-    
     # تحديد المتغير المناسب بناءً على الإدخال
     variable_name = None
+    display_name = None
+    
     if input_str in ["الحماية", "الحمايه"]:
         variable_name = "pmpermit_pic"
         display_name = "حماية الخاص"
@@ -851,19 +853,30 @@ async def _(malatha):
         addgvar(variable_name, image_url)
         
         # إرسال تأكيد مع معاينة الصورة
-        await malatha.client.send_file(
-            malatha.chat_id,
-            image_url,
-            caption=f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
-                   f"**⎉╎الرابط:** `{image_url}`",
-        )
-        await zed.delete()
-        
-    except ChatSendMediaForbiddenError:
-        await zed.edit(
-            f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
-            f"**⎉╎المتغيـر:** `{variable_name}`\n"
-            f"**⎉╎الرابط:** `{image_url}`"
-        )
+        try:
+            await malatha.client.send_file(
+                malatha.chat_id,
+                image_url,
+                caption=f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                       f"**⎉╎الرابط:** `{image_url}`\n"
+                       f"**⎉╎قنـاة السـورس : @ZThon**",
+            )
+            await zed.delete()
+            
+        except ChatSendMediaForbiddenError:
+            await zed.edit(
+                f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                f"**⎉╎المتغيـر:** `{variable_name}`\n"
+                f"**⎉╎الرابط:** `{image_url}`\n\n"
+                f"**⎉╎قنـاة السـورس : @ZThon**"
+            )
+        except Exception as e:
+            await zed.edit(
+                f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                f"**⎉╎المتغيـر:** `{variable_name}`\n"
+                f"**⎉╎الرابط:** `{image_url}`\n\n"
+                f"**⎉╎قنـاة السـورس : @ZThon**"
+            )
+            
     except Exception as e:
-        await zed.edit(f"**⎉╎خطأ: **`{str(e)}`")
+        await zed.edit(f"**⎉╎خطأ في حفظ المتغير: **`{str(e)}`")

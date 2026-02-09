@@ -289,6 +289,8 @@ async def add_ping_aljoker(event):
             await event.edit("**حدث خطأ أثناء تحميل الصورة على Telegraph**")
     else:
         await event.edit("**᯽︙ يرجى الرد على الصورة لتحديث الفار**")
+
+"""
 @l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|حماية|حمايه) ?(.*)")
 async def security_aljoker(event):
     reply = await event.get_reply_message()
@@ -308,6 +310,8 @@ async def security_aljoker(event):
             await event.edit("**حدث خطأ أثناء تحميل الصورة على Telegraph**")
     else:
         await event.edit("** ᯽︙ يرجى الرد على الصورة او فيديو لتحديث الفار **")
+
+        """
 @l313l.ar_cmd(pattern="اضف صورة (الخاص|خاص) ?(.*)")
 async def al5a9_aljoker(event):
     reply = await event.get_reply_message()

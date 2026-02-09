@@ -409,6 +409,47 @@ async def pmpermit_on(event):
         )
 
 @l313l.ar_cmd(
+    pattern="مسح المقبولين$",
+    command=("مسح المقبولين", plugin_category),
+    info={
+        "header": "لـ مسـح كـل المـسـموح لهـم مـن قـائـمـة الحمـايـة",
+        "الاسـتخـدام": "{tr}مسح المقبولين",
+        "ملاحظة": "هذا الأمر يحذف جميع المستخدمين المصرح لهم نهائياً",
+    },
+)
+async def clear_approved_list(event):
+    "To clear all approved users from pmpermit list"
+    if gvarstatus("pmpermit") is None:
+        return await edit_delete(
+            event,
+            f"** ⎉╎لـيشتغل هذا الأمـر ...**\n** ⎉╎ يـجب تفعيـل امـر الحـمايـه اولاً **\n** ⎉╎بإرسـال** `{cmdhd}الحمايه تفعيل`",
+        )
+    
+    approved_count = len(pmpermit_sql.get_all_approved())
+    
+    if approved_count == 0:
+        return await edit_delete(event, "**⎉╎لا يوجد مستخدمين في قائمة المقبولين!**", 10)
+    
+    await edit_or_reply(event, "**⎉╎جاري مسح جميع المقبولين ...**")
+    
+    try:
+        # مسح جميع المستخدمين المصرح لهم
+        pmpermit_sql.disapprove_all()
+        
+        # مسح البيانات المؤقتة أيضاً
+        PMPERMIT_.TEMPAPPROVED.clear()
+        
+        await edit_delete(
+            event,
+            f"**⎉╎تـم مسـح {approved_count} مـن المـسـتخـدميـن المـقبـوليـن .. بنجـاح ♻️**",
+            10
+        )
+        
+    except Exception as e:
+        LOGS.error(f"خطأ في مسح المقبولين: {e}")
+        await edit_delete(event, f"**⎉╎خطأ في مسح المقبولين:** `{str(e)}`", 10)
+
+@l313l.ar_cmd(
     pattern="الحماية (تفعيل|تعطيل)$",
     command=("الحماية", plugin_category),
     info={
@@ -788,6 +829,87 @@ async def variable(event):
         else:
             delgvar("pmute")
             await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
+
+@l313l.ar_cmd(
+    pattern="مسح حماية الخاص$",
+    command=("مسح حماية الخاص", plugin_category),
+    info={
+        "header": "لـ مسـح كـل إعـدادات حمايـة الخـاص (صور + مقبوليـن + متغيـرات)",
+        "الاسـتخـدام": "{tr}مسح حماية الخاص",
+        "ملاحظة": "هذا الأمر يحذف كل شيء متعلق بحماية الخاص",
+    },
+)
+async def clear_all_pm_settings(event):
+    "To clear all pmpermit settings and data"
+    if gvarstatus("pmpermit") is None:
+        return await edit_delete(
+            event,
+            f"** ⎉╎لـيشتغل هذا الأمـر ...**\n** ⎉╎ يـجب تفعيـل امـر الحـمايـه اولاً **\n** ⎉╎بإرسـال** `{cmdhd}الحمايه تفعيل`",
+        )
+    
+    await edit_or_reply(event, "**⎉╎جـاري مسـح كـل إعـدادات حمايـة الخـاص ...**")
+    
+    try:
+        # 1. مسح جميع المقبولين
+        approved_users = pmpermit_sql.get_all_approved()
+        approved_count = len(approved_users)
+        pmpermit_sql.disapprove_all()
+        
+        # 2. مسح المستخدمين المؤقتين
+        temp_count = len(PMPERMIT_.TEMPAPPROVED)
+        PMPERMIT_.TEMPAPPROVED.clear()
+        
+        # 3. مسح المتغيرات الخاصة بالصور
+        image_vars = ["pmpermit_pic", "PC_MUTE", "PC_BANE", "PC_BLOCK"]
+        deleted_vars = []
+        
+        for var in image_vars:
+            if gvarstatus(var) is not None:
+                delgvar(var)
+                deleted_vars.append(var)
+        
+        # 4. مسح إعدادات التحذيرات والنصوص
+        other_vars = ["pmpermit_txt", "pmblock", "pmute", "pmmenu", "pmpermit", "MAX_FLOOD_IN_PMS"]
+        for var in other_vars:
+            if gvarstatus(var) is not None:
+                delgvar(var)
+                deleted_vars.append(var)
+        
+        # 5. مسح بيانات SQL المؤقتة
+        try:
+            PM_WARNS = sql.get_collection("pmwarns").json
+            warn_count = len(PM_WARNS)
+            sql.del_collection("pmwarns")
+        except:
+            warn_count = 0
+        
+        try:
+            PMMESSAGE_CACHE = sql.get_collection("pmmessagecache").json
+            cache_count = len(PMMESSAGE_CACHE)
+            sql.del_collection("pmmessagecache")
+        except:
+            cache_count = 0
+        
+        # 6. إعداد رسالة النتيجة
+        result_message = f"""
+**⎉╎تـم مسـح كـل إعـدادات حمايـة الخـاص .. بنجـاح ♻️**
+
+**⎉╎النتائج:**
+• **المقبولين:** {approved_count} مستخدم
+• **المؤقتين:** {temp_count} مستخدم  
+• **التحذيرات:** {warn_count} تحذير
+• **الرسائل المخبأة:** {cache_count} رسالة
+• **المتغيرات المحذوفة:** {len(deleted_vars)} متغير
+
+**⎉╎يمكنك الآن إعادة الإعداد من جديد 🚀**
+        """
+        
+        await edit_delete(event, result_message, 30)
+        
+    except Exception as e:
+        LOGS.error(f"خطأ في مسح إعدادات الحماية: {e}")
+        await edit_delete(event, f"**⎉╎خطأ في مسح الإعدادات:** `{str(e)}`", 10)
+
 '''
 # Copyright (C) 2022 Zed-Thon . All Rights Reserved
 @l313l.ar_cmd(pattern=r"زر حماية الخاص (.*)")

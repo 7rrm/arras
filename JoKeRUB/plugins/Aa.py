@@ -542,4 +542,328 @@ async def tapprove_pm(event):  # sourcery no-metrics
         PM_WARNS = sql.get_collection("pmwarns").json
     except AttributeError:
         PM_WARNS = {}
+    if (user.id not in PMPERMIT_.TEMPAPPROVED) and (
+        not pmpermit_sql.is_approved(user.id)
+    ):
+        if str(user.id) in PM_WARNS:
+            del PM_WARNS[str(user.id)]
+        PMPERMIT_.TEMPAPPROVED.append(user.id)
+        chat = user
+        if str(chat.id) in sqllist.get_collection_list("pmspam"):
+            sqllist.rm_from_list("pmspam", chat.id)
+        if str(chat.id) in sqllist.get_collection_list("pmchat"):
+            sqllist.rm_from_list("pmchat", chat.id)
+        if str(chat.id) in sqllist.get_collection_list("pmrequest"):
+            sqllist.rm_from_list("pmrequest", chat.id)
+        if str(chat.id) in sqllist.get_collection_list("pmenquire"):
+            sqllist.rm_from_list("pmenquire", chat.id)
+        if str(chat.id) in sqllist.get_collection_list("pmoptions"):
+            sqllist.rm_from_list("pmoptions", chat.id)
+        await edit_delete(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id}) is __temporarily approved to pm__\n**Reason :** __{reason}__",
+        )
+        try:
+            PMMESSAGE_CACHE = sql.get_collection("pmmessagecache").json
+        except AttributeError:
+            PMMESSAGE_CACHE = {}
+        if str(user.id) in PMMESSAGE_CACHE:
+            try:
+                await event.client.delete_messages(
+                    user.id, PMMESSAGE_CACHE[str(user.id)]
+                )
+            except Exception as e:
+                LOGS.info(str(e))
+            del PMMESSAGE_CACHE[str(user.id)]
+        sql.del_collection("pmwarns")
+        sql.del_collection("pmmessagecache")
+        sql.add_collection("pmwarns", PM_WARNS, {})
+        sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
+    elif pmpermit_sql.is_approved(user.id):
+        await edit_delete(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id}) __is in approved list__",
+        )
+    else:
+        await edit_delete(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id}) __is already in temporary approved list__",
+        )
+
+
+@l313l.ar_cmd(
+    pattern="(رف|رفض)(?: |$)(.*)",
+    command=("رفض", plugin_category),
+    info={
+        "header": "لـ رفـض الاشخـاص مـن الخـاص اثنـاء تفعيـل الحمـايـه",
+        "امـر مضـاف": {"الكل": "لـ رفـض الكـل"},
+        "الاسـتخـدام": [
+            "{tr}رف/رفض <المعـرف/بالـرد> فـي الكـروب",
+            "{tr}رف/رفض فـي الخـاص",
+            "{tr}رف/رفض الكل لـ رفـض الكـل",
+        ],
+    },
+)
+async def disapprove_p_m(event):
+    "To disapprove user to direct message you."
+    if gvarstatus("pmpermit") is None:
+        return await edit_delete(
+            event,
+            f"** ⎉╎لـيشتغل هذا الأمـر ...**\n** ⎉╎ يـجب تفعيـل امـر الحـمايـه اولاً **\n** ⎉╎بإرسـال** `{cmdhd}الحمايه تفعيل`",
+        )
+    if event.is_private:
+        user = await event.get_chat()
+        reason = event.pattern_match.group(2)
+    else:
+        reason = event.pattern_match.group(2)
+        if reason != "الكل":
+            user, reason = await get_user_from_event(event, secondgroup=True)
+            if not user:
+                return
+    if reason == "الكل":
+        pmpermit_sql.disapprove_all()
+        return await edit_delete(
+            event, "**⎉╎حــسـنـا تــم رفـض الـجـمـيـع .. بنجـاح 💯**"
+        )
+    if not reason:
+        reason = "**⎉╎ لـم يـذكـر 💭**"
+    if pmpermit_sql.is_approved(user.id):
+        pmpermit_sql.disapprove(user.id)
+        await edit_or_reply(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id})\n**⎉╎تـم رفـضـه مـن أرسـال الـرسـائـل ⚠️**\n**⎉╎ الـسـبـب ❔  :** {reason}",
+        )
+    elif user.id in PMPERMIT_.TEMPAPPROVED:
+        PMPERMIT_.TEMPAPPROVED.remove(user.id)
+        await edit_or_reply(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id})\n**⎉╎تـم رفـضـه مـن أرسـال الـرسـائـل ⚠️**\n**⎉╎ الـسـبـب ❔  :** {reason}",
+        )
+    else:
+        await edit_delete(
+            event,
+            f"**⎉╎المستخـدم**  [{user.first_name}](tg://user?id={user.id})\n **⎉╎لــم تـتـم الـمـوافـقـة عـلـيـه مـسـبـقـاً ❕ **",
+        )
+
+
+@l313l.ar_cmd(pattern="بلوك(?: |$)(.*)")
+async def block_p_m(event):
+    if event.is_private:
+        user = await event.get_chat()
+        reason = event.pattern_match.group(1)
+    else:
+        user, reason = await get_user_from_event(event)
+        if not user:
+            return
+    #if not reason:
+        #reason = "**⎉╎ لـم يـذكـر 💭**"
+    if user.id in Zed_Dev:
+        return await edit_delete(event, "**- عـذࢪاً .. عـزيـزي ؟!**\n**- لا تستطيـع حظـࢪ مطـوࢪيـن السـوࢪس**", 10)
+    try:
+        PM_WARNS = sql.get_collection("pmwarns").json
+    except AttributeError:
+        PM_WARNS = {}
+    try:
+        PMMESSAGE_CACHE = sql.get_collection("pmmessagecache").json
+    except AttributeError:
+        PMMESSAGE_CACHE = {}
+    if str(user.id) in PM_WARNS:
+        del PM_WARNS[str(user.id)]
+    if str(user.id) in PMMESSAGE_CACHE:
+        try:
+            await event.client.delete_messages(user.id, PMMESSAGE_CACHE[str(user.id)])
+        except Exception as e:
+            LOGS.info(str(e))
+        del PMMESSAGE_CACHE[str(user.id)]
+    if pmpermit_sql.is_approved(user.id):
+        pmpermit_sql.disapprove(user.id)
+    sql.del_collection("pmwarns")
+    sql.del_collection("pmmessagecache")
+    sql.add_collection("pmwarns", PM_WARNS, {})
+    sql.add_collection("pmmessagecache", PMMESSAGE_CACHE, {})
+    await event.client(functions.contacts.BlockRequest(user.id))
+    if reason:
+        if PC_BLOCK is not None:
+            await event.client.send_file(
+                event.chat_id,
+                PC_BLOCK,
+                caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
+            )
+            await event.delete()
+        else:
+            await edit_or_reply(
+                event,
+                f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**\n\n**- السـبب :** {reason}",
+            )
+    else:
+        if PC_BLOCK is not None:
+            await event.client.send_file(
+                event.chat_id,
+                PC_BLOCK,
+                caption=f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**",
+            )
+            await event.delete()
+        else:
+            await edit_or_reply(
+                event,
+                f"**- الحيـوان :**  [{user.first_name}](tg://user?id={user.id}) 🫏\n**- تم حظـره .. بنجـاح ☑️**\n**- لايمكنـه ازعـاجـك الان 🚷**",
+            )
+
+
+@l313l.ar_cmd(pattern="الغاء بلوك(?: |$)(.*)")
+async def unblock_pm(event):
+    if event.is_private:
+        user = await event.get_chat()
+        reason = event.pattern_match.group(1)
+    else:
+        user, reason = await get_user_from_event(event)
+        if not user:
+            return
+    if not reason:
+        reason = "**⎉╎ لـم يـذكـر 💭**"
+    await event.client(functions.contacts.UnblockRequest(user.id))
+    await edit_or_reply(
+        event,
+        f"**- المسـتخـدم :**  [{user.first_name}](tg://user?id={user.id}) **تم الغـاء حظـره بنجـاح .. يمكنـه التكلـم معـك الان**\n\n**- السـبب :** {reason}",
+    )
+
+
+@l313l.ar_cmd(pattern="المقبولين$")
+async def approve_p_m(event):
+    if gvarstatus("pmpermit") is None:
+        return await edit_delete(
+            event,
+            f"** ⎉╎لـيشتغل هذا الأمـر ...**\n** ⎉╎ يـجب تفعيـل امـر الحـمايـه اولاً **\n** ⎉╎بإرسـال** `{cmdhd}الحمايه تفعيل`",
+        )
+    approved_users = pmpermit_sql.get_all_approved()
+    APPROVED_PMs = "**- قائمـة المسمـوح لهـم ( المقبـوليـن ) :**\n\n"
+    if len(approved_users) > 0:
+        for user in approved_users:
+            APPROVED_PMs += f"**• 👤 الاسـم :** {_format.mentionuser(user.first_name , user.user_id)}\n**- الايـدي :** `{user.user_id}`\n**- المعـرف :** @{user.username}\n**- التـاريخ : **__{user.date}__\n**- السـبب : **__{user.reason}__\n\n"
+    else:
+        APPROVED_PMs = "**- انت لـم توافـق على اي شخـص بعـد**"
+    await edit_or_reply(
+        event,
+        APPROVED_PMs,
+        file_name="قائمـة الحمايـة.txt",
+        caption="**- ️قائمـة المسمـوح لهـم ( المقبوليـن )** . ",
+    )
+
+# Copyright (C) 2022 Zed-Thon . All Rights Reserved
+@l313l.ar_cmd(pattern=r"عقوبة الخاص (.*)")
+async def variable(event):
+    input_str = event.pattern_match.group(1)
+    vinfo = "zmute"
+    zed = await edit_or_reply(event, "**⎉╎جـاري تغييـر عقـوبـة الخـاص 🚷...**")
+    # All Rights Reserved for "Zed-Thon" "زلـزال الهيبـه"
+    if input_str == "الكتم" or input_str == "بالكتم":
+        variable = "pmute"
+        await asyncio.sleep(1.5)
+        if gvarstatus("pmute") is None:
+            addgvar("pmute", vinfo)
+            await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
+        else:
+            await zed.edit("**⎉╎{} مفعـله مسبقـاً ☑️**".format(input_str))
+    elif input_str == "الحظر" or input_str == "بالحظر":
+        variable = "pmute"
+        await asyncio.sleep(1.5)
+        if gvarstatus("pmute") is None:
+            await zed.edit("**⎉╎{} مفعـله مسبقـاً ☑️**".format(input_str))
+        else:
+            delgvar("pmute")
+            await zed.edit("**⎉╎تم تغييـر {} بنجـاح ☑️**\n**⎉╎الان قـم بـ ارسـال الامـر ↶** `.الحماية تفعيل`\n**⎉╎لـ تفعيـل حمايـة الخـاص . . . 🔕**".format(input_str))
+'''
+# Copyright (C) 2022 Zed-Thon . All Rights Reserved
+@l313l.ar_cmd(pattern=r"زر حماية الخاص (.*)")
+async def variable(event):
+    input_str = event.pattern_match.group(1)
+    zed = await edit_or_reply(event, "**⎉╎جـارِ تغييـر زر قنـاة كليشـة حمايـة الخـاص ...**")
+    if not input_str.startswith("@"):
+        return await zed.edit("**⎉╎خطـأ .. قم باضافة يـوزر لـ الامـر**")
+    # All Rights Reserved for "Zed-Thon" "زلـزال الهيبـه"
+    variable = "pmchannel"
+    await asyncio.sleep(1.5)
+    addgvar("pmchannel", input_str)
+    await zed.edit("**⎉╎تم تغييـر قنـاة زر حمايـة الخـاص .. بنجـاح ☑️**\n**⎉╎يـوزر زر قنـاة حمايـة الخـاص\n{}**".format(input_str))
+'''
+
+@l313l.ar_cmd(pattern="اضف صورة (الحماية|الحمايه|الكتم|كتم|الحظر|الحضر|حظر|البلوك|بلوك) ?(.*)")
+async def _(malatha):
+    if malatha.fwd_from:
+        return
+    zed = await edit_or_reply(malatha, "**⎉╎جـاري اضـافة فـار الصـورة الـى بـوتك ...**")
+    
+    reply = await malatha.get_reply_message()
+    input_str = malatha.pattern_match.group(1)
+    
+    if not reply:
+        return await zed.edit("**⎉╎بالـرد على رابط Telegraph للصورة أولاً ...**")
+    
+    if not reply.text:
+        return await zed.edit("**⎉╎يجب الرد على رابط نصي للصورة!**")
+    
+    # استخراج الرابط من النص
+    text = reply.text
+    url_pattern = r'https?://telegra\.ph/[^\s]+'
+    match = re.search(url_pattern, text)
+    
+    if not match:
+        url_pattern2 = r'https?://graph\.org/[^\s]+'
+        match = re.search(url_pattern2, text)
         
+    if not match:
+        return await zed.edit("**⎉╎لم يتم العثور على رابط Telegraph في الرد!**")
+    
+    image_url = match.group(0)
+    
+    # اختبار الرابط للتأكد أنه صورة
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.head(image_url) as resp:
+                if resp.status != 200:
+                    return await zed.edit("**⎉╎الرابط غير صالح أو لا يمكن الوصول إليه!**")
+                
+                content_type = resp.headers.get('content-type', '')
+                if not content_type.startswith('image/'):
+                    return await zed.edit("**⎉╎الرابط ليس لصورة!**")
+    except Exception:
+        return await zed.edit("**⎉╎خطأ في التحقق من الرابط!**")
+    
+    # تحديد المتغير المناسب بناءً على الإدخال
+    variable_name = None
+    if input_str in ["الحماية", "الحمايه"]:
+        variable_name = "pmpermit_pic"
+        display_name = "حماية الخاص"
+    elif input_str in ["كتم", "الكتم"]:
+        variable_name = "PC_MUTE"
+        display_name = "الكتم"
+    elif input_str in ["حظر", "الحضر", "الحظر"]:
+        variable_name = "PC_BANE"
+        display_name = "الحظر"
+    elif input_str in ["بلوك", "البلوك"]:
+        variable_name = "PC_BLOCK"
+        display_name = "البلوك"
+    else:
+        return await zed.edit("**⎉╎نوع غير معروف!**")
+    
+    # حفظ الرابط في المتغير
+    try:
+        addgvar(variable_name, image_url)
+        
+        # إرسال تأكيد مع معاينة الصورة
+        await malatha.client.send_file(
+            malatha.chat_id,
+            image_url,
+            caption=f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+                   f"**⎉╎الرابط:** `{image_url}`",
+        )
+        await zed.delete()
+        
+    except ChatSendMediaForbiddenError:
+        await zed.edit(
+            f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
+            f"**⎉╎المتغيـر:** `{variable_name}`\n"
+            f"**⎉╎الرابط:** `{image_url}`"
+        )
+    except Exception as e:
+        await zed.edit(f"**⎉╎خطأ: **`{str(e)}`")

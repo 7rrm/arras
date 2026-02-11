@@ -371,7 +371,7 @@ async def arras_ins(event):
     chatt = "@TIKTOKDOWNLOADROBOT"
     
     try:
-        async with borg.conversation(chat) as conv:
+        async with borg.conversation(chatt) as conv:
             try:
                 # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
                 purgeflag = await conv.send_message(link)

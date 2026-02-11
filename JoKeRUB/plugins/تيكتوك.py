@@ -70,58 +70,62 @@ async def insta_download(event):
     zed = await edit_or_reply(event, "⏳ جاري التحميل من إنستقرام...")
 
     try:
-        # قائمة بالـ APIs البديلة
-        apis = [
-            "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index",
-            "https://api.vevioz.com/api/button/instagram",
-            "https://indown.io/",
-            "https://igram.io/i/"
+        # قائمة بـ APIs بديلة
+        endpoints = [
+            {
+                "url": "https://api.downgram.com/download",
+                "method": "POST",
+                "data": {"url": link}
+            },
+            {
+                "url": f"https://igram.world/api/ig/mediaInfo",
+                "method": "GET",
+                "params": {"url": link}
+            }
         ]
         
-        # استخدم API الأول (قد تحتاج لمفتاح API لبعضها)
-        api_url = "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index"
-        
-        # أو استخدم هذا API المجاني
-        api_url = "https://api.vevioz.com/api/button/instagram"
-        params = {"url": link}
+        video_url = None
+        thumb_url = None
         
         async with aiohttp.ClientSession() as session:
-            async with session.get(api_url, params=params) as resp:
-                if resp.status != 200:
-                    # جرب API بديل
-                    api_url2 = "https://indown.io/download.php"
-                    data = {"url": link}
-                    async with session.post(api_url2, data=data) as resp2:
-                        if resp2.status != 200:
-                            return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
-                        content = await resp2.text()
-                else:
-                    content = await resp.text()
-            
-            # معالجة الرد بناءً على API المستخدم
-            # قد تختلف طريقة المعالجة حسب API
-            
-            # مثال لـ indown.io
-            if "indown.io" in api_url2:
-                soup = BeautifulSoup(content, "html.parser")
-                video_tag = soup.find("video")
-                if video_tag:
-                    video_url = video_tag.find("source")["src"]
-                    thumb_url = None
-                else:
-                    return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
-            
-            # الحصول على العنوان
+            for endpoint in endpoints:
+                try:
+                    if endpoint["method"] == "POST":
+                        async with session.post(endpoint["url"], data=endpoint["data"], timeout=10) as resp:
+                            if resp.status == 200:
+                                data = await resp.json()
+                                video_url = data.get("video_url") or data.get("url")
+                                thumb_url = data.get("thumbnail")
+                                if video_url:
+                                    break
+                    else:
+                        async with session.get(endpoint["url"], params=endpoint.get("params"), timeout=10) as resp:
+                            if resp.status == 200:
+                                data = await resp.json()
+                                video_url = data.get("video_url") or data.get("url")
+                                thumb_url = data.get("thumbnail")
+                                if video_url:
+                                    break
+                except:
+                    continue
+        
+        if not video_url:
+            return await zed.edit("❌ جميع الخدمات غير متاحة حالياً")
+        
+        # الحصول على العنوان
+        title = "Instagram Video"
+        try:
             async with session.get(link) as resp_html:
                 if resp_html.status == 200:
                     html = await resp_html.text()
                     soup = BeautifulSoup(html, "html.parser")
                     og_title = soup.find("meta", property="og:title")
-                    title = og_title["content"] if og_title else "Instagram Video"
-                else:
-                    title = "Instagram Video"
+                    if og_title:
+                        title = og_title["content"]
+        except:
+            pass
 
-        caption_text = f"**تم التحميـل ⥂** `{title}`"
+        caption_text = f"**تم التحميـل ⥂** `{title[:50]}...`"
 
         await event.client.send_file(
             event.chat_id,
@@ -133,4 +137,4 @@ async def insta_download(event):
         await zed.delete()
 
     except Exception as e:
-        await zed.edit(f"❌ خطأ: {str(e)}")
+        await zed.edit(f"❌ خطأ: {str(e)}\n\nجرب رابط آخر أو انتظر قليلاً")

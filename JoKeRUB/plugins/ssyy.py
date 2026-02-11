@@ -393,13 +393,39 @@ async def instagram_downloader(event):
             # نفس الحذف بلضبط
             await dra.delete()
             
-            # نفس الإرسال بلضبط
-            await borg.send_file(
-                event.chat_id,
-                dragoiq,
-                caption=f"<b>↯︙تم التحميـل من انستقرام بنجاح</b>",
-                parse_mode="html",
-            )
+            # تحقق من نوع الوسائط المرسلة
+            media_to_send = None
+            
+            if hasattr(dragoiq, 'media') and dragoiq.media:
+                # إذا كانت الوسائط موجودة مباشرة
+                media_to_send = dragoiq.media
+            elif hasattr(dragoiq, 'text') and dragoiq.text:
+                # إذا كان نصاً، حاول استخراج روابط وسائط
+                import re
+                
+                # ابحث عن روابط صور
+                photo_links = re.findall(r'https?://[^\s]+\.(jpg|jpeg|png|webp)', dragoiq.text, re.IGNORECASE)
+                # ابحث عن روابط فيديو
+                video_links = re.findall(r'https?://[^\s]+\.(mp4|mov|avi|mkv|webm)', dragoiq.text, re.IGNORECASE)
+                
+                if video_links:
+                    media_to_send = video_links[0]
+                elif photo_links:
+                    media_to_send = photo_links[0]
+                else:
+                    # إذا لم توجد وسائط، أرسل النص
+                    await event.reply(f"**📄 الرد من البوت:**\n\n{dragoiq.text}")
+                    await delete_conv(event, chat, purgeflag)
+                    return
+            
+            # نفس الإرسال بلضبط مع الوسائط
+            if media_to_send:
+                await borg.send_file(
+                    event.chat_id,
+                    media_to_send,
+                    caption=f"<b>↯︙تم التحميـل من انستقرام بنجاح</b>",
+                    parse_mode="html",
+                )
             
             # نفس حذف المحادثة بلضبط
             await delete_conv(event, chat, purgeflag)

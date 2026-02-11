@@ -354,55 +354,50 @@ async def Ahmed_pin(event):
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 
-@l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
-async def Ahmed_insta(event):
+
+@l313l.ar_cmd(pattern="انستقرام(?: |$)([\s\S]*)")
+async def insta_download(event):
     link = event.pattern_match.group(1)
     reply = await event.get_reply_message()
     if not link and reply:
         link = reply.text
     if not link:
-        return await edit_delete(event, "**↯︙ارسـل (.انستقرام) + رابـط او بالـرد ع رابـط**", 10)
+        return await edit_delete(event, "**↯︙ارسل رابط انستقرام مع الامر او بالرد على الرابط**", 10)
     
-    # فقط غيرنا التحقق من "pin" إلى "instagram"
     if "instagram" not in link:
         return await edit_delete(
-            event, "**↯︙احتـاج الـى رابــط من انستقرام .. للتحميــل ؟!**", 10
+            event, "**↯︙احتاج الى رابط من انستقرام للتحميل!**", 10
         )
     
-    dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من انستقرام انتظر قليلا**")
-    chat = "@TIKTOKDOWNLOADROBOT"  # نفس البوت بالضبط
+    msg = await edit_or_reply(event, "**↯︙جاري التحميل من انستقرام انتظر قليلاً**")
+    bot = "@TIKTOKDOWNLOADROBOT"
     
     try:
-        async with borg.conversation(chat) as conv:
+        async with event.client.conversation(bot) as conv:
             try:
-                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
-                purgeflag = await conv.send_message(link)
+                first_msg = await conv.send_message(link)
             except YouBlockedUserError:
-                await dra.edit("**↯︙يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                await msg.edit("**↯︙يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
                 return
             
-            # تجاهل الرد الأول (⏳)
             await conv.get_response()
             
-            # الحصول على الرد الثاني (الوسائط)
-            dragoiq = await conv.get_response()
+            response = await conv.get_response()
             
-            await dra.delete()
-            await borg.send_file(
+            await msg.delete()
+            await event.client.send_file(
                 event.chat_id,
-                dragoiq,
-                caption=f"<b>↯︙تم التحميـل من انستقرام بنجاح</b>",
+                response,
+                caption=f"<b>↯︙تم التحميل من انستقرام بنجاح</b>",
                 parse_mode="html",
             )
             
-            # حذف المحادثة مع البوت باستخدام الدالة الموجودة
-            await delete_conv(event, chat, purgeflag)
+            await delete_conv(event, bot, first_msg)
                 
     except asyncio.TimeoutError:
-        await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
+        await msg.edit("**↯︙عذراً، فشل التحميل حاول لاحقاً**")
     except Exception as e:
-        await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
-
+        await msg.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
         
 
 @l313l.ar_cmd(

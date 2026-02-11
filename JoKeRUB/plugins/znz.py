@@ -5,13 +5,17 @@ import time
 from telethon import Button, types
 from telethon.events import InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText, InputWebDocument
+from telethon.tl.types import (
+    InputBotInlineResult,
+    InputBotInlineMessageText,
+    InputWebDocument
+)
 
 from . import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 
-# 🎯 إيموجيات بريميوم - نفس IDs ملف sii.py
+# 🎯 إيموجيات بريميوم - نفس IDs ملف sii.py بالضبط
 MAIL_EMOJI_ID = "5210763312597326700"      # 📨
 CHECK_EMOJI_ID = "5210740682414644888"     # ✅
 CHECK_GREEN_ID = "5843826335088120045"     # ✅ أخضر
@@ -24,7 +28,6 @@ STAR_EMOJI_ID = "5316347681116269521"      # ⭐
 CROWN_EMOJI_ID = "5316347681116269523"     # 👑
 GEM_EMOJI_ID = "5316347681116269524"       # 💎
 SPEECH_EMOJI_ID = "5210763312597326701"    # 💬
-ROBOT_EMOJI_ID = "5210763312597326702"     # 🤖
 
 scc = "secret"
 hmm = "همسـة"
@@ -85,14 +88,20 @@ async def inline_handler(event):
             )
         ]]
         
-        # ✅ ✅ ✅ الطريقة الصحيحة لـ Inline Mode ✅ ✅ ✅
-        result = await event.builder._build_article(
+        # ✅ ✅ ✅ الطريقة الصحيحة الوحيدة التي تعمل ✅ ✅ ✅
+        result = InputBotInlineResult(
+            id=str(uuid4()),
+            type="article",
             title=nmm,
             description=mnn,
-            text=message_text,
-            buttons=buttons,
-            link_preview=False,
-            parse_mode="html"
+            send_message=InputBotInlineMessageText(
+                message=message_text,
+                parse_mode="html",
+                no_webpage=True,
+                reply_markup=types.ReplyInlineMarkup(
+                    rows=[types.KeyboardButtonRow(buttons=row) for row in buttons]
+                )
+            )
         )
         
         await event.answer([result])
@@ -147,18 +156,24 @@ async def inline_handler(event):
 
 <tg-emoji emoji-id="{CHECK_EMOJI_ID}">✅</tg-emoji> <b>فقط المستقبل يمكنه فتحها</b>'''
         
-        buttons = [[
-            Button.inline("• فتـح الهمسـه •", data=f"{scc}_{timestamp}")
-        ]]
+        # ✅ زر الهمسة
+        inline_button = Button.inline("• فتـح الهمسـه •", data=f"{scc}_{timestamp}")
+        buttons = [[inline_button]]
         
-        # ✅ ✅ ✅ استخدام نفس الطريقة ✅ ✅ ✅
-        result = await event.builder._build_article(
+        # ✅ ✅ ✅ الطريقة الصحيحة الوحيدة التي تعمل ✅ ✅ ✅
+        result = InputBotInlineResult(
+            id=str(uuid4()),
+            type="article",
             title=f"{hmm} {zilzal}",
             description=dss,
-            text=hmsa_text,
-            buttons=buttons,
-            link_preview=False,
-            parse_mode="html"
+            send_message=InputBotInlineMessageText(
+                message=hmsa_text,
+                parse_mode="html",
+                no_webpage=True,
+                reply_markup=types.ReplyInlineMarkup(
+                    rows=[types.KeyboardButtonRow(buttons=row) for row in buttons]
+                )
+            )
         )
         
         await event.answer([result] if result else None)

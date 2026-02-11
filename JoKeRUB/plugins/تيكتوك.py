@@ -59,7 +59,6 @@ async def tiktok_download(event):
         
 
 
-
 @l313l.ar_cmd(pattern=r"انستا(?:\s+|$)(.*)")
 async def insta_download(event):
     reply = await event.get_reply_message()
@@ -71,22 +70,48 @@ async def insta_download(event):
     zed = await edit_or_reply(event, "⏳ جاري التحميل من إنستقرام...")
 
     try:
-        api_url = "https://insta.savetube.me/downloadPostVideo"
-        payload = {"url": link}
-
+        # قائمة بالـ APIs البديلة
+        apis = [
+            "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index",
+            "https://api.vevioz.com/api/button/instagram",
+            "https://indown.io/",
+            "https://igram.io/i/"
+        ]
+        
+        # استخدم API الأول (قد تحتاج لمفتاح API لبعضها)
+        api_url = "https://instagram-downloader-download-instagram-videos-stories.p.rapidapi.com/index"
+        
+        # أو استخدم هذا API المجاني
+        api_url = "https://api.vevioz.com/api/button/instagram"
+        params = {"url": link}
+        
         async with aiohttp.ClientSession() as session:
-            async with session.post(api_url, json=payload) as resp:
+            async with session.get(api_url, params=params) as resp:
                 if resp.status != 200:
-                    return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
-                data = await resp.json()
-
-            video_url = data.get("post_video_url")
-            thumb_url = data.get("post_video_thumbnail")
-
-            if not video_url:
-                return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
-
-            # جلب عنوان الفيديو من صفحة الإنستقرام
+                    # جرب API بديل
+                    api_url2 = "https://indown.io/download.php"
+                    data = {"url": link}
+                    async with session.post(api_url2, data=data) as resp2:
+                        if resp2.status != 200:
+                            return await zed.edit("⚠️ لم أستطع جلب الوسائط، جرّب رابط آخر.")
+                        content = await resp2.text()
+                else:
+                    content = await resp.text()
+            
+            # معالجة الرد بناءً على API المستخدم
+            # قد تختلف طريقة المعالجة حسب API
+            
+            # مثال لـ indown.io
+            if "indown.io" in api_url2:
+                soup = BeautifulSoup(content, "html.parser")
+                video_tag = soup.find("video")
+                if video_tag:
+                    video_url = video_tag.find("source")["src"]
+                    thumb_url = None
+                else:
+                    return await zed.edit("⚠️ لم أجد أي وسائط في الرابط.")
+            
+            # الحصول على العنوان
             async with session.get(link) as resp_html:
                 if resp_html.status == 200:
                     html = await resp_html.text()
@@ -109,4 +134,3 @@ async def insta_download(event):
 
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
-        

@@ -5,7 +5,6 @@ import os
 import random
 import re
 import time
-import requests
 from pathlib import Path
 from uuid import uuid4
 
@@ -38,38 +37,16 @@ ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\
 ddd = "💌"
 bbb = None
 
-# ================ إيموجي بريميوم ================
-FIRE_EMOJI = "5368324170671202286"  # 🔥 نار متحركة
-STAR_EMOJI = "5450478314053863243"  # ✨ نجمة
-HEART_EMOJI = "5210952534326541854"  # ❤️ قلب
-
-# ================ توكن البوت من Config ================
-BOT_TOKEN = Config.TG_BOT_TOKEN
-API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-
-# ================ دالة إرسال زر ملون ================
-async def send_colored_button(chat_id, user_id, text="🔥 اضغط لفتح الهمسة"):
-    try:
-        keyboard = {
-            "inline_keyboard": [[
-                {
-                    "text": text,
-                    "switch_inline_query": f"secret {user_id} \nهلو",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": FIRE_EMOJI
-                }
-            ]]
-        }
-        
-        requests.post(f"{API_URL}/sendMessage", json={
-            "chat_id": chat_id,
-            "text": "✨ همسة ملونة مع إيموجي بريميوم",
-            "reply_markup": keyboard
-        })
-        return True
-    except Exception as e:
-        LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
-        return False
+# 🎯 **إيموجيات بريميوم** 🎯
+FIRE_EMOJI = "5368324170671202286"      # 🔥
+HEART_EMOJI = "5316347681116269519"     # ❤️
+LOCK_EMOJI = "5341741293349680948"      # 🔒
+UNLOCK_EMOJI = "5341741293789691996"    # 🔓
+CHECK_EMOJI = "5316347681116269520"     # ✅
+MAIL_EMOJI = "5210763312597326700"      # 📨
+STAR_EMOJI = "5316347681116269521"      # ⭐
+ARROW_EMOJI = "5316347681116269522"     # ➡️
+ZELZAL_EMOJI = "5368324170671202287"    # 🌪️
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -97,6 +74,7 @@ async def inline_handler(event):
         malathid = user_id
     else:
         malathid = None
+    
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
@@ -134,23 +112,25 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ زر ملون مع إيموجي بريميوم - نفس الكود اللي اشتغل
-            keyboard = {
-                "inline_keyboard": [[
-                    {
+            # ✅ **زر مع إيموجي بريميوم + لون** ✅
+            buttons = [[
+                Button.inline(
+                    f"{chr(8206)}‌‌ ",  # نص فارغ
+                    data=f"{scc}_{timestamp}",
+                    buttons=None,
+                    **{
                         "text": "🔥 فتح الهمسة",
-                        "callback_data": f"{scc}_{timestamp}",
-                        "style": "primary",  # 🔵 أزرق
-                        "icon_custom_emoji_id": FIRE_EMOJI
+                        "icon_custom_emoji_id": FIRE_EMOJI,
+                        "style": "primary"
                     }
-                ]]
-            }
+                )
+            ]]
             
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=keyboard,
+                buttons=buttons,
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -159,37 +139,35 @@ async def inline_handler(event):
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
-                
+        
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ هنا نستخدم API مباشر عشان اللون والإيموجي يشتغلوا
-                try:
-                    # محاولة إرسال زر ملون عبر API مباشر
-                    await send_colored_button(event.query.user_id, gvarstatus("hmsa_id"))
-                    bbb = None
-                except:
-                    # لو فشل، نستخدم طريقة Telethon العادية
-                    bbb = [Button.switch_inline(
-                        "🔥 اضغط هنا",
-                        query=f"secret {gvarstatus('hmsa_id')} \nهلو",
-                        same_peer=True
-                    )]
+                # ✅ **زر switch_inline مع إيموجي بريميوم** ✅
+                switch_button = types.KeyboardButtonSwitchInline(
+                    text="🔥 همسة سريـة",
+                    query=f"secret {gvarstatus('hmsa_id')} \nهلو",
+                    same_peer=True,
+                    **{
+                        "icon_custom_emoji_id": FIRE_EMOJI,
+                        "style": "primary"
+                    }
+                )
+                bbb = [[switch_button]]
             else:
                 return
-                
-            results = []
-            if bbb:
-                results.append(
-                    builder.article(
-                        title=f"{nmm}",
-                        description=f"{mnn}",
-                        text=f"{ttt} {zelzal} **{ddd}**",
-                        buttons=bbb,
-                        link_preview=False,
-                    )
-                )
-                await event.answer(results)
             
+            results = []
+            results.append(
+                builder.article(
+                    title=f"{nmm}",
+                    description=f"{mnn}",
+                    text=f"{ttt} {zelzal} **{ddd}**",
+                    buttons=bbb,
+                    link_preview=False,
+                ),
+            )
+            await event.answer(results)
+    
     elif query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
@@ -227,23 +205,25 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ زر ملون مع إيموجي بريميوم
-            keyboard = {
-                "inline_keyboard": [[
-                    {
+            # ✅ **زر مع إيموجي بريميوم** ✅
+            buttons = [[
+                Button.inline(
+                    f"{chr(8206)}‌‌ ",
+                    data=f"{scc}_{timestamp}",
+                    buttons=None,
+                    **{
                         "text": "🔥 فتح الهمسة",
-                        "callback_data": f"{scc}_{timestamp}",
-                        "style": "primary",  # 🔵 أزرق
-                        "icon_custom_emoji_id": FIRE_EMOJI
+                        "icon_custom_emoji_id": FIRE_EMOJI,
+                        "style": "primary"
                     }
-                ]]
-            }
+                )
+            ]]
             
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n{dss}",
-                buttons=keyboard,
+                buttons=buttons,
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -252,28 +232,33 @@ async def inline_handler(event):
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
-                
+        
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ زر سويتش انلاين عادي
-                bbb = [Button.switch_inline(
-                    "🔥 اضغط هنا",
+                # ✅ **زر switch_inline مع إيموجي بريميوم** ✅
+                switch_button = types.KeyboardButtonSwitchInline(
+                    text="🔥 همسة سريـة",
                     query=f"secret {gvarstatus('hmsa_id')} \nهلو",
-                    same_peer=True
-                )]
+                    same_peer=True,
+                    **{
+                        "icon_custom_emoji_id": FIRE_EMOJI,
+                        "style": "primary"
+                    }
+                )
+                bbb = [[switch_button]]
             else:
                 return
+            
             results = []
-            if bbb:
-                results.append(
-                    builder.article(
-                        title=f"{nmm}",
-                        description=f"{mnn}",
-                        text=f"**{ttt}** {zelzal} **{ddd}**",
-                        buttons=bbb,
-                        link_preview=False,
-                    )
-                )
-                await event.answer(results)
+            results.append(
+                builder.article(
+                    title=f"{nmm}",
+                    description=f"{mnn}",
+                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    buttons=bbb,
+                    link_preview=False,
+                ),
+            )
+            await event.answer(results)
     else:
         return

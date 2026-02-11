@@ -1022,7 +1022,6 @@ class CustomParseMode:
     def parse(self, text):
         if self.parse_mode == 'html':
             text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
             for i, e in enumerate(entities):
                 if isinstance(e, types.MessageEntityTextUrl):
                     if e.url.startswith('emoji/'):
@@ -1043,7 +1042,14 @@ class CustomParseMode:
 
 # إعدادات التحكم
 youtube_settings = {
-    'admin_id': l313l.uid  # أي دي المطور
+    'bot_username1': '@W60yBot',
+    'bot_username2': '@BaarxXxbot',
+    'channels': ['@B_a_r']
+}
+
+video_settings = {
+    'bot_username': '@J_NO0bot',
+    'channels': ['@arras_id']
 }
 
 # دالة التحقق من التفعيل
@@ -1052,40 +1058,61 @@ def is_youtube_enabled(chat_id=None):
         return gvarstatus(f"youtube_enabled_{chat_id}") == "True"
     return gvarstatus("youtube_enabled_private") == "True"
 
-# أوامر التفعيل والتعطيل
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل يوت$'))
+def is_video_enabled(chat_id=None):
+    if chat_id:
+        return gvarstatus(f"video_enabled_{chat_id}") == "True"
+    return gvarstatus("video_enabled_private") == "True"
+
+# ============================================
+# أوامر التفعيل والتعطيل - للمطور فقط (ar_cmd)
+# ============================================
+
+@l313l.ar_cmd(pattern="تفعيل يوت$")
 async def enable_youtube(event):
-    if event.sender_id != youtube_settings['admin_id']:
-        return await event.delete()
-    
     if event.is_private:
         addgvar("youtube_enabled_private", "True")
-        await event.reply("✓ تم تفعيل تحميل اليوتيوب في جميع الدردشات الخاصة")
+        await event.edit("✓ تم تفعيل تحميل اليوتيوب في جميع الدردشات الخاصة")
     else:
         addgvar(f"youtube_enabled_{event.chat_id}", "True")
-        await event.reply(f"✓ تم تفعيل تحميل اليوتيوب في هذه المجموعة")
+        await event.edit(f"✓ تم تفعيل تحميل اليوتيوب في هذه المجموعة")
 
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل يوت$'))
+@l313l.ar_cmd(pattern="تعطيل يوت$")
 async def disable_youtube(event):
-    if event.sender_id != youtube_settings['admin_id']:
-        return await event.delete()
-    
     if event.is_private:
         delgvar("youtube_enabled_private")
-        await event.reply("✗ تم تعطيل تحميل اليوتيوب في الدردشات الخاصة")
+        await event.edit("✗ تم تعطيل تحميل اليوتيوب في الدردشات الخاصة")
     else:
         delgvar(f"youtube_enabled_{event.chat_id}")
-        await event.reply(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
+        await event.edit(f"✗ تم تعطيل تحميل اليوتيوب في هذه المجموعة")
 
-# الأمر الرئيسي لتحميل اليوتيوب - يعمل مع النقطة وبدونها في الخاص
+@l313l.ar_cmd(pattern="تفعيل فيديو$")
+async def enable_video(event):
+    if event.is_private:
+        addgvar("video_enabled_private", "True")
+        await event.edit("✓ تم تفعيل تحميل الفيديو في جميع الدردشات الخاصة")
+    else:
+        addgvar(f"video_enabled_{event.chat_id}", "True")
+        await event.edit(f"✓ تم تفعيل تحميل الفيديو في هذه المجموعة")
+
+@l313l.ar_cmd(pattern="تعطيل فيديو$")
+async def disable_video(event):
+    if event.is_private:
+        delgvar("video_enabled_private")
+        await event.edit("✗ تم تعطيل تحميل الفيديو في الدردشات الخاصة")
+    else:
+        delgvar(f"video_enabled_{event.chat_id}")
+        await event.edit(f"✗ تم تعطيل تحميل الفيديو في هذه المجموعة")
+
+# ============================================
+# الأمر الرئيسي لتحميل اليوتيوب
+# ============================================
+
 @l313l.on(events.NewMessage(pattern=r'^(\.يوت|يوت)(?:\s|$)([\s\S]*)'))
 async def yoot_auto_search(event):
-    # في المجموعات يتطلب النقطة، في الخاص يعمل مع وبدون
     if not event.is_private and not event.pattern_match.group(1).startswith('.'):
         return
     
-    # التحقق من الصلاحيات
-    if event.sender_id != youtube_settings['admin_id']:
+    if event.sender_id != l313l.uid:
         if event.is_private:
             if not is_youtube_enabled():
                 return
@@ -1097,33 +1124,28 @@ async def yoot_auto_search(event):
     if not query:
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎يوت + اسـم المقطـع الصـوتي")
     
-    # الرد على الرسالة الأصلية برسالة "جار البحث"
     search_msg = await event.reply("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     
     try:
-        # الانضمام للقناة
-        await event.client(JoinChannelRequest("@B_a_r"))
-        await asyncio.sleep(0.5)
+        for channel in youtube_settings['channels']:
+            try:
+                await event.client(JoinChannelRequest(channel))
+                await asyncio.sleep(0.5)
+            except:
+                pass
         
-        # أولاً: محاولة مع البوت الأول @W60yBot
+        # محاولة مع البوت الأول
         try:
-            async with event.client.conversation("@W60yBot", timeout=30) as conv:
-                # إرسال الرسالة للبوت
-                full_message = f"يوت {query}"
-                await conv.send_message(full_message)
-                
-                # الانتظار للرد الأول لمدة 2 ثانية فقط
+            async with event.client.conversation(youtube_settings['bot_username1'], timeout=30) as conv:
+                await conv.send_message(f"يوت {query}")
                 try:
                     first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
                 except asyncio.TimeoutError:
-                    # إذا لم يرد خلال 2 ثانية، انتقل للبوت الثاني
                     raise Exception("timeout")
                 
-                # الانتظار للمقطع الصوتي مباشرة
                 audio_response = await conv.get_response()
                 
                 if audio_response.media:
-                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1133,7 +1155,6 @@ async def yoot_auto_search(event):
                         f'<a href="emoji/5368338253868968009">🦅</a>\n'
                     )
                     
-                    # إرسال المقطع كرد على الرسالة الأصلية
                     await event.client.send_file(
                         event.chat_id,
                         audio_response.media,
@@ -1142,28 +1163,19 @@ async def yoot_auto_search(event):
                         reply_to=event.message.id
                     )
                     
-                    # حذف رسالة "جار البحث"
                     await search_msg.delete()
-                    return  # انتهى بنجاح مع البوت الأول
-                    
+                    return
                 else:
-                    # إذا لم يكن هناك ميديا، جرب البوت الثاني
                     raise Exception("no_media")
         
         except Exception as e:
-            # إذا فشل البوت الأول، جرب البوت الثاني @BaarxXxbot
-            async with event.client.conversation("@BaarxXxbot", timeout=30) as conv:
-                # إرسال الرسالة للبوت الثاني
+            # محاولة مع البوت الثاني
+            async with event.client.conversation(youtube_settings['bot_username2'], timeout=30) as conv:
                 await conv.send_message(f"يوت {query}")
-                
-                # الانتظار للرد الأول (تأكيد الاستلام)
                 first_response = await conv.get_response()
-                
-                # الانتظار للمقطع الصوتي
                 audio_response = await conv.get_response()
                 
                 if audio_response.media:
-                    # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1173,7 +1185,6 @@ async def yoot_auto_search(event):
                         f'<a href="emoji/5368338253868968009">🦅</a>\n'
                     )
                     
-                    # إرسال المقطع
                     await event.client.send_file(
                         event.chat_id,
                         audio_response.media,
@@ -1185,61 +1196,22 @@ async def yoot_auto_search(event):
                     await search_msg.delete()
                 else:
                     await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
-                    await delete_conv(event, chat, purgeflag)
         
     except asyncio.TimeoutError:
         await search_msg.edit("**• عذراً، فشل التحميل حاول لاحقاً،**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 
+# ============================================
+# الأمر الرئيسي لتحميل الفيديو
+# ============================================
 
-# إعدادات التحكم للفيديو
-video_settings = {
-    'admin_id': l313l.uid,  # أي دي المطور
-    'bot_username': '@J_NO0bot',  # البوت الجديد
-    'channels': ['@arras_id']  # القنوات الجديدة
-}
-
-# دالة التحقق من التفعيل للفيديو
-def is_video_enabled(chat_id=None):
-    if chat_id:
-        return gvarstatus(f"video_enabled_{chat_id}") == "True"
-    return gvarstatus("video_enabled_private") == "True"
-
-# أوامر التفعيل والتعطيل للفيديو
-@l313l.on(events.NewMessage(pattern=r'^\.تفعيل فيديو$'))
-async def enable_video(event):
-    if event.sender_id != video_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        addgvar("video_enabled_private", "True")
-        await event.reply("✓ تم تفعيل تحميل الفيديو في جميع الدردشات الخاصة")
-    else:
-        addgvar(f"video_enabled_{event.chat_id}", "True")
-        await event.reply(f"✓ تم تفعيل تحميل الفيديو في هذه المجموعة")
-
-@l313l.on(events.NewMessage(pattern=r'^\.تعطيل فيديو$'))
-async def disable_video(event):
-    if event.sender_id != video_settings['admin_id']:
-        return await event.delete()
-    
-    if event.is_private:
-        delgvar("video_enabled_private")
-        await event.reply("✗ تم تعطيل تحميل الفيديو في الدردشات الخاصة")
-    else:
-        delgvar(f"video_enabled_{event.chat_id}")
-        await event.reply(f"✗ تم تعطيل تحميل الفيديو في هذه المجموعة")
-
-# الأمر الرئيسي لتحميل الفيديو - يعمل مع النقطة وبدونها في الخاص
 @l313l.on(events.NewMessage(pattern=r'^(\.فيديو|فيديو)(?:\s|$)([\s\S]*)'))
 async def video_auto_search(event):
-    # في المجموعات يتطلب النقطة، في الخاص يعمل مع وبدون
     if not event.is_private and not event.pattern_match.group(1).startswith('.'):
         return
     
-    # التحقق من الصلاحيات
-    if event.sender_id != video_settings['admin_id']:
+    if event.sender_id != l313l.uid:
         if event.is_private:
             if not is_video_enabled():
                 return
@@ -1251,7 +1223,6 @@ async def video_auto_search(event):
     if not query:
         return await event.reply("✧╎قم باضافـة إسـم للامـر ..\n⎉╎فيديو + اسـم المقطـع المرئي")
     
-    # الرد على الرسالة الأصلية برسالة تحتوي على الإيموجي فقط
     search_msg = await event.client.send_message(
         event.chat_id,
         '<a href="emoji/5974332403890523746">️🎬</a>',
@@ -1260,28 +1231,19 @@ async def video_auto_search(event):
     )
     
     try:
-        # الانضمام للقنوات
         for channel in video_settings['channels']:
             try:
                 await event.client(JoinChannelRequest(channel))
                 await asyncio.sleep(1)
-            except Exception as e:
-                print(f"خطأ في الانضمام للقناة {channel}: {e}")
+            except:
+                pass
         
-        # استخدام conversation للاستماع الفوري
         async with event.client.conversation(video_settings['bot_username'], timeout=30) as conv:
-            # إرسال الرسالة للبوت
-            full_message = f"تحميل {query}"
-            await conv.send_message(full_message)
-            
-            # الانتظار للرد الأول (تأكيد الاستلام)
+            await conv.send_message(f"تحميل {query}")
             first_response = await conv.get_response()
-            
-            # الانتظار للمقطع المرئي مباشرة
             video_response = await conv.get_response()
             
             if video_response.media:
-                # إنشاء الكابشن مع الاقتباس والإيموجي البريميوم
                 caption = (
                     f"<blockquote>\n"
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1291,18 +1253,15 @@ async def video_auto_search(event):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال المقطع كرد على الرسالة الأصلية
                 await event.client.send_file(
                     event.chat_id,
                     video_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
-                    reply_to=event.message.id  # الرد على الرسالة الأصلية
+                    reply_to=event.message.id
                 )
                 
-                # حذف رسالة "جار البحث"
                 await search_msg.delete()
-                
             else:
                 await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
         
@@ -1310,4 +1269,3 @@ async def video_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
-

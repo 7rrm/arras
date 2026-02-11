@@ -58,7 +58,7 @@ async def tiktok_download(event):
         await zed.edit(f"❌ خطأ: {str(e)}")
 
 
-@l313l.ar_cmd(pattern="انستقرام(?: |$)([\s\S]*)")
+@l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
 async def Ahmed_insta(event):
     link = event.pattern_match.group(1)
     reply = await event.get_reply_message()

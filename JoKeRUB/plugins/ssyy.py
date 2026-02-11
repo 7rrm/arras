@@ -355,51 +355,59 @@ async def Ahmed_pin(event):
 
 
 @l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
-async def simple_insta(event):
+async def instagram_downloader(event):
+    # نفس كود البنترست بلضبط مع تغيير الرسائل فقط
     link = event.pattern_match.group(1)
     reply = await event.get_reply_message()
     if not link and reply:
         link = reply.text
     if not link:
-        return await edit_delete(event, "**↯︙ارسل رابط انستقرام**", 10)
+        return await edit_delete(event, "**- ارسـل (.انستا) + رابـط او بالـرد ع رابـط**", 10)
     
+    # فقط غيرنا pin إلى instagram
     if "instagram.com" not in link:
-        return await edit_delete(event, "**↯︙رابط انستقرام فقط**", 10)
+        return await edit_delete(
+            event, "**- احتـاج الـى رابــط من انستقرام .. للتحميــل ؟!**", 10
+        )
     
-    msg = await edit_or_reply(event, "**↯︙جاري التحميل...**")
-    bot = "@TIKTOKDOWNLOADROBOT"
+    # نفس المتغيرات بلضبط
+    dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من انستقرام انتظر قليلا**")
+    chat = "@TIKTOKDOWNLOADROBOT"  # نفس البوت بلضبط
     
     try:
-        async with event.client.conversation(bot) as conv:
+        # نفس المحادثة بلضبط
+        async with borg.conversation(chat) as conv:
             try:
-                start = await conv.send_message(link)
+                # نفس الإرسال بلضبط
+                purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
-                await msg.edit("**↯︙فك حظر البوت**")
+                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
                 return
             
+            # نفس تجاهل الرد الأول بلضبط
             await conv.get_response()
-            result = await conv.get_response()
             
-            await msg.delete()
+            # نفس الحصول على الرد الثاني بلضبط
+            dragoiq = await conv.get_response()
             
-            # حاول إرسال أي شيء تلقاه من البوت
-            try:
-                await event.client.send_file(
-                    event.chat_id,
-                    result,
-                    caption="**✅ انستقرام**",
-                    reply_to=event.reply_to_msg_id
-                )
-            except:
-                # إذا فشل، أرسل النص
-                await event.reply(f"**✅ انستقرام**\n\n{result.text if hasattr(result, 'text') else result.message}")
+            # نفس الحذف بلضبط
+            await dra.delete()
             
-            await event.client.delete_messages(bot, [start.id, result.id])
+            # نفس الإرسال بلضبط
+            await borg.send_file(
+                event.chat_id,
+                dragoiq,
+                caption=f"<b>↯︙تم التحميـل من انستقرام بنجاح</b>",
+                parse_mode="html",
+            )
             
+            # نفس حذف المحادثة بلضبط
+            await delete_conv(event, chat, purgeflag)
+                
     except asyncio.TimeoutError:
-        await msg.edit("**↯︙انتهى الوقت**")
+        await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
     except Exception as e:
-        await msg.edit(f"**↯︙خطأ:** `{e}`")
+        await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

@@ -405,6 +405,153 @@ async def bot_pms(event):  # sourcery no-metrics
             WA3 = text.replace('a','α').replace("b","в").replace("c","c").replace("d","∂").replace("e","ε").replace("E","ғ").replace("g","g").replace("h","н").replace("i","ι").replace("j","נ").replace("k","к").replace("l","ℓ").replace("m","м").replace("n","η").replace("o","σ").replace("p","ρ").replace("q","q").replace("r","я").replace("s","s").replace("t","т").replace("u","υ").replace("v","v").replace("w","ω").replace("x","x").replace("y","ү").replace("z","z").replace("A","α").replace("B","в").replace("C","c").replace("D","∂").replace("E","ε").replace("E","ғ").replace("G","g").replace("H","н").replace("I","ι").replace("J","נ").replace("K","к").replace("L","ℓ").replace("M","м").replace("N","η").replace("O","σ").replace("P","ρ").replace("Q","q").replace("R","я").replace("S","s").replace("T","т").replace("U","υ").replace("V","v").replace("W","ω").replace("X","X").replace("Y","ү").replace("Z","z")
             WA4 = text.replace('a','𝙰') .replace('b','𝙱') .replace('c','𝙲') .replace('d','𝙳') .replace('e','𝙴') .replace('f','𝙵') .replace('g','𝙶') .replace('h','𝙷') .replace('i','𝙸') .replace('j','𝚓') .replace('k','𝙺') .replace('l','𝙻') .replace('m','𝙼') .replace('n','𝙽') .replace('o','𝙾') .replace('p','𝙿') .replace('q','𝚀') .replace('r','𝚁') .replace('s','𝚂') .replace('t','𝚃') .replace('u','𝚄') .replace('v','??') .replace('w','𝚆') .replace('x','𝚇') .replace('y','𝚈') .replace('z','𝚉').replace('A','𝙰') .replace('B','𝙱') .replace('C','𝙲') .replace('D','𝙳') .replace('E','𝙴') .replace('F','𝙵') .replace('G','𝙶') .replace('H','𝙷') .replace('I','𝙸') .replace('J','𝚓') .replace('K','𝙺') .replace('L','𝙻') .replace('M','𝙼') .replace('N','𝙽') .replace('O','𝙾') .replace('P','𝙿') .replace('Q','𝚀') .replace('R','𝚁') .replace('S','𝚂') .replace('T','𝚃') .replace('U','𝚄') .replace('V','𝚅') .replace('W','𝚆') .replace('X','𝚇') .replace('Y','𝚈') .replace('Z','𝚉')
             WA5 = text.replace('a','🇦 ').replace("b","🇧 ").replace("c","🇨 ").replace("d","🇩 ").replace("e","🇪 ").replace("f","🇫 ").replace("g","🇬 ").replace("h","🇭 ").replace("i","🇮 ").replace("j","🇯 ").replace("k","🇰 ").replace("l","🇱 ").replace("m","🇲 ").replace("n","🇳 ").replace("o","🇴 ").replace("p","🇵 ").replace("q","🇶 ").replace("r","🇷 ").replace("s","🇸 ").replace("t","🇹 ").replace("u","🇻 ").replace("v","🇺 ").replace("w","🇼 ").replace("x","🇽 ").replace("y","🇾 ").replace("z","🇿 ").replace("A","🇦 ").replace("B","🇧 ").replace("C","🇨 ").replace("D","🇩 ").replace("E","🇪 ").replace("F","🇫 ").replace("G","🇬 ").replace("H","🇭 ").replace("I","🇮 ").replace("J","🇯 ").replace("K","🇰 ").replace("L","🇱 ").replace("M","🇲 ").replace("N","🇳 ").replace("O","🇴 ").replace("P","🇵 ").replace("Q","🇶 ").replace("R","🇷 ").replace("S","🇸 ").replace("T","🇹 ").replace("U","🇻 ").replace("V","🇺 ").replace("W","🇼 ").replace("X","🇽 ").replace("Y","🇾 ").replace("Z","🇿 ")
+            WA6 = text.replace('a','ⓐ').replace("b","ⓑ").replace("c","ⓒ").replace("d","ⓓ").replace("e","ⓔ").replace("f","ⓕ").replace("g","ⓖ").replace("h","ⓗ").replace("i","ⓘ").replace("j","ⓙ").replace("k","ⓚ").replace("l","ⓛ").replace("m","ⓜ").replace("n","ⓝ").replace("o","ⓞ").replace("p","ⓟ").replace("q","ⓠ").replace("r","ⓡ").replace("s","ⓢ").replace("t","ⓣ").replace("u","ⓤ").replace("v","ⓥ").replace("w","ⓦ").replace("x","ⓧ").replace("y","ⓨ").replace("z","ⓩ").replace("A","Ⓐ").replace("B","Ⓑ").replace("C","Ⓒ").replace("D","Ⓓ").replace("E","Ⓔ").replace("F","Ⓕ").replace("G","Ⓖ").replace("H","Ⓗ").replace("I","Ⓘ").replace("J","Ⓙ").replace("K","Ⓚ").replace("L","Ⓛ").re
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"paid_commands_menu$")))
+async def paid_commands_menu_handler(event):
+    await event.edit(
+        """**• مـرحبـاً بـك عـزيـزي 💎**
+        
+• **فـي قسـم الأوامـر المدفوعـة**
+• هـذه الأوامـر تـم تطويرها خصيصـاً
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• **استخـدم الأزرار بالأسفـل**""",
+        buttons=[
+            [
+                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
+            ],
+            [
+                Button.inline("تـعديل وانشاء الصـور 🖼", data="edit_photo")
+            ],
+            [
+                Button.inline("رجــوع ↩️", data="styleback")
+            ],
+        ],
+        link_preview=False
+    )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"termux_hack$")))
+async def termux_hack_handler(event):
+    user_id = event.query.user_id
+    
+    # للمالك فقط يمكنه استخدام الخدمة
+    if user_id == Config.OWNER_ID:
+        await event.edit(
+            "**- مرحـبا بك عزيزي المـالك **\n"
+            "**- في قسم اختراق تيرمكس **\n"
+            "**- لرؤية أوامـر الإختراق أرسل** /hack",
+            buttons=[
+                [Button.inline("رجوع", data="paid_commands_menu")]
+            ]
+        )
+    else:
+        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
+        await event.edit(
+            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
+            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
+            "• لـ تنصيب بـوت مماثـل\n"
+            "• تواصـل مع المـطور **آراس**\n"
+            "• @Lx5x5",
+            buttons=[
+                [Button.inline("رجوع", data="paid_commands_menu")]
+            ]
+        )
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"edit_photo$")))
+async def edit_photo_handler(event):
+    user_id = event.query.user_id
+    
+    # للمالك فقط يمكنه استخدام الخدمة
+    if user_id == Config.OWNER_ID:
+        await event.edit(
+            "**- مرحـبا بك عزيزي المـالك **\n"
+            "**- في قسم تعديل وإنشاء الصور **\n"
+            "**- لرؤية أوامـر التعديل إرسل** /edit",
+            buttons=[
+                [Button.inline("رجوع", data="paid_commands_menu")]
+            ]
+        )
+    else:
+        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
+        await event.edit(
+            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
+            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
+            "• لـ تنصيب بـوت مماثـل\n"
+            "• تواصـل مع المـطور **آراس**\n"
+            "• @Lx5x5",
+            buttons=[
+                [Button.inline("رجوع", data="paid_commands_menu")]
+            ]
+        )
+
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
+async def bot_pms(event):  # sourcery no-metrics
+    chat = await event.get_chat()
+    reply_to = await reply_id(event)
+    if check_is_black_list(chat.id):
+        return
+    if event.contact or int(chat.id) in kk:
+        return
+    if chat.id != Config.OWNER_ID:
+        if event.text.startswith("/cancle"):
+            if int(chat.id) in dd:
+                dd.remove(int(chat.id))
+            if int(chat.id) in kk:
+                kk.remove(int(chat.id))
+            zzc = "**- تم الالغـاء .. بنجـاح**"
+            return await event.client.send_message(
+                chat.id,
+                zzc,
+                link_preview=False,
+                reply_to=reply_to,
+            )
+        if chat.id in dd:
+            text = event.text
+            iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠜', '𖠲', '𖤍', '𖠛', ' 𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']
+            smiile1 = random.choice(iitems)
+            smiile2 = random.choice(iitems)
+            smiile3 = random.choice(iitems)
+            smiile4 = random.choice(iitems)
+            smiile5 = random.choice(iitems)
+            smiile6 = random.choice(iitems)
+            smiile7 = random.choice(iitems)
+            smiile8 = random.choice(iitems)
+            smiile9 = random.choice(iitems)
+            smiile10 = random.choice(iitems)
+            smiile11 = random.choice(iitems)
+            smiile12 = random.choice(iitems)
+            smiile13 = random.choice(iitems)
+            smiile14 = random.choice(iitems)
+            smiile15 = random.choice(iitems)
+            smiile16 = random.choice(iitems)
+            smiile17 = random.choice(iitems)
+            smiile18 = random.choice(iitems)
+            smiile19 = random.choice(iitems)
+            smiile20 = random.choice(iitems)
+            smiile21 = random.choice(iitems)
+            smiile22 = random.choice(iitems)
+            smiile23 = random.choice(iitems)
+            smiile24 = random.choice(iitems)
+            smiile25 = random.choice(iitems)
+            smiile26 = random.choice(iitems)
+            smiile27 = random.choice(iitems)
+            smiile28 = random.choice(iitems)
+            smiile29 = random.choice(iitems)
+            smiile30 = random.choice(iitems)
+            smiile31 = random.choice(iitems)
+            smiile32 = random.choice(iitems)
+            smiile33 = random.choice(iitems)
+            smiile34 = random.choice(iitems)
+            smiile35 = random.choice(iitems)
+            smiile36 = random.choice(iitems)
+            smiile37 = random.choice(iitems)
+
+            WA1 = text.replace('a', 'ᵃ').replace('A', 'ᴬ').replace('b', 'ᵇ').replace('B', 'ᴮ').replace('c', 'ᶜ').replace('C', 'ᶜ').replace('d', 'ᵈ').replace('D', 'ᴰ').replace('e', 'ᵉ').replace('E', 'ᴱ').replace('f', 'ᶠ').replace('F', 'ᶠ').replace('g', 'ᵍ').replace('G', 'ᴳ').replace('h', 'ʰ').replace('H', 'ᴴ').replace('i', 'ⁱ').replace('I', 'ᴵ').replace('j', 'ʲ').replace('J', 'ᴶ').replace('k', 'ᵏ').replace('K', 'ᴷ').replace('l', 'ˡ').replace('L', 'ᴸ').replace('m', 'ᵐ').replace('M', 'ᴹ').replace('n', 'ⁿ').replace('N', 'ᴺ').replace('o', 'ᵒ').replace('O', 'ᴼ').replace('p', 'ᵖ').replace('P', 'ᴾ').replace('q', '۩').replace('Q', 'Q').replace('r', 'ʳ').replace('R', 'ᴿ').replace('s', 'ˢ').replace('S', 'ˢ').replace('t', 'ᵗ').replace('T', 'ᵀ').replace('u', 'ᵘ').replace('U', 'ᵁ').replace('v', 'ⱽ').replace('V', 'ⱽ').replace('w', 'ʷ').replace('W', 'ᵂ').replace('x', 'ˣ').replace('X', 'ˣ').replace('y', 'ʸ').replace('Y', 'ʸ').replace('z', 'ᶻ').replace('Z', 'ᶻ')
+            WA2 = text.replace('a', 'ᴀ').replace('b', 'ʙ').replace('c', 'ᴄ').replace('d', 'ᴅ').replace('e', 'ᴇ').replace('f', 'ғ').replace('g', 'ɢ').replace('h', 'ʜ').replace('i', 'ɪ').replace('j', 'ᴊ').replace('k', 'ᴋ').replace('l', 'ʟ').replace('m', 'ᴍ').replace('n', 'ɴ').replace('o', 'ᴏ').replace('p', 'ᴘ').replace('q', 'ǫ').replace('r', 'ʀ').replace('s', 's').replace('t', 'ᴛ').replace('u', 'ᴜ').replace('v', 'ᴠ').replace('w', 'ᴡ').replace('x', 'x').replace('y', 'ʏ').replace('z', 'ᴢ').replace('A', 'ᴀ').replace('B', 'ʙ').replace('C', 'ᴄ').replace('D', 'ᴅ').replace('E', 'ᴇ').replace('F', 'ғ').replace('G', 'ɢ').replace('H', 'ʜ').replace('I', 'ɪ').replace('J', 'ᴊ').replace('K', 'ᴋ').replace('L', 'ʟ').replace('M', 'ᴍ').replace('N', 'ɴ').replace('O', 'ᴏ').replace('P', 'ᴘ').replace('Q', 'ǫ').replace('R', 'ʀ').replace('S', 'S').replace('T', 'ᴛ').replace('U', 'ᴜ').replace('V', 'ᴠ').replace('W', 'ᴡ').replace('X', 'X').replace('Y', 'ʏ').replace('Z', 'ᴢ')
+            WA3 = text.replace('a','α').replace("b","в").replace("c","c").replace("d","∂").replace("e","ε").replace("E","ғ").replace("g","g").replace("h","н").replace("i","ι").replace("j","נ").replace("k","к").replace("l","ℓ").replace("m","м").replace("n","η").replace("o","σ").replace("p","ρ").replace("q","q").replace("r","я").replace("s","s").replace("t","т").replace("u","υ").replace("v","v").replace("w","ω").replace("x","x").replace("y","ү").replace("z","z").replace("A","α").replace("B","в").replace("C","c").replace("D","∂").replace("E","ε").replace("E","ғ").replace("G","g").replace("H","н").replace("I","ι").replace("J","נ").replace("K","к").replace("L","ℓ").replace("M","м").replace("N","η").replace("O","σ").replace("P","ρ").replace("Q","q").replace("R","я").replace("S","s").replace("T","т").replace("U","υ").replace("V","v").replace("W","ω").replace("X","X").replace("Y","ү").replace("Z","z")
+            WA4 = text.replace('a','𝙰') .replace('b','𝙱') .replace('c','𝙲') .replace('d','𝙳') .replace('e','𝙴') .replace('f','𝙵') .replace('g','𝙶') .replace('h','𝙷') .replace('i','𝙸') .replace('j','𝚓') .replace('k','𝙺') .replace('l','𝙻') .replace('m','𝙼') .replace('n','𝙽') .replace('o','𝙾') .replace('p','𝙿') .replace('q','𝚀') .replace('r','𝚁') .replace('s','𝚂') .replace('t','𝚃') .replace('u','𝚄') .replace('v','??') .replace('w','𝚆') .replace('x','𝚇') .replace('y','𝚈') .replace('z','𝚉').replace('A','𝙰') .replace('B','𝙱') .replace('C','𝙲') .replace('D','𝙳') .replace('E','𝙴') .replace('F','𝙵') .replace('G','𝙶') .replace('H','𝙷') .replace('I','𝙸') .replace('J','𝚓') .replace('K','𝙺') .replace('L','𝙻') .replace('M','𝙼') .replace('N','𝙽') .replace('O','𝙾') .replace('P','𝙿') .replace('Q','𝚀') .replace('R','𝚁') .replace('S','𝚂') .replace('T','𝚃') .replace('U','𝚄') .replace('V','𝚅') .replace('W','𝚆') .replace('X','𝚇') .replace('Y','𝚈') .replace('Z','𝚉')
+            WA5 = text.replace('a','🇦 ').replace("b","🇧 ").replace("c","🇨 ").replace("d","🇩 ").replace("e","🇪 ").replace("f","🇫 ").replace("g","🇬 ").replace("h","🇭 ").replace("i","🇮 ").replace("j","🇯 ").replace("k","🇰 ").replace("l","🇱 ").replace("m","🇲 ").replace("n","🇳 ").replace("o","🇴 ").replace("p","🇵 ").replace("q","🇶 ").replace("r","🇷 ").replace("s","🇸 ").replace("t","🇹 ").replace("u","🇻 ").replace("v","🇺 ").replace("w","🇼 ").replace("x","🇽 ").replace("y","🇾 ").replace("z","🇿 ").replace("A","🇦 ").replace("B","🇧 ").replace("C","🇨 ").replace("D","🇩 ").replace("E","🇪 ").replace("F","🇫 ").replace("G","🇬 ").replace("H","🇭 ").replace("I","🇮 ").replace("J","🇯 ").replace("K","🇰 ").replace("L","🇱 ").replace("M","🇲 ").replace("N","🇳 ").replace("O","🇴 ").replace("P","🇵 ").replace("Q","🇶 ").replace("R","🇷 ").replace("S","🇸 ").replace("T","🇹 ").replace("U","🇻 ").replace("V","🇺 ").replace("W","🇼 ").replace("X","🇽 ").replace("Y","🇾 ").replace("Z","🇿 ")
             WA6 = text.replace('a','ⓐ').replace("b","ⓑ").replace("c","ⓒ").replace("d","ⓓ").replace("e","ⓔ").replace("f","ⓕ").replace("g","ⓖ").replace("h","ⓗ").replace("i","ⓘ").replace("j","ⓙ").replace("k","ⓚ").replace("l","ⓛ").replace("m","ⓜ").replace("n","ⓝ").replace("o","ⓞ").replace("p","ⓟ").replace("q","ⓠ").replace("r","ⓡ").replace("s","ⓢ").replace("t","ⓣ").replace("u","ⓤ").replace("v","ⓥ").replace("w","ⓦ").replace("x","ⓧ").replace("y","ⓨ").replace("z","ⓩ").replace("A","Ⓐ").replace("B","Ⓑ").replace("C","Ⓒ").replace("D","Ⓓ").replace("E","Ⓔ").replace("F","Ⓕ").replace("G","Ⓖ").replace("H","Ⓗ").replace("I","Ⓘ").replace("J","Ⓙ").replace("K","Ⓚ").replace("L","Ⓛ").replace("M","🄼").replace("N","Ⓝ").replace("O","Ⓞ").replace("P","Ⓟ").replace("Q","Ⓠ").replace("R","Ⓡ").replace("S","Ⓢ").replace("T","Ⓣ").replace("U","Ⓤ").replace("V","Ⓥ").replace("W","Ⓦ").replace("X","Ⓧ").replace("Y","Ⓨ").replace("Z","Ⓩ")
             WA7 = text.replace('a','🅐').replace("b","🅑").replace("c","🅒").replace("d","🅓").replace("e","🅔").replace("f","🅕").replace("g","🅖").replace("h","🅗").replace("i","🅘").replace("j","🅙").replace("k","🅚").replace("l","🅛").replace("m","🅜").replace("n","🅝").replace("o","🅞").replace("p","🅟").replace("q","🅠").replace("r","🅡").replace("s","🅢").replace("t","🅣").replace("u","🅤").replace("v","🅥").replace("w","🅦").replace("x","🅧").replace("y","🅨").replace("z","🅩").replace("A","🅐").replace("B","🅑").replace("C","🅒").replace("D","🅓").replace("E","🅔").replace("F","🅕").replace("G","🅖").replace("H","🅗").replace("I","🅘").replace("J","🅙").replace("K","🅚").replace("L","🅛").replace("M","🅜").replace("N","🅝").replace("O","🅞").replace("P","🅟").replace("Q","🅠").replace("R","🅡").replace("S","🅢").replace("T","🅣").replace("U","🅤").replace("V","🅥").replace("W","🅦").replace("X","🅧").replace("Y","🅨").replace("Z","🅩")
             WA8 = text.replace('a','🄰').replace("b","🄱").replace("c","🄲").replace("d","🄳").replace("e","🄴").replace("f","🄵").replace("g","🄶").replace("h","🄷").replace("i","🄸").replace("j","🄹").replace("k","🄺").replace("l","🄻").replace("m","🄼").replace("n","🄽").replace("o","🄾").replace("p","🄿").replace("q","🅀").replace("r","🅁").replace("s","🅂").replace("t","🅃").replace("u","🅄").replace("v","🅅").replace("w","🅆").replace("x","🅇").replace("y","🅈").replace("z","🅉").replace("A","🄰").replace("B","🄱").replace("C","🄲").replace("D","🄳").replace("E","🄴").replace("F","🄵").replace("G","🄶").replace("H","🄷").replace("I","🄸").replace("J","🄹").replace("K","🄺").replace("L","🄻").replace("M","🄼").replace("N","🄽").replace("O","🄾").replace("P","🄿").replace("Q","🅀").replace("R","🅁").replace("S","🅂").replace("T","🅃").replace("U","🅄").replace("V","🅅").replace("W","🅆").replace("X","🅇").replace("Y","🅈").replace("Z","🅉")

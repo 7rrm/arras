@@ -376,20 +376,20 @@ async def arras_ins(event):
                 # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
                 purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
-                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                await ars.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
                 return
             
             # تجاهل الرد الأول (⏳)
             await conv.get_response()
             
             # الحصول على الرد الثاني (الوسائط)
-            dragoiq = await conv.get_response()
+            arras = await conv.get_response()
             
             await ars.delete()
             await borg.send_file(
                 event.chat_id,
-                dragoiq,
-                caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
+                arras,
+                caption=f"<b>↯︙تم التحميـل من الأنستا بنجاح</b>",
                 parse_mode="html",
             )
             
@@ -397,9 +397,9 @@ async def arras_ins(event):
             await delete_conv(event, chatt, purgeflag)
                 
     except asyncio.TimeoutError:
-        await dra.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
+        await ars.edit("**↯︙• عذراً، فشل التحميل حاول لاحقاً .**")
     except Exception as e:
-        await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
+        await ars.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

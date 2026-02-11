@@ -56,3 +56,71 @@ async def tiktok_download(event):
         await zed.delete()
     except Exception as e:
         await zed.edit(f"❌ خطأ: {str(e)}")
+
+
+@l313l.ar_cmd(pattern="انستقرام(?: |$)([\s\S]*)")
+async def Ahmed_insta(event):
+    link = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    if not link and reply:
+        link = reply.text
+    if not link:
+        return await edit_delete(event, "**↯︙ارسـل (.انستقرام) + رابـط او بالـرد ع رابـط**", 10)
+    
+    # تحقق من أن الرابط لإنستقرام
+    if "instagram.com" not in link and "instagr.am" not in link:
+        return await edit_delete(
+            event, 
+            "**↯︙احتـاج الـى رابــط من إنستقرام للتحميــل !**\n"
+            "**↯︙مثـل:** `https://www.instagram.com/p/CvHk6zNtG5L/`", 
+            10
+        )
+    
+    dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من إنستقرام انتظر قليلاً...**")
+    chat = "@TIKTOKDOWNLOADROBOT"  # نفس بوت البنترست
+    
+    try:
+        async with borg.conversation(chat) as conv:
+            try:
+                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
+                purgeflag = await conv.send_message(link)
+            except YouBlockedUserError:
+                await dra.edit("**↯︙يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                return
+            
+            try:
+                # تجاهل الرد الأول (⏳ جاري التحميل)
+                await conv.get_response(timeout=20)
+            except asyncio.TimeoutError:
+                # قد لا يرسل البوت رد أول في بعض الأحيان
+                pass
+            
+            try:
+                # الحصول على الرد الثاني (الوسائط) أو الانتظار أكثر
+                dragoiq = await conv.get_response(timeout=40)
+                
+                await dra.delete()
+                
+                # إرسال الملف إلى المحادثة
+                await borg.send_file(
+                    event.chat_id,
+                    dragoiq.media if dragoiq.media else dragoiq,
+                    caption=(
+                        f"<b>↯︙تم التحميـل من إنستقرام بنجاح ☑️</b>\n"
+                        f"<b>🔗 الرابــط:</b> <code>{link}</code>"
+                    ),
+                    parse_mode="html",
+                    reply_to=reply.id if reply else None
+                )
+                
+                # حذف المحادثة مع البوت
+                await delete_conv(event, chat, purgeflag)
+                    
+            except asyncio.TimeoutError:
+                await dra.edit("**↯︙البوت لم يرد بالوسائط، حاول رابط آخر أو جرب لاحقاً**")
+                await delete_conv(event, chat, purgeflag)
+                
+    except asyncio.TimeoutError:
+        await dra.edit("**↯︙عذراً، فشل التحميل حاول لاحقاً**")
+    except Exception as e:
+        await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")

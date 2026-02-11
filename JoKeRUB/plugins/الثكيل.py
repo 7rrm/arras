@@ -539,11 +539,52 @@ async def Hussein(event):
 from telethon import events
 import random
 import time
+from telethon.tl.custom import Button
 from JoKeRUB import l313l
-from ..core.managers import edit_delete
+from ..core.managers import edit_delete, edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..sql_helper.quotes_sql import (
+    add_chat_quote,
+    get_chat_quote,
+    get_all_quotes_chats,
+    update_chat_quote,
+    remove_chat_quote,
+    remove_all_quotes,
+    count_enabled_quotes,
+    count_all_quotes
+)
+from ..helpers import reply_id
+from ..helpers.utils import _format
+from telethon.extensions import markdown, html
+from telethon.tl import types
 
 plugin_category = "utils"
+
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
+
 
 # مجموعة الاقتباسات
 messages_collection = [
@@ -571,11 +612,12 @@ last_reply_time = {}
 trigger_symbols = {'.', '،', ',', '-'}
 
 def is_quotes_enabled(chat_id):
-    return gvarstatus(f"quotes_{chat_id}") == "true"
+    chat = get_chat_quote(chat_id)
+    return chat.is_enabled == 1 if chat else False
 
 def get_quotes_delay(chat_id):
-    delay = gvarstatus(f"quotes_delay_{chat_id}")
-    return int(delay) if delay and delay.isdigit() else 0
+    chat = get_chat_quote(chat_id)
+    return int(chat.delay_time) if chat and chat.delay_time.isdigit() else 0
 
 @l313l.ar_cmd(
     pattern="تفعيل الاقتباس(?:\s+(-?\d+))?(?:\s+(\d+))?$",
@@ -606,24 +648,44 @@ async def enable_quotes(event):
     delay_time = 0
     if delay_input and delay_input.isdigit():
         delay_time = int(delay_input)
-        addgvar(f"quotes_delay_{chat_id}", str(delay_time))
+    
+    # الحصول على اسم المجموعة
+    chat_title = ""
+    try:
+        chat = await event.client.get_entity(chat_id)
+        chat_title = chat.title if hasattr(chat, 'title') else ""
+    except:
+        pass
     
     if is_quotes_enabled(chat_id):
         current_delay = get_quotes_delay(chat_id)
         if delay_time > 0:
-            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!\n✧︙ وقت التأخير: `{current_delay}` ثانية**")
+            return await edit_or_reply(
+                event,
+                f"<b>◈︙الاقتبـاسات مفعلـة بالفعل</b> <a href='emoji/5348296085334934565'>✅</a>\n"
+                f"<b>✧╎المجموعـة:</b> <code>{chat_title if chat_title else chat_id}</code>\n"
+                f"<b>✧╎وقت التأخيـر:</b> <code>{current_delay}</code> ثانيـة",
+                parse_mode=CustomParseMode("html")
+            )
         else:
-            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
+            return await edit_or_reply(
+                event,
+                f"<b>◈︙الاقتبـاسات مفعلـة بالفعل</b> <a href='emoji/5348296085334934565'>✅</a>\n"
+                f"<b>✧╎المجموعـة:</b> <code>{chat_title if chat_title else chat_id}</code>",
+                parse_mode=CustomParseMode("html")
+            )
     
-    addgvar(f"quotes_{chat_id}", "true")
+    # إضافة أو تحديث في قاعدة البيانات
+    add_chat_quote(chat_id, chat_title, delay_time, 1)
     
-    if is_quotes_enabled(chat_id):
-        if delay_time > 0:
-            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓\n✧︙ وقت التأخير: `{delay_time}` ثانية**")
-        else:
-            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
-    else:
-        await edit_delete(event, f"**✧︙ فشل في تفعيل الاقتباسات!**")
+    await edit_or_reply(
+        event,
+        f"<b>◈︙تم تفعيـل الاقتبـاسات</b> <a href='emoji/5348125643852758491'>🔔</a>\n"
+        f"<b>✧╎المجموعـة:</b> <code>{chat_title if chat_title else chat_id}</code>\n"
+        f"<b>✧╎الايـدي:</b> <code>{chat_id}</code>\n"
+        f"<b>✧╎وقت التأخيـر:</b> <code>{delay_time if delay_time > 0 else 'بدون'}</code> ثانيـة",
+        parse_mode=CustomParseMode("html")
+    )
 
 @l313l.ar_cmd(
     pattern="تعطيل الاقتباس(?:\s+(-?\d+))?$",
@@ -650,18 +712,27 @@ async def disable_quotes(event):
         chat_id = event.chat_id
     
     if not is_quotes_enabled(chat_id):
-        return await edit_delete(event, f"**✧︙ الاقتباسات معطلة بالفعل في المجموعة `{chat_id}`!**")
+        return await edit_or_reply(
+            event,
+            f"<b>◈︙الاقتبـاسات معطلـة بالفعل</b> <a href='emoji/5348296085334934565'>🔕</a>\n"
+            f"<b>✧╎المجموعـة:</b> <code>{chat_id}</code>",
+            parse_mode=CustomParseMode("html")
+        )
     
-    delgvar(f"quotes_{chat_id}")
-    delgvar(f"quotes_delay_{chat_id}")
+    # تحديث الحالة في قاعدة البيانات
+    update_chat_quote(chat_id, is_enabled=0)
     
+    # حذف من الذاكرة المؤقتة
     if chat_id in last_reply_time:
         del last_reply_time[chat_id]
     
-    if not is_quotes_enabled(chat_id):
-        await edit_delete(event, f"**✧︙ تم تعطيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
-    else:
-        await edit_delete(event, f"**✧︙ فشل في تعطيل الاقتباسات!**")
+    await edit_or_reply(
+        event,
+        f"<b>◈︙تم تعطيـل الاقتبـاسات</b> <a href='emoji/5348125643852758491'>🔔</a>\n"
+        f"<b>✧╎المجموعـة:</b> <code>{chat_id}</code>\n"
+        f"<b>✧╎تـم حـذف إعدادات التأخيـر</b>",
+        parse_mode=CustomParseMode("html")
+    )
 
 @l313l.ar_cmd(
     pattern="الاقتباس$",
@@ -672,47 +743,38 @@ async def disable_quotes(event):
     },
 )
 async def show_active_quotes(event):
-    from JoKeRUB import l313l
-    
     # التحقق إذا كان المستخدم هو المالك
     if event.sender_id != admin_id:
         return await edit_delete(event, "**✧︙ هذا الأمر متاح فقط للمالك!**")
     
-    # جلب جميع المتغيرات من قاعدة البيانات
-    from ..sql_helper.globals import gvarstatus, all_gvar
+    active_chats = get_all_quotes_chats()
+    total_count = count_enabled_quotes()
     
-    all_vars = all_gvar()
-    active_groups = []
+    if not active_chats:
+        return await edit_or_reply(
+            event,
+            f"<b>◈︙لا توجـد مجموعـات مفعلـة للاقتبـاسات</b> <a href='emoji/5348296085334934565'>🔕</a>",
+            parse_mode=CustomParseMode("html")
+        )
     
-    # البحث عن جميع مجموعات الاقتباسات المفعلة
-    for var in all_vars:
-        if var.variable.startswith("quotes_") and var.value == "true" and not var.variable.startswith("quotes_delay_"):
-            # استخراج معرف المجموعة من اسم المتغير
-            chat_id = var.variable.replace("quotes_", "")
-            if chat_id.lstrip('-').isdigit():
-                chat_id = int(chat_id)
-                
-                # الحصول على وقت التأخير إن وجد
-                delay = gvarstatus(f"quotes_delay_{chat_id}")
-                delay_text = f" | التأخير: {delay} ثانية" if delay and delay.isdigit() else ""
-                
-                # محاولة الحصول على اسم المجموعة
-                chat_name = f"المجموعة: {chat_id}"
-                try:
-                    chat = await l313l.get_entity(chat_id)
-                    chat_name = f"المجموعة: {chat.title}"
-                except:
-                    pass
-                
-                active_groups.append(f"• {chat_name} (ID: `{chat_id}`){delay_text}")
+    output = f"<b>𓆩 Quᴏᴛᴇs ᴀʀRᴀS - قائمـة المجموعات المفعلـة</b> <a href='emoji/5348125643852758491'>🔔</a><b>𓆪</b>\n"
+    output += f"<b>• إجمالي عـدد المجموعات:</b> {total_count}\n"
+    output += "<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
     
-    if not active_groups:
-        message = "**✧︙ لا توجد مجموعات مفعلة للاقتباسات حالياً.**"
-    else:
-        message = f"**✧︙ المجموعات المفعلة للاقتباسات [{len(active_groups)}]:**\n\n"
-        message += "\n".join(active_groups)
+    for i, chat in enumerate(active_chats, start=1):
+        delay_text = f" | التأخيـر: {chat.delay_time} ث" if int(chat.delay_time) > 0 else ""
+        chat_name = chat.chat_title if chat.chat_title else f"المجموعة {chat.chat_id}"
+        
+        output += f"<b>{i}.</b> - المجموعـة : <code>{chat_name}</code>\n"
+        output += f"- الايـدي : <code>{chat.chat_id}</code>{delay_text}\n\n"
     
-    await edit_delete(event, message)
+    await edit_or_reply(
+        event,
+        output,
+        parse_mode=CustomParseMode("html"),
+        caption=f"<b>⧗╎قائمـة المجموعات المفعلـة</b> <a href='emoji/5348125643852758491'>🔔</a>",
+        file_name="quotes_chats.txt",
+    )
 
 @l313l.ar_cmd(
     pattern="مسح قائمة الاقتباس$",
@@ -724,49 +786,63 @@ async def show_active_quotes(event):
     },
 )
 async def disable_all_quotes(event):
-    from JoKeRUB import l313l
-    
     # التحقق إذا كان المستخدم هو المالك
     if event.sender_id != admin_id:
         return await edit_delete(event, "**✧︙ هذا الأمر متاح فقط للمالك!**")
     
-    from ..sql_helper.globals import all_gvar, delgvar
+    total_chats = count_all_quotes()
+    enabled_chats = count_enabled_quotes()
     
-    all_vars = all_gvar()
-    disabled_count = 0
+    if total_chats == 0:
+        return await edit_or_reply(
+            event,
+            f"<b>◈︙لا توجـد مجموعـات في قائمـة الاقتبـاسات</b> <a href='emoji/5348296085334934565'>🔕</a>",
+            parse_mode=CustomParseMode("html")
+        )
     
-    # البحث عن جميع مجموعات الاقتباسات المفعلة وتعطيلها
-    for var in all_vars:
-        if var.variable.startswith("quotes_") and var.value == "true" and not var.variable.startswith("quotes_delay_"):
-            chat_id = var.variable.replace("quotes_", "")
-            if chat_id.lstrip('-').isdigit():
-                chat_id = int(chat_id)
-                
-                # حذف متغير التفعيل
-                delgvar(f"quotes_{chat_id}")
-                
-                # حذف متغير التأخير إن وجد
-                delgvar(f"quotes_delay_{chat_id}")
-                
-                # حذف من الذاكرة المؤقتة
-                if chat_id in last_reply_time:
-                    del last_reply_time[chat_id]
-                
-                disabled_count += 1
+    # طلب التأكيد
+    confirm_message = await edit_or_reply(
+        event,
+        f"<b>⚠️ تأكيـد العمليـة ⚠️</b>\n"
+        f"<b>✧╎سيتـم تعطيـل الاقتبـاسات في {enabled_chats} مجموعـة</b>\n"
+        f"<b>✧╎اكتب</b> <code>.تأكيد</code> <b>خلال 30 ثانيـة للمواصلـة</b>\n"
+        f"<b>✧╎او اكتب</b> <code>.الغاء</code> <b>للإلغـاء</b>",
+        parse_mode=CustomParseMode("html")
+    )
     
-    # مسح أي متغيرات تأخير قد تكون بقيَت
-    for var in all_vars:
-        if var.variable.startswith("quotes_delay_"):
-            chat_id = var.variable.replace("quotes_delay_", "")
-            if chat_id.lstrip('-').isdigit():
-                delgvar(f"quotes_delay_{chat_id}")
-    
-    # إرسال رسالة التأكيد
-    if disabled_count > 0:
-        await edit_delete(event, f"**✧︙ تم تعطيل الاقتباسات في {disabled_count} مجموعة بنجاح ✓**\n**✧︙ تم حذف جميع الإعدادات المرتبطة.**")
-    else:
-        await edit_delete(event, "**✧︙ لا توجد مجموعات مفعلة للاقتباسات!**")
-
+    try:
+        # انتظار رد المستخدم لمدة 30 ثانية
+        response = await l313l.wait_for(
+            events.NewMessage(from_users=admin_id, pattern=r"^(\.تأكيد|\.الغاء)$"),
+            timeout=30
+        )
+        
+        if response.text == ".الغاء":
+            await confirm_message.edit(
+                f"<b>◈︙تم إلغـاء العمليـة</b> <a href='emoji/5348125643852758491'>✅</a>",
+                parse_mode=CustomParseMode("html")
+            )
+            return
+            
+        # إذا كان التأكيد، تنفيذ العملية
+        removed_count = remove_all_quotes()
+        
+        # مسح الذاكرة المؤقتة
+        last_reply_time.clear()
+        
+        await confirm_message.edit(
+            f"<b>◈︙تم مسـح قائمـة الاقتبـاسات</b> <a href='emoji/5348125643852758491'>✅</a>\n"
+            f"<b>✧╎عـدد المجموعات المحذوفـة:</b> {removed_count}\n"
+            f"<b>✧╎تـم حـذف جميـع الإعدادات</b>",
+            parse_mode=CustomParseMode("html")
+        )
+        
+    except TimeoutError:
+        await confirm_message.edit(
+            f"<b>◈︙انتهـى وقـت الانتظـار</b> <a href='emoji/5348296085334934565'>⏰</a>\n"
+            f"<b>✧╎تم إلغـاء العمليـة</b>",
+            parse_mode=CustomParseMode("html")
+        )
 
 @l313l.on(events.NewMessage)
 async def quotes_handler(event):
@@ -801,3 +877,53 @@ async def quotes_handler(event):
     selected_message = random.choice(messages_collection)
     caption = f"<blockquote>\n{selected_message}\n</blockquote>"
     await event.respond(caption, parse_mode='html')
+
+@l313l.ar_cmd(
+    pattern="اعدادات الاقتباس(?:\s+(-?\d+))?$",
+    command=("اعدادات الاقتباس", plugin_category),
+    info={
+        "header": "لعرض إعدادات الاقتباسات في مجموعة محددة",
+        "usage": [
+            "{tr}اعدادات الاقتباس - للإعدادات في المجموعة الحالية",
+            "{tr}اعدادات الاقتباس <ايدي المجموعة> - للإعدادات في مجموعة محددة"
+        ],
+    },
+)
+async def quotes_settings(event):
+    chat_input = event.pattern_match.group(1)
+    
+    if chat_input:
+        try:
+            chat_id = int(chat_input)
+            if chat_id > 0:
+                chat_id = int(f"-100{chat_id}")
+        except ValueError:
+            return await edit_delete(event, "**✧︙ رقم المجموعة غير صحيح!**")
+    else:
+        chat_id = event.chat_id
+    
+    chat = get_chat_quote(chat_id)
+    
+    if not chat:
+        return await edit_or_reply(
+            event,
+            f"<b>◈︙لا توجـد إعدادات لهـذه المجموعـة</b> <a href='emoji/5348296085334934565'>🔕</a>\n"
+            f"<b>✧╎المجموعـة:</b> <code>{chat_id}</code>",
+            parse_mode=CustomParseMode("html")
+        )
+    
+    status = "مفعـل ✅" if chat.is_enabled == 1 else "معطل 🔕"
+    delay_text = f"{chat.delay_time} ثانيـة" if int(chat.delay_time) > 0 else "بدون تأخيـر"
+    
+    await edit_or_reply(
+        event,
+        f"<b>𓆩 إعدادات الاقتبـاسات</b> <a href='emoji/5348125643852758491'>⚙️</a><b>𓆪</b>\n"
+        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>\n\n"
+        f"<b>✧ المجموعـة:</b> <code>{chat.chat_title if chat.chat_title else chat.chat_id}</code>\n"
+        f"<b>✧ الايـدي:</b> <code>{chat.chat_id}</code>\n"
+        f"<b>✧ الحالـة:</b> {status}\n"
+        f"<b>✧ وقـت التأخيـر:</b> {delay_text}\n\n"
+        f"<b>⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆</b>",
+        parse_mode=CustomParseMode("html"),
+        file_name="quotes_settings.txt"
+)

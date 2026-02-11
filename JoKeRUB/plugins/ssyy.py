@@ -355,7 +355,7 @@ async def Ahmed_pin(event):
 
 
 
-@l313l.ar_cmd(pattern="انستقرام(?: |$)([\s\S]*)")
+@l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
 async def insta_download(event):
     link = event.pattern_match.group(1)
     reply = await event.get_reply_message()
@@ -364,7 +364,7 @@ async def insta_download(event):
     if not link:
         return await edit_delete(event, "**↯︙ارسل رابط انستقرام مع الامر او بالرد على الرابط**", 10)
     
-    if "instagram" not in link:
+    if "instagram.com" not in link:
         return await edit_delete(
             event, "**↯︙احتاج الى رابط من انستقرام للتحميل!**", 10
         )
@@ -380,18 +380,30 @@ async def insta_download(event):
                 await msg.edit("**↯︙يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
                 return
             
+            # الانتظار للرد الأول
             await conv.get_response()
             
+            # الحصول على الرد الثاني (يجب أن يحتوي على الملف)
             response = await conv.get_response()
             
             await msg.delete()
-            await event.client.send_file(
-                event.chat_id,
-                response,
-                caption=f"<b>↯︙تم التحميل من انستقرام بنجاح</b>",
-                parse_mode="html",
-            )
             
+            # التحقق مما إذا كان الرد يحتوي على وسائط
+            if hasattr(response, 'media') and response.media:
+                # إرسال الملف مع force_document=True
+                await event.client.send_file(
+                    event.chat_id,
+                    response.media,
+                    caption=f"<b>↯︙تم التحميل من انستقرام بنجاح</b>",
+                    parse_mode="html",
+                    force_document=True,  # هذا مهم
+                    reply_to=reply.id if reply else None
+                )
+            else:
+                # إذا لم يكن هناك وسائط، ربما البوت أرسل رابطاً
+                await event.reply(f"**↯︙البوت أرسل:**\n{response.text}")
+            
+            # حذف المحادثة
             await delete_conv(event, bot, first_msg)
                 
     except asyncio.TimeoutError:

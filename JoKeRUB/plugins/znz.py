@@ -47,6 +47,30 @@ HEART_EMOJI = "5210952534326541854"  # ❤️ قلب
 BOT_TOKEN = Config.TG_BOT_TOKEN
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
+# ================ دالة إرسال زر ملون ================
+async def send_colored_button(chat_id, user_id, text="🔥 اضغط لفتح الهمسة"):
+    try:
+        keyboard = {
+            "inline_keyboard": [[
+                {
+                    "text": text,
+                    "switch_inline_query": f"secret {user_id} \nهلو",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": FIRE_EMOJI
+                }
+            ]]
+        }
+        
+        requests.post(f"{API_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": "✨ همسة ملونة مع إيموجي بريميوم",
+            "reply_markup": keyboard
+        })
+        return True
+    except Exception as e:
+        LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
+        return False
+
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
@@ -110,7 +134,7 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ استخدام API مباشر مثل الكود اللي اشتغل - مع اللون والإيموجي
+            # ✅ زر ملون مع إيموجي بريميوم - نفس الكود اللي اشتغل
             keyboard = {
                 "inline_keyboard": [[
                     {
@@ -126,7 +150,7 @@ async def inline_handler(event):
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=keyboard,  # ✅ تمرير الـ keyboard كـ dict
+                buttons=keyboard,
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -138,15 +162,13 @@ async def inline_handler(event):
                 
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ زر switch_inline ملون - نفس الكود اللي اشتغل
+                # ✅ هنا نستخدم API مباشر عشان اللون والإيموجي يشتغلوا
                 try:
-                    requests.post(f"{API_URL}/answerInlineQuery", json={
-                        "inline_query_id": event.id,
-                        "results": [],
-                        "switch_pm_text": "🔥 اضغط لفتح الهمسة",
-                        "switch_pm_parameter": f"secret_{gvarstatus('hmsa_id')}"
-                    })
+                    # محاولة إرسال زر ملون عبر API مباشر
+                    await send_colored_button(event.query.user_id, gvarstatus("hmsa_id"))
+                    bbb = None
                 except:
+                    # لو فشل، نستخدم طريقة Telethon العادية
                     bbb = [Button.switch_inline(
                         "🔥 اضغط هنا",
                         query=f"secret {gvarstatus('hmsa_id')} \nهلو",
@@ -154,17 +176,19 @@ async def inline_handler(event):
                     )]
             else:
                 return
+                
             results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=bbb if bbb else None,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
+            if bbb:
+                results.append(
+                    builder.article(
+                        title=f"{nmm}",
+                        description=f"{mnn}",
+                        text=f"{ttt} {zelzal} **{ddd}**",
+                        buttons=bbb,
+                        link_preview=False,
+                    )
+                )
+                await event.answer(results)
             
     elif query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
@@ -203,7 +227,7 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ استخدام API مباشر - مع اللون والإيموجي
+            # ✅ زر ملون مع إيموجي بريميوم
             keyboard = {
                 "inline_keyboard": [[
                     {
@@ -219,7 +243,7 @@ async def inline_handler(event):
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n{dss}",
-                buttons=keyboard,  # ✅ تمرير الـ keyboard كـ dict
+                buttons=keyboard,
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -231,6 +255,7 @@ async def inline_handler(event):
                 
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
+                # ✅ زر سويتش انلاين عادي
                 bbb = [Button.switch_inline(
                     "🔥 اضغط هنا",
                     query=f"secret {gvarstatus('hmsa_id')} \nهلو",
@@ -239,15 +264,16 @@ async def inline_handler(event):
             else:
                 return
             results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
+            if bbb:
+                results.append(
+                    builder.article(
+                        title=f"{nmm}",
+                        description=f"{mnn}",
+                        text=f"**{ttt}** {zelzal} **{ddd}**",
+                        buttons=bbb,
+                        link_preview=False,
+                    )
+                )
+                await event.answer(results)
     else:
         return

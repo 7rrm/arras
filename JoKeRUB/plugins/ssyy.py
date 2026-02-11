@@ -354,6 +354,7 @@ async def Ahmed_pin(event):
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 
+
 @l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
 async def Ahmed_insta(event):
     link = event.pattern_match.group(1)
@@ -384,10 +385,18 @@ async def Ahmed_insta(event):
                 await dra.edit("**↯︙يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
                 return
             
-            await conv.get_response()
+            try:
+                # تجاهل الرد الأول (⏳ جاري التحميل)
+                await conv.get_response(timeout=20)
+            except asyncio.TimeoutError:
+                # قد لا يرسل البوت رد أول في بعض الأحيان
+                pass
             
-            # الحصول على الرد الثاني (الوسائط)
-            dragoiq = await conv.get_response()
+            try:
+                # الحصول على الرد الثاني (الوسائط) أو الانتظار أكثر
+                dragoiq = await conv.get_response(timeout=40)
+                
+                await dra.delete()
                 
                 # إرسال الملف إلى المحادثة
                 await borg.send_file(
@@ -412,7 +421,7 @@ async def Ahmed_insta(event):
         await dra.edit("**↯︙عذراً، فشل التحميل حاول لاحقاً**")
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
-
+        
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

@@ -663,6 +663,111 @@ async def disable_quotes(event):
     else:
         await edit_delete(event, f"**✧︙ فشل في تعطيل الاقتباسات!**")
 
+@l313l.ar_cmd(
+    pattern="الاقتباس$",
+    command=("الاقتباس", plugin_category),
+    info={
+        "header": "لعرض جميع المجموعات التي تم تفعيل الاقتباسات فيها",
+        "usage": "{tr}الاقتباس",
+    },
+)
+async def show_active_quotes(event):
+    from JoKeRUB import l313l
+    
+    # التحقق إذا كان المستخدم هو المالك
+    if event.sender_id != admin_id:
+        return await edit_delete(event, "**✧︙ هذا الأمر متاح فقط للمالك!**")
+    
+    # جلب جميع المتغيرات من قاعدة البيانات
+    from ..sql_helper.globals import gvarstatus, all_gvar
+    
+    all_vars = all_gvar()
+    active_groups = []
+    
+    # البحث عن جميع مجموعات الاقتباسات المفعلة
+    for var in all_vars:
+        if var.variable.startswith("quotes_") and var.value == "true" and not var.variable.startswith("quotes_delay_"):
+            # استخراج معرف المجموعة من اسم المتغير
+            chat_id = var.variable.replace("quotes_", "")
+            if chat_id.lstrip('-').isdigit():
+                chat_id = int(chat_id)
+                
+                # الحصول على وقت التأخير إن وجد
+                delay = gvarstatus(f"quotes_delay_{chat_id}")
+                delay_text = f" | التأخير: {delay} ثانية" if delay and delay.isdigit() else ""
+                
+                # محاولة الحصول على اسم المجموعة
+                chat_name = f"المجموعة: {chat_id}"
+                try:
+                    chat = await l313l.get_entity(chat_id)
+                    chat_name = f"المجموعة: {chat.title}"
+                except:
+                    pass
+                
+                active_groups.append(f"• {chat_name} (ID: `{chat_id}`){delay_text}")
+    
+    if not active_groups:
+        message = "**✧︙ لا توجد مجموعات مفعلة للاقتباسات حالياً.**"
+    else:
+        message = f"**✧︙ المجموعات المفعلة للاقتباسات [{len(active_groups)}]:**\n\n"
+        message += "\n".join(active_groups)
+    
+    await edit_delete(event, message)
+
+@l313l.ar_cmd(
+    pattern="مسح قائمة الاقتباس$",
+    command=("مسح قائمة الاقتباس", plugin_category),
+    info={
+        "header": "لتعطيل الاقتباسات في جميع المجموعات وحذف القائمة",
+        "usage": "{tr}مسح قائمة الاقتباس",
+        "warning": "هذا الأمر لا يمكن التراجع عنه!",
+    },
+)
+async def disable_all_quotes(event):
+    from JoKeRUB import l313l
+    
+    # التحقق إذا كان المستخدم هو المالك
+    if event.sender_id != admin_id:
+        return await edit_delete(event, "**✧︙ هذا الأمر متاح فقط للمالك!**")
+    
+    from ..sql_helper.globals import all_gvar, delgvar
+    
+    all_vars = all_gvar()
+    disabled_count = 0
+    
+    # البحث عن جميع مجموعات الاقتباسات المفعلة وتعطيلها
+    for var in all_vars:
+        if var.variable.startswith("quotes_") and var.value == "true" and not var.variable.startswith("quotes_delay_"):
+            chat_id = var.variable.replace("quotes_", "")
+            if chat_id.lstrip('-').isdigit():
+                chat_id = int(chat_id)
+                
+                # حذف متغير التفعيل
+                delgvar(f"quotes_{chat_id}")
+                
+                # حذف متغير التأخير إن وجد
+                delgvar(f"quotes_delay_{chat_id}")
+                
+                # حذف من الذاكرة المؤقتة
+                if chat_id in last_reply_time:
+                    del last_reply_time[chat_id]
+                
+                disabled_count += 1
+    
+    # مسح أي متغيرات تأخير قد تكون بقيَت
+    for var in all_vars:
+        if var.variable.startswith("quotes_delay_"):
+            chat_id = var.variable.replace("quotes_delay_", "")
+            if chat_id.lstrip('-').isdigit():
+                delgvar(f"quotes_delay_{chat_id}")
+    
+    # إرسال رسالة التأكيد
+    if disabled_count > 0:
+        await edit_delete(event, f"**✧︙ تم تعطيل الاقتباسات في {disabled_count} مجموعة بنجاح ✓**\n**✧︙ تم حذف جميع الإعدادات المرتبطة.**")
+    else:
+        await edit_delete(event, "**✧︙ لا توجد مجموعات مفعلة للاقتباسات!**")
+
+
 @l313l.on(events.NewMessage)
 async def quotes_handler(event):
     # تحقق سريع من الشروط الأساسية أولاً

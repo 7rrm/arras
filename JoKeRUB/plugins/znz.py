@@ -5,6 +5,7 @@ import os
 import random
 import re
 import time
+import requests
 from pathlib import Path
 from uuid import uuid4
 
@@ -41,6 +42,10 @@ bbb = None
 FIRE_EMOJI = "5368324170671202286"  # 🔥 نار متحركة
 STAR_EMOJI = "5450478314053863243"  # ✨ نجمة
 HEART_EMOJI = "5210952534326541854"  # ❤️ قلب
+
+# ================ توكن البوت من Config ================
+BOT_TOKEN = Config.TG_BOT_TOKEN
+API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -105,21 +110,23 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ زر ملون مع إيموجي بريميوم - نفس نمط الكود اللي اشتغل
-            buttons = [[
-                InlineKeyboardButton(
-                    text="🔥 فتح الهمسة",
-                    callback_data=f"{scc}_{timestamp}",
-                    style="primary",  # 🔵 أزرق
-                    icon_custom_emoji_id=FIRE_EMOJI
-                )
-            ]]
+            # ✅ استخدام API مباشر مثل الكود اللي اشتغل - مع اللون والإيموجي
+            keyboard = {
+                "inline_keyboard": [[
+                    {
+                        "text": "🔥 فتح الهمسة",
+                        "callback_data": f"{scc}_{timestamp}",
+                        "style": "primary",  # 🔵 أزرق
+                        "icon_custom_emoji_id": FIRE_EMOJI
+                    }
+                ]]
+            }
             
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=buttons,
+                buttons=keyboard,  # ✅ تمرير الـ keyboard كـ dict
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -131,12 +138,20 @@ async def inline_handler(event):
                 
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ زر إنلاين ملون مع إيموجي بريميوم
-                bbb = [Button.switch_inline(
-                    "🔥 اضغط هنا",
-                    query=f"secret {gvarstatus('hmsa_id')} \nهلو",
-                    same_peer=True
-                )]
+                # ✅ زر switch_inline ملون - نفس الكود اللي اشتغل
+                try:
+                    requests.post(f"{API_URL}/answerInlineQuery", json={
+                        "inline_query_id": event.id,
+                        "results": [],
+                        "switch_pm_text": "🔥 اضغط لفتح الهمسة",
+                        "switch_pm_parameter": f"secret_{gvarstatus('hmsa_id')}"
+                    })
+                except:
+                    bbb = [Button.switch_inline(
+                        "🔥 اضغط هنا",
+                        query=f"secret {gvarstatus('hmsa_id')} \nهلو",
+                        same_peer=True
+                    )]
             else:
                 return
             results = []
@@ -145,7 +160,7 @@ async def inline_handler(event):
                     title=f"{nmm}",
                     description=f"{mnn}",
                     text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=bbb,
+                    buttons=bbb if bbb else None,
                     link_preview=False,
                 ),
             )
@@ -188,21 +203,23 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ زر ملون مع إيموجي بريميوم
-            buttons = [[
-                InlineKeyboardButton(
-                    text="🔥 فتح الهمسة",
-                    callback_data=f"{scc}_{timestamp}",
-                    style="primary",  # 🔵 أزرق
-                    icon_custom_emoji_id=FIRE_EMOJI
-                )
-            ]]
+            # ✅ استخدام API مباشر - مع اللون والإيموجي
+            keyboard = {
+                "inline_keyboard": [[
+                    {
+                        "text": "🔥 فتح الهمسة",
+                        "callback_data": f"{scc}_{timestamp}",
+                        "style": "primary",  # 🔵 أزرق
+                        "icon_custom_emoji_id": FIRE_EMOJI
+                    }
+                ]]
+            }
             
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n{dss}",
-                buttons=buttons,
+                buttons=keyboard,  # ✅ تمرير الـ keyboard كـ dict
                 link_preview=False,
             )
             await event.answer([result] if result else None)
@@ -214,7 +231,6 @@ async def inline_handler(event):
                 
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ زر إنلاين ملون مع إيموجي بريميوم
                 bbb = [Button.switch_inline(
                     "🔥 اضغط هنا",
                     query=f"secret {gvarstatus('hmsa_id')} \nهلو",

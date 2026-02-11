@@ -8,12 +8,6 @@ from telethon import Button, events
 from telethon.errors import UserIsBlockedError
 from telethon.events import CallbackQuery, StopPropagation
 from telethon.utils import get_display_name
-from telethon.tl.types import (
-    KeyboardButtonCallback,
-    KeyboardButtonUrl,
-    ReplyInlineMarkup,
-    KeyboardButtonRow
-)
 
 from . import Config, l313l
 
@@ -43,16 +37,6 @@ dd = []
 kk = []
 tt = []
 
-# 🎯 إيموجيات بريميوم - نفس IDs بتوع requests
-FIRE_EMOJI = "5368324170671202286"      # 🔥
-MAIL_EMOJI = "5210763312597326700"      # 📨
-DECOR_EMOJI = "5316347681116269521"     # ⭐
-DELETE_EMOJI = "5341741293349680948"    # 🔒
-PAID_EMOJI = "5316347681116269524"      # 💎
-CHANNEL_EMOJI = "5210763312597326701"   # 💬
-CHECK_EMOJI = "5210740682414644888"     # ✅
-CROWN_EMOJI = "5316347681116269523"     # 👑
-
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -79,6 +63,8 @@ async def check_bot_started_users(user, event):
     if BOTLOG:
         await event.client.send_message(BOTLOG_CHATID, notification, parse_mode='html')
 
+
+
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
     incoming=True,
@@ -93,6 +79,7 @@ async def bot_start(event):
         kk.remove(int(chat.id))
     reply_to = await reply_id(event)
     
+    # استخدام HTML للجميع
     mention = f'<a href="tg://user?id={chat.id}">{chat.first_name}</a>'
     my_mention = f'<a href="tg://user?id={user.id}">{user.first_name}</a>'
     
@@ -123,9 +110,10 @@ async def bot_start(event):
         zid = int(gvarstatus("ZThon_Vip"))
     
     custompic = gvarstatus("BOT_START_PIC") or None
+    
+    # معرف الإيموجي البريميوم الجديد
     PREMIUM_EMOJI_ID = "5210763312597326700"
     
-    # ✅ ✅ ✅ الطريقة الصحيحة - زي الـ requests بالظبط ✅ ✅ ✅
     if chat.id != Config.OWNER_ID:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -143,6 +131,7 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
+            # رسالة البداية بـ HTML كامل مع الإيموجي البريميوم
             start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
@@ -151,50 +140,24 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>فقـط ارسـل رسـالتك وانتظـر الـرد</b> 📨
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
-        
-        # ✅ ✅ ✅ زي الـ requests بالظبط - أزرار بلون + إيموجي ✅ ✅ ✅
-        buttons = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="🗳 تواصـل مـع المـالك",
-                    data=b"ttk_bot-1",
-                    icon_custom_emoji_id=MAIL_EMOJI,
-                    style="primary"  # 🔵 أزرق
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="🎡 زخـارف تمبلـر",
-                    data=b"decor_main_menu",
-                    icon_custom_emoji_id=DECOR_EMOJI,
-                    style="secondary"  # ⚪ رمادي
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="⚠️ حـذف حسـابك",
-                    data=b"zzk_bot-5",
-                    icon_custom_emoji_id=DELETE_EMOJI,
-                    style="danger"  # 🔴 أحمر
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="💎 الأوامـر المدفوعـة",
-                    data=b"paid_commands_menu",
-                    icon_custom_emoji_id=PAID_EMOJI,
-                    style="primary"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonUrl(
-                    text=zz_txt,
-                    url=f"https://t.me/{zz_ch}",
-                    icon_custom_emoji_id=CHANNEL_EMOJI,
-                    style="secondary"
-                )
-            ])
-        ])
+            
+        buttons = [
+            [
+                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+            ],
+            [
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+            ],
+            [
+                Button.inline("⚠️ لـ حـذف حسـابك", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+            ],
+            [
+                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+            ]
+        ]
         
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         customstrmsg = gvarstatus("START_TEXT") or None
@@ -213,8 +176,9 @@ async def bot_start(event):
                 my_mention=my_mention,
             )
         else:
+            # رسالة للمطور المميز بـ HTML
             start_msg = f'''\
-<tg-emoji emoji-id="{CROWN_EMOJI}">👑</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👑</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يمكنك التواصـل مـع مـالكـي مـن هنـا</b> 💌
@@ -222,44 +186,25 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
         
-        buttons = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="🎡 زخـارف تمبلـر",
-                    data=b"decor_main_menu",
-                    icon_custom_emoji_id=DECOR_EMOJI,
-                    style="secondary"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="⚠️ حـذف حسـابك",
-                    data=b"zzk_bot-5",
-                    icon_custom_emoji_id=DELETE_EMOJI,
-                    style="danger"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="💎 الأوامـر المدفوعـة",
-                    data=b"paid_commands_menu",
-                    icon_custom_emoji_id=PAID_EMOJI,
-                    style="primary"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonUrl(
-                    text=zz_txt,
-                    url=f"https://t.me/{zz_ch}",
-                    icon_custom_emoji_id=CHANNEL_EMOJI,
-                    style="secondary"
-                )
-            ])
-        ])
+        buttons = [
+            [
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+            ],
+            [
+                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+            ],
+            [
+                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+            ]
+        ]
         
     else:
+        # رسالة للمالك الأساسي بـ HTML
         start_msg = f'''\
-<tg-emoji emoji-id="{FIRE_EMOJI}">🔥</tg-emoji> <b>⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..</b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🔥</tg-emoji> <b>⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..</b>
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انا البـوت المسـاعـد الخـاص بـك</b> (تواصـل📨 + زخرفـه🎨) 🤖🦾
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يستطيـع اي شخص التواصل بك من خـلالي</b> 💌
@@ -267,36 +212,22 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>لـ زخرفـة اسـم اضغـط الـزر بالاسفـل</b>
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لرؤيـة اوامـري الخاصـه بـك اضغـط :</b> <code>/help</code>'''
         
-        buttons = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="🎡 زخـارف تمبلـر",
-                    data=b"decor_main_menu",
-                    icon_custom_emoji_id=DECOR_EMOJI,
-                    style="secondary"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="⚠️ حـذف حسـابك",
-                    data=b"zzk_bot-5",
-                    icon_custom_emoji_id=DELETE_EMOJI,
-                    style="danger"
-                )
-            ]),
-            KeyboardButtonRow(buttons=[
-                KeyboardButtonCallback(
-                    text="💎 الأوامـر المدفوعـة",
-                    data=b"paid_commands_menu",
-                    icon_custom_emoji_id=PAID_EMOJI,
-                    style="primary"
-                )
-            ])
-        ])
+        buttons = [
+            [
+                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+            ],
+            [
+                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+            ],
+            [
+                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+            ]
+        ]
     
-    # ✅ إرسال الرسالة
+    # إرسال الرسالة بنفس الطريقة الناجحة
     try:
         if custompic:
+            # أرسل الصورة مع وصف HTML
             await event.client.send_file(
                 chat.id,
                 file=custompic,
@@ -305,6 +236,7 @@ async def bot_start(event):
                 reply_to=reply_to,
                 parse_mode='html'
             )
+            # أرسل الرسالة الرئيسية مع الإيموجي البريميوم
             await event.reply(
                 start_msg,
                 buttons=buttons,
@@ -312,6 +244,7 @@ async def bot_start(event):
                 link_preview=False
             )
         else:
+            # إرسال مباشر
             await event.reply(
                 start_msg,
                 buttons=buttons,
@@ -319,11 +252,12 @@ async def bot_start(event):
                 link_preview=False
             )
             
-        LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع أزرار ملونة + إيموجي بريميوم")
+        LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم HTML")
         
     except Exception as e:
         LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
-    
+        
+
     await check_bot_started_users(chat, event)
 
 

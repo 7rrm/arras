@@ -1,6 +1,5 @@
+# -*- coding: utf-8 -*-
 import json
-import math
-import asyncio
 import os
 import random
 import re
@@ -24,20 +23,40 @@ from . import mention
 LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
+# ----------------------------------------------
+#  📦  إيموجي بريميوم (نفس المعرفات المستخدمة في ملف القراءة)
+# ----------------------------------------------
+EMOJI_SECRET = "5933974679269151927"   # 📨
+EMOJI_CHECK  = "4929526216945305427"   # ✅
+EMOJI_CLOCK  = "5839380464116175529"   # 🕖
+EMOJI_OTHER  = "4931832872081294660"   # 📨 آخر
+
 scc = "secret"
 hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+
+# ------------------- النصوص مع إيموجي بريميوم -------------------
+hss = f'''\
+<tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji>
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<b>⌔╎الهمسـة لـ</b>'''
+
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+
+ttt = f'''\
+<tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji>
+⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b>'''
+
 ddd = "💌"
 bbb = None
 
-# Copyright (C) 2023 Zilzalll . All Rights Reserved
+# --------------------------------------------------------------
+
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
@@ -57,16 +76,21 @@ async def inline_handler(event):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+
+    # التحقق من الصلاحية
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         malathid = Config.OWNER_ID
-    elif query_user_id == user_id: #or query_user_id == int(user_id):
+    elif query_user_id == user_id:
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+
+    # ✅ للمالك والسودو
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
+            # ... نفس الكود القديم لإنشاء الهمسة ...
             user_list = []
             zilzal = ""
             query = query[7:]
@@ -98,14 +122,15 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
+            }
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
+                text=f"{hss} {zilzal}\n<b>{dss}</b>",   # ✅ استخدم HTML
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'                      # ✅ تفعيل HTML
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -113,6 +138,8 @@ async def inline_handler(event):
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+
+        # ✅ عرض زر البداية (zelzal)
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
                 bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
@@ -123,16 +150,20 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
+                    text=f"{ttt} {zelzal} {ddd}",     # ✅ استخدم HTML
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='html'                 # ✅ تفعيل HTML
                 ),
             )
             await event.answer(results)
-    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
+
+    # ✅ للمستخدم الذي خزن الهمسة (نفس الشخص)
+    elif query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
+            # ... نفس الكود القديم ...
             user_list = []
             zilzal = ""
             query = query[7:]
@@ -164,14 +195,15 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
+            }
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=f"{hss} {zilzal}\n<b>{dss}</b>",   # ✅ HTML
                 buttons=buttons,
                 link_preview=False,
+                parse_mode='html'                       # ✅
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -179,6 +211,7 @@ async def inline_handler(event):
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
                 bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
@@ -189,9 +222,10 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    text=f"{ttt} {zelzal} {ddd}",     # ✅ HTML
                     buttons=bbb,
                     link_preview=False,
+                    parse_mode='html'                 # ✅
                 ),
             )
             await event.answer(results)

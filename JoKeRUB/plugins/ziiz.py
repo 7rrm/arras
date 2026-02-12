@@ -8,7 +8,7 @@ from . import l313l
 from ..Config import Config
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..core.logger import logging
-from . import Zed_Dev, edit_or_reply
+from . import edit_or_reply  # فقط هذا الاستيراد
 
 LOGS = logging.getLogger(__name__)
 
@@ -52,9 +52,10 @@ async def zzz_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
-    if gvarstatus("ZThon_Vip") is None and l313l.uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
-
+    # إزالة شرط الفيب - أو يمكنك تفعيله إذا أردت
+    # if gvarstatus("ZThon_Vip") is None and l313l.uid not in Config.OWNER_ID:
+    #     return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
+    
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -74,20 +75,20 @@ async def repozedub(event):
     addgvar("hmsa_user", username)
 
     # نص الرسالة مع إيموجي بريميوم
-    text = f"""
+    text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-"""
+'''
 
-    # 🎨 زر ملون مع إيموجي بريميوم (أزرق + أيقونة)
+    # 🎨 زر ملون مع إيموجي بريميوم
     keyboard = {
         "inline_keyboard": [[
             {
                 "text": "✍️ اضغط لكتابة الهمسة",
                 "switch_inline_query_current_chat": f"secret {user_id} \n",
-                "style": "primary",                    # لون أزرق
-                "icon_custom_emoji_id": EMOJI_SECRET   # إيموجي بريميوم داخل الزر
+                "style": "primary",
+                "icon_custom_emoji_id": EMOJI_SECRET
             }
         ]]
     }

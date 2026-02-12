@@ -44,6 +44,7 @@ FIRE_EMOJI = "🔥"
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
+    builder = event.builder
     query = event.text
     string = query.lower()
     query_user_id = event.query.user_id
@@ -101,42 +102,16 @@ async def inline_handler(event):
                 timestamp = int(time.time() * 2)
                 new_msg = {str(timestamp): {"userid": user_list, "text": msg_text}}
                 
-                # استخدام REST API للأزرار الملونة - أخضر
-                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-                
-                keyboard = {
-                    "inline_keyboard": [
-                        [
-                            {
-                                "text": f"✅ {info_type[2]} ✅",
-                                "callback_data": f"{scc}_{timestamp}",
-                                "style": "success"
-                            }
-                        ]
-                    ]
-                }
-                
-                inline_data = {
-                    "inline_query_id": event.id,
-                    "results": json.dumps([
-                        {
-                            "type": "article",
-                            "id": str(timestamp),
-                            "title": f"{hmm} {zilzal}",
-                            "description": f"{dss}",
-                            "input_message_content": {
-                                "message_text": f"{hss} {zilzal} \n**{dss}**",
-                                "parse_mode": "Markdown"
-                            },
-                            "reply_markup": keyboard
-                        }
-                    ]),
-                    "cache_time": 0,
-                    "is_personal": True
-                }
-                
-                response = requests.post(url, json=inline_data)
-                LOGS.info(f"Secret response: {response.status_code}")
+                # زر ملون - أخضر (success)
+                buttons = [[Button.inline(f"✅ {info_type[2]} ✅", data=f"{scc}_{timestamp}")]]
+                result = builder.article(
+                    title=f"{hmm} {zilzal}",
+                    description=f"{dss}",
+                    text=f"{hss} {zilzal} \n**{dss}**",
+                    buttons=buttons,
+                    link_preview=False,
+                )
+                await event.answer([result] if result else None)
                 
                 if jsondata:
                     jsondata.update(new_msg)
@@ -147,20 +122,20 @@ async def inline_handler(event):
             except Exception as e:
                 LOGS.error(f"خطأ في secret: {e}")
         
-        # قسم zelzal - مع REST API للزر الملون
+        # قسم zelzal - زر ملون باستخدام REST API ✅
         elif string == "zelzal":
             if gvarstatus("hmsa_id") and zelzal:
                 try:
-                    # استخدام REST API للأزرار الملونة - أزرق
+                    # استخدام REST API للأزرار الملونة
                     url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                     
-                    # تصميم الأزرار الملونة بطريقة REST API
+                    # تصميم الأزرار الملونة - أزرق (primary)
                     keyboard = {
                         "inline_keyboard": [
                             [
                                 {
-                                    "text": f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}",
-                                    "switch_inline_query": f"secret {str(gvarstatus('hmsa_id'))} \nهلو",
+                                    "text": f"{FIRE_EMOJI} اضغـط لبدء الهمسـة {FIRE_EMOJI}",
+                                    "callback_data": f"start_whisper_{gvarstatus('hmsa_id')}",
                                     "style": "primary"  # 🔵 أزرق
                                 }
                             ]
@@ -177,7 +152,7 @@ async def inline_handler(event):
                                 "title": f"{nmm}",
                                 "description": f"{mnn}",
                                 "input_message_content": {
-                                    "message_text": f"{ttt} {zelzal} **{ddd}**",
+                                    "message_text": f"{ttt} {zelzal} **{ddd}**\n\n⎔╎اضغط على الزر الأزرق لبدء كتابة الهمسة",
                                     "parse_mode": "Markdown"
                                 },
                                 "reply_markup": keyboard
@@ -191,13 +166,10 @@ async def inline_handler(event):
                     response = requests.post(url, json=inline_data)
                     LOGS.info(f"Zelzal response: {response.status_code}")
                     
-                    # عدم استخدام event.answer لأننا استخدمنا REST API
-                    
                 except Exception as e:
                     LOGS.error(f"خطأ في zelzal: {e}")
-                    # Fallback للطريقة القديمة - بدون ألوان
-                    builder = event.builder
-                    bbb = [[Button.switch_inline("اضغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
+                    # Fallback للطريقة القديمة
+                    bbb = [[Button.switch_inline(f"{FIRE_EMOJI} اضغـط هنـا {FIRE_EMOJI}", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
                     results = []
                     results.append(
                         builder.article(
@@ -216,3 +188,21 @@ async def inline_handler(event):
             await event.answer([])
     else:
         await event.answer([])
+
+
+# معالج الضغط على الزر الملون - callback
+@l313l.tgbot.on(CallbackQuery(pattern=r"start_whisper_(\d+)"))
+async def start_whisper(event):
+    user_id = int(event.pattern_match.group(1))
+    
+    # التحقق من أن المستخدم هو نفسه
+    if event.sender_id != user_id and event.sender_id not in Config.SUDO_USERS and event.sender_id != Config.OWNER_ID:
+        await event.answer("❌ هذه الهمسة ليست لك!", alert=True)
+        return
+    
+    # فتح نافذة الإنلاين مباشرة
+    await event.answer(
+        "📝 اكتب رسالتك ثم اختر المستلم",
+        switch_inline_query=f"secret {user_id} \n",
+        alert=False
+        )

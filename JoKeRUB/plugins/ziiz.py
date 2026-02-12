@@ -77,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
+async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name

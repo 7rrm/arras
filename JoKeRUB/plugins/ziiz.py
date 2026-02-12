@@ -100,14 +100,17 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
 
+    # ✅ مثل كود السورس تماماً: حسابك يرسل رسالة "جاري التحميل..."
+    await event.edit("⏱️ جاري تجهيز الهمسة...")
+
     # 📝 نص الرسالة مع إيموجي بريميوم
-    text = f"""
+    text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-"""
+'''
 
-    # 🎨 الأزرار الملونة مع إيموجي بريميوم (نفس طريقة كود السورس)
+    # 🎨 الأزرار الملونة مع إيموجي بريميوم
     keyboard = {
         "inline_keyboard": [
             [
@@ -121,14 +124,10 @@ async def repozedub(event):
         ]
     }
 
-    # ✨ إرسال الرسالة عبر REST API (نفس طريقة كود السورس)
-    # هذا سيجعل الرسالة تظهر من حسابك وليس من البوت!
-    
-    await event.delete()  # حذف الأمر أولاً
-    
+    # ✅ مثل كود السورس: البوت يرسل الرسالة الجديدة
     send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
     send_data = {
-        "chat_id": event.chat_id,  # نفس المحادثة - المفتاح السحري!
+        "chat_id": event.chat_id,
         "text": text,
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard),
@@ -137,7 +136,13 @@ async def repozedub(event):
     
     try:
         response = requests.post(send_url, json=send_data)
-        if response.status_code != 200:
-            LOGS.error(f"❌ خطأ في الإرسال: {response.text}")
+        if response.status_code == 200:
+            # ✅ مثل كود السورس: حسابك يحذف رسالة "جاري التحميل..."
+            await event.delete()
+            LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
+        else:
+            await event.edit("❌ حدث خطأ في الإرسال")
+            LOGS.error(f"❌ خطأ: {response.text}")
     except Exception as e:
+        await event.edit("❌ حدث خطأ، حاول مرة أخرى")
         LOGS.error(f"❌ خطأ: {e}")

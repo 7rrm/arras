@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 import json
 import os
 import re
@@ -7,7 +7,6 @@ import random
 from uuid import uuid4
 import requests
 
-from telethon.errors import QueryIdInvalidError
 from telethon.events import InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
 
@@ -21,18 +20,15 @@ LOGS = logging.getLogger(__name__)
 # --------------------------------------
 #  📦  إعدادات ثابتة
 # --------------------------------------
-SECRET_EMOJI_ID = "5210763312597326700"   # 📨  (همسة)
-CHECK_EMOJI_ID  = "5210740682414644888"   # ✅  (تم القراءة)
-CLOCK_EMOJI_ID  = "5839380464116175529"   # 🕖  (وقت)
-FIRE_EMOJI_ID   = "5368324170671202286"   # 🔥  (تزيين)
-
-COMMAND_HANDLER = Config.COMMAND_HAND_LER
+SECRET_EMOJI_ID = "5210763312597326700"   # 📨
+CHECK_EMOJI_ID  = "5210740682414644888"   # ✅
+CLOCK_EMOJI_ID  = "5839380464116175529"   # 🕖
+FIRE_EMOJI_ID   = "5368324170671202286"   # 🔥
 
 # --------------------------------------
 #  🔐  التحقق من الصلاحية
 # --------------------------------------
 def is_authorized(user_id: int) -> bool:
-    """الصلاحية لاستخدام الهمسات (المالك + السودو + الشخص المخزّن)"""
     if user_id == Config.OWNER_ID or user_id in Config.SUDO_USERS:
         return True
     stored_id = gvarstatus("hmsa_id")
@@ -48,37 +44,28 @@ async def inline_handler(event):
     query = event.text.strip()
     user_id = event.query.user_id
 
-    # ❌  منع المستخدمين غير المصرّح لهم
     if not is_authorized(user_id):
         return
 
-    # --------------------------------------
-    #  1️⃣  عرض زر البداية (zelzal)
-    # --------------------------------------
     if query == "zelzal":
         await answer_start_button(event)
         return
 
-    # --------------------------------------
-    #  2️⃣  إنشاء همسة جديدة (secret)
-    # --------------------------------------
     if query.startswith("secret "):
         await create_secret(event, query)
         return
 
 # --------------------------------------
-#  🔹  دالة عرض زر البداية
+#  🔹  دالة عرض زر البداية (بشكل ملون + أيقونة)
 # --------------------------------------
 async def answer_start_button(event):
-    """عند كتابة 'zelzal' في الإنلاين -> زر واحد يفتح الهمسة"""
     stored_id = gvarstatus("hmsa_id")
     stored_name = gvarstatus("hmsa_name")
     stored_user = gvarstatus("hmsa_user")
-
     if not stored_id:
         return
 
-    # نص جميل مع إيموجي بريميوم
+    # نص الهمسة مع إيموجي بريميوم
     text = f'''
 <tg-emoji emoji-id="{SECRET_EMOJI_ID}">📨</tg-emoji> <b>همسة سريّة</b> <tg-emoji emoji-id="{SECRET_EMOJI_ID}">📨</tg-emoji>
 
@@ -86,10 +73,12 @@ async def answer_start_button(event):
 <b>اضغط الزر بالأسفل لبدء الكتابة</b>
 '''
 
-    # زر Switch Inline (يوجه المستخدم لكتابة "secret @id نص")
+    # الزر الملون مع أيقونة – هذا زر callback، عند الضغط يرسل البوت رسالة فيها switch_inline
     button = {
-        "text": f"✍️ ابدأ الهمسة  {chr(65039)}",  # يمكنك إضافة إيموجي عادي هنا
-        "switch_inline_query_current_chat": f"secret {stored_id} \n"
+        "text": f"✍️ ابدأ الهمسة  🔐",
+        "callback_data": "start_whisper",   # سيتم معالجته في ملف آخر (مثلاً قراءة الهمسة)
+        "style": "primary",                 # لون أزرق
+        "icon_custom_emoji_id": SECRET_EMOJI_ID
     }
 
     keyboard = {"inline_keyboard": [[button]]}
@@ -112,30 +101,24 @@ async def answer_start_button(event):
 #  🔹  دالة إنشاء الهمسة (secret ...)
 # --------------------------------------
 async def create_secret(event, query):
-    """معالجة الأمر: secret @user1 @user2 | النص السري"""
-    # قص كلمة "secret " من البداية
     query_body = query[7:]
 
-    # فصل المستلمين عن النص باستخدام "|"
     if "|" in query_body:
         raw_users, secret_text = query_body.split("|", 1)
         raw_users = raw_users.strip()
         secret_text = secret_text.strip()
     else:
-        # صيغة قديمة: user نص
         parts = query_body.split(" ", 1)
         if len(parts) < 2:
             return
         raw_users, secret_text = parts[0], parts[1]
         secret_text = secret_text.strip()
 
-    # استخراج المعرفات (يدعم @username, id رقمي, منشن)
     user_pattern = re.compile(r"@\w+|\d+")
     user_matches = user_pattern.findall(raw_users)
     if not user_matches:
         return
 
-    # تحويل المعرفات إلى كائنات مستخدمين وحفظ الأسماء
     user_list = []
     mention_str = ""
 
@@ -162,14 +145,15 @@ async def create_secret(event, query):
     if not mention_str:
         return
 
-    # إنشاء معرف فريد للهمسة
-    timestamp = int(time.time() * 1000)  # ملي ثانية
+    # معرف فريد
+    timestamp = int(time.time() * 1000)
     secret_id = f"{timestamp}_{random.randint(100, 999)}"
 
-    # حفظ الهمسة في ملف JSON (بنفس الطريقة القديمة)
+    # حفظ الهمسة
     user_dir = "./JoKeRUB"
     os.makedirs(user_dir, exist_ok=True)
-    file_path = os.path.join(user_dir, f"{user_list[0]}.txt")  # نستخدم أول مستلم كاسم ملف
+    # نستخدم أول مستلم كاسم ملف، أو يمكن استخدام معرف فريد
+    file_path = os.path.join(user_dir, f"whispers_{user_list[0]}.json")
 
     try:
         with open(file_path, "r") as f:
@@ -180,7 +164,7 @@ async def create_secret(event, query):
     db[secret_id] = {
         "userid": user_list,
         "text": secret_text,
-        "sender_id": event.query.user_id,  # مهم لمعرفة المرسل
+        "sender_id": event.query.user_id,
         "timestamp": timestamp
     }
 
@@ -188,9 +172,8 @@ async def create_secret(event, query):
         json.dump(db, f, indent=4)
 
     # --------------------------------------
-    #  💎  بناء النتيجة الإنلاين (الهمسة)
+    #  💎  بناء الهمسة نفسها (زر ملون مع أيقونة)
     # --------------------------------------
-    # نص الهمسة مع إيموجي بريميوم
     message_text = f"""
 <tg-emoji emoji-id="{SECRET_EMOJI_ID}">📨</tg-emoji> <b>همسة سريّة</b> <tg-emoji emoji-id="{SECRET_EMOJI_ID}">📨</tg-emoji>
 
@@ -200,23 +183,22 @@ async def create_secret(event, query):
 <i>لا يمكن رؤيتها إلا من قبل المستلمين والمرسل</i>
 """
 
-    # زر "فتح الهمسة" – يظهر للجميع لكن الضغط محكوم بالصلاحية
+    # زر فتح الهمسة – ملون وبه أيقونة
     open_button = {
-        "text": f"🔓 فتح الهمسة  {chr(65039)}",
+        "text": f"🔓 فتح الهمسة  📩",
         "callback_data": f"secret_{secret_id}",
         "style": "primary",
         "icon_custom_emoji_id": SECRET_EMOJI_ID
     }
 
-    # زر "رد سريع" (اختياري) – يظهر فقط للمرسل؟ لا، يمكن للجميع لكنه مفيد
+    # زر رد سريع – ملون وبه أيقونة
     reply_button = {
         "text": f"💬 رد بهمسة",
-        "switch_inline_query_current_chat": f"secret {event.query.user_id} \n",
+        "callback_data": f"reply_whisper_{event.query.user_id}",
         "style": "danger",
         "icon_custom_emoji_id": FIRE_EMOJI_ID
     }
 
-    # يمكن إضافة أزرار إضافية حسب الرغبة
     keyboard = {
         "inline_keyboard": [
             [open_button],
@@ -242,13 +224,12 @@ async def create_secret(event, query):
 #  🔹  دالة الإرسال إلى Bot API
 # --------------------------------------
 async def answer_inline_query(inline_query_id: int, results: list):
-    """إرسال النتائج عبر طلب HTTP مباشر إلى Telegram Bot API"""
     url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
     payload = {
         "inline_query_id": inline_query_id,
         "results": json.dumps(results),
-        "cache_time": 0,          # عدم التخزين المؤقت
-        "is_personal": True       # نتائج خاصة بالمستخدم
+        "cache_time": 0,
+        "is_personal": True
     }
     try:
         resp = requests.post(url, json=payload, timeout=3)

@@ -94,9 +94,8 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
-    global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -105,16 +104,37 @@ async def repozedub(event):
         user_id, full_name, username = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
         return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
+    # حفظ البيانات
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
+
+    # إنشاء رابط إنلاين مباشر باستخدام Bot API (بديل عن inline_query)
+    bot_username = Config.TG_BOT_USERNAME
+    switch_text = "📬 اضغط لكتابة همسة"
+    switch_query = f"secret {user_id} \n"
+
+    # إرسال رسالة تحتوي على زر switch_inline (هذه رسالة عادية)
+    keyboard = {
+        "inline_keyboard": [[
+            {
+                "text": switch_text,
+                "switch_inline_query_current_chat": switch_query
+            }
+        ]]
+    }
+
+    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": event.chat_id,
+        "text": f"**{ttt}** {username or full_name} **{ddd}**",
+        "parse_mode": "Markdown",
+        "reply_markup": json.dumps(keyboard),
+        "disable_web_page_preview": True
+    }
+    try:
+        requests.post(send_url, json=payload, timeout=3)
+        await event.delete()
+    except Exception as e:
+        LOGS.error(f"sendMessage error: {e}")
+        await event.edit("❌ فشل إرسال الزر، حاول مرة أخرى.")

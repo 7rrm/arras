@@ -111,10 +111,29 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
+    
+    # محاولة جلب الإنلاين مع fallback
+    try:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        if response and len(response) > 0:
+            await response[0].click(event.chat_id)
+        else:
+            # إذا كانت القائمة فارغة، استخدم الطريقة البديلة
+            if gvarstatus("hmsa_id"):
+                bbb = [[Button.switch_inline("اضـغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
+                results = await l313l.inline_query(Config.TG_BOT_USERNAME, "secret " + str(gvarstatus("hmsa_id")) + " \nهلو")
+                if results and len(results) > 0:
+                    await results[0].click(event.chat_id)
+                else:
+                    await edit_or_reply(event, "❌ حدث خطأ في جلب الهمسة")
+    except Exception as e:
+        LOGS.error(f"خطأ في جلب الإنلاين: {e}")
+        # محاولة بديلة
+        try:
+            if gvarstatus("hmsa_id"):
+                bbb = [[Button.switch_inline("اضـغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
+                await event.reply(f"{ttt} {username} **{ddd}**", buttons=bbb)
+        except:
+            await edit_or_reply(event, "❌ حدث خطأ في نظام الهمسات")
+    
     await event.delete()

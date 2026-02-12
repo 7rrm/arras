@@ -41,9 +41,7 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(__name__)
 
-# إيموجي بريميوم
-EMOJI_SECRET = "5933974679269151927"   # 📨
-EMOJI_OTHER = "4931832872081294660"    # 📨 آخر
+EMOJI_SECRET = "5933974679269151927"   # 📨 بريميوم
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -100,16 +98,14 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
 
-    # إنشاء نص الرسالة مع إيموجي بريميوم
-    text = f'''
+    # نص الرسالة مع إيموجي بريميوم
+    text = f"""
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-'''
+"""
 
-    # زر إنلاين ملون مع إيموجي بريميوم
-    # ملاحظة: أزرار switch_inline لا تدعم style و icon_custom_emoji_id في Telethon
-    # لذلك سنستخدم الطريقة العادية
+    # زر إنلاين - هذا الزر سيفتح نافذة الإنلاين في حساب المستخدم
     buttons = [
         [Button.switch_inline(
             "✍️ اضغط لكتابة الهمسة 📨",
@@ -118,14 +114,5 @@ async def repozedub(event):
         )]
     ]
 
-    # إرسال نتيجة إنلاين عبر حساب المستخدم
-    result = await event.client.inline_query(
-        Config.TG_BOT_USERNAME,
-        "zelzal"
-    )
-    
-    if result:
-        await result[0].click(event.chat_id)
-        await event.delete()
-    else:
-        await event.edit("❌ حدث خطأ في إنشاء الهمسة.")
+    await event.delete()
+    await event.respond(text, buttons=buttons, parse_mode='html')

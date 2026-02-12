@@ -8,7 +8,7 @@ from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
-PREMIUM_EMOJI = "5368324170671202286"  # 🎯 إيموجي بريميوم
+FIRE_EMOJI = "5368324170671202286"  # 🔥
 
 # نص السورس
 ROZ = (
@@ -18,7 +18,7 @@ ROZ = (
     f"│ **● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:**\n"
     f"│ • ᴛᴇʟᴇᴛʜᴏɴ: `1.23.0`\n"
     f"│ • sᴏᴜʀᴄᴇ: `4.0.1`\n"
-    f"│ • ʙᴏᴛ: `@{Config.TG_BOT_USERNAME}`\n"
+    f"│ • ʙᴏᴛ: `{Config.TG_BOT_USERNAME}`\n"
     f"│ • ᴘʏᴛʜᴏɴ: `3.9.6`\n"
     f"│ • ᴜsᴇʀ: {mention}\n"
     f"╰──────────────────────╯"
@@ -33,82 +33,37 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار ملونة مع إيموجي بريميوم - باستخدام REST API
+            # 🎨 أزرار ملونة مع ايموجي مخصص - باستخدام REST API
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
-            # تصميم الأزرار الملونة مع إيموجي بريميوم
+            # تصميم الأزرار الملونة
             keyboard = {
                 "inline_keyboard": [
                     [
                         {
-                            "text": "المطور @lx5x5",
+                            "text": " المـطـور  ",
                             "url": "https://t.me/lx5x5",
-                            "callback_data": "dev_callback",
-                            "style": "primary"  # 🔵 أزرق
+                            "style": "primary",  # 🔵 أزرق
+                            "icon_custom_emoji_id": FIRE_EMOJI
                         }
                     ],
                     [
                         {
-                            "text": "قناة السورس",
-                            "url": "https://t.me/your_channel",
-                            "callback_data": "channel_callback",
-                            "style": "success"  # 🟢 أخضر
+                            "text": " قناة السورس ",
+                            "url": "https://t.me/arras_id",
+                            "style": "success",  # 🟢 أخضر
+                            "icon_custom_emoji_id": FIRE_EMOJI
                         }
-                    ]
+                    ],
+                    
                 ]
             }
             
-            # بيانات الإنلاين - مع إضافة الإيموجي في النص
-            inline_data = {
-                "inline_query_id": event.id,
-                "results": json.dumps([
-                    {
-                        "type": "article",
-                        "id": "1",
-                        "title": f"{chr(55357)}{chr(56613)} JoKeRUB - السورس الملون {chr(55357)}{chr(56613)}",
-                        "description": "اضغط لعرض السورس مع أزرار ملونة وإيموجي بريميوم",
-                        "input_message_content": {
-                            "message_text": ROZ,
-                            "parse_mode": "Markdown"
-                        },
-                        "reply_markup": {
-                            "inline_keyboard": [
-                                [
-                                    {
-                                        "text": f"{chr(55357)}{chr(56613)} المطور @lx5x5 {chr(55357)}{chr(56613)}",
-                                        "url": "https://t.me/lx5x5"
-                                    }
-                                ],
-                                [
-                                    {
-                                        "text": f"{chr(55357)}{chr(56613)} قناة السورس {chr(55357)}{chr(56613)}",
-                                        "url": "https://t.me/your_channel"
-                                    }
-                                ]
-                            ]
-                        }
-                    }
-                ]),
-                "cache_time": 0,
-                "is_personal": True
-            }
-            
-            # إرسال الطلب
             try:
-                response = requests.post(url, json=inline_data)
-                if response.status_code == 200:
-                    print(f"✅ تم إرسال الأزرار الملونة مع إيموجي بريميوم للمستخدم {user_id}")
-                else:
-                    print(f"❌ خطأ في الإرسال: {response.text}")
+                requests.post(url, json=inline_data)
+                print(f"✅ تم إرسال الأزرار الملونة للمستخدم {user_id}")
             except Exception as e:
                 print(f"❌ خطأ: {e}")
-
-    # معالج الـ callback للرد على الضغطات
-    @tgbot.on(events.CallbackQuery)
-    async def callback_handler(event):
-        data = event.data.decode('utf-8')
-        if data in ["dev_callback", "channel_callback"]:
-            await event.answer(f"{chr(55357)}{chr(56613)} @lx5x5", alert=True)
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):

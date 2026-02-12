@@ -1008,6 +1008,9 @@ async def download_video(event):
             await asyncio.sleep(2)
     await event.delete()
 
+
+
+
 from telethon import types, events
 from telethon.extensions import html, markdown
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -1051,6 +1054,11 @@ video_settings = {
     'bot_username': '@J_NO0bot',
     'channels': ['@arras_id']
 }
+
+# إيموجيات بريميوم للأزرار
+EMOJI_MUSIC = "5890831539507302154"   # 🎵
+EMOJI_VIDEO = "5886584791809134461"   # 🎬
+EMOJI_EAGLE = "5368338253868968009"   # 🦅
 
 # دالة التحقق من التفعيل
 def is_youtube_enabled(chat_id=None):
@@ -1149,18 +1157,29 @@ async def yoot_auto_search(event):
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f'<a href="emoji/{EMOJI_MUSIC}">🎵</a>\n'
                         f"</blockquote>"
                         f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                        f'<a href="emoji/{EMOJI_EAGLE}">🦅</a>\n'
                     )
                     
+                    # ✅ إرسال الملف مع زر أزرق ثابت
                     await event.client.send_file(
                         event.chat_id,
                         audio_response.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
+                        reply_to=event.message.id,
+                        buttons=[
+                            [
+                                {
+                                    "text": "🎵 تحميل أغنية أخرى",
+                                    "switch_inline_query_current_chat": "يوت ",
+                                    "style": "primary",
+                                    "icon_custom_emoji_id": EMOJI_MUSIC
+                                }
+                            ]
+                        ]
                     )
                     
                     await search_msg.delete()
@@ -1179,18 +1198,29 @@ async def yoot_auto_search(event):
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f'<a href="emoji/{EMOJI_MUSIC}">🎵</a>\n'
                         f"</blockquote>"
                         f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                        f'<a href="emoji/{EMOJI_EAGLE}">🦅</a>\n'
                     )
                     
+                    # ✅ إرسال الملف مع زر أزرق ثابت
                     await event.client.send_file(
                         event.chat_id,
                         audio_response.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
+                        reply_to=event.message.id,
+                        buttons=[
+                            [
+                                {
+                                    "text": "🎵 تحميل أغنية أخرى",
+                                    "switch_inline_query_current_chat": "يوت ",
+                                    "style": "primary",
+                                    "icon_custom_emoji_id": EMOJI_MUSIC
+                                }
+                            ]
+                        ]
                     )
                     
                     await search_msg.delete()
@@ -1247,18 +1277,29 @@ async def video_auto_search(event):
                 caption = (
                     f"<blockquote>\n"
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                    f'<a href="emoji/5886584791809134461">🎬</a>\n'
+                    f'<a href="emoji/{EMOJI_VIDEO}">🎬</a>\n'
                     f"</blockquote>"
                     f"<b>↯︰By: @Lx5x5 .</b>"
-                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                    f'<a href="emoji/{EMOJI_EAGLE}">🦅</a>\n'
                 )
                 
+                # ✅ إرسال الملف مع زر أزرق ثابت
                 await event.client.send_file(
                     event.chat_id,
                     video_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
-                    reply_to=event.message.id
+                    reply_to=event.message.id,
+                    buttons=[
+                        [
+                            {
+                                "text": "🎬 تحميل فيديو آخر",
+                                "switch_inline_query_current_chat": "فيديو ",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_VIDEO
+                            }
+                        ]
+                    ]
                 )
                 
                 await search_msg.delete()

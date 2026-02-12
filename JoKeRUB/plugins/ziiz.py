@@ -112,28 +112,15 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     
-    # محاولة جلب الإنلاين مع fallback
+    # جلب الإنلاين
     try:
         response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
         if response and len(response) > 0:
             await response[0].click(event.chat_id)
         else:
-            # إذا كانت القائمة فارغة، استخدم الطريقة البديلة
-            if gvarstatus("hmsa_id"):
-                bbb = [[Button.switch_inline("اضـغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
-                results = await l313l.inline_query(Config.TG_BOT_USERNAME, "secret " + str(gvarstatus("hmsa_id")) + " \nهلو")
-                if results and len(results) > 0:
-                    await results[0].click(event.chat_id)
-                else:
-                    await edit_or_reply(event, "❌ حدث خطأ في جلب الهمسة")
+            await edit_or_reply(event, "❌ لم يتم العثور على نتيجة الإنلاين")
     except Exception as e:
         LOGS.error(f"خطأ في جلب الإنلاين: {e}")
-        # محاولة بديلة
-        try:
-            if gvarstatus("hmsa_id"):
-                bbb = [[Button.switch_inline("اضـغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True)]]
-                await event.reply(f"{ttt} {username} **{ddd}**", buttons=bbb)
-        except:
-            await edit_or_reply(event, "❌ حدث خطأ في نظام الهمسات")
+        await edit_or_reply(event, f"❌ حدث خطأ: {str(e)[:100]}")
     
     await event.delete()

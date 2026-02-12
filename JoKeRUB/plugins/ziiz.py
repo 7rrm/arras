@@ -41,7 +41,6 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(__name__)
 
-# إيموجي بريميوم
 EMOJI_SECRET = "5933974679269151927"   # 📨
 
 async def get_user_from_event(event):
@@ -106,20 +105,19 @@ async def repozedub(event):
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
 '''
 
-    # ✅ زر الإنلاين - تعريف صحيح 100%
+    # ✅ زر الإنلاين - طريقة Telethon الصحيحة
     buttons = [
-        [Button.switch_inline(
-            "✍️ اضغط لكتابة الهمسة 📨", 
-            query=f"secret {user_id} \n", 
-            same_peer=True
-        )]
+        [Button.switch_inline("✍️ اضغط لكتابة الهمسة 📨", query=f"secret {user_id} \n", same_peer=True)]
     ]
 
-    # ✅ إرسال الرسالة مع الأزرار - الطريقة الصحيحة
+    # ✅ إنشاء reply_markup يدوياً
+    reply_markup = event.client.build_reply_markup(buttons)
+
+    # ✅ إرسال الرسالة مع الأزرار
     await event.delete()
     await event.client.send_message(
         event.chat_id,
         text,
-        buttons=buttons,
+        buttons=reply_markup,
         parse_mode='html'
-            )
+    )

@@ -41,7 +41,8 @@ from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CH
 
 LOGS = logging.getLogger(__name__)
 
-EMOJI_SECRET = "5933974679269151927"   # 📨 بريميوم
+# إيموجي بريميوم
+EMOJI_SECRET = "5933974679269151927"   # 📨
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -99,20 +100,26 @@ async def repozedub(event):
     addgvar("hmsa_user", username)
 
     # نص الرسالة مع إيموجي بريميوم
-    text = f"""
+    text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-"""
+'''
 
-    # زر إنلاين - هذا الزر سيفتح نافذة الإنلاين في حساب المستخدم
+    # ✅ زر الإنلاين - تعريف صحيح 100%
     buttons = [
         [Button.switch_inline(
-            "✍️ اضغط لكتابة الهمسة 📨",
-            query=f"secret {user_id} \n",
+            "✍️ اضغط لكتابة الهمسة 📨", 
+            query=f"secret {user_id} \n", 
             same_peer=True
         )]
     ]
 
+    # ✅ إرسال الرسالة مع الأزرار - الطريقة الصحيحة
     await event.delete()
-    await event.respond(text, buttons=buttons, parse_mode='html')
+    await event.client.send_message(
+        event.chat_id,
+        text,
+        buttons=buttons,
+        parse_mode='html'
+            )

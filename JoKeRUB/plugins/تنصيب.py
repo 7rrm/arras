@@ -16,7 +16,7 @@ ROZ = (
     f"│ **● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:**\n"
     f"│ • ᴛᴇʟᴇᴛʜᴏɴ: `1.23.0`\n"
     f"│ • sᴏᴜʀᴄᴇ: `4.0.1`\n"
-    f"│ • ʙᴏᴛ: `@{Config.TG_BOT_USERNAME}`\n"
+    f"│ • ʙᴏᴛ: `{Config.TG_BOT_USERNAME}`\n"
     f"│ • ᴘʏᴛʜᴏɴ: `3.9.6`\n"
     f"│ • ᴜsᴇʀ: {mention}\n"
     f"╰──────────────────────╯"
@@ -31,7 +31,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار ملونة للإنلاين
+            # 🎨 أزرار ملونة للإنلاين (للبوت)
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
             keyboard = {
@@ -93,60 +93,25 @@ async def repo(event):
     if event.fwd_from:
         return
     
-    # ✅ إرسال رسالة عادية بدون إنلاين
-    await event.edit("⏱️ جاري عرض السورس...")
+    # ✅ الإرسال من الحساب وليس من البوت
+    await event.delete()  # حذف الامر على طول
     
-    # تصميم الأزرار الملونة للرسالة العادية
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "المطور @lx5x5",
-                    "url": "https://t.me/lx5x5",
-                    "style": "primary",
-                    "icon_custom_emoji_id": FIRE_EMOJI
-                }
-            ],
-            [
-                {
-                    "text": "قناة السورس",
-                    "url": "https://t.me/your_channel",
-                    "style": "success",
-                    "icon_custom_emoji_id": FIRE_EMOJI
-                }
-            ],
-            [
-                {
-                    "text": "الدعم الفني",
-                    "url": "https://t.me/your_support",
-                    "style": "danger",
-                    "icon_custom_emoji_id": FIRE_EMOJI
-                }
-            ]
-        ]
-    }
+    # إنشاء الأزرار الملونة - بطريقة Telethon للحساب
+    from telethon import Button
     
-    # إرسال الرسالة عبر REST API مباشرة
-    bot_token = Config.TG_BOT_TOKEN
-    chat_id = event.chat_id
+    buttons = [
+        [Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")],
+        [Button.url("✅ قناة السورس ✅", "https://t.me/your_channel")],
+        [Button.url("🛡 الدعم الفني 🛡", "https://t.me/your_support")]
+    ]
     
-    send_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    send_data = {
-        "chat_id": chat_id,
-        "text": ROZ,
-        "parse_mode": "Markdown",
-        "reply_markup": json.dumps(keyboard),
-        "disable_web_page_preview": True
-    }
+    # إرسال الرسالة من الحساب
+    await bot.send_message(
+        event.chat_id,
+        ROZ,
+        buttons=buttons,
+        parse_mode='markdown',
+        link_preview=False
+    )
     
-    try:
-        response = requests.post(send_url, json=send_data)
-        if response.status_code == 200:
-            await event.delete()  # حذف رسالة "جاري العرض"
-            print(f"✅ تم إرسال السورس للمحادثة {chat_id}")
-        else:
-            await event.edit("❌ حدث خطأ في الإرسال")
-            print(f"❌ خطأ: {response.text}")
-    except Exception as e:
-        await event.edit("❌ حدث خطأ، حاول مرة أخرى")
-        print(f"❌ خطأ: {e}")
+    print(f"✅ تم إرسال السورس من الحساب للمحادثة {event.chat_id}")

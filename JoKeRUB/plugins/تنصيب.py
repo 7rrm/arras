@@ -1,6 +1,4 @@
-from telethon import events
-import json
-import requests
+from telethon import events, Button
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
@@ -16,12 +14,13 @@ ROZ = (
     f"│ **● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:**\n"
     f"│ • ᴛᴇʟᴇᴛʜᴏɴ: `1.23.0`\n"
     f"│ • sᴏᴜʀᴄᴇ: `4.0.1`\n"
-    f"│ • ʙᴏᴛ: `{Config.TG_BOT_USERNAME}`\n"
+    f"│ • ʙᴏᴛ: `@{Config.TG_BOT_USERNAME}`\n"
     f"│ • ᴘʏᴛʜᴏɴ: `3.9.6`\n"
     f"│ • ᴜsᴇʀ: {mention}\n"
     f"╰──────────────────────╯"
 )
 
+# ✅ هذا الجزء خاص بالإنلاين (للبوت فقط)
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
@@ -31,87 +30,44 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار ملونة للإنلاين (للبوت)
-            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            # أزرار الإنلاين (هذا شغال عندك)
+            buttons = [
+                [Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")],
+                [Button.url("✅ قناة السورس ✅", "https://t.me/your_channel")],
+                [Button.url("🛡 الدعم الفني 🛡", "https://t.me/your_support")]
+            ]
             
-            keyboard = {
-                "inline_keyboard": [
-                    [
-                        {
-                            "text": "المطور @lx5x5",
-                            "url": "https://t.me/lx5x5",
-                            "style": "primary",
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ],
-                    [
-                        {
-                            "text": "قناة السورس",
-                            "url": "https://t.me/your_channel",
-                            "style": "success",
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ],
-                    [
-                        {
-                            "text": "الدعم الفني",
-                            "url": "https://t.me/your_support",
-                            "style": "danger",
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ]
-                ]
-            }
-            
-            inline_data = {
-                "inline_query_id": event.id,
-                "results": json.dumps([
-                    {
-                        "type": "article",
-                        "id": "1",
-                        "title": "🔥 JoKeRUB - السورس",
-                        "description": "السورس الرسمي - اضغط للإرسال",
-                        "input_message_content": {
-                            "message_text": ROZ,
-                            "parse_mode": "Markdown"
-                        },
-                        "reply_markup": keyboard
-                    }
-                ]),
-                "cache_time": 0,
-                "is_personal": True
-            }
-            
-            try:
-                requests.post(url, json=inline_data)
-                print(f"✅ تم إرسال الأزرار للمستخدم {user_id}")
-            except Exception as e:
-                print(f"❌ خطأ: {e}")
+            result = builder.article(
+                title="🔥 JoKeRUB - السورس",
+                text=ROZ,
+                buttons=buttons,
+                link_preview=False
+            )
+            await event.answer([result])
 
+# ✅ هذا الأمر يرسل رسالة عادية من الحساب مع أزرار
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):
     if event.fwd_from:
         return
     
-    # ✅ الإرسال من الحساب وليس من البوت
-    await event.delete()  # حذف الامر على طول
+    # حذف الأمر
+    await event.delete()
     
-    # إنشاء الأزرار الملونة - بطريقة Telethon للحساب
-    from telethon import Button
-    
+    # ✅ إنشاء الأزرار بشكل صحيح - المهم هنا
     buttons = [
         [Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")],
         [Button.url("✅ قناة السورس ✅", "https://t.me/your_channel")],
         [Button.url("🛡 الدعم الفني 🛡", "https://t.me/your_support")]
     ]
     
-    # إرسال الرسالة من الحساب
+    # ✅ إرسال الرسالة مع الأزرار - هذا هو الحل
     await bot.send_message(
         event.chat_id,
         ROZ,
-        buttons=buttons,
+        buttons=buttons,      # هنا المشكلة كانت
         parse_mode='markdown',
         link_preview=False
     )
     
-    print(f"✅ تم إرسال السورس من الحساب للمحادثة {event.chat_id}")
+    print(f"✅ تم إرسال السورس مع الأزرار للمحادثة {event.chat_id}")

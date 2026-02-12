@@ -5,6 +5,7 @@ import os
 import random
 import re
 import time
+import requests  # ✅ مهم للألوان
 from pathlib import Path
 from uuid import uuid4
 
@@ -63,31 +64,69 @@ async def inline_handler(event):
     # ✅ فقط التحقق من وجود user_id - بدون شروط المالك
     if query_user_id == user_id or query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         
-        # ✅ كود الهمسة الرئيسي - مع الزر الأزرق
+        # ✅ كود الهمسة الرئيسي - مع الزر الأزرق (REST API)
         if string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # استخدام Button.switch_inline العادي مع إضافة الايموجي في النص فقط
-                buttons = [
-                    [Button.switch_inline(
-                        "🔥 اضغـط هنـا 🔥", 
-                        query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
-                        same_peer=True
-                    )]
-                ]
+                # 🎨 استخدام REST API للألوان
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                 
-                # الزر سيظهر بشكل عادي لكن مع ايموجي ناري في النص
-                result = builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=buttons,
-                    link_preview=False,
-                )
-                await event.answer([result] if result else None)
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "🔥 اضغـط هنـا 🔥",
+                                "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
+                                "style": "primary",  # 🔵 لون أزرق
+                                "icon_custom_emoji_id": FIRE_EMOJI
+                            }
+                        ]
+                    ]
+                }
+                
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": "zelzal",
+                            "title": f"{nmm}",
+                            "description": f"{mnn}",
+                            "input_message_content": {
+                                "message_text": f"{ttt} {zelzal} **{ddd}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                try:
+                    requests.post(url, json=inline_data)
+                    print(f"✅ تم إرسال الزر الأزرق للمستخدم {query_user_id}")
+                except Exception as e:
+                    # ❌ إذا فشل REST API، استخدم الطريقة العادية
+                    print(f"⚠️ REST API فشل، استخدام الطريقة العادية: {e}")
+                    buttons = [
+                        [Button.switch_inline(
+                            "🔥 اضغـط هنـا 🔥", 
+                            query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), 
+                            same_peer=True
+                        )]
+                    ]
+                    result = builder.article(
+                        title=f"{nmm}",
+                        description=f"{mnn}",
+                        text=f"{ttt} {zelzal} **{ddd}**",
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+                    await event.answer([result] if result else None)
             else:
                 return
         
-        # ✅ كود إرسال الهمسة السرية
+        # ✅ كود إرسال الهمسة السرية - مع الزر الأزرق (REST API)
         elif query.startswith("secret"):
             inf = re.compile("secret (.*) (.*)")
             match2 = re.findall(inf, query)
@@ -126,22 +165,61 @@ async def inline_handler(event):
                 timestamp = int(time.time() * 2)
                 new_msg = {str(timestamp): {"userid": user_list, "text": query}}
                 
-                # ✅ زر أزرق مع ايموجي - لكن باستخدام Button.inline العادي
-                buttons = [[
-                    Button.inline(
-                        "🔥 اضغـط هنـا 🔥", 
-                        data=f"{scc}_{timestamp}"
-                    )
-                ]]
+                # 🎨 استخدام REST API للألوان
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                 
-                result = builder.article(
-                    title=f"{hmm} {zilzal}",
-                    description=f"{dss}",
-                    text=f"{hss} {zilzal} \n**{dss}**",
-                    buttons=buttons,
-                    link_preview=False,
-                )
-                await event.answer([result] if result else None)
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "🔥 اضغـط هنـا 🔥",
+                                "callback_data": f"{scc}_{timestamp}",
+                                "style": "primary",  # 🔵 لون أزرق
+                                "icon_custom_emoji_id": FIRE_EMOJI
+                            }
+                        ]
+                    ]
+                }
+                
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": str(timestamp),
+                            "title": f"{hmm} {zilzal}",
+                            "description": f"{dss}",
+                            "input_message_content": {
+                                "message_text": f"{hss} {zilzal} \n**{dss}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                try:
+                    requests.post(url, json=inline_data)
+                    print(f"✅ تم إرسال الهمسة مع الزر الأزرق للمستخدم {query_user_id}")
+                except Exception as e:
+                    # ❌ إذا فشل REST API، استخدم الطريقة العادية
+                    print(f"⚠️ REST API فشل، استخدام الطريقة العادية: {e}")
+                    buttons = [[
+                        Button.inline(
+                            "🔥 اضغـط هنـا 🔥", 
+                            data=f"{scc}_{timestamp}"
+                        )
+                    ]]
+                    result = builder.article(
+                        title=f"{hmm} {zilzal}",
+                        description=f"{dss}",
+                        text=f"{hss} {zilzal} \n**{dss}**",
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+                    await event.answer([result] if result else None)
                 
                 if jsondata:
                     jsondata.update(new_msg)

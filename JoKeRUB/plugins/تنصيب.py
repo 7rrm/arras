@@ -1,3 +1,4 @@
+
 from telethon import events
 from telethon.tl.functions.messages import SendInlineBotResultRequest
 from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
@@ -8,7 +9,7 @@ from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
-FIRE_EMOJI = "5368324170671202286"  # 🔥
+FIRE_EMOJI = "5951810621887484519"  # 🔥
 
 # نص السورس
 ROZ = (
@@ -41,24 +42,45 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": " المـطـور  ",
+                            "text": " المطور ",
                             "url": "https://t.me/lx5x5",
                             "style": "primary",  # 🔵 أزرق
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "icon_custom_emoji_id": 5951810621887484519
                         }
                     ],
                     [
                         {
-                            "text": " قناة السورس ",
-                            "url": "https://t.me/arras_id",
-                            "style": "success",  # 🟢 أخضر
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "text": "✅ قناة السورس ✅",
+                            "url": "https://t.me/your_channel",
+                            "style": "primary",  # 🟢 أخضر
+                            "icon_custom_emoji_id": 5951810621887484519
                         }
                     ],
                     
                 ]
             }
             
+            # بيانات الإنلاين
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": "1",
+                        "title": "🔥 JoKeRUB - السورس الملون",
+                        "description": "اضغط لعرض السورس مع أزرار ملونة",
+                        "input_message_content": {
+                            "message_text": ROZ,
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            # إرسال الطلب
             try:
                 requests.post(url, json=inline_data)
                 print(f"✅ تم إرسال الأزرار الملونة للمستخدم {user_id}")

@@ -100,9 +100,6 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
 
-    # ✅ مثل كود السورس تماماً: حسابك يرسل رسالة "جاري التحميل..."
-    await event.edit("⏱️ جاري تجهيز الهمسة...")
-
     # 📝 نص الرسالة مع إيموجي بريميوم
     text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
@@ -110,7 +107,7 @@ async def repozedub(event):
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
 '''
 
-    # 🎨 الأزرار الملونة مع إيموجي بريميوم
+    # 🎨 الأزرار الملونة مع إيموجي بريميوم - نفس كود السورس بالضبط
     keyboard = {
         "inline_keyboard": [
             [
@@ -124,25 +121,24 @@ async def repozedub(event):
         ]
     }
 
-    # ✅ مثل كود السورس: البوت يرسل الرسالة الجديدة
-    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
-    send_data = {
-        "chat_id": event.chat_id,
-        "text": text,
-        "parse_mode": "HTML",
-        "reply_markup": json.dumps(keyboard),
-        "disable_web_page_preview": True
-    }
+    # ✅ هذه هي الطريقة السحرية - إرسال كـ "حسابي" وليس كبوت!
+    await event.delete()
     
-    try:
-        response = requests.post(send_url, json=send_data)
-        if response.status_code == 200:
-            # ✅ مثل كود السورس: حسابك يحذف رسالة "جاري التحميل..."
-            await event.delete()
-            LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
-        else:
-            await event.edit("❌ حدث خطأ في الإرسال")
-            LOGS.error(f"❌ خطأ: {response.text}")
-    except Exception as e:
-        await event.edit("❌ حدث خطأ، حاول مرة أخرى")
-        LOGS.error(f"❌ خطأ: {e}")
+    # 🎯 السر هنا: نستخدم method خاص بالسورس لإرسال كأنه حسابي
+    result = await event.client.inline_query(
+        Config.TG_BOT_USERNAME,
+        f"hmsa_button_{user_id}_{EMOJI_SECRET}"
+    )
+    
+    if result:
+        await result[0].click(event.chat_id)
+    else:
+        # لو فشل، نستخدم الطريقة العادية
+        await event.client.send_message(
+            event.chat_id,
+            text,
+            buttons=[
+                [Button.switch_inline("✍️ اضغط لكتابة الهمسة 📨", query=f"secret {user_id} \n", same_peer=True)]
+            ],
+            parse_mode='html'
+        )

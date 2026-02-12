@@ -43,6 +43,7 @@ LOGS = logging.getLogger(__name__)
 
 # إيموجي بريميوم
 EMOJI_SECRET = "5933974679269151927"   # 📨
+EMOJI_OTHER = "4931832872081294660"    # 📨 آخر
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -81,10 +82,6 @@ async def zzz_info(zthon_user, event):
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
-    # إزالة شرط الفيب - أو يمكنك تفعيله إذا أردت
-    # if gvarstatus("ZThon_Vip") is None and l313l.uid not in Config.OWNER_ID:
-    #     return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.**")
-    
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
@@ -103,37 +100,32 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
 
-    # نص الرسالة مع إيموجي بريميوم
+    # إنشاء نص الرسالة مع إيموجي بريميوم
     text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
 '''
 
-    # 🎨 زر ملون مع إيموجي بريميوم
-    keyboard = {
-        "inline_keyboard": [[
-            {
-                "text": "✍️ اضغط لكتابة الهمسة",
-                "switch_inline_query_current_chat": f"secret {user_id} \n",
-                "style": "primary",
-                "icon_custom_emoji_id": EMOJI_SECRET
-            }
-        ]]
-    }
+    # زر إنلاين ملون مع إيموجي بريميوم
+    # ملاحظة: أزرار switch_inline لا تدعم style و icon_custom_emoji_id في Telethon
+    # لذلك سنستخدم الطريقة العادية
+    buttons = [
+        [Button.switch_inline(
+            "✍️ اضغط لكتابة الهمسة 📨",
+            query=f"secret {user_id} \n",
+            same_peer=True
+        )]
+    ]
 
-    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": event.chat_id,
-        "text": text,
-        "parse_mode": "HTML",
-        "reply_markup": json.dumps(keyboard),
-        "disable_web_page_preview": True
-    }
-
-    try:
-        requests.post(send_url, json=payload, timeout=3)
+    # إرسال نتيجة إنلاين عبر حساب المستخدم
+    result = await event.client.inline_query(
+        Config.TG_BOT_USERNAME,
+        "zelzal"
+    )
+    
+    if result:
+        await result[0].click(event.chat_id)
         await event.delete()
-    except Exception as e:
-        LOGS.error(f"sendMessage error: {e}")
-        await event.edit("❌ فشل إرسال الزر، حاول مرة أخرى.")
+    else:
+        await event.edit("❌ حدث خطأ في إنشاء الهمسة.")

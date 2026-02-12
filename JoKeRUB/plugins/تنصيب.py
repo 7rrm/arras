@@ -1,4 +1,3 @@
-
 from telethon import events
 from telethon.tl.functions.messages import SendInlineBotResultRequest
 from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
@@ -9,7 +8,10 @@ from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
-FIRE_EMOJI = "5951810621887484519"  # 🔥
+
+# 🎯 ايموجي بريميوم حقيقي - هذا هو المطلوب
+PREMIUM_FIRE_EMOJI = "5368324170671202286"  # 🔥 ايموجي نار بريميوم
+FIRE_EMOJI = "5951810621887484519"  # 🔥 ايموجي عادي احتياطي
 
 # نص السورس
 ROZ = (
@@ -34,29 +36,28 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار ملونة مع ايموجي مخصص - باستخدام REST API
+            # 🎨 أزرار ملونة مع ايموجي بريميوم
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
-            # تصميم الأزرار الملونة
+            # تصميم الأزرار مع ايموجي بريميوم 5368324170671202286
             keyboard = {
                 "inline_keyboard": [
                     [
                         {
-                            "text": "🔥 المطور @lx5x5 🔥",
+                            "text": "المطور @lx5x5",
                             "url": "https://t.me/lx5x5",
                             "style": "primary",  # 🔵 أزرق
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "icon_custom_emoji_id": PREMIUM_FIRE_EMOJI  # ✅ ايموجي بريميوم
                         }
                     ],
                     [
                         {
-                            "text": "✅ قناة السورس ✅",
+                            "text": "قناة السورس",
                             "url": "https://t.me/your_channel",
                             "style": "success",  # 🟢 أخضر
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "icon_custom_emoji_id": PREMIUM_FIRE_EMOJI  # ✅ ايموجي بريميوم
                         }
                     ],
-                    
                 ]
             }
             
@@ -67,8 +68,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     {
                         "type": "article",
                         "id": "1",
-                        "title": "🔥 JoKeRUB - السورس الملون",
-                        "description": "اضغط لعرض السورس مع أزرار ملونة",
+                        "title": "🔥 JoKeRUB - السورس",
+                        "description": "مع ايموجي بريميوم 🔥",
                         "input_message_content": {
                             "message_text": ROZ,
                             "parse_mode": "Markdown"
@@ -82,8 +83,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             # إرسال الطلب
             try:
-                requests.post(url, json=inline_data)
-                print(f"✅ تم إرسال الأزرار الملونة للمستخدم {user_id}")
+                response = requests.post(url, json=inline_data)
+                if response.status_code == 200:
+                    print(f"✅ تم إرسال الأزرار مع ايموجي بريميوم للمستخدم {user_id}")
+                else:
+                    print(f"❌ خطأ: {response.text}")
             except Exception as e:
                 print(f"❌ خطأ: {e}")
 
@@ -94,6 +98,11 @@ async def repo(event):
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    response = await bot.inline_query(TG_BOT, "السورس")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    
+    # ✅ إرسال الأمر مع معالجة الأخطاء
+    try:
+        await bot.send_message(event.chat_id, f"@{TG_BOT} السورس")
+        await event.delete()
+    except Exception as e:
+        print(f"❌ خطأ في إرسال الأمر: {e}")
+        await event.edit("❌ حدث خطأ، حاول مرة أخرى")

@@ -1,199 +1,157 @@
+# -*- coding: utf-8 -*-
+# znz.py - إنشاء زر "إرسال عبر البوت" عند كتابة secret في الإنلاين
+
 import json
-import math
-import asyncio
 import os
-import random
 import re
 import time
-from pathlib import Path
+import random
 from uuid import uuid4
 
-from telethon import Button, types
-from telethon.errors import QueryIdInvalidError
-from telethon.events import CallbackQuery, InlineQuery
+from telethon.events import InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
 
 from . import l313l
 from ..Config import Config
-from ..helpers import reply_id
 from ..sql_helper.globals import gvarstatus
 from ..core.logger import logging
-from ..helpers.utils import _format
-from . import mention
 
 LOGS = logging.getLogger(__name__)
-tr = Config.COMMAND_HAND_LER
 
-scc = "secret"
-hmm = "همسـة"
-ymm = "يستطيـع"
-fmm = "• فتـح الهمسـه •"
-dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
-nmm = "همسـه سريـه"
-mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
-bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
-ddd = "💌"
-bbb = None
+# ----------------------------------------------
+#  إيموجي بريميوم (نفس المعرفات)
+# ----------------------------------------------
+EMOJI_SECRET = "5933974679269151927"   # 📨
+WHISPER_DIR = "./JoKeRUB"
+os.makedirs(WHISPER_DIR, exist_ok=True)
+WHISPERS_FILE = os.path.join(WHISPER_DIR, "whispers.json")
 
-# Copyright (C) 2023 Zilzalll . All Rights Reserved
+# ----------------------------------------------
+#  التحقق من الصلاحية
+# ----------------------------------------------
+def is_authorized(user_id: int) -> bool:
+    if user_id == Config.OWNER_ID or user_id in Config.SUDO_USERS:
+        return True
+    stored_id = gvarstatus("hmsa_id")
+    if stored_id and str(user_id) == stored_id:
+        return True
+    return False
+
+# ----------------------------------------------
+#  معالج طلبات الإنلاين
+# ----------------------------------------------
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
-    builder = event.builder
-    result = None
-    query = event.text
-    string = query.lower()
-    query.split(" ", 2)
-    str_y = query.split(" ", 1)
-    string.split()
-    query_user_id = event.query.user_id
-    user_id = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else None
-    full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
-    username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
-    zelzal = None
-    if gvarstatus("hmsa_user"):
-        if username.startswith("@"):
-            zelzal = gvarstatus("hmsa_user")
-        else:
-            zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
-        malathid = Config.OWNER_ID
-    elif query_user_id == user_id: #or query_user_id == int(user_id):
-        malathid = user_id
-    else:
-        malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            user_list = []
-            zilzal = ""
-            query = query[7:]
-            info_type = [hmm, ymm, fmm]
-            if "|" in query:
-                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
-                users = iris.split(" ")
-            else:
-                user, query = query.split(" ", 1)
-                users = [user]
-            for user in users:
-                usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
-                try:
-                    u = await l313l.get_entity(usr)
-                except ValueError:
-                    u = await l313l(GetUsersRequest(usr))
-                if u.username:
-                    zilzal += f"@{u.username}"
-                else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
-                user_list.append(u.id)
-                zilzal += " "
-            zilzal = zilzal[:-1]
-            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = False
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-        elif string == "zelzal":
-            if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-            else:
-                return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
-    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            user_list = []
-            zilzal = ""
-            query = query[7:]
-            info_type = [hmm, ymm, fmm]
-            if "|" in query:
-                iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
-                users = iris.split(" ")
-            else:
-                user, query = query.split(" ", 1)
-                users = [user]
-            for user in users:
-                usr = int(user) if user.isdigit() else user
-                try:
-                    u = await l313l.get_entity(usr)
-                except ValueError:
-                    u = await l313l(GetUsersRequest(usr))
-                if u.username:
-                    zilzal += f"@{u.username}"
-                else:
-                    zilzal += f"[{u.first_name}](tg://user?id={u.id})"
-                user_list.append(u.id)
-                zilzal += " "
-            zilzal = zilzal[:-1]
-            old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = False
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-        elif string == "zelzal":
-            if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-            else:
-                return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
-    else:
+    query = event.text.strip()
+    user_id = event.query.user_id
+
+    if not is_authorized(user_id):
         return
+
+    if query.startswith("secret "):
+        await create_inline_result(event, query)
+
+# ----------------------------------------------
+#  إنشاء نتيجة الإنلاين (زر إرسال عبر البوت)
+# ----------------------------------------------
+async def create_inline_result(event, query):
+    query_body = query[7:]
+
+    # فصل المستلمين عن النص
+    if "|" in query_body:
+        raw_users, secret_text = query_body.split("|", 1)
+        raw_users = raw_users.strip()
+        secret_text = secret_text.strip()
+    else:
+        parts = query_body.split(" ", 1)
+        if len(parts) < 2:
+            return
+        raw_users, secret_text = parts[0], parts[1]
+        secret_text = secret_text.strip()
+
+    # استخراج المعرفات
+    user_matches = re.findall(r"@\w+|\d+", raw_users)
+    if not user_matches:
+        return
+
+    user_list = []
+    mention_str = ""
+
+    for identifier in user_matches:
+        try:
+            if identifier.isdigit():
+                entity = await l313l.get_entity(int(identifier))
+            else:
+                entity = await l313l.get_entity(identifier)
+
+            uid = entity.id
+            user_list.append(uid)
+
+            if entity.username:
+                mention_str += f"@{entity.username} "
+            else:
+                name = entity.first_name or "المستخدم"
+                mention_str += f"[{name}](tg://user?id={uid}) "
+        except Exception as e:
+            LOGS.debug(f"خطأ في جلب المستخدم {identifier}: {e}")
+            continue
+
+    mention_str = mention_str.strip()
+    if not mention_str:
+        return
+
+    # معرف فريد للهمسة
+    secret_id = f"{int(time.time() * 1000)}_{random.randint(100, 999)}"
+
+    # حفظ البيانات في ملف JSON الموحد
+    try:
+        with open(WHISPERS_FILE, "r") as f:
+            db = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        db = {}
+
+    db[secret_id] = {
+        "userid": user_list,
+        "text": secret_text,
+        "sender_id": event.query.user_id,
+        "read": False,
+        "chat_id": None,      # سيتم ملؤها لاحقاً عند الإرسال
+        "message_id": None
+    }
+
+    with open(WHISPERS_FILE, "w") as f:
+        json.dump(db, f, indent=4)
+
+    # بناء زر الإرسال عبر البوت
+    send_button = {
+        "text": "📤 إرسال الهمسة عبر البوت",
+        "callback_data": f"sendwhisper_{secret_id}"
+    }
+
+    # نص النتيجة
+    text = f"""
+<tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>همسة سريّة</b>
+<b>إلى:</b> {mention_str}
+<b>النص:</b> <code>{secret_text[:30]}{'...' if len(secret_text) > 30 else ''}</code>
+
+⬆️ اضغط الزر لإرسال الهمسة عبر البوت
+"""
+
+    keyboard = {"inline_keyboard": [[send_button]]}
+
+    # إنشاء نتيجة الإنلاين
+    result = {
+        "type": "article",
+        "id": str(uuid4()),
+        "title": f"🔐 همسة إلى {user_list[0]}",
+        "description": secret_text[:50],
+        "input_message_content": {
+            "message_text": text,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True
+        },
+        "reply_markup": keyboard
+    }
+
+    # إرسال النتيجة عبر API الخاص بـ Telethon (event.answer)
+    await event.answer([result] if result else None, cache_time=0)

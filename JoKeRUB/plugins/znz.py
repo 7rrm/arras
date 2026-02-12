@@ -5,6 +5,7 @@ import os
 import random
 import re
 import time
+import requests
 from pathlib import Path
 from uuid import uuid4
 
@@ -102,44 +103,125 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            # زر ملون - أخضر (success)
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="success")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+            
+            # استخدام REST API للأزرار الملونة - أخضر
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            # تصميم الأزرار الملونة بطريقة REST API
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": f"✅ {info_type[2]} ✅",
+                            "callback_data": f"{scc}_{timestamp}",
+                            "style": "success"  # 🟢 أخضر
+                        }
+                    ]
+                ]
+            }
+            
+            # بيانات الإنلاين
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": str(timestamp),
+                        "title": f"{hmm} {zilzal}",
+                        "description": f"{dss}",
+                        "input_message_content": {
+                            "message_text": f"{hss} {zilzal} \n**{dss}**",
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            # إرسال الطلب
+            try:
+                requests.post(url, json=inline_data)
+            except Exception as e:
+                LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
+                # Fallback للطريقة القديمة
+                buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+                result = builder.article(
+                    title=f"{hmm} {zilzal}",
+                    description=f"{dss}",
+                    text=f"{hss} {zilzal} \n**{dss}**",
+                    buttons=buttons,
+                    link_preview=False,
+                )
+                await event.answer([result] if result else None)
+            
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+                
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # أزرار ملونة بأنماط مختلفة - مثل الكود الثاني
-                bbb = [[
-                    Button.inline(
-                        f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}", 
-                        data="open_secret_panel",
-                        style="primary"  # 🔵 أزرق
+                # استخدام REST API للأزرار الملونة - أزرق
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+                
+                # تصميم الأزرار الملونة بطريقة REST API
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}",
+                                "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
+                                "style": "primary"  # 🔵 أزرق
+                            }
+                        ]
+                    ]
+                }
+                
+                # بيانات الإنلاين
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": "zelzal_1",
+                            "title": f"{nmm}",
+                            "description": f"{mnn}",
+                            "input_message_content": {
+                                "message_text": f"{ttt} {zelzal} **{ddd}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                # إرسال الطلب
+                try:
+                    requests.post(url, json=inline_data)
+                    await event.answer([])  # إجابة فارغة لأننا استخدمنا REST API
+                except Exception as e:
+                    LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
+                    # Fallback للطريقة القديمة
+                    bbb = [[Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
+                    results = []
+                    results.append(
+                        builder.article(
+                            title=f"{nmm}",
+                            description=f"{mnn}",
+                            text=f"{ttt} {zelzal} **{ddd}**",
+                            buttons=bbb,
+                            link_preview=False,
+                        ),
                     )
-                ]]
+                    await event.answer(results)
             else:
                 return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
+                
     elif query_user_id == user_id:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
@@ -176,43 +258,123 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            # زر ملون - أخضر (success)
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="success")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+            
+            # استخدام REST API للأزرار الملونة - أخضر
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            # تصميم الأزرار الملونة بطريقة REST API
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": f"✅ {info_type[2]} ✅",
+                            "callback_data": f"{scc}_{timestamp}",
+                            "style": "success"  # 🟢 أخضر
+                        }
+                    ]
+                ]
+            }
+            
+            # بيانات الإنلاين
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": str(timestamp),
+                        "title": f"{hmm} {zilzal}",
+                        "description": f"{dss}",
+                        "input_message_content": {
+                            "message_text": f"{hss} {zilzal} \n{dss}",
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            # إرسال الطلب
+            try:
+                requests.post(url, json=inline_data)
+            except Exception as e:
+                LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
+                # Fallback للطريقة القديمة
+                buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+                result = builder.article(
+                    title=f"{hmm} {zilzal}",
+                    description=f"{dss}",
+                    text=f"{hss} {zilzal} \n{dss}",
+                    buttons=buttons,
+                    link_preview=False,
+                )
+                await event.answer([result] if result else None)
+            
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+                
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # أزرار ملونة بأنماط مختلفة - مثل الكود الثاني
-                bbb = [[
-                    Button.inline(
-                        f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}", 
-                        data="open_secret_panel",
-                        style="primary"  # 🔵 أزرق
+                # استخدام REST API للأزرار الملونة - أزرق
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+                
+                # تصميم الأزرار الملونة بطريقة REST API
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}",
+                                "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
+                                "style": "primary"  # 🔵 أزرق
+                            }
+                        ]
+                    ]
+                }
+                
+                # بيانات الإنلاين
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": "zelzal_2",
+                            "title": f"{nmm}",
+                            "description": f"{mnn}",
+                            "input_message_content": {
+                                "message_text": f"**{ttt}** {zelzal} **{ddd}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                # إرسال الطلب
+                try:
+                    requests.post(url, json=inline_data)
+                    await event.answer([])  # إجابة فارغة لأننا استخدمنا REST API
+                except Exception as e:
+                    LOGS.error(f"خطأ في إرسال الزر الملون: {e}")
+                    # Fallback للطريقة القديمة
+                    bbb = [[Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True)]]
+                    results = []
+                    results.append(
+                        builder.article(
+                            title=f"{nmm}",
+                            description=f"{mnn}",
+                            text=f"**{ttt}** {zelzal} **{ddd}**",
+                            buttons=bbb,
+                            link_preview=False,
+                        ),
                     )
-                ]]
+                    await event.answer(results)
             else:
                 return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
     else:
         return

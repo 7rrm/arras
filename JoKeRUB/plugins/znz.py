@@ -33,11 +33,13 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سريـه الى**"
 ddd = "💌"
 bbb = None
 
-# Copyright (C) 2023 Zilzalll . All Rights Reserved
+# 🎨 ايموجي بريميوم للزر
+FIRE_EMOJI = "5368324170671202286"  # 🔥 ايموجي نار بريميوم
+
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
     builder = event.builder
@@ -57,13 +59,14 @@ async def inline_handler(event):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         malathid = Config.OWNER_ID
-    elif query_user_id == user_id: #or query_user_id == int(user_id):
+    elif query_user_id == user_id:
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+        
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -98,38 +101,102 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+            }
+            
+            # ✅ هنا تم تعديل الزر - إضافة لون أزرق وايموجي
+            # استخدام REST API لتنسيق الزر باللون الأزرق
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "🔥 اضغـط هنـا 🔥",
+                            "callback_data": f"{scc}_{timestamp}",
+                            "style": "primary",  # 🔵 لون أزرق
+                            "icon_custom_emoji_id": FIRE_EMOJI  # ايموجي نار
+                        }
+                    ]
+                ]
+            }
+            
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": str(timestamp),
+                        "title": f"{hmm} {zilzal}",
+                        "description": f"{dss}",
+                        "input_message_content": {
+                            "message_text": f"{hss} {zilzal} \n**{dss}**",
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            try:
+                requests.post(url, json=inline_data)
+                print(f"✅ تم إرسال الهمسة مع الزر الأزرق للمستخدم {user_id}")
+            except Exception as e:
+                print(f"❌ خطأ: {e}")
+                
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+                
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                # ✅ هنا تم تعديل زر "اضغط هنا" الرئيسي
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+                
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "🔥 اضغـط هنـا 🔥",
+                                "switch_inline_query": "secret " + gvarstatus("hmsa_id") + " \nهلو",
+                                "style": "primary",  # 🔵 لون أزرق
+                                "icon_custom_emoji_id": FIRE_EMOJI
+                            }
+                        ]
+                    ]
+                }
+                
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": "zelzal",
+                            "title": f"{nmm}",
+                            "description": f"{mnn}",
+                            "input_message_content": {
+                                "message_text": f"{ttt} {zelzal} **{ddd}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                try:
+                    requests.post(url, json=inline_data)
+                    print(f"✅ تم إرسال زر الهمسة الأزرق للمستخدم {user_id}")
+                except Exception as e:
+                    print(f"❌ خطأ: {e}")
             else:
                 return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"{ttt} {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
-    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
+                
+    elif query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -164,36 +231,98 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
-            result = builder.article(
-                title=f"{hmm} {zilzal}",
-                description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+            }
+            
+            # ✅ هنا تم تعديل الزر - إضافة لون أزرق وايموجي
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "🔥 اضغـط هنـا 🔥",
+                            "callback_data": f"{scc}_{timestamp}",
+                            "style": "primary",  # 🔵 لون أزرق
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ]
+                ]
+            }
+            
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": str(timestamp),
+                        "title": f"{hmm} {zilzal}",
+                        "description": f"{dss}",
+                        "input_message_content": {
+                            "message_text": f"{hss} {zilzal} \n{dss}",
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            try:
+                requests.post(url, json=inline_data)
+                print(f"✅ تم إرسال الهمسة مع الزر الأزرق للمستخدم {user_id}")
+            except Exception as e:
+                print(f"❌ خطأ: {e}")
+                
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+                
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                # ✅ هنا تم تعديل زر "اضغط هنا" الرئيسي
+                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+                
+                keyboard = {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "🔥 اضغـط هنـا 🔥",
+                                "switch_inline_query": "secret " + gvarstatus("hmsa_id") + " \nهلو",
+                                "style": "primary",  # 🔵 لون أزرق
+                                "icon_custom_emoji_id": FIRE_EMOJI
+                            }
+                        ]
+                    ]
+                }
+                
+                inline_data = {
+                    "inline_query_id": event.id,
+                    "results": json.dumps([
+                        {
+                            "type": "article",
+                            "id": "zelzal",
+                            "title": f"{nmm}",
+                            "description": f"{mnn}",
+                            "input_message_content": {
+                                "message_text": f"**{ttt}** {zelzal} **{ddd}**",
+                                "parse_mode": "Markdown"
+                            },
+                            "reply_markup": keyboard
+                        }
+                    ]),
+                    "cache_time": 0,
+                    "is_personal": True
+                }
+                
+                try:
+                    requests.post(url, json=inline_data)
+                    print(f"✅ تم إرسال زر الهمسة الأزرق للمستخدم {user_id}")
+                except Exception as e:
+                    print(f"❌ خطأ: {e}")
             else:
                 return
-            results = []
-            results.append(
-                builder.article(
-                    title=f"{nmm}",
-                    description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
     else:
         return

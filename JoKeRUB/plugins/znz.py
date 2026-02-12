@@ -104,75 +104,16 @@ async def inline_handler(event):
                 new_msg = {str(timestamp): {"userid": user_list, "text": msg_text}}
                 
                 # استخدام REST API للأزرار الملونة - أخضر
-                url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-                
-                keyboard = {
-                    "inline_keyboard": [
-                        [
-                            {
-                                "text": f"✅ {info_type[2]} ✅",
-                                "callback_data": f"{scc}_{timestamp}",
-                                "style": "success"
-                            }
-                        ]
-                    ]
-                }
-                
-                inline_data = {
-                    "inline_query_id": event.id,
-                    "results": json.dumps([
-                        {
-                            "type": "article",
-                            "id": str(timestamp),
-                            "title": f"{hmm} {zilzal}",
-                            "description": f"{dss}",
-                            "input_message_content": {
-                                "message_text": f"{hss} {zilzal} \n**{dss}**",
-                                "parse_mode": "Markdown"
-                            },
-                            "reply_markup": keyboard
-                        }
-                    ]),
-                    "cache_time": 0,
-                    "is_personal": True
-                }
-                
-                # إرسال الطلب - بدون استخدام event.answer
-                requests.post(url, json=inline_data)
-                
-                if jsondata:
-                    jsondata.update(new_msg)
-                    json.dump(jsondata, open(old_msg, "w"))
-                else:
-                    json.dump(new_msg, open(old_msg, "w"))
-                    
-            except Exception as e:
-                LOGS.error(f"خطأ في secret: {e}")
-                # Fallback
-                buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
-                result = builder.article(
-                    title=f"{hmm} {zilzal}",
-                    description=f"{dss}",
-                    text=f"{hss} {zilzal} \n**{dss}**",
-                    buttons=buttons,
-                    link_preview=False,
-                )
-                await event.answer([result] if result else None)
-        
-        # قسم zelzal
-        elif string == "zelzal":
-            if gvarstatus("hmsa_id"):
                 try:
-                    # استخدام REST API للأزرار الملونة - أزرق
                     url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                     
                     keyboard = {
                         "inline_keyboard": [
                             [
                                 {
-                                    "text": f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}",
-                                    "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
-                                    "style": "primary"
+                                    "text": f"✅ {info_type[2]} ✅",
+                                    "callback_data": f"{scc}_{timestamp}",
+                                    "style": "success"
                                 }
                             ]
                         ]
@@ -183,11 +124,11 @@ async def inline_handler(event):
                         "results": json.dumps([
                             {
                                 "type": "article",
-                                "id": "zelzal_1",
-                                "title": f"{nmm}",
-                                "description": f"{mnn}",
+                                "id": str(timestamp),
+                                "title": f"{hmm} {zilzal}",
+                                "description": f"{dss}",
                                 "input_message_content": {
-                                    "message_text": f"{ttt} {zelzal} **{ddd}**",
+                                    "message_text": f"{hss} {zilzal} \n**{dss}**",
                                     "parse_mode": "Markdown"
                                 },
                                 "reply_markup": keyboard
@@ -197,8 +138,51 @@ async def inline_handler(event):
                         "is_personal": True
                     }
                     
-                    # إرسال الطلب - بدون استخدام event.answer
                     requests.post(url, json=inline_data)
+                except Exception as e:
+                    LOGS.error(f"خطأ في REST API secret: {e}")
+                    # Fallback للطريقة القديمة
+                    buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")]]
+                    result = builder.article(
+                        title=f"{hmm} {zilzal}",
+                        description=f"{dss}",
+                        text=f"{hss} {zilzal} \n**{dss}**",
+                        buttons=buttons,
+                        link_preview=False,
+                    )
+                    await event.answer([result] if result else None)
+                
+                if jsondata:
+                    jsondata.update(new_msg)
+                    json.dump(jsondata, open(old_msg, "w"))
+                else:
+                    json.dump(new_msg, open(old_msg, "w"))
+                    
+            except Exception as e:
+                LOGS.error(f"خطأ عام في secret: {e}")
+        
+        # قسم zelzal - مهم جداً: هنا نستخدم builder.article لإرجاع نتيجة
+        elif string == "zelzal":
+            if gvarstatus("hmsa_id") and zelzal:
+                try:
+                    # استخدام builder.article بدلاً من REST API
+                    bbb = [[
+                        Button.inline(
+                            f"{FIRE_EMOJI} اضغـط لفتـح الهمسـة {FIRE_EMOJI}",
+                            data=f"open_secret_{user_id}"
+                        )
+                    ]]
+                    
+                    results = []
+                    result = builder.article(
+                        title=f"{nmm}",
+                        description=f"{mnn}",
+                        text=f"{ttt} {zelzal} **{ddd}**",
+                        buttons=bbb,
+                        link_preview=False,
+                    )
+                    results.append(result)
+                    await event.answer(results)
                     
                 except Exception as e:
                     LOGS.error(f"خطأ في zelzal: {e}")
@@ -216,7 +200,6 @@ async def inline_handler(event):
                     )
                     await event.answer(results)
             else:
-                # إذا ما في hmsa_id
                 await event.answer([])
         
         else:

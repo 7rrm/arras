@@ -13,64 +13,75 @@ from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 
-# في دالة on_callback_query
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"secret_(.*)")))
-async def on_secret_open(event):
-    secret_id = event.pattern_match.group(1).decode("UTF-8")
-    user_id = event.query.user_id
-
-    # البحث عن الهمسة في جميع ملفات JSON (أو يمكن تحديد ملف المستلم)
-    # هنا سنفترض أن الهمسة محفوظة في ملف باسم whispers_XXXX.json
-    # لكن الأسهل: نبحث في مجلد JoKeRUB عن أي ملف ونفتحه
-    whispers_dir = "./JoKeRUB"
-    found = False
-    secret_text = ""
-    sender_id = None
-    user_list = []
-
-    for filename in os.listdir(whispers_dir):
-        if filename.endswith(".json"):
-            file_path = os.path.join(whispers_dir, filename)
-            try:
-                with open(file_path, "r") as f:
-                    db = json.load(f)
-                if secret_id in db:
-                    data = db[secret_id]
-                    user_list = data.get("userid", [])
-                    sender_id = data.get("sender_id")
-                    secret_text = data.get("text", "")
-                    found = True
-                    break
-            except:
-                continue
-
-    if not found:
-        await event.answer("الهمسة غير موجودة أو انتهت صلاحيتها.", alert=True)
-        return
-
-    # التحقق من الصلاحية
-    allowed_ids = user_list + [sender_id, Config.OWNER_ID]
-    if user_id not in allowed_ids:
-        await event.answer("عذراً، هذه الهمسة ليست لك.", alert=True)
-        return
-
-    # عرض الهمسة
-    await event.answer(secret_text, alert=True)
-
-    # إذا كان الفاتح هو أحد المستلمين، نسجل القراءة
-    if user_id in user_list:
-        # تسجيل وقت القراءة
-        from datetime import datetime
-        current_time = datetime.now().strftime("%I:%M").lstrip("0")
-        data["read"] = True
-        data["read_time"] = current_time
-        data["read_by"] = user_id
-        with open(file_path, "w") as f:
-            json.dump(db, f, indent=4)
-
-        # تحديث الرسالة الأصلية (إذا كان البوت هو من أرسلها)
+async def on_plug_in_callback_query_handler(event):
+    timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
+    uzerid = gvarstatus("hmsa_id")
+    ussr = int(uzerid) if uzerid.isdigit() else uzerid
+    myid = Config.OWNER_ID
+    
+    try:
+        zzz = await l313l.get_entity(ussr)
+    except ValueError:
+        zzz = await l313l(GetUsersRequest(ussr))
+    
+    user_id = int(uzerid)
+    file_name = f"./JoKeRUB/{user_id}.txt"
+    
+    if os.path.exists(file_name):
+        jsondata = json.load(open(file_name))
         try:
-            # يمكنك إضافة كود لتعديل الرسالة وعرض من قرأها
-            pass
-        except:
-            pass
+            message = jsondata[f"{timestamp}"]
+            userid = message["userid"]
+            sender_id = message.get("sender_id", myid)
+            idlist = userid if isinstance(userid, list) else [userid]
+            ids = idlist + [myid, zzz.id, sender_id]
+            
+            if event.query.user_id in ids:
+                encrypted_tcxt = message["text"]
+                
+                # عرض الهمسة في رسالة منبثقة للجميع
+                await event.answer(encrypted_tcxt, cache_time=0, alert=True)
+                
+                # فقط المستقبل يمكنه تحديث حالة القراءة
+                if event.query.user_id in idlist and not message.get("read", False):
+                    # الحصول على الوقت الحالي
+                    current_time = datetime.now()
+                    # تنسيق الوقت
+                    time_str = current_time.strftime("%I:%M")
+                    # إزالة الصفر البادئ إذا كان الساعة أقل من 10
+                    if time_str.startswith('0'):
+                        time_str = time_str[1:]
+                    
+                    message["read"] = True
+                    message["read_time"] = time_str
+                    jsondata[f"{timestamp}"] = message
+                    json.dump(jsondata, open(file_name, "w"))
+                    
+                    # إنشاء منشن للمستقبل (الذي ضغط على الزر)
+                    try:
+                        receiver = await l313l.get_entity(event.query.user_id)
+                        receiver_name = f'<a href="tg://user?id={event.query.user_id}">{get_display_name(receiver)}</a>'
+                    except:
+                        receiver_name = "المستخدم"
+                    
+                    new_text = f'''\
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji> <b> تم قراءة الهمسـة </b>
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>قــرأهـا</b> <tg-emoji emoji-id="4929526216945305427">📨</tg-emoji>{receiver_name}</b> <tg-emoji emoji-id="4931832872081294660">✅</tg-emoji>
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>عَـند</b> <code>{time_str}</code> . </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
+                    
+                    # زر الرد يرسل همسة للمرسل الأصلي
+                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
+                    
+                    try:
+                        await event.edit(new_text, buttons=btn, parse_mode='html')
+                    except Exception as e:
+                        LOGS.error(f"Error editing message: {e}")
+                
+            else:
+                await event.answer("آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", cache_time=0, alert=True)
+        except KeyError:
+            await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
+    else:
+        await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
+        

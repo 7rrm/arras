@@ -77,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event):
+async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
@@ -111,16 +111,10 @@ async def repozedub(event):
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    
-    # جلب الإنلاين
-    try:
-        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-        if response and len(response) > 0:
-            await response[0].click(event.chat_id)
-        else:
-            await edit_or_reply(event, "❌ لم يتم العثور على نتيجة الإنلاين")
-    except Exception as e:
-        LOGS.error(f"خطأ في جلب الإنلاين: {e}")
-        await edit_or_reply(event, f"❌ حدث خطأ: {str(e)[:100]}")
-    
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    else:
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    await response[0].click(event.chat_id)
     await event.delete()

@@ -1,9 +1,14 @@
-from telethon import events, Button
+from telethon import events
+from telethon.tl.functions.messages import SendInlineBotResultRequest
+from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
+import json
+import requests
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
+FIRE_EMOJI = "5368324170671202286"  # 🔥
 
 # نص السورس
 ROZ = (
@@ -22,44 +27,85 @@ ROZ = (
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
-        builder = event.builder
         query = event.text
         user_id = event.query.user_id
         
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # ✅ استخدام Button فقط - هذا هو الحل الصحيح
-            buttons = [
-                [Button.url("∙ المـطور ∙", "https://t.me/lx5x5")],
-                [Button.url("∙ قناة السورس ∙", "https://t.me/your_channel")],
-                [Button.url("∙ الدعم الفني ∙", "https://t.me/your_support")]
-            ]
+            # 🎨 أزرار ملونة مع ايموجي مخصص - باستخدام REST API
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
-            if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", ".gif", ".mp4")):
-                result = builder.photo(
-                    ROZ_PIC, 
-                    text=ROZ, 
-                    buttons=buttons, 
-                    link_preview=False
-                )
-            elif ROZ_PIC:
-                result = builder.document(
-                    ROZ_PIC, 
-                    title="JoKeRUB", 
-                    text=ROZ, 
-                    buttons=buttons, 
-                    link_preview=False
-                )
-            else:
-                result = builder.article(
-                    title="JoKeRUB", 
-                    text=ROZ, 
-                    buttons=buttons, 
-                    link_preview=False
-                )
+            # تصميم الأزرار الملونة
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "🔥 المطور @lx5x5 🔥",
+                            "url": "https://t.me/lx5x5",
+                            "style": "primary",  # 🔵 أزرق
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ],
+                    [
+                        {
+                            "text": "✅ قناة السورس ✅",
+                            "url": "https://t.me/your_channel",
+                            "style": "success",  # 🟢 أخضر
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ],
+                    [
+                        {
+                            "text": "🛡 الدعم الفني 🛡",
+                            "url": "https://t.me/your_support",
+                            "style": "danger",  # 🔴 أحمر
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ],
+                    [
+                        {
+                            "text": "⚡️ تحديثات ⚡️",
+                            "url": "https://t.me/your_updates",
+                            "style": "primary",  # 🔵 أزرق
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        },
+                        {
+                            "text": "💬 نقاش 💬",
+                            "url": "https://t.me/your_group",
+                            "style": "success",  # 🟢 أخضر
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ]
+                ]
+            }
             
-            await event.answer([result] if result else None)
+            # بيانات الإنلاين
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": "1",
+                        "title": "🔥 JoKeRUB - السورس الملون",
+                        "description": "اضغط لعرض السورس مع أزرار ملونة",
+                        "input_message_content": {
+                            "message_text": ROZ,
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            # إرسال الطلب
+            try:
+                requests.post(url, json=inline_data)
+                print(f"✅ تم إرسال الأزرار الملونة للمستخدم {user_id}")
+            except Exception as e:
+                print(f"❌ خطأ: {e}")
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):

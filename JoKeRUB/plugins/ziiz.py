@@ -101,41 +101,34 @@ async def repozedub(event):
     addgvar("hmsa_user", username)
 
     # 📝 نص الرسالة مع إيموجي بريميوم
-    text = f'''
+    text = f"""
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-'''
+"""
 
-    # 🎨 الأزرار الملونة مع إيموجي بريميوم (مثل كود السورس تماماً)
+    # 🎨 الأزرار الملونة مع إيموجي بريميوم (نفس طريقة كود السورس)
     keyboard = {
         "inline_keyboard": [
             [
                 {
                     "text": "✍️ اضغط لكتابة الهمسة 📨",
                     "switch_inline_query_current_chat": f"secret {user_id} \n",
-                    "style": "primary",                    # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_SECRET   # 📨 داخل الزر
-                }
-            ],
-            [
-                {
-                    "text": "🔥 همسة سريعة",
-                    "switch_inline_query_current_chat": f"secret {user_id} \nمرحبا",
-                    "style": "success",                    # 🟢 أخضر
-                    "icon_custom_emoji_id": EMOJI_FIRE     # 🔥 داخل الزر
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_SECRET
                 }
             ]
         ]
     }
 
-    # ✨ إرسال الرسالة عبر Bot API (مثل كود السورس)
-    bot_token = Config.TG_BOT_TOKEN
-    chat_id = event.chat_id
+    # ✨ إرسال الرسالة عبر REST API (نفس طريقة كود السورس)
+    # هذا سيجعل الرسالة تظهر من حسابك وليس من البوت!
     
-    send_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    await event.delete()  # حذف الأمر أولاً
+    
+    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
     send_data = {
-        "chat_id": chat_id,
+        "chat_id": event.chat_id,  # نفس المحادثة - المفتاح السحري!
         "text": text,
         "parse_mode": "HTML",
         "reply_markup": json.dumps(keyboard),
@@ -144,12 +137,7 @@ async def repozedub(event):
     
     try:
         response = requests.post(send_url, json=send_data)
-        if response.status_code == 200:
-            await event.delete()  # حذف الأمر
-            LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
-        else:
-            await event.edit("❌ حدث خطأ في الإرسال")
-            LOGS.error(f"❌ خطأ: {response.text}")
+        if response.status_code != 200:
+            LOGS.error(f"❌ خطأ في الإرسال: {response.text}")
     except Exception as e:
-        await event.edit("❌ حدث خطأ، حاول مرة أخرى")
         LOGS.error(f"❌ خطأ: {e}")

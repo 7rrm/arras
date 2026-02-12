@@ -1,6 +1,4 @@
 from telethon import events
-from telethon.tl.functions.messages import SendInlineBotResultRequest
-from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
 import json
 import requests
 from ..Config import Config
@@ -33,10 +31,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار ملونة مع ايموجي مخصص - باستخدام REST API
+            # 🎨 زر واحد فقط - المطور بلون أزرق
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
-            # تصميم الأزرار الملونة
             keyboard = {
                 "inline_keyboard": [
                     [
@@ -44,36 +41,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                             "text": "🔥 المطور @lx5x5 🔥",
                             "url": "https://t.me/lx5x5",
                             "style": "primary",  # 🔵 أزرق
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ],
-                    [
-                        {
-                            "text": "✅ قناة السورس ✅",
-                            "url": "https://t.me/your_channel",
-                            "style": "success",  # 🟢 أخضر
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ],
-                    [
-                        {
-                            "text": "🛡 الدعم الفني 🛡",
-                            "url": "https://t.me/your_support",
-                            "style": "danger",  # 🔴 أحمر
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        }
-                    ],
-                    [
-                        {
-                            "text": "⚡️ تحديثات ⚡️",
-                            "url": "https://t.me/your_updates",
-                            "style": "primary",  # 🔵 أزرق
-                            "icon_custom_emoji_id": FIRE_EMOJI
-                        },
-                        {
-                            "text": "💬 نقاش 💬",
-                            "url": "https://t.me/your_group",
-                            "style": "success",  # 🟢 أخضر
                             "icon_custom_emoji_id": FIRE_EMOJI
                         }
                     ]
@@ -87,8 +54,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     {
                         "type": "article",
                         "id": "1",
-                        "title": "🔥 JoKeRUB - السورس الملون",
-                        "description": "اضغط لعرض السورس مع أزرار ملونة",
+                        "title": "🔥 JoKeRUB - السورس",
+                        "description": "المطور @lx5x5",
                         "input_message_content": {
                             "message_text": ROZ,
                             "parse_mode": "Markdown"
@@ -103,7 +70,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             # إرسال الطلب
             try:
                 requests.post(url, json=inline_data)
-                print(f"✅ تم إرسال الأزرار الملونة للمستخدم {user_id}")
+                print(f"✅ تم إرسال الزر الأزرق للمستخدم {user_id}")
             except Exception as e:
                 print(f"❌ خطأ: {e}")
 
@@ -114,6 +81,8 @@ async def repo(event):
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    response = await bot.inline_query(TG_BOT, "السورس")
-    await response[0].click(event.chat_id)
+    
+    # ✅ الحل النهائي لمشكلة Entity - نرسل الرسالة مباشرة بدون click
+    chat = await event.get_input_chat()
+    await bot.send_message(chat, f"@{TG_BOT} السورس")
     await event.delete()

@@ -33,45 +33,60 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and user_id == bot.uid:
-            # 🎨 أزرار مع إيموجي بريميوم
+            # 🎨 أزرار ملونة مع إيموجي بريميوم - باستخدام REST API
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
-            # تصميم الأزرار مع إيموجي بريميوم
+            # تصميم الأزرار الملونة مع إيموجي بريميوم
             keyboard = {
                 "inline_keyboard": [
                     [
                         {
                             "text": "المطور @lx5x5",
-                            "url": "https://t.me/lx5x5"
+                            "url": "https://t.me/lx5x5",
+                            "callback_data": "dev_callback",
+                            "style": "primary"  # 🔵 أزرق
                         }
                     ],
                     [
                         {
                             "text": "قناة السورس",
-                            "url": "https://t.me/your_channel"
+                            "url": "https://t.me/your_channel",
+                            "callback_data": "channel_callback",
+                            "style": "success"  # 🟢 أخضر
                         }
                     ]
                 ]
             }
             
-            # إضافة نص الزر مع الإيموجي في الـ text
-            keyboard["inline_keyboard"][0][0]["text"] = f"‌‌{PREMIUM_EMOJI}  المطور @lx5x5  {PREMIUM_EMOJI}"
-            keyboard["inline_keyboard"][1][0]["text"] = f"‌‌{PREMIUM_EMOJI}  قناة السورس  {PREMIUM_EMOJI}"
-            
-            # بيانات الإنلاين
+            # بيانات الإنلاين - مع إضافة الإيموجي في النص
             inline_data = {
                 "inline_query_id": event.id,
                 "results": json.dumps([
                     {
                         "type": "article",
                         "id": "1",
-                        "title": f"{PREMIUM_EMOJI} JoKeRUB - السورس الملون {PREMIUM_EMOJI}",
-                        "description": "اضغط لعرض السورس مع أزرار بإيموجي بريميوم",
+                        "title": f"{chr(55357)}{chr(56613)} JoKeRUB - السورس الملون {chr(55357)}{chr(56613)}",
+                        "description": "اضغط لعرض السورس مع أزرار ملونة وإيموجي بريميوم",
                         "input_message_content": {
-                            "message_text": f"{PREMIUM_EMOJI * 3}\n{ROZ}\n{PREMIUM_EMOJI * 3}",
+                            "message_text": ROZ,
                             "parse_mode": "Markdown"
                         },
-                        "reply_markup": keyboard
+                        "reply_markup": {
+                            "inline_keyboard": [
+                                [
+                                    {
+                                        "text": f"{chr(55357)}{chr(56613)} المطور @lx5x5 {chr(55357)}{chr(56613)}",
+                                        "url": "https://t.me/lx5x5"
+                                    }
+                                ],
+                                [
+                                    {
+                                        "text": f"{chr(55357)}{chr(56613)} قناة السورس {chr(55357)}{chr(56613)}",
+                                        "url": "https://t.me/your_channel"
+                                    }
+                                ]
+                            ]
+                        }
                     }
                 ]),
                 "cache_time": 0,
@@ -82,11 +97,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             try:
                 response = requests.post(url, json=inline_data)
                 if response.status_code == 200:
-                    print(f"✅ تم إرسال الأزرار مع إيموجي بريميوم للمستخدم {user_id}")
+                    print(f"✅ تم إرسال الأزرار الملونة مع إيموجي بريميوم للمستخدم {user_id}")
                 else:
                     print(f"❌ خطأ في الإرسال: {response.text}")
             except Exception as e:
                 print(f"❌ خطأ: {e}")
+
+    # معالج الـ callback للرد على الضغطات
+    @tgbot.on(events.CallbackQuery)
+    async def callback_handler(event):
+        data = event.data.decode('utf-8')
+        if data in ["dev_callback", "channel_callback"]:
+            await event.answer(f"{chr(55357)}{chr(56613)} @lx5x5", alert=True)
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# znz.py - نسخة Bot API مع إيموجي بريميوم وأزرار ملونة
-
 import json
 import os
 import re
@@ -9,7 +7,7 @@ import random
 from uuid import uuid4
 import requests
 
-from telethon.events import InlineQuery
+from telethon.events import InlineQuery, CallbackQuery
 from telethon.tl.functions.users import GetUsersRequest
 
 from . import l313l
@@ -30,8 +28,26 @@ EMOJI_OTHER  = "4931832872081294660"   # 📨 آخر
 WHISPER_DIR = "./JoKeRUB"
 os.makedirs(WHISPER_DIR, exist_ok=True)
 
+# ----------------------------------------------
+#  🔹  دالة إرسال نتائج الإنلاين عبر Bot API (تُعرّف أولاً)
+# ----------------------------------------------
+async def answer_inline_query(inline_query_id: int, results: list):
+    url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+    payload = {
+        "inline_query_id": inline_query_id,
+        "results": json.dumps(results),
+        "cache_time": 0,
+        "is_personal": True
+    }
+    try:
+        resp = requests.post(url, json=payload, timeout=3)
+        if resp.status_code != 200:
+            LOGS.error(f"answerInlineQuery error: {resp.text}")
+    except Exception as e:
+        LOGS.error(f"answerInlineQuery exception: {e}")
+
 # --------------------------------------
-#  🔐  التحقق من الصلاحية (نفس الكود القديم)
+#  🔐  التحقق من الصلاحية
 # --------------------------------------
 def is_authorized(user_id: int) -> bool:
     if user_id == Config.OWNER_ID or user_id in Config.SUDO_USERS:
@@ -42,7 +58,7 @@ def is_authorized(user_id: int) -> bool:
     return False
 
 # --------------------------------------
-#  🎯  معالج طلبات الإنلاين (بوابة Bot API)
+#  🎯  معالج طلبات الإنلاين
 # --------------------------------------
 @l313l.tgbot.on(InlineQuery)
 async def inline_handler(event):
@@ -70,14 +86,12 @@ async def answer_start_button(event):
     if not stored_id:
         return
 
-    # نص رسالة الإنلاين مع إيموجي بريميوم
     text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
 <b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {stored_user or f'[{stored_name}](tg://user?id={stored_id})'} 💌
 '''
 
-    # زر ملون مع إيموجي بريميوم (Callback)
     button = {
         "text": "✍️ ابدأ الهمسة 📨",
         "callback_data": "start_whisper",
@@ -108,7 +122,6 @@ async def answer_start_button(event):
 async def create_secret(event, query):
     query_body = query[7:]
 
-    # فصل المستلمين عن النص
     if "|" in query_body:
         raw_users, secret_text = query_body.split("|", 1)
         raw_users = raw_users.strip()
@@ -120,7 +133,6 @@ async def create_secret(event, query):
         raw_users, secret_text = parts[0], parts[1]
         secret_text = secret_text.strip()
 
-    # استخراج المعرفات
     user_matches = re.findall(r"@\w+|\d+", raw_users)
     if not user_matches:
         return
@@ -151,12 +163,10 @@ async def create_secret(event, query):
     if not mention_str:
         return
 
-    # معرف فريد للهمسة
-    timestamp = int(time.time() * 2)  # نفس الطريقة القديمة
+    timestamp = int(time.time() * 2)
     secret_id = f"{timestamp}"
 
-    # حفظ الهمسة (نفس النظام القديم)
-    # نستخدم أول مستلم كاسم ملف
+    # حفظ الهمسة في ملف المستلم الأول (توافق مع القديم)
     first_recipient = user_list[0]
     file_name = os.path.join(WHISPER_DIR, f"{first_recipient}.txt")
 
@@ -176,7 +186,6 @@ async def create_secret(event, query):
     with open(file_name, "w") as f:
         json.dump(db, f, indent=4)
 
-    # بناء نص الهمسة مع إيموجي بريميوم
     message_text = f'''
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b> <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
@@ -186,7 +195,6 @@ async def create_secret(event, query):
 <i>⌔╎هو فقط من يستطيع ࢪؤيتهـا</i>
 '''
 
-    # زر فتح الهمسة (ملون + إيموجي بريميوم)
     open_button = {
         "text": "🔓 فتح الهمسة 📩",
         "callback_data": f"secret_{secret_id}",
@@ -194,7 +202,6 @@ async def create_secret(event, query):
         "icon_custom_emoji_id": EMOJI_SECRET
     }
 
-    # زر الرد (يرسل همسة للمرسل)
     reply_button = {
         "text": "💬 رد بهمسة",
         "callback_data": f"reply_whisper_{event.query.user_id}",
@@ -229,7 +236,6 @@ async def create_secret(event, query):
 # --------------------------------------
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"^start_whisper$")))
 async def start_whisper_callback(event):
-    """عند الضغط على الزر الأزرق، يرسل رسالة فيها switch_inline حقيقي"""
     user_id = event.query.user_id
     stored_id = gvarstatus("hmsa_id")
     stored_name = gvarstatus("hmsa_name")
@@ -238,12 +244,10 @@ async def start_whisper_callback(event):
         await event.answer("⚠️ لم يتم تحديد مستلم بعد. استخدم الأمر .اهمس أولاً.", alert=True)
         return
 
-    # التأكد من الصلاحية
     if str(user_id) != stored_id and user_id != Config.OWNER_ID and user_id not in Config.SUDO_USERS:
         await event.answer("هذا الزر ليس لك.", alert=True)
         return
 
-    # زر switch_inline الحقيقي
     switch_button = {
         "text": "✍️ اضغط هنا لكتابة الهمسة",
         "switch_inline_query_current_chat": f"secret {stored_id} \n"
@@ -251,7 +255,7 @@ async def start_whisper_callback(event):
 
     keyboard = {"inline_keyboard": [[switch_button]]}
 
-    await event.delete()  # حذف رسالة الإنلاين القديمة
+    await event.delete()
     await l313l.tgbot.send_message(
         user_id,
         f"📨 اكتب الآن همستك إلى {stored_name or stored_id}",
@@ -268,7 +272,6 @@ async def open_secret_callback(event):
     secret_id = event.pattern_match.group(1).decode("UTF-8")
     opener_id = event.query.user_id
 
-    # البحث عن الهمسة في جميع ملفات JoKeRUB/*.txt
     found = False
     secret_data = None
     file_path_found = None
@@ -291,56 +294,25 @@ async def open_secret_callback(event):
         await event.answer("❌ هذه الهمسة غير موجودة أو تم حذفها.", alert=True)
         return
 
-    # قائمة المسموح لهم: المستلمين + المرسل + المالك
     allowed_ids = secret_data.get("userid", []) + [secret_data.get("sender_id"), Config.OWNER_ID]
 
     if opener_id not in allowed_ids:
         await event.answer("آراس | عَـذراً عَـزيزي الهَمْسَة لَيْسَتْ لكَ .", alert=True)
         return
 
-    # عرض الهمسة
     await event.answer(secret_data["text"], alert=True)
 
-    # إذا كان الفاتح هو أحد المستلمين، سجل القراءة
     if opener_id in secret_data.get("userid", []) and not secret_data.get("read", False):
-        # تحديث وقت القراءة
         from datetime import datetime
         current_time = datetime.now()
         time_str = current_time.strftime("%I:%M").lstrip("0")
-        
+
         secret_data["read"] = True
         secret_data["read_time"] = time_str
         secret_data["read_by"] = opener_id
 
-        # حفظ التحديث
         with open(file_path_found, "r") as f:
             full_db = json.load(f)
         full_db[secret_id] = secret_data
         with open(file_path_found, "w") as f:
             json.dump(full_db, f, indent=4)
-
-        # محاولة تعديل رسالة الهمسة الأصلية (إذا كان البوت هو من أرسلها)
-        try:
-            # نحتاج إلى معرف الرسالة الأصلية، غير متوفر هنا.
-            # يمكنك ترك هذا أو إضافته لاحقاً.
-            pass
-        except:
-            pass
-
-# --------------------------------------
-#  🔹  دالة الإرسال إلى Bot API
-# --------------------------------------
-async def answer_inline_query(inline_query_id: int, results: list):
-    url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-    payload = {
-        "inline_query_id": inline_query_id,
-        "results": json.dumps(results),
-        "cache_time": 0,
-        "is_personal": True
-    }
-    try:
-        resp = requests.post(url, json=payload, timeout=3)
-        if resp.status_code != 200:
-            LOGS.error(f"answerInlineQuery error: {resp.text}")
-    except Exception as e:
-        LOGS.error(f"answerInlineQuery exception: {e}")

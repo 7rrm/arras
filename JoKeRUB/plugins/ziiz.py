@@ -105,19 +105,29 @@ async def repozedub(event):
 <b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
 '''
 
-    # ✅ زر الإنلاين - طريقة Telethon الصحيحة
-    buttons = [
-        [Button.switch_inline("✍️ اضغط لكتابة الهمسة 📨", query=f"secret {user_id} \n", same_peer=True)]
-    ]
+    # ✅ زر الإنلاين - عبر Bot API
+    keyboard = {
+        "inline_keyboard": [[
+            {
+                "text": "✍️ اضغط لكتابة الهمسة 📨",
+                "switch_inline_query_current_chat": f"secret {user_id} \n"
+            }
+        ]]
+    }
 
-    # ✅ إنشاء reply_markup يدوياً
-    reply_markup = event.client.build_reply_markup(buttons)
+    # إرسال الرسالة عبر Bot API
+    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": event.chat_id,
+        "text": text,
+        "parse_mode": "HTML",
+        "reply_markup": json.dumps(keyboard),
+        "disable_web_page_preview": True
+    }
 
-    # ✅ إرسال الرسالة مع الأزرار
-    await event.delete()
-    await event.client.send_message(
-        event.chat_id,
-        text,
-        buttons=reply_markup,
-        parse_mode='html'
-    )
+    try:
+        requests.post(send_url, json=payload, timeout=3)
+        await event.delete()
+    except Exception as e:
+        LOGS.error(f"sendMessage error: {e}")
+        await event.edit("❌ فشل إرسال الزر، حاول مرة أخرى.")

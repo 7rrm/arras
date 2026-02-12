@@ -1,11 +1,11 @@
 import json
-import requests
 import math
 import asyncio
 import os
 import random
 import re
 import time
+import requests  # ✅ إضافة import requests
 from pathlib import Path
 from uuid import uuid4
 
@@ -104,8 +104,7 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ هنا تم تعديل الزر - إضافة لون أزرق وايموجي
-            # استخدام REST API لتنسيق الزر باللون الأزرق
+            # ✅ زر أزرق مع ايموجي ناري - باستخدام REST API
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
             keyboard = {
@@ -115,7 +114,7 @@ async def inline_handler(event):
                             "text": "🔥 اضغـط هنـا 🔥",
                             "callback_data": f"{scc}_{timestamp}",
                             "style": "primary",  # 🔵 لون أزرق
-                            "icon_custom_emoji_id": FIRE_EMOJI  # ايموجي نار
+                            "icon_custom_emoji_id": FIRE_EMOJI
                         }
                     ]
                 ]
@@ -144,17 +143,18 @@ async def inline_handler(event):
                 requests.post(url, json=inline_data)
                 print(f"✅ تم إرسال الهمسة مع الزر الأزرق للمستخدم {user_id}")
             except Exception as e:
-                print(f"❌ خطأ: {e}")
+                print(f"❌ خطأ في إرسال الزر: {e}")
                 
             if jsondata:
                 jsondata.update(new_msg)
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
-                
+            return  # ✅ مهم: نرجع بعد الإرسال
+            
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ هنا تم تعديل زر "اضغط هنا" الرئيسي
+                # ✅ زر أزرق مع ايموجي ناري للهمسة الرئيسية
                 url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                 
                 keyboard = {
@@ -162,7 +162,7 @@ async def inline_handler(event):
                         [
                             {
                                 "text": "🔥 اضغـط هنـا 🔥",
-                                "switch_inline_query": "secret " + gvarstatus("hmsa_id") + " \nهلو",
+                                "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
                                 "style": "primary",  # 🔵 لون أزرق
                                 "icon_custom_emoji_id": FIRE_EMOJI
                             }
@@ -194,6 +194,7 @@ async def inline_handler(event):
                     print(f"✅ تم إرسال زر الهمسة الأزرق للمستخدم {user_id}")
                 except Exception as e:
                     print(f"❌ خطأ: {e}")
+                return  # ✅ مهم: نرجع بعد الإرسال
             else:
                 return
                 
@@ -234,7 +235,7 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }
             
-            # ✅ هنا تم تعديل الزر - إضافة لون أزرق وايموجي
+            # ✅ زر أزرق مع ايموجي ناري
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
             keyboard = {
@@ -280,10 +281,11 @@ async def inline_handler(event):
                 json.dump(jsondata, open(old_msg, "w"))
             else:
                 json.dump(new_msg, open(old_msg, "w"))
+            return  # ✅ مهم: نرجع بعد الإرسال
                 
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                # ✅ هنا تم تعديل زر "اضغط هنا" الرئيسي
+                # ✅ زر أزرق مع ايموجي ناري للهمسة الرئيسية
                 url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
                 
                 keyboard = {
@@ -291,7 +293,7 @@ async def inline_handler(event):
                         [
                             {
                                 "text": "🔥 اضغـط هنـا 🔥",
-                                "switch_inline_query": "secret " + gvarstatus("hmsa_id") + " \nهلو",
+                                "switch_inline_query": f"secret {gvarstatus('hmsa_id')} \nهلو",
                                 "style": "primary",  # 🔵 لون أزرق
                                 "icon_custom_emoji_id": FIRE_EMOJI
                             }
@@ -323,6 +325,7 @@ async def inline_handler(event):
                     print(f"✅ تم إرسال زر الهمسة الأزرق للمستخدم {user_id}")
                 except Exception as e:
                     print(f"❌ خطأ: {e}")
+                return  # ✅ مهم: نرجع بعد الإرسال
             else:
                 return
     else:

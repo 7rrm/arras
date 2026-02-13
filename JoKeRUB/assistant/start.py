@@ -271,7 +271,8 @@ async def bot_start(event):
         
         response = requests.post(send_url, json=send_data, timeout=3)
         if response.status_code == 200:
-            else:
+            LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع أزرار ملونة بالترتيب المطلوب")
+        else:
             # Fallback
             fallback_buttons = []
             for row in buttons:
@@ -291,7 +292,8 @@ async def bot_start(event):
             )
             
     except Exception as e:
-        
+        LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
+        # Fallback
         fallback_buttons = []
         for row in buttons:
             btn_row = []

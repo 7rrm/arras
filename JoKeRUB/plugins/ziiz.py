@@ -39,7 +39,22 @@ from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_co
 from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
 
 
+# -*- coding: utf-8 -*-
+import json
+import requests
+from telethon.tl.functions.users import GetUsersRequest
+from telethon.tl.types import MessageEntityMentionName
+
+from . import l313l
+from ..Config import Config
+from ..sql_helper.globals import addgvar, delgvar, gvarstatus
+from ..core.logger import logging
+
 LOGS = logging.getLogger(__name__)
+
+# ايموجي عادي
+EMOJI_SECRET = "📨"
+EMOJI_FIRE = "🔥"
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -96,55 +111,16 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
 
-    # ✅ حسابك يرسل رسالة "جاري التحميل..."
-    await event.edit("⏱️ جاري تجهيز الهمسة...")
-
-    # 📝 نص الرسالة - بدون إيموجي بريميوم
-    text = f"""
-📨 <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
-⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or full_name} 💌
-"""
-
-    # 🎨 الأزرار الملونة - بدون إيموجي بريميوم داخل الزر
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "✍️ اضغط لكتابة الهمسة 📨",
-                    "switch_inline_query_current_chat": f"secret {user_id} \n",
-                    "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
-                }
-            ],
-            [
-                {
-                    "text": "🔥 همسة سريعة",
-                    "switch_inline_query_current_chat": f"secret {user_id} \nمرحبا",
-                    "style": "success"  # 🟢 أخضر فقط - بدون icon_custom_emoji_id
-                }
-            ]
-        ]
-    }
-
-    # ✅ إرسال الرسالة عبر Bot API - تظهر كأن حسابك أرسلها!
-    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
-    send_data = {
-        "chat_id": event.chat_id,
-        "text": text,
-        "parse_mode": "HTML",
-        "reply_markup": json.dumps(keyboard),
-        "disable_web_page_preview": True
-    }
+    # ✅ مثل كود السورس بالضبط!
+    TG_BOT = Config.TG_BOT_USERNAME
     
-    try:
-        response = requests.post(send_url, json=send_data)
-        if response.status_code == 200:
-            await event.delete()  # حذف رسالة "جاري التحميل..."
-            LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
-        else:
-            await event.edit("❌ حدث خطأ في الإرسال")
-            LOGS.error(f"❌ خطأ: {response.text}")
-    except Exception as e:
-        await event.edit("❌ حدث خطأ، حاول مرة أخرى")
-        LOGS.error(f"❌ خطأ: {e}")
-        
+    # حسابك يطلب نتيجة الإنلاين من البوت
+    response = await event.client.inline_query(TG_BOT, f"همسة_{user_id}")
+    
+    if response:
+        # ✅ حسابك هو من يضغط ويرسل الرسالة!
+        await response[0].click(event.chat_id)
+        await event.delete()  # حذف الأمر
+        LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
+    else:
+        await event.edit("❌ حدث خطأ في إنشاء الهمسة")

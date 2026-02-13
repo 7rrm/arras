@@ -271,7 +271,7 @@ async def bot_start(event):
         
         response = requests.post(send_url, json=send_data, timeout=3)
         if response.status_code == 200:
-        else:
+            else:
             # Fallback
             fallback_buttons = []
             for row in buttons:

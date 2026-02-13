@@ -1,7 +1,7 @@
 import re
 import random
-import requests
 import json
+import requests
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional, Union
@@ -40,10 +40,10 @@ kk = []
 tt = []
 
 # إيموجي بريميوم
-EMOJI_PRIMARY = "5210763312597326700"   # ✨
-EMOJI_SUCCESS = "5210740682414644888"   # ✅
-EMOJI_DANGER = "5368324170671202286"    # 🔥
-EMOJI_PAID = "4931832872081294660"      # 💎
+EMOJI_PRIMARY = "5210763312597326700"   # ✨ (أزرق)
+EMOJI_SUCCESS = "5210740682414644888"   # ✅ (أخضر)
+EMOJI_DANGER = "5368324170671202286"    # 🔥 (أحمر)
+EMOJI_PAID = "4931832872081294660"      # 💎 (أزرق/أرجواني)
 
 class FloodConfig:
     BANNED_USERS = set()
@@ -102,13 +102,13 @@ async def bot_start(event):
     my_username = f"@{user.username}" if user.username else my_mention
     
     if gvarstatus("START_BUTUN") is not None:
-        zz_txt = "⌔ قنـاتـي ⌔"
+        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
         zz_ch = gvarstatus("START_BUTUN")
     elif user.username:
         zz_txt = "⌔ لـ التواصـل خـاص ⌔"
         zz_ch = user.username
     else:
-        zz_txt = "⌔ قنـاة المـطور ⌔"
+        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
         zz_ch = "aqhvv"
     
     zid = 5427469031
@@ -119,29 +119,11 @@ async def bot_start(event):
     
     custompic = gvarstatus("BOT_START_PIC") or None
     
-    # معرف الإيموجي البريميوم الجديد
+    # معرف الإيموجي البريميوم
     PREMIUM_EMOJI_ID = "5210763312597326700"
     
-    # تحضير الأزرار حسب نوع المستخدم
-    if chat.id != Config.OWNER_ID:
-        customstrmsg = gvarstatus("START_TEXT") or None
-        if customstrmsg is not None:
-            start_msg = customstrmsg.format(
-                zz_mention=mention,
-                first=first,
-                last=last,
-                fullname=fullname,
-                username=username,
-                userid=userid,
-                my_first=my_first,
-                my_last=my_last,
-                my_zname=my_fullname,
-                my_username=my_username,
-                my_mention=my_mention,
-            )
-        else:
-            # رسالة البداية بـ HTML كامل مع الإيموجي البريميوم
-            start_msg = f'''\
+    # رسالة البداية (نفسها للجميع)
+    start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
@@ -149,157 +131,125 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>فقـط ارسـل رسـالتك وانتظـر الـرد</b> 📨
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
-            
-        # ✅ أزرار ملونة مع إيموجي بريميوم - للعامة
+    
+    # ============================================
+    # ✅ الأزرار حسب نوع المستخدم
+    # ============================================
+    
+    # 1️⃣ أزرار المالك الأساسي
+    if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
             [
                 {
-                    "text": "🗳 اضغـط لـ التواصـل",
-                    "callback_data": "ttk_bot-1",
-                    "style": "primary",
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",  # 🔵 أزرق
                     "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
             [
                 {
-                    "text": "🎡 زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PAID
                 }
             ],
             [
                 {
                     "text": "⚠️ لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",
+                    "style": "danger",  # 🔴 أحمر
                     "icon_custom_emoji_id": EMOJI_DANGER
-                }
-            ],
-            [
-                {
-                    "text": "💎 الأوامـر المدفوعـة",
-                    "callback_data": "paid_commands_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_PAID
-                }
-            ],
-            [
-                {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
-                }
-            ]
-        ]
-        
-    elif chat.id == Config.OWNER_ID and chat.id == zid:
-        customstrmsg = gvarstatus("START_TEXT") or None
-        if customstrmsg is not None:
-            start_msg = customstrmsg.format(
-                zz_mention=mention,
-                first=first,
-                last=last,
-                fullname=fullname,
-                username=username,
-                userid=userid,
-                my_first=my_first,
-                my_last=my_last,
-                my_zname=my_fullname,
-                my_username=my_username,
-                my_mention=my_mention,
-            )
-        else:
-            # رسالة للمطور المميز بـ HTML
-            start_msg = f'''\
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👑</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
-
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يمكنك التواصـل مـع مـالكـي مـن هنـا</b> 💌
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">📨</tg-emoji> <b>فقـط ارسـل رسـالتك وانتظـر الـرد</b> 📨
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
-        
-        # ✅ أزرار ملونة مع إيموجي بريميوم - للمطور المميز
-        buttons = [
-            [
-                {
-                    "text": "🎡 زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
-                }
-            ],
-            [
-                {
-                    "text": "⚠️ لـ حـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DANGER
-                }
-            ],
-            [
-                {
-                    "text": "💎 الأوامـر المدفوعـة",
-                    "callback_data": "paid_commands_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_PAID
-                }
-            ],
-            [
-                {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
-                }
-            ]
-        ]
-        
-    else:
-        # رسالة للمالك الأساسي بـ HTML
-        start_msg = f'''\
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🔥</tg-emoji> <b>⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..</b>
-
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انا البـوت المسـاعـد الخـاص بـك</b> (تواصـل📨 + زخرفـه🎨) 🤖🦾
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">💌</tg-emoji> <b>يستطيـع اي شخص التواصل بك من خـلالي</b> 💌
-
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>لـ زخرفـة اسـم اضغـط الـزر بالاسفـل</b>
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لرؤيـة اوامـري الخاصـه بـك اضغـط :</b> <code>/help</code>'''
-        
-        # ✅ أزرار ملونة مع إيموجي بريميوم - للمالك
-        buttons = [
-            [
-                {
-                    "text": "🎡 زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
-                }
-            ],
-            [
-                {
-                    "text": "⚠️ حـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DANGER
-                }
-            ],
-            [
-                {
-                    "text": "💎 الأوامـر المدفوعـة",
-                    "callback_data": "paid_commands_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_PAID
                 }
             ]
         ]
     
-    # إرسال الرسالة عبر Bot API لتفعيل الأزرار الملونة والإيموجي
+    # 2️⃣ أزرار المطورين المميزين
+    elif chat.id == Config.OWNER_ID and chat.id == zid:
+        buttons = [
+            [
+                {
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                }
+            ],
+            [
+                {
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
+            ],
+            [
+                {
+                    "text": "⚠️ لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",  # 🔴 أحمر
+                    "icon_custom_emoji_id": EMOJI_DANGER
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                }
+            ]
+        ]
+    
+    # 3️⃣ أزرار العامة (المستخدمين العاديين)
+    else:
+        buttons = [
+            [
+                {
+                    "text": "🗳 اضغـط لـ التواصـل",
+                    "callback_data": "ttk_bot-1",
+                    "style": "success",  # 🟢 أخضر
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
+            ],
+            [
+                {
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                }
+            ],
+            [
+                {
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
+            ],
+            [
+                {
+                    "text": "⚠️ لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",  # 🔴 أحمر
+                    "icon_custom_emoji_id": EMOJI_DANGER
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                }
+            ]
+        ]
+    
+    # إرسال الرسالة عبر Bot API
     try:
         if custompic:
-            # أرسل الصورة مع وصف HTML
             await event.client.send_file(
                 chat.id,
                 file=custompic,
@@ -321,22 +271,40 @@ async def bot_start(event):
         
         response = requests.post(send_url, json=send_data, timeout=3)
         if response.status_code == 200:
-            LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم وأزرار ملونة")
         else:
-            # إذا فشل Bot API، استخدم الطريقة العادية
+            # Fallback
+            fallback_buttons = []
+            for row in buttons:
+                btn_row = []
+                for btn in row:
+                    if "url" in btn:
+                        btn_row.append(Button.url(btn["text"], btn["url"]))
+                    else:
+                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+                fallback_buttons.append(btn_row)
+            
             await event.reply(
                 start_msg,
-                buttons=[[Button.inline(btn["text"], data=btn["callback_data"]) for btn in row] for row in buttons if "callback_data" in row[0]],
+                buttons=fallback_buttons,
                 parse_mode='html',
                 link_preview=False
             )
             
     except Exception as e:
-        LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
-        # Fallback للطريقة العادية
+        
+        fallback_buttons = []
+        for row in buttons:
+            btn_row = []
+            for btn in row:
+                if "url" in btn:
+                    btn_row.append(Button.url(btn["text"], btn["url"]))
+                else:
+                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+            fallback_buttons.append(btn_row)
+        
         await event.reply(
             start_msg,
-            buttons=[[Button.inline(btn["text"], data=btn["callback_data"]) for btn in row if "callback_data" in row[0]] for row in buttons],
+            buttons=fallback_buttons,
             parse_mode='html',
             link_preview=False
         )

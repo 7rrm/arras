@@ -42,8 +42,8 @@ tt = []
 # إيموجي بريميوم
 EMOJI_PRIMARY = "5210763312597326700"   # ✨ (أزرق)
 EMOJI_SUCCESS = "5210740682414644888"   # ✅ (أخضر)
-EMOJI_DANGER = "5368324170671202286"    # 🔥 (أحمر)
-EMOJI_PAID = "4931832872081294660"      # 💎 (أزرق/أرجواني)
+EMOJI_DANGER = "5350477112677515642"    # 🔥 (أحمر)
+EMOJI_PAID = "5668127928907464707"      # 💎 (أزرق/أرجواني)
 
 class FloodConfig:
     BANNED_USERS = set()
@@ -217,7 +217,7 @@ async def bot_start(event):
                 {
                     "text": "🎡 زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "primary",  # 🔵 أزرق
+                    "style": "success",  # 🔵 أزرق
                     "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
@@ -225,7 +225,7 @@ async def bot_start(event):
                 {
                     "text": "💎 الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
-                    "style": "primary",  # 🔵 أزرق
+                    "style": "success",  # 🔵 أزرق
                     "icon_custom_emoji_id": EMOJI_PAID
                 }
             ],
@@ -271,7 +271,7 @@ async def bot_start(event):
         
         response = requests.post(send_url, json=send_data, timeout=3)
         if response.status_code == 200:
-            LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع أزرار ملونة بالترتيب المطلوب")
+            pass
         else:
             # Fallback
             fallback_buttons = []

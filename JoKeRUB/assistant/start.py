@@ -37,6 +37,12 @@ dd = []
 kk = []
 tt = []
 
+# إيموجي بريميوم
+EMOJI_PRIMARY = "5210763312597326700"   # ✨
+EMOJI_SUCCESS = "5210740682414644888"   # ✅
+EMOJI_DANGER = "5368324170671202286"    # 🔥
+EMOJI_PAID = "4931832872081294660"      # 💎
+
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -114,6 +120,7 @@ async def bot_start(event):
     # معرف الإيموجي البريميوم الجديد
     PREMIUM_EMOJI_ID = "5210763312597326700"
     
+    # تحضير الأزرار حسب نوع المستخدم
     if chat.id != Config.OWNER_ID:
         customstrmsg = gvarstatus("START_TEXT") or None
         if customstrmsg is not None:
@@ -141,21 +148,47 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
             
+        # ✅ أزرار ملونة مع إيموجي بريميوم - للعامة
         buttons = [
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+                {
+                    "text": "🗳 اضغـط لـ التواصـل",
+                    "callback_data": "ttk_bot-1",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                }
             ],
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
             ],
             [
-                Button.inline("⚠️ لـ حـذف حسـابك", data="zzk_bot-5")
+                {
+                    "text": "⚠️ لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DANGER
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
             ]
         ]
         
@@ -186,18 +219,39 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>إننـي ايضـاً بـوت زخرفـة</b> 🎨 <b>& حـذف حسابات</b> ⚠️
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل</b>'''
         
+        # ✅ أزرار ملونة مع إيموجي بريميوم - للمطور المميز
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                {
+                    "text": "⚠️ لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DANGER
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
             ]
         ]
         
@@ -212,19 +266,35 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🎨</tg-emoji> <b>لـ زخرفـة اسـم اضغـط الـزر بالاسفـل</b>
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لرؤيـة اوامـري الخاصـه بـك اضغـط :</b> <code>/help</code>'''
         
+        # ✅ أزرار ملونة مع إيموجي بريميوم - للمالك
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "🎡 زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                }
             ],
             [
-                Button.inline("حـذف حسـابك ⚠️", data="zzk_bot-5")
+                {
+                    "text": "⚠️ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DANGER
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "💎 الأوامـر المدفوعـة",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ]
         ]
     
-    # إرسال الرسالة بنفس الطريقة الناجحة
+    # إرسال الرسالة عبر Bot API لتفعيل الأزرار الملونة والإيموجي
     try:
         if custompic:
             # أرسل الصورة مع وصف HTML
@@ -236,27 +306,38 @@ async def bot_start(event):
                 reply_to=reply_to,
                 parse_mode='html'
             )
-            # أرسل الرسالة الرئيسية مع الإيموجي البريميوم
-            await event.reply(
-                start_msg,
-                buttons=buttons,
-                parse_mode='html',
-                link_preview=False
-            )
+            
+        # إرسال الرسالة الرئيسية مع الأزرار الملونة
+        send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
+        send_data = {
+            "chat_id": chat.id,
+            "text": start_msg,
+            "parse_mode": "HTML",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(send_url, json=send_data, timeout=3)
+        if response.status_code == 200:
+            LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم وأزرار ملونة")
         else:
-            # إرسال مباشر
+            # إذا فشل Bot API، استخدم الطريقة العادية
             await event.reply(
                 start_msg,
-                buttons=buttons,
+                buttons=[[Button.inline(btn["text"], data=btn["callback_data"]) for btn in row] for row in buttons if "callback_data" in row[0]],
                 parse_mode='html',
                 link_preview=False
             )
             
-        LOGS.info(f"✅ تم إرسال رسالة بدء لـ {chat.id} مع إيموجي بريميوم HTML")
-        
     except Exception as e:
         LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
-        
+        # Fallback للطريقة العادية
+        await event.reply(
+            start_msg,
+            buttons=[[Button.inline(btn["text"], data=btn["callback_data"]) for btn in row if "callback_data" in row[0]] for row in buttons],
+            parse_mode='html',
+            link_preview=False
+        )
 
     await check_bot_started_users(chat, event)
 

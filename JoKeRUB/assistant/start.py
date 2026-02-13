@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import random
 import json
@@ -39,11 +40,12 @@ dd = []
 kk = []
 tt = []
 
-# إيموجي بريميوم
-EMOJI_PRIMARY = "5260450573768990626"   # ✨ (أزرق)
-EMOJI_SUCCESS = "5210740682414644888"   # ✅ (أخضر)
-EMOJI_DANGER = "5350477112677515642"    # 🔥 (أحمر)
-EMOJI_PAID = "5668127928907464707"      # 💎 (أزرق/أرجواني)
+# إيموجي بريميوم - بدون أسماء ألوان، بأسماء الأزرار
+EMOJI_CONTACT = "5258215850745275216"      # ✨ لزر التواصل
+EMOJI_DECOR = "5411580731929411768"        # ✅ لزر الزخرفة
+EMOJI_DELETE = "5350477112677515642"       # 🔥 لزر الحذف
+EMOJI_PAID = "5408997493784467607"         # 💎 لزر المدفوع
+EMOJI_CHANNEL = "5260450573768990626"      # ✨ لزر القناة
 
 class FloodConfig:
     BANNED_USERS = set()
@@ -119,10 +121,10 @@ async def bot_start(event):
     
     custompic = gvarstatus("BOT_START_PIC") or None
     
-    # معرف الإيموجي البريميوم
+    # معرف الإيموجي البريميوم للنص
     PREMIUM_EMOJI_ID = "5210763312597326700"
     
-    # رسالة البداية (نفسها للجميع)
+    # رسالة البداية
     start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
@@ -141,26 +143,26 @@ async def bot_start(event):
         buttons = [
             [
                 {
-                    "text": "🎡 زخـارف تمبلـر",
+                    "text": "زخـارف تمبلـر",  # بدون إيموجي في النص
                     "callback_data": "decor_main_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR  # ✅ الإيموجي داخل الزر
                 }
             ],
             [
                 {
-                    "text": "💎 الأوامـر المدفوعـة",
+                    "text": "الأوامـر المدفوعـة",  # بدون إيموجي في النص
                     "callback_data": "paid_commands_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID  # 💎 الإيموجي داخل الزر
                 }
             ],
             [
                 {
-                    "text": "⚠️ لـ حـذف حسـابك",
+                    "text": "لـ حـذف حسـابك",  # بدون إيموجي في النص
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",  # 🔴 أحمر
-                    "icon_custom_emoji_id": EMOJI_DANGER
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE  # 🔥 الإيموجي داخل الزر
                 }
             ]
         ]
@@ -170,34 +172,34 @@ async def bot_start(event):
         buttons = [
             [
                 {
-                    "text": "🎡 زخـارف تمبلـر",
+                    "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR
                 }
             ],
             [
                 {
-                    "text": "💎 الأوامـر المدفوعـة",
+                    "text": "الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
                 }
             ],
             [
                 {
-                    "text": "⚠️ لـ حـذف حسـابك",
+                    "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",  # 🔴 أحمر
-                    "icon_custom_emoji_id": EMOJI_DANGER
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
                 {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]
         ]
@@ -207,42 +209,42 @@ async def bot_start(event):
         buttons = [
             [
                 {
-                    "text": "🗳 اضغـط لـ التواصـل",
+                    "text": "اضغـط لـ التواصـل",
                     "callback_data": "ttk_bot-1",
-                    "style": "primary",  # 🟢 أخضر
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CONTACT
                 }
             ],
             [
                 {
-                    "text": "🎡 زخـارف تمبلـر",
+                    "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_DECOR
                 }
             ],
             [
                 {
-                    "text": "💎 الأوامـر المدفوعـة",
+                    "text": "الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_PAID
                 }
             ],
             [
                 {
-                    "text": "⚠️ لـ حـذف حسـابك",
+                    "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",  # 🔴 أحمر
-                    "icon_custom_emoji_id": EMOJI_DANGER
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
                 {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PRIMARY
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]
         ]
@@ -259,7 +261,6 @@ async def bot_start(event):
                 parse_mode='html'
             )
             
-        # إرسال الرسالة الرئيسية مع الأزرار الملونة
         send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
         send_data = {
             "chat_id": chat.id,

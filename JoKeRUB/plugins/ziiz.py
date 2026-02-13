@@ -38,23 +38,20 @@ from ..utils import Zed_Dev, load_module, remove_plugin
 from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
 from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
 
+LOGS = logging.getLogger(os.path.basename(__name__))
 
-# -*- coding: utf-8 -*-
-import json
-import requests
-from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.types import MessageEntityMentionName
-
-from . import l313l
-from ..Config import Config
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..core.logger import logging
-
-LOGS = logging.getLogger(__name__)
-
-# ايموجي عادي
-EMOJI_SECRET = "📨"
-EMOJI_FIRE = "🔥"
+scc = "secret"
+hmm = "همسـة"
+ymm = "يستطيـع"
+fmm = "• فتـح الهمسـه •"
+dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+nmm = "همسـه سريـه"
+mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
+bmm = "اضغـط للـرد"
+ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎اضغـط الـزر بالاسفـل ⚓\n⌔╎لـ اࢪسـال همسـه سـࢪيـه الى"
+ddd = "💌"
+Zel_Uid = l313l.uid
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -80,47 +77,44 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event):
+async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
     user_id = zthon_user.id
     username = zthon_user.username
-    first_name = first_name.replace("\u2060", "") if first_name else None
+    first_name = (
+        first_name.replace("\u2060", "")
+        if first_name
+        else None
+    )
     full_name = full_name or first_name
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
+    global bbb
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
     user = event.pattern_match.group(1)
     if not user and not event.reply_to_msg_id:
         return
-
     zthon_user = await get_user_from_event(event)
     try:
         user_id, full_name, username = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
         return
-
-    # حفظ بيانات المستلم
     delgvar("hmsa_id")
     delgvar("hmsa_name")
     delgvar("hmsa_user")
     addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-
-    # ✅ مثل كود السورس بالضبط!
-    TG_BOT = Config.TG_BOT_USERNAME
-    
-    # حسابك يطلب نتيجة الإنلاين من البوت
-    response = await event.client.inline_query(TG_BOT, f"همسة_{user_id}")
-    
-    if response:
-        # ✅ حسابك هو من يضغط ويرسل الرسالة!
-        await response[0].click(event.chat_id)
-        await event.delete()  # حذف الأمر
-        LOGS.info(f"✅ تم إرسال همسة إلى {username or full_name}")
+    if gvarstatus("hmsa_id"):
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
-        await event.edit("❌ حدث خطأ في إنشاء الهمسة")
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+    await response[0].click(event.chat_id)
+    await event.delete()

@@ -38,13 +38,15 @@ from ..utils import Zed_Dev, load_module, remove_plugin
 from ..sql_helper.global_collection import add_to_collectionlist, del_keyword_collectionlist, get_collectionlist_items
 from . import SUDO_LIST, edit_delete, edit_or_reply, reply_id, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
 
+
+
 LOGS = logging.getLogger(__name__)
 
 # 📨 ايموجي بريميوم - نفس كود القراءة!
 EMOJI_SECRET = "5933974679269151927"   # 📨
 EMOJI_CHECK = "4929526216945305427"    # ✅
 EMOJI_CLOCK = "5839380464116175529"    # 🕖
-EMOJI_FIRE = "5368324170671202286"     # 🔥
+EMOJI_OTHER = "4931832872081294660"    # 📨 آخر
 
 WHISPER_DIR = "./JoKeRUB"
 os.makedirs(WHISPER_DIR, exist_ok=True)
@@ -105,12 +107,12 @@ async def repozedub(event):
     addgvar("hmsa_user", username)
 
     # ============================================
-    # ✅ المرحلة 1: إرسال رسالة "جاري إنشاء الهمسة..."
+    # ✅ المرحلة 1: رسالة "جاري إنشاء الهمسة..." + زر من البداية!
     # ============================================
-    msg = await event.edit("⏱️ **جاري إنشاء الهمسة...**")
-
+    
     # معرف فريد للهمسة
-    secret_id = f"{int(time.time() * 1000)}_{random.randint(100, 999)}"
+    timestamp = int(time.time() * 2)
+    secret_id = f"{timestamp}"
 
     # حفظ الهمسة
     file_name = os.path.join(WHISPER_DIR, f"{user_id}.txt")
@@ -125,32 +127,36 @@ async def repozedub(event):
         "text": None,
         "sender_id": event.sender_id,
         "read": False,
-        "chat_id": event.chat_id,
-        "message_id": msg.id
+        "timestamp": timestamp
     }
 
     with open(file_name, "w") as f:
         json.dump(db, f, indent=4)
 
+    # ✅ الزر من البداية!
+    start_buttons = [[
+        Button.switch_inline(
+            "✍️ اضغط لكتابة الهمسة 📨",
+            query=f"secret {secret_id} \n",
+            same_peer=True
+        )
+    ]]
+
+    # ✅ إرسال رسالة "جاري إنشاء الهمسة..." مع الزر
+    whisper_msg = await event.edit(
+        "**⏱️ جاري إنشاء الهمسة...**",
+        buttons=start_buttons
+    )
+
     # ============================================
-    # ✅ المرحلة 2: تعديل إلى "اضغط لكتابة الهمسة"
+    # ✅ المرحلة 2: تعديل الرسالة - إضافة إيموجي بريميوم (نفس كود القراءة!)
     # ============================================
-    text1 = f'''
+    new_text = f"""
 <tg-emoji emoji-id="{EMOJI_SECRET}">📨</tg-emoji> <b>ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه</b>
 ⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<b>⌔╎لـ إرسال همسة سريّة إلى</b> {username or f'[{full_name}](tg://user?id={user_id})'} 💌
-⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆
-<i>⌔╎اضغط الزر بالأسفل لكتابة الهمسة</i>
-'''
+<b>⌔╎لـ أࢪسـال همسـه سـريـه الى</b> {username or f'[{full_name}](tg://user?id={user_id})'} 💌
+"""
 
-    # ✅ زر إنلاين - Telethon style (يدعم الإيموجي في النص فقط)
-    buttons1 = [
-        [Button.switch_inline("✍️ اضغط لكتابة الهمسة 📨", query=f"whisper_{secret_id} \n", same_peer=True)]
-    ]
-
-    await msg.edit(text1, buttons=buttons1, parse_mode='html')
-
-    # ============================================
-    # ✅ المرحلة 3: انتظر الهمسة من znz.py
-    # ============================================
-    # هذا الجزء يتم في znz.py
+    # ✅ نفس الزر - بس مع إيموجي بريميوم في النص!
+    await whisper_msg.edit(new_text, buttons=start_buttons, parse_mode='html')
+    LOGS.info(f"✅ تم إنشاء همسة للمستخدم {username or full_name}")

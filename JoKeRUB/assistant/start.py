@@ -40,7 +40,7 @@ kk = []
 tt = []
 
 # إيموجي بريميوم
-EMOJI_PRIMARY = "5210763312597326700"   # ✨ (أزرق)
+EMOJI_PRIMARY = "5260450573768990626"   # ✨ (أزرق)
 EMOJI_SUCCESS = "5210740682414644888"   # ✅ (أخضر)
 EMOJI_DANGER = "5350477112677515642"    # 🔥 (أحمر)
 EMOJI_PAID = "5668127928907464707"      # 💎 (أزرق/أرجواني)
@@ -152,7 +152,7 @@ async def bot_start(event):
                     "text": "💎 الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PAID
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
             [
@@ -181,7 +181,7 @@ async def bot_start(event):
                     "text": "💎 الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PAID
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
             [
@@ -209,15 +209,15 @@ async def bot_start(event):
                 {
                     "text": "🗳 اضغـط لـ التواصـل",
                     "callback_data": "ttk_bot-1",
-                    "style": "success",  # 🟢 أخضر
-                    "icon_custom_emoji_id": EMOJI_SUCCESS
+                    "style": "primary",  # 🟢 أخضر
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
             [
                 {
                     "text": "🎡 زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "success",  # 🔵 أزرق
+                    "style": "primary",  # 🔵 أزرق
                     "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
@@ -225,8 +225,8 @@ async def bot_start(event):
                 {
                     "text": "💎 الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
-                    "style": "success",  # 🔵 أزرق
-                    "icon_custom_emoji_id": EMOJI_PAID
+                    "style": "primary",  # 🔵 أزرق
+                    "icon_custom_emoji_id": EMOJI_PRIMARY
                 }
             ],
             [

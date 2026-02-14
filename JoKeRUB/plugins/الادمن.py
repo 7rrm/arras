@@ -398,8 +398,8 @@ from telethon import events
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # معلومات الخلفية المحددة
-WALLPAPER_ID = 4936284412410069350
-WALLPAPER_HASH = -4225663473937647700
+WALLPAPER_ID = 4931732000479379669
+WALLPAPER_HASH = -2062160220342649303
 
 @l313l.ar_cmd(
     pattern="تفعيل الخلفية التلقائية$",
@@ -558,7 +558,7 @@ async def get_wallpaper_info(event):
         
         # إظهار النتائج
         info_text = f"""
-**᯽︙ تم جلب معلومات الصورة بنجاح ✓**
+**⌔︙ تم جلب معلومات الصورة بنجاح ✓**
 
 **🆔 الـ ID:** `{result.id}`
 **🔑 الـ Access Hash:** `{result.access_hash}`

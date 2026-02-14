@@ -32,7 +32,7 @@ from ..helpers.functions import (
     ud_frames,
     vid_to_gif,
 )
-from ..helpers.utils import _cattools, _catutils, _format
+from ..helpers.utils import _zedtools, _zedutils, _format
 from . import l313l, make_gif, progress
 
 plugin_category = "الادوات"

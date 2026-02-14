@@ -32,7 +32,7 @@ from ..helpers.functions import (
     ud_frames,
     vid_to_gif,
 )
-from ..helpers.utils import _zedtools, _zedutils, _format
+from ..helpers.utils import _cattools, _catutils, _format
 from . import l313l, make_gif, progress
 
 plugin_category = "الادوات"
@@ -292,7 +292,7 @@ async def pic_gifcmd(event):  # sourcery no-metrics
         return await edit_delete(event, "`Reply to supported Media...`")
     media_type(reply)
     catevent = await edit_or_reply(event, "__Making round spin video wait a sec.....__")
-    output = await _zedtools.media_to_pic(event, reply)
+    output = await _cattools.media_to_pic(event, reply)
     if output[1] is None:
         return await edit_delete(
             output[0], "__Unable to extract image from the replied message.__"
@@ -325,7 +325,7 @@ async def pic_gifcmd(event):  # sourcery no-metrics
     PATH = os.path.join(Config.TEMP_DIR, "round.gif")
     if aspect_ratio != 1:
         crop_by = width if (height > width) else height
-        await _zedutils.runcmd(
+        await _catutils.runcmd(
             f'ffmpeg -i {final} -vf "crop={crop_by}:{crop_by}" {PATH}'
         )
     else:

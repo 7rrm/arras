@@ -610,7 +610,7 @@ async def _(event):  # sourcery no-metrics
         force_document=False,
         reply_to=reply_to_id,
     )
-    await _zedutils.unsavegif(event, sandy)
+    await _catutils.unsavegif(event, sandy)
     await catevent.delete()
     for files in (catgif, catfile):
         if files and os.path.exists(files):
@@ -631,7 +631,7 @@ async def pic_gifcmd(event):
     args = event.pattern_match.group(1)
     args = "i" if not args else args.replace("-", "")
     catevent = await edit_or_reply(event, "**╮ جـاري ﮼التحويـل لـ متحركـة 🎞🎆...𓅫╰**")
-    imag = await _zedtools.media_to_pic(event, reply)
+    imag = await _cattools.media_to_pic(event, reply)
     if imag[1] is None:
         return await edit_delete(
             imag[0], "**- اووبـس .. تعذر استخراج الصورة من الرسالة التي تم الرد عليها..**"
@@ -671,7 +671,7 @@ async def pic_gifcmd(event):
                 os.remove(i)
         return
     sandy = await event.client.send_file(event.chat_id, output, reply_to=reply)
-    await _zedutils.unsavegif(event, sandy)
+    await _catutils.unsavegif(event, sandy)
     await catevent.delete()
     for i in [final, "Output.gif", imag[1]]:
         if os.path.exists(i):
@@ -699,7 +699,7 @@ async def _(event):
     if result is None:
         return await edit_delete(event, "**- لا يمكنني تحويلهـا إلى متحركـة ؟! **")
     sandy = await event.client.send_file(event.chat_id, result, reply_to=reply)
-    await _zedutils.unsavegif(event, sandy)
+    await _catutils.unsavegif(event, sandy)
     await catevent.delete()
     for i in [inputfile, outputfile]:
         if os.path.exists(i):

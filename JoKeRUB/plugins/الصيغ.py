@@ -402,3 +402,38 @@ async def video_catfile(event):  # sourcery no-metrics
     await catevent.delete()
 
 
+@l313l.ar_cmd(
+    pattern="تحويل متحركة ?([0-9.]+)?$",
+    command=("تحويل متحركة", plugin_category),
+    info={
+        "header": "Reply this command to a video to convert it to gif.",
+        "description": "By default speed will be 1x",
+        "usage": "{tr}vtog <speed>",
+    },
+)
+async def _(event):
+    "Reply this command to a video to convert it to gif."
+    reply = await event.get_reply_message()
+    mediatype = media_type(event)
+    if mediatype and mediatype != "video":
+        return await edit_delete(event, "᯽︙ يجـب عليك الـرد على فيديو اولا لتحـويله ⚠️")
+    args = event.pattern_match.group(1)
+    if not args:
+        args = 2.0
+    else:
+        try:
+            args = float(args)
+        except ValueError:
+            args = 2.0
+    catevent = await edit_or_reply(event, "**᯽︙ يتـم التحويل الى متـحركه انتـظر ⏱**")
+    inputfile = await reply.download_media()
+    outputfile = os.path.join(Config.TEMP_DIR, "vidtogif.gif")
+    result = await vid_to_gif(inputfile, outputfile, speed=args)
+    if result is None:
+        return await edit_delete(event, "**᯽︙ عـذرا لا يمكـنني تحويل هذا الى متـحركة ⚠️**")
+    jasme = await event.client.send_file(event.chat_id, result, reply_to=reply)
+    await _catutils.unsavegif(event, jasme)
+    await catevent.delete()
+    for i in [inputfile, outputfile]:
+        if os.path.exists(i):
+            os.remove(i)

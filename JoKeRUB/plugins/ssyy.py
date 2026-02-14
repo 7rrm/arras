@@ -1049,7 +1049,7 @@ youtube_settings = {
 }
 
 video_settings = {
-    'bot_username': '@J_NO0bot',
+    'bot_username': '@ahmedebot',
     'channels': ['@arras_id']
 }
 

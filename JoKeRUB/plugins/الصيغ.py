@@ -398,7 +398,7 @@ async def video_catfile(event):  # sourcery no-metrics
                     width = track.width
             if aspect_ratio != 1:
                 crop_by = width if (height > width) else height
-                await _zedutils.runcmd(
+                await _catutils.runcmd(
                     f'ffmpeg -i {catfile} -vf "crop={crop_by}:{crop_by}" {PATH}'
                 )
             else:
@@ -428,7 +428,7 @@ async def video_catfile(event):  # sourcery no-metrics
             catthumb = os.path.join("./temp", "thumb.jpg")
             copyfile(thumb_loc, catthumb)
         if catthumb is not None and os.path.exists(catthumb):
-            await _zedutils.runcmd(
+            await _catutils.runcmd(
                 f"""ffmpeg -loop 1 -i {catthumb} -i {catfile} -c:v libx264 -tune stillimage -c:a aac -b:a 192k -vf \"scale=\'iw-mod (iw,2)\':\'ih-mod(ih,2)\',format=yuv420p\" -shortest -movflags +faststart {PATH}"""
             )
             os.remove(catfile)
@@ -483,7 +483,7 @@ async def video_catfile(event):  # sourcery no-metrics
             )
 
             if not args:
-                await _zedutils.unsavegif(event, sandy)
+                await _catutils.unsavegif(event, sandy)
             os.remove(PATH)
             if not flag:
                 os.remove(catthumb)

@@ -373,7 +373,7 @@ async def video_catfile(event):  # sourcery no-metrics
     catid = await reply_id(event)
     if not reply or not reply.media:
         return await edit_delete(event, "`Reply to supported media`")
-    mediatype = media_type(reply)
+    mediatype = await media_type(reply)
     if mediatype == "Round Video":
         return await edit_delete(
             event,

@@ -414,7 +414,7 @@ async def video_catfile(event):  # sourcery no-metrics
 async def _(event):
     "Reply this command to a video to convert it to gif."
     reply = await event.get_reply_message()
-    mediatype = media_type(event)
+    mediatype = await media_type(event)
     if mediatype and mediatype != "video":
         return await edit_delete(event, "᯽︙ يجـب عليك الـرد على فيديو اولا لتحـويله ⚠️")
     args = event.pattern_match.group(1)

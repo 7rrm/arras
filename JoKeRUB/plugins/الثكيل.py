@@ -567,7 +567,7 @@ admin_id = l313l.uid
 
 # تخزين سريع في الذاكرة
 last_reply_time = {}
-trigger_symbols = {'.', '،', ',', '-'}
+trigger_symbols = {'.', '،', ',', '-', 'َ'}
 
 def is_quotes_enabled(chat_id):
     return gvarstatus(f"quotes_{chat_id}") == "true"

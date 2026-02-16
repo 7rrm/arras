@@ -537,6 +537,8 @@ async def Hussein(event):
         
 from telethon import events
 import random
+import time
+from datetime import datetime
 from JoKeRUB import l313l
 from ..core.managers import edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
@@ -564,22 +566,28 @@ messages_collection = [
 
 admin_id = l313l.uid
 
-# ⚡ التخزين في الذاكرة RAM (أسرع مليون مرة من قاعدة البيانات)
-enabled_chats = set()  # set أسرع من list للبحث
-chat_delays = {}  # dict للتخزين السريع
+# تخزين سريع في الذاكرة
 last_reply_time = {}
 trigger_symbols = {'.', '،', ',', '-'}
 
-# ⚡ دالة سريعة جداً بدون قاعدة بيانات
-def is_quotes_enabled_fast(chat_id):
-    return chat_id in enabled_chats
+def is_quotes_enabled(chat_id):
+    return gvarstatus(f"quotes_{chat_id}") == "true"
 
-def get_quotes_delay_fast(chat_id):
-    return chat_delays.get(chat_id, 0)
+def get_quotes_delay(chat_id):
+    delay = gvarstatus(f"quotes_delay_{chat_id}")
+    return int(delay) if delay and delay.isdigit() else 0
 
 @l313l.ar_cmd(
     pattern="تفعيل الاقتباس(?:\s+(-?\d+))?(?:\s+(\d+))?$",
     command=("تفعيل الاقتباس", plugin_category),
+    info={
+        "header": "لتشغيل ميزة الاقتباسات في مجموعة محددة مع وقت تأخير اختياري",
+        "usage": [
+            "{tr}تفعيل الاقتباس - للتشغيل في المجموعة الحالية",
+            "{tr}تفعيل الاقتباس <ايدي المجموعة> - للتشغيل في مجموعة محددة",
+            "{tr}تفعيل الاقتباس <ايدي المجموعة> <الوقت بالثواني> - للتشغيل مع وقت تأخير"
+        ],
+    },
 )
 async def enable_quotes(event):
     chat_input = event.pattern_match.group(1)
@@ -595,26 +603,38 @@ async def enable_quotes(event):
     else:
         chat_id = event.chat_id
     
-    delay_time = int(delay_input) if delay_input and delay_input.isdigit() else 0
-    
-    # ⚡ تخزين في الذاكرة (سرعة خيالية)
-    enabled_chats.add(chat_id)
-    if delay_time > 0:
-        chat_delays[chat_id] = delay_time
-    
-    # تخزين في قاعدة البيانات كنسخة احتياطية (لما يعاد تشغيل البوت)
-    addgvar(f"quotes_{chat_id}", "true")
-    if delay_time > 0:
+    delay_time = 0
+    if delay_input and delay_input.isdigit():
+        delay_time = int(delay_input)
         addgvar(f"quotes_delay_{chat_id}", str(delay_time))
     
-    if delay_time > 0:
-        await edit_delete(event, f"**✧︙ تم التفعيل في `{chat_id}` ⚡\n✧︙ التأخير: `{delay_time}` ثانية**")
+    if is_quotes_enabled(chat_id):
+        current_delay = get_quotes_delay(chat_id)
+        if delay_time > 0:
+            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!\n✧︙ وقت التأخير: `{current_delay}` ثانية**")
+        else:
+            return await edit_delete(event, f"**✧︙ الاقتباسات مفعلة بالفعل في المجموعة `{chat_id}`!**")
+    
+    addgvar(f"quotes_{chat_id}", "true")
+    
+    if is_quotes_enabled(chat_id):
+        if delay_time > 0:
+            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓\n✧︙ وقت التأخير: `{delay_time}` ثانية**")
+        else:
+            await edit_delete(event, f"**✧︙ تم تفعيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
     else:
-        await edit_delete(event, f"**✧︙ تم التفعيل في `{chat_id}` ⚡**")
+        await edit_delete(event, f"**✧︙ فشل في تفعيل الاقتباسات!**")
 
 @l313l.ar_cmd(
     pattern="تعطيل الاقتباس(?:\s+(-?\d+))?$",
     command=("تعطيل الاقتباس", plugin_category),
+    info={
+        "header": "لإيقاف ميزة الاقتباسات في مجموعة محددة",
+        "usage": [
+            "{tr}تعطيل الاقتباس - للإيقاف في المجموعة الحالية", 
+            "{tr}تعطيل الاقتباس <ايدي المجموعة> - للإيقاف في مجموعة محددة"
+        ],
+    },
 )
 async def disable_quotes(event):
     chat_input = event.pattern_match.group(1)
@@ -629,57 +649,63 @@ async def disable_quotes(event):
     else:
         chat_id = event.chat_id
     
-    # ⚡ حذف من الذاكرة فوراً
-    enabled_chats.discard(chat_id)
-    chat_delays.pop(chat_id, None)
-    last_reply_time.pop(chat_id, None)
+    if not is_quotes_enabled(chat_id):
+        return await edit_delete(event, f"**✧︙ الاقتباسات معطلة بالفعل في المجموعة `{chat_id}`!**")
     
-    # حذف من قاعدة البيانات
     delgvar(f"quotes_{chat_id}")
     delgvar(f"quotes_delay_{chat_id}")
     
-    await edit_delete(event, f"**✧︙ تم التعطيل في `{chat_id}` ⚡**")
+    if chat_id in last_reply_time:
+        del last_reply_time[chat_id]
+    
+    if not is_quotes_enabled(chat_id):
+        await edit_delete(event, f"**✧︙ تم تعطيل الاقتباسات في المجموعة `{chat_id}` بنجاح ✓**")
+    else:
+        await edit_delete(event, f"**✧︙ فشل في تعطيل الاقتباسات!**")
 
-# ⚡⚡⚡ أسرع معالج ممكن (بدون أي تحقق زائد)
 @l313l.on(events.NewMessage)
 async def quotes_handler(event):
-    # شرط واحد سريع جداً
-    if event.sender_id == admin_id or not event.is_group:
+    # بدء حساب الوقت
+    start_time = time.time()
+    
+    # تحقق سريع من الشروط الأساسية أولاً
+    if not event.is_group or event.sender_id == admin_id:
         return
     
     chat_id = event.chat_id
     
-    # ⚡ تحقق في الذاكرة (0.000001 ثانية)
-    if chat_id not in enabled_chats:
+    # تحقق سريع من التفعيل (هذه أبطأ نقطة في الكود)
+    if not is_quotes_enabled(chat_id):
         return
     
-    # ⚡ تحقق سريع من الرمز
-    msg = event.message.text
-    if len(msg) != 1 or msg not in trigger_symbols:
+    # تحقق سريع من الرموز باستخدام set
+    message_text = event.message.text.strip()
+    if message_text not in trigger_symbols:
         return
     
-    # ⚡ تحقق وقت التأخير (إذا موجود)
-    delay = chat_delays.get(chat_id, 0)
-    if delay > 0:
-        current = time.monotonic()
-        last = last_reply_time.get(chat_id, 0)
-        if current - last < delay:
+    # الآن تحقق من الوقت (آخر خطوة)
+    delay_time = get_quotes_delay(chat_id)
+    
+    if delay_time > 0:
+        current_time = time.monotonic()
+        last_time = last_reply_time.get(chat_id, 0)
+        
+        if current_time - last_time < delay_time:
             return
-        last_reply_time[chat_id] = current
+        
+        last_reply_time[chat_id] = current_time
     
-    # ⚡ رد فوري بدون أي تعقيدات
-    await event.respond(
-        f"<blockquote>\n{random.choice(messages_collection)}\n</blockquote>",
-        parse_mode='html'
-    )
-
-# ⚡ تحميل البيانات عند بدء التشغيل (مرة واحدة)
-@l313l.on(events.NewMessage(pattern=None))  # هذا يشغل مرة وحدة عند بداية البوت
-async def load_enabled_chats(event):
-    if hasattr(load_enabled_chats, 'loaded'):
-        return
-    load_enabled_chats.loaded = True
+    # حساب الوقت المستغرق
+    elapsed_time = time.time() - start_time
+    elapsed_ms = int(elapsed_time * 1000)  # تحويل إلى ملي ثانية
     
-    # هنا تقدر تجيب المجموعات المفعلة من قاعدة البيانات
-    # لكن هذا يتطلب تعديل في sql_helper عشان يجيب كل المفاتاح
-    pass
+    # تنسيق الوقت المستغرق
+    if elapsed_ms < 1000:
+        time_str = f"⏱️ استغرق الرد: `{elapsed_ms} ملي ثانية`"
+    else:
+        time_str = f"⏱️ استغرق الرد: `{elapsed_time:.2f} ثانية`"
+    
+    # إرسال الرد مع وقت الاستجابة
+    selected_message = random.choice(messages_collection)
+    caption = f"<blockquote>\n{selected_message}\n</blockquote>\n\n{time_str}"
+    await event.respond(caption, parse_mode='html')

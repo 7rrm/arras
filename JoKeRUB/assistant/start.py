@@ -1398,18 +1398,18 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
                     "text": "الأوامـر المدفوعـة 💎",
                     "callback_data": "paid_commands_menu",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_PAID
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
@@ -1437,14 +1437,6 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
                     "text": "الأوامـر المدفوعـة 💎",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
@@ -1453,10 +1445,10 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ]
         ]
@@ -1476,14 +1468,6 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
                     "text": "الأوامـر المدفوعـة 💎",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
@@ -1492,10 +1476,10 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ]
         ]

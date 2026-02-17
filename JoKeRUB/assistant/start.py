@@ -1343,6 +1343,7 @@ async def decor_main_menu_handler(event):
             link_preview=False
         )
 
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()
@@ -1371,9 +1372,9 @@ async def settings_toggle(event):
     # تحديد الأزرار حسب نوع المستخدم
     if event.query.user_id != Config.OWNER_ID:
         # كليشة العامة
-        start_msg = """• مرحبـاً بك مجـدداً ⛹🏻‍♀
+        start_msg = f"""• مرحبـاً بك مجـدداً ⛹🏻‍♀
 
-• أنـا البـوت الخـاص بـ
+• أنـا البـوت الخـاص بـ {my_fullname}
 • هذا البوت يحتوي على عـدة أقسـام خدميه
 ❶ التواصـل مـع مـالكـي مـن هنـا 💌
 ❷ زخـرفـة النصـوص والأسمـاء 🎨
@@ -1381,7 +1382,7 @@ async def settings_toggle(event):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 • لـ البـدء إستخـدم الازرار بالاسفـل ⌨"""
         
-        # أزرار العامة
+        # أزرار العامة - بدون أرقام
         buttons = [
             [
                 {
@@ -1438,7 +1439,7 @@ async def settings_toggle(event):
 • لـ زخرفـة اسـم اضغـط الـزر بالاسفـل
 • لرؤيـة اوامـري الخاصـه اضغـط : /help"""
         
-        # أزرار المطورين المميزين
+        # أزرار المطورين المميزين - بدون أرقام
         buttons = [
             [
                 {
@@ -1487,7 +1488,7 @@ async def settings_toggle(event):
 • لـ زخرفـة اسـم اضغـط الـزر بالاسفـل
 • لرؤيـة اوامـري الخاصـه اضغـط : /help"""
         
-        # أزرار المالك الأساسي
+        # أزرار المالك الأساسي - بدون أرقام
         buttons = [
             [
                 {
@@ -1563,8 +1564,7 @@ async def settings_toggle(event):
                     btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
             fallback_buttons.append(btn_row)
         
-        await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)            
-
+        await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-1$")))
 async def settings_toggle(c_q: CallbackQuery):

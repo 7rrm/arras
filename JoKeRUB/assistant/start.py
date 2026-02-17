@@ -1168,8 +1168,50 @@ async def settings_toggle(c_q: CallbackQuery):
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):
-    await event.edit(
-        """**• مرحبـاً بك عـزيـزي 🫂
+    # تصميم الأزرار الملونة - فقط لون بدون إيموجي
+    buttons = [
+        [
+            {
+                "text": "زخرفـة انكـلـش ✍🏻",
+                "callback_data": "zzk_bot-on",
+                "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
+            }
+        ],
+        [
+            {
+                "text": "رمـوز تمبلـر 1 🎨",
+                "callback_data": "zzk_bot-1",
+                "style": "primary"  # 🔵 أزرق
+            },
+            {
+                "text": "رمـوز تمبلـر 2 🎨",
+                "callback_data": "zzk_bot-2",
+                "style": "primary"  # 🔵 أزرق
+            }
+        ],
+        [
+            {
+                "text": "زغـارف أرقـام 🔢",
+                "callback_data": "zzk_bot-3",
+                "style": "primary"  # 🔵 أزرق
+            }
+        ],
+        [
+            {
+                "text": "رجــوع ↩️",
+                "callback_data": "styleback",
+                "style": "primary"  # 🔵 أزرق
+            }
+        ]
+    ]
+
+    # إرسال عبر Bot API
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": """**• مرحبـاً بك عـزيـزي 🫂
 
 • في قسـم بـوت الزخرفـه 📨
 • هذا القسم يحتوي على عـدة أقسـام خدميه
@@ -1179,24 +1221,67 @@ async def decor_main_menu_handler(event):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 • لـ البـدء إستخـدم الازرار بالاسفـل ⌨
 .**""",
-        buttons=[
-            [
-                Button.inline("زخرفـة انكـلـش ✍🏻", data="zzk_bot-on")
-            ],
-            [
-                Button.inline("رمـوز تمبلـر 1 🎨", data="zzk_bot-1"),
-                Button.inline("رمـوز تمبلـر 2 🎨", data="zzk_bot-2")
-            ],
-            [
-                Button.inline("زغـارف أرقـام 🔢", data="zzk_bot-3")
-            ],
-            [
-                Button.inline("رجــوع ↩️", data="styleback")
-            ],
-        ],
-        link_preview=False
-    )
-    
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            # Fallback
+            fallback_buttons = []
+            for row in buttons:
+                btn_row = []
+                for btn in row:
+                    if "url" in btn:
+                        btn_row.append(Button.url(btn["text"], btn["url"]))
+                    else:
+                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+                fallback_buttons.append(btn_row)
+            
+            await event.edit(
+                """**• مرحبـاً بك عـزيـزي 🫂
+
+• في قسـم بـوت الزخرفـه 📨
+• هذا القسم يحتوي على عـدة أقسـام خدميه
+❶ زخـرفة انجلـش تمبلـر 🎡
+❷ رمـوز تمبلـر ممطروقـه 💠
+❸ جميـع زخـارف الارقـام 🌀
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ البـدء إستخـدم الازرار بالاسفـل ⌨
+.**""",
+                buttons=fallback_buttons,
+                link_preview=False
+            )
+    except Exception as e:
+        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
+        # Fallback
+        fallback_buttons = []
+        for row in buttons:
+            btn_row = []
+            for btn in row:
+                if "url" in btn:
+                    btn_row.append(Button.url(btn["text"], btn["url"]))
+                else:
+                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+            fallback_buttons.append(btn_row)
+        
+        await event.edit(
+            """**• مرحبـاً بك عـزيـزي 🫂
+
+• في قسـم بـوت الزخرفـه 📨
+• هذا القسم يحتوي على عـدة أقسـام خدميه
+❶ زخـرفة انجلـش تمبلـر 🎡
+❷ رمـوز تمبلـر ممطروقـه 💠
+❸ جميـع زخـارف الارقـام 🌀
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ البـدء إستخـدم الازرار بالاسفـل ⌨
+.**""",
+            buttons=fallback_buttons,
+            link_preview=False
+        )
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()

@@ -1352,6 +1352,7 @@ async def settings_toggle(event):
     my_last = user.last_name
     my_fullname = f"{my_first} {my_last}" if my_last else my_first
     my_username = f"@{user.username}" if user.username else my_mention
+    
     if gvarstatus("START_BUTUN") is not None:
         zz_txt = "⌔ قنـاتـي ⌔"
         zz_ch = gvarstatus("START_BUTUN")
@@ -1361,11 +1362,14 @@ async def settings_toggle(event):
     else:
         zz_txt = "⌔ قنـاة المـطور ⌔"
         zz_ch = "aqhvv"
+    
     zid = 5427469031
     if gvarstatus("ZThon_Vip") is None:
         zid = 5427469031
     else:
         zid = int(gvarstatus("ZThon_Vip"))
+    
+    # تحديد الأزرار حسب نوع المستخدم
     if event.query.user_id != Config.OWNER_ID:
         start_msg = f"**⌔ مـرحباً بـك مجـدداً ⛹🏻‍♀**\
                     \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
@@ -1373,56 +1377,170 @@ async def settings_toggle(event):
                     \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
                     \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
                     \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+        
+        # أزرار العامة - نفس الألوان والإيموجيات
         buttons = [
             [
-                Button.inline("اضغـط لـ التواصـل 🗳", data="ttk_bot-1")
+                {
+                    "text": "اضغـط لـ التواصـل 🗳",
+                    "callback_data": "ttk_bot-1",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CONTACT
+                }
             ],
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "زخـارف تمبلـر 🎡",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                {
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "الأوامـر المدفوعـة 💎",
+                    "callback_data": "paid_commands_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                }
             ]
         ]
+        
     elif event.query.user_id == Config.OWNER_ID and event.query.user_id == zid:
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        
+        # أزرار المطورين المميزين
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "زخـارف تمبلـر 🎡",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                {
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "الأوامـر المدفوعـة 💎",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                }
             ]
         ]
+        
     else:
         start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        
+        # أزرار المالك الأساسي
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر 🎡", data="decor_main_menu")
+                {
+                    "text": "زخـارف تمبلـر 🎡",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
             ],
             [
-                Button.inline("لـ حـذف حسـابك ⚠️", data="zzk_bot-5")
+                {
+                    "text": "لـ حـذف حسـابك ⚠️",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
             ],
             [
-                Button.inline("الأوامـر المدفوعـة 💎", data="paid_commands_menu")
+                {
+                    "text": "الأوامـر المدفوعـة 💎",
+                    "callback_data": "paid_commands_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_PAID
+                }
             ],
             [
-                Button.url(zz_txt, f"https://t.me/{zz_ch}")
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                }
             ]
         ]
-    await event.edit(start_msg, buttons=buttons, link_preview=False)
+    
+    # إرسال عبر Bot API
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": start_msg,
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            # Fallback للطريقة العادية
+            fallback_buttons = []
+            for row in buttons:
+                btn_row = []
+                for btn in row:
+                    if "url" in btn:
+                        btn_row.append(Button.url(btn["text"], btn["url"]))
+                    else:
+                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+                fallback_buttons.append(btn_row)
+            
+            await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)
+            
+    except Exception as e:
+        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
+        # Fallback
+        fallback_buttons = []
+        for row in buttons:
+            btn_row = []
+            for btn in row:
+                if "url" in btn:
+                    btn_row.append(Button.url(btn["text"], btn["url"]))
+                else:
+                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+            fallback_buttons.append(btn_row)
+        
+        await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-1$")))

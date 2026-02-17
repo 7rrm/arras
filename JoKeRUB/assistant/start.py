@@ -104,13 +104,13 @@ async def bot_start(event):
     my_username = f"@{user.username}" if user.username else my_mention
     
     if gvarstatus("START_BUTUN") is not None:
-        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+        zz_txt = "• المـطـور •"
         zz_ch = gvarstatus("START_BUTUN")
     elif user.username:
-        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+        zz_txt = "• المـطـور •"
         zz_ch = user.username
     else:
-        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+        zz_txt = "• المـطـور •"
         zz_ch = "aqhvv"
     
     zid = 5427469031
@@ -1357,7 +1357,7 @@ async def settings_toggle(event):
         zz_txt = "⌔ قنـاتـي ⌔"
         zz_ch = gvarstatus("START_BUTUN")
     elif user.username:
-        zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+        zz_txt = "• المـطـور •"
         zz_ch = user.username
     else:
         zz_txt = "⌔ قنـاة المـطور ⌔"
@@ -1382,7 +1382,7 @@ async def settings_toggle(event):
         buttons = [
             [
                 {
-                    "text": "اضغـط لـ التواصـل 🗳",
+                    "text": "اضغـط لـ التواصـل ",
                     "callback_data": "ttk_bot-1",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_CONTACT
@@ -1390,7 +1390,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "زخـارف تمبلـر 🎡",
+                    "text": "زخـارف تمبلـر ",
                     "callback_data": "decor_main_menu",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1398,7 +1398,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة 💎",
+                    "text": "الأوامـر المدفوعـة ",
                     "callback_data": "paid_commands_menu",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1406,7 +1406,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
+                    "text": "لـ حـذف حسـابك ",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
@@ -1429,7 +1429,7 @@ async def settings_toggle(event):
         buttons = [
             [
                 {
-                    "text": "زخـارف تمبلـر 🎡",
+                    "text": "زخـارف تمبلـر ",
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1437,7 +1437,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة 💎",
+                    "text": "الأوامـر المدفوعـة ",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1445,10 +1445,18 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
+                    "text": "لـ حـذف حسـابك ",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]
         ]
@@ -1460,7 +1468,7 @@ async def settings_toggle(event):
         buttons = [
             [
                 {
-                    "text": "زخـارف تمبلـر 🎡",
+                    "text": "زخـارف تمبلـر ",
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1468,7 +1476,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة 💎",
+                    "text": "الأوامـر المدفوعـة ",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1476,10 +1484,18 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ⚠️",
+                    "text": "لـ حـذف حسـابك ",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]
         ]

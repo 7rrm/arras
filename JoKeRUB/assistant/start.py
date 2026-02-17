@@ -1181,12 +1181,12 @@ async def decor_main_menu_handler(event):
             {
                 "text": "رمـوز تمبلـر 1 🎨",
                 "callback_data": "zzk_bot-1",
-                "style": "primary"  # 🔵 أزرق
+                "style": "success"  # 🔵 أزرق
             },
             {
                 "text": "رمـوز تمبلـر 2 🎨",
                 "callback_data": "zzk_bot-2",
-                "style": "primary"  # 🔵 أزرق
+                "style": "success"  # 🔵 أزرق
             }
         ],
         [
@@ -1200,7 +1200,7 @@ async def decor_main_menu_handler(event):
             {
                 "text": "رجــوع ↩️",
                 "callback_data": "styleback",
-                "style": "primary"  # 🔵 أزرق
+                "style": "danger"  
             }
         ]
     ]

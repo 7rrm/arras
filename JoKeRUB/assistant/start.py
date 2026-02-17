@@ -1343,7 +1343,6 @@ async def decor_main_menu_handler(event):
             link_preview=False
         )
 
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):
     user = await l313l.get_me()
@@ -1354,13 +1353,13 @@ async def settings_toggle(event):
     my_username = f"@{user.username}" if user.username else my_mention
     
     if gvarstatus("START_BUTUN") is not None:
-        zz_txt = "⌔ قنـاتـي ⌔"
+        zz_txt = "• قنـاتـي •"
         zz_ch = gvarstatus("START_BUTUN")
     elif user.username:
         zz_txt = "• المـطـور •"
         zz_ch = user.username
     else:
-        zz_txt = "⌔ قنـاة المـطور ⌔"
+        zz_txt = "• قنـاة المـطور •"
         zz_ch = "aqhvv"
     
     zid = 5427469031
@@ -1371,18 +1370,22 @@ async def settings_toggle(event):
     
     # تحديد الأزرار حسب نوع المستخدم
     if event.query.user_id != Config.OWNER_ID:
-        start_msg = f"**⌔ مـرحباً بـك مجـدداً ⛹🏻‍♀**\
-                    \n\n**⌔ انـا البـوت الخـاص بـ** {my_fullname}\
-                    \n**⌔ يمكنك التواصـل مـع مـالكـي مـن هنـا 💌.**\
-                    \n**⌔ فقـط ارسـل رسـالتك وانتظـر الـرد 📨.**\
-                    \n**⌔ إننـي ايضـاً بـوت زخرفـة 🎨 & حـذف حسابات ⚠️.**\
-                    \n**⌔ لـ الزخرفـة او الحـذف استخـدم الازرار بالاسفـل**"
+        # كليشة العامة
+        start_msg = """• مرحبـاً بك مجـدداً ⛹🏻‍♀
+
+• أنـا البـوت الخـاص بـ {my_fullname}
+• هذا البوت يحتوي على عـدة أقسـام خدميه
+❶ التواصـل مـع مـالكـي مـن هنـا 💌
+❷ زخـرفـة النصـوص والأسمـاء 🎨
+❸ حـذف الحسـابات نهـائياً ⚠️
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ البـدء إستخـدم الازرار بالاسفـل ⌨"""
         
-        # أزرار العامة - نفس الألوان والإيموجيات
+        # أزرار العامة
         buttons = [
             [
                 {
-                    "text": "اضغـط لـ التواصـل ",
+                    "text": "اضغـط لـ التواصـل",
                     "callback_data": "ttk_bot-1",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_CONTACT
@@ -1390,7 +1393,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "زخـارف تمبلـر ",
+                    "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1398,7 +1401,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة ",
+                    "text": "الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1406,7 +1409,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ",
+                    "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
@@ -1423,12 +1426,23 @@ async def settings_toggle(event):
         ]
         
     elif event.query.user_id == Config.OWNER_ID and event.query.user_id == zid:
-        start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        # كليشة المطورين المميزين
+        start_msg = """• مرحبـاً عـزيـزي المـالك 🧑🏻‍💻
+
+• أنـا البـوت المسـاعـد الخـاص بـك
+• هذا البوت يحتوي على عـدة أقسـام خدميه
+❶ التواصـل مـع الآخرين مـن خـلالي 💌
+❷ زخـرفـة النصـوص والأسمـاء 🎨
+❸ حـذف الحسـابات نهـائياً ⚠️
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ زخرفـة اسـم اضغـط الـزر بالاسفـل
+• لرؤيـة اوامـري الخاصـه اضغـط : /help"""
+        
         # أزرار المطورين المميزين
         buttons = [
             [
                 {
-                    "text": "زخـارف تمبلـر ",
+                    "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1436,7 +1450,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة ",
+                    "text": "الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1444,7 +1458,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ",
+                    "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
@@ -1461,12 +1475,23 @@ async def settings_toggle(event):
         ]
         
     else:
-        start_msg = "**⌔ مـرحبـاً عـزيـزي المـالك 🧑🏻‍💻..**\n**⌔ انا البـوت المسـاعـد الخـاص بـك (تواصـل📨 + زخرفـه🎨) 🤖🦾**\n**⌔ يستطيـع اي شخص التواصل بك من خـلالي 💌**\n\n**⌔ لـ زخرفـة اسـم اضغـط الـزر بالاسفـل**\n**⌔ لرؤيـة اوامـري الخاصـه بـك اضغـط :  /help **"
+        # كليشة المالك الأساسي
+        start_msg = """• مرحبـاً عـزيـزي المـالك 🧑🏻‍💻
+
+• أنـا البـوت المسـاعـد الخـاص بـك
+• هذا البوت يحتوي على عـدة أقسـام خدميه
+❶ التواصـل مـع الآخرين مـن خـلالي 💌
+❷ زخـرفـة النصـوص والأسمـاء 🎨
+❸ حـذف الحسـابات نهـائياً ⚠️
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ زخرفـة اسـم اضغـط الـزر بالاسفـل
+• لرؤيـة اوامـري الخاصـه اضغـط : /help"""
+        
         # أزرار المالك الأساسي
         buttons = [
             [
                 {
-                    "text": "زخـارف تمبلـر ",
+                    "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
@@ -1474,7 +1499,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة ",
+                    "text": "الأوامـر المدفوعـة",
                     "callback_data": "paid_commands_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_PAID
@@ -1482,7 +1507,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك ",
+                    "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
@@ -1538,7 +1563,7 @@ async def settings_toggle(event):
                     btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
             fallback_buttons.append(btn_row)
         
-        await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)
+        await event.edit(start_msg, buttons=fallback_buttons, link_preview=False)            
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-1$")))

@@ -92,7 +92,6 @@ async def setup_bot():
         LOGS.error(f"كـود تيرمكس - {str(e)}")
         sys.exit()
 
-
 async def startupmessage():
     """
     Start up message in telegram logger group
@@ -100,18 +99,10 @@ async def startupmessage():
     try:
         if BOTLOG:
             Config.CATUBLOGO = await l313l.tgbot.send_file(
-                BOTLOG_CHATID,
-                "l313l/razan/resources/start/arras.JPEG",  # المسار المحلي للصورة
-                caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓ **\n ◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
-                buttons=[
-                    [
-                        {
-                            "text": "• المـطـور •",
-                            "url": "https://t.me/lx5x5",
-                            "style": "primary",  # 🔵 أزرق
-                        }
-                    ]
-                ],
+    BOTLOG_CHATID,
+    "l313l/razan/resources/start/arras.JPEG",  # المسار المحلي للصورة
+    caption="**‏〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓ **\n ◈︙ أرسل ( `.الاوامر` ) لرؤية اوامر السورس \n ◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( `.هاك` )",
+    buttons=[(Button.url("الـمطـور", "https://t.me/lx5x5"),)],
             )
     except Exception as e:
         LOGS.error(e)
@@ -140,6 +131,7 @@ async def startupmessage():
     except Exception as e:
         LOGS.error(e)
         return None
+
 
 async def mybot():
     try:

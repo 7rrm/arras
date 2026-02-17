@@ -1103,11 +1103,40 @@ async def settings_toggle(c_q: CallbackQuery):
     await c_q.answer("Bot Antiflood disabled.", alert=False)
     await c_q.edit("**- مكافـح التكـرار التلقـائي بالبـوت .. تم تعطيلـه بنجـاح✓**")
 
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-1$")))
 async def settings_toggle(c_q: CallbackQuery):
-    await c_q.edit(
-        """**- مرحبـاً بك عـزيـزي ✍🏻**
+    # تصميم الأزرار الملونة
+    buttons = [
+        [
+            {
+                "text": "تفعيـل التواصـل",
+                "callback_data": "ttk_bot-on",
+                "style": "primary"  # 🔵 أزرق
+            }
+        ],
+        [
+            {
+                "text": "تعطيـل التواصـل",
+                "callback_data": "ttk_bot-off",
+                "style": "primary"  # 🔵 أزرق
+            }
+        ],
+        [
+            {
+                "text": "رجــوع",
+                "callback_data": "styleback",
+                "style": "danger"  # 🔴 أحمر
+            }
+        ]
+    ]
+
+    # إرسال عبر Bot API
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": c_q.chat_id,
+            "message_id": c_q.message_id,
+            "text": """**- مرحبـاً بك عـزيـزي ✍🏻**
 **- عنـد تفعيـل وضـع التواصـل 📨**
 **- سـوف يتم تحويـل البوت الى بوت تواصـل**
 **- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
@@ -1115,20 +1144,53 @@ async def settings_toggle(c_q: CallbackQuery):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 **- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
 .""",
-
-        buttons=[
-            [
-                Button.inline("تفعيـل التواصـل", data="ttk_bot-on")
-            ],
-            [
-                Button.inline("تعطيـل التواصـل", data="ttk_bot-off")
-            ],
-            [
-                Button.inline("رجــوع", data="styleback")
-            ],
-        ],
-    link_preview=False)
-
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            # Fallback
+            fallback_buttons = [
+                [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
+                [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
+                [Button.inline("رجــوع", data="styleback")]
+            ]
+            
+            await c_q.edit(
+                """**- مرحبـاً بك عـزيـزي ✍🏻**
+**- عنـد تفعيـل وضـع التواصـل 📨**
+**- سـوف يتم تحويـل البوت الى بوت تواصـل**
+**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
+**- سوف يتلقاها مالك البـوت 📫**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
+.""",
+                buttons=fallback_buttons,
+                link_preview=False
+            )
+    except Exception as e:
+        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
+        # Fallback
+        fallback_buttons = [
+            [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
+            [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
+            [Button.inline("رجــوع", data="styleback")]
+        ]
+        
+        await c_q.edit(
+            """**- مرحبـاً بك عـزيـزي ✍🏻**
+**- عنـد تفعيـل وضـع التواصـل 📨**
+**- سـوف يتم تحويـل البوت الى بوت تواصـل**
+**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
+**- سوف يتلقاها مالك البـوت 📫**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
+.""",
+            buttons=fallback_buttons,
+            link_preview=False
+        )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-on$")))
 async def settings_toggle(c_q: CallbackQuery):

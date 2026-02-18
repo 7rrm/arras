@@ -460,6 +460,7 @@ class CustomParseMode:
 
 
 arras_emoji = 5667948420749328402
+arras_owner = 5046707123942066452
 
 @l313l.ar_cmd(
     pattern="اوامر الحظر$",

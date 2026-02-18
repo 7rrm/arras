@@ -624,3 +624,2013 @@ async def _(event):
 <b>⌔︙Dev : @Lx5x5</b>""",
         parse_mode=CustomParseMode("html")
 )
+
+@l313l.ar_cmd(
+    pattern="اوامر الكروب$",
+    command=("اوامر الكروب", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكروب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الاحداث</code> ⦘
+❐ عرض أحداث الكروب
+❐ طريقة الاستخدام: في الكروب
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الاعضاء</code> ⦘
+❐ عرض أعضاء المجموعة
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المشرفين</code> ⦘
+❐ عرض حسابات المشرفين
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.البوتات</code> ⦘
+❐ عرض البوتات في المجموعة
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احصائيات الاعضاء</code> ⦘
+❐ لـ عرض احصائيات الاعضاء
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.معلومات</code> ⦘
+❐ لـ عرض معلومات المجموعة مفصله
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الترحيب$",
+    command=("اوامر الترحيب", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الترحيب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ترحيب</code> ⦘
+❐ وضع ترحيب للاعضاء الجدد
+❐ طريقة الاستخدام: <code>.ترحيب اهلاً وسهلاً</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حذف الترحيب</code> ⦘
+❐ حذف جميع الترحيبات
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الترحيب</code> ⦘
+❐ عرض الترحيبات الحالية
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الترحيب السابق</code> ⦘
+❐ تشغيل/ايقاف آخر ترحيب
+❐ طريقة الاستخدام: <code>.الترحيب السابق تشغيل/ايقاف</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رحب</code> ⦘
+❐ ترحيب في الخاص عند الانضمام
+❐ طريقة الاستخدام: <code>.رحب مرحباً بك</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حذف رحب</code> ⦘
+❐ حذف الترحيب في الخاص
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الردود$",
+    command=("اوامر الردود", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الردود 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رد</code> ⦘
+❐ إضافة رد تلقائي
+❐ طريقة الاستخدام: مثال <code>.رد سلام عليكم</code> بالرد على رساله وعليكم السلام
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح رد</code> ⦘
+❐ لـ حذف رد معيين 
+❐ طريقة الاستخدام: ارسل الامر + الرد إلي تريد تحذفه
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الردود</code> ⦘
+❐ عرض قائمة الردود الحالية
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح الردود</code> ⦘
+❐ حذف جميع الردود المضافة
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر المحاكاة$",
+    command=("اوامر المحاكاة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المحاكاة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل اعلام</code> ⦘
+❐ تفعيل الرد على الأعلام
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل اعلام</code> ⦘
+❐ تعطيل الرد على الأعلام
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل نص اعلام</code> ⦘
+❐ تعيين نص محفز للأعلام
+❐ طريقة الاستخدام: مع النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل معاني</code> ⦘
+❐ تفعيل الرد على معاني السمايلات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل معاني</code> ⦘
+❐ تعطيل الرد على معاني السمايلات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل نص معاني</code> ⦘
+❐ تعيين نص محفز للمعاني
+❐ طريقة الاستخدام: مع النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل تفكيك</code> ⦘
+❐ تفعيل تفكيك الكلمات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل تفكيك</code> ⦘
+❐ تعطيل تفكيك الكلمات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل نص تفكيك</code> ⦘
+❐ تعيين نص محفز للتفكيك
+❐ طريقة الاستخدام: مع النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل مقالات</code> ⦘
+❐ تفعيل الرد على المقالات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل مقالات</code> ⦘
+❐ تعطيل الرد على المقالات
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل نص مقالات</code> ⦘
+❐ تعيين نص محفز للمقالات
+❐ طريقة الاستخدام: مع النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الحماية$",
+    command=("اوامر الحماية", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحماية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الحماية</code> ⦘
+❐ تفعيل/تعطيل الحماية في الخاص
+❐ طريقة الاستخدام: <code>.الحماية تعطيل/تفعيل</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سماح</code> ⦘  <code>.قبول</code>
+❐ السماح للشخص بالتكلم في الخاص
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفض</code> ⦘  <code>.ر</code>
+❐ رفض الشخص من الخاص
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.عقوبة الخاص</code> ⦘
+❐ بالكتم / بالحظر 
+❐ لتحديد نوع العقوبة عندما يتجاوز التحذيرات
+❐ طريقة الاستخدام: <code>.عقوبة الخاص بالكتم</code> او <code>.عقوبة الخاص بالحظر</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المقبولين</code> ⦘
+❐ عرض قائمة المسموح
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح المقبولين</code> ⦘
+❐ لـ مسح قائمة المسموح
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح حماية الخاص</code> ⦘
+❐ لمسح جميع المتغيرات التي اضفتها
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المميز تفعيل</code> ⦘
+❐ لمنع ارسال المميز في خاصك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المميز تعطيل</code> ⦘
+❐ للسماح ارسال المميز في خاصك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الخاص تفعيل</code> ⦘
+❐ لـ فتح الخاص والسماح بالأشخاص بمراسلتك 
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الخاص تعطيل</code> ⦘
+❐ لـ منع الاشخاص من مراسلتك 
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التلكراف$",
+    command=("اوامر التلكراف", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التلكراف 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تلكراف ميديا</code> ⦘
+❐ تحويل الصورة إلى رابط تلكراف
+❐ طريقة الاستخدام: بالرد على الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تلكراف نص</code> ⦘
+❐ تحويل النص إلى رابط تلكراف
+❐ طريقة الاستخدام: بالرد على النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الانتحال$",
+    command=("اوامر الانتحال", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الانتحال 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انتحال</code> ⦘
+❐ نسخ حساب شخص بالكامل
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اعادة</code> ⦘
+❐ إرجاع الحساب إلى وضعه الطبيعي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انتحال_الدردشه</code> ⦘
+❐ انتحال دردشة معينة
+❐ طريقة الاستخدام: <code>.انتحال_الدردشه معرف</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اعادة_الدردشه</code> ⦘
+❐ إرجاع الدردشة إلى وضعها الطبيعي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التقليد$",
+    command=("اوامر التقليد", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التقليد 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تقليد</code> ⦘
+❐ تقليد جميع رسائل الشخص
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الغاء التقليد</code> ⦘
+❐ إيقاف تقليد الشخص
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المقلدهم</code> ⦘
+❐ عرض قائمة الأشخاص المقلدهم
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح المقلدهم</code> ⦘
+❐ مسح قائمة المقلدهم
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر المنشن$",
+    command=("اوامر المنشن", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المنشن 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.منشن</code> ⦘
+❐ عمل تاك مفرد للأعضاء
+❐ طريقة الاستخدام: <code>.منشن المسج</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الغاء منشن</code> ⦘
+❐ إلغاء التاك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.منشن_كل_5دقايق</code> ⦘
+❐ تاك متقطع كل 5 دقائق
+❐ طريقة الاستخدام: <code>.منشن_كل_5دقايق المسج</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الغاء_منشن_كل_5دقايق</code> ⦘
+❐ إلغاء التاك المتقطع
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التحميل$",
+    command=("اوامر التحميل", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.يوت</code> ⦘
+❐ البحث عن أغنية
+❐ طريقة الاستخدام: <code>.بحث اسم الاغنية</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل يوت</code> ⦘
+❐ لتسمح ب استخدام امر يوت للأشخاص الآخرين
+❐ طريقة الاستخدام: <code>.تفعيل يوت</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل يوت</code> ⦘
+❐ لتعطيل استخدام امر يوت 
+❐ طريقة الاستخدام: <code>.تعطيل يوت</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فيديو</code> ⦘
+❐ البحث عن فيديو
+❐ طريقة الاستخدام: <code>.بحث اسم الفيديو</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل فيديو</code> ⦘
+❐ لتسمح ب استخدام امر فيديو للأشخاص الآخرين
+❐ طريقة الاستخدام: <code>.تفعيل فيديو</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل فيديو</code> ⦘
+❐ لتعطيل استخدام امر فيديو 
+❐ طريقة الاستخدام: <code>.تعطيل فيديو</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انستا</code> ⦘
+❐ تحميل من الانستغرام
+❐ طريقة الاستخدام: <code>.انستا الرابط</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فيس</code> ⦘
+❐ تحميل من الفيس بوك
+❐ طريقة الاستخدام: <code>.فيس الرابط</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بنترست</code> ⦘
+❐ تحميل من بنترست
+❐ طريقة الاستخدام: <code>.بنترست الرابط</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تيك</code> ⦘
+❐ تحميل من تيك توك
+❐ طريقة الاستخدام: <code>.تيك الرابط</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الترجمة$",
+    command=("اوامر الترجمة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الترجمة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ترجمة ar</code> ⦘
+❐ ترجمة النص إلى العربية
+❐ طريقة الاستخدام: بالرد على النص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ترجمة en</code> ⦘
+❐ ترجمة النص إلى الإنجليزية
+❐ طريقة الاستخدام: بالرد على النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر النطق$",
+    command=("اوامر النطق", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر النطق 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تكلم ar</code> ⦘
+❐ تحويل النص إلى صوت عربي
+❐ طريقة الاستخدام: بالرد على النص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تكلم en</code> ⦘
+❐ تحويل النص إلى صوت إنجليزي
+❐ طريقة الاستخدام: بالرد على النص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احجي ar</code> ⦘
+❐ تحويل الصوت إلى نص عربي
+❐ طريقة الاستخدام: بالرد على البصمة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احجي en</code> ⦘
+❐ تحويل الصوت إلى نص إنجليزي
+❐ طريقة الاستخدام: بالرد على البصمة
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر القفل$",
+    command=("اوامر القفل", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر القفل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قفل</code> ⦘
+❐ قفل شي معين في المجموعة
+❐ طريقة الاستخدام: <code>.قفل الاضافة</code>
+
+<b>الاضافات:</b>
+• الدردشه - الوسائط - الملصقات
+• الروابط - المتحركه - الالعاب - المميز
+• الانلاين - التصويت - الكل
+• الفارسيه - الفشار - المعرفات
+• الدخول - الاضافه - التوجيه
+• التفليش - تعديل الميديا - البوتات
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الاعدادات</code> ⦘
+❐ لـ عرض اعدادات الحماية
+❐ طريقة الاستخدام: <code>.الاعدادات</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.النشر تفعيل</code> ⦘
+❐ لـمنع النشر التلقائي في المجموعة
+❐ طريقة الاستخدام: <code>.النشر تفعيل</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.النشر تعطيل</code> ⦘
+❐ لـ تعطيل امر منع النشر
+❐ طريقة الاستخدام: <code>.النشر تعطيل</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الفتح$",
+    command=("اوامر الفتح", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الفتح 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فتح</code> ⦘
+❐ فتح شي معين في المجموعة
+❐ طريقة الاستخدام: <code>.فتح الاضافة</code>
+
+<b>الاضافات:</b>
+• الدردشه - الوسائط - الملصقات
+• الروابط - المتحركه - الالعاب - المميز
+• الانلاين - التصويت - الكل
+• الفارسيه - الفشار - المعرفات
+• الدخول - الاضافه - التوجيه
+• التفليش - تعديل الميديا - البوتات
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الاعدادات</code> ⦘
+❐ لـ عرض اعدادات الحماية
+❐ طريقة الاستخدام: <code>.الاعدادات</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.النشر تفعيل</code> ⦘
+❐ لـمنع النشر التلقائي في المجموعة
+❐ طريقة الاستخدام: <code>.النشر تفعيل</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.النشر تعطيل</code> ⦘
+❐ لـ تعطيل امر منع النشر
+❐ طريقة الاستخدام: <code>.النشر تعطيل</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر المنع$",
+    command=("اوامر المنع", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المنع 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.منع</code> ⦘
+❐ منع كلمة/ملصق/متحركه
+❐ طريقة الاستخدام: <code>.منع الكلمة</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الغاء منع</code> ⦘
+❐ إلغاء منع الكلمة
+❐ طريقة الاستخدام: <code>.الغاء منع الكلمة</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قائمة المنع</code> ⦘
+❐ عرض قائمة المنع
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح قائمة المنع</code> ⦘
+❐ لـ مسح قائمة المنع
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 1$",
+    command=("تسلية 1", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 1 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.غبي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كريس</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.القنابل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اتصل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قتل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.شنو</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.طوبة</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مربعات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حلويات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نار</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.شحن</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 2$",
+    command=("تسلية 2", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 2 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.افكر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.متت</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ضايج</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ساعه</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مح</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قلب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.جيم</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الارض</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قمر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اقمار</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قمور</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 3$",
+    command=("تسلية 3", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 3 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نجمه</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مكعبات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مطر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفريغ</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فليم</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احبك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.طائره</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.شرطه</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.النضام الشمسي</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 4$",
+    command=("تسلية 4", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 4 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قاتل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.عين</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.افكرر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.افعى</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رجل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مايكرو</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فايروس</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قطار</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نيكول</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.موسيقى</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رسم</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 5$",
+    command=("تسلية 5", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 5 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحميل</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مربع</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.دائره</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انيم</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بشره</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قرد</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.يد</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.العد التنازلي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قلوب</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 6$",
+    command=("تسلية 6", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 6 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ترامب + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مودي + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بنر + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كانا + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تويت + المعرف ; النص</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 7$",
+    command=("تسلية 7", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 7 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تراش</code> ⦘
+❐ بالرد على ملصق/صورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تهديد</code> ⦘
+❐ بالرد على ملصق/صورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فخ</code> ⦘
+❐ بالرد على ملصق/صورة + الاسم1 ; الاسم2
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بورن</code> ⦘
+❐ بالرد على ملصق/صورة + المعرف ; النص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تويت</code> ⦘
+❐ + المعرف ; النص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="تسلية 8$",
+    command=("تسلية 8", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - تسلية 8 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نص + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ستيكر + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.هونك + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تغريد + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.غلاكس + النص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.دوغي + النص</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الملصقات$",
+    command=("اوامر الملصقات", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الملصقات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ملصق</code> ⦘
+❐ أخذ الملصق وإضافته لحزمة خاصة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حزمة</code> ⦘
+❐ نسخ الحزمة كاملة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حزمه</code> ⦘
+❐ نسخ الحزمة كاملة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.معلومات_الملصق</code> ⦘
+❐ عرض معلومات الحزمة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التكرار$",
+    command=("اوامر التكرار", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التكرار 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كرر</code> ⦘
+❐ تكرار النصوص والوسائط
+❐ طريقة الاستخدام: <code>.كرر 10</code> بالرد
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تكرار الملصق</code> ⦘
+❐ استخراج جميع ملصقات الحزمة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مكرر</code> ⦘
+❐ تكرار مع وقت محدد
+❐ طريقة الاستخدام: <code>.مكرر 10 2</code> بالرد
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ضع تكرار</code> ⦘
+❐ منع التكرار بالعدد المحدد
+❐ طريقة الاستخدام: <code>.ضع تكرار 10</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايقاف التكرار</code> ⦘
+❐ إيقاف جميع التكرارات
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر السبام$",
+    command=("اوامر السبام", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السبام 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سبام</code> ⦘
+❐ تفصيخ أحرف الكلمة وإرسالها
+❐ طريقة الاستخدام: <code>.سبام كلمة</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وسبام</code> ⦘
+❐ تفصيخ الجملة كلمة كلمة
+❐ طريقة الاستخدام: <code>.وسبام الجملة</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التنظيف$",
+    command=("اوامر التنظيف", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التنظيف 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تنظيف</code> ⦘
+❐ حذف عدد معين من الرسائل
+❐ طريقة الاستخدام: <code>.تنظيف 10</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تنظيف</code> ⦘
+❐ تنظيف حسب النوع مع (-)
+❐ طريقة الاستخدام: <code>.تنظيف -ح</code>
+
+<b>الاضافات:</b>
+- (-ب): حذف الرسائل الصوتية
+- (-م): حذف الملفات
+- (-ح): حذف المتحركة
+- (-ص): حذف الصور
+- (-غ): حذف الأغاني
+- (-ق): حذف الملصقات
+- (-ر): حذف الروابط
+- (-ف): حذف الفيديوهات
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر المسح$",
+    command=("اوامر المسح", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المسح 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح</code> ⦘
+❐ حذف رسالة محددة
+❐ طريقة الاستخدام: بالرد على الرسالة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح رسائلي</code> ⦘
+❐ حذف جميع رسائلك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احذف</code> ⦘
+❐ لـ حذف دردشة مع شخص 
+❐ طريقة الاستخدام: <code>.احذف + يوزر الشخص</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الرسائل الموقته$",
+    command=("اوامر الرسائل الموقته", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الرسائل الموقتة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ضبط_المؤقت</code> ⦘
+❐ ضبط وقت حذف الرسائل تلقائياً
+❐ طريقة الاستخدام: <code>.ضبط_المؤقت 10</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل_المؤقت</code> ⦘
+❐ إيقاف حذف الرسائل التلقائي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مؤقت</code> ⦘
+❐ إرسال رسالة مؤقتة
+❐ طريقة الاستخدام: <code>.مؤقت 5 النص</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الوقت والتاريخ$",
+    command=("اوامر الوقت والتاريخ", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الوقت والتاريخ 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تاريخ</code> ⦘
+❐ عرض سجل أسماء الحساب
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الوقت</code> ⦘
+❐ عرض الوقت على شكل ملصق
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت</code> ⦘
+❐ عرض الوقت على شكل كتابة
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الوقتي$",
+    command=("اوامر الوقتي", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الوقتي 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل_وقتي</code> ⦘
+❐ تفعيل إرسال الوقت التلقائي
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل_وقتي</code> ⦘
+❐ تعطيل إرسال الوقت التلقائي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الصلاة$",
+    command=("اوامر الصلاة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصلاة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.صلاة</code> ⦘
+❐ الحصول على أوقات الصلاة
+❐ طريقة الاستخدام: <code>.صلاة المحافظة</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الذكاء$",
+    command=("اوامر الذكاء", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الذكاء 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ار</code> ⦘
+❐ ذكاء اصطناعي متطور يجيب على جميع أسئلتك
+❐ طريقة الاستخدام: <code>.ار + سؤال</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ارسم</code> ⦘
+❐ لـ رسم صور بالذكاء الاصطناعي 
+❐ طريقة الاستخدام: <code>.ارسم + الكليشة</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر مساعدة$",
+    command=("اوامر مساعدة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المساعدة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.موقع</code> ⦘
+❐ الحصول على مكان في الخريطة
+❐ طريقة الاستخدام: <code>.موقع المكان</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.جد بكج</code> ⦘
+❐ معرفة وجود البكج أو المكتبة
+❐ طريقة الاستخدام: <code>.جد بكج الاسم</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.صورة</code> ⦘
+❐ الحصول على صورة الحساب
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.صوره كلها</code> ⦘
+❐ الحصول على جميع صور الحساب
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سرعة النت</code> ⦘
+❐ قياس سرعة الانترنت
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بنك</code> ⦘
+❐ قياس سرعة البنك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حساب</code> ⦘
+❐ لأرسال رابط لحساب الشخص
+❐ طريقة الاستخدام: <code>.حساب + ايدي الشخص</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+)
+
+@l313l.ar_cmd(
+    pattern="اوامر الروابط$",
+    command=("اوامر الروابط", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الروابط 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.دنس</code> ⦘
+❐ كشف نظام دومين الموقع
+❐ طريقة الاستخدام: <code>.دنس الرابط</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مصغر</code> ⦘
+❐ تصغير الرابط
+❐ طريقة الاستخدام: بالرد على الرابط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رابط_مخفي</code> ⦘
+❐ إخفاء الرابط في مسافة معينة
+❐ طريقة الاستخدام: بالرد على الرابط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التحذيرات$",
+    command=("اوامر التحذيرات", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحذيرات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحذير</code> ⦘
+❐ تحذير عضو مع سبب
+❐ طريقة الاستخدام: <code>.تحذير السبب</code> بالرد
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.التحذيرات</code> ⦘
+❐ عرض تحذيرات العضو
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح التحذيرات</code> ⦘
+❐ حذف تحذيرات العضو
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر اللستة$",
+    command=("اوامر اللستة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر اللستة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.لستة</code> ⦘
+❐ صنع لستة شفافة للمنشور
+❐ طريقة الاستخدام: مع المنشور
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الملكية$",
+    command=("اوامر الملكية", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الملكية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ملكية</code> ⦘
+❐ نقل ملكية القناة لشخص
+❐ طريقة الاستخدام: <code>.ملكية معرف الشخص</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر السليب$",
+    command=("اوامر السليب", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السليب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سليب</code> ⦘
+❐ وضعك في وضع غير المتصل
+❐ طريقة الاستخدام: <code>.سليب السبب</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سليب_ميديا</code> ⦘
+❐ سليب مع صورة أو متحركة
+❐ طريقة الاستخدام: <code>.سليب_ميديا السبب</code> بالرد
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر ترحيب البوت$",
+    command=("اوامر ترحيب البوت", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر ترحيب البوت 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الترحيب1</code> ⦘
+❐ نظام ترحيب بواسطه البوت الذي في المجموعة 
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تفعيل ترحيب الايدي</code> ⦘
+❐ لتفعيل الترحيب بكلايش مختلفة
+❐ طريقة الاستخدام: <code>.تفعيل ترحيب الايدي</code> داخل مجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تعطيل ترحيب الايدي</code> ⦘
+❐ لـ تعطيل ترحيب الايدي
+❐ طريقة الاستخدام: إرسال الأمر فقط لتعطيل الامر بالمجموعة
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الاسم$",
+    command=("اوامر الاسم", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاسم 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اسم وقتي</code> ⦘
+❐ إضافة اسم وقتي في خانة 1
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اسم وقتي2</code> ⦘
+❐ إضافة اسم وقتي في خانة 2
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انهاء اسم وقتي</code> ⦘
+❐ إنهاء الاسم الوقتي 1 و 2 
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اوامر الاسم الوقتي</code> ⦘
+❐ لـ عرض الاوامر الخاصه ب اسم الوقتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الصورة الوقتية</code> ⦘
+❐ وضع صورة تتغير مع الوقت
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انهاء الصورة الوقتية</code> ⦘
+❐ إنهاء الصورة الوقتية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر البايو$",
+    command=("اوامر البايو", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البايو 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بايو وقتي</code> ⦘
+❐ إضافة بايو وقتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انهاء البايو الوقتي</code> ⦘
+❐ إنهاء البايو الوقتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الكروب الوقتي$",
+    command=("اوامر الكروب الوقتي", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكروب الوقتي 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كروب وقتي</code> ⦘
+❐ إضافة كروب وقتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انهاء كروب وقتي</code> ⦘
+❐ إنهاء الكروب الوقتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كروب صورة وقتي</code> ⦘
+❐ تشغيل الصورة الوقتية للمجموعة
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.انهاء كروب صورة وقتي</code> ⦘
+❐ إنهاء الصورة الوقتية للمجموعة
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التشغيل$",
+    command=("اوامر التشغيل", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التشغيل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اعادة التشغيل</code> ⦘
+❐ إعادة تشغيل البوت
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحديث</code> ⦘
+❐ التحقق من التحديثات
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.التحديثات تشغيل</code> ⦘
+❐ تشغيل الرسالة التجريبية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.التحديثات ايقاف</code> ⦘
+❐ إيقاف الرسالة التجريبية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الاطفاء$",
+    command=("اوامر الاطفاء", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاطفاء 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اطفاء</code> ⦘
+❐ إيقاف تشغيل البوت
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الكشف$",
+    command=("اوامر الكشف", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكشف 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الايدي</code> ⦘
+❐ عرض معلومات الكروب
+❐ طريقة الاستخدام: أرسل الامر في الكروب
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايدي</code> ⦘
+❐ عرض معلومات العضو بشكل مبسط
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ا</code> ⦘ او ⦗ <code>.i</code> ⦘
+❐ عرض معلومات العضو بشكل مبسط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كشف</code> ⦘
+❐ عرض معلومات العضو
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.لايك</code> ⦘
+❐ عرض معلوماتك
+❐ طريقة الاستخدام: ارسل الامر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.المعجبين</code> ⦘
+❐ لـ عرض معجبينك
+❐ طريقة الاستخدام: ارسل الامر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مسح المعجبين</code> ⦘
+❐ لـ مسح معجبينك
+❐ طريقة الاستخدام: بالرد على الشخص
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر كوكل$",
+    command=("اوامر كوكل", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر كوكل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.صور</code> ⦘
+❐ الحصول على صور من جوجل
+❐ طريقة الاستخدام: <code>.صور 10 النص</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.استخرج</code> ⦘
+❐ استخراج النصوص من الصور
+❐ طريقة الاستخدام: <code>.استخرج عربي</code> بالرد
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الاذاعه$",
+    command=("اوامر الاذاعه", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الإذاعة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وجه</code> ⦘
+❐ إذاعة نص للمجموعات
+❐ طريقة الاستخدام: <code>.وجه النص</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حول</code> ⦘
+❐ إذاعة نص للخاص
+❐ طريقة الاستخدام: <code>.حول النص</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الصوره الذاتيه$",
+    command=("اوامر الصوره الذاتيه", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصورة الذاتية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ذاتية</code> ⦘
+❐ حفظ الصورة الذاتية التدمير
+❐ طريقة الاستخدام: بالرد على الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حفظ</code> ⦘
+❐ حفظ الصورة المقيدة
+❐ طريقة الاستخدام: بالرد على الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الذاتية تشغيل</code> ⦘
+❐ تفعيل حفظ الصور الذاتية تلقائياً
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الذاتية تعطيل</code> ⦘
+❐ تعطيل حفظ الصور الذاتية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر البصمه الذاتيه$",
+    command=("اوامر البصمه الذاتيه", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البصمة الذاتية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.صوت</code> ⦘
+❐ حفظ البصمة الذاتية التدمير
+❐ طريقة الاستخدام: بالرد على البصمة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.جلب الصوت</code> ⦘
+❐ حفظ البصمة المقيدة
+❐ طريقة الاستخدام: بالرد على البصمة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الصوت تشغيل</code> ⦘
+❐ تفعيل حفظ البصمات الذاتية تلقائياً
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الصوت تعطيل</code> ⦘
+❐ تعطيل حفظ البصمات الذاتية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التسلية$",
+    command=("اوامر التسلية", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التسلية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 1</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 2</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 3</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 4</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 5</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 6</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 7</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تسلية 8</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع ادمن</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التحشيش$",
+    command=("اوامر التحشيش", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحشيش 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<b>جميع الأوامر تستخدم بالرد على الشخص</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع تاج</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع بكلبي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع مطي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع جلب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع قرد</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع مرتي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع زوجي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الانوثة</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الحب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الغباء</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع زاحف</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع كحبة</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع فرخ</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رزله</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع صاك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع حاته</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع بقره</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع ايجة</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع زبال</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع كواد</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع ديوث</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع مجنب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع مميز</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع ادمن</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع منشئ</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع مالك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع وصخ</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ••ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الكذب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الدياثه</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الشذوذ</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الجمال</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نسبة الخيانه</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع + كلمة</code> ⦘
+❐ لـ رفع الشخص بالكلمة التي وضعتها 
+❐ طريقة الاستخدام: ارسل الامر مع وضع كلمة 
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+)
+
+@l313l.ar_cmd(
+    pattern="اوامر التحويل$",
+    command=("اوامر التحويل", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحويل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.لصوره</code> ⦘
+❐ تحويل الملصق إلى صورة
+❐ طريقة الاستخدام: بالرد على الملصق
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.لملصق</code> ⦘
+❐ تحويل الصورة إلى ملصق
+❐ طريقة الاستخدام: بالرد على الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.لملف</code> ⦘
+❐ تحويل نص إلى ملف
+❐ طريقة الاستخدام: بالرد على النص + اسم الملف
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحويل بصمه</code> ⦘
+❐ تحويل المقطع إلى بصمة صوتية
+❐ طريقة الاستخدام: بالرد على المقطع
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحويل صوت</code> ⦘
+❐ تحويل البصمة إلى مقطع mp3
+❐ طريقة الاستخدام: بالرد على البصمة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.دائري</code> ⦘
+❐ تحويل أي وسائط إلى فيديو دائري
+❐ طريقة الاستخدام: بالرد على صورة/فيديو/صوت
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تحويل متحركة</code> ⦘
+❐ تحويل فيديو إلى صورة متحركة GIF
+❐ طريقة الاستخدام: بالرد على الفيديو + (سرعة اختياري)
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الجهات$",
+    command=("اوامر الجهات", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الجهات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ضيف</code> ⦘
+❐ إضافة أعضاء من مجموعة أخرى
+❐ طريقة الاستخدام: <code>.ضيف رابط المجموعة</code>
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الحساب$",
+    command=("اوامر الحساب", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحساب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كروباتي مالك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كروباتي ادمن</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كروباتي الكل</code> ⦘
+❐ لـ عرض قوائم بمجموعاتك
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قنواتي مالك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قنواتي ادمن</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قنواتي الكل</code> ⦘
+❐ لـ عرض قوائم بقنواتك
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.معلوماتي</code> ⦘
+❐ لـ عرض قائمة بعدد الاشخاص والكروبات الموجودة في حسابك
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حسابي</code> ⦘
+❐ نسخة مبسطة من أمر معلوماتي
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مغادرة القنوات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مغادرة الكروبات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تصفية الخاص</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تصفية البوتات</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.حظر_البوتات</code> ⦘
+
+❐ الفرق بين <code>.تصفية البوتات</code> و <code>.حظر_البوتات</code>
+<b>تصفية البوتات</b>: حذف المحادثة فقط
+<b>حظر_البوتات</b>: حذف وحظر البوتات
+
+❐ إذا أردت دردشة معينة لاتنشمل في التصفية، قم بوضعها في الأرشيف
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الترفيه$",
+    command=("اوامر الترفيه", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الترفيه 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بلي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.كت</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.خيروك</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.غنيلي</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.شعر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فلم</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الالعاب الذكيه$",
+    command=("اوامر الالعاب الذكيه", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الالعاب الذكيه 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.محيبس</code> ⦘
+❐ لعبة محيبس - أيجاد المحبس
+❐ طريقة الاستخدام: إرسال الأمر فقط 
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نرد2</code> ⦘
+❐ لعبة نرد ذكية
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احكام</code> ⦘
+❐ لعبة الحاكم والمحكوم
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر بصمات الميمز$",
+    command=("اوامر بصمات الميمز", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر بصمات الميمز 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ميمز</code> ⦘
+❐ إضافة بصمة ميمز
+❐ طريقة الاستخدام: <code>.ميمز + رابط البصمه + اسم الميمز</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ازالة</code> ⦘
+❐ إزالة بصمة معينة
+❐ طريقة الاستخدام: <code>.ازالة + اسم البصمة</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.قائمة الميمز</code> ⦘
+❐ عرض قائمة البصمات المضافة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ازالة_البصمات</code> ⦘
+❐ إزالة جميع البصمات المضافة
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الفارات$",
+    command=("اوامر الفارات", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الفارات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.جلب</code> ⦘
+❐ جلب قيمة فار معين
+❐ طريقة الاستخدام: <code>.جلب اسم الفار</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع توقيت</code> ⦘
+❐ وضع المنطقة الزمنية
+❐ طريقة الاستخدام: بالرد على المنطقة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع رمز الاسم</code> ⦘
+❐ وضع رمز الاسم
+❐ طريقة الاستخدام: بالرد على الرمز
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع الكروب</code> ⦘
+❐ وضع اسم الكروب
+❐ طريقة الاستخدام: بالرد على الاسم
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع البايو</code> ⦘
+❐ وضع البايو
+❐ طريقة الاستخدام: بالرد على النبذة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع لون وقتي</code> ⦘
+❐ وضع لون الوقتي
+❐ طريقة الاستخدام: بالرد على اللون
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع الصورة</code> ⦘
+❐ وضع الصورة الشخصية
+❐ طريقة الاستخدام: بالرد على رابط الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع صورة الكروب</code> ⦘
+❐ وضع صورة الكروب
+❐ طريقة الاستخدام: بالرد على رابط الصورة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع زخرفة الارقام</code> ⦘
+❐ وضع زخرفة الأرقام
+❐ طريقة الاستخدام: بالرد على الأرقام
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع اسم</code> ⦘
+❐ وضع الاسم
+❐ طريقة الاستخدام: بالرد على الاسم
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع كروب التخزين</code> ⦘
+❐ وضع كروب التخزين
+❐ طريقة الاستخدام: بالرد على الأيدي
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وضع كروب الحفظ</code> ⦘
+❐ وضع كروب الحفظ
+❐ طريقة الاستخدام: بالرد على الأيدي
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت العراق</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت السعودية</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت مصر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت الاردن</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت اليمن</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.وقت سوريا</code> ⦘
+
+❐ ضبط التوقيت للدول المختلفة
+
+<b>تنويه:</b> استخدم <code>.محو</code> بدل <code>.وضع</code> لحذف الفار
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التجميع$",
+    command=("اوامر التجميع", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التجميع 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع العرب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع دعمكم</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع الجوكر</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع المليار</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع العقاب</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع المليون</code> ⦘
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر وعد$",
+    command=("اوامر وعد", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر وعد 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.راتب وعد</code> ⦘
+❐ تجميع الأموال كل 10 دقائق
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايقاف راتب وعد</code> ⦘
+❐ إيقاف تجميع الراتب
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.سرقة وعد</code> ⦘
+❐ سرقة أموال شخص كل 10 دقائق
+❐ طريقة الاستخدام: <code>.سرقة وعد ايدي الشخص</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايقاف سرقة وعد</code> ⦘
+❐ إيقاف سرقة الأموال
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.بخشيش وعد</code> ⦘
+❐ أخذ بخشيش كل 10 دقائق
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايقاف بخشيش وعد</code> ⦘
+❐ إيقاف أخذ البخشيش
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.استثمار وعد</code> ⦘
+❐ استثمار الأموال كل 20 دقيقة
+❐ طريقة الاستخدام: في المجموعة
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ايقاف استثمار وعد</code> ⦘
+❐ إيقاف الاستثمار
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر المراقبة$",
+    command=("اوامر المراقبة", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المراقبة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.مراقبة</code> ⦘
+❐ مراقبة شخص وإنشاء كروب خاص
+❐ طريقة الاستخدام: <code>.مراقبة معرف/ايدي الشخص</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الغاء مراقبة</code> ⦘
+❐ إلغاء مراقبة الشخص
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر نقل اليوزرات$",
+    command=("اوامر نقل اليوزرات", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر نقل اليوزرات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نقل_قناة</code> ⦘
+❐ نقل اليوزر من حسابك إلى قناة
+❐ طريقة الاستخدام: <code>.نقل_قناة @username</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نقل_حساب</code> ⦘
+❐ نقل اليوزر من قناة إلى حسابك
+❐ طريقة الاستخدام: <code>.نقل_حساب @username</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نقل_بوت_القناة</code> ⦘
+❐ نقل اليوزر من قناتك إلى بوت فاذر
+❐ طريقة الاستخدام: <code>.نقل_بوت_القناة @userbot</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.نقل_بوت_الحساب</code> ⦘
+❐ نقل اليوزر من حسابك إلى بوت فاذر
+❐ طريقة الاستخدام: <code>.نقل_بوت_الحساب @userbot</code>
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.الصيد</code> ⦘
+❐ عرض أوامر الصيد
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.التثبيت</code> ⦘
+❐ عرض أوامر التثبيت
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر التخصيص$",
+    command=("اوامر التخصيص", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التخصيص 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تخصيص</code> ⦘
+❐ أوامر التخصيص متوفرة قريباً
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )
+
+@l313l.ar_cmd(
+    pattern="اوامر الاذكار$",
+    command=("اوامر الاذكار", plugin_category),
+)
+async def _(event):
+    await event.edit(
+        f"""<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الأذكار 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اذكار الصباح</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اذكار المساء</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اذكار النوم</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اذكار الصلاة</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.اذكار الاستيقاظ</code> ⦘
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.احاديث</code> ⦘
+
+❐ عرض الأذكار والأحاديث
+❐ طريقة الاستخدام: إرسال الأمر فقط
+
+<b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
+<b>⌔︙Dev : @Lx5x5</b>""",
+        parse_mode=CustomParseMode("html")
+    )

@@ -480,7 +480,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.الغاء حظر</code> بالرد على العضو
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -510,7 +510,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -532,7 +532,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.الغاء التثبيت</code> بالرد على الرسالة
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -562,7 +562,7 @@ async def _(event):
 ❐ في جميع المجموعات
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -596,7 +596,7 @@ async def _(event):
 ❐ بدون صلاحيات إشراف
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5 <a href="emoji/5046707123942066452">👨‍💻</a></b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -622,9 +622,9 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.المحذوفين اطردهم</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
-)
+    )
 
 @l313l.ar_cmd(
     pattern="اوامر الكروب$",
@@ -660,7 +660,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -700,7 +700,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -730,7 +730,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -798,7 +798,7 @@ async def _(event):
 ❐ طريقة الاستخدام: مع النص
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -861,7 +861,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -883,7 +883,7 @@ async def _(event):
 ❐ طريقة الاستخدام: بالرد على النص
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -913,7 +913,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -943,7 +943,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -975,7 +975,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -1033,7 +1033,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.تيك الرابط</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -1055,7 +1055,7 @@ async def _(event):
 ❐ طريقة الاستخدام: بالرد على النص
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -1085,7 +1085,7 @@ async def _(event):
 ❐ طريقة الاستخدام: بالرد على البصمة
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -1125,7 +1125,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.النشر تعطيل</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -1165,7 +1165,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.النشر تعطيل</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2044,7 +2044,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.استخرج عربي</code> بالرد
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2066,7 +2066,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.حول النص</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2096,10 +2096,10 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
-
+    
 @l313l.ar_cmd(
     pattern="اوامر البصمه الذاتيه$",
     command=("اوامر البصمه الذاتيه", plugin_category),
@@ -2126,7 +2126,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2150,7 +2150,7 @@ async def _(event):
 <a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.رفع ادمن</code> ⦘
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2208,9 +2208,9 @@ async def _(event):
 ❐ طريقة الاستخدام: ارسل الامر مع وضع كلمة 
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
-)
+    )
 
 @l313l.ar_cmd(
     pattern="اوامر التحويل$",
@@ -2250,7 +2250,7 @@ async def _(event):
 ❐ طريقة الاستخدام: بالرد على الفيديو + (سرعة اختياري)
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2268,7 +2268,7 @@ async def _(event):
 ❐ طريقة الاستخدام: <code>.ضيف رابط المجموعة</code>
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2316,7 +2316,7 @@ async def _(event):
 ❐ إذا أردت دردشة معينة لاتنشمل في التصفية، قم بوضعها في الأرشيف
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2337,7 +2337,7 @@ async def _(event):
 <a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.فلم</code> ⦘
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2363,7 +2363,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2391,7 +2391,7 @@ async def _(event):
 ❐ إزالة جميع البصمات المضافة
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2466,7 +2466,7 @@ async def _(event):
 <b>تنويه:</b> استخدم <code>.محو</code> بدل <code>.وضع</code> لحذف الفار
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2487,7 +2487,7 @@ async def _(event):
 <a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.تجميع المليون</code> ⦘
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2533,7 +2533,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2555,7 +2555,7 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2591,10 +2591,9 @@ async def _(event):
 ❐ عرض أوامر التثبيت
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
-
 @l313l.ar_cmd(
     pattern="اوامر التخصيص$",
     command=("اوامر التخصيص", plugin_category),
@@ -2608,7 +2607,7 @@ async def _(event):
 ❐ أوامر التخصيص متوفرة قريباً
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 
@@ -2632,6 +2631,6 @@ async def _(event):
 ❐ طريقة الاستخدام: إرسال الأمر فقط
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>⌔︙Dev : @Lx5x5</b>""",
+<b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")
     )

@@ -596,7 +596,7 @@ async def _(event):
 ❐ بدون صلاحيات إشراف
 
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
-<b>Dev : @Lx5x5 <a href="emoji/{arras_owner}">⌔︙</a></b>""",
+<b>⌔︙Dev : @Lx5x5 <a href="emoji/5046707123942066452">👨‍💻</a></b>""",
         parse_mode=CustomParseMode("html")
     )
 

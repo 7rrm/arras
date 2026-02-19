@@ -98,7 +98,7 @@ async def prayer_times(event):
         params = {
             "city": english_city,
             "country": "IQ",
-            "method": 2,  # طريقة أم القرى - مناسبة للعراق
+            "method": 13,  # طريقة العراق
         }
         
         # إنشاء جلسة جديدة
@@ -137,7 +137,8 @@ async def prayer_times(event):
         if 'Imsak' in timings:
             message += f"⛅ <b>الإمساك:</b> {timings['Imsak']}\n"
         
-        message += f"\n📍 <b>الموقع:</b> {city}، العراق 🇮🇶"
+        message += f"\n📍 <b>الموقع:</b> {city}، العراق 🇮🇶\n"
+        message += f"📊 <b>طريقة الحساب:</b> العراق (method 13)"
         
         await edit_or_reply(event, message, parse_mode="HTML")
         

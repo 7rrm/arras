@@ -147,24 +147,23 @@ async def prayer_times(event):
         
         # تنسيق الرسالة - بطريقة أبسط
         message = (
-            f"🕌 <b>أوقات الصلاة في {city}</b>\n\n"
+            f" <b>أوقات الصلاة في {city}</b>\n\n"
             f"📅 <b>التاريخ الميلادي:</b> {arabic_day}، {gregorian['day']} {arabic_month} {gregorian['year']}\n"
             f"📅 <b>التاريخ الهجري:</b> {hijri_day} {hijri['month']['ar']} {hijri_year} هـ\n\n"
             
-            f"⏰ <b>الفجر:</b> {timings['Fajr']}\n"
-            f"🌞 <b>الشروق:</b> {timings['Sunrise']}\n"
-            f"☀️ <b>الظهر:</b> {timings['Dhuhr']}\n"
-            f"⛅ <b>العصر:</b> {timings['Asr']}\n"
-            f"🌅 <b>المغرب:</b> {timings['Maghrib']}\n"
-            f"🌙 <b>العشاء:</b> {timings['Isha']}\n"
+            f" <b>الفجر:</b> {timings['Fajr']}\n"
+            f" <b>الشروق:</b> {timings['Sunrise']}\n"
+            f" <b>الظهر:</b> {timings['Dhuhr']}\n"
+            f" <b>العصر:</b> {timings['Asr']}\n"
+            f" <b>المغرب:</b> {timings['Maghrib']}\n"
+            f" <b>العشاء:</b> {timings['Isha']}\n"
         )
         
         # إضافة وقت الإمساك إذا موجود
         if 'Imsak' in timings:
-            message += f"⛅ <b>الإمساك:</b> {timings['Imsak']}\n"
+            message += f" <b>الإمساك:</b> {timings['Imsak']}\n"
         
-        message += f"\n📍 <b>الموقع:</b> {city}، العراق 🇮🇶\n"
-        message += f"<i>ملاحظة: تم تعديل التاريخ الهجري ليتوافق مع العراق</i>"
+        message += f"\n📍 <b>الموقع:</b> {city}، العراق 🇮🇶"
         
         await edit_or_reply(event, message, parse_mode="HTML")
         

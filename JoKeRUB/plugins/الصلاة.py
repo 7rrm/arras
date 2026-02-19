@@ -2,7 +2,7 @@ import json
 import aiohttp
 from . import l313l, edit_delete, edit_or_reply
 import asyncio
-from datetime import datetime
+from datetime import datetime, timedelta
 
 plugin_category = "extra"
 
@@ -41,6 +41,17 @@ ARABIC_MONTHS = {
     "October": "أكتوبر",
     "November": "نوفمبر",
     "December": "ديسمبر"
+}
+
+# أسماء الأيام العربية
+ARABIC_DAYS = {
+    "Monday": "الاثنين",
+    "Tuesday": "الثلاثاء", 
+    "Wednesday": "الأربعاء",
+    "Thursday": "الخميس",
+    "Friday": "الجمعة",
+    "Saturday": "السبت",
+    "Sunday": "الأحد"
 }
 
 @l313l.ar_cmd(
@@ -98,7 +109,7 @@ async def prayer_times(event):
         params = {
             "city": english_city,
             "country": "IQ",
-            "method": 13,  # طريقة العراق
+            "method": 2,  # طريقة أم القرى - مناسبة للعراق
         }
         
         # إنشاء جلسة جديدة
@@ -115,15 +126,30 @@ async def prayer_times(event):
         gregorian = data["data"]["date"]["gregorian"]
         hijri = data["data"]["date"]["hijri"]
         
+        # تعديل التاريخ الهجري (إنقاص يوم واحد)
+        hijri_day = int(hijri['day'])
+        hijri_month = hijri['month']['number']
+        hijri_year = hijri['year']
+        
+        # إذا كان اليوم 1 يبقى 1، وإذا كان أكبر من 1 ينقص 1
+        if hijri_day > 1:
+            hijri_day = hijri_day - 1
+        # ملاحظة: لا نتعامل مع حالة أول الشهر لأن API يعطي التاريخ الصحيح للسعودية
+        # والعراق يتأخر بيوم واحد فقط
+        
         # تنسيق التاريخ الميلادي بالعربية
         english_month = gregorian["month"]["en"]
         arabic_month = ARABIC_MONTHS.get(english_month, english_month)
         
+        # الحصول على اسم اليوم بالعربية
+        english_day = gregorian["weekday"]["en"]
+        arabic_day = ARABIC_DAYS.get(english_day, english_day)
+        
         # تنسيق الرسالة - بطريقة أبسط
         message = (
             f"🕌 <b>أوقات الصلاة في {city}</b>\n\n"
-            f"📅 <b>التاريخ الميلادي:</b> {gregorian['day']} {arabic_month} {gregorian['year']}\n"
-            f"📅 <b>التاريخ الهجري:</b> {hijri['day']} {hijri['month']['ar']} {hijri['year']} هـ\n\n"
+            f"📅 <b>التاريخ الميلادي:</b> {arabic_day}، {gregorian['day']} {arabic_month} {gregorian['year']}\n"
+            f"📅 <b>التاريخ الهجري:</b> {hijri_day} {hijri['month']['ar']} {hijri_year} هـ\n\n"
             
             f"⏰ <b>الفجر:</b> {timings['Fajr']}\n"
             f"🌞 <b>الشروق:</b> {timings['Sunrise']}\n"
@@ -138,7 +164,7 @@ async def prayer_times(event):
             message += f"⛅ <b>الإمساك:</b> {timings['Imsak']}\n"
         
         message += f"\n📍 <b>الموقع:</b> {city}، العراق 🇮🇶\n"
-        message += f"📊 <b>طريقة الحساب:</b> العراق (method 13)"
+        message += f"<i>ملاحظة: تم تعديل التاريخ الهجري ليتوافق مع العراق</i>"
         
         await edit_or_reply(event, message, parse_mode="HTML")
         

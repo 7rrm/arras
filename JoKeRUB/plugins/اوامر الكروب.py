@@ -1568,7 +1568,7 @@ class DiceGame:
         self.waiting_for_dice = None  # {user_id: remaining_throws}
         self.eliminated_players = []
 
-    async def create_pinned_message(self, event):
+async def create_pinned_message(self, event):
     message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
     
     chat = await event.get_chat()
@@ -1580,8 +1580,8 @@ class DiceGame:
     
     self.pinned_message_id = message.id
     return message.id
-
-    async def update_pinned_message(self, event):
+    
+async def update_pinned_message(self, event):
     if not self.pinned_message_id:
         return
     

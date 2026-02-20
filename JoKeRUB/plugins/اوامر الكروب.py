@@ -1568,21 +1568,21 @@ class DiceGame:
         self.waiting_for_dice = None  # {user_id: remaining_throws}
         self.eliminated_players = []
 
-
-    async def create_pinned_message(self, event):
-      message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
+async def create_pinned_message(self, event):
+    message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
     
-      chat = await event.get_chat()
-        if chat.pinned_message_enabled:
-            try:
-                await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
-                except:
-                    pass
-                    self.pinned_message_id = message.id
-                    return message.id
+    chat = await event.get_chat()
+    if chat.pinned_message_enabled:
+        try:
+            await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
+        except:
+            pass
+    
+    self.pinned_message_id = message.id
+    return message.id
 
-    async def update_pinned_message(self, event):
-        if not self.pinned_message_id:
+async def update_pinned_message(self, event):
+    if not self.pinned_message_id:
         return
     
     players_text = "**اللاعبون المشاركون:**\n"
@@ -1605,6 +1605,8 @@ class DiceGame:
         await event.client.edit_message(self.chat_id, self.pinned_message_id, message_text)
     except:
         pass
+
+    
 
     async def add_player(self, event, user):
         """إضافة لاعب جديد"""

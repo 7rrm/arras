@@ -1583,7 +1583,7 @@ class DiceGame:
     self.pinned_message_id = message.id
     return message.id
 
-async def update_pinned_message(self, event):
+    async def update_pinned_message(self, event):
     """تحديث الرسالة"""
     if not self.pinned_message_id:
         return

@@ -1569,46 +1569,36 @@ class DiceGame:
         self.eliminated_players = []
 
     async def create_pinned_message(self, event):
-    """إنشاء رسالة اللعبة - تثبت إذا كانت الصلاحية متاحة"""
-    message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
-    
-    # التحقق من صلاحية التثبيت
-    chat = await event.get_chat()
-    if chat.pinned_message_enabled:  # إذا لديه صلاحية
-        try:
-            await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
-        except:
-            pass  # إذا فشل التثبيت لأي سبب، نكمل عادي
-    
-    self.pinned_message_id = message.id
-    return message.id
+        message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
+        chat = await event.get_chat()
+        if chat.pinned_message_enabled:  # إذا لديه صلاحية
+            try:
+                await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
+                except:
+                    pass  # إذا فشل التثبيت لأي سبب، نكمل عادي
+                    self.pinned_message_id = message.id
+                    return message.id
 
     async def update_pinned_message(self, event):
-    """تحديث الرسالة"""
-    if not self.pinned_message_id:
-        return
-    
-    players_text = "**اللاعبون المشاركون:**\n"
-    for user_id, data in self.players.items():
-        if self.game_active:
-            score_display = data["current_round_score"]
-        else:
-            score_display = "لم يلعب بعد"
-        players_text += f"ٴ👤 {data['name']} - النقاط: {score_display}\n"
-    
-    if self.eliminated_players:
-        players_text += f"\n**المقصيون:**\n"
-        for player in self.eliminated_players:
-            players_text += f"ٴ❌ {player}\n"
-    
-    status = "**الحالة: جارية**" if self.game_active else "**الحالة: في انتظار اللاعبين**"
-    message_text = f"**🎲 لعبـة النـرد**\n\n{players_text}\n{status}\n\n**الجولة: {self.current_round}**"
-    
-    try:
-        # نحاول تعديل الرسالة فقط (سواء مثبتة أو لا)
-        await event.client.edit_message(self.chat_id, self.pinned_message_id, message_text)
-    except:
-        pass
+        if not self.pinned_message_id:
+            return
+            players_text = "**اللاعبون المشاركون:**\n"
+            for user_id, data in self.players.items():
+                if self.game_active:
+                    score_display = data["current_round_score"]
+                else:
+                    score_display = "لم يلعب بعد"
+                    players_text += f"ٴ👤 {data['name']} - النقاط: {score_display}\n"
+                    if self.eliminated_players:
+                        players_text += f"\n**المقصيون:**\n"
+                        for player in self.eliminated_players:
+                            players_text += f"ٴ❌ {player}\n"
+                            status = "**الحالة: جارية**" if self.game_active else "**الحالة: في انتظار اللاعبين**"
+                            message_text = f"**🎲 لعبـة النـرد**\n\n{players_text}\n{status}\n\n**الجولة: {self.current_round}**"
+                            try:
+                                await event.client.edit_message(self.chat_id, self.pinned_message_id, message_text)
+                                except:
+                                    pass
     
     async def add_player(self, event, user):
         """إضافة لاعب جديد"""

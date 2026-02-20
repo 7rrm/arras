@@ -1,4 +1,5 @@
 import asyncio
+import random
 import time
 from telethon import functions
 from collections import deque

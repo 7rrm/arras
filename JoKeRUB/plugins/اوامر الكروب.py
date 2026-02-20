@@ -1517,7 +1517,7 @@ async def game_info(event):
 
 
 ##############################
-
+#####
 
 from telethon import events
 from telethon.tl.types import InputMediaDice, Message
@@ -1535,6 +1535,7 @@ class CustomParseMode:
     def parse(self, text):
         if self.parse_mode == 'html':
             text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
             for i, e in enumerate(entities):
                 if isinstance(e, types.MessageEntityTextUrl):
                     if e.url.startswith('emoji/'):
@@ -1553,39 +1554,36 @@ class CustomParseMode:
     def unparse(text, entities):
         return html.unparse(text, entities)
         
+# قاموس لحفظ بيانات اللعبة
 dice_games = {}
 
 class DiceGame:
     def __init__(self, chat_id):
         self.chat_id = chat_id
-        self.players = {}
+        self.players = {}  # {user_id: {"name": "", "current_round_score": 0, "total_score": 0}}
         self.pinned_message_id = None
         self.game_message_id = None
         self.current_round = 1
         self.game_active = False
-        self.waiting_for_dice = None
+        self.waiting_for_dice = None  # {user_id: remaining_throws}
         self.eliminated_players = []
     
     async def create_pinned_message(self, event):
+        """إنشاء الرسالة المثبتة"""
         message = await event.reply("**🎲 لعبـة النـرد الجديدة**\n\n**اللاعبون المشاركون:**\nٴ- لم ينضم أحد بعد\n\n**ارسل `Y` للانضمام!**")
-        
-        chat = await event.get_chat()
-        if chat.pinned_message_enabled:
-            try:
-                await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
-            except:
-                pass
-        
+        await event.client(UpdatePinnedMessageRequest(self.chat_id, message.id, False))
         self.pinned_message_id = message.id
         return message.id
     
     async def update_pinned_message(self, event):
+        """تحديث الرسالة المثبتة"""
         if not self.pinned_message_id:
             return
         
         players_text = "**اللاعبون المشاركون:**\n"
         for user_id, data in self.players.items():
             if self.game_active:
+                # في الجولة النشطة، نعرض نقاط الجولة الحالية
                 score_display = data["current_round_score"]
             else:
                 score_display = "لم يلعب بعد"
@@ -1605,14 +1603,15 @@ class DiceGame:
             pass
 
     async def add_player(self, event, user):
+        """إضافة لاعب جديد"""
         if user.id in self.players:
             return False
         
         user_name = f"{user.first_name} {user.last_name}" if user.last_name else user.first_name
         self.players[user.id] = {
             "name": user_name,
-            "current_round_score": 0,
-            "total_score": 0,
+            "current_round_score": 0,  # نقاط الجولة الحالية فقط
+            "total_score": 0,  # لم يعد مستخدمًا للإقصاء
             "dice_throws": []
         }
         
@@ -1620,6 +1619,7 @@ class DiceGame:
         return True
 
     async def start_game(self, event):
+        """بدء اللعبة"""
         if len(self.players) < 2:
             await event.reply("**❌ تحتاج إلى لاعبين على الأقل لبدء اللعبة!**")
             return False
@@ -1630,10 +1630,13 @@ class DiceGame:
         return True
 
     async def start_round(self, event):
+        """بدء جولة جديدة"""
+        # تصفير نقاط الجولة الحالية للجميع
         for user_id in self.players:
             self.players[user_id]["current_round_score"] = 0
             self.players[user_id]["dice_throws"] = []
         
+        # بدء من أول لاعب
         player_ids = list(self.players.keys())
         first_player = player_ids[0]
         self.waiting_for_dice = {"user_id": first_player, "remaining_throws": 3}
@@ -1641,9 +1644,11 @@ class DiceGame:
         user_entity = await event.client.get_entity(first_player)
         user_name = self.players[first_player]["name"]
         
+        # ✅ لا يرد - رسالة جديدة فقط
         await event.respond(f"**⦑ الجولة {self.current_round} ⦒**\n\n- عَزيزي/تي ◗ [{user_name}](tg://user?id={first_player}) ◖\nتم بدء اللعبة إرسل 3 مرات نرد .")
 
     async def process_dice_throw(self, event, user_id, dice_value):
+        """معالجة رمي النرد"""
         if not self.waiting_for_dice or self.waiting_for_dice["user_id"] != user_id:
             return False
         
@@ -1655,20 +1660,26 @@ class DiceGame:
         if self.waiting_for_dice["remaining_throws"] > 0:
             remaining = self.waiting_for_dice["remaining_throws"]
             user_name = player["name"]
+            # ✅ يرد - على رسالة النرد
             await event.reply(f"◈︙اللاعب - {user_name}\n - رمى النرد وحصل على {dice_value} نقطة.\n\n❨ باقي {remaining} رميات❩")
             return "continue"
         else:
+            # انتهى دور اللاعب
             total_round_score = player["current_round_score"]
             user_name = player["name"]
             
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"**🎲 اللاعب {user_name} انتهى من رمي النرد وحصل على {total_round_score} نقطة في هذه الجولة!**")
             
+            # تحديث الرسالة المثبتة بعد انتهاء اللاعب
             await self.update_pinned_message(event)
             
+            # الانتقال للاعب التالي
             await self.next_player(event)
             return "finished"
 
     async def next_player(self, event):
+        """الانتقال للاعب التالي"""
         player_ids = list(self.players.keys())
         current_index = player_ids.index(self.waiting_for_dice["user_id"])
         
@@ -1677,61 +1688,78 @@ class DiceGame:
             self.waiting_for_dice = {"user_id": next_player_id, "remaining_throws": 3}
             
             user_name = self.players[next_player_id]["name"]
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"**🎲 الدور الآن على:**\n\n- عَزيزي/تي ◗ [{user_name}](tg://user?id={next_player_id}) ◖\nإرسل 3 مرات نرد .")
         else:
+            # انتهت الجولة
             await self.finish_round(event)
 
     async def finish_round(self, event):
+        """إنهاء الجولة وتصفية اللاعبين"""
         self.waiting_for_dice = None
         
+        # الإقصاء بناءً على نقاط الجولة الحالية فقط
         current_round_scores = {user_id: player["current_round_score"] for user_id, player in self.players.items()}
         min_score = min(current_round_scores.values())
         lowest_players = [user_id for user_id, score in current_round_scores.items() if score == min_score]
         
         if len(lowest_players) == 1:
+            # إقصاء لاعب واحد
             eliminated_id = lowest_players[0]
             eliminated_name = self.players[eliminated_id]["name"]
             eliminated_score = self.players[eliminated_id]["current_round_score"]
             self.eliminated_players.append(eliminated_name)
             del self.players[eliminated_id]
             
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"**🎲 تم إقصاء اللاعب ◗ `{eliminated_name}` ◖ لكونه الأقل نقاطاً في الجولة {self.current_round} ({eliminated_score} نقطة)**")
             
         else:
+            # تعادل - جولة إضافية للمتعادلين فقط
             await self.handle_tie_breaker(event, lowest_players)
             return
         
+        # التحقق إذا كانت اللعبة انتهت
         if len(self.players) == 1:
             await self.finish_game(event)
         else:
+            # بدء جولة جديدة
             self.current_round += 1
             await self.update_pinned_message(event)
             await asyncio.sleep(3)
             await self.start_round(event)
 
     async def handle_tie_breaker(self, event, tied_players):
+        """معالجة التعادل بين اللاعبين"""
         tied_names = [self.players[pid]["name"] for pid in tied_players]
         tied_scores = [self.players[pid]["current_round_score"] for pid in tied_players]
         names_text = " - ".join(tied_names)
         
+        # ✅ لا يرد - رسالة جديدة فقط
         await event.respond(f"**🎲 تعادل في النقاط بين:**\n{names_text}\n\n**جميعهم حصلوا على {tied_scores[0]} نقطة**\n**سيلعبون جولة إضافية لتحديد المقصى!**")
         
+        # حفظ اللاعبين المتعادلين مؤقتاً
         self.tied_players = tied_players
         self.tied_scores = {pid: 0 for pid in tied_players}
         
+        # إعادة تعيين النقاط للجولة الإضافية
         for player_id in tied_players:
             self.players[player_id]["current_round_score"] = 0
             self.players[player_id]["dice_throws"] = []
         
+        # تحديث الرسالة المثبتة للجولة الإضافية
         await self.update_pinned_message(event)
         
+        # بدء الجولة الإضافية من أول لاعب متعادل
         first_tied_player = tied_players[0]
         self.waiting_for_dice = {"user_id": first_tied_player, "remaining_throws": 3, "tie_breaker": True}
         
         user_name = self.players[first_tied_player]["name"]
+        # ✅ لا يرد - رسالة جديدة فقط
         await event.respond(f"**⦑ الجولة الإضافية ⦒**\n\n- عَزيزي/تي ◗ [{user_name}](tg://user?id={first_tied_player}) ◖\n- إرسل 3 مرات نرد .")
 
     async def process_tie_breaker_dice(self, event, user_id, dice_value):
+        """معالجة رمي النرد في الجولة الإضافية"""
         player = self.players[user_id]
         player["dice_throws"].append(dice_value)
         player["current_round_score"] += dice_value
@@ -1741,26 +1769,34 @@ class DiceGame:
         if self.waiting_for_dice["remaining_throws"] > 0:
             remaining = self.waiting_for_dice["remaining_throws"]
             user_name = player["name"]
+            # ✅ يرد - على رسالة النرد
             await event.reply(f"◈︙اللاعب - `{user_name}`\n - رمى النرد وحصل على `{dice_value}` نقطة.\n\n❨ باقي `{remaining}` رميات❩")
         else:
+            # انتهى دور اللاعب في الجولة الإضافية
             total_round_score = player["current_round_score"]
             user_name = player["name"]
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"◈︙اللاعب - `{user_name}`\n انتهى من رمي النرد وحصل على `{total_round_score}` نقطة في الجولة الإضافية!")
             
+            # تحديث الرسالة المثبتة بعد انتهاء اللاعب
             await self.update_pinned_message(event)
             
+            # الانتقال للاعب التالي في الجولة الإضافية
             current_index = self.tied_players.index(user_id)
             if current_index + 1 < len(self.tied_players):
                 next_player_id = self.tied_players[current_index + 1]
                 self.waiting_for_dice = {"user_id": next_player_id, "remaining_throws": 3, "tie_breaker": True}
                 
                 user_name = self.players[next_player_id]["name"]
+                # ✅ لا يرد - رسالة جديدة فقط
                 await event.respond(f"**⦑ الجولة الإضافية ⦒**\n\n-عَزيزي/تي ◗ [{user_name}](tg://user?id={next_player_id}) ◖\nإرسل 3 مرات نرد .")
             else:
+                # انتهت الجولة الإضافية
                 self.waiting_for_dice = None
                 await self.finish_tie_breaker(event)
 
     async def finish_tie_breaker(self, event):
+        """إنهاء الجولة الإضافية للمتعادلين"""
         min_score = min(self.tied_scores.values())
         lowest_players = [pid for pid, score in self.tied_scores.items() if score == min_score]
         
@@ -1771,6 +1807,7 @@ class DiceGame:
             self.eliminated_players.append(eliminated_name)
             del self.players[eliminated_id]
             
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"◈︙اللاعب `{eliminated_name}`\n- تم أقصائه من الجولة الإضافية (`{eliminated_score}` نقطة) .")
         else:
             eliminated_id = random.choice(lowest_players)
@@ -1779,6 +1816,7 @@ class DiceGame:
             self.eliminated_players.append(eliminated_name)
             del self.players[eliminated_id]
             
+            # ✅ لا يرد - رسالة جديدة فقط
             await event.respond(f"◈︙اللاعب `{eliminated_name}`\n- تم أقصائه عشوائيا بسبب التعادل المستمر (`{eliminated_score}` نقطة) .")
         
         del self.tied_players
@@ -1794,10 +1832,12 @@ class DiceGame:
             await self.start_round(event)
 
     async def finish_game(self, event):
+        """إنهاء اللعبة وإعلان الفائز"""
         winner_id = list(self.players.keys())[0]
         winner_name = self.players[winner_id]["name"]
         winner_score = self.players[winner_id]["current_round_score"]
         
+        # ✅ لا يرد - رسالة جديدة فقط
         await event.respond(f"**🎊 🏆 مبروك! 🏆 🎊**\n\nالفائز هو:◗ {winner_name} ◖\nبمجموع نقاط الجولة الأخيرة: `{winner_score}`\n\nشكراً للجميع على المشاركة .")
         
         final_text = f"**🎲 لعبـة النـرد - انتهت**\n\n🏆 الفائز:◗ {winner_name} ◖\nنقاط الجولة الأخيرة: `{winner_score}`\n\n"
@@ -1810,8 +1850,10 @@ class DiceGame:
         if self.chat_id in dice_games:
             del dice_games[self.chat_id]
 
+# باقي الأوامر تبقى كما هي...
 @l313l.on(events.NewMessage(pattern='.نرد2'))
 async def start_dice_game(event):
+    """بدء لعبة النرد الجديدة"""
     user = await event.get_sender()
     chat_id = event.chat_id
     
@@ -1832,6 +1874,7 @@ async def start_dice_game(event):
 
 @l313l.on(events.NewMessage(pattern='^(?i)Y$'))
 async def join_game(event):
+    """الانضمام للعبة"""
     user = await event.get_sender()
     chat_id = event.chat_id
     
@@ -1841,11 +1884,12 @@ async def join_game(event):
     game = dice_games[chat_id]
     
     if game.game_active:
-        await event.reply("<b>❌ اللعبة جاريه، لا يمكن الانضمام الآن!</b>")
+        await event.reply("<b>❌ اللعبة جاريه， لا يمكن الانضمام الآن!</b>")
         return
     
     success = await game.add_player(event, user)
     if success:
+        # استخدام الإيموجي البريميوم في الرسالة مع تنسيق HTML
         message = f"<b>⪼ تم انضمام</b> <code>{user.first_name}</code> <b>إلى اللعبة </b><a href=\"emoji/5357069174512303778\">✅</a>"
         await event.reply(message, parse_mode=CustomParseMode("html"))
     else:
@@ -1853,6 +1897,7 @@ async def join_game(event):
         
 @l313l.on(events.NewMessage(pattern='^(?i)n$'))
 async def end_game_command(event):
+    """إنهاء اللعبة"""
     user = await event.get_sender()
     chat_id = event.chat_id
     
@@ -1875,6 +1920,7 @@ async def end_game_command(event):
 
 @l313l.on(events.NewMessage())
 async def handle_dice_throws(event):
+    """معالجة رمي النرد"""
     chat_id = event.chat_id
     user = await event.get_sender()
     
@@ -1896,7 +1942,6 @@ async def handle_dice_throws(event):
             await game.process_tie_breaker_dice(event, user.id, dice_value)
         else:
             await game.process_dice_throw(event, user.id, dice_value)
-
 
 
 '''

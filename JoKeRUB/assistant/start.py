@@ -122,7 +122,9 @@ async def bot_start(event):
     custompic = gvarstatus("BOT_START_PIC") or None
     
     # معرف الإيموجي البريميوم للنص
-    PREMIUM_EMOJI_ID = "5210763312597326700"
+    PREMIUM_EMOJI_ID = "5933974679269151927"
+    PREMIUM_EMOJI_M = "6035305550625902723"
+    
     
     # رسالة البداية
     start_msg = f'''\
@@ -130,9 +132,10 @@ async def bot_start(event):
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
 
-❶ <b>التواصـل مـع مـالكـي مـن هنـا</b> 💌
-❷ <b>زخـرفـة النصـوص والأسمـاء</b> 🎨
-❸ <b>حـذف الحسـابات نهـائياً</b> ⚠️
+❶ <b>التواصـل مـع مـالكـي مـن هنـا</b> <tg-emoji emoji-id="{PREMIUM_EMOJI_M}"> 💌</tg-emoji>
+من خـلال زر **اضغـط لـ التواصـل**
+❷ <b>زخـرفـة النصـوص والأسمـاء</b> <tg-emoji emoji-id="{EMOJI_DECOR}"> 🎨</tg-emoji>
+❸ <b>حـذف الحسـابات نهـائياً</b> <tg-emoji emoji-id="{EMOJI_DELETE}"> ⚠️</tg-emoji>
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
     

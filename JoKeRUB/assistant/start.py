@@ -120,9 +120,11 @@ async def bot_start(event):
         zid = int(gvarstatus("ZThon_Vip"))
     
     custompic = gvarstatus("BOT_START_PIC") or None
+  
+    PREMIUM_EMOJI_ID = 5933974679269151927
 
 
-PREMIUM_EMOJI_ID = 5933974679269151927
+
 # المتغيرات الصحيحة من الكود الأصلي
 start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>

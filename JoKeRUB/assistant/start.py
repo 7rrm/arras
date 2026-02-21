@@ -122,18 +122,23 @@ async def bot_start(event):
     custompic = gvarstatus("BOT_START_PIC") or None
   
     PREMIUM_EMOJI_ID = 5933974679269151927
-    # المتغيرات ا
+    # أولاً: تعريف الإيموجيات الخاصة بالنص (إذا لم تكن موجودة)
+    PREMIUM_EMOJI_ID = 5210763312597326700  # ✨
+    EMOJI_HEART = 5258215850745275216        # 💌
+    EMOJI_ART = 5411580731929411768        # 🎨
+    EMOJI_WARN = 5350477112677515642
     start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
 
-❶ <b>التواصـل مـع مـالكـي مـن هنـا</b><tg-emoji emoji-id="{PREMIUM_EMOJI_M}"> 💌</tg-emoji>
+❶ <b>التواصـل مـع مـالكـي مـن هنـا</b> <tg-emoji emoji-id="{EMOJI_HEART}">💌</tg-emoji>
 من خـلال زر **اضغـط لـ التواصـل**
-❷ <b>زخـرفـة النصـوص والأسمـاء</b><tg-emoji emoji-id="{EMOJI_DECOR}"> 🎨</tg-emoji>
-❸ <b>حـذف الحسـابات نهـائياً</b><tg-emoji emoji-id="{EMOJI_DELETE}"> ⚠️</tg-emoji>
+❷ <b>زخـرفـة النصـوص والأسمـاء</b> <tg-emoji emoji-id="{EMOJI_ART}">🎨</tg-emoji>
+❸ <b>حـذف الحسـابات نهـائياً</b> <tg-emoji emoji-id="{EMOJI_WARN}">⚠️</tg-emoji>
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
+
 
     # ============================================
     # ✅ الأزرار حسب نوع المستخدم

@@ -122,7 +122,7 @@ async def bot_start(event):
     custompic = gvarstatus("BOT_START_PIC") or None
   
     # أولاً: تعريف الإيموجيات الخاصة بالنص (إذا لم تكن موجودة)
-    PREMIUM_EMOJI_ID = 5933974679269151927  # ✨
+    PREMIUM_EMOJI_ID = 5210763312597326700  # ✨
     EMOJI_HEART = 5258215850745275216        # 💌
     EMOJI_ART = 5411580731929411768        # 🎨
     EMOJI_WARN = 5350477112677515642

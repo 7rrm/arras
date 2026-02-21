@@ -121,9 +121,8 @@ async def bot_start(event):
     
     custompic = gvarstatus("BOT_START_PIC") or None
   
-    PREMIUM_EMOJI_ID = 5933974679269151927
     # أولاً: تعريف الإيموجيات الخاصة بالنص (إذا لم تكن موجودة)
-    PREMIUM_EMOJI_ID = 5210763312597326700  # ✨
+    PREMIUM_EMOJI_ID = 5933974679269151927  # ✨
     EMOJI_HEART = 5258215850745275216        # 💌
     EMOJI_ART = 5411580731929411768        # 🎨
     EMOJI_WARN = 5350477112677515642
@@ -133,7 +132,7 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
 
 ❶ <b>التواصـل مـع مـالكـي مـن هنـا</b> <tg-emoji emoji-id="{EMOJI_HEART}">💌</tg-emoji>
-من خـلال زر **اضغـط لـ التواصـل**
+من خـلال زر <b>اضغـط لـ التواصـل</b>
 ❷ <b>زخـرفـة النصـوص والأسمـاء</b> <tg-emoji emoji-id="{EMOJI_ART}">🎨</tg-emoji>
 ❸ <b>حـذف الحسـابات نهـائياً</b> <tg-emoji emoji-id="{EMOJI_WARN}">⚠️</tg-emoji>
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎

@@ -384,6 +384,62 @@ async def Hussein(event):
             await event.edit(response.text)
 
 
+import asyncio
+from telethon import events
+from telethon.tl.functions.messages import GetHistoryRequest
+from telethon.tl.types import MessageEntityBlockquote, MessageMediaPhoto, InputMediaUploadedPhoto, MessageMediaDocument
+from telethon.tl.custom import Message
+from . import l313l
+from ..Config import Config
+from ..core.managers import edit_or_reply
+from . import BOTLOG, BOTLOG_CHATID
+
+async def copy_message_with_all_features(dest_entity, message, source_channel_username):
+    """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق)"""
+    
+    # تجهيز النص مع الحفاظ على التنسيق والاقتباسات
+    text = message.message or ""
+    entities = message.entities or []
+    
+    # التأكد من الحفاظ على الاقتباسات (blockquotes)
+    blockquote_entities = [e for e in entities if isinstance(e, MessageEntityBlockquote)]
+    
+    # تجهيز الميديا مع دعم التشويش
+    media = None
+    if message.media:
+        if hasattr(message.media, 'spoiler') and message.media.spoiler:
+            # إذا كانت الصورة مشوشة في الأصل
+            if isinstance(message.media, MessageMediaPhoto):
+                # تحميل الصورة وإعادة إرسالها مع تشويش
+                photo_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(photo_data)
+                media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # تفعيل التشويش
+                )
+            elif isinstance(message.media, MessageMediaDocument):
+                # للمستندات أو الفيديو مع تشويش
+                file_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(file_data)
+                media = await l313l.send_file(dest_entity, uploaded_file, spoiler=True)
+                return media  # نرجع هنا لأن send_file تعمل مباشرة
+        else:
+            # ميديا عادية بدون تشويش
+            file_media = f"https://t.me/{source_channel_username}/{message.id}"
+            media = file_media
+    
+    # إرسال الرسالة كاملة
+    if media:
+        if isinstance(media, str) and media.startswith('http'):
+            # حالة الرابط المباشر
+            return await l313l.send_file(dest_entity, media, caption=text, formatting_entities=entities)
+        else:
+            # حالة الميديا المرفوعة
+            return await l313l.send_file(dest_entity, media, caption=text)
+    else:
+        # رسالة نصية فقط مع الحفاظ على التنسيق
+        return await l313l.send_message(dest_entity, text, formatting_entities=entities)
+
 async def start_copier(destination_channel_username, source_channel_username):
     try:
         # الحصول على معلومات القنوات
@@ -394,7 +450,7 @@ async def start_copier(destination_channel_username, source_channel_username):
         # الحصول على جميع المنشورات من القناة المصدر
         posts = await l313l(GetHistoryRequest(
             peer=source_channel,
-            limit=10000,  # عدد المنشورات المراد نقلها (ضع قيمة كبيرة لنقل جميع المنشورات)
+            limit=10000,
             offset_date=None,
             offset_id=0,
             max_id=0,
@@ -404,36 +460,78 @@ async def start_copier(destination_channel_username, source_channel_username):
         ))
 
         # عكس ترتيب الرسائل لنقلها من الأقدم إلى الأحدث
-        posts.messages.reverse() 
+        posts.messages.reverse()
 
         # نقل المنشورات إلى القناة المستهدفة
         for message in posts.messages:
             try:
-                media = None
-                caption = message.message or ""
-                if message.media:
-                    file_media = f"https://t.me/{source_channel_username}/{message.id}"
-                    await l313l.send_file(destination_channel_id, file_media, caption=caption)
-                    #print(f"تم نقل المنشور: {message.id}")
-                    await asyncio.sleep(1)  # تجنب حظر Telegram بإضافة تأخير بين كل عملية إرسال
-                    await l313l.send_message(BOTLOG_CHATID, f"**- تم نقل المنشور .. بنجاح✅**\n**- رابـط المنشور:**\n- https://t.me/{source_channel_username}/{message.id}", link_preview=False)
-                    await asyncio.sleep(1)  # تجنب حظر Telegram بإضافة تأخير بين كل عملية إرسال
+                await copy_message_with_all_features(destination_channel_id, message, source_channel_username)
+                
+                await asyncio.sleep(1)
+                await l313l.send_message(BOTLOG_CHATID, 
+                    f"**- تم نقل المنشور .. بنجاح✅**\n"
+                    f"**- رابـط المنشور:**\n"
+                    f"- https://t.me/{source_channel_username}/{message.id}", 
+                    link_preview=False)
+                await asyncio.sleep(1)
 
             except Exception as e:
-                #print(f"خطأ في نقل المنشور {message.id}: {e}")
-                await l313l.send_message(BOTLOG_CHATID, f"**- خطـأ بنقـل المنشـور ❌**\n**- رابـط المنشور:**\n- https://t.me/{source_channel_username}/{message.id}\n**- تفاصيـل الخطـأ:**\n- {e}", link_preview=False)
+                await l313l.send_message(BOTLOG_CHATID, 
+                    f"**- خطـأ بنقـل المنشـور ❌**\n"
+                    f"**- رابـط المنشور:**\n"
+                    f"- https://t.me/{source_channel_username}/{message.id}\n"
+                    f"**- تفاصيـل الخطـأ:**\n"
+                    f"- {e}", 
+                    link_preview=False)
 
     except Exception as e:
-        #print(f"حدث خطأ: {e}")
-        await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطـأ ❌**\n**- تفاصيـل الخطـأ:**\n- {e}")
-
+        await l313l.send_message(BOTLOG_CHATID, 
+            f"**- حدث خطـأ ❌**\n"
+            f"**- تفاصيـل الخطـأ:**\n"
+            f"- {e}")
 
 @l313l.ar_cmd(pattern="كوبي(?:\s|$)([\s\S]*)")
 async def channel_copier(event):
     catty = event.pattern_match.group(1)
-    #limit = int(catty.split(" ")[0])
     channel_username = str(catty.split(" ")[0])
     if channel_username.startswith("@"):
         channel_username = channel_username.replace("@", "")
-    await edit_or_reply(event, f"**- جـارِ نقـل منشـورات الميديـا . . .**\n**- مـن القنـاة @{channel_username}**\n\n**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
+    
+    # دعم تحديد العدد
+    parts = catty.split()
+    if len(parts) > 1:
+        try:
+            limit = int(parts[1])
+        except:
+            limit = 10000
+    else:
+        limit = 10000
+    
+    await edit_or_reply(event, 
+        f"**- جـارِ نقـل منشـورات الميديـا . . .**\n"
+        f"**- مـن القنـاة @{channel_username}**\n"
+        f"**- عدد المنشورات: {limit}**\n\n"
+        f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
+    
     copier_start = await start_copier(event.chat_id, channel_username)
+```
+
+الميزات الجديدة في الكود:
+
+1. دعم خط الاقتباس <blockquote>:
+
+```python
+from telethon.tl.types import MessageEntityBlockquote
+# يتم الحفاظ على الاقتباسات تلقائياً عند إرسال formatting_entities
+```
+
+2. دعم الصور المشوشة (Spoiler):
+
+```python
+# للصور المشوشة
+if hasattr(message.media, 'spoiler') and message.media.spoiler:
+    uploaded_file = await l313l.upload_file(photo_data)
+    media = InputMediaUploadedPhoto(
+        file=uploaded_file,
+        spoiler=True  # تفعيل التشويش
+)

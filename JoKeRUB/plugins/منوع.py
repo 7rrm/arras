@@ -385,6 +385,7 @@ async def Hussein(event):
 
 import asyncio
 import os
+import io
 from telethon import events
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageEntityBlockquote, MessageMediaPhoto, InputMediaUploadedPhoto, MessageMediaDocument
@@ -395,21 +396,25 @@ from ..core.managers import edit_or_reply
 from . import BOTLOG, BOTLOG_CHATID
 
 async def copy_message_with_all_features(dest_entity, message):
-    """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق)"""
+    """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق) مثل أمر ا بالضبط"""
     
-    # تجهيز النص (تجنب None)
+    # تجهيز النص مع الحفاظ على التنسيق
     text = message.message or ""
+    entities = message.entities or []
     
     if message.media:
         # تحميل الميديا كـ bytes
         file_data = await message.download_media(bytes)
         
+        # تحويل إلى BytesIO للتعامل معه بشكل صحيح
+        file_io = io.BytesIO(file_data)
+        
         # التحقق من وجود خاصية التشويش
         has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
         
         if has_spoiler and isinstance(message.media, MessageMediaPhoto):
-            # استخدام نفس الطريقة الناجحة من الكود الآخر
-            uploaded_file = await l313l.upload_file(file_data)
+            # نفس طريقة أمر ا بالضبط للصور المشوشة
+            uploaded_file = await l313l.upload_file(file_io)
             spoiler_media = InputMediaUploadedPhoto(
                 file=uploaded_file,
                 spoiler=True  # ✅ تفعيل التشويش
@@ -420,26 +425,27 @@ async def copy_message_with_all_features(dest_entity, message):
                 dest_entity,
                 text,
                 file=spoiler_media,
-                formatting_entities=message.entities
+                formatting_entities=entities
             )
         else:
-            # للميديا العادية أو غير المدعومة
+            # للميديا العادية أو المستندات
             return await l313l.send_file(
                 dest_entity,
-                file_data,
+                file_io,
                 caption=text,
                 spoiler=has_spoiler,
-                formatting_entities=message.entities
+                formatting_entities=entities
             )
     else:
         # رسالة نصية فقط
-        if text:
+        if text:  # تأكد من وجود نص
             return await l313l.send_message(
                 dest_entity,
                 text,
-                formatting_entities=message.entities
+                formatting_entities=entities
             )
         else:
+            # تخطي الرسائل الفارغة
             print(f"⚠️ تخطي رسالة فارغة ID: {message.id}")
             return None
 

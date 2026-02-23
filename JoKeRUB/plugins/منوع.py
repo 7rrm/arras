@@ -383,8 +383,6 @@ async def Hussein(event):
             response = await conv.get_response()
             await event.edit(response.text)
 
-
-
 import asyncio
 from telethon import events
 from telethon.tl.functions.messages import GetHistoryRequest
@@ -395,155 +393,63 @@ from ..Config import Config
 from ..core.managers import edit_or_reply
 from . import BOTLOG, BOTLOG_CHATID
 
-async def check_media_type(message):
-    """دالة للتحقق من نوع الميديا في الرسالة"""
-    
-    print("\n" + "=" * 40)
-    print("🔍 فحص محتوى الرسالة:")
-    print(f"📝 معرف الرسالة: {message.id}")
-    print(f"📝 نص الرسالة: {message.message[:50]}..." if len(message.message or "") > 50 else f"📝 نص الرسالة: {message.message}")
-    
-    if message.media:
-        print("✅ ✅ ✅ يوجد ميديا في الرسالة ✅ ✅ ✅")
-        
-        # تفاصيل الميديا
-        from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument, MessageMediaWebPage
-        
-        if isinstance(message.media, MessageMediaPhoto):
-            print("📸 نوع الميديا: صورة (Photo)")
-            
-            # معلومات إضافية عن الصورة
-            if hasattr(message.media, 'photo'):
-                print(f"   - معرف الصورة: {message.media.photo.id}")
-                print(f"   - حجم الصورة: {message.media.photo.size} bytes")
-            
-        elif isinstance(message.media, MessageMediaDocument):
-            print("📄 نوع الميديا: مستند/فيديو (Document)")
-            
-            # معلومات إضافية عن المستند
-            if hasattr(message.media, 'document'):
-                print(f"   - معرف المستند: {message.media.document.id}")
-                print(f"   - حجم المستند: {message.media.document.size} bytes")
-                print(f"   - نوع الملف: {message.media.document.mime_type}")
-                
-        elif isinstance(message.media, MessageMediaWebPage):
-            print("🌐 نوع الميديا: رابط ويب (WebPage)")
-            
-        else:
-            print(f"❓ نوع ميديا آخر: {type(message.media)}")
-        
-        # التحقق من خاصية التشويش
-        if hasattr(message.media, 'spoiler'):
-            if message.media.spoiler:
-                print("🔞 خاصية التشويش: مفعلة ✅")
-            else:
-                print("🔞 خاصية التشويش: غير مفعلة ❌")
-        else:
-            print("🔞 خاصية التشويش: غير مدعومة لهذا النوع")
-            
-    else:
-        print("❌ ❌ ❌ لا يوجد ميديا في هذه الرسالة ❌ ❌ ❌")
-        
-    print("=" * 40 + "\n")
-    
-    # إرجاع نتيجة الفحص
-    return {
-        'has_media': message.media is not None,
-        'media_type': type(message.media).__name__ if message.media else None,
-        'has_spoiler': hasattr(message.media, 'spoiler') and message.media.spoiler if message.media else False,
-        'text': message.message
-    }
-
 async def copy_message_with_all_features(dest_entity, message, source_channel_username):
     """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق)"""
     
-    print("=" * 50)
-    print("فحص الرسالة:")
-    print(f"معرف الرسالة: {message.id}")
+    # تجهيز النص مع الحفاظ على التنسيق والاقتباسات
+    text = message.message or ""
+    entities = message.entities or []
     
-    # التحقق من وجود ميديا
+    # التأكد من الحفاظ على الاقتباسات (blockquotes)
+    blockquote_entities = [e for e in entities if isinstance(e, MessageEntityBlockquote)]
+    
+    # تجهيز الميديا مع دعم التشويش
+    media = None
     if message.media:
-        print("✓ يوجد ميديا في الرسالة")
-        
-        # التحقق من نوع الميديا
-        from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument
-        
-        if isinstance(message.media, MessageMediaPhoto):
-            print("✓ نوع الميديا: صورة (Photo)")
-            
-            # التحقق من خاصية التشويش
-            if hasattr(message.media, 'spoiler') and message.media.spoiler:
-                print("✓ الصورة مشوشة (Spoiler)")
-            else:
-                print("✓ صورة عادية بدون تشويش")
-                
-        elif isinstance(message.media, MessageMediaDocument):
-            print("✓ نوع الميديا: مستند/فيديو (Document)")
-            
-            # التحقق من خاصية التشويش للمستندات
-            if hasattr(message.media, 'spoiler') and message.media.spoiler:
-                print("✓ المستند مشوش (Spoiler)")
-            else:
-                print("✓ مستند عادي بدون تشويش")
+        if hasattr(message.media, 'spoiler') and message.media.spoiler:
+            # إذا كانت الصورة مشوشة في الأصل
+            if isinstance(message.media, MessageMediaPhoto):
+                # تحميل الصورة وإعادة إرسالها مع تشويش
+                photo_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(photo_data)
+                media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # تفعيل التشويش
+                )
+            elif isinstance(message.media, MessageMediaDocument):
+                # للمستندات أو الفيديو مع تشويش
+                file_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(file_data)
+                media = await l313l.send_file(dest_entity, uploaded_file, spoiler=True)
+                return media  # نرجع هنا لأن send_file تعمل مباشرة
         else:
-            print("✓ نوع ميديا آخر:", type(message.media))
-            
-        # تجهيز الميديا
-        try:
-            print("جاري تحميل الميديا...")
-            file_data = await message.download_media(bytes)
-            print(f"✓ تم تحميل الميديا بنجاح - الحجم: {len(file_data)} bytes")
-            
-            # التحقق من وجود خاصية التشويش
-            has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
-            print(f"✓ حالة التشويش: {has_spoiler}")
-            
-            # إرسال الميديا مع النص
-            print("جاري إرسال الميديا للقناة المستهدفة...")
-            result = await l313l.send_file(
-                dest_entity,
-                file_data,
-                caption=message.message or "",
-                spoiler=has_spoiler,
-                formatting_entities=message.entities
-            )
-            print("✓ تم إرسال الميديا بنجاح")
-            return result
-            
-        except Exception as e:
-            print(f"✗ خطأ في تحميل/إرسال الميديا: {e}")
-            raise e
+            # ميديا عادية بدون تشويش
+            file_media = f"https://t.me/{source_channel_username}/{message.id}"
+            media = file_media
+    
+    # إرسال الرسالة كاملة
+    if media:
+        if isinstance(media, str) and media.startswith('http'):
+            # حالة الرابط المباشر
+            return await l313l.send_file(dest_entity, media, caption=text, formatting_entities=entities)
+        else:
+            # حالة الميديا المرفوعة
+            return await l313l.send_file(dest_entity, media, caption=text)
     else:
-        print("✗ لا يوجد ميديا في هذه الرسالة")
-        print("✓ إرسال رسالة نصية فقط")
-        
-        # رسالة نصية فقط
-        result = await l313l.send_message(
-            dest_entity,
-            message.message or "",
-            formatting_entities=message.entities
-        )
-        print("✓ تم إرسال النص بنجاح")
-        return result
+        # رسالة نصية فقط مع الحفاظ على التنسيق
+        return await l313l.send_message(dest_entity, text, formatting_entities=entities)
 
-async def start_copier(destination_channel_username, source_channel_username, limit=10000):
+async def start_copier(destination_channel_username, source_channel_username):
     try:
-        print("\n" + "🚀 بدء عملية النسخ...")
-        print(f"📡 القناة المصدر: @{source_channel_username}")
-        print(f"🎯 القناة المستهدفة: {destination_channel_username}")
-        
         # الحصول على معلومات القنوات
-        print("🔍 جاري الحصول على معلومات القنوات...")
         source_channel = await l313l.get_entity(source_channel_username)
         destination_channel = await l313l.get_entity(destination_channel_username)
         destination_channel_id = destination_channel.id
-        print("✅ تم الحصول على معلومات القنوات بنجاح")
 
-        # الحصول على المنشورات من القناة المصدر
-        print(f"📥 جاري جلب المنشورات (الحد الأقصى: {limit})...")
+        # الحصول على جميع المنشورات من القناة المصدر
         posts = await l313l(GetHistoryRequest(
             peer=source_channel,
-            limit=limit,
+            limit=10000,
             offset_date=None,
             offset_id=0,
             max_id=0,
@@ -554,49 +460,21 @@ async def start_copier(destination_channel_username, source_channel_username, li
 
         # عكس ترتيب الرسائل لنقلها من الأقدم إلى الأحدث
         posts.messages.reverse()
-        total_posts = len(posts.messages)
-        
-        print(f"\n📊 بدء فحص {total_posts} رسالة...\n")
-        
-        media_count = 0
-        text_count = 0
-        spoiler_count = 0
-        success_count = 0
-        failed_count = 0
 
         # نقل المنشورات إلى القناة المستهدفة
-        for i, message in enumerate(posts.messages, 1):
-            print(f"\n--- جاري فحص الرسالة {i}/{total_posts} ---")
-            
-            # فحص نوع الميديا
-            check_result = await check_media_type(message)
-            
-            # تحديث الإحصائيات
-            if check_result['has_media']:
-                media_count += 1
-                if check_result['has_spoiler']:
-                    spoiler_count += 1
-            else:
-                text_count += 1
-            
-            # نقل المنشور
+        for message in posts.messages:
             try:
                 await copy_message_with_all_features(destination_channel_id, message, source_channel_username)
-                print(f"✅ تم نقل الرسالة {i} بنجاح")
-                success_count += 1
                 
-                # إرسال تأكيد لقناة التسجيل
+                await asyncio.sleep(1)
                 await l313l.send_message(BOTLOG_CHATID, 
                     f"**- تم نقل المنشور .. بنجاح✅**\n"
                     f"**- رابـط المنشور:**\n"
                     f"- https://t.me/{source_channel_username}/{message.id}", 
                     link_preview=False)
-                
-                await asyncio.sleep(1)  # مهلة بين المنشورات
+                await asyncio.sleep(1)
 
             except Exception as e:
-                print(f"❌ خطأ في نقل الرسالة {i}: {e}")
-                failed_count += 1
                 await l313l.send_message(BOTLOG_CHATID, 
                     f"**- خطـأ بنقـل المنشـور ❌**\n"
                     f"**- رابـط المنشور:**\n"
@@ -605,31 +483,7 @@ async def start_copier(destination_channel_username, source_channel_username, li
                     f"- {e}", 
                     link_preview=False)
 
-        # إحصائيات نهائية
-        print("\n" + "=" * 50)
-        print("📊 الإحصائيات النهائية:")
-        print(f"📝 إجمالي الرسائل: {total_posts}")
-        print(f"🖼️ رسائل بها ميديا: {media_count}")
-        print(f"🔞 رسائل بها تشويش: {spoiler_count}")
-        print(f"📄 رسائل نصية فقط: {text_count}")
-        print(f"✅ تم النجاح: {success_count}")
-        print(f"❌ فشل: {failed_count}")
-        print("=" * 50 + "\n")
-        
-        # إرسال الإحصائيات لقناة التسجيل
-        await l313l.send_message(BOTLOG_CHATID, 
-            f"**- اكتملت عملية النسخ ✅**\n"
-            f"**- ملخص العملية:**\n"
-            f"📝 إجمالي الرسائل: {total_posts}\n"
-            f"🖼️ رسائل بها ميديا: {media_count}\n"
-            f"🔞 رسائل بها تشويش: {spoiler_count}\n"
-            f"📄 رسائل نصية فقط: {text_count}\n"
-            f"✅ تم النجاح: {success_count}\n"
-            f"❌ فشل: {failed_count}", 
-            link_preview=False)
-
     except Exception as e:
-        print(f"❌❌ حدث خطأ عام: {e}")
         await l313l.send_message(BOTLOG_CHATID, 
             f"**- حدث خطـأ ❌**\n"
             f"**- تفاصيـل الخطـأ:**\n"
@@ -638,11 +492,6 @@ async def start_copier(destination_channel_username, source_channel_username, li
 @l313l.ar_cmd(pattern="كوبي(?:\s|$)([\s\S]*)")
 async def channel_copier(event):
     catty = event.pattern_match.group(1)
-    
-    if not catty:
-        await edit_or_reply(event, "**- خطأ: يرجى تحديد اسم القناة المصدر**")
-        return
-        
     channel_username = str(catty.split(" ")[0])
     if channel_username.startswith("@"):
         channel_username = channel_username.replace("@", "")
@@ -661,8 +510,6 @@ async def channel_copier(event):
         f"**- جـارِ نقـل منشـورات الميديـا . . .**\n"
         f"**- مـن القنـاة @{channel_username}**\n"
         f"**- عدد المنشورات: {limit}**\n\n"
-        f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**\n"
-        f"**- سيتم عرض التفاصيل في التيرمينال**")
+        f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
     
-    # بدء عملية النسخ
-    await start_copier(event.chat_id, channel_username, limit)
+    copier_start = await start_copier(event.chat_id, channel_username)

@@ -383,120 +383,84 @@ async def Hussein(event):
             response = await conv.get_response()
             await event.edit(response.text)
 
+
 import asyncio
 import os
+import tempfile
 from telethon import events
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import (
-    MessageEntityBlockquote, 
-    MessageMediaPhoto, 
+    MessageEntityBlockquote,
+    MessageMediaPhoto,
     MessageMediaDocument,
     InputMediaUploadedPhoto,
-    InputMediaUploadedDocument
+    InputMediaUploadedDocument,
+    DocumentAttributeFilename,
+    DocumentAttributeVideo
 )
-from telethon.tl.functions.messages import SendMediaRequest
 from . import l313l
 from ..core.managers import edit_or_reply
 from . import BOTLOG, BOTLOG_CHATID
 
-async def download_and_upload_with_spoiler(message, dest_entity):
-    """تحميل الصورة وإعادة رفعها مع تشويش"""
+async def copy_spoiler_photo(message, dest_entity):
+    """نسخ الصورة المشوشة مع الحفاظ على التشويش والاقتباس"""
     try:
-        # تحميل الملف
-        file_path = await message.download_media()
-        
-        if not file_path:
-            return None
-            
-        # رفع الملف مع تشويش
-        if isinstance(message.media, MessageMediaPhoto):
-            # للصور
-            uploaded = await l313l.upload_file(file_path)
+        # طريقة 1: محاولة النسخ عبر الرابط مع إضافة التشويش
+        try:
+            file_media = f"https://t.me/{message.chat.username}/{message.id}"
             result = await l313l.send_file(
                 dest_entity,
-                uploaded,
+                file_media,
                 caption=message.message or "",
                 entities=message.entities,
-                spoiler=True  # تفعيل التشويش
+                spoiler=True,  # إضافة تشويش
+                force_document=False
             )
-        elif isinstance(message.media, MessageMediaDocument):
-            # للفيديو والمستندات
-            uploaded = await l313l.upload_file(file_path)
+            return result
+        except:
+            pass
+        
+        # طريقة 2: التحميل وإعادة الرفع مع تشويش
+        # تحميل الصورة في الذاكرة (بدون حفظ على القرص)
+        photo_data = await message.download_media(bytes)
+        if photo_data:
+            # رفع الصورة مع تشويش
             result = await l313l.send_file(
                 dest_entity,
-                uploaded,
+                photo_data,
+                caption=message.message or "",
+                entities=message.entities,
+                spoiler=True,  # تفعيل التشويش
+                force_document=False
+            )
+            return result
+        
+        return None
+        
+    except Exception as e:
+        print(f"خطأ في نسخ الصورة المشوشة: {e}")
+        return None
+
+async def copy_spoiler_document(message, dest_entity):
+    """نسخ الفيديو/المستند المشوش"""
+    try:
+        # تحميل الملف في الذاكرة
+        file_data = await message.download_media(bytes)
+        if file_data:
+            # رفع الملف مع تشويش
+            result = await l313l.send_file(
+                dest_entity,
+                file_data,
                 caption=message.message or "",
                 entities=message.entities,
                 spoiler=True,  # تفعيل التشويش
                 attributes=message.media.document.attributes if hasattr(message.media, 'document') else None
             )
-        else:
-            result = None
-            
-        # حذف الملف المؤقت
-        try:
-            os.remove(file_path)
-        except:
-            pass
-            
-        return result
-        
-    except Exception as e:
-        print(f"خطأ في رفع الصورة المشوشة: {e}")
+            return result
         return None
-
-async def copy_message_with_spoiler(dest_entity, message, source_channel_username):
-    """نسخ الرسالة مع دعم الصور المشوشة"""
-    
-    # التحقق من وجود تشويش في الميديا
-    has_spoiler = False
-    if message.media:
-        if hasattr(message.media, 'spoiler') and message.media.spoiler:
-            has_spoiler = True
-        elif hasattr(message.media, 'document') and hasattr(message.media.document, 'attributes'):
-            for attr in message.media.document.attributes:
-                if hasattr(attr, 'spoiler') and attr.spoiler:
-                    has_spoiler = True
-                    break
-    
-    # إذا كانت الصورة مشوشة
-    if has_spoiler:
-        # تحميل وإعادة رفع مع تشويش
-        return await download_and_upload_with_spoiler(message, dest_entity)
-    
-    # إذا كانت ميديا عادية (بدون تشويش)
-    elif message.media:
-        try:
-            file_media = f"https://t.me/{source_channel_username}/{message.id}"
-            return await l313l.send_file(
-                dest_entity, 
-                file_media, 
-                caption=message.message or "",
-                entities=message.entities
-            )
-        except:
-            # إذا فشل الرابط، نحمله مباشرة
-            file_path = await message.download_media()
-            if file_path:
-                result = await l313l.send_file(
-                    dest_entity,
-                    file_path,
-                    caption=message.message or "",
-                    entities=message.entities
-                )
-                try:
-                    os.remove(file_path)
-                except:
-                    pass
-                return result
-    
-    # رسالة نصية فقط
-    else:
-        return await l313l.send_message(
-            dest_entity, 
-            message.message or "",
-            formatting_entities=message.entities
-        )
+    except Exception as e:
+        print(f"خطأ في نسخ الملف المشوش: {e}")
+        return None
 
 async def start_copier(destination_channel_username, source_channel_username):
     try:
@@ -505,7 +469,17 @@ async def start_copier(destination_channel_username, source_channel_username):
         destination_channel = await l313l.get_entity(destination_channel_username)
         destination_channel_id = destination_channel.id
 
-        # الحصول على جميع المنشورات من القناة المصدر
+        # إرسال رسالة بدء النسخ
+        await l313l.send_message(
+            BOTLOG_CHATID,
+            f"**- بدء نسخ القناة 🔄**\n"
+            f"**- من:** @{source_channel_username}\n"
+            f"**- إلى:** {destination_channel.title}\n"
+            f"**- الحالة:** جاري النسخ...",
+            link_preview=False
+        )
+
+        # الحصول على المنشورات
         posts = await l313l(GetHistoryRequest(
             peer=source_channel,
             limit=10000,
@@ -517,40 +491,104 @@ async def start_copier(destination_channel_username, source_channel_username):
             hash=0,
         ))
 
-        # عكس ترتيب الرسائل
+        # عكس الترتيب
         posts.messages.reverse()
+
+        success_count = 0
+        spoiler_count = 0
+        fail_count = 0
 
         # نقل المنشورات
         for message in posts.messages:
             try:
-                # نسخ الرسالة مع دعم التشويش
-                await copy_message_with_spoiler(destination_channel_id, message, source_channel_username)
+                # التحقق من وجود تشويش
+                has_spoiler = False
+                is_photo = False
                 
-                await asyncio.sleep(1)
+                if message.media:
+                    # التحقق من الصور المشوشة
+                    if hasattr(message.media, 'spoiler') and message.media.spoiler:
+                        has_spoiler = True
+                        if isinstance(message.media, MessageMediaPhoto):
+                            is_photo = True
+                    
+                    # التحقق من المستندات المشوشة
+                    elif isinstance(message.media, MessageMediaDocument):
+                        if hasattr(message.media, 'spoiler') and message.media.spoiler:
+                            has_spoiler = True
                 
-                # إرسال تقرير النجاح
-                await l313l.send_message(
-                    BOTLOG_CHATID, 
-                    f"**- تم نقل المنشور بنجاح ✅**\n"
-                    f"**- الرابط:** https://t.me/{source_channel_username}/{message.id}\n"
-                    f"**- النوع:** {'مشوش 🔲' if hasattr(message.media, 'spoiler') and message.media.spoiler else 'عادي'}",
-                    link_preview=False
-                )
+                # نسخ حسب النوع
+                if has_spoiler:
+                    if is_photo:
+                        # صورة مشوشة
+                        result = await copy_spoiler_photo(message, destination_channel_id)
+                    else:
+                        # فيديو أو مستند مشوش
+                        result = await copy_spoiler_document(message, destination_channel_id)
+                    
+                    if result:
+                        spoiler_count += 1
+                    else:
+                        fail_count += 1
                 
-                await asyncio.sleep(1)
+                elif message.media:
+                    # ميديا عادية (بدون تشويش)
+                    file_media = f"https://t.me/{source_channel_username}/{message.id}"
+                    await l313l.send_file(
+                        destination_channel_id,
+                        file_media,
+                        caption=message.message or "",
+                        entities=message.entities
+                    )
+                
+                else:
+                    # رسالة نصية فقط
+                    await l313l.send_message(
+                        destination_channel_id,
+                        message.message or "",
+                        formatting_entities=message.entities
+                    )
+                
+                success_count += 1
+                
+                # تقرير كل 10 منشورات
+                if success_count % 10 == 0:
+                    await l313l.send_message(
+                        BOTLOG_CHATID,
+                        f"**- تقدم النسخ 📊**\n"
+                        f"**- تم نسخ:** {success_count} منشور\n"
+                        f"**- منها مشوش:** {spoiler_count}\n"
+                        f"**- فشل:** {fail_count}",
+                        link_preview=False
+                    )
+                
+                await asyncio.sleep(1)  # تأخير لتجنب الحظر
 
             except Exception as e:
+                fail_count += 1
                 await l313l.send_message(
-                    BOTLOG_CHATID, 
-                    f"**- خطأ في نقل المنشور ❌**\n"
+                    BOTLOG_CHATID,
+                    f"**- خطأ في النسخ ❌**\n"
                     f"**- الرابط:** https://t.me/{source_channel_username}/{message.id}\n"
-                    f"**- الخطأ:** {e}",
+                    f"**- الخطأ:** {str(e)[:100]}",
                     link_preview=False
                 )
+                await asyncio.sleep(1)
+
+        # تقرير نهائي
+        await l313l.send_message(
+            BOTLOG_CHATID,
+            f"**- اكتمل النسخ ✅**\n"
+            f"**- تم نسخ:** {success_count} منشور\n"
+            f"**- منها مشوش:** {spoiler_count}\n"
+            f"**- فشل:** {fail_count}\n"
+            f"**- من قناة:** @{source_channel_username}",
+            link_preview=False
+        )
 
     except Exception as e:
         await l313l.send_message(
-            BOTLOG_CHATID, 
+            BOTLOG_CHATID,
             f"**- حدث خطأ عام ❌**\n**- التفاصيل:**\n{e}"
         )
 
@@ -562,10 +600,12 @@ async def channel_copier(event):
         channel_username = channel_username.replace("@", "")
     
     await edit_or_reply(
-        event, 
-        f"**- جاري نقل المنشورات من @{channel_username}**\n"
-        f"**- سيتم دعم الصور المشوشة ✅**\n\n"
-        f"**- انتظر...**"
+        event,
+        f"**- جاري نسخ القناة @{channel_username}**\n"
+        f"**- دعم الاقتباس:** ✅\n"
+        f"**- دعم الصور المشوشة:** ✅\n"
+        f"**- دعم الفيديو المشوش:** ✅\n\n"
+        f"**- سيتم إرسال التقارير إلى الخاص**"
     )
     
     await start_copier(event.chat_id, channel_username)

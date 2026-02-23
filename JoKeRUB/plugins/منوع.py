@@ -3,6 +3,7 @@ import random
 import time
 
 from ..helpers import reply_id, get_user_from_event
+from . import BOTLOG, BOTLOG_CHATID
 from telethon import functions
 from collections import deque
 from random import choice

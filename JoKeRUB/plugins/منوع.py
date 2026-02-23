@@ -405,55 +405,55 @@ async def copy_message_with_all_features(dest_entity, message):
     if message.media:
         try:
             # تحميل الميديا كـ bytes
+            print(f"جاري تحميل ميديا الرسالة {message.id}...")
             file_data = await message.download_media(bytes)
+            
+            # التحقق من تحميل الميديا بنجاح
+            if file_data is None:
+                print(f"فشل تحميل ميديا الرسالة {message.id}")
+                # إذا فشل التحميل كـ bytes، نجرب تحميلها كملف
+                temp_file = await message.download_media()
+                if temp_file and os.path.exists(temp_file):
+                    with open(temp_file, 'rb') as f:
+                        file_data = f.read()
+                    os.remove(temp_file)
+                else:
+                    # إذا فشل كل شيء، نرسل النص فقط
+                    if text:
+                        return await l313l.send_message(
+                            dest_entity,
+                            text,
+                            formatting_entities=entities
+                        )
+                    else:
+                        return None
             
             # التحقق من وجود خاصية التشويش
             has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
             
-            if has_spoiler and isinstance(message.media, MessageMediaPhoto):
-                # للصور المشوشة - استخدام send_file مباشرة مع spoiler
-                return await l313l.send_file(
-                    dest_entity,
-                    file_data,  # نرسل bytes مباشرة
-                    caption=text,
-                    spoiler=True,  # تفعيل التشويش
-                    formatting_entities=entities,
-                    force_document=False  # نرسل كصورة وليس كمستند
-                )
-            else:
-                # للميديا العادية
-                return await l313l.send_file(
-                    dest_entity,
-                    file_data,  # نرسل bytes مباشرة
-                    caption=text,
-                    spoiler=has_spoiler,
-                    formatting_entities=entities,
-                    force_document=False  # نرسل كصورة وليس كمستند للصور
-                )
+            # إرسال الميديا
+            return await l313l.send_file(
+                dest_entity,
+                file_data,
+                caption=text,
+                spoiler=has_spoiler,
+                formatting_entities=entities,
+                force_document=False
+            )
+            
         except Exception as e:
-            print(f"خطأ في تحميل الميديا: {e}")
-            # إذا فشلت الطريقة المباشرة، نجرب طريقة بديلة
-            try:
-                # تحميل الميديا كملف مؤقت
-                temp_file = await message.download_media()
-                
-                # إرسال الميديا من الملف المؤقت
-                result = await l313l.send_file(
+            print(f"خطأ في معالجة ميديا الرسالة {message.id}: {e}")
+            # في حالة الخطأ، نحاول إرسال النص فقط إذا كان موجوداً
+            if text:
+                return await l313l.send_message(
                     dest_entity,
-                    temp_file,
-                    caption=text,
-                    spoiler=has_spoiler if 'has_spoiler' in locals() else False,
+                    text,
                     formatting_entities=entities
                 )
-                
-                # حذف الملف المؤقت
-                if os.path.exists(temp_file):
-                    os.remove(temp_file)
-                    
-                return result
-            except Exception as e2:
-                print(f"خطأ في الطريقة البديلة: {e2}")
-                raise e
+            else:
+                # إذا كان لا يوجد نص ولا ميديا، نتخطى الرسالة
+                print(f"تخطي الرسالة {message.id} - لا يوجد محتوى قابل للإرسال")
+                return None
     else:
         # رسالة نصية فقط
         if text:
@@ -500,14 +500,23 @@ async def start_copier(destination_channel_username, source_channel_username):
                         link_preview=False)
                     continue
                 
-                await copy_message_with_all_features(destination_channel_id, message)
+                result = await copy_message_with_all_features(destination_channel_id, message)
                 
-                await asyncio.sleep(2)  # زيادة المهلة لتجنب مشاكل الأجزاء
-                await l313l.send_message(BOTLOG_CHATID, 
-                    f"**- تم نقل المنشور .. بنجاح✅**\n"
-                    f"**- رابـط المنشور:**\n"
-                    f"- https://t.me/{source_channel_username}/{message.id}", 
-                    link_preview=False)
+                if result:
+                    await asyncio.sleep(2)
+                    await l313l.send_message(BOTLOG_CHATID, 
+                        f"**- تم نقل المنشور .. بنجاح✅**\n"
+                        f"**- رابـط المنشور:**\n"
+                        f"- https://t.me/{source_channel_username}/{message.id}", 
+                        link_preview=False)
+                else:
+                    await l313l.send_message(BOTLOG_CHATID, 
+                        f"**- تخطي المنشور ⚠️**\n"
+                        f"**- رابـط المنشور:**\n"
+                        f"- https://t.me/{source_channel_username}/{message.id}\n"
+                        f"**- السبب:** لا يمكن تحميل الميديا", 
+                        link_preview=False)
+                
                 await asyncio.sleep(1)
 
             except Exception as e:

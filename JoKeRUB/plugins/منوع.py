@@ -514,24 +514,3 @@ async def channel_copier(event):
         f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
     
     copier_start = await start_copier(event.chat_id, channel_username)
-```
-
-الميزات الجديدة في الكود:
-
-1. دعم خط الاقتباس <blockquote>:
-
-```python
-from telethon.tl.types import MessageEntityBlockquote
-# يتم الحفاظ على الاقتباسات تلقائياً عند إرسال formatting_entities
-```
-
-2. دعم الصور المشوشة (Spoiler):
-
-```python
-# للصور المشوشة
-if hasattr(message.media, 'spoiler') and message.media.spoiler:
-    uploaded_file = await l313l.upload_file(photo_data)
-    media = InputMediaUploadedPhoto(
-        file=uploaded_file,
-        spoiler=True  # تفعيل التشويش
-)

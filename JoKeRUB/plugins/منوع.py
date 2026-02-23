@@ -403,49 +403,66 @@ async def copy_message_with_all_features(dest_entity, message):
     entities = message.entities or []
     
     if message.media:
-        # تحميل الميديا كـ bytes
-        file_data = await message.download_media(bytes)
-        
-        # تحويل إلى BytesIO للتعامل معه بشكل صحيح
-        file_io = io.BytesIO(file_data)
-        
-        # التحقق من وجود خاصية التشويش
-        has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
-        
-        if has_spoiler and isinstance(message.media, MessageMediaPhoto):
-            # نفس طريقة أمر ا بالضبط للصور المشوشة
-            uploaded_file = await l313l.upload_file(file_io)
-            spoiler_media = InputMediaUploadedPhoto(
-                file=uploaded_file,
-                spoiler=True  # ✅ تفعيل التشويش
-            )
+        try:
+            # تحميل الميديا كـ bytes
+            file_data = await message.download_media(bytes)
             
-            # إرسال الصورة المشوشة مع النص
-            return await l313l.send_message(
-                dest_entity,
-                text,
-                file=spoiler_media,
-                formatting_entities=entities
-            )
-        else:
-            # للميديا العادية أو المستندات
-            return await l313l.send_file(
-                dest_entity,
-                file_io,
-                caption=text,
-                spoiler=has_spoiler,
-                formatting_entities=entities
-            )
+            # التحقق من وجود خاصية التشويش
+            has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
+            
+            if has_spoiler and isinstance(message.media, MessageMediaPhoto):
+                # للصور المشوشة - استخدام send_file مباشرة مع spoiler
+                return await l313l.send_file(
+                    dest_entity,
+                    file_data,  # نرسل bytes مباشرة
+                    caption=text,
+                    spoiler=True,  # تفعيل التشويش
+                    formatting_entities=entities,
+                    force_document=False  # نرسل كصورة وليس كمستند
+                )
+            else:
+                # للميديا العادية
+                return await l313l.send_file(
+                    dest_entity,
+                    file_data,  # نرسل bytes مباشرة
+                    caption=text,
+                    spoiler=has_spoiler,
+                    formatting_entities=entities,
+                    force_document=False  # نرسل كصورة وليس كمستند للصور
+                )
+        except Exception as e:
+            print(f"خطأ في تحميل الميديا: {e}")
+            # إذا فشلت الطريقة المباشرة، نجرب طريقة بديلة
+            try:
+                # تحميل الميديا كملف مؤقت
+                temp_file = await message.download_media()
+                
+                # إرسال الميديا من الملف المؤقت
+                result = await l313l.send_file(
+                    dest_entity,
+                    temp_file,
+                    caption=text,
+                    spoiler=has_spoiler if 'has_spoiler' in locals() else False,
+                    formatting_entities=entities
+                )
+                
+                # حذف الملف المؤقت
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+                    
+                return result
+            except Exception as e2:
+                print(f"خطأ في الطريقة البديلة: {e2}")
+                raise e
     else:
         # رسالة نصية فقط
-        if text:  # تأكد من وجود نص
+        if text:
             return await l313l.send_message(
                 dest_entity,
                 text,
                 formatting_entities=entities
             )
         else:
-            # تخطي الرسائل الفارغة
             print(f"⚠️ تخطي رسالة فارغة ID: {message.id}")
             return None
 
@@ -485,7 +502,7 @@ async def start_copier(destination_channel_username, source_channel_username):
                 
                 await copy_message_with_all_features(destination_channel_id, message)
                 
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)  # زيادة المهلة لتجنب مشاكل الأجزاء
                 await l313l.send_message(BOTLOG_CHATID, 
                     f"**- تم نقل المنشور .. بنجاح✅**\n"
                     f"**- رابـط المنشور:**\n"

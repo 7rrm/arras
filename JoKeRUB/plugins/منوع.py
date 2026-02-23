@@ -379,3 +379,58 @@ async def Hussein(event):
             await conv.send_message(f'{user_id}')
             response = await conv.get_response()
             await event.edit(response.text)
+
+
+async def start_copier(destination_channel_username, source_channel_username):
+    try:
+        # الحصول على معلومات القنوات
+        source_channel = await l313l.get_entity(source_channel_username)
+        destination_channel = await l313l.get_entity(destination_channel_username)
+        destination_channel_id = destination_channel.id
+
+        # الحصول على جميع المنشورات من القناة المصدر
+        posts = await l313l(GetHistoryRequest(
+            peer=source_channel,
+            limit=10000,  # عدد المنشورات المراد نقلها (ضع قيمة كبيرة لنقل جميع المنشورات)
+            offset_date=None,
+            offset_id=0,
+            max_id=0,
+            min_id=0,
+            add_offset=0,
+            hash=0,
+        ))
+
+        # عكس ترتيب الرسائل لنقلها من الأقدم إلى الأحدث
+        posts.messages.reverse() 
+
+        # نقل المنشورات إلى القناة المستهدفة
+        for message in posts.messages:
+            try:
+                media = None
+                caption = message.message or ""
+                if message.media:
+                    file_media = f"https://t.me/{source_channel_username}/{message.id}"
+                    await l313l.send_file(destination_channel_id, file_media, caption=caption)
+                    #print(f"تم نقل المنشور: {message.id}")
+                    await asyncio.sleep(1)  # تجنب حظر Telegram بإضافة تأخير بين كل عملية إرسال
+                    await l313l.send_message(BOTLOG_CHATID, f"**- تم نقل المنشور .. بنجاح✅**\n**- رابـط المنشور:**\n- https://t.me/{source_channel_username}/{message.id}", link_preview=False)
+                    await asyncio.sleep(1)  # تجنب حظر Telegram بإضافة تأخير بين كل عملية إرسال
+
+            except Exception as e:
+                #print(f"خطأ في نقل المنشور {message.id}: {e}")
+                await l313l.send_message(BOTLOG_CHATID, f"**- خطـأ بنقـل المنشـور ❌**\n**- رابـط المنشور:**\n- https://t.me/{source_channel_username}/{message.id}\n**- تفاصيـل الخطـأ:**\n- {e}", link_preview=False)
+
+    except Exception as e:
+        #print(f"حدث خطأ: {e}")
+        await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطـأ ❌**\n**- تفاصيـل الخطـأ:**\n- {e}")
+
+
+@l313l.ar_cmd(pattern="كوبي(?:\s|$)([\s\S]*)")
+async def channel_copier(event):
+    catty = event.pattern_match.group(1)
+    #limit = int(catty.split(" ")[0])
+    channel_username = str(catty.split(" ")[0])
+    if channel_username.startswith("@"):
+        channel_username = channel_username.replace("@", "")
+    await edit_or_reply(event, f"**- جـارِ نقـل منشـورات الميديـا . . .**\n**- مـن القنـاة @{channel_username}**\n\n**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
+    copier_start = await start_copier(event.chat_id, channel_username)

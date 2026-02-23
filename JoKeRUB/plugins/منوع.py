@@ -384,6 +384,7 @@ async def Hussein(event):
             await event.edit(response.text)
 
 import asyncio
+import os
 from telethon import events
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageEntityBlockquote, MessageMediaPhoto, InputMediaUploadedPhoto, MessageMediaDocument
@@ -393,51 +394,54 @@ from ..Config import Config
 from ..core.managers import edit_or_reply
 from . import BOTLOG, BOTLOG_CHATID
 
-async def copy_message_with_all_features(dest_entity, message, source_channel_username):
+async def copy_message_with_all_features(dest_entity, message):
     """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق)"""
     
-    # تجهيز النص مع الحفاظ على التنسيق والاقتباسات
+    # تجهيز النص (تجنب None)
     text = message.message or ""
-    entities = message.entities or []
     
-    # التأكد من الحفاظ على الاقتباسات (blockquotes)
-    blockquote_entities = [e for e in entities if isinstance(e, MessageEntityBlockquote)]
-    
-    # تجهيز الميديا مع دعم التشويش
-    media = None
     if message.media:
-        if hasattr(message.media, 'spoiler') and message.media.spoiler:
-            # إذا كانت الصورة مشوشة في الأصل
-            if isinstance(message.media, MessageMediaPhoto):
-                # تحميل الصورة وإعادة إرسالها مع تشويش
-                photo_data = await message.download_media(bytes)
-                uploaded_file = await l313l.upload_file(photo_data)
-                media = InputMediaUploadedPhoto(
-                    file=uploaded_file,
-                    spoiler=True  # تفعيل التشويش
-                )
-            elif isinstance(message.media, MessageMediaDocument):
-                # للمستندات أو الفيديو مع تشويش
-                file_data = await message.download_media(bytes)
-                uploaded_file = await l313l.upload_file(file_data)
-                media = await l313l.send_file(dest_entity, uploaded_file, spoiler=True)
-                return media  # نرجع هنا لأن send_file تعمل مباشرة
+        # تحميل الميديا كـ bytes
+        file_data = await message.download_media(bytes)
+        
+        # التحقق من وجود خاصية التشويش
+        has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
+        
+        if has_spoiler and isinstance(message.media, MessageMediaPhoto):
+            # استخدام نفس الطريقة الناجحة من الكود الآخر
+            uploaded_file = await l313l.upload_file(file_data)
+            spoiler_media = InputMediaUploadedPhoto(
+                file=uploaded_file,
+                spoiler=True  # ✅ تفعيل التشويش
+            )
+            
+            # إرسال الصورة المشوشة مع النص
+            return await l313l.send_message(
+                dest_entity,
+                text,
+                file=spoiler_media,
+                formatting_entities=message.entities
+            )
         else:
-            # ميديا عادية بدون تشويش
-            file_media = f"https://t.me/{source_channel_username}/{message.id}"
-            media = file_media
-    
-    # إرسال الرسالة كاملة
-    if media:
-        if isinstance(media, str) and media.startswith('http'):
-            # حالة الرابط المباشر
-            return await l313l.send_file(dest_entity, media, caption=text, formatting_entities=entities)
-        else:
-            # حالة الميديا المرفوعة
-            return await l313l.send_file(dest_entity, media, caption=text)
+            # للميديا العادية أو غير المدعومة
+            return await l313l.send_file(
+                dest_entity,
+                file_data,
+                caption=text,
+                spoiler=has_spoiler,
+                formatting_entities=message.entities
+            )
     else:
-        # رسالة نصية فقط مع الحفاظ على التنسيق
-        return await l313l.send_message(dest_entity, text, formatting_entities=entities)
+        # رسالة نصية فقط
+        if text:
+            return await l313l.send_message(
+                dest_entity,
+                text,
+                formatting_entities=message.entities
+            )
+        else:
+            print(f"⚠️ تخطي رسالة فارغة ID: {message.id}")
+            return None
 
 async def start_copier(destination_channel_username, source_channel_username):
     try:
@@ -464,7 +468,16 @@ async def start_copier(destination_channel_username, source_channel_username):
         # نقل المنشورات إلى القناة المستهدفة
         for message in posts.messages:
             try:
-                await copy_message_with_all_features(destination_channel_id, message, source_channel_username)
+                # تخطي الرسائل الفارغة تمامًا
+                if not message.message and not message.media:
+                    await l313l.send_message(BOTLOG_CHATID, 
+                        f"**- تخطي رسالة فارغة ⚠️**\n"
+                        f"**- رابـط المنشور:**\n"
+                        f"- https://t.me/{source_channel_username}/{message.id}", 
+                        link_preview=False)
+                    continue
+                
+                await copy_message_with_all_features(destination_channel_id, message)
                 
                 await asyncio.sleep(1)
                 await l313l.send_message(BOTLOG_CHATID, 
@@ -492,6 +505,11 @@ async def start_copier(destination_channel_username, source_channel_username):
 @l313l.ar_cmd(pattern="كوبي(?:\s|$)([\s\S]*)")
 async def channel_copier(event):
     catty = event.pattern_match.group(1)
+    
+    if not catty:
+        await edit_or_reply(event, "**- خطأ: يرجى تحديد اسم القناة المصدر**")
+        return
+        
     channel_username = str(catty.split(" ")[0])
     if channel_username.startswith("@"):
         channel_username = channel_username.replace("@", "")
@@ -512,4 +530,4 @@ async def channel_copier(event):
         f"**- عدد المنشورات: {limit}**\n\n"
         f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
     
-    copier_start = await start_copier(event.chat_id, channel_username)
+    await start_copier(event.chat_id, channel_username)

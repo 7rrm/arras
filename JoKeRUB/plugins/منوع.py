@@ -385,7 +385,7 @@ async def Hussein(event):
 
 import asyncio
 import os
-import io
+import tempfile
 from telethon import events
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import MessageEntityBlockquote, MessageMediaPhoto, InputMediaUploadedPhoto, MessageMediaDocument
@@ -403,76 +403,66 @@ async def copy_message_with_all_features(dest_entity, message):
     entities = message.entities or []
     
     if message.media:
+        temp_file_path = None
         try:
             print(f"📸 جاري تحميل ميديا الرسالة {message.id}...")
             
-            # تحميل الميديا كـ bytes
-            file_data = await message.download_media(bytes)
+            # استخدام الطريقة الأكثر موثوقية: التحميل كملف مؤقت
+            temp_file_path = await message.download_media()
             
-            # التحقق من تحميل الميديا بنجاح
-            if file_data is None:
-                print(f"❌ فشل تحميل ميديا الرسالة {message.id}")
-                # إذا فشل التحميل، نرسل النص فقط
+            if temp_file_path and os.path.exists(temp_file_path):
+                file_size = os.path.getsize(temp_file_path)
+                print(f"✅ تم تحميل الميديا بنجاح - الحجم: {file_size} bytes")
+                print(f"📁 المسار: {temp_file_path}")
+                
+                # التحقق من وجود خاصية التشويش
+                has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
+                
+                if has_spoiler:
+                    print(f"🔞 الصورة مشوشة - تفعيل خاصية التشويش")
+                
+                # إرسال الميديا من الملف المؤقت
+                result = await l313l.send_file(
+                    dest_entity,
+                    temp_file_path,
+                    caption=text,
+                    spoiler=has_spoiler,
+                    formatting_entities=entities,
+                    force_document=False  # نرسل كصورة وليس كمستند
+                )
+                
+                print(f"✅ تم إرسال الصورة مع النص بنجاح")
+                
+                # حذف الملف المؤقت
+                try:
+                    os.remove(temp_file_path)
+                    print(f"✅ تم حذف الملف المؤقت")
+                except:
+                    pass
+                
+                return result
+            else:
+                print(f"❌ فشل تحميل الميديا: الملف غير موجود")
+                
+                # إذا فشل تحميل الميديا ولكن يوجد نص، نرسل النص فقط
                 if text:
+                    print("📝 إرسال النص فقط...")
                     return await l313l.send_message(
                         dest_entity,
                         text,
                         formatting_entities=entities
                     )
                 return None
-            
-            print(f"✅ تم تحميل الميديا بنجاح - الحجم: {len(file_data)} bytes")
-            
-            # التحقق من وجود خاصية التشويش
-            has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
-            
-            if has_spoiler:
-                print(f"🔞 الصورة مشوشة - تفعيل خاصية التشويش")
-            
-            # إرسال الميديا مع النص (دائماً نرسل الميديا حتى لو كان النص موجود)
-            result = await l313l.send_file(
-                dest_entity,
-                file_data,
-                caption=text,  # النص يضاف كتعليق على الصورة
-                spoiler=has_spoiler,
-                formatting_entities=entities,
-                force_document=False  # نرسل كصورة وليس كمستند
-            )
-            
-            print(f"✅ تم إرسال الصورة مع النص بنجاح")
-            return result
-            
+                
         except Exception as e:
             print(f"❌ خطأ في معالجة ميديا الرسالة {message.id}: {e}")
             
-            # محاولة بديلة: تحميل الميديا كملف مؤقت
-            try:
-                print("🔄 محاولة بديلة: تحميل كملف مؤقت...")
-                temp_file = await message.download_media()
-                
-                if temp_file and os.path.exists(temp_file):
-                    print(f"✅ تم تحميل الملف المؤقت: {temp_file}")
-                    
-                    # إرسال الملف المؤقت
-                    result = await l313l.send_file(
-                        dest_entity,
-                        temp_file,
-                        caption=text,
-                        spoiler=hasattr(message.media, 'spoiler') and message.media.spoiler,
-                        formatting_entities=entities,
-                        force_document=False
-                    )
-                    
-                    # حذف الملف المؤقت
-                    os.remove(temp_file)
-                    print("✅ تم حذف الملف المؤقت")
-                    
-                    return result
-                else:
-                    print("❌ فشل تحميل الملف المؤقت")
-                    
-            except Exception as e2:
-                print(f"❌ فشلت المحاولة البديلة: {e2}")
+            # تنظيف الملف المؤقت إذا وجد
+            if temp_file_path and os.path.exists(temp_file_path):
+                try:
+                    os.remove(temp_file_path)
+                except:
+                    pass
             
             # إذا فشلت كل المحاولات، نرسل النص فقط
             if text:
@@ -526,6 +516,8 @@ async def start_copier(destination_channel_username, source_channel_username):
         
         success = 0
         failed = 0
+        media_success = 0
+        text_only = 0
 
         # نقل المنشورات إلى القناة المستهدفة
         for i, message in enumerate(posts.messages, 1):
@@ -546,9 +538,17 @@ async def start_copier(destination_channel_username, source_channel_username):
                 
                 if result:
                     success += 1
+                    if message.media:
+                        media_success += 1
+                    else:
+                        text_only += 1
                     print(f"✅ تم نقل الرسالة {i} بنجاح")
+                    
+                    # إرسال تأكيد لقناة التسجيل
+                    media_type = "صورة" if message.media else "نص"
                     await l313l.send_message(BOTLOG_CHATID, 
-                        f"**- تم نقل المنشور .. بنجاح✅**\n"
+                        f"**- تم نقل المنشور بنجاح ✅**\n"
+                        f"**- النوع:** {media_type}\n"
                         f"**- رابـط المنشور:**\n"
                         f"- https://t.me/{source_channel_username}/{message.id}", 
                         link_preview=False)
@@ -577,6 +577,8 @@ async def start_copier(destination_channel_username, source_channel_username):
         # إرسال ملخص نهائي
         print(f"\n📊 ملخص النقل:")
         print(f"✅ نجاح: {success}")
+        print(f"   - صور: {media_success}")
+        print(f"   - نصوص: {text_only}")
         print(f"❌ فشل: {failed}")
         print(f"📝 إجمالي: {total}")
         
@@ -584,6 +586,8 @@ async def start_copier(destination_channel_username, source_channel_username):
             f"**- اكتملت عملية النقل ✅**\n"
             f"**- ملخص:**\n"
             f"✅ نجاح: {success}\n"
+            f"   - صور: {media_success}\n"
+            f"   - نصوص: {text_only}\n"
             f"❌ فشل: {failed}\n"
             f"📝 إجمالي: {total}", 
             link_preview=False)

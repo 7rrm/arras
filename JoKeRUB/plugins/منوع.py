@@ -1,6 +1,9 @@
 import asyncio
 import random
 import time
+import os
+import tempfile
+import json
 
 from ..helpers import reply_id, get_user_from_event
 from . import BOTLOG, BOTLOG_CHATID
@@ -10,13 +13,12 @@ from random import choice
 from telethon.tl.types import InputPeerUser
 from telethon.tl.functions.phone import CreateGroupCallRequest as startvc
 from telethon.tl.functions.phone import DiscardGroupCallRequest as stopvc
+from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.functions.phone import GetGroupCallRequest as getvc
 from telethon.tl.functions.phone import InviteToGroupCallRequest as invitetovc
 from JoKeRUB import l313l
 from ..core.managers import edit_delete, edit_or_reply
-import os
-import tempfile
-import json
+
 from telethon.tl.types import InputChannel, InputPeerChannel, InputFileLocation, InputWebFileLocation
 from telethon import events, functions
 from telethon.tl.functions.channels import JoinChannelRequest

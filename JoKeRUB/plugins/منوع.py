@@ -404,56 +404,86 @@ async def copy_message_with_all_features(dest_entity, message):
     
     if message.media:
         try:
+            print(f"📸 جاري تحميل ميديا الرسالة {message.id}...")
+            
             # تحميل الميديا كـ bytes
-            print(f"جاري تحميل ميديا الرسالة {message.id}...")
             file_data = await message.download_media(bytes)
             
             # التحقق من تحميل الميديا بنجاح
             if file_data is None:
-                print(f"فشل تحميل ميديا الرسالة {message.id}")
-                # إذا فشل التحميل كـ bytes، نجرب تحميلها كملف
-                temp_file = await message.download_media()
-                if temp_file and os.path.exists(temp_file):
-                    with open(temp_file, 'rb') as f:
-                        file_data = f.read()
-                    os.remove(temp_file)
-                else:
-                    # إذا فشل كل شيء، نرسل النص فقط
-                    if text:
-                        return await l313l.send_message(
-                            dest_entity,
-                            text,
-                            formatting_entities=entities
-                        )
-                    else:
-                        return None
+                print(f"❌ فشل تحميل ميديا الرسالة {message.id}")
+                # إذا فشل التحميل، نرسل النص فقط
+                if text:
+                    return await l313l.send_message(
+                        dest_entity,
+                        text,
+                        formatting_entities=entities
+                    )
+                return None
+            
+            print(f"✅ تم تحميل الميديا بنجاح - الحجم: {len(file_data)} bytes")
             
             # التحقق من وجود خاصية التشويش
             has_spoiler = hasattr(message.media, 'spoiler') and message.media.spoiler
             
-            # إرسال الميديا
-            return await l313l.send_file(
+            if has_spoiler:
+                print(f"🔞 الصورة مشوشة - تفعيل خاصية التشويش")
+            
+            # إرسال الميديا مع النص (دائماً نرسل الميديا حتى لو كان النص موجود)
+            result = await l313l.send_file(
                 dest_entity,
                 file_data,
-                caption=text,
+                caption=text,  # النص يضاف كتعليق على الصورة
                 spoiler=has_spoiler,
                 formatting_entities=entities,
-                force_document=False
+                force_document=False  # نرسل كصورة وليس كمستند
             )
             
+            print(f"✅ تم إرسال الصورة مع النص بنجاح")
+            return result
+            
         except Exception as e:
-            print(f"خطأ في معالجة ميديا الرسالة {message.id}: {e}")
-            # في حالة الخطأ، نحاول إرسال النص فقط إذا كان موجوداً
+            print(f"❌ خطأ في معالجة ميديا الرسالة {message.id}: {e}")
+            
+            # محاولة بديلة: تحميل الميديا كملف مؤقت
+            try:
+                print("🔄 محاولة بديلة: تحميل كملف مؤقت...")
+                temp_file = await message.download_media()
+                
+                if temp_file and os.path.exists(temp_file):
+                    print(f"✅ تم تحميل الملف المؤقت: {temp_file}")
+                    
+                    # إرسال الملف المؤقت
+                    result = await l313l.send_file(
+                        dest_entity,
+                        temp_file,
+                        caption=text,
+                        spoiler=hasattr(message.media, 'spoiler') and message.media.spoiler,
+                        formatting_entities=entities,
+                        force_document=False
+                    )
+                    
+                    # حذف الملف المؤقت
+                    os.remove(temp_file)
+                    print("✅ تم حذف الملف المؤقت")
+                    
+                    return result
+                else:
+                    print("❌ فشل تحميل الملف المؤقت")
+                    
+            except Exception as e2:
+                print(f"❌ فشلت المحاولة البديلة: {e2}")
+            
+            # إذا فشلت كل المحاولات، نرسل النص فقط
             if text:
+                print("📝 إرسال النص فقط...")
                 return await l313l.send_message(
                     dest_entity,
                     text,
                     formatting_entities=entities
                 )
-            else:
-                # إذا كان لا يوجد نص ولا ميديا، نتخطى الرسالة
-                print(f"تخطي الرسالة {message.id} - لا يوجد محتوى قابل للإرسال")
-                return None
+            
+            return None
     else:
         # رسالة نصية فقط
         if text:
@@ -473,6 +503,9 @@ async def start_copier(destination_channel_username, source_channel_username):
         destination_channel = await l313l.get_entity(destination_channel_username)
         destination_channel_id = destination_channel.id
 
+        print(f"📡 القناة المصدر: @{source_channel_username}")
+        print(f"🎯 القناة المستهدفة: {destination_channel_username}")
+
         # الحصول على جميع المنشورات من القناة المصدر
         posts = await l313l(GetHistoryRequest(
             peer=source_channel,
@@ -487,12 +520,21 @@ async def start_copier(destination_channel_username, source_channel_username):
 
         # عكس ترتيب الرسائل لنقلها من الأقدم إلى الأحدث
         posts.messages.reverse()
+        
+        total = len(posts.messages)
+        print(f"📊 عدد الرسائل المراد نقلها: {total}")
+        
+        success = 0
+        failed = 0
 
         # نقل المنشورات إلى القناة المستهدفة
-        for message in posts.messages:
+        for i, message in enumerate(posts.messages, 1):
             try:
+                print(f"\n--- جاري نقل الرسالة {i}/{total} (ID: {message.id}) ---")
+                
                 # تخطي الرسائل الفارغة تمامًا
                 if not message.message and not message.media:
+                    print("⚠️ رسالة فارغة - يتم التخطي")
                     await l313l.send_message(BOTLOG_CHATID, 
                         f"**- تخطي رسالة فارغة ⚠️**\n"
                         f"**- رابـط المنشور:**\n"
@@ -503,23 +545,27 @@ async def start_copier(destination_channel_username, source_channel_username):
                 result = await copy_message_with_all_features(destination_channel_id, message)
                 
                 if result:
-                    await asyncio.sleep(2)
+                    success += 1
+                    print(f"✅ تم نقل الرسالة {i} بنجاح")
                     await l313l.send_message(BOTLOG_CHATID, 
                         f"**- تم نقل المنشور .. بنجاح✅**\n"
                         f"**- رابـط المنشور:**\n"
                         f"- https://t.me/{source_channel_username}/{message.id}", 
                         link_preview=False)
                 else:
+                    failed += 1
+                    print(f"⚠️ فشل نقل الرسالة {i}")
                     await l313l.send_message(BOTLOG_CHATID, 
-                        f"**- تخطي المنشور ⚠️**\n"
+                        f"**- فشل نقل المنشور ⚠️**\n"
                         f"**- رابـط المنشور:**\n"
-                        f"- https://t.me/{source_channel_username}/{message.id}\n"
-                        f"**- السبب:** لا يمكن تحميل الميديا", 
+                        f"- https://t.me/{source_channel_username}/{message.id}", 
                         link_preview=False)
                 
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)  # مهلة بين المنشورات
 
             except Exception as e:
+                failed += 1
+                print(f"❌ خطأ في نقل الرسالة {i}: {e}")
                 await l313l.send_message(BOTLOG_CHATID, 
                     f"**- خطـأ بنقـل المنشـور ❌**\n"
                     f"**- رابـط المنشور:**\n"
@@ -528,7 +574,22 @@ async def start_copier(destination_channel_username, source_channel_username):
                     f"- {e}", 
                     link_preview=False)
 
+        # إرسال ملخص نهائي
+        print(f"\n📊 ملخص النقل:")
+        print(f"✅ نجاح: {success}")
+        print(f"❌ فشل: {failed}")
+        print(f"📝 إجمالي: {total}")
+        
+        await l313l.send_message(BOTLOG_CHATID, 
+            f"**- اكتملت عملية النقل ✅**\n"
+            f"**- ملخص:**\n"
+            f"✅ نجاح: {success}\n"
+            f"❌ فشل: {failed}\n"
+            f"📝 إجمالي: {total}", 
+            link_preview=False)
+
     except Exception as e:
+        print(f"❌ حدث خطأ عام: {e}")
         await l313l.send_message(BOTLOG_CHATID, 
             f"**- حدث خطـأ ❌**\n"
             f"**- تفاصيـل الخطـأ:**\n"

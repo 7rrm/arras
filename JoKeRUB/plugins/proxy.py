@@ -1,7 +1,8 @@
+
 import requests
 from bs4 import BeautifulSoup
-import random
-import re
+import time
+import os
 from JoKeRUB import l313l
 
 plugin_category = "الادوات"
@@ -15,14 +16,25 @@ def fetch_proxies():
     proxies = []
     for message in soup.find_all('a', href=True):
         if 'proxy' in message['href']:
-            full_url = message['href']
-            # التأكد من أن الرابط يبدأ بـ https://t.me/proxy?
-            if full_url.startswith('https://t.me/proxy?') or full_url.startswith('tg://proxy?'):
-                proxies.append(full_url)
+            proxies.append(message['href'])
     
-    # إزالة التكرارات إن وجدت
-    proxies = list(set(proxies))
     return proxies
+
+def get_ping(proxy_url):
+    try:
+        proxy_info = proxy_url.split("://")[1]
+        proxy_ip = proxy_info.split(":")[0]
+        start_time = time.time()
+        response = os.system(f"ping -c 1 {proxy_ip}")
+        end_time = time.time()
+        if response == 0:
+            ping = int((end_time - start_time) * 1000)
+            return ping
+        else:
+            return None
+    except Exception as e:
+        print(f"Error fetching ping: {e}")
+        return None
 
 # ---- أمر تيليجرام لجلب البروكسي ----
 @l313l.ar_cmd(
@@ -35,21 +47,26 @@ def fetch_proxies():
 )
 async def fetch_random_proxy(event):
     try:
-        await event.edit("**- جارٍ جلب بروكسي عشوائي ...**")
+        await event.edit("**✎┊‌جارٍ جلب بروكسي عشوائي ...**")
         proxies = fetch_proxies()
-        
         if proxies:
-            # اختيار بروكسي عشوائي من القائمة
-            proxy = random.choice(proxies)
+            proxy = proxies[0]
+            ping = get_ping(proxy)
             
             # إنشاء الرابط القابل للضغط
             proxy_link = f"[أضغـط هـنـا]({proxy})"
             
-            await event.edit(
-                f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}"
-            )
+            if ping is not None:
+                await event.edit(
+                    f"**- تم الحصول على بروكسي:** {proxy_link}\n"
+                    f"**- البنك:** `{ping} ms`"
+                )
+            else:
+                await event.edit(
+                    f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}\n"
+                    f"**- البنك:** `غير متوفر`"
+                )
         else:
             await event.edit("**✎┊‌ عذرًا، لم يتم العثور على بروكسيات في الوقت الحالي.**")
-            
     except Exception as e:
-        await event.edit(f"**✎┊‌ حدث خطأ أثناء جلب البروكسي:**\n`{e}`")
+        await event.edit(f"**✎┊‌ حدث خطأ أثناء جلب البروكسي:**\n{e}")

@@ -17,6 +17,14 @@ async def break_word(event):
     
     await event.delete()
 
+# ==================== أمر التكرار السريع مع إبقاء الرسالة الأصلية ====================
+@l313l.on(events.NewMessage(outgoing=True, pattern=r"^'(.+)"))
+async def quick_repeat_keep_original(event):
+    text = event.pattern_match.group(1).strip()
+    if text:
+        await event.respond(f"-{text}")
+    # تم إزالة سطر الحذف، فستبقى الرسالة الأصلية
+
 import asyncio
 import re
 from telethon import events

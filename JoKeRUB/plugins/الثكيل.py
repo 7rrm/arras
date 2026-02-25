@@ -8,13 +8,10 @@ aljoker_enabled = False
 JOKER_ID = {}
 
 # تعريف الأمرين: .تفكيك و .ت
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.*)'))
-async def break_word(event):
-    
-    text = event.pattern_match.group(2)
-    letters = ' '.join(list(text))
-    await event.respond(letters)
-    
+# ==================== أسرع تفكيك للمسابقات ====================
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^[\.\/](تفكيك|ت) (.+)'))
+async def fast_break(event):
+    await event.respond(' '.join(list(event.pattern_match.group(2))))
     await event.delete()
 
 # ==================== أمر التكرار السريع مع إبقاء الرسالة الأصلية ====================

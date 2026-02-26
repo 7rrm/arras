@@ -1,4 +1,5 @@
 from telethon import events, types
+import html
 from JoKeRUB import l313l
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete

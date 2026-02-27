@@ -250,7 +250,7 @@ async def bot_start(event):
             [
                 {
                     "text": "فَضفضة",
-                    "callback_data": "whisper_mode",
+                    "callback_data": "whisper_menu",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
                 }
@@ -1099,36 +1099,32 @@ async def settings_toggle(c_q: CallbackQuery):
     tt.remove(int(c_q.query.user_id))
     await c_q.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
 
-
-# قائمة لتخزين معرفات المستخدمين في وضع الفضفضة
 whisper_users = []
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_mode$")))
-async def whisper_mode_handler(event):
-    """تفعيل وضع الفضفضة - إرسال مباشر بدون تحويل"""
-    user_id = event.query.user_id
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_menu$")))
+async def whisper_menu_handler(event):
+    """قائمة التحكم بوضع الفضفضة"""
     
-    # التحقق من عدم التكرار
-    if user_id in whisper_users:
-        return await event.answer("✅ انت بالفعل في وضع الفضفضة!", alert=True)
-    
-    # إضافة المستخدم للقائمة
-    whisper_users.append(user_id)
-    
-    # رسالة تأكيد
     buttons = [
         [
             {
-                "text": "❌ الخروج",
-                "callback_data": "whisper_exit",
-                "style": "danger"
+                "text": "✅ تفعيل فضفضه",
+                "callback_data": "whisper_on",
+                "style": "success"  # أخضر
             }
         ],
         [
             {
-                "text": "رجوع",
+                "text": "❌ تعطيل فضفضه",
+                "callback_data": "whisper_off",
+                "style": "danger"  # أحمر
+            }
+        ],
+        [
+            {
+                "text": "رجوع ↩️",
                 "callback_data": "styleback",
-                "style": "secondary"
+                "style": "secondary"  # رمادي
             }
         ]
     ]
@@ -1136,61 +1132,52 @@ async def whisper_mode_handler(event):
     await event.edit(
         """**🫂 وضع الفضفضة - خاص وسري**
 
-✨ **تم التفعيل بنجاح**
-
-📝 **ارسـل الان ما تريد**
-سوف تصل رسائلك للمالك بشكل مباشر
-
-🔒 **خصوصية تامة - بدون ظهور هويتك**
+اختر ما تريد:
+• عند التفعيل: رسائلك تصل للمالك بدون هوية
+• عند التعطيل: ترجع للوضع الطبيعي
 
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
         buttons=buttons,
         link_preview=False
     )
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_exit$")))
-async def whisper_exit_handler(event):
-    """الخروج من وضع الفضفضة"""
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_on$")))
+async def whisper_on_handler(event):
+    """تفعيل وضع الفضفضة"""
     user_id = event.query.user_id
     
     if user_id in whisper_users:
-        whisper_users.remove(user_id)
-        await event.edit(
-            "**✅ تم الخروج من وضع الفضفضة**",
-            buttons=[
-                [Button.inline("رجوع", data="styleback")]
-            ],
-            link_preview=False
-        )
+        return await event.answer("✅ وضع الفضفضة مفعل مسبقاً!", alert=True)
+    
+    whisper_users.append(user_id)
+    await event.answer("✅ تم تفعيل وضع الفضفضة بنجاح", alert=True)
+    await event.edit(
+        "**✅ وضع الفضفضة - مفعل**\n\n📝 ارسل ما تريد وسيصلك للمالك بشكل مجهول",
+        buttons=[
+            [Button.inline("❌ تعطيل", data="whisper_off")],
+            [Button.inline("رجوع", data="whisper_menu")]
+        ],
+        link_preview=False
+    )
 
-# تعديل دالة معالجة الرسائل الخاصة
-@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def bot_pms(event):
-    chat = await event.get_chat()
-    reply_to = await reply_id(event)
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_off$")))
+async def whisper_off_handler(event):
+    """تعطيل وضع الفضفضة"""
+    user_id = event.query.user_id
     
-    if check_is_black_list(chat.id):
-        return
+    if user_id not in whisper_users:
+        return await event.answer("❌ وضع الفضفضة معطل مسبقاً!", alert=True)
     
-    # ========== وضع الفضفضة (إرسال مباشر للمالك) ==========
-    if chat.id in whisper_users:
-        # إرسال رسالة للمالك مباشرة بدون تحويل
-        await event.client.send_message(
-            Config.OWNER_ID,
-            f"**💭 رسالة فضفضة:**\n\n{event.text}",
-            parse_mode='md'
-        )
-        
-        # إرسال تأكيد للمستخدم
-        await event.client.send_message(
-            chat.id,
-            "**✅ تم إرسال رسالتك للمالك**",
-            reply_to=reply_to
-        )
-        return
-    # ====================================================
-    
-    # باقي الكود الأصلي...
+    whisper_users.remove(user_id)
+    await event.answer("✅ تم تعطيل وضع الفضفضة", alert=True)
+    await event.edit(
+        "**❌ وضع الفضفضة - معطل**\n\n📮 عد للقائمة الرئيسية",
+        buttons=[
+            [Button.inline("🔄 تفعيل مجدداً", data="whisper_on")],
+            [Button.inline("رجوع", data="whisper_menu")]
+        ],
+        link_preview=False
+    )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):

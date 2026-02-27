@@ -503,66 +503,94 @@ async def bot_pms(event):  # sourcery no-metrics
             WA37 = text.replace('a','𝗔').replace("b","𝗕").replace("c","𝗖").replace("d","𝗗").replace("e","𝗘").replace("f","𝗙").replace("g","𝗚").replace("h","𝗛").replace("i","𝗜").replace("j","𝗝").replace("k","𝗞").replace("l","𝗟").replace("m","𝗠").replace("n","𝗡").replace("o","𝗢").replace("p","𝗣").replace("q","𝗤").replace("r","𝗥").replace("s","𝗦").replace("t","𝗧").replace("u","𝗨").replace("v","𝗩").replace("w","𝗪").replace("x","𝗫").replace("y","𝗬").replace("z","𝗭").replace("A","𝗔").replace("B","𝗕").replace("C","𝗖").replace("D","𝗗").replace("E","𝗘").replace("F","𝗙").replace("G","𝗚").replace("H","𝗛").replace("I","𝗜").replace("J","𝗝").replace("K","𝗞").replace("L","𝗟").replace("M","𝗠").replace("N","𝗡").replace("O","𝗢").replace("P","𝗣").replace("Q","𝗤").replace("R","𝗥").replace("S","𝗦").replace("T","𝗧").replace("U","𝗨").replace("V","𝗩").replace("W","𝗪").replace("X","𝗫").replace("Y","𝗬").replace("Z","𝗭")
             dd.remove(int(chat.id))
             return await event.client.send_message(chat.id, f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘁𝘆𝗹𝗲 - زخـرفـه تمبلـر**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄⋆**\n{WA1} {smiile1}\n{WA2} {smiile2}\n{WA3} {smiile3}\n{WA4} {smiile4}\n{WA5} {smiile5}\n{WA6} {smiile6}\n{WA7} {smiile7}\n{WA8} {smiile8}\n{WA9} {smiile9}\n{WA10} {smiile10}\n{WA11} {smiile11}\n{WA12} {smiile12}\n{WA13} {smiile13}\n{WA14} {smiile14}\n{WA15} {smiile15}\n{WA16} {smiile16}\n{WA17} {smiile17}\n{WA18} {smiile18}\n{WA19} {smiile19}\n{WA20} {smiile20}\n{WA21} {smiile21}\n{WA22} {smiile22}\n{WA23} {smiile23}\n{WA24} {smiile24}\n{WA25} {smiile25}\n{WA26} {smiile26}\n{WA27} {smiile27}\n{WA28} {smiile28}\n{WA29} {smiile29}\n{WA30} {smiile30}\n{WA31} {smiile31}\n{WA32} {smiile32}\n{WA33} {smiile33}\n{WA34} {smiile34}\n{WA35} {smiile35}\n{WA36} {smiile36}\n{WA37} {smiile37}")
-        if int(chat.id) in tt:
-            msg = await event.forward_to(Config.OWNER_ID)
-            chat = await event.get_chat()
-            user = await l313l.get_me()
-            reply_to = await reply_id(event)
-            mention = f"[{chat.first_name}](tg://user?id={chat.id})"
-            my_mention = f"[{user.first_name}](tg://user?id={user.id})"
-            first = chat.first_name
-            last = chat.last_name
-            fullname = f"{first} {last}" if last else first
-            username = f"@{chat.username}" if chat.username else mention
-            userid = chat.id
-            my_first = user.first_name
-            my_last = user.last_name
-            my_fullname = f"{my_first} {my_last}" if my_last else my_first
-            my_username = f"@{user.username}" if user.username else my_mention
-            if gvarstatus("START_BUTUN") is not None:
-                zz_txt = "⌔ قنـاتـي ⌔"
-                zz_ch = gvarstatus("START_BUTUN")
-            elif user.username:
-                zz_txt = "⌔ لـ التواصـل خـاص ⌔"
-                zz_ch = user.username
-            else:
-                zz_txt = "⌔ قنـاة المـطور ⌔"
-                zz_ch = "aqhvv"
-            customtasmsg = gvarstatus("TAS_TEXT") or None
-            if customtasmsg is not None:
-                tas_msg = customtasmsg.format(
-                    zz_mention=mention,
-                    first=first,
-                    last=last,
-                    fullname=fullname,
-                    username=username,
-                    userid=userid,
-                    my_first=my_first,
-                    my_last=my_last,
-                    my_zname=my_fullname,
-                    my_username=my_username,
-                    my_mention=my_mention,
-                )
-            else:
-                tas_msg = f"**⌔ عـزيـزي  {mention} **\
-                            \n**⌔ تم ارسـال رسالتـك لـ** {my_fullname} 💌\
-                            \n**⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"
-            buttons = [
-                [
-                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off")
-                ]
-            ]
-            await event.client.send_message(
-                chat.id,
-                tas_msg,
-                link_preview=False,
-                buttons=buttons,
-                reply_to=reply_to,
+        if int(chat.id) in tt or (hasattr(contact_anon_handler, "anon_users") and int(chat.id) in contact_anon_handler.anon_users):
+    is_anon = hasattr(contact_anon_handler, "anon_users") and int(chat.id) in contact_anon_handler.anon_users
+    
+    if is_anon:
+        # إرسال الرسالة بدون معلومات المرسل (مجهول)
+        if event.media:
+            # للوسائط
+            msg = await event.client.send_file(
+                Config.OWNER_ID,
+                event.media,
+                caption=f"**📨 رسالة مجهولة:**\n\n{event.text if event.text else ''}",
+                reply_to=None
             )
-            try:
-                add_user_to_db(msg.id, get_display_name(chat), chat.id, event.id, 0, 0)
-            except Exception as e:
-                LOGS.error(str(e))
+        else:
+            # للنصوص
+            msg = await event.client.send_message(
+                Config.OWNER_ID,
+                f"**📨 رسالة مجهولة:**\n\n{event.text}",
+                link_preview=False
+            )
+        
+        # إرسال تأكيد للمستخدم
+        await event.client.send_message(
+            chat.id,
+            "**✅ تم إرسال رسالتك بشكل مجهول إلى المطور**",
+            reply_to=reply_to
+        )
+    else:
+        # التواصل العادي مع إظهار الهوية
+        msg = await event.forward_to(Config.OWNER_ID)
+        chat = await event.get_chat()
+        user = await l313l.get_me()
+        reply_to = await reply_id(event)
+        mention = f"[{chat.first_name}](tg://user?id={chat.id})"
+        my_mention = f"[{user.first_name}](tg://user?id={user.id})"
+        first = chat.first_name
+        last = chat.last_name
+        fullname = f"{first} {last}" if last else first
+        username = f"@{chat.username}" if chat.username else mention
+        userid = chat.id
+        my_first = user.first_name
+        my_last = user.last_name
+        my_fullname = f"{my_first} {my_last}" if my_last else my_first
+        my_username = f"@{user.username}" if user.username else my_mention
+        if gvarstatus("START_BUTUN") is not None:
+            zz_txt = "⌔ قنـاتـي ⌔"
+            zz_ch = gvarstatus("START_BUTUN")
+        elif user.username:
+            zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+            zz_ch = user.username
+        else:
+            zz_txt = "⌔ قنـاة المـطور ⌔"
+            zz_ch = "aqhvv"
+        customtasmsg = gvarstatus("TAS_TEXT") or None
+        if customtasmsg is not None:
+            tas_msg = customtasmsg.format(
+                zz_mention=mention,
+                first=first,
+                last=last,
+                fullname=fullname,
+                username=username,
+                userid=userid,
+                my_first=my_first,
+                my_last=my_last,
+                my_zname=my_fullname,
+                my_username=my_username,
+                my_mention=my_mention,
+            )
+        else:
+            tas_msg = f"**⌔ عـزيـزي  {mention} **\
+                        \n**⌔ تم ارسـال رسالتـك لـ** {my_fullname} 💌\
+                        \n**⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"
+        buttons = [
+            [
+                Button.inline("تعطيـل التواصـل", data="ttk_bot-off")
+            ]
+        ]
+        await event.client.send_message(
+            chat.id,
+            tas_msg,
+            link_preview=False,
+            buttons=buttons,
+            reply_to=reply_to,
+        )
+        try:
+            add_user_to_db(msg.id, get_display_name(chat), chat.id, event.id, 0, 0)
+        except Exception as e:
+            LOGS.error(str(e))
     else:
         if event.text.startswith("/style"):
             dd.append(int(chat.id))
@@ -967,46 +995,35 @@ async def settings_toggle(c_q: CallbackQuery):
     await c_q.edit("**- مكافـح التكـرار التلقـائي بالبـوت .. تم تعطيلـه بنجـاح✓**")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-1$")))
-async def settings_toggle(c_q: CallbackQuery):
-    # تصميم الأزرار الملونة
+async def contact_menu_handler(event):
     buttons = [
-        [
-            {
-                "text": "تفعيـل التواصـل",
-                "callback_data": "ttk_bot-on",
-                "style": "primary"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "تعطيـل التواصـل",
-                "callback_data": "ttk_bot-off",
-                "style": "primary"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "رجــوع",
-                "callback_data": "styleback",
-                "style": "danger"  # 🔴 أحمر
-            }
-        ]
+        [{"text": "🔓 تواصـل بهويـتي", "callback_data": "ttk_bot-on", "style": "primary"}],
+        [{"text": "🔐 تواصـل مجهـول", "callback_data": "ttk_bot-anon", "style": "success"}],
+        [{"text": "تعطيـل التواصـل", "callback_data": "ttk_bot-off", "style": "danger"}],
+        [{"text": "رجــوع", "callback_data": "styleback", "style": "secondary"}]
     ]
+    
+    text = """**- مرحبـاً بك عـزيـزي ✍🏻**
+**- اختر نوع التواصل المطلوب:**
 
-    # إرسال عبر Bot API
+**🔓 تواصـل بهويـتي:** 
+سيتم إرسال اسمك ومعرفك للمطور مع الرسالة
+
+**🔐 تواصـل مجهـول:** 
+سيتم إرسال الرسالة فقط بدون أي معلومات عنك
+
+**⚠️ تعطيـل:** 
+لإيقاف استقبال الردود من المطور
+
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- اختر من الأزرار بالأسفل 🛃**"""
+    
     try:
         edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
         edit_data = {
-            "chat_id": c_q.chat_id,
-            "message_id": c_q.message_id,
-            "text": """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": text,
             "parse_mode": "Markdown",
             "reply_markup": json.dumps({"inline_keyboard": buttons}),
             "disable_web_page_preview": True
@@ -1014,46 +1031,22 @@ async def settings_toggle(c_q: CallbackQuery):
         
         response = requests.post(edit_url, json=edit_data, timeout=3)
         if response.status_code != 200:
-            # Fallback
             fallback_buttons = [
-                [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
+                [Button.inline("🔓 تواصـل بهويـتي", data="ttk_bot-on")],
+                [Button.inline("🔐 تواصـل مجهـول", data="ttk_bot-anon")],
                 [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
                 [Button.inline("رجــوع", data="styleback")]
             ]
-            
-            await c_q.edit(
-                """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
-                buttons=fallback_buttons,
-                link_preview=False
-            )
+            await event.edit(text, buttons=fallback_buttons, link_preview=False)
     except Exception as e:
         LOGS.error(f"خطأ في تعديل الرسالة: {e}")
-        # Fallback
         fallback_buttons = [
-            [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
+            [Button.inline("🔓 تواصـل بهويـتي", data="ttk_bot-on")],
+            [Button.inline("🔐 تواصـل مجهـول", data="ttk_bot-anon")],
             [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
             [Button.inline("رجــوع", data="styleback")]
         ]
-        
-        await c_q.edit(
-            """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
-            buttons=fallback_buttons,
-            link_preview=False
-        )
+        await event.edit(text, buttons=fallback_buttons, link_preview=False)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-on$")))
 async def settings_toggle(c_q: CallbackQuery):
@@ -1084,12 +1077,54 @@ async def settings_toggle(c_q: CallbackQuery):
     link_preview=False)
 
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-anon$")))
+async def contact_anon_handler(event):
+    user_id = event.query.user_id
+    
+    # نخزن أن المستخدم في وضع التواصل المجهول (نفس قائمة tt ولكن بعلامة خاصة)
+    # سنستخدم قائمة منفصلة للتواصل المجهول
+    if not hasattr(contact_anon_handler, "anon_users"):
+        contact_anon_handler.anon_users = []
+    
+    if user_id in contact_anon_handler.anon_users:
+        return await event.answer("**- وضـع التواصـل المجهـول .. مفعـل مسبقـاً**", alert=False)
+    
+    # إزالة من التواصل العادي إذا كان موجوداً
+    if user_id in tt:
+        tt.remove(user_id)
+    
+    # إضافة للتواصل المجهول
+    contact_anon_handler.anon_users.append(user_id)
+    
+    await event.edit(
+        """**- تم تفعيـل وضع التواصل المجهـول ✓**
+**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
+**- دون إظهار هويتك (اسمك أو معرفك)** 🔐
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- لتعطيل الخدمة استخدم زر التعطيل**""",
+        buttons=[[Button.inline("تعطيل وضع التواصل", data="ttk_bot-off")]],
+        link_preview=False
+    )
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-off$")))
-async def settings_toggle(c_q: CallbackQuery):
-    if c_q.query.user_id not in tt:
-        return await c_q.answer("**- وضـع التواصـل .. معطـل مسبقـاً**", alert=False)
-    tt.remove(int(c_q.query.user_id))
-    await c_q.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
+async def contact_off_handler(event):
+    user_id = event.query.user_id
+    
+    # التحقق من وجوده في أي من القائمتين
+    in_normal = user_id in tt
+    in_anon = hasattr(contact_anon_handler, "anon_users") and user_id in contact_anon_handler.anon_users
+    
+    if not in_normal and not in_anon:
+        return await event.answer("**- وضـع التواصـل .. معطـل مسبقـاً**", alert=False)
+    
+    # إزالته من القائمتين
+    if in_normal:
+        tt.remove(user_id)
+    if in_anon:
+        contact_anon_handler.anon_users.remove(user_id)
+    
+    await event.edit("**- تم الخروج من وضع التواصل ✓**\n\n**- لـ البدء ارسـل /start**")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):

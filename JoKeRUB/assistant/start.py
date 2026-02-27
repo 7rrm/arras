@@ -47,6 +47,9 @@ EMOJI_DELETE = "5350477112677515642"       # 🔥 لزر الحذف
 EMOJI_PAID = "5408997493784467607"         # 💎 لزر المدفوع
 EMOJI_CHANNEL = "5260450573768990626"      # ✨ لزر القناة
 
+# إيموجي بريميوم للتأثيرات
+EFFECT_ID = "5046509860389126442"  # التأثير الذي طلبته
+
 class FloodConfig:
     BANNED_USERS = set()
     USERS = defaultdict(list)
@@ -273,6 +276,7 @@ async def bot_start(event):
             "parse_mode": "HTML",
             "reply_markup": json.dumps({"inline_keyboard": buttons}),
             "disable_web_page_preview": True
+            "message_effect_id": EFFECT_ID  # ✅ استخدام المتغير
         }
         
         response = requests.post(send_url, json=send_data, timeout=3)

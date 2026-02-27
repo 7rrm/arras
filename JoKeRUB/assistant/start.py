@@ -275,7 +275,7 @@ async def bot_start(event):
             "text": start_msg,
             "parse_mode": "HTML",
             "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
+            "disable_web_page_preview": True,
             "message_effect_id": EFFECT_ID  # ✅ استخدام المتغير
         }
         

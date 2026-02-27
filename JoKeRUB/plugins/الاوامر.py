@@ -141,7 +141,7 @@ async def show_commands(event):
                 caption,
                 link_preview=False,
                 parse_mode=CustomParseMode("html"),
-                message_effect_id=("5046509860389126442")
+                message_effect_id=int("5046509860389126442")
             )
             await zed.delete()
         except Exception as e:

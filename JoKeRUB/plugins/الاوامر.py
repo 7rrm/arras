@@ -139,7 +139,6 @@ async def show_commands(event):
                 caption,
                 link_preview=False,
                 parse_mode=CustomParseMode("html"),
-                effect=5066795381770158548
             )
             await zed.delete()
         except Exception as e:

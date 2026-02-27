@@ -15,8 +15,6 @@ ZED_BLACKLIST = [-1001935599871]
 Zel_Uid = l313l.uid
 plugin_category = "utils"
 
-EFFECT_ID = 5046509860389126442  # ال
-
 # كلاس التحليل المخصص
 class CustomParseMode:
     def __init__(self, parse_mode: str):
@@ -141,7 +139,7 @@ async def show_commands(event):
                 caption,
                 link_preview=False,
                 parse_mode=CustomParseMode("html"),
-                message_effect_id=int("5046509860389126442")
+                message_effect_id=int("5066795381770158548")
             )
             await zed.delete()
         except Exception as e:

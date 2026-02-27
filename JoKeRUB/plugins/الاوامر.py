@@ -16,7 +16,7 @@ Zel_Uid = l313l.uid
 plugin_category = "utils"
 
 # متغير التأثير
-EFFECT_ID = 5066795381770158548  # التأثير الذي طلبته
+EFFECT_ID = 5046509860389126442  # التأثير الذي طلبته
 
 # كلاس التحليل المخصص
 class CustomParseMode:

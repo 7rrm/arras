@@ -1300,10 +1300,15 @@ async def bot_pms(event):
             parse_mode='md'
         )
         
-        # تأكيد للمستخدم
+        # تأكيد للمستخدم مع زر التعطيل (مثل التواصل)
+        buttons = [
+            [Button.inline("تعطيل وضع الفضفضة", data="whisper_off")]
+        ]
+        
         await event.client.send_message(
             chat.id,
-            "**✅ تم إرسال رسالتك للمالك**",
+            "**✅ تم إرسال رسالتك للمالك**\n\n**لإيقاف وضع الفضفضة اضغط الزر بالأسفل**",
+            buttons=buttons,
             reply_to=reply_to
         )
         return

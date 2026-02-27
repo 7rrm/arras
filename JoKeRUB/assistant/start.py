@@ -46,6 +46,7 @@ EMOJI_DECOR = "5411580731929411768"        # ✅ لزر الزخرفة
 EMOJI_DELETE = "5350477112677515642"       # 🔥 لزر الحذف
 EMOJI_PAID = "5408997493784467607"         # 💎 لزر المدفوع
 EMOJI_CHANNEL = "5260450573768990626"      # ✨ لزر القناة
+EMOJI_fatfta = "5188619457651567219"        # فضفضه
 
 # إيموجي بريميوم للتأثيرات
 EFFECT_ID = "5046509860389126442"  # التأثير الذي طلبته
@@ -225,6 +226,14 @@ async def bot_start(event):
             ],
             [
                 {
+                    "text": "فَضفضة",
+                    "callback_data": "whisper_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_fatfta
+                }
+            ],
+            [
+                {
                     "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
                     "style": "success",
@@ -233,24 +242,8 @@ async def bot_start(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة",
-                    "callback_data": "paid_commands_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_PAID
-                }
-            ],
-            [
-                {
                     "text": "لـ حـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
-                    "text": "فَضفضة",
-                    "callback_data": "whisper_menu",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
                 }
@@ -1300,21 +1293,28 @@ async def bot_pms(event):
             parse_mode='md'
         )
         
-        # تأكيد للمستخدم مع زر التعطيل (مثل التواصل)
+        # رسالة التأكيد للمستخدم - مثل التواصل تماماً
+        user = await l313l.get_me()
+        my_mention = f"[{user.first_name}](tg://user?id={user.id})"
+        mention = f"[{chat.first_name}](tg://user?id={chat.id})"
+        
+        whisper_msg = f"""**⌔ عـزيـزي  {mention} **                            
+**⌔ تم ارسـال رسالتـك لـ {my_mention} 💌**                            
+**⌔ دون اضهار هويتك .**"""
+
         buttons = [
             [Button.inline("تعطيل وضع الفضفضة", data="whisper_off")]
         ]
         
         await event.client.send_message(
             chat.id,
-            "**✅ تم إرسال رسالتك للمالك**\n\n**لإيقاف وضع الفضفضة اضغط الزر بالأسفل**",
+            whisper_msg,
             buttons=buttons,
-            reply_to=reply_to
+            reply_to=reply_to,
+            link_preview=False
         )
         return
     # ================================
-    
-    # باقي الكود الأصلي...
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):

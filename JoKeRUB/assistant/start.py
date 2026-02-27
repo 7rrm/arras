@@ -504,9 +504,8 @@ async def bot_pms(event):  # sourcery no-metrics
             dd.remove(int(chat.id))
             return await event.client.send_message(chat.id, f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘁𝘆𝗹𝗲 - زخـرفـه تمبلـر**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄⋆**\n{WA1} {smiile1}\n{WA2} {smiile2}\n{WA3} {smiile3}\n{WA4} {smiile4}\n{WA5} {smiile5}\n{WA6} {smiile6}\n{WA7} {smiile7}\n{WA8} {smiile8}\n{WA9} {smiile9}\n{WA10} {smiile10}\n{WA11} {smiile11}\n{WA12} {smiile12}\n{WA13} {smiile13}\n{WA14} {smiile14}\n{WA15} {smiile15}\n{WA16} {smiile16}\n{WA17} {smiile17}\n{WA18} {smiile18}\n{WA19} {smiile19}\n{WA20} {smiile20}\n{WA21} {smiile21}\n{WA22} {smiile22}\n{WA23} {smiile23}\n{WA24} {smiile24}\n{WA25} {smiile25}\n{WA26} {smiile26}\n{WA27} {smiile27}\n{WA28} {smiile28}\n{WA29} {smiile29}\n{WA30} {smiile30}\n{WA31} {smiile31}\n{WA32} {smiile32}\n{WA33} {smiile33}\n{WA34} {smiile34}\n{WA35} {smiile35}\n{WA36} {smiile36}\n{WA37} {smiile37}")
         if int(chat.id) in tt or (hasattr(contact_anon_handler, "anon_users") and int(chat.id) in contact_anon_handler.anon_users):
-    is_anon = hasattr(contact_anon_handler, "anon_users") and int(chat.id) in contact_anon_handler.anon_users
-    
-    if is_anon:
+            is_anon = hasattr(contact_anon_handler, "anon_users") and int(chat.id) in contact_anon_handler.anon_users
+        if is_anon:
         # إرسال الرسالة بدون معلومات المرسل (مجهول)
         if event.media:
             # للوسائط
@@ -572,9 +571,7 @@ async def bot_pms(event):  # sourcery no-metrics
                 my_mention=my_mention,
             )
         else:
-            tas_msg = f"**⌔ عـزيـزي  {mention} **\
-                        \n**⌔ تم ارسـال رسالتـك لـ** {my_fullname} 💌\
-                        \n**⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"
+            tas_msg = f"**⌔ عـزيـزي  {mention} **\n**⌔ تم ارسـال رسالتـك لـ** {my_fullname} 💌\n**⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"
         buttons = [
             [
                 Button.inline("تعطيـل التواصـل", data="ttk_bot-off")

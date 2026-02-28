@@ -160,14 +160,6 @@ async def bot_start(event):
             ],
             [
                 {
-                    "text": "الأوامـر المدفوعـة",  # بدون إيموجي في النص
-                    "callback_data": "paid_commands_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_PAID  # 💎 الإيموجي داخل الزر
-                }
-            ],
-            [
-                {
                     "text": "لـ حـذف حسـابك",  # بدون إيموجي في النص
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
@@ -185,14 +177,6 @@ async def bot_start(event):
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
-                }
-            ],
-            [
-                {
-                    "text": "الأوامـر المدفوعـة",
-                    "callback_data": "paid_commands_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_PAID
                 }
             ],
             [
@@ -242,9 +226,9 @@ async def bot_start(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك",
+                    "text": "لـ حـ.ـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "danger",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
@@ -323,85 +307,6 @@ async def bot_start(event):
         )
 
     await check_bot_started_users(chat, event)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"paid_commands_menu$")))
-async def paid_commands_menu_handler(event):
-    await event.edit(
-        """**• مـرحبـاً بـك عـزيـزي 💎**
-        
-• **فـي قسـم الأوامـر المدفوعـة**
-• هـذه الأوامـر تـم تطويرها خصيصـاً
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-• **استخـدم الأزرار بالأسفـل**""",
-        buttons=[
-            [
-                Button.inline("هـاك تيرمكـس ⚓", data="termux_hack")
-            ],
-            [
-                Button.inline("تـعديل وانشاء الصـور 🖼", data="edit_photo")
-            ],
-            [
-                Button.inline("رجــوع ↩️", data="styleback")
-            ],
-        ],
-        link_preview=False
-    )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"termux_hack$")))
-async def termux_hack_handler(event):
-    user_id = event.query.user_id
-    
-    # للمالك فقط يمكنه استخدام الخدمة
-    if user_id == Config.OWNER_ID:
-        await event.edit(
-            "**- مرحـبا بك عزيزي المـالك **\n"
-            "**- في قسم اختراق تيرمكس **\n"
-            "**- لرؤية أوامـر الإختراق أرسل** /hack",
-            buttons=[
-                [Button.inline("رجوع", data="paid_commands_menu")]
-            ]
-        )
-    else:
-        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
-        await event.edit(
-            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
-            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
-            "• لـ تنصيب بـوت مماثـل\n"
-            "• تواصـل مع المـطور **آراس**\n"
-            "• @Lx5x5",
-            buttons=[
-                [Button.inline("رجوع", data="paid_commands_menu")]
-            ]
-        )
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"edit_photo$")))
-async def edit_photo_handler(event):
-    user_id = event.query.user_id
-    
-    # للمالك فقط يمكنه استخدام الخدمة
-    if user_id == Config.OWNER_ID:
-        await event.edit(
-            "**- مرحـبا بك عزيزي المـالك **\n"
-            "**- في قسم تعديل وإنشاء الصور **\n"
-            "**- لرؤية أوامـر التعديل إرسل** /edit",
-            buttons=[
-                [Button.inline("رجوع", data="paid_commands_menu")]
-            ]
-        )
-    else:
-        # للمستخدمين الآخرين: رسالة الخدمة المدفوعة
-        await event.edit(
-            "• عـذراً .. عـزيـزي 🙇🏻‍♀\n"
-            "• هـذا القسم خاص بمالك البوت فقط 🚧\n"
-            "• لـ تنصيب بـوت مماثـل\n"
-            "• تواصـل مع المـطور **آراس**\n"
-            "• @Lx5x5",
-            buttons=[
-                [Button.inline("رجوع", data="paid_commands_menu")]
-            ]
-        )
-
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def bot_pms(event):  # sourcery no-metrics
@@ -1128,20 +1033,61 @@ async def settings_toggle(c_q: CallbackQuery):
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-on$")))
-async def settings_toggle(c_q: CallbackQuery):
-    if c_q.query.user_id in tt:
-        return await c_q.answer("**- وضـع التواصـل .. مفعـل مسبقـاً**", alert=False)
-    tt.append(int(c_q.query.user_id))
-    await c_q.edit(
-        """**- تم تفعيـل وضع التواصل ✓**
+async def ttk_on_handler(event):
+    """تفعيل وضع التواصل"""
+    user_id = event.query.user_id
+    
+    # ✅ إذا كان الفضفضة مفعل → عطله أولاً
+    if user_id in whisper_users:
+        whisper_users.remove(user_id)
+        await event.answer("⚠️ تم تعطيل وضع الفضفضة تلقائياً", alert=True)
+    
+    if user_id in tt:
+        return await event.answer("✅ وضع التواصل مفعل مسبقاً!", alert=False)
+    
+    tt.append(user_id)
+    
+    buttons = [
+        [
+            {
+                "text": "❌ تعطيل وضع التواصل",
+                "callback_data": "ttk_bot-off",
+                "style": "danger"
+            }
+        ]
+    ]
+    
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": """**- تم تفعيـل وضع التواصل ✓**
 **- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-.""",
-
-        buttons=[
-            [Button.inline("تعطيل وضع التواصل", data="ttk_bot-off")],
-        ],
-    link_preview=False)
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            await event.edit(
+                """**- تم تفعيـل وضع التواصل ✓**
+**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
+                buttons=[[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off")]],
+                link_preview=False
+            )
+    except Exception as e:
+        LOGS.error(f"خطأ في ttk_on: {e}")
+        await event.edit(
+            """**- تم تفعيـل وضع التواصل ✓**
+**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
+            buttons=[[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off")]],
+            link_preview=False
+        )
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-off$")))
@@ -1243,10 +1189,16 @@ async def whisper_menu_handler(event):
             link_preview=False
         )
 
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_on$")))
 async def whisper_on_handler(event):
     """تفعيل وضع الفضفضة"""
     user_id = event.query.user_id
+    
+    # ✅ إذا كان التواصل مفعل → عطله أولاً
+    if user_id in tt:
+        tt.remove(user_id)
+        await event.answer("⚠️ تم تعطيل وضع التواصل تلقائياً", alert=True)
     
     if user_id in whisper_users:
         return await event.answer("✅ وضع الفضفضة مفعل مسبقاً!", alert=False)
@@ -1297,6 +1249,7 @@ async def whisper_on_handler(event):
             buttons=[[Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off")]],
             link_preview=False
         )
+
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_off$")))
 async def whisper_off_handler(event):

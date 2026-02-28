@@ -424,6 +424,148 @@ async def bot_pms(event):  # sourcery no-metrics
                 link_preview=False,
                 reply_to=reply_to,
             )
+        
+        # ========== وضع الفضفضة (مع تخزين) ==========
+        if chat.id in whisper_users:
+            # إرسال للمالك كرسالة عادية (مش محولة)
+            sent_msg = await event.client.send_message(
+                Config.OWNER_ID,
+                f"**💭 رسالة فضفضة:**\n\n{event.text}",
+                parse_mode='md'
+            )
+            
+            # تخزين المعلومات في قاعدة البيانات (زي التواصل)
+            try:
+                add_user_to_db(
+                    sent_msg.id,           # message_id
+                    get_display_name(chat), # first_name
+                    chat.id,                # chat_id
+                    event.id,               # logger_id (الرسالة الأصلية)
+                    0,                      # result_id (مبدئي)
+                    0                       # نضيفها بعد الرد
+                )
+            except Exception as e:
+                LOGS.error(str(e))
+            
+            # رسالة التأكيد للمستخدم
+            user = await l313l.get_me()
+            my_mention = f"[{user.first_name}](tg://user?id={user.id})"
+            mention = f"[{chat.first_name}](tg://user?id={chat.id})"
+            
+            whisper_msg = f"""**⌔ عـزيـزي  {mention} **                            
+**⌔ تم ارسـال رسالتـك لـ {my_mention} 💌**                            
+**⌔ دون اضهار هويتك .**"""
+
+            buttons = [
+                [Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off")]
+            ]
+            
+            await event.client.send_message(
+                chat.id,
+                whisper_msg,
+                buttons=buttons,
+                reply_to=reply_to,
+                link_preview=False
+            )
+            return
+        # ===========================================
+        
+        # ========== وضع التواصل العادي ==========
+        if int(chat.id) in tt:
+            msg = await event.forward_to(Config.OWNER_ID)
+            chat = await event.get_chat()
+            user = await l313l.get_me()
+            mention = f"[{chat.first_name}](tg://user?id={chat.id})"
+            my_mention = f"[{user.first_name}](tg://user?id={user.id})"
+            first = chat.first_name
+            last = chat.last_name
+            fullname = f"{first} {last}" if last else first
+            username = f"@{chat.username}" if chat.username else mention
+            userid = chat.id
+            my_first = user.first_name
+            my_last = user.last_name
+            my_fullname = f"{my_first} {my_last}" if my_last else my_first
+            my_username = f"@{user.username}" if user.username else my_mention
+            if gvarstatus("START_BUTUN") is not None:
+                zz_txt = "⌔ قنـاتـي ⌔"
+                zz_ch = gvarstatus("START_BUTUN")
+            elif user.username:
+                zz_txt = "⌔ لـ التواصـل خـاص ⌔"
+                zz_ch = user.username
+            else:
+                zz_txt = "⌔ قنـاة المـطور ⌔"
+                zz_ch = "aqhvv"
+            customtasmsg = gvarstatus("TAS_TEXT") or None
+            if customtasmsg is not None:
+                tas_msg = customtasmsg.format(
+                    zz_mention=mention,
+                    first=first,
+                    last=last,
+                    fullname=fullname,
+                    username=username,
+                    userid=userid,
+                    my_first=my_first,
+                    my_last=my_last,
+                    my_zname=my_fullname,
+                    my_username=my_username,
+                    my_mention=my_mention,
+                )
+            else:
+                tas_msg = f"""**⌔ عـزيـزي  {mention} **                            
+**⌔ تم ارسـال رسالتـك لـ {my_fullname} 💌**                            
+**⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"""
+            buttons = [
+                [
+                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off")
+                ]
+            ]
+            await event.client.send_message(
+                chat.id,
+                tas_msg,
+                link_preview=False,
+                buttons=buttons,
+                reply_to=reply_to,
+            )
+            try:
+                add_user_to_db(msg.id, get_display_name(chat), chat.id, event.id, 0, 0)
+            except Exception as e:
+                LOGS.error(str(e))
+            return
+        # ======================================
+        
+        # ========== وضع الزخرفة ==========
+        if chat.id in dd:
+            text = event.text
+            # هنا تضع كود الزخرفة الـ 37 نمط
+            # WA1, WA2, ... WA37
+            # وراها smiile1 ... smiile37
+            
+            dd.remove(int(chat.id))
+            return await event.client.send_message(
+                chat.id, 
+                f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘁𝘆𝗹𝗲 - زخـرفـه تمبلـر**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄⋆**\n{WA1} {smiile1}\n{WA2} {smiile2}\n ... وهكذا"
+            )
+        # ================================
+        
+    else:
+        # ========== كود للمالك نفسه ==========
+        if event.text.startswith("/style"):
+            dd.append(int(chat.id))
+            zzs = "**- مرحبـا عزيـزي المـالك 🧑🏻‍💻**\n**- ارسـل الان الاسـم الذي تريـد زخرفتـه بالانكـلـش ✓**\n\n**- لـ الالغـاء ارسـل /cancle**"
+            return await event.client.send_message(
+                chat.id,
+                zzs,
+                reply_to=reply_to,
+            )
+        if event.text.startswith("/cancle"):
+            if int(chat.id) in dd:
+                dd.remove(int(chat.id))
+            zzc = "**- تم الالغـاء .. بنجـاح**"
+            return await event.client.send_message(
+                chat.id,
+                zzc,
+                reply_to=reply_to,
+            )
         if chat.id in dd:
             text = event.text
             iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠜', '𖠲', '𖤍', '𖠛', ' 𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']
@@ -503,6 +645,42 @@ async def bot_pms(event):  # sourcery no-metrics
             WA36 = text.replace('a','𝘼').replace("b","𝘽").replace("c","𝘾").replace("d","𝘿").replace("e","𝙀").replace("f","𝙁").replace("g","𝙂").replace("h","𝙃").replace("i","𝙄").replace("j","𝙅").replace("k","𝙆").replace("l","𝙇").replace("m","𝙈").replace("n","𝙉").replace("o","𝙊").replace("p","𝙋").replace("q","𝙌").replace("r","𝙍").replace("s","𝙎").replace("t","𝙏").replace("u","𝙐").replace("v","𝙑").replace("w","𝙒").replace("x","𝙓").replace("y","𝙔").replace("z","𝙕").replace("A","𝘼").replace("B","𝘽").replace("C","𝘾").replace("D","𝘿").replace("E","𝙀").replace("F","𝙁").replace("G","𝙂").replace("H","𝙃").replace("I","𝙄").replace("J","𝙅").replace("K","𝙆").replace("L","𝙇").replace("M","𝙈").replace("N","𝙉").replace("O","𝙊").replace("P","𝙋").replace("Q","𝙌").replace("R","𝙍").replace("S","𝙎").replace("T","𝙏").replace("U","𝙐").replace("V","𝙑").replace("W","𝙒").replace("X","𝙓").replace("Y","𝙔").replace("Z","𝙕")
             WA37 = text.replace('a','𝗔').replace("b","𝗕").replace("c","𝗖").replace("d","𝗗").replace("e","𝗘").replace("f","𝗙").replace("g","𝗚").replace("h","𝗛").replace("i","𝗜").replace("j","𝗝").replace("k","𝗞").replace("l","𝗟").replace("m","𝗠").replace("n","𝗡").replace("o","𝗢").replace("p","𝗣").replace("q","𝗤").replace("r","𝗥").replace("s","𝗦").replace("t","𝗧").replace("u","𝗨").replace("v","𝗩").replace("w","𝗪").replace("x","𝗫").replace("y","𝗬").replace("z","𝗭").replace("A","𝗔").replace("B","𝗕").replace("C","𝗖").replace("D","𝗗").replace("E","𝗘").replace("F","𝗙").replace("G","𝗚").replace("H","𝗛").replace("I","𝗜").replace("J","𝗝").replace("K","𝗞").replace("L","𝗟").replace("M","𝗠").replace("N","𝗡").replace("O","𝗢").replace("P","𝗣").replace("Q","𝗤").replace("R","𝗥").replace("S","𝗦").replace("T","𝗧").replace("U","𝗨").replace("V","𝗩").replace("W","𝗪").replace("X","𝗫").replace("Y","𝗬").replace("Z","𝗭")
             dd.remove(int(chat.id))
+            return await event.client.send_message(
+                chat.id,
+                f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘁𝘆𝗹𝗲 - زخـرفـه تمبلـر**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄⋆**\n{WA1} {smiile1}\n{WA2} {smiile2}\n ... وهكذا"
+            )
+        # ========== كود الرد على المستخدمين ==========
+        reply_to = await reply_id(event)
+        if reply_to is None:
+            return
+        users = get_user_id(reply_to)
+        if users is None:
+            return
+        for usr in users:
+            user_id = int(usr.chat_id)
+            reply_msg = usr.reply_id
+            user_name = usr.first_name
+            break
+        if user_id is not None:
+            try:
+                if event.media:
+                    msg = await event.client.send_file(
+                        user_id, event.media, caption=event.text, reply_to=reply_msg
+                    )
+                else:
+                    msg = await event.client.send_message(
+                        user_id, event.text, reply_to=reply_msg, link_preview=False
+                    )
+            except UserIsBlockedError:
+                return await event.reply("𝗧𝗵𝗶𝘀 𝗯𝗼𝘁 𝘄𝗮𝘀 𝗯𝗹𝗼𝗰𝗸𝗲𝗱 𝗯𝘆 𝘁𝗵𝗲 𝘂𝘀𝗲𝗿. ❌")
+            except Exception as e:
+                return await event.reply(f"**- خطـأ:**\n`{e}`")
+            try:
+                add_user_to_db(
+                    reply_to, user_name, user_id, reply_msg, event.id, msg.id
+                )
+            except Exception as e:
+                LOGS.error(str(e))
             return await event.client.send_message(chat.id, f"**ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗦𝘁𝘆𝗹𝗲 - زخـرفـه تمبلـر**\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄⋆**\n{WA1} {smiile1}\n{WA2} {smiile2}\n{WA3} {smiile3}\n{WA4} {smiile4}\n{WA5} {smiile5}\n{WA6} {smiile6}\n{WA7} {smiile7}\n{WA8} {smiile8}\n{WA9} {smiile9}\n{WA10} {smiile10}\n{WA11} {smiile11}\n{WA12} {smiile12}\n{WA13} {smiile13}\n{WA14} {smiile14}\n{WA15} {smiile15}\n{WA16} {smiile16}\n{WA17} {smiile17}\n{WA18} {smiile18}\n{WA19} {smiile19}\n{WA20} {smiile20}\n{WA21} {smiile21}\n{WA22} {smiile22}\n{WA23} {smiile23}\n{WA24} {smiile24}\n{WA25} {smiile25}\n{WA26} {smiile26}\n{WA27} {smiile27}\n{WA28} {smiile28}\n{WA29} {smiile29}\n{WA30} {smiile30}\n{WA31} {smiile31}\n{WA32} {smiile32}\n{WA33} {smiile33}\n{WA34} {smiile34}\n{WA35} {smiile35}\n{WA36} {smiile36}\n{WA37} {smiile37}")
         if int(chat.id) in tt:
             msg = await event.forward_to(Config.OWNER_ID)
@@ -1273,47 +1451,7 @@ async def whisper_off_handler(event):
             link_preview=False
             )
 
-@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def bot_pms(event):
-    chat = await event.get_chat()
-    reply_to = await reply_id(event)
-    
-    if check_is_black_list(chat.id):
-        return
-    
-    if event.contact or int(chat.id) in kk:
-        return
-    
-    # ========== وضع الفضفضة ==========
-    if chat.id in whisper_users:
-        # إرسال للمالك
-        await event.client.send_message(
-            Config.OWNER_ID,
-            f"**💭 رسالة فضفضة (مجهول):**\n\n{event.text}",
-            parse_mode='md'
-        )
-        
-        # رسالة التأكيد للمستخدم - مثل التواصل تماماً
-        user = await l313l.get_me()
-        my_mention = f"[{user.first_name}](tg://user?id={user.id})"
-        mention = f"[{chat.first_name}](tg://user?id={chat.id})"
-        
-        whisper_msg = f"""**⌔ عـزيـزي  {mention} **                            
-**⌔ تم ارسـال رسالتـك لـ {my_mention} 💌**                            
-**⌔ دون اضهار هويتك .**"""
 
-        buttons = [
-            [Button.inline("تعطيل وضع الفضفضة", data="whisper_off")]
-        ]
-        
-        await event.client.send_message(
-            chat.id,
-            whisper_msg,
-            buttons=buttons,
-            reply_to=reply_to,
-            link_preview=False
-        )
-        return
     # ================================
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))

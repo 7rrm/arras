@@ -130,6 +130,7 @@ async def bot_start(event):
     EMOJI_HEART = 5258215850745275216        # 💌
     EMOJI_ART = 5411580731929411768        # 🎨
     EMOJI_WARN = 5350477112677515642
+    EMOJI_Fatf = 5350477112677515642
     start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 
@@ -139,6 +140,7 @@ async def bot_start(event):
 من خـلال زر <b>اضغـط لـ التواصـل</b>
 ❷ <b>زخـرفـة النصـوص والأسمـاء</b> <tg-emoji emoji-id="{EMOJI_ART}">🎨</tg-emoji>
 ❸ <b>حـذف الحسـابات نهـائياً</b> <tg-emoji emoji-id="{EMOJI_WARN}">⚠️</tg-emoji>
+❹ <b>فَضفـضه بَهوية مجهولـة</b> <tg-emoji emoji-id="{EMOJI_Fatf}">✉️</tg-emoji>
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
 
@@ -210,7 +212,7 @@ async def bot_start(event):
             ],
             [
                 {
-                    "text": "فَضفضة",
+                    "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_fatfta
@@ -1439,6 +1441,7 @@ async def settings_toggle(event):
 مـن خلال زر **اضغـط لـ التواصـل** 
 ❷ زخـرفـة النصـوص والأسمـاء 🎨
 ❸ حـذف الحسـابات نهـائياً ⚠️
+❹ فضفضه بَهوية مجهولـة
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 • لـ البـدء إستخـدم الازرار بالاسفـل ⌨"""
         
@@ -1470,7 +1473,7 @@ async def settings_toggle(event):
             ],
             [
                 {
-                    "text": "لـ حـذف حسـابك",
+                    "text": "لـ حـ.ـذف حسـابك",
                     "callback_data": "zzk_bot-5",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_DELETE

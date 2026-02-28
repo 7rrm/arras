@@ -318,6 +318,10 @@ async def bot_pms(event):  # sourcery no-metrics
         return
     if event.contact or int(chat.id) in kk:
         return
+
+    if event.text and event.text.startswith("/start"):
+        if chat.id in tt or chat.id in whisper_users:
+            return
     if chat.id != Config.OWNER_ID:
         if event.text.startswith("/cancle"):
             if int(chat.id) in dd:

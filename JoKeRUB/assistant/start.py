@@ -130,7 +130,7 @@ async def bot_start(event):
     EMOJI_HEART = 5258215850745275216        # 💌
     EMOJI_ART = 5411580731929411768        # 🎨
     EMOJI_WARN = 5350477112677515642
-    EMOJI_Fatf = 5350477112677515642
+    EMOJI_Fatf = 5188619457651567219
     start_msg = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
 

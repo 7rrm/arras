@@ -59,7 +59,8 @@ async def safe_edit(event, text, buttons=None):
 async def safe_delete(msg):
     """حذف الرسالة بأمان"""
     try:
-        await msg.delete()
+        if msg:
+            await msg.delete()
     except:
         pass
 
@@ -80,6 +81,20 @@ def upload_to_imgbb(image_path):
             data = response.json()
             if data.get('success'):
                 return data['data']['url']
+    except:
+        pass
+    return None
+
+# ========== دالة تنزيل الصورة محلياً ==========
+async def download_image_from_url(url, filename):
+    """تنزيل الصورة من الرابط وحفظها محلياً"""
+    try:
+        response = requests.get(url, timeout=30)
+        if response.status_code == 200:
+            filepath = os.path.join("temp_images", filename)
+            with open(filepath, 'wb') as f:
+                f.write(response.content)
+            return filepath
     except:
         pass
     return None
@@ -205,11 +220,33 @@ async def handle_create_message(event):
                     # تقصير الوصف إذا كان طويلاً
                     short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
                     
-                    await bot.send_file(
-                        event.chat_id,
-                        result['url'],
-                        caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
-                    )
+                    # محاولة إرسال الصورة بطرق مختلفة
+                    try:
+                        # الطريقة الأولى: إرسال مباشرة من الرابط
+                        await bot.send_file(
+                            event.chat_id,
+                            result['url'],
+                            caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
+                        )
+                    except Exception as e:
+                        # إذا فشلت الطريقة الأولى، نحاول تنزيل الصورة وإرسالها محلياً
+                        filename = f"created_{int(time.time())}.jpg"
+                        local_path = await download_image_from_url(result['url'], filename)
+                        
+                        if local_path:
+                            await bot.send_file(
+                                event.chat_id,
+                                local_path,
+                                caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
+                            )
+                            # حذف الملف المؤقت
+                            if os.path.exists(local_path):
+                                os.remove(local_path)
+                        else:
+                            # إذا فشل كل شيء، نرسل الرابط فقط
+                            await event.respond(
+                                f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}\n\n🔗 رابط الصورة: {result['url']}"
+                            )
                     
                     after_buttons = [
                         [Button.inline("🔄 إنشاء مرة أخرى", data="create_image")],
@@ -218,12 +255,21 @@ async def handle_create_message(event):
                     ]
                     await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
-                    await waiting_msg.edit("❌ فشل في إنشاء الصورة")
+                    try:
+                        await waiting_msg.edit("❌ فشل في إنشاء الصورة")
+                    except:
+                        await event.respond("❌ فشل في إنشاء الصورة")
             else:
-                await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
+                try:
+                    await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
+                except:
+                    await event.respond(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            try:
+                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            except:
+                await event.respond(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 
@@ -308,11 +354,33 @@ async def handle_edit_message(event):
                     # تقصير التعديل إذا كان طويلاً
                     short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
                     
-                    await bot.send_file(
-                        event.chat_id,
-                        result['url'],
-                        caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
-                    )
+                    # محاولة إرسال الصورة بطرق مختلفة
+                    try:
+                        # الطريقة الأولى: إرسال مباشرة من الرابط
+                        await bot.send_file(
+                            event.chat_id,
+                            result['url'],
+                            caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
+                        )
+                    except Exception as e:
+                        # إذا فشلت الطريقة الأولى، نحاول تنزيل الصورة وإرسالها محلياً
+                        filename = f"edited_{int(time.time())}.jpg"
+                        local_path = await download_image_from_url(result['url'], filename)
+                        
+                        if local_path:
+                            await bot.send_file(
+                                event.chat_id,
+                                local_path,
+                                caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
+                            )
+                            # حذف الملف المؤقت
+                            if os.path.exists(local_path):
+                                os.remove(local_path)
+                        else:
+                            # إذا فشل كل شيء، نرسل الرابط فقط
+                            await event.respond(
+                                f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}\n\n🔗 رابط الصورة: {result['url']}"
+                            )
                     
                     after_buttons = [
                         [Button.inline("🔄 تعديل صورة أخرى", data="edit_image")],
@@ -321,12 +389,21 @@ async def handle_edit_message(event):
                     ]
                     await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
-                    await waiting_msg.edit("❌ فشل في تعديل الصورة")
+                    try:
+                        await waiting_msg.edit("❌ فشل في تعديل الصورة")
+                    except:
+                        await event.respond("❌ فشل في تعديل الصورة")
             else:
-                await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
+                try:
+                    await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
+                except:
+                    await event.respond(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            try:
+                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            except:
+                await event.respond(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 

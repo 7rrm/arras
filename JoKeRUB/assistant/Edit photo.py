@@ -11,6 +11,9 @@ logging.getLogger().setLevel(logging.WARNING)
 # ========== API القديم ==========
 API_BASE_URL = "https://viscodev.x10.mx/nano/nano-banana.php"
 
+# مفتاح ImgBB
+IMGBB_KEY = "fdc56ddf64d2f3d3294433761930349f"
+
 # إعدادات الملفات
 os.makedirs("temp_images", exist_ok=True)
 
@@ -59,6 +62,27 @@ async def safe_delete(msg):
         await msg.delete()
     except:
         pass
+
+# ========== دالة رفع الصور لـ ImgBB ==========
+def upload_to_imgbb(image_path):
+    """رفع الصورة إلى ImgBB"""
+    try:
+        with open(image_path, 'rb') as f:
+            files = {'image': f}
+            response = requests.post(
+                'https://api.imgbb.com/1/upload',
+                data={'key': IMGBB_KEY},
+                files=files,
+                timeout=30
+            )
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('success'):
+                return data['data']['url']
+    except:
+        pass
+    return None
 
 # ========== القائمة والأزرار ==========
 menu = '''
@@ -164,7 +188,6 @@ async def handle_create_message(event):
         session.message_id = waiting_msg.id
         
         try:
-            print(f"[إنشاء] إرسال طلب إنشاء صورة: {prompt[:50]}...")
             response = requests.get(
                 API_BASE_URL,
                 params={
@@ -174,15 +197,10 @@ async def handle_create_message(event):
                 timeout=60
             )
             
-            print(f"[إنشاء] حالة الاستجابة: {response.status_code}")
-            
             if response.status_code == 200:
                 result = response.json()
-                print(f"[إنشاء] نتيجة: {result}")
-                
                 if result.get('success'):
                     await safe_delete(waiting_msg)
-                    print("[إنشاء] تم إنشاء الصورة بنجاح")
                     
                     await bot.send_file(
                         event.chat_id,
@@ -197,14 +215,11 @@ async def handle_create_message(event):
                     ]
                     await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
-                    print("[إنشاء] فشل في إنشاء الصورة")
                     await waiting_msg.edit("❌ فشل في إنشاء الصورة")
             else:
-                print(f"[إنشاء] خطأ في الاتصال: {response.status_code}")
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            print(f"[إنشاء] استثناء: {str(e)}")
             await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
@@ -230,23 +245,13 @@ async def handle_photo_message(event):
     
     if session.state == 'waiting_photo':
         if event.photo:
-            print(f"[استقبال] تم استلام صورة من المستخدم {user_id}")
-            
-            # تحميل الصورة محلياً (مؤقتاً)
             photo_path = await event.download_media(file="temp_images/")
-            print(f"[استقبال] تم تحميل الصورة إلى: {photo_path}")
-            
-            # رفع الصورة لخدمة خارجية (مثلاً ImgBB)
-            print("[استقبال] جاري رفع الصورة لـ ImgBB...")
             imgbb_url = upload_to_imgbb(photo_path)
             
-            # حذف الملف المؤقت
             if os.path.exists(photo_path):
                 os.remove(photo_path)
-                print("[استقبال] تم حذف الملف المؤقت")
             
             if imgbb_url:
-                print(f"[استقبال] تم رفع الصورة بنجاح: {imgbb_url}")
                 session.image_url = imgbb_url
                 session.state = 'waiting_prompt_edit'
                 
@@ -257,43 +262,9 @@ async def handle_photo_message(event):
                     "أو /cancel للإلغاء"
                 )
             else:
-                print("[استقبال] فشل في رفع الصورة")
                 await event.respond("❌ فشل في رفع الصورة. حاول مرة أخرى")
         else:
-            print("[استقبال] الملف المرسل ليس صورة")
             await event.respond("❌ الرجاء إرسال صورة فقط")
-
-def upload_to_imgbb(image_path):
-    """رفع الصورة إلى ImgBB"""
-    try:
-        print(f"[ImgBB] بدء رفع الصورة: {image_path}")
-        
-        with open(image_path, 'rb') as f:
-            files = {'image': f}
-            response = requests.post(
-                'https://api.imgbb.com/1/upload',
-                data={'key': 'fdc56ddf64d2f3d3294433761930349f'},  # مفتاح تجريبي - استبدله
-                files=files,
-                timeout=30
-            )
-        
-        print(f"[ImgBB] حالة الاستجابة: {response.status_code}")
-        
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('success'):
-                url = data['data']['url']
-                print(f"[ImgBB] تم الرفع بنجاح: {url}")
-                return url
-            else:
-                print(f"[ImgBB] فشل في الرفع: {data}")
-        else:
-            print(f"[ImgBB] خطأ في الاتصال: {response.text[:200]}")
-            
-    except Exception as e:
-        print(f"[ImgBB] استثناء: {str(e)}")
-    
-    return None
 
 # ========== معالجة التعديل ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
@@ -316,9 +287,6 @@ async def handle_edit_message(event):
         session.message_id = waiting_msg.id
         
         try:
-            print(f"[تعديل] إرسال طلب تعديل - Prompt: {prompt[:50]}...")
-            print(f"[تعديل] Image URL: {session.image_url}")
-            
             response = requests.get(
                 API_BASE_URL,
                 params={
@@ -329,15 +297,10 @@ async def handle_edit_message(event):
                 timeout=60
             )
             
-            print(f"[تعديل] حالة الاستجابة: {response.status_code}")
-            
             if response.status_code == 200:
                 result = response.json()
-                print(f"[تعديل] نتيجة: {result}")
-                
                 if result.get('success'):
                     await safe_delete(waiting_msg)
-                    print("[تعديل] تم تعديل الصورة بنجاح")
                     
                     await bot.send_file(
                         event.chat_id,
@@ -352,17 +315,13 @@ async def handle_edit_message(event):
                     ]
                     await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
-                    print("[تعديل] فشل في تعديل الصورة")
                     await waiting_msg.edit("❌ فشل في تعديل الصورة")
             else:
-                print(f"[تعديل] خطأ في الاتصال: {response.status_code}")
-                print(f"[تعديل] محتوى الخطأ: {response.text[:200]}")
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            print(f"[تعديل] استثناء: {str(e)}")
             await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 
-print("✅ تم تحميل بوت الصور بنجاح مع طباعة تفصيلية!")
+print("✅ تم تحميل بوت الصور بنجاح!")

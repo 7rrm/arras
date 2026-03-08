@@ -372,7 +372,7 @@ async def instagram_downloader(event):
     
     # نفس المتغيرات بلضبط
     dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من انستقرام انتظر قليلا**")
-    chat = "@TIKTOKDOWNLOADROBOT"  # نفس البوت بلضبط
+    chat = "@instasavegrambot"  # نفس البوت بلضبط
     
     try:
         # نفس المحادثة بلضبط
@@ -381,7 +381,7 @@ async def instagram_downloader(event):
                 # نفس الإرسال بلضبط
                 purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
-                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                await dra.edit("**- يرجى إلغاء حظر @instasavegrambot وحاول مرة أخرى**")
                 return
             
             # نفس تجاهل الرد الأول بلضبط

@@ -272,7 +272,7 @@ def upload_to_imgbb(image_path):
             files = {'image': f}
             response = requests.post(
                 'https://api.imgbb.com/1/upload',
-                data={'key': '5a5b7f7b7f7b7f7b7f7b7f7b7f7b7f7b'},  # مفتاح تجريبي - استبدله
+                data={'key': 'fdc56ddf64d2f3d3294433761930349f'},  # مفتاح تجريبي - استبدله
                 files=files,
                 timeout=30
             )

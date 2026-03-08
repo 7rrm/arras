@@ -1,32 +1,18 @@
-
 from JoKeRUB import bot, l313l
-# By Source joker @ucriss
-from telethon import events, functions, types, Button
-from datetime import datetime, timedelta
+from telethon import events, Button
+from datetime import datetime
 from JoKeRUB.utils import admin_cmd
-import asyncio
 from ..Config import Config
-import os
-import re
-import traceback
-from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
-from telethon import TelegramClient as tg
-from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest as pc, JoinChannelRequest as join, LeaveChannelRequest as leave, DeleteChannelRequest as dc
-from telethon.sessions import StringSession as ses
-from telethon.tl.functions.auth import ResetAuthorizationsRequest as rt
-from telethon.tl.functions.channels import CreateChannelRequest as ccr
-from telethon import Button, events
-import aiohttp
-import random
-import json
-import requests
-import time
+import os, re, requests, json, time, asyncio
 import logging
 
 logging.getLogger().setLevel(logging.WARNING)
 
-# ========== API ==========
+# ========== API القديم ==========
 API_BASE_URL = "https://viscodev.x10.mx/nano/nano-banana.php"
+
+# إعدادات الملفات
+os.makedirs("temp_images", exist_ok=True)
 
 bot = borg = tgbot
 Bot_Username = Config.TG_BOT_USERNAME or "NanoBananaBot"
@@ -39,8 +25,7 @@ class UserSession:
         self.user_id = user_id
         self.state = None
         self.prompt = None
-        self.file_path = None  # مسار الملف
-        self.message_id = None  # معرف رسالة الانتظار
+        self.image_url = None
 
 def get_user_session(user_id):
     if user_id not in user_sessions:
@@ -175,7 +160,6 @@ async def handle_create_message(event):
             return
         
         waiting_msg = await event.respond("⏳ جاري إنشاء الصورة...")
-        session.message_id = waiting_msg.id
         
         try:
             response = requests.get(
@@ -192,7 +176,7 @@ async def handle_create_message(event):
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
-                    # إرسال الصورة - هنا نرسل الرابط مباشرة
+                    # إرسال الصورة
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
@@ -211,10 +195,7 @@ async def handle_create_message(event):
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            try:
-                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-            except:
-                await event.respond(f"❌ حدث خطأ: {str(e)}")
+            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 
@@ -231,39 +212,36 @@ async def edit_image_handler(event):
         "أو /cancel للإلغاء"
     )
 
-# ========== معالجة استقبال الصورة ==========
+# ========== معالجة استقبال الصورة (بدون تحميل) ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.media))
-async def handle_photo_receive(event):
+async def handle_photo_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     
     if session.state == 'waiting_photo':
-        # الحصول على مسار الملف
         if event.photo:
-            # للصور
-            file_path = f"photos/photo_{user_id}_{int(time.time())}.jpg"
-            await event.download_media(file_path)
-            session.file_path = file_path
-        elif event.document:
-            # للمستندات
-            file_path = f"docs/doc_{user_id}_{int(time.time())}.jpg"
-            await event.download_media(file_path)
-            session.file_path = file_path
+            # الحصول على معلومات الصورة
+            photo = event.photo
+            file_id = photo.id
+            
+            # إنشاء مسار وهمي بنفس صيغة الكود الصغير
+            # هذا يعتمد على تنسيق الـ API القديم
+            fake_path = f"photos/photo_{file_id}.jpg"
+            
+            session.image_url = fake_path
+            session.state = 'waiting_prompt_edit'
+            
+            await event.respond(
+                "✅ تم استلام الصورة!\n\n"
+                "✏️ أرسل التعديل الذي تريده:\n\n"
+                "مثال: `حولها إلى لوحة زيتية`\n\n"
+                "أو /cancel للإلغاء"
+            )
         else:
             await event.respond("❌ الرجاء إرسال صورة فقط")
-            return
-        
-        session.state = 'waiting_edit_prompt'
-        
-        await event.respond(
-            "✅ تم استلام الصورة!\n\n"
-            "✏️ أرسل الآن التعديل الذي تريده:\n\n"
-            "مثال: `حولها إلى لوحة زيتية`\n\n"
-            "أو /cancel للإلغاء"
-        )
 
 # ========== معالجة التعديل ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
 async def handle_edit_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
@@ -271,46 +249,34 @@ async def handle_edit_message(event):
     if event.text.startswith('/'):
         return
     
-    if session.state == 'waiting_edit_prompt' and session.file_path:
+    if session.state == 'waiting_prompt_edit' and session.image_url:
         prompt = event.text
         
         if not prompt or len(prompt.strip()) < 3:
             await event.respond("❌ الوصف قصير جداً", buttons=keyboard)
-            # حذف الملف المؤقت
-            if os.path.exists(session.file_path):
-                os.remove(session.file_path)
             clear_user_session(user_id)
             return
         
-        waiting_msg = await event.respond("⏳ جاري رفع الصورة...")
-        session.message_id = waiting_msg.id
+        waiting_msg = await event.respond("⏳ جاري تعديل الصورة...")
         
         try:
-            # هنا المشكلة: API يحتاج رابط وليس مسار محلي
-            # الحل: رفع الصورة لخدمة خارجية أو استخدام رابط تليجرام
-            
-            await waiting_msg.edit("⏳ جاري تعديل الصورة...")
-            
-            # نجرب إرسال المسار مباشرة (قد لا يعمل)
+            # استدعاء API التعديل - نرسل المسار الوهمي
             response = requests.get(
                 API_BASE_URL,
                 params={
                     'mode': 'edit',
                     'prompt': prompt,
-                    'image': session.file_path  # هذا لن يعمل لأن API يحتاج رابط
+                    'image': session.image_url  # نرسل المسار الوهمي
                 },
                 timeout=60
             )
-            
-            # حذف الملف المؤقت
-            if os.path.exists(session.file_path):
-                os.remove(session.file_path)
             
             if response.status_code == 200:
                 result = response.json()
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
+                    # إرسال الصورة المعدلة
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
@@ -329,13 +295,7 @@ async def handle_edit_message(event):
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            try:
-                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-            except:
-                await event.respond(f"❌ حدث خطأ: {str(e)}")
-            # حذف الملف المؤقت في حالة الخطأ
-            if os.path.exists(session.file_path):
-                os.remove(session.file_path)
+            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 

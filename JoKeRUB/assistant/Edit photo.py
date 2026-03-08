@@ -26,11 +26,7 @@ import logging
 logging.getLogger().setLevel(logging.WARNING)
 
 # ========== API ==========
-# هنا تستخدم أي API تريد (قديم أو جديد)
-API_BASE_URL = "https://viscodev.x10.mx/nano/nano-banana.php"  # أو nanabanana.ai
-
-# إعدادات الملفات
-os.makedirs("generated_images", exist_ok=True)
+API_BASE_URL = "https://viscodev.x10.mx/nano/nano-banana.php"
 
 bot = borg = tgbot
 Bot_Username = Config.TG_BOT_USERNAME or "NanoBananaBot"
@@ -43,8 +39,8 @@ class UserSession:
         self.user_id = user_id
         self.state = None
         self.prompt = None
-        self.image_path = None  # مسار الصورة المحلي
-        self.image_url = None    # رابط الصورة (للتعديل بالرابط)
+        self.image_file = None  # الملف المستلم
+        self.image_url = None    # رابط الصورة
 
 def get_user_session(user_id):
     if user_id not in user_sessions:
@@ -53,11 +49,6 @@ def get_user_session(user_id):
 
 def clear_user_session(user_id):
     if user_id in user_sessions:
-        if user_sessions[user_id].image_path and os.path.exists(user_sessions[user_id].image_path):
-            try:
-                os.remove(user_sessions[user_id].image_path)
-            except:
-                pass
         del user_sessions[user_id]
 
 async def safe_edit(event, text, buttons=None):
@@ -135,13 +126,8 @@ async def start(event):
 @tgbot.on(events.NewMessage(pattern="/cancel", func=lambda x: x.is_private))
 async def cancel_handler(event):
     user_id = event.sender_id
-    session = get_user_session(user_id)
-    
-    if session.state:
-        clear_user_session(user_id)
-        await event.respond("✅ تم إلغاء العملية", buttons=keyboard)
-    else:
-        await event.respond("⚠️ لا توجد عملية جارية", buttons=keyboard)
+    clear_user_session(user_id)
+    await event.respond("✅ تم إلغاء العملية", buttons=keyboard)
 
 # ========== زر العودة ==========
 @tgbot.on(events.CallbackQuery(data=re.compile(b"back_to_menu")))
@@ -164,9 +150,9 @@ async def create_image_handler(event):
         "أو /cancel للإلغاء"
     )
 
-# ========== معالجة الرسائل للإنشاء ==========
+# ========== معالجة الإنشاء ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
-async def handle_prompt_message(event):
+async def handle_create_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     
@@ -184,7 +170,6 @@ async def handle_prompt_message(event):
         waiting_msg = await event.respond("⏳ جاري إنشاء الصورة...")
         
         try:
-            # استدعاء API الإنشاء
             response = requests.get(
                 API_BASE_URL,
                 params={
@@ -199,14 +184,12 @@ async def handle_prompt_message(event):
                 if result.get('success'):
                     await waiting_msg.delete()
                     
-                    # إرسال الصورة
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
                         caption=f"✅ تم إنشاء الصورة بنجاح!\n\n📝 الوصف: {prompt}"
                     )
                     
-                    # أزرار إضافية
                     after_buttons = [
                         [Button.inline("🔄 إنشاء مرة أخرى", data="create_image")],
                         [Button.inline("✏️ تعديل صورة", data="edit_image")],
@@ -228,38 +211,6 @@ async def handle_prompt_message(event):
 async def edit_image_handler(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
-    session.state = 'waiting_image'
-    
-    keyboard_edit = [
-        [Button.inline("🔗 إرسال رابط", data="send_link")],
-        [Button.inline("📸 إرسال صورة", data="send_photo")],
-        [Button.inline("🔙 رجوع", data="back_to_menu")]
-    ]
-    
-    await safe_edit(
-        event,
-        "اختر طريقة إرسال الصورة:",
-        buttons=keyboard_edit
-    )
-
-# ========== اختيار طريقة الإرسال ==========
-@tgbot.on(events.CallbackQuery(data=re.compile(b"send_link")))
-async def send_link_handler(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    session.state = 'waiting_link'
-    
-    await safe_edit(
-        event,
-        "🔗 أرسل رابط الصورة التي تريد تعديلها:\n\n"
-        "مثال: `https://example.com/image.jpg`\n\n"
-        "أو /cancel للإلغاء"
-    )
-
-@tgbot.on(events.CallbackQuery(data=re.compile(b"send_photo")))
-async def send_photo_handler(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
     session.state = 'waiting_photo'
     
     await safe_edit(
@@ -268,57 +219,44 @@ async def send_photo_handler(event):
         "أو /cancel للإلغاء"
     )
 
-# ========== معالجة الرابط ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
-async def handle_link_message(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    text = event.text
-    
-    if event.text.startswith('/'):
-        return
-    
-    if session.state == 'waiting_link':
-        if text.startswith(('http://', 'https://')):
-            session.image_url = text
-            session.state = 'waiting_edit_prompt_link'
-            await event.respond(
-                "✏️ أرسل التعديل الذي تريده على الصورة:\n\n"
-                "مثال: `حولها إلى لوحة زيتية`\n\n"
-                "أو /cancel للإلغاء"
-            )
-        else:
-            await event.respond("❌ الرجاء إرسال رابط صحيح يبدأ بـ http:// أو https://")
-
-# ========== معالجة الصورة المرفوعة ==========
+# ========== معالجة استقبال الصورة ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.media))
-async def handle_photo_message(event):
+async def handle_photo_receive(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     
     if session.state == 'waiting_photo':
-        # تحميل الصورة محلياً
-        photo_path = await event.download_media(file="temp_images/")
-        session.image_path = photo_path
-        session.state = 'waiting_edit_prompt_photo'
-        
-        await event.respond(
-            "✅ تم استلام الصورة!\n\n"
-            "✏️ أرسل التعديل الذي تريده:\n\n"
-            "مثال: `اجعلها بالأبيض والأسود`\n\n"
-            "أو /cancel للإلغاء"
-        )
+        # الحصول على معلومات الملف
+        photo = event.media
+        if hasattr(photo, 'photo'):
+            # استخراج معرف الصورة
+            file_id = photo.photo.id
+            
+            # الحصول على مسار الملف (نفس طريقة الكود الصغير)
+            # في تليثون، يمكننا استخدام get_file.path
+            file = await bot.get_file(event.message.media)
+            file_path = file.path  # هذا يعطينا المسار المطلوب مثل documents/file_0.jpg
+            
+            session.image_url = file_path
+            session.state = 'waiting_edit_prompt'
+            
+            await event.respond(
+                "✅ تم استلام الصورة!\n\n"
+                "✏️ أرسل الآن التعديل الذي تريده:\n\n"
+                "مثال: `حولها إلى لوحة زيتية`\n\n"
+                "أو /cancel للإلغاء"
+            )
 
-# ========== معالجة التعديل (لرابط) ==========
+# ========== معالجة التعديل ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
-async def handle_edit_link_prompt(event):
+async def handle_edit_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     
     if event.text.startswith('/'):
         return
     
-    if session.state == 'waiting_edit_prompt_link' and session.image_url:
+    if session.state == 'waiting_edit_prompt' and session.image_url:
         prompt = event.text
         
         if not prompt or len(prompt.strip()) < 3:
@@ -329,13 +267,13 @@ async def handle_edit_link_prompt(event):
         waiting_msg = await event.respond("⏳ جاري تعديل الصورة...")
         
         try:
-            # استدعاء API التعديل بالرابط
+            # استدعاء API التعديل - نرسل مسار الملف كما في الكود الصغير
             response = requests.get(
                 API_BASE_URL,
                 params={
                     'mode': 'edit',
                     'prompt': prompt,
-                    'image': session.image_url
+                    'image': session.image_url  # نفس الطريقة: نرسل المسار
                 },
                 timeout=60
             )
@@ -364,78 +302,6 @@ async def handle_edit_link_prompt(event):
         
         except Exception as e:
             await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-        
-        clear_user_session(user_id)
-
-# ========== معالجة التعديل (للصورة المرفوعة) ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
-async def handle_edit_photo_prompt(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    
-    if event.text.startswith('/'):
-        return
-    
-    if session.state == 'waiting_edit_prompt_photo' and session.image_path:
-        prompt = event.text
-        
-        if not prompt or len(prompt.strip()) < 3:
-            await event.respond("❌ الوصف قصير جداً", buttons=keyboard)
-            clear_user_session(user_id)
-            return
-        
-        waiting_msg = await event.respond("⏳ جاري تعديل الصورة...")
-        
-        try:
-            # استدعاء API التعديل بمسار الصورة المحلي (نفس طريقة الكود الصغير)
-            # API المفروض يدعم استقبال مسار الملف المحلي من تليجرام
-            response = requests.get(
-                API_BASE_URL,
-                params={
-                    'mode': 'edit',
-                    'prompt': prompt,
-                    'image': session.image_path  # نفس الطريقة: نرسل المسار المحلي
-                },
-                timeout=60
-            )
-            
-            # تنظيف الملف المؤقت
-            if os.path.exists(session.image_path):
-                try:
-                    os.remove(session.image_path)
-                except:
-                    pass
-            
-            if response.status_code == 200:
-                result = response.json()
-                if result.get('success'):
-                    await waiting_msg.delete()
-                    
-                    await bot.send_file(
-                        event.chat_id,
-                        result['url'],
-                        caption=f"✅ تم تعديل الصورة بنجاح!\n\n✏️ التعديل: {prompt}"
-                    )
-                    
-                    after_buttons = [
-                        [Button.inline("🔄 تعديل صورة أخرى", data="edit_image")],
-                        [Button.inline("🎨 إنشاء صورة", data="create_image")],
-                        [Button.inline("🏠 القائمة الرئيسية", data="back_to_menu")]
-                    ]
-                    await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
-                else:
-                    await waiting_msg.edit("❌ فشل في تعديل الصورة")
-            else:
-                await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
-        
-        except Exception as e:
-            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-            # تنظيف في حالة الخطأ
-            if os.path.exists(session.image_path):
-                try:
-                    os.remove(session.image_path)
-                except:
-                    pass
         
         clear_user_session(user_id)
 

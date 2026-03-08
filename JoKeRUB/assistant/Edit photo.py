@@ -84,34 +84,6 @@ def upload_to_imgbb(image_path):
         pass
     return None
 
-# ========== دالة تحميل الصورة وإرسالها ==========
-async def download_and_send_image(event, image_url, success_message):
-    """تحميل الصورة من الرابط وإرسالها"""
-    try:
-        # تحميل الصورة محلياً
-        img_response = requests.get(image_url, timeout=30)
-        if img_response.status_code == 200:
-            temp_path = f"temp_images/image_{int(time.time())}.jpg"
-            with open(temp_path, 'wb') as f:
-                f.write(img_response.content)
-            
-            # إرسال الصورة بدون caption
-            await bot.send_file(event.chat_id, temp_path)
-            
-            # حذف الملف المؤقت
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-            
-            # إرسال رسالة نجاح منفصلة
-            await event.respond(success_message)
-            return True
-        else:
-            await event.respond("❌ فشل في تحميل الصورة")
-            return False
-    except Exception as e:
-        await event.respond(f"❌ حدث خطأ في التحميل: {str(e)}")
-        return False
-
 # ========== القائمة والأزرار ==========
 menu = '''
 🎨 **بوت إنشاء وتعديل الصور**
@@ -230,30 +202,25 @@ async def handle_create_message(event):
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
-                    # تحميل وإرسال الصورة بدون caption
-                    success = await download_and_send_image(
-                        event, 
-                        result['url'], 
-                        "✅ تم إنشاء الصورة بنجاح!"
+                    await bot.send_file(
+                        event.chat_id,
+                        result['url'],
+                        caption=f"✅ تم إنشاء الصورة بنجاح!"
                     )
                     
-                    if success:
-                        after_buttons = [
-                            [Button.inline("🔄 إنشاء مرة أخرى", data="create_image")],
-                            [Button.inline("✏️ تعديل صورة", data="edit_image")],
-                            [Button.inline("🏠 القائمة الرئيسية", data="back_to_menu")]
-                        ]
-                        await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
+                    after_buttons = [
+                        [Button.inline("🔄 إنشاء مرة أخرى", data="create_image")],
+                        [Button.inline("✏️ تعديل صورة", data="edit_image")],
+                        [Button.inline("🏠 القائمة الرئيسية", data="back_to_menu")]
+                    ]
+                    await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
                     await waiting_msg.edit("❌ فشل في إنشاء الصورة")
             else:
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            try:
-                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-            except:
-                await event.respond(f"❌ حدث خطأ: {str(e)}")
+            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 
@@ -335,30 +302,25 @@ async def handle_edit_message(event):
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
-                    # تحميل وإرسال الصورة بدون caption
-                    success = await download_and_send_image(
-                        event, 
-                        result['url'], 
-                        "✅ تم تعديل الصورة بنجاح!"
+                    await bot.send_file(
+                        event.chat_id,
+                        result['url'],
+                        caption=f"✅ تم تعديل الصورة بنجاح!"
                     )
                     
-                    if success:
-                        after_buttons = [
-                            [Button.inline("🔄 تعديل صورة أخرى", data="edit_image")],
-                            [Button.inline("🎨 إنشاء صورة", data="create_image")],
-                            [Button.inline("🏠 القائمة الرئيسية", data="back_to_menu")]
-                        ]
-                        await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
+                    after_buttons = [
+                        [Button.inline("🔄 تعديل صورة أخرى", data="edit_image")],
+                        [Button.inline("🎨 إنشاء صورة", data="create_image")],
+                        [Button.inline("🏠 القائمة الرئيسية", data="back_to_menu")]
+                    ]
+                    await event.respond("ماذا تريد أن تفعل الآن؟", buttons=after_buttons)
                 else:
                     await waiting_msg.edit("❌ فشل في تعديل الصورة")
             else:
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            try:
-                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
-            except:
-                await event.respond(f"❌ حدث خطأ: {str(e)}")
+            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 

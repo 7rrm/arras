@@ -202,10 +202,13 @@ async def handle_create_message(event):
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
+                    # تقصير الوصف إذا كان طويلاً
+                    short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
+                    
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
-                        caption=f"✅ تم إنشاء الصورة بنجاح!"
+                        caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
                     )
                     
                     after_buttons = [
@@ -302,10 +305,13 @@ async def handle_edit_message(event):
                 if result.get('success'):
                     await safe_delete(waiting_msg)
                     
+                    # تقصير التعديل إذا كان طويلاً
+                    short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
+                    
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
-                        caption=f"✅ تم تعديل الصورة بنجاح!"
+                        caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
                     )
                     
                     after_buttons = [

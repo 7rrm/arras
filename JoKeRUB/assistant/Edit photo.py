@@ -85,19 +85,38 @@ def upload_to_imgbb(image_path):
         pass
     return None
 
-# ========== دالة تنزيل الصورة محلياً ==========
-async def download_image_from_url(url, filename):
-    """تنزيل الصورة من الرابط وحفظها محلياً"""
+# ========== دالة سريعة لإرسال الصورة ==========
+async def send_image_quick(event, image_url, caption):
+    """إرسال الصورة بأسرع طريقة ممكنة"""
     try:
-        response = requests.get(url, timeout=30)
-        if response.status_code == 200:
-            filepath = os.path.join("temp_images", filename)
-            with open(filepath, 'wb') as f:
-                f.write(response.content)
-            return filepath
-    except:
-        pass
-    return None
+        # المحاولة الأولى: إرسال مباشر مع timeout قصير
+        await bot.send_file(
+            event.chat_id,
+            image_url,
+            caption=caption,
+            force_document=False  # إرسال كصورة وليس كمستند
+        )
+        return True
+    except Exception as e:
+        error_str = str(e)
+        
+        # إذا كان الخطأ هو WebpageCurlFailedError
+        if "WebpageCurlFailedError" in error_str:
+            # محاولة سريعة: إرسال الرابط مع معاينة
+            try:
+                await event.respond(
+                    f"{caption}\n\n🔗 [اضغط هنا لمشاهدة الصورة]({image_url})",
+                    link_preview=True
+                )
+                return True
+            except:
+                # آخر محاولة: إرسال الرابط فقط
+                await event.respond(f"{caption}\n\n🔗 رابط الصورة: {image_url}")
+                return True
+        else:
+            # لأي خطأ آخر، نرسل الرابط
+            await event.respond(f"{caption}\n\n🔗 رابط الصورة: {image_url}")
+            return True
 
 # ========== القائمة والأزرار ==========
 menu = '''
@@ -220,33 +239,12 @@ async def handle_create_message(event):
                     # تقصير الوصف إذا كان طويلاً
                     short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
                     
-                    # محاولة إرسال الصورة بطرق مختلفة
-                    try:
-                        # الطريقة الأولى: إرسال مباشرة من الرابط
-                        await bot.send_file(
-                            event.chat_id,
-                            result['url'],
-                            caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
-                        )
-                    except Exception as e:
-                        # إذا فشلت الطريقة الأولى، نحاول تنزيل الصورة وإرسالها محلياً
-                        filename = f"created_{int(time.time())}.jpg"
-                        local_path = await download_image_from_url(result['url'], filename)
-                        
-                        if local_path:
-                            await bot.send_file(
-                                event.chat_id,
-                                local_path,
-                                caption=f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
-                            )
-                            # حذف الملف المؤقت
-                            if os.path.exists(local_path):
-                                os.remove(local_path)
-                        else:
-                            # إذا فشل كل شيء، نرسل الرابط فقط
-                            await event.respond(
-                                f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}\n\n🔗 رابط الصورة: {result['url']}"
-                            )
+                    # إرسال الصورة بسرعة
+                    await send_image_quick(
+                        event,
+                        result['url'],
+                        f"✅ تم إنشاء الصورة بنجاح!\n📝 {short_prompt}"
+                    )
                     
                     after_buttons = [
                         [Button.inline("🔄 إنشاء مرة أخرى", data="create_image")],
@@ -354,33 +352,12 @@ async def handle_edit_message(event):
                     # تقصير التعديل إذا كان طويلاً
                     short_prompt = prompt[:50] + "..." if len(prompt) > 50 else prompt
                     
-                    # محاولة إرسال الصورة بطرق مختلفة
-                    try:
-                        # الطريقة الأولى: إرسال مباشرة من الرابط
-                        await bot.send_file(
-                            event.chat_id,
-                            result['url'],
-                            caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
-                        )
-                    except Exception as e:
-                        # إذا فشلت الطريقة الأولى، نحاول تنزيل الصورة وإرسالها محلياً
-                        filename = f"edited_{int(time.time())}.jpg"
-                        local_path = await download_image_from_url(result['url'], filename)
-                        
-                        if local_path:
-                            await bot.send_file(
-                                event.chat_id,
-                                local_path,
-                                caption=f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
-                            )
-                            # حذف الملف المؤقت
-                            if os.path.exists(local_path):
-                                os.remove(local_path)
-                        else:
-                            # إذا فشل كل شيء، نرسل الرابط فقط
-                            await event.respond(
-                                f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}\n\n🔗 رابط الصورة: {result['url']}"
-                            )
+                    # إرسال الصورة بسرعة
+                    await send_image_quick(
+                        event,
+                        result['url'],
+                        f"✅ تم تعديل الصورة بنجاح!\n✏️ {short_prompt}"
+                    )
                     
                     after_buttons = [
                         [Button.inline("🔄 تعديل صورة أخرى", data="edit_image")],

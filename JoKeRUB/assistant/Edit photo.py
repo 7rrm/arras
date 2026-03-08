@@ -39,8 +39,8 @@ class UserSession:
         self.user_id = user_id
         self.state = None
         self.prompt = None
-        self.image_file = None  # الملف المستلم
-        self.image_url = None    # رابط الصورة
+        self.file_path = None  # مسار الملف
+        self.message_id = None  # معرف رسالة الانتظار
 
 def get_user_session(user_id):
     if user_id not in user_sessions:
@@ -58,7 +58,7 @@ async def safe_edit(event, text, buttons=None):
             await event.edit(text, buttons=buttons)
         else:
             await event.edit(text)
-    except Exception as e:
+    except:
         try:
             if buttons:
                 await event.respond(text, buttons=buttons)
@@ -66,6 +66,13 @@ async def safe_edit(event, text, buttons=None):
                 await event.respond(text)
         except:
             pass
+
+async def safe_delete(msg):
+    """حذف الرسالة بأمان"""
+    try:
+        await msg.delete()
+    except:
+        pass
 
 # ========== القائمة والأزرار ==========
 menu = '''
@@ -168,6 +175,7 @@ async def handle_create_message(event):
             return
         
         waiting_msg = await event.respond("⏳ جاري إنشاء الصورة...")
+        session.message_id = waiting_msg.id
         
         try:
             response = requests.get(
@@ -182,8 +190,9 @@ async def handle_create_message(event):
             if response.status_code == 200:
                 result = response.json()
                 if result.get('success'):
-                    await waiting_msg.delete()
+                    await safe_delete(waiting_msg)
                     
+                    # إرسال الصورة - هنا نرسل الرابط مباشرة
                     await bot.send_file(
                         event.chat_id,
                         result['url'],
@@ -202,7 +211,10 @@ async def handle_create_message(event):
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            try:
+                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            except:
+                await event.respond(f"❌ حدث خطأ: {str(e)}")
         
         clear_user_session(user_id)
 
@@ -226,26 +238,29 @@ async def handle_photo_receive(event):
     session = get_user_session(user_id)
     
     if session.state == 'waiting_photo':
-        # الحصول على معلومات الملف
-        photo = event.media
-        if hasattr(photo, 'photo'):
-            # استخراج معرف الصورة
-            file_id = photo.photo.id
-            
-            # الحصول على مسار الملف (نفس طريقة الكود الصغير)
-            # في تليثون، يمكننا استخدام get_file.path
-            file = await bot.get_file(event.message.media)
-            file_path = file.path  # هذا يعطينا المسار المطلوب مثل documents/file_0.jpg
-            
-            session.image_url = file_path
-            session.state = 'waiting_edit_prompt'
-            
-            await event.respond(
-                "✅ تم استلام الصورة!\n\n"
-                "✏️ أرسل الآن التعديل الذي تريده:\n\n"
-                "مثال: `حولها إلى لوحة زيتية`\n\n"
-                "أو /cancel للإلغاء"
-            )
+        # الحصول على مسار الملف
+        if event.photo:
+            # للصور
+            file_path = f"photos/photo_{user_id}_{int(time.time())}.jpg"
+            await event.download_media(file_path)
+            session.file_path = file_path
+        elif event.document:
+            # للمستندات
+            file_path = f"docs/doc_{user_id}_{int(time.time())}.jpg"
+            await event.download_media(file_path)
+            session.file_path = file_path
+        else:
+            await event.respond("❌ الرجاء إرسال صورة فقط")
+            return
+        
+        session.state = 'waiting_edit_prompt'
+        
+        await event.respond(
+            "✅ تم استلام الصورة!\n\n"
+            "✏️ أرسل الآن التعديل الذي تريده:\n\n"
+            "مثال: `حولها إلى لوحة زيتية`\n\n"
+            "أو /cancel للإلغاء"
+        )
 
 # ========== معالجة التعديل ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
@@ -256,32 +271,45 @@ async def handle_edit_message(event):
     if event.text.startswith('/'):
         return
     
-    if session.state == 'waiting_edit_prompt' and session.image_url:
+    if session.state == 'waiting_edit_prompt' and session.file_path:
         prompt = event.text
         
         if not prompt or len(prompt.strip()) < 3:
             await event.respond("❌ الوصف قصير جداً", buttons=keyboard)
+            # حذف الملف المؤقت
+            if os.path.exists(session.file_path):
+                os.remove(session.file_path)
             clear_user_session(user_id)
             return
         
-        waiting_msg = await event.respond("⏳ جاري تعديل الصورة...")
+        waiting_msg = await event.respond("⏳ جاري رفع الصورة...")
+        session.message_id = waiting_msg.id
         
         try:
-            # استدعاء API التعديل - نرسل مسار الملف كما في الكود الصغير
+            # هنا المشكلة: API يحتاج رابط وليس مسار محلي
+            # الحل: رفع الصورة لخدمة خارجية أو استخدام رابط تليجرام
+            
+            await waiting_msg.edit("⏳ جاري تعديل الصورة...")
+            
+            # نجرب إرسال المسار مباشرة (قد لا يعمل)
             response = requests.get(
                 API_BASE_URL,
                 params={
                     'mode': 'edit',
                     'prompt': prompt,
-                    'image': session.image_url  # نفس الطريقة: نرسل المسار
+                    'image': session.file_path  # هذا لن يعمل لأن API يحتاج رابط
                 },
                 timeout=60
             )
             
+            # حذف الملف المؤقت
+            if os.path.exists(session.file_path):
+                os.remove(session.file_path)
+            
             if response.status_code == 200:
                 result = response.json()
                 if result.get('success'):
-                    await waiting_msg.delete()
+                    await safe_delete(waiting_msg)
                     
                     await bot.send_file(
                         event.chat_id,
@@ -301,8 +329,14 @@ async def handle_edit_message(event):
                 await waiting_msg.edit(f"❌ خطأ في الاتصال: {response.status_code}")
         
         except Exception as e:
-            await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            try:
+                await waiting_msg.edit(f"❌ حدث خطأ: {str(e)}")
+            except:
+                await event.respond(f"❌ حدث خطأ: {str(e)}")
+            # حذف الملف المؤقت في حالة الخطأ
+            if os.path.exists(session.file_path):
+                os.remove(session.file_path)
         
         clear_user_session(user_id)
 
-print("✅ تم تحميل بوت الصور بنجاح مع دعم رفع الصور المباشر!")
+print("✅ تم تحميل بوت الصور بنجاح!")

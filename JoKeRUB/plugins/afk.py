@@ -142,19 +142,19 @@ async def on_afk(event):
         
         if AFK_.afk_type == "media":
             if AFK_.reason:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مرحبا عزيزي {sender_name}</b>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مَرحبـا عَـزيزي</b> <code>{sender_name}</code> <a href="emoji/5444887644964159628">𓏺</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنـذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>السـبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
             else:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مرحبا عزيزي {sender_name}</b>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مَرحبـا عَـزيزي</b> <code>{sender_name}</code> <a href="emoji/5444887644964159628">𓏺</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنـذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>"""
             
             if event.chat_id:
                 # استخدام event.reply() بدلاً من event.client.send_message()
@@ -167,27 +167,27 @@ async def on_afk(event):
         
         elif AFK_.afk_type == "text":
             if AFK_.msg_link and AFK_.reason:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مرحبا عزيزي {sender_name}</b>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مَرحبـا عَـزيزي</b> <code>{sender_name}</code> <a href="emoji/5444887644964159628">𓏺</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنـذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>السـبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
             elif AFK_.reason:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مرحبا عزيزي {sender_name}</b>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مَرحبـا عَـزيزي</b> <code>{sender_name}</code> <a href="emoji/5444887644964159628">𓏺</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنـذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>السبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>السـبب:</b> {AFK_.reason} <a href="emoji/5260416304224936047">💤</a>"""
             else:
-                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مرحبا عزيزي {sender_name}</b>
+                message_to_reply = f"""<a href="emoji/5933974679269151927">🌙</a> <b>مَرحبـا عَـزيزي</b> <code>{sender_name}</code> <a href="emoji/5444887644964159628">𓏺</a>
 
 <a href="emoji/5933974679269151927">🌙</a> <b>أنا الآن في وضع عـدم الإتصال</b> <a href="emoji/5897962422169243693">⏰</a>
 
-<a href="emoji/5933974679269151927">🌙</a> <b>مُـنذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>"""
+<a href="emoji/5933974679269151927">🌙</a> <b>مُـنـذ :</b> {endtime} <a href="emoji/5258419835922030550">📝</a>"""
             
             if event.chat_id:
                 # استخدام event.reply() بدلاً من event.client.send_message()
@@ -369,4 +369,4 @@ CMD_HELP.update(
 **• يمكن استخدام #afk في الرسائل** للبقاء في وضع السليب
 """
     }
-    )
+            )

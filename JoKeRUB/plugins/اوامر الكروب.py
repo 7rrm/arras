@@ -1152,7 +1152,7 @@ async def handle_strike(event):
     if strike_position == correct_answer:
         # إذا ضرب اليد التي فيها المحبس يخسر
         game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-        await event.reply(f"**😱 خَسرت عَزيزي ليش مستعجل ! المحبس كان هنا 💔\n{format_board(game_board, numbers_board)}**")
+        await event.reply(f"**خَسرت عَزيزي ليش مستعجل !\n{format_board(game_board, numbers_board)}**")
         reset_game(chat_id)
     else:
         # فتح اليد
@@ -1162,7 +1162,7 @@ async def handle_strike(event):
         # بعد فتح اليد، تحقق إذا تبقى عضمتين فقط
         closed_hands = count_closed_hands(game_board)
         if closed_hands == 2:
-            await event.reply(f"**🔔 تبقى عضمتين فقط! الآن يجب استخدام أمر جيب <رقم> للبحث عن المحبس**\n{format_board(game_board, numbers_board)}")
+            await event.reply(f"**- تبقى عضمتين فقط! الآن يجب استخدام أمر جيب <رقم> للبحث عن المحبس**\n{format_board(game_board, numbers_board)}")
 
 @l313l.on(events.NewMessage(pattern=r'جيب (\d+)'))
 async def handle_guess(event):
@@ -1182,7 +1182,7 @@ async def handle_guess(event):
     
     # التحقق من أن اليد لم تفتح من قبل
     if game_board[0][guess - 1] != "👊":
-        await event.reply("**❌ هذه اليد مفتوحة بالفعل، لا يمكنك أستخدام الامر عليها**")
+        await event.reply("**❌ هَذه اليد مفتوحةة بالفعل، لأ يُمكنك أسَتخدام الأمر عَليها .**")
         return
     
     if guess == correct_answer:

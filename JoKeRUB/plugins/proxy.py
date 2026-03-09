@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import os
+import re
 from JoKeRUB import l313l
 
 plugin_category = "الادوات"
@@ -25,28 +26,48 @@ def fetch_proxies():
         print(f"Error fetching proxies: {e}")
         return []
 
-def get_ping(proxy_url):
+def extract_server_from_proxy(proxy_url):
+    """استخراج عنوان السيرفر من رابط البروكسي"""
     try:
-        # استخراج عنوان IP من رابط البروكسي
+        # البحث عن parameter server في الرابط
         if 'server=' in proxy_url:
-            # استخراج السيرفر من الرابط
-            server_part = proxy_url.split('server=')[1].split('&')[0]
-            proxy_ip = server_part
-        else:
+            server_match = re.search(r'server=([^&]+)', proxy_url)
+            if server_match:
+                return server_match.group(1)
+        return None
+    except:
+        return None
+
+def get_ping(proxy_url):
+    """قياس سرعة الاتصال بالبروكسي"""
+    try:
+        # استخراج عنوان السيرفر
+        server = extract_server_from_proxy(proxy_url)
+        if not server:
             return None
-            
-        start_time = time.time()
-        # استخدام ping مع timeout
-        response = os.system(f"ping -c 1 -W 2 {proxy_ip} > /dev/null 2>&1")
-        end_time = time.time()
         
-        if response == 0:
-            ping = int((end_time - start_time) * 1000)
-            return ping
-        else:
-            return None
+        # تنفيذ أمر ping
+        startupinfo = None
+        if os.name == 'nt':  # ويندوز
+            response = os.system(f"ping -n 1 -w 2000 {server} > nul 2>&1")
+            if response == 0:
+                # قياس الوقت في ويندوز
+                result = os.popen(f"ping -n 1 {server}").read()
+                match = re.search(r'time[=<](\d+)ms', result, re.IGNORECASE)
+                if match:
+                    return int(match.group(1))
+        else:  # لينكس
+            response = os.system(f"ping -c 1 -W 2 {server} > /dev/null 2>&1")
+            if response == 0:
+                # قياس الوقت في لينكس
+                result = os.popen(f"ping -c 1 {server}").read()
+                match = re.search(r'time[=<](\d+(?:\.\d+)?)\s*ms', result, re.IGNORECASE)
+                if match:
+                    return int(float(match.group(1)))
+        
+        return None
     except Exception as e:
-        print(f"Error fetching ping: {e}")
+        print(f"Error in ping: {e}")
         return None
 
 # ---- أمر تيليجرام لجلب البروكسي ----
@@ -64,26 +85,31 @@ async def fetch_random_proxy(event):
         proxies = fetch_proxies()
         
         if proxies:
-            # جلب أول بروكسي في القائمة
-            proxy = proxies[0]
+            # تجربة عدة بروكسيات حتى نجد واحد يعمل
+            working_proxy = None
+            ping_value = None
             
-            # إنشاء الرابط القابل للضغط
-            proxy_link = f"[أضغـط هـنـا]({proxy})"
+            for proxy in proxies[:5]:  # نجرب أول 5 بروكسيات
+                ping = get_ping(proxy)
+                if ping is not None:
+                    working_proxy = proxy
+                    ping_value = ping
+                    break
             
-            # قياس سرعة الاتصال
-            ping = get_ping(proxy)
-            
-            if ping is not None:
+            if working_proxy:
+                # إنشاء الرابط القابل للضغط فقط
+                proxy_link = f"[أضغـط هـنـا]({working_proxy})"
+                
                 await event.edit(
                     f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}\n"
-                    f"**✎┊‌ البنك:** `{ping} ms`\n\n"
-                    f"**✎┊‌ رابط البروكسي:**\n`{proxy}`"
+                    f"**✎┊‌ البنك:** `{ping_value} ms`"
                 )
             else:
+                # إذا لم نجد بروكسي بشبكة، نعرض أول بروكسي بدون بنك
+                proxy_link = f"[أضغـط هـنـا]({proxies[0]})"
                 await event.edit(
                     f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}\n"
-                    f"**✎┊‌ البنك:** `غير متوفر`\n\n"
-                    f"**✎┊‌ رابط البروكسي:**\n`{proxy}`"
+                    f"**✎┊‌ البنك:** `غير متوفر`"
                 )
         else:
             await event.edit("**✎┊‌ عذرًا، لم يتم العثور على بروكسيات في الوقت الحالي.**")

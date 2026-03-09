@@ -1073,7 +1073,6 @@ async def handle_winner(event):
                 points_text = '\n'.join([f'{i+1}• {(await l313l.get_entity(participant_id)).first_name}: {participant_points}' for i, (participant_id, participant_points) in enumerate(sorted_points)])
                 await l313l.send_message(event.chat_id, f'الف مبرووووك 🎉 الاعب ( {sender_first_name} ) فاز! \n اصبحت نقاطة: {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
 
-
 import random
 from telethon import events
 
@@ -1091,8 +1090,8 @@ original_game_board = [["👊"] * 6]
 group_game_status = {}
 points = {}
 
-# تعريف المعرفات
-MY_UID = l313l.uid  # حسابك
+# تعريف المعرفات - يجب تعديل هذا حسب معرفات المستخدمين الفعلية
+MY_UID = 123456789  # ضع معرف حسابك هنا
 OTHER_USER = 7893578939 # الشخص الآخر
 ALLOWED_USERS = [MY_UID, OTHER_USER]  # المستخدمون المسموح لهم ببدء اللعبة
 
@@ -1163,10 +1162,11 @@ async def handle_incoming_message(event):
     
     if group_game_status[chat_id]['is_game_started'] and not group_game_status[chat_id]['joker_player']:
         group_game_status[chat_id]['joker_player'] = event.sender_id
-        await event.reply(f"**تم تسجيلك في المسابقة ، 💬 أرسل طك <رقم> لفتح يد، أو جيب <رقم> لمحاولة كشف المحبس!\n{format_board(game_board, numbers_board)}**")
+        await event.reply(f"**تم تسجيلك في المسابقة ، 💬 أرسل طك <رقم> لفتح يد، أو جيب <رقم> لمحاولة كشف المحبس!**\n{format_board(game_board, numbers_board)}")
 
 def format_board(game_board, numbers_board):
-    return " ".join(numbers_board[0]) + "\n" + " ".join(game_board[0])
+    """تنسيق لوحة اللعب بالشكل المطلوب"""
+    return f"•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n{' '.join(numbers_board[0])}\n{' '.join(game_board[0])}"
 
 def reset_game(chat_id):
     global game_board, group_game_status

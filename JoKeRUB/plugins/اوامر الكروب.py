@@ -1157,12 +1157,13 @@ async def handle_strike(event):
     else:
         # فتح اليد
         game_board[0][strike_position - 1] = '🖐️'
-        await event.reply(f"**{random.choice(joker)}**\n{format_board(game_board, numbers_board)}")
         
         # بعد فتح اليد، تحقق إذا تبقى عضمتين فقط
         closed_hands = count_closed_hands(game_board)
         if closed_hands == 2:
             await event.reply(f"**- تبقى عضمتين فقط! الآن يجب استخدام أمر جيب <رقم> للبحث عن المحبس**\n{format_board(game_board, numbers_board)}")
+        else:
+            await event.reply(f"**{random.choice(joker)}**\n{format_board(game_board, numbers_board)}")
 
 @l313l.on(events.NewMessage(pattern=r'جيب (\d+)'))
 async def handle_guess(event):
@@ -1243,6 +1244,7 @@ async def reset_points(event):
     global points
     points = {}
     await event.reply('**✅ تم تصفير نقاط المشاركين بنجاح!**')
+
 
 @l313l.ar_cmd(pattern="احكام(?: |$)(.*)")
 async def zed(event): # Code by t.me/zzzzl1l

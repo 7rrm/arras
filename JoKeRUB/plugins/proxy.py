@@ -1,4 +1,3 @@
-
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -10,23 +9,37 @@ plugin_category = "الادوات"
 # ---- البحث عن بروكسيات ----
 def fetch_proxies():
     url = 'https://t.me/s/ProxyMTProto'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    proxies = []
-    for message in soup.find_all('a', href=True):
-        if 'proxy' in message['href']:
-            proxies.append(message['href'])
-    
-    return proxies
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        proxies = []
+        for message in soup.find_all('a', href=True):
+            href = message['href']
+            # استخراج روابط البروكسيات الحقيقية فقط
+            if href.startswith(('https://t.me/proxy', 'tg://proxy')):
+                proxies.append(href)
+        
+        return proxies
+    except Exception as e:
+        print(f"Error fetching proxies: {e}")
+        return []
 
 def get_ping(proxy_url):
     try:
-        proxy_info = proxy_url.split("://")[1]
-        proxy_ip = proxy_info.split(":")[0]
+        # استخراج عنوان IP من رابط البروكسي
+        if 'server=' in proxy_url:
+            # استخراج السيرفر من الرابط
+            server_part = proxy_url.split('server=')[1].split('&')[0]
+            proxy_ip = server_part
+        else:
+            return None
+            
         start_time = time.time()
-        response = os.system(f"ping -c 1 {proxy_ip}")
+        # استخدام ping مع timeout
+        response = os.system(f"ping -c 1 -W 2 {proxy_ip} > /dev/null 2>&1")
         end_time = time.time()
+        
         if response == 0:
             ping = int((end_time - start_time) * 1000)
             return ping
@@ -49,24 +62,31 @@ async def fetch_random_proxy(event):
     try:
         await event.edit("**✎┊‌جارٍ جلب بروكسي عشوائي ...**")
         proxies = fetch_proxies()
+        
         if proxies:
+            # جلب أول بروكسي في القائمة
             proxy = proxies[0]
-            ping = get_ping(proxy)
             
             # إنشاء الرابط القابل للضغط
             proxy_link = f"[أضغـط هـنـا]({proxy})"
             
+            # قياس سرعة الاتصال
+            ping = get_ping(proxy)
+            
             if ping is not None:
                 await event.edit(
-                    f"**- تم الحصول على بروكسي:** {proxy_link}\n"
-                    f"**- البنك:** `{ping} ms`"
+                    f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}\n"
+                    f"**✎┊‌ البنك:** `{ping} ms`\n\n"
+                    f"**✎┊‌ رابط البروكسي:**\n`{proxy}`"
                 )
             else:
                 await event.edit(
                     f"**✎┊‌ تم الحصول على بروكسي:** {proxy_link}\n"
-                    f"**- البنك:** `غير متوفر`"
+                    f"**✎┊‌ البنك:** `غير متوفر`\n\n"
+                    f"**✎┊‌ رابط البروكسي:**\n`{proxy}`"
                 )
         else:
             await event.edit("**✎┊‌ عذرًا، لم يتم العثور على بروكسيات في الوقت الحالي.**")
+            
     except Exception as e:
-        await event.edit(f"**✎┊‌ حدث خطأ أثناء جلب البروكسي:**\n{e}")
+        await event.edit(f"**✎┊‌ حدث خطأ أثناء جلب البروكسي:**\n`{str(e)}`")

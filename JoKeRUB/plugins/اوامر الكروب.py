@@ -1092,7 +1092,7 @@ group_game_status = {}
 points = {}
 
 # تعريف المعرفات - يجب تعديل هذا حسب معرفات المستخدمين الفعلية
-MY_UID = l313l.uid  # ضع معرف حسابك هنا
+MY_UID = 123456789  # ضع معرف حسابك هنا
 OTHER_USER = 7893578939 # الشخص الآخر
 ALLOWED_USERS = [MY_UID, OTHER_USER]  # المستخدمون المسموح لهم ببدء اللعبة
 
@@ -1134,7 +1134,7 @@ async def handle_strike(event):
     # التحقق: إذا تبقى عضمتين فقط، لا يسمح باستخدام طك
     closed_hands = count_closed_hands(game_board)
     if closed_hands <= 2:
-        await event.reply("**⚠️ لا يمكنك استخدام أمر طك الآن! تبقى عضمتين فقط، استخدم أمر جيب للبحث عن المحبس**")
+        await event.reply(f"**👤 عَزيزي أستخدم أمر جيب <رقم> لأنك وصلت لأخر عظمتين .**\n{format_board(game_board, numbers_board)}")
         return
     
     strike_position = int(event.pattern_match.group(1))
@@ -1152,7 +1152,7 @@ async def handle_strike(event):
     if strike_position == correct_answer:
         # إذا ضرب اليد التي فيها المحبس يخسر
         game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-        await event.reply(f"**خَسرت عَزيزي ليش مستعجل !\n{format_board(game_board, numbers_board)}**")
+        await event.reply(f"**😱 خَسرت عَزيزي ليش مستعجل ! المحبس كان هنا 💔\n{format_board(game_board, numbers_board)}**")
         reset_game(chat_id)
     else:
         # فتح اليد
@@ -1162,7 +1162,7 @@ async def handle_strike(event):
         # بعد فتح اليد، تحقق إذا تبقى عضمتين فقط
         closed_hands = count_closed_hands(game_board)
         if closed_hands == 2:
-            await event.reply("**🔔 تبقى عضمتين فقط! الآن يجب استخدام أمر جيب للبحث عن المحبس**")
+            await event.reply(f"**🔔 تبقى عضمتين فقط! الآن يجب استخدام أمر جيب <رقم> للبحث عن المحبس**\n{format_board(game_board, numbers_board)}")
 
 @l313l.on(events.NewMessage(pattern=r'جيب (\d+)'))
 async def handle_guess(event):
@@ -1182,7 +1182,7 @@ async def handle_guess(event):
     
     # التحقق من أن اليد لم تفتح من قبل
     if game_board[0][guess - 1] != "👊":
-        await event.reply("**❌ هذه اليد مفتوحة بالفعل، لا يمكنك الجيب عليها**")
+        await event.reply("**❌ هذه اليد مفتوحة بالفعل، لا يمكنك أستخدام الامر عليها**")
         return
     
     if guess == correct_answer:

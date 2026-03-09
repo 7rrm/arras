@@ -1073,6 +1073,7 @@ async def handle_winner(event):
                 points_text = '\n'.join([f'{i+1}• {(await l313l.get_entity(participant_id)).first_name}: {participant_points}' for i, (participant_id, participant_points) in enumerate(sorted_points)])
                 await l313l.send_message(event.chat_id, f'الف مبرووووك 🎉 الاعب ( {sender_first_name} ) فاز! \n اصبحت نقاطة: {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
 
+
 import random
 from telethon import events
 
@@ -1094,6 +1095,10 @@ points = {}
 MY_UID = l313l.uid  # ضع معرف حسابك هنا
 OTHER_USER = 7893578939 # الشخص الآخر
 ALLOWED_USERS = [MY_UID, OTHER_USER]  # المستخدمون المسموح لهم ببدء اللعبة
+
+def count_closed_hands(board):
+    """تحسب عدد الأيدي المغلقة (👊)"""
+    return board[0].count("👊")
 
 async def handle_clue(event):
     global correct_answer, group_game_status
@@ -1121,37 +1126,96 @@ async def start_game(event):
 async def handle_strike(event):
     global group_game_status, correct_answer, game_board
     chat_id = event.chat_id
-    if chat_id in group_game_status and group_game_status[chat_id]['is_game_started'] and event.sender_id == group_game_status[chat_id]['joker_player']:
-        strike_position = int(event.pattern_match.group(1))
-        if strike_position == correct_answer:
-            game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-            await event.reply(f"**خَسرت عَزيزي ليش مستعجل !\n{format_board(game_board, numbers_board)}**")
-            reset_game(chat_id)
-        else:
-            game_board[0][strike_position - 1] = '🖐️'
-            await event.reply(f"**{random.choice(joker)}**\n{format_board(game_board, numbers_board)}")
+    
+    # التحقق من أن اللعبة بدأت وأن اللاعب هو المشارك
+    if chat_id not in group_game_status or not group_game_status[chat_id]['is_game_started'] or event.sender_id != group_game_status[chat_id]['joker_player']:
+        return
+    
+    # التحقق: إذا تبقى عضمتين فقط، لا يسمح باستخدام طك
+    closed_hands = count_closed_hands(game_board)
+    if closed_hands <= 2:
+        await event.reply("**⚠️ لا يمكنك استخدام أمر طك الآن! تبقى عضمتين فقط، استخدم أمر جيب للبحث عن المحبس**")
+        return
+    
+    strike_position = int(event.pattern_match.group(1))
+    
+    # التحقق من أن الرقم المدخل سليم
+    if strike_position < 1 or strike_position > 6:
+        await event.reply("**❌ الرجاء إدخال رقم بين 1 و 6**")
+        return
+    
+    # التحقق من أن اليد لم تفتح من قبل
+    if game_board[0][strike_position - 1] != "👊":
+        await event.reply("**❌ هذه اليد مفتوحة بالفعل، اختر يد أخرى**")
+        return
+    
+    if strike_position == correct_answer:
+        # إذا ضرب اليد التي فيها المحبس يخسر
+        game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
+        await event.reply(f"**خَسرت عَزيزي ليش مستعجل !\n{format_board(game_board, numbers_board)}**")
+        reset_game(chat_id)
+    else:
+        # فتح اليد
+        game_board[0][strike_position - 1] = '🖐️'
+        await event.reply(f"**{random.choice(joker)}**\n{format_board(game_board, numbers_board)}")
+        
+        # بعد فتح اليد، تحقق إذا تبقى عضمتين فقط
+        closed_hands = count_closed_hands(game_board)
+        if closed_hands == 2:
+            await event.reply("**🔔 تبقى عضمتين فقط! الآن يجب استخدام أمر جيب للبحث عن المحبس**")
 
 @l313l.on(events.NewMessage(pattern=r'جيب (\d+)'))
 async def handle_guess(event):
     global group_game_status, correct_answer, game_board, points
     chat_id = event.chat_id
-    if chat_id in group_game_status and group_game_status[chat_id]['is_game_started'] and event.sender_id == group_game_status[chat_id]['joker_player']:
-        guess = int(event.pattern_match.group(1))
-        if guess == correct_answer:
-            winner_id = event.sender_id
-            points[winner_id] = points.get(winner_id, 0) + 1
-            sender = await event.get_sender()
-            sender_first_name = sender.first_name if sender else 'مجهول'
-            sorted_points = sorted(points.items(), key=lambda x: x[1], reverse=True)
-            points_text = '\n'.join([f'{i+1}• {(await l313l.get_entity(participant_id)).first_name}: {participant_points}' for i, (participant_id, participant_points) in enumerate(sorted_points)])
-            game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-            await event.reply(f'الف مبروووك 🎉 الاعب ( {sender_first_name} ) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}')
-            reset_game(chat_id)
-            await event.reply(f'نقاط الاعب : {points[winner_id]}\nنقاط المشاركين:\n{points_text}')
-        else:
-            game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-            await event.reply(f"**ضاع البات ماضن بعد تلگونة ☹️\n{format_board(game_board, numbers_board)}**")
-            reset_game(chat_id)
+    
+    # التحقق من أن اللعبة بدأت وأن اللاعب هو المشارك
+    if chat_id not in group_game_status or not group_game_status[chat_id]['is_game_started'] or event.sender_id != group_game_status[chat_id]['joker_player']:
+        return
+    
+    guess = int(event.pattern_match.group(1))
+    
+    # التحقق من أن الرقم المدخل سليم
+    if guess < 1 or guess > 6:
+        await event.reply("**❌ الرجاء إدخال رقم بين 1 و 6**")
+        return
+    
+    # التحقق من أن اليد لم تفتح من قبل
+    if game_board[0][guess - 1] != "👊":
+        await event.reply("**❌ هذه اليد مفتوحة بالفعل، لا يمكنك الجيب عليها**")
+        return
+    
+    if guess == correct_answer:
+        # فاز اللاعب
+        winner_id = event.sender_id
+        points[winner_id] = points.get(winner_id, 0) + 1
+        sender = await event.get_sender()
+        sender_first_name = sender.first_name if sender else 'مجهول'
+        
+        # ترتيب النقاط
+        sorted_points = sorted(points.items(), key=lambda x: x[1], reverse=True)
+        points_text = ""
+        for i, (participant_id, participant_points) in enumerate(sorted_points):
+            try:
+                participant = await l313l.get_entity(participant_id)
+                participant_name = participant.first_name if participant else 'مجهول'
+                points_text += f'{i+1}• {participant_name}: {participant_points}\n'
+            except:
+                points_text += f'{i+1}• مجهول: {participant_points}\n'
+        
+        # عرض النتيجة
+        game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
+        result_message = f'🎉 الف مبروووك! الاعب ( {sender_first_name} ) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}\n\n'
+        result_message += f'🏆 نقاط الاعب: {points[winner_id]}\n'
+        result_message += f'📊 ترتيب المشاركين:\n{points_text}'
+        
+        await event.reply(result_message)
+        reset_game(chat_id)
+    else:
+        # خسر اللاعب (اختار يد خطأ)
+        game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
+        await event.reply(f"**😔 ضاع البات ماضن بعد تلگونة ☹️\n{format_board(game_board, numbers_board)}**")
+        reset_game(chat_id)
 
 @l313l.on(events.NewMessage(pattern=r'انا'))
 async def handle_incoming_message(event):
@@ -1174,11 +1238,11 @@ def reset_game(chat_id):
     group_game_status[chat_id]['is_game_started'] = False
     group_game_status[chat_id]['joker_player'] = None
 
-@l313l.ar_cmd(pattern="تصفير")
+@l313l.on(events.NewMessage(pattern='تصفير'))
 async def reset_points(event):
     global points
     points = {}
-    await event.edit('**تم تصفير نقاط المشاركين بنجاح!**')
+    await event.reply('**✅ تم تصفير نقاط المشاركين بنجاح!**')
 
 @l313l.ar_cmd(pattern="احكام(?: |$)(.*)")
 async def zed(event): # Code by t.me/zzzzl1l

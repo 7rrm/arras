@@ -1239,11 +1239,11 @@ def reset_game(chat_id):
     group_game_status[chat_id]['is_game_started'] = False
     group_game_status[chat_id]['joker_player'] = None
 
-@l313l.on(events.NewMessage(pattern='تصفير'))
+@l313l.ar_cmd(pattern="تصفير")
 async def reset_points(event):
     global points
     points = {}
-    await event.reply('**✅ تم تصفير نقاط المشاركين بنجاح!**')
+    await event.edit('**تم تصفير نقاط المشاركين بنجاح!**')
 
 
 @l313l.ar_cmd(pattern="احكام(?: |$)(.*)")

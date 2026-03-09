@@ -1166,7 +1166,7 @@ async def handle_incoming_message(event):
 
 def format_board(game_board, numbers_board):
     """تنسيق لوحة اللعب بالشكل المطلوب"""
-    return f"•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n{' '.join(numbers_board[0])}\n{' '.join(game_board[0])}"
+    return f"\n•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•\n{' '.join(numbers_board[0])}\n{' '.join(game_board[0])}"
 
 def reset_game(chat_id):
     global game_board, group_game_status

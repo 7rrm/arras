@@ -208,7 +208,7 @@ async def bot_start(event):
                     "callback_data": "ttk_bot-1",
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_CONTACT
-                }
+                },
                 {
                     "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",

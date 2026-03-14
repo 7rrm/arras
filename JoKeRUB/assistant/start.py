@@ -1456,21 +1456,20 @@ async def settings_toggle(event):
                     "callback_data": "ttk_bot-1",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_CONTACT
-                }
-            ],
-            [
+                },
                 {
                     "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",
-                    "style": "success",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_fatfta
                 }
             ],
+            
             [
                 {
                     "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "primary",
+                    "style": "success",
                     "icon_custom_emoji_id": EMOJI_DECOR
                 }
             ],
@@ -1478,7 +1477,7 @@ async def settings_toggle(event):
                 {
                     "text": "لـ حـ.ـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "success",
+                    "style": "Danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
@@ -1486,7 +1485,7 @@ async def settings_toggle(event):
                 {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",
+                    "style": "success",
                     "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]

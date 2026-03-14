@@ -209,6 +209,12 @@ async def bot_start(event):
                     "style": "success",
                     "icon_custom_emoji_id": EMOJI_CONTACT
                 }
+                {
+                    "text": "فَضفضة بَهوية مجهولـة",
+                    "callback_data": "whisper_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_fatfta
+                }
             ],
             [
                 {

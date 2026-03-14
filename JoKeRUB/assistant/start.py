@@ -229,7 +229,7 @@ async def bot_start(event):
                 {
                     "text": "لـ حـ.ـذف حسـابك",
                     "callback_data": "zzk_bot-5",
-                    "style": "primary",
+                    "style": "Danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],

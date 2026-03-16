@@ -20,22 +20,27 @@ from ..Config import Config
 from ..core.managers import edit_or_reply
 from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
 from ..helpers.utils import reply_id
-from ..sql_helper.globals import gvarstatus
+from ..sql_helper.globals import addgvar, gvarstatus
 
 plugin_category = "utils"
 
 # كتابة وتعديل: @lMl10l
-file_path = "installation_date.txt"
 
-# تحميل أو إنشاء تاريخ التثبيت
+# تحميل أو إنشاء تاريخ التثبيت من قاعدة البيانات مع الوقت
 def load_installation_date():
-    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
-        with open(file_path, "r") as file:
-            return file.read().strip()
+    # جلب التاريخ من قاعدة البيانات (باستخدام اسم جديد)
+    db_date = gvarstatus("INSTALL_DATE_FULL")  # اسم متغير جديد
+    
+    if db_date:
+        return db_date
     else:
-        installation_time = datetime.now().strftime("%Y-%m-%d")
-        with open(file_path, "w") as file:
-            file.write(installation_time)
+        # إذا لم يوجد، ننشئ تاريخ ووقت جديد ونحفظه في قاعدة البيانات
+        installation_time = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+        addgvar("INSTALL_DATE_FULL", installation_time)  # حفظ بالاسم الجديد
+        
+        # اختياري: حذف المتغير القديم إذا أردت
+        # delgvar("INSTALL_DATE")  # إذا كان عندك دالة للحذف
+        
         return installation_time
 
 installation_time = load_installation_date()
@@ -63,6 +68,7 @@ async def amireallyalive(event):
     USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
     mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
+    
     # بناء النص
     caption = l313l_caption.format(
         ALIVE_TEXT=ALIVE_TEXT,
@@ -74,7 +80,7 @@ async def amireallyalive(event):
         pyver=python_version(),
         dbhealth=check_sgnirts,
         ping=ms,
-        Tare5=installation_time,
+        Tare5=installation_time,  # التاريخ مع الوقت من المتغير الجديد
     )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
@@ -105,7 +111,7 @@ async def amireallyalive(event):
 # النص الافتراضي للرسالة
 temp = """
 ┏───────────────┓
-│ ● ɴᴀᴍᴇ ➪  {mention}
+│ ● ɴᴀᴍᴇ ➪  {mention}
 │ ● ᴋᴀʀᴀʀ ➪ {telever}
 │ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
 │ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ

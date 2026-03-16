@@ -70,7 +70,7 @@ async def amireallyalive(event):
     start = datetime.now()
     
     # إرسال رسالة تأكيد
-    await edit_or_reply(event, "** ⌁︙ يتم التأكد، انتظر قليلاً رجاءًا...**")
+    event = await edit_or_reply(event, "** ⌁︙ يتم التأكد، انتظر قليلاً رجاءًا...**")
     
     end = datetime.now()
     ms = (end - start).microseconds / 1000  # حساب البينغ
@@ -135,16 +135,9 @@ async def amireallyalive(event):
         caption += f'<a href="emoji/5418080116959884220">❤️</a>'
         caption += f'<a href="emoji/5231211454325088296">❤️</a>'
         
-        # إرسال الرسالة للمستخدمين بريميوم
+        # تعديل الرسالة الأصلية بدلاً من إرسال جديدة
         try:
-            await event.client.send_message(
-                event.chat_id,
-                caption,
-                link_preview=False,
-                parse_mode=CustomParseMode("html"),
-                reply_to=reply_to_id
-            )
-            await event.delete()
+            await event.edit(caption, parse_mode=CustomParseMode("html"))
         except Exception as e:
             await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
     else:
@@ -153,7 +146,7 @@ async def amireallyalive(event):
         caption = l313l_caption.format(
             ALIVE_TEXT=ALIVE_TEXT,
             EMOJI=EMOJI,
-            mention=mention,
+            mention=ALIVE_NAME,  # تعديل هنا: نرسل الاسم فقط وليس الرابط
             uptime=uptime,
             telever=version.__version__,
             jepver=JEPVERSION,
@@ -179,7 +172,7 @@ async def amireallyalive(event):
                 )
         else:
             # للمستخدمين غير بريميوم بدون صورة
-            await edit_or_reply(event, caption)
+            await event.edit(caption)
 
 # النص الافتراضي للرسالة
 temp = """

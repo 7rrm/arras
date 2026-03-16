@@ -85,7 +85,7 @@ async def amireallyalive(event):
     l313l_caption = gvarstatus("ALIVE_TEMPLATE") or temp
     USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
-    mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
+    mention = f'<a href="tg://user?id={USERID}">{ALIVE_NAME}</a>'
     
     # التحقق إذا كان المستخدم لديه بريميوم
     try:

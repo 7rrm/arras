@@ -26,20 +26,29 @@ plugin_category = "utils"
 
 # كتابة وتعديل: @lMl10l
 
-# تحميل أو إنشاء تاريخ التثبيت من قاعدة البيانات
-def load_installation_date():
-    # جلب التاريخ من قاعدة البيانات
-    db_date = gvarstatus("INSTALL_DATE")
-    
-    if db_date:
-        return db_date
-    else:
-        # إذا لم يوجد، ننشئ تاريخ جديد ونحفظه في قاعدة البيانات
-        installation_time = datetime.now().strftime("%Y-%m-%d")
-        addgvar("INSTALL_DATE", installation_time)
-        return installation_time
+# متغير للتخزين المؤقت (Caching)
+_installation_datetime_cache = None
 
-installation_time = load_installation_date()
+# تحميل أو إنشاء تاريخ ووقت التثبيت من قاعدة البيانات
+def load_installation_datetime():
+    global _installation_datetime_cache
+    if _installation_datetime_cache:
+        return _installation_datetime_cache
+    
+    # جلب التاريخ والوقت من قاعدة البيانات
+    db_datetime = gvarstatus("INSTALL_DATETIME")
+    
+    if db_datetime:
+        _installation_datetime_cache = db_datetime
+        return db_datetime
+    else:
+        # إذا لم يوجد، ننشئ تاريخ ووقت جديد ونحفظه في قاعدة البيانات
+        installation_datetime = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")  # مثال: 2024-01-15 03:30:45 PM
+        addgvar("INSTALL_DATETIME", installation_datetime)
+        _installation_datetime_cache = installation_datetime
+        return installation_datetime
+
+installation_datetime = load_installation_datetime()
 
 @l313l.ar_cmd(pattern="فحص(?:\s|$)([\s\S]*)")
 async def amireallyalive(event):
@@ -76,7 +85,7 @@ async def amireallyalive(event):
         pyver=python_version(),
         dbhealth=check_sgnirts,
         ping=ms,
-        Tare5=installation_time,  # تاريخ التثبيت الثابت من قاعدة البيانات
+        Tare5=installation_datetime,  # تاريخ ووقت التثبيت الثابت من قاعدة البيانات
     )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
@@ -113,6 +122,6 @@ temp = """
 │ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
 │ ● ᴘɪɴɢ ➪ {ping}
 │ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
-│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {Tare5}
+│ ● ɪɴsᴛᴀʟʟ ᴅᴀᴛᴇ ➪ {Tare5}
 │ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aqhvv)
 ┗───────────────┛"""

@@ -110,6 +110,8 @@ async def amireallyalive(event):
         caption += f'<a href="emoji/5418080116959884220">❤️</a>'
         caption += f'<a href="emoji/5418080116959884220">❤️</a>'
         caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
         caption += f'<a href="emoji/5231211454325088296">❤️</a>\n'
         
         # محتوى الكليشة مع الزخرفة المطلوبة والإيموجي الجديد

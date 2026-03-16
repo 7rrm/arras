@@ -20,35 +20,25 @@ from ..Config import Config
 from ..core.managers import edit_or_reply
 from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
 from ..helpers.utils import reply_id
-from ..sql_helper.globals import addgvar, gvarstatus
+from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
 
 # كتابة وتعديل: @lMl10l
+file_path = "installation_date.txt"
 
-# متغير للتخزين المؤقت (Caching)
-_installation_datetime_cache = None
-
-# تحميل أو إنشاء تاريخ ووقت التثبيت من قاعدة البيانات
-def load_installation_datetime():
-    global _installation_datetime_cache
-    if _installation_datetime_cache:
-        return _installation_datetime_cache
-    
-    # جلب التاريخ والوقت من قاعدة البيانات
-    db_datetime = gvarstatus("INSTALL_DATETIME")
-    
-    if db_datetime:
-        _installation_datetime_cache = db_datetime
-        return db_datetime
+# تحميل أو إنشاء تاريخ التثبيت
+def load_installation_date():
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        with open(file_path, "r") as file:
+            return file.read().strip()
     else:
-        # إذا لم يوجد، ننشئ تاريخ ووقت جديد ونحفظه في قاعدة البيانات
-        installation_datetime = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")  # مثال: 2024-01-15 03:30:45 PM
-        addgvar("INSTALL_DATETIME", installation_datetime)
-        _installation_datetime_cache = installation_datetime
-        return installation_datetime
+        installation_time = datetime.now().strftime("%Y-%m-%d")
+        with open(file_path, "w") as file:
+            file.write(installation_time)
+        return installation_time
 
-installation_datetime = load_installation_datetime()
+installation_time = load_installation_date()
 
 @l313l.ar_cmd(pattern="فحص(?:\s|$)([\s\S]*)")
 async def amireallyalive(event):
@@ -73,7 +63,6 @@ async def amireallyalive(event):
     USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
     mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
-    
     # بناء النص
     caption = l313l_caption.format(
         ALIVE_TEXT=ALIVE_TEXT,
@@ -85,7 +74,7 @@ async def amireallyalive(event):
         pyver=python_version(),
         dbhealth=check_sgnirts,
         ping=ms,
-        Tare5=installation_datetime,  # تاريخ ووقت التثبيت الثابت من قاعدة البيانات
+        Tare5=installation_time,
     )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
@@ -116,12 +105,12 @@ async def amireallyalive(event):
 # النص الافتراضي للرسالة
 temp = """
 ┏───────────────┓
-│ ● ɴᴀᴍᴇ ➪  {mention}
+│ ● ɴᴀᴍᴇ ➪  {mention}
 │ ● ᴋᴀʀᴀʀ ➪ {telever}
 │ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
 │ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
 │ ● ᴘɪɴɢ ➪ {ping}
 │ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
-│ ● ɪɴsᴛᴀʟʟ ᴅᴀᴛᴇ ➪ {Tare5}
+│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {Tare5}
 │ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aqhvv)
 ┗───────────────┛"""

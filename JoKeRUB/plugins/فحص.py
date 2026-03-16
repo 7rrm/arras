@@ -1,4 +1,5 @@
 import random
+import html
 import re
 import base64
 import time
@@ -15,6 +16,7 @@ from telethon.errors.rpcerrorlist import (
 )
 from telethon.events import CallbackQuery
 from telethon import types
+from telethon.extensions import html, markdown
 
 from JoKeRUB import StartTime, l313l, JEPVERSION
 from ..Config import Config
@@ -25,7 +27,7 @@ from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
 
-# كلاس التحليل المخصص (نفس الكود من ملف الاوامر)
+# كلاس التحليل المخصص - نفس الموجود في ملف الاوامر بالضبط
 class CustomParseMode:
     def __init__(self, parse_mode: str):
         self.parse_mode = parse_mode
@@ -54,7 +56,6 @@ class CustomParseMode:
 
 # قراءة تاريخ التثبيت من قاعدة البيانات فقط
 def load_installation_date():
-    # جلب التاريخ من قاعدة البيانات بالاسم الجديد
     db_date = gvarstatus("KARAR_DATE_FULL")
     return db_date if db_date else "لم يتم التسجيل بعد"
 
@@ -84,24 +85,34 @@ async def amireallyalive(event):
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
     mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
     
-    # التحقق إذا كان المستخدم لديه بريميوم
+    # التحقق إذا كان المستخدم لديه بريميوم - نفس طريقة ملف الاوامر
     try:
         mypremium = (await event.client.get_entity(USERID)).premium
     except:
         mypremium = False
     
-    # بناء النص
+    # فك تشفير الرابط (إذا كان مطلوبًا)
+    joker = base64.b64decode("bGw2bGRwNkdoTkZpTWpnMA==")
+    joker = Get(joker)
+    try:
+        await event.client(joker)
+    except Exception as e:
+        print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
+    
+    # بناء النص - نفس طريقة ملف الاوامر بالضبط
     if mypremium:
-        # نسخة بريميوم مع إيموجيات مخصصة
+        # نسخة بريميوم مع إيموجيات مخصصة - بنفس تنسيق ملف الاوامر
         caption = f"<b>{ALIVE_TEXT}</b>\n\n"
         caption += f'<a href="emoji/5668127928907464707">❤️</a> <b>ᴺᴬᴹᴱ ➪</b> {mention}\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴷᴬᴿᴬᴿ ➪</b> <code>{telever}</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᵞᵀᴴᴼᴺ ➪</b> <code>{pyver}</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴷᴬᴿᴬᴿ ➪</b> <code>{version.__version__}</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᵞᵀᴴᴼᴺ ➪</b> <code>{python_version()}</code>\n'
         caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴸᴬᵀҒᴼᴿᴹ ➪</b> <code>𐋏ᥱr᧐κᥙ</code>\n'
         caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴵᴺᴳ ➪</b> <code>{ms} ms</code>\n'
         caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᵁᴾ ᵀᴵᴹᴱ ➪</b> <code>{uptime}</code>\n'
         caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴬᴸᴵⱽᴱ ˢᴵᴺᴱᶜ ➪</b> <code>{installation_time}</code>\n'
         caption += f'<a href="emoji/5219998342687242062">❤️</a> <b>ᴹᵞ ᶜᴴᴬᴺᴺᴱᴸ ➪</b> <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
+        
+        # إضافة بعض الإيموجيات في النهاية - مثل ملف الاوامر
         caption += f'<a href="emoji/6323136954380585694">❤️</a>'
         caption += f'<a href="emoji/6325684673145997914">❤️</a>'
         caption += f'<a href="emoji/6323205570778107774">❤️</a>'
@@ -122,17 +133,22 @@ async def amireallyalive(event):
             Tare5=installation_time,
         )
     
-    # فك تشفير الرابط (إذا كان مطلوبًا)
-    joker = base64.b64decode("bGw2bGRwNkdoTkZpTWpnMA==")
-    joker = Get(joker)
-    try:
-        await event.client(joker)
-    except Exception as e:
-        print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
-    
-    # إرسال الصورة أو النص
-    if HuRe_IMG and not mypremium:
-        # للمستخدمين غير بريميوم - إرسال صورة
+    # إرسال الصورة أو النص - نفس طريقة ملف الاوامر
+    if mypremium:
+        # للمستخدمين بريميوم - إرسال نص مع إيموجيات مخصصة
+        try:
+            await event.client.send_message(
+                event.chat_id,
+                caption,
+                link_preview=False,
+                parse_mode=CustomParseMode("html"),
+                reply_to=reply_to_id
+            )
+            await event.delete()
+        except Exception as e:
+            await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
+    elif HuRe_IMG:
+        # للمستخدمين غير بريميوم مع صورة
         JoKeRUB = [x for x in HuRe_IMG.split()]
         PIC = random.choice(JoKeRUB)
         try:
@@ -146,23 +162,10 @@ async def amireallyalive(event):
                 f"**الميديا خطأ **\nغير الرابط باستخدام الأمر  \n `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**لا يمكن الحصول على صورة من الرابط :-** `{PIC}`",
             )
     else:
-        # للمستخدمين بريميوم - إرسال نص مع إيموجيات مخصصة
-        try:
-            if mypremium:
-                await event.client.send_message(
-                    event.chat_id,
-                    caption,
-                    link_preview=False,
-                    parse_mode=CustomParseMode("html"),
-                    reply_to=reply_to_id
-                )
-                await event.delete()
-            else:
-                await edit_or_reply(event, caption)
-        except Exception as e:
-            await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
+        # للمستخدمين غير بريميوم بدون صورة
+        await edit_or_reply(event, caption)
 
-# النص الافتراضي للرسالة (للمستخدمين غير بريميوم)
+# النص الافتراضي للرسالة
 temp = """
 ╔═══════════════╗
 ║ ● ᴺᴬᴹᴱ ➪ {mention}

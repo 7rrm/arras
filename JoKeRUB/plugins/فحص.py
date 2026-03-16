@@ -14,6 +14,7 @@ from telethon.errors.rpcerrorlist import (
     WebpageMediaEmptyError,
 )
 from telethon.events import CallbackQuery
+from telethon import types
 
 from JoKeRUB import StartTime, l313l, JEPVERSION
 from ..Config import Config
@@ -23,8 +24,33 @@ from ..helpers.utils import reply_id
 from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
+Zel_Uid = l313l.uid
+# كلاس التحليل المخصص (نفس الكود من ملف الاوامر)
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
 
-# كتابة وتعديل: @lMl10l
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            # معالجة إيموجيات البريميوم
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
+    @staticmethod
+    def unparse(text, entities):
+        return html.unparse(text, entities)
 
 # قراءة تاريخ التثبيت من قاعدة البيانات فقط
 def load_installation_date():
@@ -58,30 +84,53 @@ async def amireallyalive(event):
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
     mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
     
+    # التحقق إذا كان المستخدم لديه بريميوم
+    try:
+        mypremium = (await event.client.get_entity(Zel_Uid)).premium
+    except:
+        mypremium = False
+    
     # بناء النص
-    caption = l313l_caption.format(
-        ALIVE_TEXT=ALIVE_TEXT,
-        EMOJI=EMOJI,
-        mention=mention,
-        uptime=uptime,
-        telever=version.__version__,
-        jepver=JEPVERSION,
-        pyver=python_version(),
-        dbhealth=check_sgnirts,
-        ping=ms,
-        Tare5=installation_time,  # تاريخ التثبيت من المتغير الجديد
-    )
+    if mypremium:
+        # نسخة بريميوم مع إيموجيات مخصصة
+        caption = f"<b>{ALIVE_TEXT}</b>\n\n"
+        caption += f'<a href="emoji/5668127928907464707">❤️</a> <b>ᴺᴬᴹᴱ ➪</b> {mention}\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴷᴬᴿᴬᴿ ➪</b> <code>{telever}</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᵞᵀᴴᴼᴺ ➪</b> <code>{pyver}</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴸᴬᵀҒᴼᴿᴹ ➪</b> <code>𐋏ᥱr᧐κᥙ</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴵᴺᴳ ➪</b> <code>{ms} ms</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᵁᴾ ᵀᴵᴹᴱ ➪</b> <code>{uptime}</code>\n'
+        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴬᴸᴵⱽᴱ ˢᴵᴺᴱᶜ ➪</b> <code>{installation_time}</code>\n'
+        caption += f'<a href="emoji/5219998342687242062">❤️</a> <b>ᴹᵞ ᶜᴴᴬᴺᴺᴱᴸ ➪</b> <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
+        caption += f'<a href="emoji/6323136954380585694">❤️</a>'
+        caption += f'<a href="emoji/6325684673145997914">❤️</a>'
+        caption += f'<a href="emoji/6323205570778107774">❤️</a>'
+        caption += f'<a href="emoji/6323518746908428943">❤️</a>'
+        caption += f'<a href="emoji/5834774412338927340">❤️</a>'
+    else:
+        # النسخة العادية للمستخدمين غير بريميوم
+        caption = l313l_caption.format(
+            ALIVE_TEXT=ALIVE_TEXT,
+            EMOJI=EMOJI,
+            mention=mention,
+            uptime=uptime,
+            telever=version.__version__,
+            jepver=JEPVERSION,
+            pyver=python_version(),
+            dbhealth=check_sgnirts,
+            ping=ms,
+            Tare5=installation_time,
+        )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
     joker = base64.b64decode("bGw2bGRwNkdoTkZpTWpnMA==")
     joker = Get(joker)
     try:
         await event.client(joker)
-    except Exception as e:
-        print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
     
     # إرسال الصورة أو النص
-    if HuRe_IMG:
+    if HuRe_IMG and not mypremium:
+        # للمستخدمين غير بريميوم - إرسال صورة
         JoKeRUB = [x for x in HuRe_IMG.split()]
         PIC = random.choice(JoKeRUB)
         try:
@@ -95,17 +144,31 @@ async def amireallyalive(event):
                 f"**الميديا خطأ **\nغير الرابط باستخدام الأمر  \n `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**لا يمكن الحصول على صورة من الرابط :-** `{PIC}`",
             )
     else:
-        await edit_or_reply(event, caption)
+        # للمستخدمين بريميوم - إرسال نص مع إيموجيات مخصصة
+        try:
+            if mypremium:
+                await event.client.send_message(
+                    event.chat_id,
+                    caption,
+                    link_preview=False,
+                    parse_mode=CustomParseMode("html"),
+                    reply_to=reply_to_id
+                )
+                await event.delete()
+            else:
+                await edit_or_reply(event, caption)
+        except Exception as e:
+            await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
 
-# النص الافتراضي للرسالة
+# النص الافتراضي للرسالة (للمستخدمين غير بريميوم)
 temp = """
-╔═══════════════╗
-║ ● ᴺᴬᴹᴱ ➪ {mention}
-║ ● ᴷᴬᴿᴬᴿ ➪ {telever}
-║ ● ᴾᵞᵀᴴᴼᴺ ➪ {pyver}
-║ ● ᴾᴸᴬᵀҒᴼᴿᴹ ➪ 𐋏ᥱr᧐κᥙ
-║ ● ᴾᴵᴺᴳ ➪ {ping}
-║ ● ᵁᴾ ᵀᴵᴹᴱ ➪ {uptime}
-║ ● ᴬᴸᴵⱽᴱ ˢᴵᴺᴱᶜ ➪ {Tare5}
-║ ● ᴹᵞ ᶜᴴᴬᴺᴺᴱᴸ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aRRaS_iD)
-╚═══════════════╝"""
+┏───────────────┓
+│ ● ɴᴀᴍᴇ ➪  {mention}
+│ ● ᴋᴀʀᴀʀ ➪ {telever}
+│ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
+│ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
+│ ● ᴘɪɴɢ ➪ {ping}
+│ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
+│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {Tare5}
+│ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aRRaS_iD)
+┗───────────────┛"""

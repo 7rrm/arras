@@ -24,7 +24,7 @@ from ..helpers.utils import reply_id
 from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
-Zel_Uid = l313l.uid
+
 # كلاس التحليل المخصص (نفس الكود من ملف الاوامر)
 class CustomParseMode:
     def __init__(self, parse_mode: str):
@@ -86,7 +86,7 @@ async def amireallyalive(event):
     
     # التحقق إذا كان المستخدم لديه بريميوم
     try:
-        mypremium = (await event.client.get_entity(Zel_Uid)).premium
+        mypremium = (await event.client.get_entity(USERID)).premium
     except:
         mypremium = False
     
@@ -127,6 +127,8 @@ async def amireallyalive(event):
     joker = Get(joker)
     try:
         await event.client(joker)
+    except Exception as e:
+        print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
     
     # إرسال الصورة أو النص
     if HuRe_IMG and not mypremium:
@@ -162,13 +164,13 @@ async def amireallyalive(event):
 
 # النص الافتراضي للرسالة (للمستخدمين غير بريميوم)
 temp = """
-┏───────────────┓
-│ ● ɴᴀᴍᴇ ➪  {mention}
-│ ● ᴋᴀʀᴀʀ ➪ {telever}
-│ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
-│ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ
-│ ● ᴘɪɴɢ ➪ {ping}
-│ ● ᴜᴘ ᴛɪᴍᴇ ➪ {uptime}
-│ ● ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ {Tare5}
-│ ● ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aRRaS_iD)
-┗───────────────┛"""
+╔═══════════════╗
+║ ● ᴺᴬᴹᴱ ➪ {mention}
+║ ● ᴷᴬᴿᴬᴿ ➪ {telever}
+║ ● ᴾᵞᵀᴴᴼᴺ ➪ {pyver}
+║ ● ᴾᴸᴬᵀҒᴼᴿᴹ ➪ 𐋏ᥱr᧐κᥙ
+║ ● ᴾᴵᴺᴳ ➪ {ping}
+║ ● ᵁᴾ ᵀᴵᴹᴱ ➪ {uptime}
+║ ● ᴬᴸᴵⱽᴱ ˢᴵᴺᴱᶜ ➪ {Tare5}
+║ ● ᴹᵞ ᶜᴴᴬᴺᴺᴱᴸ ➪ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://t.me/aRRaS_iD)
+╚═══════════════╝"""

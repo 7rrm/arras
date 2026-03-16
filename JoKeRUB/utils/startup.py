@@ -5,7 +5,7 @@ import os
 import sys
 from telethon.errors.rpcerrorlist import ChannelPrivateError
 import urllib.request
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 import requests
 from telethon import Button, functions, types, utils
@@ -27,6 +27,7 @@ from ..sql_helper.global_collection import (
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from .pluginmanager import load_module
 from .tools import create_supergroup
+
 LOGS = logging.getLogger("aljoker")
 logging.getLogger('telethon').setLevel(logging.WARNING)
 ##Reda hands here
@@ -40,6 +41,19 @@ if ENV:
     VPS_NOLOAD = ["سيرفر"]
 elif os.path.exists("config.py"):
     VPS_NOLOAD = ["هيروكو"]
+
+async def save_installation_date():
+    """حفظ تاريخ التثبيت تلقائياً عند تشغيل السورس"""
+    # جلب التاريخ من قاعدة البيانات
+    db_date = gvarstatus("KARAR_DATE_FULL")
+    
+    if not db_date:
+        # إذا ما في تاريخ مخزن، ننشئ تاريخ ووقت جديد
+        installation_time = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+        addgvar("KARAR_DATE_FULL", installation_time)
+        LOGS.info(f"✅ تم حفظ تاريخ التنصيب: {installation_time}")
+    else:
+        LOGS.info(f"📅 تاريخ التنصيب موجود مسبقاً: {db_date}")
 
 async def check_dyno_type():
     headers = {
@@ -88,6 +102,10 @@ async def setup_bot():
             Config.OWNER_ID = utils.get_peer_id(l313l.me)
         if not check_dyno_type:
             LOGS.error("قد تحدث مشكلة ولن يعمل السورس لان نوع الداينو ليس بيسك قم بتحويله الى basic")
+        
+        # حفظ تاريخ التثبيت تلقائياً
+        await save_installation_date()
+        
     except Exception as e:
         LOGS.error(f"كـود تيرمكس - {str(e)}")
         sys.exit()

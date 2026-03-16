@@ -1,5 +1,4 @@
 import random
-import html
 import re
 import base64
 import time
@@ -26,6 +25,8 @@ from ..helpers.utils import reply_id
 from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
+
+# كتابة وتعديل: @lMl10l
 
 # كلاس التحليل المخصص - نفس الموجود في ملف الاوامر بالضبط
 class CustomParseMode:
@@ -56,6 +57,7 @@ class CustomParseMode:
 
 # قراءة تاريخ التثبيت من قاعدة البيانات فقط
 def load_installation_date():
+    # جلب التاريخ من قاعدة البيانات بالاسم الجديد
     db_date = gvarstatus("KARAR_DATE_FULL")
     return db_date if db_date else "لم يتم التسجيل بعد"
 
@@ -85,7 +87,7 @@ async def amireallyalive(event):
     ALIVE_NAME = gvarstatus("ALIVE_NAME") if gvarstatus("ALIVE_NAME") else Config.ALIVE_NAME
     mention = f"[{ALIVE_NAME}](tg://user?id={USERID})"
     
-    # التحقق إذا كان المستخدم لديه بريميوم - نفس طريقة ملف الاوامر
+    # التحقق إذا كان المستخدم لديه بريميوم
     try:
         mypremium = (await event.client.get_entity(USERID)).premium
     except:
@@ -99,27 +101,53 @@ async def amireallyalive(event):
     except Exception as e:
         print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
     
-    # بناء النص - نفس طريقة ملف الاوامر بالضبط
+    # بناء النص
     if mypremium:
-        # نسخة بريميوم مع إيموجيات مخصصة - بنفس تنسيق ملف الاوامر
-        caption = f"<b>{ALIVE_TEXT}</b>\n\n"
-        caption += f'<a href="emoji/5668127928907464707">❤️</a> <b>ᴺᴬᴹᴱ ➪</b> {mention}\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴷᴬᴿᴬᴿ ➪</b> <code>{version.__version__}</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᵞᵀᴴᴼᴺ ➪</b> <code>{python_version()}</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴸᴬᵀҒᴼᴿᴹ ➪</b> <code>𐋏ᥱr᧐κᥙ</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴾᴵᴺᴳ ➪</b> <code>{ms} ms</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᵁᴾ ᵀᴵᴹᴱ ➪</b> <code>{uptime}</code>\n'
-        caption += f'<a href="emoji/5210763312597326700">❤️</a> <b>ᴬᴸᴵⱽᴱ ˢᴵᴺᴱᶜ ➪</b> <code>{installation_time}</code>\n'
-        caption += f'<a href="emoji/5219998342687242062">❤️</a> <b>ᴹᵞ ᶜᴴᴬᴺᴺᴱᴸ ➪</b> <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
+        # نسخة بريميوم مع إيموجيات مخصصة
+        # السطر العلوي من الإيموجيات
+        caption = f'<a href="emoji/5436052622358359537">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5231211454325088296">❤️</a>\n'
         
-        # إضافة بعض الإيموجيات في النهاية - مثل ملف الاوامر
-        caption += f'<a href="emoji/6323136954380585694">❤️</a>'
-        caption += f'<a href="emoji/6325684673145997914">❤️</a>'
-        caption += f'<a href="emoji/6323205570778107774">❤️</a>'
-        caption += f'<a href="emoji/6323518746908428943">❤️</a>'
-        caption += f'<a href="emoji/5834774412338927340">❤️</a>'
+        # محتوى الكليشة مع الزخرفة المطلوبة والإيموجي الجديد
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ɴᴀᴍᴇ ➪</b> {mention}\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴋᴀʀᴀʀ ➪</b> <code>{version.__version__}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴘʏᴛʜᴏɴ ➪</b> <code>{python_version()}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴘʟᴀᴛғᴏʀᴍ ➪</b> <code>𐋏ᥱr᧐κᥙ</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴘɪɴɢ ➪</b> <code>{ms} ms</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴜᴘ ᴛɪᴍᴇ ➪</b> <code>{uptime}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪</b> <code>{installation_time}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a> <b>ᴍʏ ᴄʜᴀɴɴᴇʟ ➪</b> <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
+        
+        # السطر السفلي من الإيموجيات
+        caption += f'<a href="emoji/5436209929830544879">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5298550026060980012">❤️</a>'
+        caption += f'<a href="emoji/5017568300574443022">❤️</a>'
+        caption += f'<a href="emoji/5301053180245728654">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5418080116959884220">❤️</a>'
+        caption += f'<a href="emoji/5231211454325088296">❤️</a>'
+        
+        # إرسال الرسالة للمستخدمين بريميوم
+        try:
+            await event.client.send_message(
+                event.chat_id,
+                caption,
+                link_preview=False,
+                parse_mode=CustomParseMode("html"),
+                reply_to=reply_to_id
+            )
+            await event.delete()
+        except Exception as e:
+            await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
     else:
-        # النسخة العادية للمستخدمين غير بريميوم
+        # للمستخدمين غير بريميوم - بالضبط مثل الكود الاصلي تماماً
+        # بناء النص العادي
         caption = l313l_caption.format(
             ALIVE_TEXT=ALIVE_TEXT,
             EMOJI=EMOJI,
@@ -132,38 +160,24 @@ async def amireallyalive(event):
             ping=ms,
             Tare5=installation_time,
         )
-    
-    # إرسال الصورة أو النص - نفس طريقة ملف الاوامر
-    if mypremium:
-        # للمستخدمين بريميوم - إرسال نص مع إيموجيات مخصصة
-        try:
-            await event.client.send_message(
-                event.chat_id,
-                caption,
-                link_preview=False,
-                parse_mode=CustomParseMode("html"),
-                reply_to=reply_to_id
-            )
-            await event.delete()
-        except Exception as e:
-            await edit_or_reply(event, f"**حدث خطأ:** {str(e)}")
-    elif HuRe_IMG:
-        # للمستخدمين غير بريميوم مع صورة
-        JoKeRUB = [x for x in HuRe_IMG.split()]
-        PIC = random.choice(JoKeRUB)
-        try:
-            await event.client.send_file(
-                event.chat_id, PIC, caption=caption, reply_to=reply_to_id
-            )
-            await event.delete()
-        except (WebpageMediaEmptyError, MediaEmptyError, WebpageCurlFailedError):
-            await edit_or_reply(
-                event,
-                f"**الميديا خطأ **\nغير الرابط باستخدام الأمر  \n `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**لا يمكن الحصول على صورة من الرابط :-** `{PIC}`",
-            )
-    else:
-        # للمستخدمين غير بريميوم بدون صورة
-        await edit_or_reply(event, caption)
+        
+        # إرسال الصورة أو النص - مثل الكود الاصلي تماماً
+        if HuRe_IMG:
+            JoKeRUB = [x for x in HuRe_IMG.split()]
+            PIC = random.choice(JoKeRUB)
+            try:
+                await event.client.send_file(
+                    event.chat_id, PIC, caption=caption, reply_to=reply_to_id
+                )
+                await event.delete()
+            except (WebpageMediaEmptyError, MediaEmptyError, WebpageCurlFailedError):
+                await edit_or_reply(
+                    event,
+                    f"**الميديا خطأ **\nغير الرابط باستخدام الأمر  \n `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**لا يمكن الحصول على صورة من الرابط :-** `{PIC}`",
+                )
+        else:
+            # للمستخدمين غير بريميوم بدون صورة
+            await edit_or_reply(event, caption)
 
 # النص الافتراضي للرسالة
 temp = """

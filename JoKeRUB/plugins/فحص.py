@@ -20,28 +20,17 @@ from ..Config import Config
 from ..core.managers import edit_or_reply
 from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
 from ..helpers.utils import reply_id
-from ..sql_helper.globals import addgvar, gvarstatus
+from ..sql_helper.globals import gvarstatus
 
 plugin_category = "utils"
 
 # كتابة وتعديل: @lMl10l
 
-# تحميل أو إنشاء تاريخ التثبيت من قاعدة البيانات مع الوقت
+# قراءة تاريخ التثبيت من قاعدة البيانات فقط
 def load_installation_date():
-    # جلب التاريخ من قاعدة البيانات (باستخدام اسم جديد)
-    db_date = gvarstatus("INSTALL_DATE_FULL")  # اسم متغير جديد
-    
-    if db_date:
-        return db_date
-    else:
-        # إذا لم يوجد، ننشئ تاريخ ووقت جديد ونحفظه في قاعدة البيانات
-        installation_time = datetime.now().strftime("%Y-%m-%d %I:%M %p")
-        addgvar("INSTALL_DATE_FULL", installation_time)  # حفظ بالاسم الجديد
-        
-        # اختياري: حذف المتغير القديم إذا أردت
-        # delgvar("INSTALL_DATE")  # إذا كان عندك دالة للحذف
-        
-        return installation_time
+    # جلب التاريخ من قاعدة البيانات بالاسم الجديد
+    db_date = gvarstatus("KARAR_DATE_FULL")
+    return db_date if db_date else "لم يتم التسجيل بعد"
 
 installation_time = load_installation_date()
 
@@ -80,7 +69,7 @@ async def amireallyalive(event):
         pyver=python_version(),
         dbhealth=check_sgnirts,
         ping=ms,
-        Tare5=installation_time,  # التاريخ مع الوقت من المتغير الجديد
+        Tare5=installation_time,  # تاريخ التثبيت من المتغير الجديد
     )
     
     # فك تشفير الرابط (إذا كان مطلوبًا)
@@ -111,7 +100,7 @@ async def amireallyalive(event):
 # النص الافتراضي للرسالة
 temp = """
 ┏───────────────┓
-│ ● ɴᴀᴍᴇ ➪  {mention}
+│ ● ɴᴀᴍᴇ ➪  {mention}
 │ ● ᴋᴀʀᴀʀ ➪ {telever}
 │ ● ᴘʏᴛʜᴏɴ ➪ {pyver}
 │ ● ᴘʟᴀᴛғᴏʀᴍ ➪ 𐋏ᥱr᧐κᥙ

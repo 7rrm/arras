@@ -398,8 +398,8 @@ from telethon import events
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
 # معلومات الخلفية المحددة
-WALLPAPER_ID = 4931732000479379669
-WALLPAPER_HASH = -2062160220342649303
+WALLPAPER_ID = 5028783469501612253
+WALLPAPER_HASH = -4499875478888955654
 
 @l313l.ar_cmd(
     pattern="تفعيل الخلفية التلقائية$",

@@ -1093,7 +1093,7 @@ points = {}
 
 # تعريف المعرفات - يجب تعديل هذا حسب معرفات المستخدمين الفعلية
 MY_UID = l313l.uid  # ضع معرف حسابك هنا
-OTHER_USER = 7893578939 # الشخص الآخر
+OTHER_USER = 6373993992 #الآخر
 ALLOWED_USERS = [MY_UID, OTHER_USER]  # المستخدمون المسموح لهم ببدء اللعبة
 
 def count_closed_hands(board):

@@ -26,7 +26,7 @@ class LOG_CHATS:
 LOG_CHATS_ = LOG_CHATS()
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
-async def monito_p_m_s(event):  # sourcery no-metrics
+async def monito_p_m_s(event):
     if Config.PM_LOGGER_GROUP_ID == -100:
         return
     if gvarstatus("PMLOG") and gvarstatus("PMLOG") == "false":
@@ -45,11 +45,11 @@ async def monito_p_m_s(event):  # sourcery no-metrics
                                     " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
                                 )
                             )
-                        except BaseException as er:
-                            print(f"صار خطأ\n{er}")
+                        except Exception as er:
+                            LOGS.error(f"Error: {er}")
                     else:
                         await event.client.send_message(
-Config.PM_LOGGER_GROUP_ID,
+                            Config.PM_LOGGER_GROUP_ID,
                             LOG_CHATS_.NEWPM.text.replace(
                                 " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
                             )
@@ -61,13 +61,15 @@ Config.PM_LOGGER_GROUP_ID,
                 )
             try:
                 if event.message:
-                    await event.client.forward_messages(
+                    forwarded_msg = await event.client.forward_messages(
                         Config.PM_LOGGER_GROUP_ID, event.message, silent=True
                     )
+                    # تخزين الرسالة المحولة والرسالة الأصلية
+                    LOG_CHATS_.STORED_MESSAGES[event.message.id] = forwarded_msg.id
+                    LOG_CHATS_.ORIGINAL_MESSAGES[event.message.id] = event.message.text
                 LOG_CHATS_.COUNT += 1
             except Exception as e:
-                LOGS.warn(str(e))
-
+                LOGS.error(f"Error: {e}")
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):

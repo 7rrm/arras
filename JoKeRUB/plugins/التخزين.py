@@ -24,7 +24,6 @@ class LOG_CHATS:
         self.ORIGINAL_MESSAGES = {}  # لتخزين محتوى الرسائل الأصلية
 
 LOG_CHATS_ = LOG_CHATS()
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
 async def monito_p_m_s(event):
     if Config.PM_LOGGER_GROUP_ID == -100:
@@ -55,7 +54,6 @@ async def monito_p_m_s(event):
                             )
                         )
                     LOG_CHATS_.COUNT = 0
-                    LOG_CHATS_.NEWPM = None  # ✅ هذا السطر يمنع التكرار
                 LOG_CHATS_.NEWPM = await event.client.send_message(
                     Config.PM_LOGGER_GROUP_ID,
                     f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)} **- قام بـ إرسـال رسـالة جـديـده** \n**🎟┊الايـدي :** `{chat.id}`",
@@ -65,13 +63,14 @@ async def monito_p_m_s(event):
                     forwarded_msg = await event.client.forward_messages(
                         Config.PM_LOGGER_GROUP_ID, event.message, silent=True
                     )
+                    # تخزين الرسالة المحولة والرسالة الأصلية
                     LOG_CHATS_.STORED_MESSAGES[event.message.id] = forwarded_msg.id
                     LOG_CHATS_.ORIGINAL_MESSAGES[event.message.id] = event.message.text
                 LOG_CHATS_.COUNT += 1
             except Exception as e:
                 LOGS.error(f"Error: {e}")
 
-                
+
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):
     hmm = await event.get_chat()

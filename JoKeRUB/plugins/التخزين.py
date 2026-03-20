@@ -24,8 +24,9 @@ class LOG_CHATS:
         self.ORIGINAL_MESSAGES = {}  # لتخزين محتوى الرسائل الأصلية
 
 LOG_CHATS_ = LOG_CHATS()
+
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=False, forword=None)
-async def monito_p_m_s(event):
+async def monito_p_m_s(event):  # sourcery no-metrics
     if Config.PM_LOGGER_GROUP_ID == -100:
         return
     if gvarstatus("PMLOG") and gvarstatus("PMLOG") == "false":
@@ -35,7 +36,7 @@ async def monito_p_m_s(event):
         chat = await event.get_chat()
         if not no_log_pms_sql.is_approved(chat.id) and chat.id != 777000:
             if LOG_CHATS_.RECENT_USER != chat.id:
-                LOG_CHATS_.RECENT_USER = chat.id
+                # إنهاء المستخدم القديم
                 if LOG_CHATS_.NEWPM:
                     if LOG_CHATS_.COUNT > 1:
                         try:
@@ -44,32 +45,48 @@ async def monito_p_m_s(event):
                                     " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
                                 )
                             )
-                        except Exception as er:
-                            LOGS.error(f"Error: {er}")
-                    else:
-                        await event.client.send_message(
-                            Config.PM_LOGGER_GROUP_ID,
-                            LOG_CHATS_.NEWPM.text.replace(
-                                " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـائل**"
+                        except BaseException as er:
+                            print(f"صار خطأ\n{er}")
+                    elif LOG_CHATS_.COUNT == 1:
+                        try:
+                            await LOG_CHATS_.NEWPM.edit(
+                                LOG_CHATS_.NEWPM.text.replace(
+                                    " **📮┊رسـاله جـديده**", f"{LOG_CHATS_.COUNT} **رسـالة**"
+                                )
                             )
-                        )
+                        except BaseException as er:
+                            print(f"صار خطأ\n{er}")
                     LOG_CHATS_.COUNT = 0
+                    LOG_CHATS_.NEWPM = None  # ✅ منع التكرار
+                
+                # تحديث آخر مستخدم
+                LOG_CHATS_.RECENT_USER = chat.id
+                
+                # إنشاء إشعار جديد للمستخدم الجديد
                 LOG_CHATS_.NEWPM = await event.client.send_message(
                     Config.PM_LOGGER_GROUP_ID,
                     f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)} **- قام بـ إرسـال رسـالة جـديـده** \n**🎟┊الايـدي :** `{chat.id}`",
                 )
+            else:
+                # نفس المستخدم - تحديث الإشعار الموجود
+                if LOG_CHATS_.NEWPM and LOG_CHATS_.COUNT >= 1:
+                    try:
+                        await LOG_CHATS_.NEWPM.edit(
+                            LOG_CHATS_.NEWPM.text.replace(
+                                " **📮┊رسـاله جـديـده**", f"{LOG_CHATS_.COUNT + 1} **رسـائل**"
+                            )
+                        )
+                    except BaseException as er:
+                        print(f"خطأ في التعديل: {er}")
+            
             try:
                 if event.message:
-                    forwarded_msg = await event.client.forward_messages(
+                    await event.client.forward_messages(
                         Config.PM_LOGGER_GROUP_ID, event.message, silent=True
                     )
-                    # تخزين الرسالة المحولة والرسالة الأصلية
-                    LOG_CHATS_.STORED_MESSAGES[event.message.id] = forwarded_msg.id
-                    LOG_CHATS_.ORIGINAL_MESSAGES[event.message.id] = event.message.text
                 LOG_CHATS_.COUNT += 1
             except Exception as e:
-                LOGS.error(f"Error: {e}")
-
+                LOGS.warn(str(e))
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):

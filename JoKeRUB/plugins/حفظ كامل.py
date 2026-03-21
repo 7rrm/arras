@@ -220,7 +220,7 @@ async def _(event):
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.binary_location = Config.CHROME_BIN
         await event.edit("**- جـارِ الاتصـال بجـوجل كـروم ...**")
-        driver = webdriver.Chrome(chrome_options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
         cmd = event.pattern_match.group(1)
         input_str = event.pattern_match.group(2)
         inputstr = input_str

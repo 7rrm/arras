@@ -410,44 +410,49 @@ async def instagram_downloader(event):
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
-async def _(event):
-    if event.fwd_from:
-        return
+async def story_download(event):
     j_link = event.pattern_match.group(1)
-    if ".me" not in j_link:
-        await event.edit("**⎉╎ يجب وضع رابط الستوري مع الامر اولا **")
-        return
-    else:
-        await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
+    reply = await event.get_reply_message()
+    if not j_link and reply:
+        j_link = reply.text
+    if not j_link:
+        return await event.edit("**⎉╎ يجب وضع رابط الستوري مع الامر اولا او الرد على الرابط**")
     
+    if ".me" not in j_link:
+        return await event.edit("**⎉╎ هذا ليس رابط ستوري صحيح**")
+    
+    dra = await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
     chat = "@msaver_bot"
-    async with bot.conversation(chat) as conv:
-        try:
-            # إرسال الرابط
-            await conv.send_message(j_link)
+    
+    try:
+        async with bot.conversation(chat) as conv:
+            try:
+                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
+                purgeflag = await conv.send_message(j_link)
+            except YouBlockedUserError:
+                await dra.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")
+                return
             
-            # انتظار رسالة التأكيد الأولى وتجاهلها
+            # تجاهل الرد الأول (رسالة الاستلام)
             await conv.get_response()
             
-            # انتظار رسالة الفيديو الثانية
+            # الحصول على الرد الثاني (الفيديو)
             video = await conv.get_response()
             
-            await bot.send_read_acknowledge(conv.chat_id)
-            
-            # إرسال الفيديو
+            await dra.delete()
             await bot.send_file(
-                event.chat_id, 
-                video, 
+                event.chat_id,
+                video,
                 caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",
-                parse_mode="html"
+                parse_mode="html",
             )
-            await event.delete()
+            
+            await delete_conv(event, chat, purgeflag)
                 
-        except YouBlockedUserError:
-            await event.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")
-            return
-        except Exception as e:
-            await event.edit(f"**⎉╎ حدث خطأ: {str(e)}**")
+    except asyncio.TimeoutError:
+        await dra.edit("**⎉╎ عذراً، فشل التحميل حاول لاحقاً**")
+    except Exception as e:
+        await dra.edit(f"**⎉╎ حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

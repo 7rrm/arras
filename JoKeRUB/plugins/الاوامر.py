@@ -1036,6 +1036,11 @@ async def _(event):
 ❐ تحميل من تيك توك
 ❐ طريقة الاستخدام: <code>.تيك الرابط</code>
 
+<a href="emoji/{arras_emoji}">☑️</a> ⦗ <code>.ستوري</code> ⦘
+❐ تحميل ستوري من التلكرام
+❐ طريقة الاستخدام: <code>.ستوري الرابط</code>
+
+
 <b>•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•</b>
 <b>⌔︙Dev : @Lx5x5 .<a href="emoji/5046707123942066452">🦅</a></b>""",
         parse_mode=CustomParseMode("html")

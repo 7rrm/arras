@@ -423,23 +423,25 @@ async def _(event):
     chat = "@msaver_bot"
     async with bot.conversation(chat) as conv:
         try:
-            msg = await conv.send_message(j_link)
-            # انتظر رد البوت
-            response = await conv.get_response()
+            # إرسال الرابط
+            await conv.send_message(j_link)
+            
+            # انتظار رسالة التأكيد الأولى وتجاهلها
+            await conv.get_response()
+            
+            # انتظار رسالة الفيديو الثانية
+            video = await conv.get_response()
+            
             await bot.send_read_acknowledge(conv.chat_id)
             
-            # تحقق مما إذا كان الرد يحتوي على فيديو
-            if response and response.media:
-                # إرسال الملف مباشرة من الرسالة
-                await bot.send_file(
-                    event.chat_id, 
-                    response.media, 
-                    caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
-                    parse_mode="html"
-                )
-                await event.delete()
-            else:
-                await event.edit("**⎉╎ لم يتم العثور على فيديو في الستوري**")
+            # إرسال الفيديو
+            await bot.send_file(
+                event.chat_id, 
+                video, 
+                caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",
+                parse_mode="html"
+            )
+            await event.delete()
                 
         except YouBlockedUserError:
             await event.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")

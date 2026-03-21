@@ -341,7 +341,7 @@ async def Ahmed_pin(event):
             await borg.send_file(
                 event.chat_id,
                 dragoiq,
-                caption=f"<b>↯︙تم التحميـل من بنتـرسـت بنجاح</b>",
+                caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
                 parse_mode="html",
             )
             
@@ -397,7 +397,7 @@ async def instagram_downloader(event):
             await borg.send_file(
                 event.chat_id,
                 dragoiq,
-                caption=f"<b>↯︙تم التحميـل من انستقرام بنجاح</b>",
+                caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
                 parse_mode="html",
             )
             
@@ -443,7 +443,7 @@ async def story_download(event):
             await bot.send_file(
                 event.chat_id,
                 video,
-                caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",
+                caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
                 parse_mode="html",
             )
             

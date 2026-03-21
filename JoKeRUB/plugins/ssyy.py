@@ -434,7 +434,7 @@ async def _(event):
                 await bot.send_file(
                     event.chat_id, 
                     response.media, 
-                    caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",
+                    caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
                     parse_mode="html"
                 )
                 await event.delete()

@@ -170,163 +170,134 @@ async def bypass_restriction(event):
         await event.edit(f"**✪╎حـدث خطـأ: {str(e)}**")
 
 
-"""
-`Credits` @amnd33p
-from ..helpers.utils import _format
-Modified by @Zed-Thon
-"""
-
-import io
-import traceback
-from datetime import datetime
-
-import requests
-from selenium import webdriver
-from validators.url import url
-
+import asyncio
+from telethon import events
+from telethon.tl.functions.messages import GetHistoryRequest
+from telethon.tl.types import MessageEntityBlockquote, MessageMediaPhoto, InputMediaUploadedPhoto, MessageMediaDocument
+from telethon.tl.custom import Message
 from . import l313l
-
 from ..Config import Config
 from ..core.managers import edit_or_reply
-from . import reply_id
+from . import BOTLOG, BOTLOG_CHATID
 
-plugin_category = "العروض"
-
-
-@l313l.ar_cmd(
-    pattern="(سكرين|ss) ([\s\S]*)",
-    command=("سكرين", plugin_category),
-    info={
-        "header": "لـ اخذ لقطـة شاشـه لـ المواقـع",
-        "الاستخـدام": "{tr}سكرين + رابـط",
-        "مثــال": "{tr}سكرين https://github.com",
-    },
-)
-async def _(event):
-    "لـ اخذ لقطـة شاشـه لـ المواقـع"
-    if Config.CHROME_BIN is None:
-        return await edit_or_reply(
-            event, "Need to install Google Chrome. Module Stopping."
-        )
-    zzevent = await edit_or_reply(event, "**- جـارِ اخـذ لقطـة شاشـه للصفحـه...**")
-    start = datetime.now()
-    try:
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--ignore-certificate-errors")
-        chrome_options.add_argument("--test-type")
-        chrome_options.add_argument("--headless")
-        # https://stackoverflow.com/a/53073789/4723940
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.binary_location = Config.CHROME_BIN
-        await event.edit("**- جـارِ الاتصـال بجـوجل كـروم ...**")
-        driver = webdriver.Chrome(options=chrome_options)
-        cmd = event.pattern_match.group(1)
-        input_str = event.pattern_match.group(2)
-        inputstr = input_str
-        rmsg = await event.get_reply_message()
-        if not inputstr and rmsg:
-            inputstr = rmsg.text
-        if not inputstr and not rmsg:
-            return await zzevent.edit("**- قـم بادخــال رابـط مع الامـر او بالــرد ع رابـط ...**")
-        if cmd == "سكرين":
-            caturl = url(inputstr)
-            if not inputstr:
-                return await zzevent.edit("**- قـم بادخــال رابـط مع الامـر او بالــرد ع رابـط ...**")
-            if not caturl:
-                inputstr = f"http://{input_str}"
-                caturl = url(inputstr)
-            if not caturl:
-                return await zzevent.edit("**- عـذراً .. الرابـط المدخـل ليس رابـط مدعـوم ؟!**")
-        if cmd == "ss":
-            inputstr = f"https://www.google.com/search?q={input_str}"
-        driver.get(inputstr)
-        await zzevent.edit("**- جـارِ رفـع لقطـة شاشـه للصفحـه...**")
-        height = driver.execute_script(
-            "return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);"
-        )
-        width = driver.execute_script(
-            "return Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth);"
-        )
-        driver.set_window_size(width + 100, height + 100)
-        # Add some pixels on top of the calculated dimensions
-        # for good measure to make the scroll bars disappear
-        im_png = driver.get_screenshot_as_png()
-        # saves screenshot of entire page
-        await zzevent.edit("**- تم إغـلاق جوجـل كـروم ✓**")
-        driver.close()
-        message_id = await reply_id(event)
-        end = datetime.now()
-        ms = (end - start).seconds
-        hmm = f"**⎉╎المـوقع : **{input_str} \n**⎉╎ الوقت المستغـرق : {ms} ثانيـه**\n**⎉╎تم اخـذ لقطـة شاشـه .. بنجـاح ✓**"
-        await zzevent.delete()
-        with io.BytesIO(im_png) as out_file:
-            out_file.name = f"{input_str}.PNG"
-            await event.client.send_file(
-                event.chat_id,
-                out_file,
-                caption=hmm,
-                force_document=True,
-                reply_to=message_id,
-                allow_cache=False,
-                silent=True,
-            )
-    except Exception:
-        await zzevent.edit(f"`{traceback.format_exc()}`")
-
-
-@l313l.ar_cmd(
-    pattern="لقطه ([\s\S]*)",
-    command=("لقطه", plugin_category),
-    info={
-        "header": "لـ اخذ لقطـة شاشـه لـ المواقـع",
-        "الوصـف": "For functioning of this command you need to set SCREEN_SHOT_LAYER_ACCESS_KEY var",
-        "الاستخـدام": "{tr}لقطه + رابـط",
-        "مثــال": "{tr}لقطه https://github.com",
-    },
-)
-async def _(event):
-    "لـ اخذ لقطـة شاشـه لـ المواقـع"
-    start = datetime.now()
-    message_id = await reply_id(event)
-    if Config.SCREEN_SHOT_LAYER_ACCESS_KEY is None:
-        return await edit_or_reply(
-            event,
-            "`Need to get an API key from https://screenshotlayer.com/product and need to set it SCREEN_SHOT_LAYER_ACCESS_KEY !`",
-        )
-    zzevent = await edit_or_reply(event, "**- جـارِ اخـذ لقطـة شاشـه للصفحـه...**")
-    sample_url = "https://api.screenshotlayer.com/api/capture?access_key={}&url={}&fullpage={}&viewport={}&format={}&force={}"
-    input_str = event.pattern_match.group(1)
-    inputstr = input_str
-    caturl = url(inputstr)
-    if not caturl:
-        inputstr = f"http://{input_str}"
-        caturl = url(inputstr)
-    if not caturl:
-        return await zzevent.edit("**- عـذراً .. الرابـط المدخـل ليس رابـط مدعـوم ؟!**")
-    response_api = requests.get(
-        sample_url.format(
-            Config.SCREEN_SHOT_LAYER_ACCESS_KEY, inputstr, "1", "2560x1440", "PNG", "1"
-        )
-    )
-    # https://stackoverflow.com/a/23718458/4723940
-    contentType = response_api.headers["content-type"]
-    end = datetime.now()
-    ms = (end - start).seconds
-    hmm = f"**⎉╎المـوقع : **{input_str} \n**⎉╎ الوقت المستغـرق : {ms} ثانيـه**\n**⎉╎تم اخـذ لقطـة شاشـه .. بنجـاح ✓**"
-    if "image" in contentType:
-        with io.BytesIO(response_api.content) as screenshot_image:
-            screenshot_image.name = "screencapture.png"
-            try:
-                await event.client.send_file(
-                    event.chat_id,
-                    screenshot_image,
-                    caption=hmm,
-                    force_document=True,
-                    reply_to=message_id,
+async def copy_message_with_all_features(dest_entity, message, source_channel_username):
+    """نسخ الرسالة مع جميع مميزاتها (اقتباس، تشويش، تنسيق)"""
+    
+    # تجهيز النص مع الحفاظ على التنسيق والاقتباسات
+    text = message.message or ""
+    entities = message.entities or []
+    
+    # التأكد من الحفاظ على الاقتباسات (blockquotes)
+    blockquote_entities = [e for e in entities if isinstance(e, MessageEntityBlockquote)]
+    
+    # تجهيز الميديا مع دعم التشويش
+    media = None
+    if message.media:
+        if hasattr(message.media, 'spoiler') and message.media.spoiler:
+            # إذا كانت الصورة مشوشة في الأصل
+            if isinstance(message.media, MessageMediaPhoto):
+                # تحميل الصورة وإعادة إرسالها مع تشويش
+                photo_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(photo_data)
+                media = InputMediaUploadedPhoto(
+                    file=uploaded_file,
+                    spoiler=True  # تفعيل التشويش
                 )
-                await zzevent.delete()
-            except Exception as e:
-                await zzevent.edit(str(e))
+            elif isinstance(message.media, MessageMediaDocument):
+                # للمستندات أو الفيديو مع تشويش
+                file_data = await message.download_media(bytes)
+                uploaded_file = await l313l.upload_file(file_data)
+                media = await l313l.send_file(dest_entity, uploaded_file, spoiler=True)
+                return media  # نرجع هنا لأن send_file تعمل مباشرة
+        else:
+            # ميديا عادية بدون تشويش
+            file_media = f"https://t.me/{source_channel_username}/{message.id}"
+            media = file_media
+    
+    # إرسال الرسالة كاملة
+    if media:
+        if isinstance(media, str) and media.startswith('http'):
+            # حالة الرابط المباشر
+            return await l313l.send_file(dest_entity, media, caption=text, formatting_entities=entities)
+        else:
+            # حالة الميديا المرفوعة
+            return await l313l.send_file(dest_entity, media, caption=text)
     else:
-        await zzevent.edit(f"`{response_api.text}`")
+        # رسالة نصية فقط مع الحفاظ على التنسيق
+        return await l313l.send_message(dest_entity, text, formatting_entities=entities)
+
+async def start_copier(destination_channel_username, source_channel_username):
+    try:
+        # الحصول على معلومات القنوات
+        source_channel = await l313l.get_entity(source_channel_username)
+        destination_channel = await l313l.get_entity(destination_channel_username)
+        destination_channel_id = destination_channel.id
+
+        # الحصول على جميع المنشورات من القناة المصدر
+        posts = await l313l(GetHistoryRequest(
+            peer=source_channel,
+            limit=10000,
+            offset_date=None,
+            offset_id=0,
+            max_id=0,
+            min_id=0,
+            add_offset=0,
+            hash=0,
+        ))
+
+        # عكس ترتيب الرسائل لنقلها من الأقدم إلى الأحدث
+        posts.messages.reverse()
+
+        # نقل المنشورات إلى القناة المستهدفة
+        for message in posts.messages:
+            try:
+                await copy_message_with_all_features(destination_channel_id, message, source_channel_username)
+                
+                await asyncio.sleep(1)
+                await l313l.send_message(BOTLOG_CHATID, 
+                    f"**- تم نقل المنشور .. بنجاح✅**\n"
+                    f"**- رابـط المنشور:**\n"
+                    f"- https://t.me/{source_channel_username}/{message.id}", 
+                    link_preview=False)
+                await asyncio.sleep(1)
+
+            except Exception as e:
+                await l313l.send_message(BOTLOG_CHATID, 
+                    f"**- خطـأ بنقـل المنشـور ❌**\n"
+                    f"**- رابـط المنشور:**\n"
+                    f"- https://t.me/{source_channel_username}/{message.id}\n"
+                    f"**- تفاصيـل الخطـأ:**\n"
+                    f"- {e}", 
+                    link_preview=False)
+
+    except Exception as e:
+        await l313l.send_message(BOTLOG_CHATID, 
+            f"**- حدث خطـأ ❌**\n"
+            f"**- تفاصيـل الخطـأ:**\n"
+            f"- {e}")
+
+@l313l.ar_cmd(pattern="كوبي(?:\s|$)([\s\S]*)")
+async def channel_copier(event):
+    catty = event.pattern_match.group(1)
+    channel_username = str(catty.split(" ")[0])
+    if channel_username.startswith("@"):
+        channel_username = channel_username.replace("@", "")
+    
+    # دعم تحديد العدد
+    parts = catty.split()
+    if len(parts) > 1:
+        try:
+            limit = int(parts[1])
+        except:
+            limit = 10000
+    else:
+        limit = 10000
+    
+    await edit_or_reply(event, 
+        f"**- جـارِ نقـل منشـورات الميديـا . . .**\n"
+        f"**- مـن القنـاة @{channel_username}**\n"
+        f"**- عدد المنشورات: {limit}**\n\n"
+        f"**- انتظـر .. قد تستمـر العمليـة بضـع دقائـق**")
+    
+    copier_start = await start_copier(event.chat_id, channel_username)
+  

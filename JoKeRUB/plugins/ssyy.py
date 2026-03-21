@@ -416,20 +416,36 @@ async def _(event):
     j_link = event.pattern_match.group(1)
     if ".me" not in j_link:
         await event.edit("**⎉╎ يجب وضع رابط الستوري مع الامر اولا **")
+        return
     else:
         await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
+    
     chat = "@msaver_bot"
     async with bot.conversation(chat) as conv:
         try:
             msg = await conv.send_message(j_link)
-            video = await conv.get_response()
+            # انتظر رد البوت
+            response = await conv.get_response()
             await bot.send_read_acknowledge(conv.chat_id)
+            
+            # تحقق مما إذا كان الرد يحتوي على فيديو
+            if response and response.media:
+                # إرسال الملف مباشرة من الرسالة
+                await bot.send_file(
+                    event.chat_id, 
+                    response.media, 
+                    caption=f"<b>⎉╎ BY : @Repthon 🎀</b>",
+                    parse_mode="html"
+                )
+                await event.delete()
+            else:
+                await event.edit("**⎉╎ لم يتم العثور على فيديو في الستوري**")
+                
         except YouBlockedUserError:
             await event.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @msaver_bot**")
             return
-        await bot.send_file(event.chat_id, video, caption=f"<b>⎉╎ BY : @Repthon 🎀</b>", parse_mode="html")
-        await event.delete()
-
+        except Exception as e:
+            await event.edit(f"**⎉╎ حدث خطأ: {str(e)}**")
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",

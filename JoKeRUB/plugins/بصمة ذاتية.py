@@ -8,7 +8,7 @@ from JoKeRUB import *
 
 from . import BOTLOG, BOTLOG_CHATID, mention
 
-
+vocself = True
 
 @l313l.ar_cmd(pattern="(تفعيل البصمه الذاتيه|تفعيل البصمه الذاتية|تفعيل البصمة الذاتيه|تفعيل البصمة الذاتية)")
 async def start_datea(event):

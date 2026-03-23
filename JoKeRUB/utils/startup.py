@@ -138,9 +138,9 @@ async def startupmessage():
             caption_text = f'''\
 <b>〄︙بــوت ᥲRRᥲS يعمـل بنجـاح</b> <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji>
 
-<b>◈︙أرسل (</b> <code>.الاوامر</code> <b>) لرؤية اوامر السورس</b> <tg-emoji emoji-id="{EMOJI_BOT}">🤖</tg-emoji>
+◈︙أرسل ( <code>.الاوامر</code> ) لرؤية اوامر السورس <tg-emoji emoji-id="{EMOJI_BOT}">🤖</tg-emoji>
 
-<b>◈︙لأستعمال بوت الأختراق عبر كود التيرمكس أرسل (</b> <code>.هاك</code> <b>)</b> <tg-emoji emoji-id="{EMOJI_HAK}">💀</tg-emoji>'''
+◈︙لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( <code>.هاك</code> ) <tg-emoji emoji-id="{EMOJI_HAK}">💀</tg-emoji>'''
             
             # إرسال الرسالة عبر Bot API
             import requests

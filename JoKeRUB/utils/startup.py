@@ -165,7 +165,6 @@ async def startupmessage():
                 "caption": caption_text,
                 "parse_mode": "HTML",
                 "reply_markup": json.dumps({"inline_keyboard": buttons}),
-                "message_effect_id": EFFECT_ID
             }
             
             response = requests.post(send_url, json=send_data, timeout=10)
@@ -176,7 +175,7 @@ async def startupmessage():
                     "l313l/razan/resources/start/arras.JPEG",
                     caption=caption_text,
                     buttons=[
-                        [Button.url("المـطـور", "https://t.me/lx5x5")],
+                        [Button.url("المــطـور", "https://t.me/lx5x5")],
                         [Button.url("قـنـاة الـسـورس", "https://t.me/your_channel")]
                     ],
                     parse_mode='html'

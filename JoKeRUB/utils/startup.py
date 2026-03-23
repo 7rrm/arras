@@ -1,6 +1,5 @@
 import time
 import asyncio
-import json
 import glob
 import os
 import sys
@@ -144,7 +143,7 @@ async def startupmessage():
                 ]
             ]
             
-            # نص الرسالة مع إيموجيات HTML (نفس النظام)
+            # نص الرسالة مع إيموجيات HTML
             caption_text = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓</b>
 
@@ -154,49 +153,69 @@ async def startupmessage():
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
             
-            # إرسال الرسالة عبر Bot API (نفس طريقة الكود)
+            # إرسال الرسالة عبر Bot API
             import requests
             import json
+            import os
             
-            send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendPhoto"
-            send_data = {
-                "chat_id": BOTLOG_CHATID,
-                "photo": "l313l/razan/resources/start/arras.JPEG",
-                "caption": caption_text,
-                "parse_mode": "HTML",
-                "reply_markup": json.dumps({"inline_keyboard": buttons})
-            }
+            photo_path = "l313l/razan/resources/start/arras.JPEG"
             
-            response = requests.post(send_url, json=send_data, timeout=10)
-            
-            if response.status_code == 200:
-                result = response.json()
-                if result.get('ok'):
-                    Config.CATUBLOGO = result['result']['message_id']
-                else:
-                    # Fallback باستخدام Telethon (نفس طريقة الفالباك في الكود)
-                    fallback_buttons = []
-                    for row in buttons:
-                        btn_row = []
-                        for btn in row:
-                            if "url" in btn:
-                                btn_row.append(Button.url(btn["text"], btn["url"]))
-                            else:
-                                btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-                        fallback_buttons.append(btn_row)
+            # التحقق من وجود الصورة
+            if os.path.exists(photo_path):
+                # إرسال الصورة مع الأزرار
+                with open(photo_path, 'rb') as photo:
+                    files = {
+                        'photo': photo
+                    }
+                    data = {
+                        'chat_id': BOTLOG_CHATID,
+                        'caption': caption_text,
+                        'parse_mode': 'HTML',
+                        'reply_markup': json.dumps({"inline_keyboard": buttons})
+                    }
                     
-                    Config.CATUBLOGO = await l313l.tgbot.send_file(
-                        BOTLOG_CHATID,
-                        "l313l/razan/resources/start/arras.JPEG",
-                        caption=caption_text,
-                        buttons=fallback_buttons,
-                        parse_mode='html'
-                    )
+                    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendPhoto"
+                    response = requests.post(send_url, data=data, files=files, timeout=10)
+                    
+                    if response.status_code == 200:
+                        result = response.json()
+                        if result.get('ok'):
+                            Config.CATUBLOGO = result['result']['message_id']
+                        else:
+                            LOGS.error(f"API Error: {result}")
+                            raise Exception("API request failed")
+                    else:
+                        LOGS.error(f"HTTP {response.status_code}: {response.text}")
+                        raise Exception(f"HTTP {response.status_code}")
             else:
-                raise Exception(f"HTTP {response.status_code}")
+                # إذا الصورة غير موجودة، استخدم Telethon فقط
+                LOGS.error(f"Photo not found: {photo_path}")
+                raise Exception("Photo file missing")
                 
     except Exception as e:
-        LOGS.error(e)
+        LOGS.error(f"Error in startupmessage: {e}")
+        # Fallback: استخدام Telethon بدون الألوان
+        try:
+            caption_text_fallback = f'''✨ <b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓</b>
+
+🤖 <b>◈︙ أرسل ( <code>.الاوامر</code> ) لرؤية اوامر السورس</b>
+
+💎 <b>◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( <code>.هاك</code> )</b>
+
+👇 <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
+            
+            Config.CATUBLOGO = await l313l.tgbot.send_file(
+                BOTLOG_CHATID,
+                "l313l/razan/resources/start/arras.JPEG",
+                caption=caption_text_fallback,
+                buttons=[
+                    [Button.url("المـطـور", "https://t.me/lx5x5")],
+                    [Button.url("قـنـاة الـسـورس", "https://t.me/your_channel")]
+                ],
+                parse_mode='html'
+            )
+        except Exception as fallback_error:
+            LOGS.error(f"Fallback failed: {fallback_error}")
         return None
         
     # باقي الكود كما هو...

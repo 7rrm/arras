@@ -110,48 +110,37 @@ async def setup_bot():
         LOGS.error(f"كـود تيرمكس - {str(e)}")
         sys.exit()
 
-
 async def startupmessage():
     """
     Start up message in telegram logger group
     """
     try:
         if BOTLOG:
-            # تعريف الإيموجيات المميزة (نفس الموجودة في الكود)
+            # تعريف الإيموجيات المميزة
             EMOJI_DEV = "5258215850745275216"      # 💎 للمطور
-            EMOJI_CHANNEL = "5260450573768990626"  # ✨ للقناة
-            PREMIUM_EMOJI_ID = "5210763312597326700"  # ✨
-            EMOJI_BOT = "5411580731929411768"      # ✅ للبوت
+            PREMIUM_EMOJI_ID = "5258332798409783582"  # ✨ للتألق
+            EMOJI_BOT = "5447242579827523388"      # 🤖 للبوت
+            EMOJI_HAK = "5447242579827523388"      # 💀 للهاك
             
-            # إنشاء الأزرار بنفس نظام الكود
+            # إنشاء الأزرار (زر واحد فقط للمطور)
             buttons = [
                 [
                     {
                         "text": "المـطـور",
                         "url": "https://t.me/lx5x5",
-                        "style": "primary",
+                        "style": "primary",  # لون أزرق
                         "icon_custom_emoji_id": EMOJI_DEV
-                    }
-                ],
-                [
-                    {
-                        "text": "قـنـاة الـسـورس",
-                        "url": "https://t.me/your_channel",  # غير الرابط
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_CHANNEL
                     }
                 ]
             ]
             
-            # نص الرسالة مع إيموجيات HTML
+            # نص الرسالة حسب طلبك (الإيموجي بعد النص)
             caption_text = f'''\
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓</b>
+<b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح</b> <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji>
 
-<tg-emoji emoji-id="{EMOJI_BOT}">🤖</tg-emoji> <b>◈︙ أرسل ( <code>.الاوامر</code> ) لرؤية اوامر السورس</b>
+<b>◈︙ أرسل (</b> <code>.الاوامر</code> <b>) لرؤية اوامر السورس</b> <tg-emoji emoji-id="{EMOJI_BOT}">🤖</tg-emoji>
 
-<tg-emoji emoji-id="{EMOJI_DEV}">💎</tg-emoji> <b>◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( <code>.هاك</code> )</b>
-
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
+<b>◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل (</b> <code>.هاك</code> <b>)</b> <tg-emoji emoji-id="{EMOJI_HAK}">💀</tg-emoji>'''
             
             # إرسال الرسالة عبر Bot API
             import requests
@@ -196,21 +185,18 @@ async def startupmessage():
         LOGS.error(f"Error in startupmessage: {e}")
         # Fallback: استخدام Telethon بدون الألوان
         try:
-            caption_text_fallback = f'''✨ <b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓</b>
+            caption_text_fallback = f'''〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✨
 
-🤖 <b>◈︙ أرسل ( <code>.الاوامر</code> ) لرؤية اوامر السورس</b>
+◈︙ أرسل ( .الاوامر ) لرؤية اوامر السورس 🤖
 
-💎 <b>◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( <code>.هاك</code> )</b>
-
-👇 <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
+◈︙ لأستعمال بوت الأختراق عبر كود التيرمكس أرسل ( .هاك ) 💀'''
             
             Config.CATUBLOGO = await l313l.tgbot.send_file(
                 BOTLOG_CHATID,
                 "l313l/razan/resources/start/arras.JPEG",
                 caption=caption_text_fallback,
                 buttons=[
-                    [Button.url("المـطـور", "https://t.me/lx5x5")],
-                    [Button.url("قـنـاة الـسـورس", "https://t.me/your_channel")]
+                    [Button.url("المـطـور", "https://t.me/lx5x5")]
                 ],
                 parse_mode='html'
             )

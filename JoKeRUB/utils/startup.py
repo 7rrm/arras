@@ -111,40 +111,40 @@ async def setup_bot():
         LOGS.error(f"كـود تيرمكس - {str(e)}")
         sys.exit()
 
+
 async def startupmessage():
     """
     Start up message in telegram logger group
     """
     try:
         if BOTLOG:
-            # تعريف الإيموجيات المميزة (بريميوم)
-            PREMIUM_EMOJI_ID = "4985898208166151959"  # ✨
-            EMOJI_DEV = "4985898208166151959"  # 💎 للمطور
-            EMOJI_BOT = "4985898208166151959"  # ✅ للبوت
-            EMOJI_CHANNEL = "4985898208166151959"  # ✨ للقناة
-            EFFECT_ID = "5046509860389126442"  # تأثير مميز
+            # تعريف الإيموجيات المميزة (نفس الموجودة في الكود)
+            EMOJI_DEV = "5258215850745275216"      # 💎 للمطور
+            EMOJI_CHANNEL = "5260450573768990626"  # ✨ للقناة
+            PREMIUM_EMOJI_ID = "5210763312597326700"  # ✨
+            EMOJI_BOT = "5411580731929411768"      # ✅ للبوت
             
-            # إنشاء الأزرار الملونة بنفس نظام الكود
+            # إنشاء الأزرار بنفس نظام الكود
             buttons = [
                 [
                     {
                         "text": "المـطـور",
                         "url": "https://t.me/lx5x5",
-                        "style": "primary",  # لون أزرق
+                        "style": "primary",
                         "icon_custom_emoji_id": EMOJI_DEV
                     }
                 ],
                 [
                     {
-                        "text": "قـنـاة الـسـورس.",
+                        "text": "قـنـاة الـسـورس",
                         "url": "https://t.me/your_channel",  # غير الرابط
-                        "style": "success",  # لون أخضر
+                        "style": "success",
                         "icon_custom_emoji_id": EMOJI_CHANNEL
                     }
                 ]
             ]
             
-            # نص الرسالة مع إيموجيات HTML
+            # نص الرسالة مع إيموجيات HTML (نفس النظام)
             caption_text = f'''\
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>〄︙ بــوت ᥲRRᥲS  يـعـمـل بـنـجـاح ✓</b>
 
@@ -154,7 +154,7 @@ async def startupmessage():
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
             
-            # إرسال عبر Bot API مع تأثير مميز
+            # إرسال الرسالة عبر Bot API (نفس طريقة الكود)
             import requests
             import json
             
@@ -164,22 +164,36 @@ async def startupmessage():
                 "photo": "l313l/razan/resources/start/arras.JPEG",
                 "caption": caption_text,
                 "parse_mode": "HTML",
-                "reply_markup": json.dumps({"inline_keyboard": buttons}),
+                "reply_markup": json.dumps({"inline_keyboard": buttons})
             }
             
             response = requests.post(send_url, json=send_data, timeout=10)
-            if response.status_code != 200:
-                # Fallback إذا فشلت API
-                Config.CATUBLOGO = await l313l.tgbot.send_file(
-                    BOTLOG_CHATID,
-                    "l313l/razan/resources/start/arras.JPEG",
-                    caption=caption_text,
-                    buttons=[
-                        [Button.url("المــطـور", "https://t.me/lx5x5")],
-                        [Button.url("قـنـاة الـسـورس", "https://t.me/your_channel")]
-                    ],
-                    parse_mode='html'
-                )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get('ok'):
+                    Config.CATUBLOGO = result['result']['message_id']
+                else:
+                    # Fallback باستخدام Telethon (نفس طريقة الفالباك في الكود)
+                    fallback_buttons = []
+                    for row in buttons:
+                        btn_row = []
+                        for btn in row:
+                            if "url" in btn:
+                                btn_row.append(Button.url(btn["text"], btn["url"]))
+                            else:
+                                btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+                        fallback_buttons.append(btn_row)
+                    
+                    Config.CATUBLOGO = await l313l.tgbot.send_file(
+                        BOTLOG_CHATID,
+                        "l313l/razan/resources/start/arras.JPEG",
+                        caption=caption_text,
+                        buttons=fallback_buttons,
+                        parse_mode='html'
+                    )
+            else:
+                raise Exception(f"HTTP {response.status_code}")
                 
     except Exception as e:
         LOGS.error(e)
@@ -211,7 +225,6 @@ async def startupmessage():
     except Exception as e:
         LOGS.error(e)
         return None
-
 
 async def mybot():
     try:

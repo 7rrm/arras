@@ -121,24 +121,25 @@ async def startupmessage():
             PREMIUM_EMOJI_ID = "5210763312597326700"  # ✨
             EMOJI_DEV = "5258215850745275216"  # 💎 للمطور
             EMOJI_BOT = "5411580731929411768"  # ✅ للبوت
+            EMOJI_CHANNEL = "5260450573768990626"  # ✨ للقناة
             EFFECT_ID = "5046509860389126442"  # تأثير مميز
             
-            # إنشاء الأزرار مع إيموجي وألوان
+            # إنشاء الأزرار الملونة بنفس نظام الكود
             buttons = [
                 [
                     {
-                        "text": "المـطـور",  # النص بدون إيموجي
+                        "text": "المـطـور",
                         "url": "https://t.me/lx5x5",
-                        "style": "primary",  # لون أساسي
-                        "icon_custom_emoji_id": EMOJI_DEV  # إيموجي داخل الزر
+                        "style": "primary",  # لون أزرق
+                        "icon_custom_emoji_id": EMOJI_DEV
                     }
                 ],
                 [
                     {
                         "text": "قـنـاة الـسـورس",
-                        "url": "https://t.me/your_channel",  # ضع رابط قناتك
+                        "url": "https://t.me/your_channel",  # غير الرابط
                         "style": "success",  # لون أخضر
-                        "icon_custom_emoji_id": "5260450573768990626"  # ✨ إيموجي القناة
+                        "icon_custom_emoji_id": EMOJI_CHANNEL
                     }
                 ]
             ]
@@ -154,26 +155,29 @@ async def startupmessage():
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>للتـواصـل اضغـط على الأزرار بالأسفل</b>'''
             
             # إرسال عبر Bot API مع تأثير مميز
+            import requests
+            import json
+            
             send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendPhoto"
             send_data = {
                 "chat_id": BOTLOG_CHATID,
-                "photo": "l313l/razan/resources/start/arras.JPEG",  # أو استخدم file_id
+                "photo": "l313l/razan/resources/start/arras.JPEG",
                 "caption": caption_text,
                 "parse_mode": "HTML",
                 "reply_markup": json.dumps({"inline_keyboard": buttons}),
-                "message_effect_id": EFFECT_ID  # تأثير مميز عند الإرسال
+                "message_effect_id": EFFECT_ID
             }
             
             response = requests.post(send_url, json=send_data, timeout=10)
             if response.status_code != 200:
-                # Fallback: استخدام طريقة telethon إذا فشلت API
+                # Fallback إذا فشلت API
                 Config.CATUBLOGO = await l313l.tgbot.send_file(
                     BOTLOG_CHATID,
                     "l313l/razan/resources/start/arras.JPEG",
                     caption=caption_text,
                     buttons=[
-                        [Button.url("✨ المـطـور ✨", "https://t.me/lx5x5")],
-                        [Button.url("📢 قـنـاة الـسـورس 📢", "https://t.me/your_channel")]
+                        [Button.url("المـطـور", "https://t.me/lx5x5")],
+                        [Button.url("قـنـاة الـسـورس", "https://t.me/your_channel")]
                     ],
                     parse_mode='html'
                 )
@@ -208,6 +212,7 @@ async def startupmessage():
     except Exception as e:
         LOGS.error(e)
         return None
+
 
 async def mybot():
     try:

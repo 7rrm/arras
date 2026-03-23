@@ -136,7 +136,7 @@ async def startupmessage():
                 ],
                 [
                     {
-                        "text": "قـنـاة الـسـورس",
+                        "text": "قـنـاة الـسـورس.",
                         "url": "https://t.me/your_channel",  # غير الرابط
                         "style": "success",  # لون أخضر
                         "icon_custom_emoji_id": EMOJI_CHANNEL

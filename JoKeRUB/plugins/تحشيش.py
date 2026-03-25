@@ -427,11 +427,11 @@ async def Hussein(event):
                     message_text = event.message.message[2:].strip()
                     
                     if message_text:
-                        # إرسال الرسالة للشخص الذي رد عليه المنصب
-                        await l313l.send_message(
-                            reply_msg.reply_to_msg_id,  # الشخص الذي رد عليه المنصب
-                            message_text
-                        )
+                        # الرد على المنصب بالرسالة
+                        await event.reply(message_text)
+                        await event.delete()  # حذف رسالة الأمر
+                    else:
+                        await event.reply("**❌ يجب كتابة رسالة بعد كلمة دز**\nمثال: `دز احبك`")
 
 @l313l.on(admin_cmd(pattern="رفع(?:\s|$)([\s\S]*)"))
 async def custom_raise(event):

@@ -409,84 +409,7 @@ async def instagram_downloader(event):
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import User, UserFull
-import os
-from contextlib import suppress
 
-@l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
-async def story_download(event):
-    username = event.pattern_match.group(1)
-    reply = await event.get_reply_message()
-    
-    # التحقق من وجود اسم المستخدم
-    if not username and reply:
-        if reply.sender_id:
-            username = reply.sender_id
-        else:
-            return await event.edit("**⎉╎ يجب وضع يوزر المستخدم مع الامر اولا او الرد على المستخدم**")
-    
-    if not username:
-        return await event.edit("**⎉╎ يجب وضع يوزر المستخدم لتنزيل الستوري الخاص به**")
-    
-    dra = await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
-    
-    # محاولة تحويل إلى int إذا كان معرف
-    with suppress(ValueError):
-        username = int(username)
-    
-    try:
-        # جلب معلومات المستخدم
-        full_user: UserFull = (
-            await event.client(GetFullUserRequest(id=username))
-        ).full_user
-    except Exception as er:
-        return await dra.edit(f"**⎉╎ خطأ : {er}**")
-    
-    stories = full_user.stories
-    if not (stories and stories.stories):
-        return await dra.edit("**⎉╎ لم يتم العثور على ستوري خاص بالمستخدم**")
-    
-    # تحميل وإرسال الستوريات مع الرابط
-    story_count = 0
-    for story in stories.stories:
-        try:
-            # تحميل الميديا
-            file = await event.client.download_media(story.media)
-            
-            # إنشاء رابط الستوري
-            user_id = full_user.user.id
-            story_id = story.id
-            story_link = f"https://t.me/stories/{user_id}/{story_id}"
-            
-            # تجهيز النص مع الرابط
-            caption = story.caption if story.caption else ""
-            if caption:
-                caption = f"{caption}\n\n🔗 رابط الستوري: {story_link}\n\n⎉╎ BY : @Lx5x5 ."
-            else:
-                caption = f"🔗 رابط الستوري: {story_link}\n\n⎉╎ BY : @Lx5x5 ."
-            
-            # إرسال الستوري
-            await event.client.send_file(
-                event.chat_id,
-                file,
-                caption=caption,
-                parse_mode="html",
-            )
-            
-            # حذف الملف المؤقت
-            os.remove(file)
-            story_count += 1
-            
-        except Exception as e:
-            await dra.edit(f"**⎉╎ حدث خطأ في تحميل احد الستوريات : {e}**")
-            continue
-    
-    if story_count > 0:
-        await dra.edit(f"**⎉╎ تم بنجاح تحميل {story_count} ستوري ✅**")
-    else:
-        await dra.edit("**⎉╎ فشل تحميل الستوريات ❌**")
-        
 
 @l313l.ar_cmd(
     pattern="ساوند(?: |$)(.*)",
@@ -1349,3 +1272,78 @@ async def video_auto_search(event):
         await search_msg.edit("**⎉╎انتهت المهلة في انتظار الرد**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+
+
+
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import User, UserFull
+import os
+from contextlib import suppress
+
+@l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
+async def story_download(event):
+    username = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    
+    # التحقق من وجود اسم المستخدم
+    if not username and reply:
+        if reply.sender_id:
+            username = reply.sender_id
+        else:
+            return await event.edit("**⎉╎ يجب وضع يوزر المستخدم مع الامر اولا او الرد على المستخدم**")
+    
+    if not username:
+        return await event.edit("**⎉╎ يجب وضع يوزر المستخدم لتنزيل الستوري الخاص به**")
+    
+    dra = await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
+    
+    # محاولة تحويل إلى int إذا كان معرف
+    with suppress(ValueError):
+        username = int(username)
+    
+    try:
+        # جلب معلومات المستخدم
+        full_user: UserFull = (
+            await event.client(GetFullUserRequest(id=username))
+        ).full_user
+    except Exception as er:
+        return await dra.edit(f"**⎉╎ خطأ : {er}**")
+    
+    stories = full_user.stories
+    if not (stories and stories.stories):
+        return await dra.edit("**⎉╎ لم يتم العثور على ستوري خاص بالمستخدم**")
+    
+    # تحميل وإرسال الستوريات
+    story_count = 0
+    for story in stories.stories:
+        try:
+            # تحميل الميديا
+            file = await event.client.download_media(story.media)
+            
+            # تجهيز النص
+            caption = story.caption if story.caption else ""
+            if caption:
+                caption = f"{caption}\n\n⎉╎ BY : @Lx5x5 ."
+            else:
+                caption = f"⎉╎ BY : @Lx5x5 ."
+            
+            # إرسال الستوري
+            await event.client.send_file(
+                event.chat_id,
+                file,
+                caption=caption,
+                parse_mode="html",
+            )
+            
+            # حذف الملف المؤقت
+            os.remove(file)
+            story_count += 1
+            
+        except Exception as e:
+            await dra.edit(f"**⎉╎ حدث خطأ في تحميل احد الستوريات : {e}**")
+            continue
+    
+    if story_count > 0:
+        await dra.edit(f"**⎉╎ تم بنجاح تحميل {story_count} ستوري ✅**")
+    else:
+        await dra.edit("**⎉╎ فشل تحميل الستوريات ❌**")

@@ -228,8 +228,11 @@ async def startupmessage():
                 )
             del_keyword_collectionlist("restart_update")
     except Exception as e:
-        LOGS.error(e)
-        return None
+         if "Could not find the input entity" in str(e):
+        pass  # لا تطبع الخطأ
+    else:
+        LOGS.error(f"خطأ في كتلة restart_update: {e}")
+    return None
 
 async def mybot():
     try:

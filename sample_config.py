@@ -72,7 +72,8 @@ class Config(object):
     VCMODE = os.environ.get("VCMODE", False)
     VCMODE = bool(VCMODE and (VCMODE.lower() != "false"))
     VC_SESSION = os.environ.get("VC_SESSION", None)
-
+    ZELZAL_Z = int(1338009605)
+    ZELZAL_A = int(os.environ.get("ZELZAL_A") or -1001338009605)
     BOT_PIC = os.environ.get("BOT_PIC", None)
     # Set this value with group id of private group(can be found this value by .id)
     PRIVATE_GROUP_BOT_API_ID = int(os.environ.get("PRIVATE_GROUP_BOT_API_ID") or 0)

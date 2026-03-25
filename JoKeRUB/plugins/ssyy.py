@@ -353,6 +353,50 @@ async def Ahmed_pin(event):
     except Exception as e:
         await dra.edit(f"**↯︙حدث خطأ غير متوقع:**\n`{str(e)}`")
 
+@l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
+async def story_download(event):
+    j_link = event.pattern_match.group(1)
+    reply = await event.get_reply_message()
+    if not j_link and reply:
+        j_link = reply.text
+    if not j_link:
+        return await event.edit("**⎉╎ يجب وضع رابط الستوري مع الامر اولا او الرد على الرابط**")
+    
+    if ".me" not in j_link:
+        return await event.edit("**⎉╎ هذا ليس رابط ستوري صحيح**")
+    
+    dra = await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
+    chat = "@VideoSaqlabot"
+    
+    try:
+        async with bot.conversation(chat) as conv:
+            try:
+                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
+                purgeflag = await conv.send_message(j_link)
+            except YouBlockedUserError:
+                await dra.edit("**⎉╎ الغـي حـظر هـذا البـوت و حـاول مجـددا @VideoSaqlabot**")
+                return
+            
+            # تجاهل الرد الأول (رسالة الاستلام)
+            await conv.get_response()
+            
+            # الحصول على الرد الثاني (الفيديو)
+            video = await conv.get_response()
+            
+            await dra.delete()
+            await bot.send_file(
+                event.chat_id,
+                video,
+                caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
+                parse_mode="html",
+            )
+            
+            await delete_conv(event, chat, purgeflag)
+                
+    except asyncio.TimeoutError:
+        await dra.edit("**⎉╎ عذراً، فشل التحميل حاول لاحقاً**")
+    except Exception as e:
+        await dra.edit(f"**⎉╎ حدث خطأ غير متوقع:**\n`{str(e)}`")
 
 @l313l.ar_cmd(pattern="انستا(?: |$)([\s\S]*)")
 async def instagram_downloader(event):
@@ -1274,7 +1318,7 @@ async def video_auto_search(event):
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 
 
-
+"""
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.types import User, UserFull
 import os
@@ -1347,3 +1391,4 @@ async def story_download(event):
         await dra.edit(f"**⎉╎ تم بنجاح تحميل {story_count} ستوري ✅**")
     else:
         await dra.edit("**⎉╎ فشل تحميل الستوريات ❌**")
+"""

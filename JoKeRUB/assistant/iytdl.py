@@ -55,6 +55,9 @@ plugin_category = "البوت"
 )
 async def iytdl_inline(event):
     "ytdl with inline buttons."
+    print("[DEBUG] ========== بدء البحث ==========")
+    print(f"[DEBUG] Config.TG_BOT_USERNAME = {Config.TG_BOT_USERNAME}")
+    
     reply = await event.get_reply_message()
     reply_to_id = await reply_id(event)
     input_str = event.pattern_match.group(1)
@@ -63,27 +66,45 @@ async def iytdl_inline(event):
         input_url = (input_str).strip()
     elif reply and reply.text:
         input_url = (reply.text).strip()
+    
+    print(f"[DEBUG] input_url = {input_url}")
+    
     if not input_url:
+        print("[DEBUG] لا يوجد رابط او نص")
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
+    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
     cout = 0
     results = None
+    
     while flag:
         try:
+            print(f"[DEBUG] محاولة البحث #{cout+1} عن: ytdl {input_url}")
             results = await event.client.inline_query(
                 Config.TG_BOT_USERNAME, f"ytdl {input_url}"
             )
+            print(f"[DEBUG] results = {results}")
+            print(f"[DEBUG] عدد النتائج = {len(results) if results else 0}")
             flag = False
-        except BotResponseTimeoutError:
+        except BotResponseTimeoutError as e:
+            print(f"[DEBUG] BotResponseTimeoutError: {e}")
             await asyncio.sleep(2)
+        except Exception as e:
+            print(f"[DEBUG] خطأ غير متوقع: {e}")
+            print(f"[DEBUG] نوع الخطأ: {type(e)}")
+            flag = False
         cout += 1
         if cout > 5:
+            print("[DEBUG] تم الوصول للحد الأقصى 5 محاولات")
             flag = False
+    
     if results:
+        print("[DEBUG] تم العثور على نتائج، جاري العرض...")
         await zedevent.delete()
         await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
+        print("[DEBUG] لم يتم العثور على نتائج")
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
@@ -94,6 +115,7 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
+    print("[DEBUG] ========== بدء التحميل ==========")
     yt_code = (
         str(c_q.pattern_match.group(1).decode("UTF-8"))
         if c_q.pattern_match.group(1) is not None
@@ -109,14 +131,22 @@ async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
         if c_q.pattern_match.group(3) is not None
         else None
     )
+    print(f"[DEBUG] yt_code = {yt_code}")
+    print(f"[DEBUG] choice_id = {choice_id}")
+    print(f"[DEBUG] downtype = {downtype}")
+    
     if str(choice_id).isdigit():
         choice_id = int(choice_id)
         if choice_id == 0:
+            print("[DEBUG] عرض أزرار التحميل")
             await c_q.answer("🔄  جـارِ ...", alert=False)
             await c_q.edit(buttons=(await download_button(yt_code)))
             return
     startTime = time()
     choice_str, disp_str = get_choice_by_id(choice_id, downtype)
+    print(f"[DEBUG] choice_str = {choice_str}")
+    print(f"[DEBUG] disp_str = {disp_str}")
+    
     media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
     callback_continue = f"جار تحميل {media_type} يرجى الانتظار"
     callback_continue += f"\n\nصيغـة الملـف : {disp_str}"
@@ -126,27 +156,44 @@ async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
     )
     yt_url = BASE_YT_URL + yt_code
     await c_q.edit(
-        f"<b>⌔╎جـارِ تحميـل 🎧 {media_type} ...</b>\n\n  <a href={yt_url}>  <b>⌔╎الـرابـط 📎</b></a>\n🎚 <b>⌔╎الصيغـه </b> : {disp_str}",
+        f"<b>⌔╎جـارِ تحميـل 🎧 {media_type} ...</b>\n\n  <a href={yt_url}>  <b>⌔╎الـرابـط 📎</b></a>\n🎚 <b>⌔╎الصيغـه </b> : {disp_str}",
         parse_mode="html",
     )
+    
+    print(f"[DEBUG] بدء التحميل من: {yt_url}")
     if downtype == "v":
         retcode = await _tubeDl(url=yt_url, starttime=startTime, uid=choice_str)
     else:
         retcode = await _mp3Dl(url=yt_url, starttime=startTime, uid=choice_str)
+    
+    print(f"[DEBUG] retcode = {retcode}")
+    
     if retcode != 0:
+        print(f"[DEBUG] فشل التحميل، retcode = {retcode}")
         return await upload_msg.edit(str(retcode))
+    
     _fpath = ""
     thumb_pic = None
+    print(f"[DEBUG] البحث في المسار: {os.path.join(Config.TEMP_DIR, str(startTime), '*')}")
     for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
+        print(f"[DEBUG] ملف موجود: {_path}")
         if _path.lower().endswith((".jpg", ".png", ".webp")):
             thumb_pic = _path
+            print(f"[DEBUG] صورة مصغرة: {thumb_pic}")
         else:
             _fpath = _path
+            print(f"[DEBUG] ملف الفيديو/الصوت: {_fpath}")
+    
     if not _fpath:
+        print("[DEBUG] لم يتم العثور على الملف!")
         await edit_delete(upload_msg, "**⌔╎اووبـس .. لم يتـم إيجـاد المطلـوب ؟!**")
         return
+    
     if not thumb_pic:
+        print(f"[DEBUG] جلب صورة مصغرة للفيديو: {yt_code}")
         thumb_pic = str(await pool.run_in_thread(download)(await get_ytthumb(yt_code)))
+    
+    print("[DEBUG] بدء رفع الملف...")
     attributes, mime_type = get_attributes(str(_fpath))
     ul = io.open(Path(_fpath), "rb")
     uploaded = await c_q.client.fast_upload_file(
@@ -182,6 +229,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
         file=uploaded_media.media,
         parse_mode="html",
     )
+    print("[DEBUG] ========== انتهى التحميل بنجاح ==========")
 
 
 @l313l.tgbot.on(
@@ -189,6 +237,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
 )
 @check_owner
 async def ytdl_callback(c_q: CallbackQuery):
+    print("[DEBUG] ========== معاينة ==========")
     choosen_btn = (
         str(c_q.pattern_match.group(1).decode("UTF-8"))
         if c_q.pattern_match.group(1) is not None
@@ -204,19 +253,29 @@ async def ytdl_callback(c_q: CallbackQuery):
         if c_q.pattern_match.group(3) is not None
         else None
     )
+    print(f"[DEBUG] choosen_btn = {choosen_btn}")
+    print(f"[DEBUG] data_key = {data_key}")
+    print(f"[DEBUG] page = {page}")
+    
     if not os.path.exists(PATH):
+        print(f"[DEBUG] الملف غير موجود: {PATH}")
         return await c_q.answer(
             "عملية البحث غير دقيقة يرجى اختيار عنوان صحيح وحاول مجددا",
             alert=True,
         )
+    
     with open(PATH) as f:
         view_data = ujson.load(f)
     search_data = view_data.get(data_key)
     total = len(search_data) if search_data is not None else 0
+    print(f"[DEBUG] total = {total}")
+    
     if total == 0:
+        print("[DEBUG] لا توجد بيانات بحث")
         return await c_q.answer(
             "يرجى البحث مرة اخرى لم يتم العثور على نتائج دقيقة", alert=True
         )
+    
     if choosen_btn == "back":
         index = int(page) - 1
         del_back = index == 1
@@ -293,4 +352,4 @@ async def ytdl_callback(c_q: CallbackQuery):
                 total=total,
             ),
             parse_mode="html",
-)
+        )

@@ -45,8 +45,8 @@ plugin_category = "البوت"
 
 
 @l313l.ar_cmd(
-    pattern="يوت(?:\s|$)([\s\S]*)",
-    command=("يوت", plugin_category),
+    pattern="بحث(?:\s|$)([\s\S]*)",
+    command=("بحث", plugin_category),
     info={
         "header": "ytdl with inline buttons.",
         "description": "To search and download youtube videos by inline buttons.",

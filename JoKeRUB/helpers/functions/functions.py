@@ -1,16 +1,16 @@
-import asyncio
+import json
 import os
 import zipfile
 from random import choice
+import random
 from textwrap import wrap
 from uuid import uuid4
-
+from urllib.parse import quote, unquote
 import requests
 from googletrans import Translator
-from PIL import Image, ImageOps
-from telethon import functions, types
 
 from ..utils.extdl import install_pip
+from ..utils.utils import runcmd
 
 try:
     from imdb import IMDb
@@ -18,17 +18,14 @@ except ModuleNotFoundError:
     install_pip("IMDbPY")
     from imdb import IMDb
 
-from html_telegraph_poster import TelegraphPoster
 from PIL import Image, ImageColor, ImageDraw, ImageFont, ImageOps
 from telethon.errors.rpcerrorlist import YouBlockedUserError
 from telethon.tl.functions.contacts import UnblockRequest as unblock
 
 from ...Config import Config
-from ...core.logger import logging
 from ...sql_helper.globals import gvarstatus
 from ..resources.states import states
 
-LOGS = logging.getLogger(__name__)
 imdb = IMDb()
 
 mov_titles = [
@@ -59,7 +56,7 @@ async def get_cast(casttype, movie):
         mov_casttype += "Not Data"
     return mov_casttype
 
-
+    
 async def get_moviecollections(movie):
     result = ""
     if "box office" in movie.keys():
@@ -94,23 +91,6 @@ async def covidindia(state):
     req = requests.get(url).json()
     return next((req[states.index(i)] for i in states if i == state), None)
 
-"""
-async def post_to_telegraph(
-    page_title,
-    html_format_content,
-    auth_name="aRRaS",
-    auth_url="https://t.me/Lx5x5",
-):
-    post_client = TelegraphPoster(use_api=True)
-    post_client.create_api_token(auth_name)
-    post_page = post_client.post(
-        title=page_title,
-        author=auth_name,
-        author_url=auth_url,
-        text=html_format_content,
-    )
-    return post_page["url"]
-"""
 
 # --------------------------------------------------------------------------------------------------------------------#
 
@@ -128,39 +108,45 @@ async def age_verification(event, reply_to_id):
     return True
 
 
-async def unsavegif(event, sandy):
+async def fileinfo(file):
+    x, y, z, s = await runcmd(f"mediainfo '{file}' --Output=JSON")
+    cat_json = json.loads(x)["media"]["track"]
+    dic = {
+        "path": file,
+        "size": int(cat_json[0]["FileSize"]),
+        "extension": cat_json[0]["FileExtension"],
+    }
     try:
-        await event.client(
-            functions.messages.SaveGifRequest(
-                id=types.InputDocument(
-                    id=sandy.media.document.id,
-                    access_hash=sandy.media.document.access_hash,
-                    file_reference=sandy.media.document.file_reference,
-                ),
-                unsave=True,
-            )
-        )
-    except Exception as e:
-        LOGS.info(str(e))
+        if "VideoCount" or "AudioCount" or "ImageCount" in cat_json[0]:
+            dic["format"] = cat_json[0]["Format"]
+            dic["type"] = cat_json[1]["@type"]
+            if "ImageCount" not in cat_json[0]:
+                dic["duration"] = int(float(cat_json[0]["Duration"]))
+                dic["bitrate"] = int(int(cat_json[0]["OverallBitRate"]) / 1000)
+            if "VideoCount" or "ImageCount" in cat_json[0]:
+                dic["height"] = int(cat_json[1]["Height"])
+                dic["width"] = int(cat_json[1]["Width"])
+    except (IndexError, KeyError):
+        pass
+    return dic
 
 
 async def animator(media, mainevent, textevent=None):
     # //Hope u dunt kang :/ @Jisan7509
     if not os.path.isdir(Config.TEMP_DIR):
         os.makedirs(Config.TEMP_DIR)
-    OldZed = await mainevent.client.download_media(media, Config.TEMP_DIR)
-    file = await fileinfo(OldZed)
+    BadCat = await mainevent.client.download_media(media, Config.TEMP_DIR)
+    file = await fileinfo(BadCat)
     h = file["height"]
     w = file["width"]
     w, h = (-1, 512) if h > w else (512, -1)
     if textevent:
         await textevent.edit("__🎞Converting into Animated sticker..__")
     await runcmd(
-        f"ffmpeg -to 00:00:02.900 -i '{OldZed}' -vf scale={w}:{h} -c:v libvpx-vp9 -crf 30 -b:v 560k -maxrate 560k -bufsize 256k -an animate.webm"
+        f"ffmpeg -to 00:00:02.900 -i '{BadCat}' -vf scale={w}:{h} -c:v libvpx-vp9 -crf 30 -b:v 560k -maxrate 560k -bufsize 256k -an animate.webm"
     )  # pain
-    os.remove(OldZed)
+    os.remove(BadCat)
     return "animate.webm"
-
 
 
 # --------------------------------------------------------------------------------------------------------------------#
@@ -175,7 +161,7 @@ async def clippy(borg, msg, chat_id, reply_to_id):
         try:
             msg = await conv.send_file(msg)
         except YouBlockedUserError:
-            await borg(unblock("clippy"))
+            await catub(unblock("clippy"))
             msg = await conv.send_file(msg)
         pic = await conv.get_response()
         await borg.send_read_acknowledge(conv.chat_id)
@@ -220,11 +206,6 @@ def sublists(input_list: list, width: int = 3):
     return [input_list[x : x + width] for x in range(0, len(input_list), width)]
 
 
-# split string into fixed length substrings
-def chunkstring(string, length):
-    return (string[0 + i : length + i] for i in range(0, len(string), length))
-
-
 # unziping file
 async def unzip(downloaded_file_name):
     with zipfile.ZipFile(downloaded_file_name, "r") as zip_ref:
@@ -242,9 +223,68 @@ async def getTranslate(text, **kwargs):
             result = translator.translate(text, **kwargs)
         except Exception:
             translator = Translator()
-            await asyncio.sleep(0.1)
+            await sleep(0.1)
     return result
 
+def translate(*args, **kwargs):
+    headers = {
+        "Referer": "https://translate.google.co.in",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/47.0.2526.106 Safari/537.36",
+        "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+    }
+    x = requests.post(
+        "https://translate.google.co.in/_/TranslateWebserverUi/data/batchexecute",
+        headers=headers,
+        data=_package_rpc(*args, **kwargs),
+    ).text
+    response = ""
+    data = json.loads(json.loads(x[4:])[0][2])[1][0][0]
+    subind = data[-2]
+    if not subind:
+        subind = data[-1]
+    for i in subind:
+        response += i[0]
+    return response
+
+def _get_value(stri):
+    try:
+        value = eval(stri.strip())
+    except Exception as er:
+        value = stri.strip()
+    return value
+
+def _package_rpc(text, lang_src="auto", lang_tgt="auto"):
+    GOOGLE_TTS_RPC = ["MkEWBc"]
+    parameter = [[text.strip(), lang_src, lang_tgt, True], [1]]
+    escaped_parameter = json.dumps(parameter, separators=(",", ":"))
+    rpc = [[[random.choice(GOOGLE_TTS_RPC), escaped_parameter, None, "generic"]]]
+    espaced_rpc = json.dumps(rpc, separators=(",", ":"))
+    freq_initial = "f.req={}&".format(quote(espaced_rpc))
+    freq = freq_initial
+    return freq
+
+def safe_load(file, *args, **kwargs):
+    if isinstance(file, str):
+        read = file.split("\n")
+    else:
+        read = file.readlines()
+    out = {}
+    for line in read:
+        if ":" in line:  # Ignores Empty & Invalid lines
+            spli = line.split(":", maxsplit=1)
+            key = spli[0].strip()
+            value = _get_value(spli[1])
+            out.update({key: value or []})
+        elif "-" in line:
+            spli = line.split("-", maxsplit=1)
+            where = out[list(out.keys())[-1]]
+            if isinstance(where, list):
+                value = _get_value(spli[1])
+                if value:
+                    where.append(value)
+    return out
 
 def reddit_thumb_link(preview, thumb=None):
     for i in preview:
@@ -276,7 +316,8 @@ def ellipse_create(filename, size, border):
 
 def ellipse_layout_create(filename, size, border):
     x, mask = ellipse_create(filename, size, border)
-    return ImageOps.expand(mask)
+    img = ImageOps.expand(mask)
+    return img
 
 
 def text_draw(font_name, font_size, img, text, hight, stroke_width=0, stroke_fill=None):
@@ -313,7 +354,7 @@ def higlighted_text(
     direction=None,
     font_name=None,
     album_limit=None,
-):  # sourcery skip: low-code-quality
+):
     templait = Image.open(input_img)
     # resize image
     raw_width, raw_height = templait.size
@@ -339,7 +380,8 @@ def higlighted_text(
     for item in raw_text:
         input_text = "\n".join(wrap(item, int((40.0 / resized_width) * mask_size)))
         split_text = input_text.splitlines()
-        list_text.extend(iter(split_text))
+        for final in split_text:
+            list_text.append(final)
     texts = [list_text]
     if album and len(list_text) > lines:
         texts = [list_text[i : i + lines] for i in range(0, len(list_text), lines)]

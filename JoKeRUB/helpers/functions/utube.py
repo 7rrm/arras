@@ -46,9 +46,9 @@ name_dl = (
 
 async def yt_search(JoKeRUB):
     try:
-        zed = urllib.parse.quote(JoKeRUB)
+        JoKeRUB = urllib.parse.quote(JoKeRUB)
         html = urllib.request.urlopen(
-            f"https://www.youtube.com/results?search_query={zed}"
+            f"https://www.youtube.com/results?search_query={JoKeRUB}"
         )
 
         user_data = re.findall(r"watch\?v=(\S{11})", html.read().decode())

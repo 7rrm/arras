@@ -45,7 +45,7 @@ plugin_category = "البوت"
 
 
 @l313l.ar_cmd(
-    pattern="يوت(?:\s|$)([\s\S]*)",
+    pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
     info={
         "header": "ytdl with inline buttons.",

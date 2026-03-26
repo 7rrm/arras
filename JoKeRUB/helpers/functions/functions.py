@@ -94,7 +94,7 @@ async def covidindia(state):
     req = requests.get(url).json()
     return next((req[states.index(i)] for i in states if i == state), None)
 
-
+"""
 async def post_to_telegraph(
     page_title,
     html_format_content,
@@ -110,7 +110,7 @@ async def post_to_telegraph(
         text=html_format_content,
     )
     return post_page["url"]
-
+"""
 
 # --------------------------------------------------------------------------------------------------------------------#
 

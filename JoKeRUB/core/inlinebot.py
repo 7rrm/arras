@@ -10,9 +10,9 @@ from telethon import Button, types, version
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from youtubesearchpython import VideosSearch
-from  import zedub, zedversion, StartTime
+from JoKeRUB import l313l, catversion, StartTime
 from ..Config import Config
-from ..helpers.functions import rand_key, zedalive, check_data_base_heal_th, get_readable_time
+from ..helpers.functions import rand_key, catalive, check_data_base_heal_th, get_readable_time
 from ..helpers.functions.utube import download_button, get_yt_video_id, get_ytthumb, result_formatter, ytsearch_data
 from ..plugins import mention
 from ..sql_helper.globals import gvarstatus
@@ -198,7 +198,7 @@ async def inline_handler(event):  # sourcery no-metrics
                 zchannel = controlpmch.replace("@", "")
                 buttons = [[Button.url("⌔ قنـاتـي ⌔", f"https://t.me/{zchannel}")]]
             else:
-                buttons = [[Button.url("𝗭𝗧𝗵𝗼𝗻", "https://t.me/ZThon")]]
+                buttons = [[Button.url("aRRaS", "https://t.me/lx5x5")]]
             PM_PIC = gvarstatus("pmpermit_pic")
             if PM_PIC:
                 CAT = [x for x in PM_PIC.split()]

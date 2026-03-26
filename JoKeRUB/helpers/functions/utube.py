@@ -44,11 +44,11 @@ name_dl = (
     "yt-dlp --cookies {get_cookies_file()} --force-ipv4 --get-filename -o './temp/%(title)s.%(ext)s' {video_link}"
 )
 
-async def yt_search(JoKeRUB):
+async def yt_search(zed):
     try:
-        JoKeRUB = urllib.parse.quote(JoKeRUB)
+        zed = urllib.parse.quote(zed)
         html = urllib.request.urlopen(
-            f"https://www.youtube.com/results?search_query={JoKeRUB}"
+            f"https://www.youtube.com/results?search_query={zed}"
         )
 
         user_data = re.findall(r"watch\?v=(\S{11})", html.read().decode())

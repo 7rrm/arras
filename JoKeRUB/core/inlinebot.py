@@ -12,7 +12,7 @@ from telethon.events import CallbackQuery, InlineQuery
 from youtubesearchpython import VideosSearch
 from JoKeRUB import l313l, catversion, StartTime
 from ..Config import Config
-from ..helpers.functions import rand_key, catalive, check_data_base_heal_th, get_readable_time
+from ..helpers.functions import rand_key, zedalive, check_data_base_heal_th, get_readable_time
 from ..helpers.functions.utube import download_button, get_yt_video_id, get_ytthumb, result_formatter, ytsearch_data
 from ..plugins import mention
 from ..sql_helper.globals import gvarstatus

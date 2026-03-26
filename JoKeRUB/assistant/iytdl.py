@@ -43,22 +43,7 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-@l313l.ar_cmd(pattern="اختبار بوت")
-async def test_bot(event):
-    """اختبار اتصال البوت"""
-    try:
-        # الطريقة الصحيحة لاستدعاء الاستعلامات المضمنة
-        results = await event.client.inline_query(
-            Config.TG_BOT_USERNAME, 
-            "test"
-        )
-        if results:
-            await event.edit(f"✅ البوت يعمل! عدد النتائج: {len(results)}")
-        else:
-            await event.edit("⚠️ لا توجد نتائج لكن البوت يعمل")
-    except Exception as e:
-        await event.edit(f"❌ خطأ: {str(e)}\n\nتأكد من:\n1. اسم البوت: {Config.TG_BOT_USERNAME}\n2. البوت مفعل في @BotFather\n3. خاصية Inline Mode مفعلة")
-        
+
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),

@@ -41,10 +41,10 @@ async def meme_type(message):
         except AttributeError:
             return await file_type(message)
     return None
-
+"""
 async def post_to_telegraph(page_title, html_format_content):
     post_client = TelegraphPoster(use_api=True)
-    auth_name = "JoKeRUB"
+    auth_name = ""
     post_client.create_api_token(auth_name)
     post_page = post_client.post(
         title=page_title,
@@ -53,7 +53,7 @@ async def post_to_telegraph(page_title, html_format_content):
         text=html_format_content,
     )
     return post_page["url"]
-    
+    """
 async def media_type(message):
     if message:
         try:

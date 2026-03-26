@@ -162,12 +162,12 @@ async def result_formatter(results: list):
             out += "<code>{}</code>\n\n".format(
                 "".join(x.get("text") for x in r.get("descriptionSnippet"))
             )
-        out += f'<b>❯  المدة:</b> {r.get("accessibility").get("duration")}\n'
-        views = f'<b>❯  المشاهدات:</b> {r.get("viewCount").get("short")}\n'
+        out += f'<b>❯ المـده :</b> {r.get("accessibility").get("duration")}\n'
+        views = f'<b>❯ المشـاهـدات :</b> {r.get("viewCount").get("short")}\n'
         out += views
-        out += f'<b>❯  تايرخ الرفع:</b> {r.get("publishedTime")}\n'
+        out += f'<b>❯ تاريـخ الرفـع :</b> {r.get("publishedTime")}\n'
         if upld:
-            out += "<b>❯  الرافع:</b> "
+            out += "<b>❯ القنـاة :</b> "
             out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
 
         output[index] = dict(

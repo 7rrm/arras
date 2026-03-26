@@ -1,4 +1,3 @@
-"""
 import json
 import math
 import os
@@ -6,23 +5,15 @@ import random
 import re
 import time
 from uuid import uuid4
-
-from telethon import Button, types
+from platform import python_version
+from telethon import Button, types, version
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from youtubesearchpython import VideosSearch
-
-from JoKeRUB import l313l
-
+from  import zedub, zedversion, StartTime
 from ..Config import Config
-from ..helpers.functions import rand_key
-from ..helpers.functions.utube import (
-    download_button,
-    get_yt_video_id,
-    get_ytthumb,
-    result_formatter,
-    ytsearch_data,
-)
+from ..helpers.functions import rand_key, zedalive, check_data_base_heal_th, get_readable_time
+from ..helpers.functions.utube import download_button, get_yt_video_id, get_ytthumb, result_formatter, ytsearch_data
 from ..plugins import mention
 from ..sql_helper.globals import gvarstatus
 from . import CMD_INFO, GRP_INFO, PLG_INFO, check_owner
@@ -31,9 +22,8 @@ from .logger import logging
 LOGS = logging.getLogger(__name__)
 
 BTN_URL_REGEX = re.compile(r"(\[([^\[]+?)\]\<buttonurl:(?:/{0,2})(.+?)(:same)?\>)")
-ROZLOGO = "https://telegra.ph/file/e76bb41ff12a7e8b71e3c.mp4"
+MEDIA_PATH_REGEX = re.compile(r"(:?\<\bmedia:(:?(?:.*?)+)\>)")
 tr = Config.COMMAND_HAND_LER
-
 
 def getkey(val):
     for key, value in GRP_INFO.items():
@@ -42,6 +32,9 @@ def getkey(val):
                 return key
     return None
 
+def get_thumb(name):
+    url = f"https://github.com/TgCatUB/CatUserbot-Resources/blob/master/Resources/Inline/{name}?raw=true"
+    return types.InputWebDocument(url=url, size=0, mime_type="image/png", attributes=[])
 
 def ibuild_keyboard(buttons):
     keyb = []
@@ -52,162 +45,7 @@ def ibuild_keyboard(buttons):
             keyb.append([Button.url(btn[0], btn[1])])
     return keyb
 
-
-def main_menu():
-    text = f"**- [سـورس الجوكر](https://t.me/jepthon)\
-        \n المسـاعد\
-        \n\
-        \n◽ الجوكر لـ {mention}**"
-    buttons = [
-        (Button.inline("ℹ️ • التعليمات •", data="check"),),
-        (
-            Button.inline(f"👮‍♂️ • اوامر الادمن • ({len(GRP_INFO['admin'])})", data="admin_menu"),
-            Button.inline(f"🤖 • اوامر البوت • ({len(GRP_INFO['bot'])})", data="bot_menu"),
-        ),
-        (
-            Button.inline(f"🎨 • اوامر التسلية • ({len(GRP_INFO['fun'])})", data="fun_menu"),
-            Button.inline(f"🎈 • اوامر الصيغ والبحث • ({len(GRP_INFO['misc'])})", data="misc_menu"),
-        ),
-        (
-            Button.inline(f"🧰 • الادوات • ({len(GRP_INFO['tools'])})", data="tools_menu"),
-            Button.inline(f"🗂 • الملفات • ({len(GRP_INFO['utils'])})", data="utils_menu"),
-        ),
-        (
-            Button.inline(f"🧸 • اوامر متفرعه • ({len(GRP_INFO['extra'])})", data="extra_menu"),
-            Button.inline("🔒 • اغلاق القائمة •", data="close"),
-        ),
-    ]
-
-    return text, buttons
-
-
-def command_in_category(cname):
-    cmds = 0
-    for i in GRP_INFO[cname]:
-        for _ in PLG_INFO[i]:
-            cmds += 1
-    return cmds
-
-
-def paginate_help(
-    page_number,
-    loaded_plugins,
-    prefix,
-    plugins=True,
-    category_plugins=None,
-    category_pgno=0,
-):  # sourcery no-metrics
-    try:
-        number_of_rows = int(gvarstatus("NO_OF_ROWS_IN_HELP") or 5)
-    except (ValueError, TypeError):
-        number_of_rows = 5
-    try:
-        number_of_cols = int(gvarstatus("NO_OF_COLUMNS_IN_HELP") or 2)
-    except (ValueError, TypeError):
-        number_of_cols = 2
-    HELP_EMOJI = gvarstatus("HELP_EMOJI") or " "
-    helpable_plugins = [p for p in loaded_plugins if not p.startswith("_")]
-    helpable_plugins = sorted(helpable_plugins)
-    if len(HELP_EMOJI) == 2:
-        if plugins:
-            modules = [
-                Button.inline(
-                    f"{HELP_EMOJI[0]} {x} {HELP_EMOJI[1]}",
-                    data=f"{x}_prev(1)_command_{prefix}_{page_number}",
-                )
-                for x in helpable_plugins
-            ]
-        else:
-            modules = [
-                Button.inline(
-                    f"{HELP_EMOJI[0]} {x} {HELP_EMOJI[1]}",
-                    data=f"{x}_cmdhelp_{prefix}_{page_number}_{category_plugins}_{category_pgno}",
-                )
-                for x in helpable_plugins
-            ]
-    elif plugins:
-        modules = [
-            Button.inline(
-                f"{HELP_EMOJI} {x} {HELP_EMOJI}",
-                data=f"{x}_prev(1)_command_{prefix}_{page_number}",
-            )
-            for x in helpable_plugins
-        ]
-    else:
-        modules = [
-            Button.inline(
-                f"{HELP_EMOJI} {x} {HELP_EMOJI}",
-                data=f"{x}_cmdhelp_{prefix}_{page_number}_{category_plugins}_{category_pgno}",
-            )
-            for x in helpable_plugins
-        ]
-    if number_of_cols == 1:
-        pairs = list(zip(modules[::number_of_cols]))
-    elif number_of_cols == 2:
-        pairs = list(zip(modules[::number_of_cols], modules[1::number_of_cols]))
-    else:
-        pairs = list(
-            zip(
-                modules[::number_of_cols],
-                modules[1::number_of_cols],
-                modules[2::number_of_cols],
-            )
-        )
-    if len(modules) % number_of_cols == 1:
-        pairs.append((modules[-1],))
-    elif len(modules) % number_of_cols == 2:
-        pairs.append((modules[-2], modules[-1]))
-    max_num_pages = math.ceil(len(pairs) / number_of_rows)
-    modulo_page = page_number % max_num_pages
-    if plugins:
-        if len(pairs) > number_of_rows:
-
-            pairs = pairs[
-                modulo_page * number_of_rows : number_of_rows * (modulo_page + 1)
-            ] + [
-                (
-                    Button.inline("⌫", data=f"{prefix}_prev({modulo_page})_plugin"),
-                    Button.inline("⚙️ Main Menu", data="mainmenu"),
-                    Button.inline("⌦", data=f"{prefix}_next({modulo_page})_plugin"),
-                )
-            ]
-        else:
-            pairs = pairs + [(Button.inline("⚙️ • القائمة الرئيسية •", data="mainmenu"),)]
-    elif len(pairs) > number_of_rows:
-        if category_pgno < 0:
-            category_pgno = len(pairs) + category_pgno
-        pairs = pairs[
-            modulo_page * number_of_rows : number_of_rows * (modulo_page + 1)
-        ] + [
-            (
-                Button.inline(
-                    "⌫",
-                    data=f"{prefix}_prev({modulo_page})_command_{category_plugins}_{category_pgno}",
-                ),
-                Button.inline(
-                    "⬅️ • الرجوع • ",
-                    data=f"back_plugin_{category_plugins}_{category_pgno}",
-                ),
-                Button.inline(
-                    "⌦",
-                    data=f"{prefix}_next({modulo_page})_command_{category_plugins}_{category_pgno}",
-                ),
-            )
-        ]
-    else:
-        if category_pgno < 0:
-            category_pgno = len(pairs) + category_pgno
-        pairs = pairs + [
-            (
-                Button.inline(
-                    "⬅️ • الرجوع • ",
-                    data=f"back_plugin_{category_plugins}_{category_pgno}",
-                ),
-            )
-        ]
-    return pairs
-          
-@l313l.tgbot.on(InlineQuery)
+@zedub.tgbot.on(InlineQuery)
 async def inline_handler(event):  # sourcery no-metrics
     builder = event.builder
     result = None
@@ -218,217 +56,74 @@ async def inline_handler(event):  # sourcery no-metrics
     string.split()
     query_user_id = event.query.user_id
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
-        hmm = re.compile("ترول (.*) (.*)")
+        hmm = re.compile("troll (.*) (.*)")
         match = re.findall(hmm, query)
-        inf = re.compile("همسة (.*) (.*)")
+        inf = re.compile("seccret (.*) (.*)")
         match2 = re.findall(inf, query)
-        hid = re.compile("اخفاء (.*)")
+        hid = re.compile("hide (.*)")
         match3 = re.findall(hid, query)
-        if query.startswith("l313l"):
-            buttons = [
-                (
-                    Button.inline("الحـالة ⚒️", data="stats"),
-                    Button.url(" JoKeRUB UsᴇʀBoᴛ", "https://t.me/jepthon"),
-                )
-            ]
-            ALIVE_PIC = gvarstatus("ALIVE_PIC")
-            IALIVE_PIC = gvarstatus("IALIVE_PIC")
-            if IALIVE_PIC:
-                ROZE = [x for x in IALIVE_PIC.split()]
-                PIC = list(ROZE)
-                I_IMG = random.choice(PIC)
-            if not IALIVE_PIC and ALIVE_PIC:
-                ROZE = [x for x in ALIVE_PIC.split()]
-                PIC = list(ROZE)
-                I_IMG = random.choice(PIC)
-            elif not IALIVE_PIC:
-                I_IMG = None
-            if I_IMG and I_IMG.endswith((".jpg", ".png")):
-                result = builder.photo(
-                    I_IMG,
-                    text=query,
-                    buttons=buttons,
-                )
-            elif I_IMG:
-                result = builder.document(
-                    I_IMG,
-                    title="Alive BOT",
-                    text=query,
-                    buttons=buttons,
-                )
+        if match or match2 or match3:
+            user_list = []
+            if match3:
+                sandy = "Chat"
+                query = query[5:]
+                info_type = ["hide", "can't", "Read Message "]
             else:
-                result = builder.article(
-                    title="Alive BOT",
-                    text=query,
-                    buttons=buttons,
-                )
-            await event.answer([result] if result else None)
-        elif query.startswith("Inline buttons"):
-            markdown_note = query[14:]
-            prev = 0
-            note_data = ""
-            buttons = []
-            for match in BTN_URL_REGEX.finditer(markdown_note):
-                n_escapes = 0
-                to_check = match.start(1) - 1
-                while to_check > 0 and markdown_note[to_check] == "\\":
-                    n_escapes += 1
-                    to_check -= 1
-                if n_escapes % 2 == 0:
-                    buttons.append(
-                        (match.group(2), match.group(3), bool(match.group(4)))
-                    )
-                    note_data += markdown_note[prev : match.start(1)]
-                    prev = match.end(1)
-                elif n_escapes % 2 == 1:
-                    note_data += markdown_note[prev:to_check]
-                    prev = match.start(1) - 1
+                sandy = ""
+                if match:
+                    query = query[6:]
+                    info_type = ["troll", "can't", "show message 🔐"]
+                elif match2:
+                    query = query[7:]
+                    info_type = ["secret", "can", "show message 🔐"]
+                if "|" in query:
+                    iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
+                    users = iris.split(" ")
                 else:
-                    break
-            else:
-                note_data += markdown_note[prev:]
-            message_text = note_data.strip()
-            tl_ib_buttons = ibuild_keyboard(buttons)
-            result = builder.article(
-                title="Inline creator",
-                text=message_text,
-                buttons=tl_ib_buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
-        elif match:
-            query = query[7:]
-            user, txct = query.split(" ", 1)
-            builder = event.builder
-            troll = os.path.join("./JoKeRUB", "troll.txt")
-            try:
-                jsondata = json.load(open(troll))
-            except Exception:
-                jsondata = False
-            try:
-                # if u is user id
-                u = int(user)
-                try:
-                    u = await event.client.get_entity(u)
+                    user, query = query.split(" ", 1)
+                    users = [user]
+                for user in users:
+                    usr = int(user) if user.isdigit() else user
+                    try:
+                        u = await event.client.get_entity(usr)
+                    except ValueError:
+                        return
                     if u.username:
-                        razan = f"@{u.username}"
+                        sandy += f"@{u.username}"
                     else:
-                        razan = f"[{u.first_name}](tg://user?id={u.id})"
-                    u = int(u.id)
-                except ValueError:
-                    # ValueError: Could not find the input entity
-                    razan = f"[user](tg://user?id={u})"
-            except ValueError:
-                # if u is username
-                try:
-                    u = await event.client.get_entity(user)
-                except ValueError:
-                    return
-                if u.username:
-                    razan = f"@{u.username}"
-                else:
-                    razan = f"[{u.first_name}](tg://user?id={u.id})"
-                u = int(u.id)
-            except Exception:
-                return
-            timestamp = int(time.time() * 2)
-            newtroll = {str(timestamp): {"userid": u, "text": txct}}
-
-            buttons = [Button.inline("عـرض الـرسـالة 🔐", data=f"troll_{timestamp}")]
-            result = builder.article(
-                title="رسـالة تـرول من سـورس الجوكر 🧸♥",
-                text=f"فقـط {razan} هـو مـن يستـطيع مشـاهدتهـا !",
-                buttons=buttons,
-            )
-            await event.answer([result] if result else None)
-            if jsondata:
-                jsondata.update(newtroll)
-                json.dump(jsondata, open(troll, "w"))
-            else:
-                json.dump(newtroll, open(troll, "w"))
-        elif match2:
-            query = query[7:]
-            user, txct = query.split(" ", 1)
-            builder = event.builder
-            secret = os.path.join("./JoKeRUB", "secrets.txt")
+                        sandy += f"[{u.first_name}](tg://user?id={u.id})"
+                    user_list.append(u.id)
+                    sandy += " "
+                sandy = sandy[:-1]
+            old_msg = os.path.join("./zlzl", f"{info_type[0]}.txt")
             try:
-                jsondata = json.load(open(secret))
-            except Exception:
-                jsondata = False
-            try:
-                # if u is user id
-                u = int(user)
-                try:
-                    u = await event.client.get_entity(u)
-                    if u.username:
-                        razan = f"@{u.username}"
-                    else:
-                        razan = f"[{u.first_name}](tg://user?id={u.id})"
-                    u = int(u.id)
-                except ValueError:
-                    # ValueError: Could not find the input entity
-                    razan = f"[user](tg://user?id={u})"
-            except ValueError:
-                # if u is username
-                try:
-                    u = await event.client.get_entity(user)
-                except ValueError:
-                    return
-                if u.username:
-                    razan = f"@{u.username}"
-                else:
-                    razan = f"[{u.first_name}](tg://user?id={u.id})"
-                u = int(u.id)
-            except Exception:
-                return
-            timestamp = int(time.time() * 2)
-            newsecret = {str(timestamp): {"userid": u, "text": txct}}
-
-            buttons = [Button.inline("عـرض الـرسـالة 🔐", data=f"rzan_{timestamp}")]
-            result = builder.article(
-                title="همسـة سـرية من سـورس الجوكر 🧸♥",
-                text=f"فقـط {razan} هـو مـن يستـطيع مشـاهدتهـا !",
-                buttons=buttons,
-            )
-            await event.answer([result] if result else None)
-            if jsondata:
-                jsondata.update(newsecret)
-                json.dump(jsondata, open(secret, "w"))
-            else:
-                json.dump(newsecret, open(secret, "w"))
-        elif match3:
-            query = query[5:]
-            builder = event.builder
-            hide = os.path.join("./JoKeRUB", "hide.txt")
-            try:
-                jsondata = json.load(open(hide))
+                jsondata = json.load(open(old_msg))
             except Exception:
                 jsondata = False
             timestamp = int(time.time() * 2)
-            newhide = {str(timestamp): {"text": query}}
-
-            buttons = [Button.inline("قراءة الـرسالـة ", data=f"hide_{timestamp}")]
+            new_msg = {
+                str(timestamp): {"text": query}
+                if match3
+                else {"userid": user_list, "text": query}
+            }
+            buttons = [Button.inline(info_type[2], data=f"{info_type[0]}_{timestamp}")]
             result = builder.article(
-                title="رسـالة مخفيـة من سـورس الجوكر 🧸♥",
-                text=f"✖✖✖",
+                title=f"{info_type[0].title()} message  to {sandy}.",
+                description="Send hidden text in chat."
+                if match3
+                else f"Only he/she/they {info_type[1]} open it.",
+                thumb=get_thumb(f"{info_type[0]}.png"),
+                text="✖✖✖"
+                if match3
+                else f"🔒 A whisper message to {sandy}, Only he/she can open it.",
                 buttons=buttons,
             )
             await event.answer([result] if result else None)
             if jsondata:
-                jsondata.update(newhide)
-                json.dump(jsondata, open(hide, "w"))
+                jsondata.update(new_msg)
+                json.dump(jsondata, open(old_msg, "w"))
             else:
-                json.dump(newhide, open(hide, "w"))
-        elif string == "help":
-            _result = main_menu()
-            result = builder.article(
-                title="© JoKeRUB Help",
-                description="Help menu for JoKeRUB",
-                text=_result[0],
-                buttons=_result[1],
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+                json.dump(new_msg, open(old_msg, "w"))
         elif str_y[0].lower() == "ytdl" and len(str_y) == 2:
             link = get_yt_video_id(str_y[1].strip())
             found_ = True
@@ -447,11 +142,11 @@ async def inline_handler(event):  # sourcery no-metrics
                             data=f"ytdl_next_{key_}_1",
                         ),
                         Button.inline(
-                            "📜  اضهار القائمة",
+                            "القائمـة 📜",
                             data=f"ytdl_listall_{key_}_1",
                         ),
                         Button.inline(
-                            "⬇️  تنزيل",
+                            "⬇️  تحميـل",
                             data=f'ytdl_download_{outdata[1]["video_id"]}_0',
                         ),
                     ]
@@ -472,7 +167,7 @@ async def inline_handler(event):  # sourcery no-metrics
                     id=str(uuid4()),
                     type="photo",
                     title=link,
-                    description="⬇️ اضغط للتنزيل",
+                    description="⬇️ اضغـط للتحميـل",
                     thumb=photo,
                     content=photo,
                     send_message=types.InputBotInlineMessageMediaAuto(
@@ -497,256 +192,39 @@ async def inline_handler(event):  # sourcery no-metrics
                         )
                     ]
                 )
-        elif string == "age_verification_alert":
-            buttons = [
-                Button.inline(text="Yes I'm 18+", data="age_verification_true"),
-                Button.inline(text="No I'm Not", data="age_verification_false"),
-            ]
-            markup = event.client.build_reply_markup(buttons)
-            photo = types.InputWebDocument(
-                url="https://i.imgur.com/Zg58iXc.jpg",
-                size=0,
-                mime_type="image/jpeg",
-                attributes=[],
-            )
-            text, msg_entities = await event.client._parse_message_text(
-                "<b>ARE YOU OLD ENOUGH FOR THIS ?</b>", "html"
-            )
-            result = types.InputBotInlineResult(
-                id=str(uuid4()),
-                type="photo",
-                title="Age verification",
-                thumb=photo,
-                content=photo,
-                send_message=types.InputBotInlineMessageMediaAuto(
-                    reply_markup=markup, message=text, entities=msg_entities
-                ),
-            )
-            await event.answer([result] if result else None)
         elif string == "pmpermit":
-            buttons = [
-                Button.inline(text="🪐 الخـيارات", data="show_pmpermit_options"),
-            ]
+            controlpmch = gvarstatus("pmchannel") or None
+            if controlpmch is not None:
+                zchannel = controlpmch.replace("@", "")
+                buttons = [[Button.url("⌔ قنـاتـي ⌔", f"https://t.me/{zchannel}")]]
+            else:
+                buttons = [[Button.url("𝗭𝗧𝗵𝗼𝗻", "https://t.me/ZThon")]]
             PM_PIC = gvarstatus("pmpermit_pic")
             if PM_PIC:
-                ROZE = [x for x in PM_PIC.split()]
-                PIC = list(ROZE)
-                ROZE_IMG = random.choice(PIC)
+                CAT = [x for x in PM_PIC.split()]
+                PIC = list(CAT)
+                CAT_IMG = random.choice(PIC)
             else:
-                ROZE_IMG = None
+                CAT_IMG = None
             query = gvarstatus("pmpermit_text")
-            if ROZE_IMG and ROZE_IMG.endswith((".jpg", ".jpeg", ".png")):
+            if CAT_IMG and CAT_IMG.endswith((".jpg", ".jpeg", ".png")):
                 result = builder.photo(
-                    ROZE_IMG,
-                    # title="Alive ROZE",
+                    CAT_IMG,
+                    # title="Alive zed",
                     text=query,
                     buttons=buttons,
                 )
-            elif ROZE_IMG:
+            elif CAT_IMG:
                 result = builder.document(
-                    ROZE_IMG,
-                    title="Alive BOT",
+                    CAT_IMG,
+                    title="Alive cat",
                     text=query,
                     buttons=buttons,
                 )
             else:
                 result = builder.article(
-                    title="Alive BOT",
+                    title="Alive cat",
                     text=query,
                     buttons=buttons,
                 )
             await event.answer([result] if result else None)
-    else:
-        buttons = [
-            (
-                Button.url("قنـاة السـورس ⚒️", "https://t.me/jepthon"),
-                Button.url(
-                    "كـروب المـساعدة 📬",
-                    "https://t.me/jepthon1",
-                ),
-            )
-        ]
-        markup = event.client.build_reply_markup(buttons)
-        photo = types.InputWebDocument(
-            url=ROZLOGO, size=0, mime_type="image/jpeg", attributes=[]
-        )
-        text, msg_entities = await event.client._parse_message_text(
-            "**[بـوت الجوكر 🧸♥](https://t.me/jepthon)**\
-            \n\
-            \n❤ الجوكر هـو بـوت بسـيط يدخـل الـى حسـابك لجعـلك تتحـكم به معـ اوامـر معينـة.\
-            \n\
-            \n**اذا كـنت تـرغب بتـنصيـب السـورس عـلى حسـابك ,\
-            \n🐾 تعال الـى [كروب المسـاعدة](https://t.me/jepthon1)!**",
-            "md",
-        )
-        result = types.InputBotInlineResult(
-            id=str(uuid4()),
-            type="photo",
-            title="l313l 🧸♥",
-            description="ادخـل كـروب المسـاعدة",
-            url="https://t.me/jepthon1",
-            thumb=photo,
-            content=photo,
-            send_message=types.InputBotInlineMessageMediaAuto(
-                reply_markup=markup, message=text, entities=msg_entities
-            ),
-        )
-        await event.answer([result] if result else None)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"close")))
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    buttons = [
-        (Button.inline("Open Menu", data="mainmenu"),),
-    ]
-    await event.edit("Menu Closed", buttons=buttons)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"check")))
-async def on_plugin_callback_query_handler(event):
-    text = f"𝙿𝚕𝚞𝚐𝚒𝚗𝚜: {len(PLG_INFO)}\
-        \n𝙲𝚘𝚖𝚖𝚊𝚗𝚍𝚜: {len(CMD_INFO)}\
-        \n\n{tr}𝚑𝚎𝚕𝚙 <𝚙𝚕𝚞𝚐𝚒𝚗> : 𝙵𝚘𝚛 𝚜𝚙𝚎𝚌𝚒𝚏𝚒𝚌 𝚙𝚕𝚞𝚐𝚒𝚗 𝚒𝚗𝚏𝚘.\
-        \n{tr}𝚑𝚎𝚕𝚙 -𝚌 <𝚌𝚘𝚖𝚖𝚊𝚗𝚍> : 𝙵𝚘𝚛 𝚊𝚗𝚢 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 𝚒𝚗𝚏𝚘.\
-        \n{tr}𝚜 <𝚚𝚞𝚎𝚛𝚢> : 𝚃𝚘 𝚜𝚎𝚊𝚛𝚌𝚑 𝚊𝚗𝚢 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.\
-        "
-    await event.answer(text, cache_time=0, alert=True)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"(.*)_menu")))
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    category = str(event.pattern_match.group(1).decode("UTF-8"))
-    buttons = paginate_help(0, GRP_INFO[category], category)
-    text = f"**Category: **{category}\
-        \n**Total plugins :** {len(GRP_INFO[category])}\
-        \n**Total Commands:** {command_in_category(category)}"
-    await event.edit(text, buttons=buttons)
-
-
-@l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"back_([a-z]+)_([a-z1-9]+)_([0-9]+)_?([a-z1-9]+)?_?([0-9]+)?")
-    )
-)
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    mtype = str(event.pattern_match.group(1).decode("UTF-8"))
-    category = str(event.pattern_match.group(2).decode("UTF-8"))
-    pgno = int(event.pattern_match.group(3).decode("UTF-8"))
-    if mtype == "plugin":
-        buttons = paginate_help(pgno, GRP_INFO[category], category)
-        text = f"**Category: **`{category}`\
-            \n**Total plugins :** __{len(GRP_INFO[category])}__\
-            \n**Total Commands:** __{command_in_category(category)}__"
-    else:
-        category_plugins = str(event.pattern_match.group(4).decode("UTF-8"))
-        category_pgno = int(event.pattern_match.group(5).decode("UTF-8"))
-        buttons = paginate_help(
-            pgno,
-            PLG_INFO[category],
-            category,
-            plugins=False,
-            category_plugins=category_plugins,
-            category_pgno=category_pgno,
-        )
-        text = f"**Plugin: **`{category}`\
-                \n**Category: **__{getkey(category)}__\
-                \n**Total Commands:** __{len(PLG_INFO[category])}__"
-    await event.edit(text, buttons=buttons)
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"mainmenu")))
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    _result = main_menu()
-    await event.edit(_result[0], buttons=_result[1])
-
-
-@l313l.tgbot.on(
-    CallbackQuery(data=re.compile(rb"(.*)_prev\((.+?)\)_([a-z]+)_?([a-z]+)?_?(.*)?"))
-)
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    category = str(event.pattern_match.group(1).decode("UTF-8"))
-    current_page_number = int(event.data_match.group(2).decode("UTF-8"))
-    htype = str(event.pattern_match.group(3).decode("UTF-8"))
-    if htype == "plugin":
-        buttons = paginate_help(current_page_number - 1, GRP_INFO[category], category)
-    else:
-        category_plugins = str(event.pattern_match.group(4).decode("UTF-8"))
-        category_pgno = int(event.pattern_match.group(5).decode("UTF-8"))
-        buttons = paginate_help(
-            current_page_number - 1,
-            PLG_INFO[category],
-            category,
-            plugins=False,
-            category_plugins=category_plugins,
-            category_pgno=category_pgno,
-        )
-        text = f"**Plugin: **`{category}`\
-                \n**Category: **__{getkey(category)}__\
-                \n**Total Commands:** __{len(PLG_INFO[category])}__"
-        try:
-            return await event.edit(text, buttons=buttons)
-        except Exception as e:
-            LOGS.error(str(e))
-    await event.edit(buttons=buttons)
-
-
-@l313l.tgbot.on(
-    CallbackQuery(data=re.compile(rb"(.*)_next\((.+?)\)_([a-z]+)_?([a-z]+)?_?(.*)?"))
-)
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    category = str(event.pattern_match.group(1).decode("UTF-8"))
-    current_page_number = int(event.data_match.group(2).decode("UTF-8"))
-    htype = str(event.pattern_match.group(3).decode("UTF-8"))
-    category_plugins = event.pattern_match.group(4)
-    if category_plugins:
-        category_plugins = str(category_plugins.decode("UTF-8"))
-    category_pgno = event.pattern_match.group(5)
-    if category_pgno:
-        category_pgno = int(category_pgno.decode("UTF-8"))
-    if htype == "plugin":
-        buttons = paginate_help(current_page_number + 1, GRP_INFO[category], category)
-    else:
-        buttons = paginate_help(
-            current_page_number + 1,
-            PLG_INFO[category],
-            category,
-            plugins=False,
-            category_plugins=category_plugins,
-            category_pgno=category_pgno,
-        )
-    await event.edit(buttons=buttons)
-
-
-@l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"(.*)_cmdhelp_([a-z1-9]+)_([0-9]+)_([a-z]+)_([0-9]+)")
-    )
-)
-@check_owner
-async def on_plug_in_callback_query_handler(event):
-    cmd = str(event.pattern_match.group(1).decode("UTF-8"))
-    category = str(event.pattern_match.group(2).decode("UTF-8"))
-    pgno = int(event.pattern_match.group(3).decode("UTF-8"))
-    category_plugins = str(event.pattern_match.group(4).decode("UTF-8"))
-    category_pgno = int(event.pattern_match.group(5).decode("UTF-8"))
-    buttons = [
-        (
-            Button.inline(
-                "⬅️ Back ",
-                data=f"back_command_{category}_{pgno}_{category_plugins}_{category_pgno}",
-            ),
-            Button.inline("⚙️ Main Menu", data="mainmenu"),
-        )
-    ]
-    text = f"**Command :** `{tr}{cmd}`\
-        \n**Plugin :** `{category}`\
-        \n**Category :** `{category_plugins}`\
-        \n\n**✘ Intro :**\n{CMD_INFO[cmd][0]}"
-    await event.edit(text, buttons=buttons)
-"""

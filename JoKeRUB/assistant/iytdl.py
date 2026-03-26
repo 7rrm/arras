@@ -294,3 +294,15 @@ async def ytdl_callback(c_q: CallbackQuery):
             ),
             parse_mode="html",
            )
+
+@l313l.ar_cmd(pattern="اختبار بوت")
+async def test_bot(event):
+    """اختبار اتصال البوت"""
+    try:
+        # جرب إرسال استعلام مضمن
+        results = await event.client.inline_query(
+            Config.TG_BOT_USERNAME, "test"
+        )
+        await event.edit(f"✅ البوت يعمل! عدد النتائج: {len(results)}")
+    except Exception as e:
+        await event.edit(f"❌ خطأ: {str(e)}\nتأكد من:\n1. اسم البوت صحيح\n2. البوت مفعل")

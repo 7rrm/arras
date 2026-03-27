@@ -147,14 +147,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس الدردشة (المجموعة أو الخاص)
-                # استخدم c_q.chat_id بدلاً من c_q.sender_id
+                # إرسال الملف في نفس الدردشة
+                # استخدم c_q.message.id للرد على رسالة الأزرار
                 await l313l.send_file(
-                    c_q.chat_id,  # <-- تغيير هنا
+                    c_q.chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html",
-                    reply_to=c_q.original_message_id  # للرد على الرسالة الأصلية
+                    reply_to=c_q.message.id  # الرد على رسالة الأزرار
                 )
                 
                 # تعديل رسالة الأزرار

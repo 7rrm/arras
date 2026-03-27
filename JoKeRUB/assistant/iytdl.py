@@ -35,6 +35,30 @@ from ..helpers.functions.utube import (
 )
 from ..plugins import BOTLOG_CHATID
 
+from telethon import types
+from telethon.extensions import html, markdown
+
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
+
 LOGS = logging.getLogger(__name__)
 BASE_YT_URL = "https://www.youtube.com/watch?v="
 YOUTUBE_REGEX = re.compile(
@@ -87,102 +111,67 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
+
 @l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
-    )
+    CallbackQuery(data=re.compile(b"^ytdl_download_(audio|video)_(.*)"))
 )
 @check_owner
-async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
-    yt_code = (
-        str(c_q.pattern_match.group(1).decode("UTF-8"))
-        if c_q.pattern_match.group(1) is not None
-        else None
-    )
-    choice_id = (
-        str(c_q.pattern_match.group(2).decode("UTF-8"))
-        if c_q.pattern_match.group(2) is not None
-        else None
-    )
-    downtype = (
-        str(c_q.pattern_match.group(3).decode("UTF-8"))
-        if c_q.pattern_match.group(3) is not None
-        else None
-    )
-    if str(choice_id).isdigit():
-        choice_id = int(choice_id)
-        if choice_id == 0:
-            await c_q.answer("🔄  جـارِ ...", alert=False)
-            await c_q.edit(buttons=(await download_button(yt_code)))
-            return
-    startTime = time()
-    choice_str, disp_str = get_choice_by_id(choice_id, downtype)
-    media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
-    callback_continue = f"جار تحميل {media_type} يرجى الانتظار"
-    callback_continue += f"\n\nصيغـة الملـف : {disp_str}"
-    await c_q.answer(callback_continue, alert=True)
-    upload_msg = await c_q.client.send_message(
-        BOTLOG_CHATID, "**⌔╎جـارِ الـرفـع ...**"
-    )
+async def ytdl_download_callback(c_q: CallbackQuery):
+    download_type = c_q.pattern_match.group(1).decode("UTF-8")  # audio or video
+    yt_code = c_q.pattern_match.group(2).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
-    await c_q.edit(
-        f"<b>⌔╎جـارِ تحميـل 🎧 {media_type} ...</b>\n\n  <a href={yt_url}>  <b>⌔╎الـرابـط 📎</b></a>\n🎚 <b>⌔╎الصيغـه </b> : {disp_str}",
-        parse_mode="html",
-    )
-    if downtype == "v":
-        retcode = await _tubeDl(url=yt_url, starttime=startTime, uid=choice_str)
-    else:
-        retcode = await _mp3Dl(url=yt_url, starttime=startTime, uid=choice_str)
-    if retcode != 0:
-        return await upload_msg.edit(str(retcode))
-    _fpath = ""
-    thumb_pic = None
-    for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
-        if _path.lower().endswith((".jpg", ".png", ".webp")):
-            thumb_pic = _path
+    
+    await c_q.answer("🔄 جـارِ التحضير للتحميل...", alert=False)
+    await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
+    
+    try:
+        # اختيار البوت المناسب
+        if download_type == "audio":
+            bot_username = "@W60yBot"  # بوت الصوت
+            command = f"يوت {yt_url}"
         else:
-            _fpath = _path
-    if not _fpath:
-        await edit_delete(upload_msg, "**⌔╎اووبـس .. لم يتـم إيجـاد المطلـوب ؟!**")
-        return
-    if not thumb_pic:
-        thumb_pic = str(await pool.run_in_thread(download)(await get_ytthumb(yt_code)))
-    attributes, mime_type = get_attributes(str(_fpath))
-    ul = io.open(Path(_fpath), "rb")
-    uploaded = await c_q.client.fast_upload_file(
-        file=ul,
-        progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-            progress(
-                d,
-                t,
-                c_q,
-                startTime,
-                "trying to upload",
-                file_name=os.path.basename(Path(_fpath)),
-            )
-        ),
-    )
-    ul.close()
-    media = types.InputMediaUploadedDocument(
-        file=uploaded,
-        mime_type=mime_type,
-        attributes=attributes,
-        force_file=False,
-        thumb=await c_q.client.upload_file(thumb_pic) if thumb_pic else None,
-    )
-    uploaded_media = await c_q.client.send_file(
-        BOTLOG_CHATID,
-        file=media,
-        caption=f"<b>⌔╎الاسـم : </b><code>{os.path.basename(Path(_fpath))}</code>",
-        parse_mode="html",
-    )
-    await upload_msg.delete()
-    await c_q.edit(
-        text=f"<b>⌔╎الـرابـط 📎: </b> <a href={yt_url}><b>{os.path.basename(Path(_fpath))}</b></a>",
-        file=uploaded_media.media,
-        parse_mode="html",
-    )
-
+            bot_username = "@ahmedebot"  # بوت الفيديو
+            command = f"تحميل {yt_url}"
+        
+        # التواصل مع البوت الخارجي
+        async with c_q.client.conversation(bot_username, timeout=60) as conv:
+            await conv.send_message(command)
+            
+            # انتظار الرد الأول
+            try:
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=10)
+            except asyncio.TimeoutError:
+                raise Exception("البوت لم يستجب")
+            
+            # انتظار الملف
+            file_response = await conv.get_response()
+            
+            if file_response and file_response.media:
+                # تنسيق الكابشن
+                caption = f"""<blockquote>
+<b>✅ تم التحميل بنجاح</b>
+<a href="emoji/5890831539507302154">🎵</a>
+</blockquote>
+<b>↯︰By: @Lx5x5 .</b>
+<a href="emoji/5368338253868968009">🦅</a>"""
+                
+                # إرسال الملف للمستخدم
+                await c_q.client.send_file(
+                    c_q.chat_id,
+                    file_response.media,
+                    caption=caption,
+                    parse_mode=CustomParseMode("html"),
+                    reply_to=c_q.message.reply_to_msg_id
+                )
+                
+                await c_q.delete()  # حذف رسالة الأزرار بعد التحميل
+                
+            else:
+                await c_q.edit("❌ فشل التحميل، يرجى المحاولة لاحقاً")
+                
+    except Exception as e:
+        LOGS.error(f"Download error: {e}")
+        await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

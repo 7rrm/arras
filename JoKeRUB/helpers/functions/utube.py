@@ -17,6 +17,16 @@ from ..progress import humanbytes
 from .functions import sublists
 
 LOGS = logging.getLogger(__name__)
+
+def get_cookies_file():
+    folder_path = f"{os.getcwd()}/zion"
+    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
+    if not txt_files:
+        raise FileNotFoundError("No .txt files found in the specified folder.")
+    cookie_txt_file = random.choice(txt_files)
+    return cookie_txt_file
+
+
 BASE_YT_URL = "https://www.youtube.com/watch?v="
 YOUTUBE_REGEX = re.compile(
     r"(?:youtube\.com|youtu\.be)/(?:[\w-]+\?v=|embed/|v/|shorts/)?([\w-]{11})"
@@ -301,6 +311,8 @@ def _tubeDl(url: str, starttime, uid: str):
             # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
         ],
         "quiet": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -329,10 +341,12 @@ def _mp3Dl(url: str, starttime, uid: str):
                 "preferredcodec": "mp3",
                 "preferredquality": uid,
             },
-            {"key": "EmbedThumbnail"},
+            {"key": "EmbedThumbnail"},  # ERROR: Conversion failed!
             {"key": "FFmpegMetadata"},
         ],
         "quiet": True,
+        "no_warnings": True,
+        "cookiefile" : get_cookies_file(),
     }
     try:
         with yt_dlp.YoutubeDL(_opts) as ytdl:

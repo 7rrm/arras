@@ -93,61 +93,42 @@ async def iytdl_inline(event):
 async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
-    
-    # ---------- الطريقة الصحيحة للحصول على chat_id ----------
-    # 1. من خلال الرسالة الأصلية التي تحتوي على الزر
-    try:
-        original_msg = await c_q.get_message()
-        chat_id = original_msg.chat_id
-        LOGS.info(f"Chat ID from original message: {chat_id}")
-    except Exception as e:
-        LOGS.error(f"Error getting chat_id from original message: {e}")
-        # 2. بديل: من خلال c_q.query.peer
-        if hasattr(c_q, 'query') and hasattr(c_q.query, 'peer'):
-            peer = c_q.query.peer
-            if hasattr(peer, 'chat_id'):
-                chat_id = peer.chat_id
-            elif hasattr(peer, 'user_id'):
-                chat_id = peer.user_id
-            else:
-                chat_id = c_q.sender_id
-        else:
-            chat_id = c_q.sender_id
-    
-    # التأكد من أن chat_id ليس None أو 0
-    if not chat_id or chat_id == 0:
-        await c_q.answer("❌ لا يمكن تحديد الدردشة", alert=True)
-        return
-    
-    # ---------- تأكيد أن chat_id ليس المحادثات المحفوظة ----------
-    # المحادثات المحفوظة يكون chat_id = user_id الخاص بك
-    # نتحقق إذا كان chat_id يساوي معرف المستخدم (أي المحادثات المحفوظة) 
-    # إذا كان كذلك، نستخدم chat_id = c_q.sender_id (المستخدم الذي ضغط)
-    if chat_id == l313l.uid:  # إذا كان chat_id هو معرف الحساب العادي (المحادثات المحفوظة)
-        chat_id = c_q.sender_id  # نستخدم معرف المستخدم الذي ضغط الزر
-        LOGS.info(f"Chat was saved messages, changed to user chat: {chat_id}")
-    
+
+    # الحصول على chat_id الصحيح من الرسالة التي تحتوي على الزر
+    # الطريقة الأضمن: c_q.message.chat_id (الرسالة التي نقر عليها المستخدم)
+    if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
+        chat_id = c_q.message.chat_id
+    elif hasattr(c_q, 'chat_id') and c_q.chat_id:
+        chat_id = c_q.chat_id
+    else:
+        # آخر حل: استخدام معرف المستخدم الذي نقر، ولكن هذا سيؤدي إلى Saved Messages غالبًا
+        chat_id = c_q.sender_id
+
+    # تسجيل للتصحيح
+    LOGS.info(f"Download requested - chat_id: {chat_id}, sender: {c_q.sender_id}")
+
+    # إذا كان chat_id هو معرف الحساب العادي (Saved Messages)، نستبدله بـ sender_id
+    if chat_id == l313l.uid:
+        chat_id = c_q.sender_id
+        LOGS.info(f"Changed chat_id from saved messages to user: {chat_id}")
+
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-    
+
     try:
         await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     except:
         pass
-    
+
     try:
-        # استخدام الحساب العادي للتواصل مع البوت الخارجي
+        # التواصل مع البوت الخارجي عبر الحساب العادي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
-            
-            # تجاهل الرد الأول (رسالة "جاري البحث...")
             try:
                 await asyncio.wait_for(conv.get_response(), timeout=1)
             except:
                 pass
-            
-            # الرد الثاني هو الملف
             audio_response = await conv.get_response()
-            
+
             if audio_response and audio_response.media:
                 caption = (
                     f"<blockquote>\n"
@@ -157,29 +138,28 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>↯︰By: @Lx5x5 .</b>"
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
-                
-                # إرسال الملف إلى نفس الدردشة باستخدام الحساب العادي
-                await l313l.send_file(
+
+                # إرسال الملف باستخدام البوت نفسه (c_q.client) وليس الحساب العادي
+                # البوت يعرف الدردشة التي جاء منها الطلب بشكل دقيق
+                await c_q.client.send_file(
                     chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
-                
-                # تحديث رسالة الزر
+
                 try:
                     await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 except:
                     pass
-                
             else:
-                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
-                
+                await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
+
     except asyncio.TimeoutError:
-        await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
+        await c_q.client.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
+        await c_q.client.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

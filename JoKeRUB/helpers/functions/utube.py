@@ -224,78 +224,14 @@ def yt_search_btns(
 
 
 @pool.run_in_thread
-def download_button(vid: str, body: bool = False):
+def download_button(vid: str, body: bool = False):  # sourcery no-metrics
     # sourcery skip: low-code-quality
     try:
-        # إعدادات متقدمة لتجاوز حماية يوتيوب
-        ydl_opts = {
-            "no-playlist": True,
-            "cookiefile": get_cookies_file(),
-            "extract_flat": False,
-            "quiet": True,
-            "no_warnings": False,
-            "ignoreerrors": True,
-            "format": "best",
-            "retries": 10,
-            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            "extractor_args": {
-                "youtube": {
-                    "skip": ["dash", "hls"],
-                    "player_client": "android",  # استخدام عميل android
-                    "player_skip": ["webpage", "configs"],
-                    "player_client": "android_embedded",  # عميل بديل
-                    "player_client": "ios",  # عميل ios
-                }
-            },
-            # إضافة هذه الخيارات المهمة
-            "compat_opts": ["no-youtube-unavailable-formats"],
-            "youtube_include_dash_manifest": False,
-            "youtube_include_hls_manifest": False,
-        }
-        
-        LOGS.info(f"Trying to extract info for video: {vid}")
-        vid_data = yt_dlp.YoutubeDL(ydl_opts).extract_info(
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
             BASE_YT_URL + vid, download=False
         )
-        
-        # إذا فشل، جرب بدون extractor_args
-        if vid_data is None or not vid_data.get("formats"):
-            LOGS.warning("First attempt failed, trying with basic options...")
-            ydl_opts_basic = {
-                "no-playlist": True,
-                "cookiefile": get_cookies_file(),
-                "quiet": True,
-                "ignoreerrors": True,
-                "format": "best",
-                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            }
-            vid_data = yt_dlp.YoutubeDL(ydl_opts_basic).extract_info(
-                BASE_YT_URL + vid, download=False
-            )
-        
-        # إذا كان vid_data لا يزال None
-        if vid_data is None:
-            LOGS.error("Failed to extract video info")
-            buttons = [[Button.inline("❌ الفيديو غير متاح حالياً", data="noop")]]
-            if body:
-                return "لا يمكن تحميل الفيديو", buttons
-            return buttons
-            
-        if not vid_data.get("formats"):
-            LOGS.warning("No formats found for video")
-            buttons = [[Button.inline("⚠️ لا توجد صيغ متاحة للتحميل", data="noop")]]
-            if body:
-                return "لا توجد صيغ متاحة", buttons
-            return buttons
-            
-    except Exception as e:
-        LOGS.error(f"Error extracting video info: {str(e)}")
-        buttons = [[Button.inline(f"❌ خطأ: {str(e)[:30]}", data="noop")]]
-        if body:
-            return "حدث خطأ أثناء جلب البيانات", buttons
-        return buttons
-    
-    # باقي الكود كما هو...
+    except ExtractorError:
+        vid_data = {"formats": []}
     buttons = [
         [
             Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
@@ -305,11 +241,11 @@ def download_button(vid: str, body: bool = False):
             ),
         ]
     ]
-    
+    # ------------------------------------------------ #
     qual_dict = defaultdict(lambda: defaultdict(int))
     qual_list = ["144p", "240p", "360p", "480p", "720p", "1080p", "1440p"]
     audio_dict = {}
-    
+    # ------------------------------------------------ #
     for video in vid_data["formats"]:
         if video.get("filesize"):
             fr_note = video.get("format_note")
@@ -317,10 +253,10 @@ def download_button(vid: str, body: bool = False):
             fr_size = video.get("filesize")
             if video.get("ext") == "mp4":
                 for frmt_ in qual_list:
-                    if fr_note and fr_note in (frmt_, f"{frmt_}60"):
+                    if fr_note in (frmt_, f"{frmt_}60"):
                         qual_dict[frmt_][fr_id] = fr_size
             if video.get("acodec") != "none":
-                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
                 if bitrrate != 0:
                     audio_dict[
                         bitrrate
@@ -338,27 +274,22 @@ def download_button(vid: str, body: bool = False):
                     data=f"ytdl_download_{vid}_{frmt_id}_v",
                 )
             )
-    
-    if video_btns:
-        buttons += sublists(video_btns, width=2)
-    
+    buttons += sublists(video_btns, width=2)
     buttons += [
         [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
     ]
-    
-    if audio_dict:
-        buttons += sublists(
-            [
-                Button.inline(audio_dict.get(key_), data=f"ytdl_download_{vid}_{key_}_a")
-                for key_ in sorted(audio_dict.keys())
-            ],
-            width=2,
-        )
-    
+    buttons += sublists(
+        [
+            Button.inline(audio_dict.get(key_), data=f"ytdl_download_{vid}_{key_}_a")
+            for key_ in sorted(audio_dict.keys())
+        ],
+        width=2,
+    )
     if body:
-        vid_body = f"<a href={vid_data.get('webpage_url', BASE_YT_URL + vid)}><b>[{vid_data.get('title', 'فيديو')}]</b></a>"
+        vid_body = f"<a href={vid_data.get('webpage_url')}><b>[{vid_data.get('title')}]</b></a>"
         return vid_body, buttons
     return buttons
+    
 
 @pool.run_in_thread
 def _tubeDl(url: str, starttime, uid: str):

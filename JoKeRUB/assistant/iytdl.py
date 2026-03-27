@@ -135,10 +135,10 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     # رسالة تأكيد للمستخدم
     await c_q.answer(f"جـارِ إرسال طلب التحميل إلى البوت...\nالصيغة: {disp_str}", alert=True)
     
-    # إرسال رابط الفيديو إلى البوت الخارجي
+    # إرسال رابط الفيديو إلى البوت الخارجي باستخدام l313l (الحساب العادي)
     try:
-        # إرسال الأمر إلى البوت الخارجي
-        await c_q.client.send_message(
+        # إرسال الأمر إلى البوت الخارجي عبر الحساب العادي
+        await l313l.send_message(
             EXTERNAL_BOT_USERNAME,
             f"يوت {yt_url}"
         )
@@ -160,6 +160,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             f"<b>الخطأ:</b> {str(e)}",
             parse_mode="html"
         )
+
 
 
 @l313l.tgbot.on(

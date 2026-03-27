@@ -120,13 +120,13 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
+    # تخزين معرف الدردشة مثل كود اليوت
+    chat_id = c_q.chat_id
+    
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # تخزين معرف الدردشة مثل كود اليوت
-        chat_id = c_q.chat_id
-        
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
@@ -149,11 +149,10 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 
                 # إرسال الملف في نفس الدردشة
                 await l313l.send_file(
-                    chat_id,  # نفس معرف الدردشة
+                    chat_id,  # استخدم نفس معرف الدردشة
                     audio_response.media,
                     caption=caption,
-                    parse_mode="html",
-                    reply_to=c_q.message.reply_to_msg_id  # الرد على الرسالة الأصلية
+                    parse_mode="html"
                 )
                 
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])

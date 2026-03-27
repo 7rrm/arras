@@ -125,42 +125,43 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # استخدام الحساب الأساسي (client) للتواصل مع البوت الخارجي
-        # l313l.client هو الحساب الأساسي
-        
-        async with l313l.client.conversation("@W60yBot", timeout=60) as conv:
+        # استخدام c_q.client كما في الكود الأصلي (event.client)
+        async with c_q.client.conversation("@W60yBot", timeout=60) as conv:
             # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
-            # انتظار رد البوت
+            # انتظار الردود (مثل الكود الأصلي)
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=10)
-                LOGS.info(f"First response: {first_response.text if first_response.text else 'media'}")
+                LOGS.info(f"First response received")
             except asyncio.TimeoutError:
                 raise Exception("البوت لم يستجب")
             
-            # انتظار الملف الصوتي
-            file_response = await conv.get_response()
+            # انتظار الملف
+            audio_response = await conv.get_response()
             
-            if file_response and file_response.media:
-                # تنسيق الكابشن
-                caption = f"""<blockquote>
-<b>✅ تم التحميل بنجاح</b>
-<a href="emoji/5890831539507302154">🎵</a>
-</blockquote>
-<b>↯︰By: @Lx5x5 .</b>
-<a href="emoji/5368338253868968009">🦅</a>"""
+            if audio_response and audio_response.media:
+                # نفس الكابشن المستخدم في الكود الأصلي
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                )
                 
                 # إرسال الملف للمستخدم
-                await l313l.client.send_file(
+                await c_q.client.send_file(
                     c_q.chat_id,
-                    file_response.media,
+                    audio_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
                     reply_to=c_q.message.reply_to_msg_id
                 )
                 
-                await c_q.delete()  # حذف رسالة الأزرار بعد التحميل
+                # حذف رسالة الأزرار بعد التحميل
+                await c_q.delete()
                 
             else:
                 await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")

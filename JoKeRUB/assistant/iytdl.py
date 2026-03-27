@@ -120,26 +120,33 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # chat_id هو نفس الدردشة التي استخدمت فيها الأمر
-    # سواء كانت مجموعة أو خاص
+    # الحصول على معرف الدردشة التي حدث فيها الأمر الأصلي
+    # c_q.chat_id يعيد معرف الدردشة الحالية (وهي الصحيحة)
     chat_id = c_q.chat_id
     
-    # إذا كان chat_id = 0 (نادراً)، استخدم sender_id
-    if chat_id == 0 or chat_id is None:
-        chat_id = c_q.sender_id
+    # معرف المستخدم الذي ضغط على الزر
+    user_id = c_q.sender_id
+    
+    # للتوثيق - تأكد أننا في الدردشة الصحيحة
+    LOGS.info(f"Download requested - Chat ID: {chat_id}, User ID: {user_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
+    
+    # تحديث رسالة الزر لإظهار الجاري
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
+        # استخدام الحساب العادي للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
+            # تجاهل الرد الأول (عادةً "جاري البحث...")
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
                 pass
             
+            # الرد الثاني هو الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -152,22 +159,28 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس الدردشة
-                await l313l.send_file(
-                    chat_id,  # هذا هو المكان الذي استخدمت فيه الأمر
+                # إرسال الملف إلى نفس الدردشة التي حدث فيها الأمر
+                # نستخدم c_q.client لأن هذا هو البوت الذي يستقبل الـ Callback
+                # وسيرسل الملف في نفس مكان الزر
+                await c_q.client.send_file(
+                    chat_id,  # نفس الدردشة
                     audio_response.media,
                     caption=caption,
-                    parse_mode="html"
+                    parse_mode="html",
+                    reply_to=c_q.message_id  # يرد على رسالة الزر
                 )
                 
+                # تحديث رسالة الزر إلى تم بنجاح
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
             else:
-                await c_q.edit("❌ فشل التحميل")
+                await c_q.edit("❌ **فشل التحميل**\nلم يتم استلام ملف من البوت")
                 
+    except asyncio.TimeoutError:
+        await c_q.edit("❌ **انتهت المهلة**\nالبوت لم يستجب في الوقت المحدد")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
+        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

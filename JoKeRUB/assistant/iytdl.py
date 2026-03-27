@@ -6,6 +6,7 @@
 import asyncio
 import glob
 import io
+import html
 import os
 import re
 from pathlib import Path
@@ -32,10 +33,32 @@ from ..helpers.functions.utube import (
     get_choice_by_id,
     get_ytthumb,
     yt_search_btns,
-    result_formatter,  # أضف هذا
-    ytsearch_data,     # أضف هذا
 )
 from ..plugins import BOTLOG_CHATID
+
+from telethon import types
+from telethon.extensions import html, markdown
+
+class CustomParseMode:
+    def __init__(self, parse_mode: str):
+        self.parse_mode = parse_mode
+
+    def parse(self, text):
+        if self.parse_mode == 'html':
+            text, entities = html.parse(text)
+            for i, e in enumerate(entities):
+                if isinstance(e, types.MessageEntityTextUrl):
+                    if e.url.startswith('emoji/'):
+                        document_id = int(e.url.split('/')[1])
+                        entities[i] = types.MessageEntityCustomEmoji(
+                            offset=e.offset,
+                            length=e.length,
+                            document_id=document_id
+                        )
+            return text, entities
+        elif self.parse_mode == 'markdown':
+            return markdown.parse(text)
+        raise ValueError("Unsupported parse mode")
 
 LOGS = logging.getLogger(__name__)
 BASE_YT_URL = "https://www.youtube.com/watch?v="
@@ -45,8 +68,6 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-# إعدادات البوت الخارجي للتحميل
-EXTERNAL_BOT_USERNAME = "@W60yBot"  # يمكنك تغييره حسب البوت الذي تريد استخدامه
 
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
@@ -91,8 +112,6 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
-
-
 @l313l.tgbot.on(
     CallbackQuery(
         data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
@@ -116,49 +135,61 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         else None
     )
     
-    # إذا كان choice_id = 0 يعني أن المستخدم يريد رؤية خيارات التحميل
-    if str(choice_id).isdigit():
-        choice_id = int(choice_id)
-        if choice_id == 0:
-            await c_q.answer("🔄 جـارِ جلب خيارات التحميل...", alert=False)
-            await c_q.edit(buttons=(await download_button(yt_code)))
-            return
+    # عرض خيارات التحميل
+    if str(choice_id).isdigit() and int(choice_id) == 0:
+        await c_q.answer("🔄 جـارِ جلب خيارات التحميل...", alert=False)
+        await c_q.edit(buttons=(await download_button(yt_code)))
+        return
     
-    # تحديد نوع المطلوب (فيديو أو صوت)
-    media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
-    choice_str, disp_str = get_choice_by_id(choice_id, downtype)
-    
-    # رابط الفيديو الكامل
+    # رابط الفيديو
     yt_url = BASE_YT_URL + yt_code
+    _, disp_str = get_choice_by_id(choice_id, downtype)
     
-    # رسالة تأكيد للمستخدم
-    await c_q.answer(f"جـارِ إرسال طلب التحميل إلى البوت...\nالصيغة: {disp_str}", alert=True)
+    await c_q.answer(f"جـارِ إرسال الطلب إلى البوت...\nالصيغة: {disp_str}", alert=True)
     
-    # إرسال رابط الفيديو إلى البوت الخارجي باستخدام الحساب العادي
     try:
-        # استخدام الحساب العادي (l313l) للتواصل مع البوت الخارجي
-        await l313l.send_message(
-            EXTERNAL_BOT_USERNAME,
-            f"يوت {yt_url}"
-        )
-        
-        # تحديث رسالة الزر لإظهار أنه تم الإرسال
-        await c_q.edit(
-            f"<b>✅ تم إرسال طلب التحميل بنجاح</b>\n\n"
-            f"<b>⌔╎الرابط 📎:</b> <a href='{yt_url}'>اضغط هنا</a>\n"
-            f"<b>🎚 الصيغة:</b> {disp_str}\n\n"
-            f"<i>سيقوم البوت @{EXTERNAL_BOT_USERNAME[1:]} بإرسال الملف قريباً...</i>",
-            parse_mode="html"
-        )
-        
+        # ✅ التصحيح الأهم: استخدم الحساب العادي (l313l) وليس البوت
+        async with l313l.conversation("@W60yBot", timeout=60) as conv:
+            # إرسال الأمر مع الرابط
+            await conv.send_message(f"يوت {yt_url}")
+            
+            # تجاهل الرد الأول (مثل "جاري البحث...")
+            try:
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=3)
+                LOGS.info(f"Ignored first response: {first_response.text if first_response.text else 'media'}")
+            except asyncio.TimeoutError:
+                pass
+            
+            # انتظار الرد الثاني (الملف)
+            audio_response = await conv.get_response()
+            
+            if audio_response and audio_response.media:
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>✅ تم التحميل بنجاح</b>\n"
+                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                    f"</blockquote>\n"
+                    f"<b>↯︰By: @Lx5x5 .</b>\n"
+                    f'<a href="emoji/5368338253868968009">🦅</a>'
+                )
+                
+                # إرسال الملف للمستخدم عبر البوت
+                await c_q.client.send_file(
+                    c_q.chat_id,
+                    audio_response.media,
+                    caption=caption,
+                    parse_mode="html"
+                )
+                
+                await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+            else:
+                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف من البوت الخارجي")
+                
+    except asyncio.TimeoutError:
+        await c_q.edit("⏰ انتهت المهلة، البوت الخارجي لم يستجب")
     except Exception as e:
-        LOGS.error(f"Error sending to external bot: {e}")
-        await c_q.edit(
-            f"<b>❌ فشل إرسال الطلب إلى البوت</b>\n\n"
-            f"<b>الرابط:</b> <a href='{yt_url}'>اضغط هنا للتحميل يدوياً</a>\n"
-            f"<b>الخطأ:</b> {str(e)}",
-            parse_mode="html"
-        )
+        LOGS.error(f"Download error: {e}")
+        await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))
@@ -180,23 +211,19 @@ async def ytdl_callback(c_q: CallbackQuery):
         if c_q.pattern_match.group(3) is not None
         else None
     )
-    
     if not os.path.exists(PATH):
         return await c_q.answer(
             "عملية البحث غير دقيقة يرجى اختيار عنوان صحيح وحاول مجددا",
             alert=True,
         )
-    
     with open(PATH) as f:
         view_data = ujson.load(f)
     search_data = view_data.get(data_key)
     total = len(search_data) if search_data is not None else 0
-    
     if total == 0:
         return await c_q.answer(
             "يرجى البحث مرة اخرى لم يتم العثور على نتائج دقيقة", alert=True
         )
-    
     if choosen_btn == "back":
         index = int(page) - 1
         del_back = index == 1
@@ -273,4 +300,5 @@ async def ytdl_callback(c_q: CallbackQuery):
                 total=total,
             ),
             parse_mode="html",
-    )
+           )
+

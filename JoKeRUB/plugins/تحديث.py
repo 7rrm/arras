@@ -10,7 +10,9 @@ import urllib3
 from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError, NoSuchPathError
 from telethon import events 
-from JoKeRUB import HEROKU_APP, UPSTREAM_REPO_URL, l313l, mention
+from JoKeRUB import HEROKU_APP, UPSTREAM_REPO_URL, l313l
+from . import l313l, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention, StartTime
+
 
 from ..Config import Config
 from ..core.logger import logging

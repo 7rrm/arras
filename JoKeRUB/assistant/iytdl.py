@@ -120,13 +120,13 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على معرف المستخدم من peer
-    if hasattr(c_q.query.peer, 'user_id'):
-        chat_id = c_q.query.peer.user_id
-    else:
-        chat_id = c_q.sender_id
+    # chat_id هو نفس الدردشة التي استخدمت فيها الأمر
+    # سواء كانت مجموعة أو خاص
+    chat_id = c_q.chat_id
     
-    LOGS.info(f"Chat ID from peer: {chat_id}")
+    # إذا كان chat_id = 0 (نادراً)، استخدم sender_id
+    if chat_id == 0 or chat_id is None:
+        chat_id = c_q.sender_id
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -152,8 +152,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
+                # إرسال الملف في نفس الدردشة
                 await l313l.send_file(
-                    chat_id,
+                    chat_id,  # هذا هو المكان الذي استخدمت فيه الأمر
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"

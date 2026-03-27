@@ -86,6 +86,7 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
+
 @l313l.tgbot.on(
     CallbackQuery(
         data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
@@ -117,8 +118,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     
     bot_username = "W60yBot"
     
-    # حفظ معرف الرسالة الأصلية لحذفها لاحقاً
-    original_msg_id = c_q.query.msg_id
+    # حفظ معرف الرسالة الأصلية
+    original_msg = c_q.query.msg_id
     
     try:
         # إرسال الأمر للبوت الخارجي بالشكل الصحيح: "يوت" + الرابط
@@ -137,8 +138,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                # حذف الرسالة الأصلية (التي تحتوي على الأزرار)
-                await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+                # محاولة حذف الرسالة الأصلية
+                try:
+                    await c_q.delete()
+                except:
+                    pass
                 
                 # إرسال رسالة جديدة بالملف
                 await c_q.client.send_file(
@@ -146,7 +150,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     msg.media,
                     caption=caption,
                     parse_mode="html",
-                    reply_to=original_msg_id
+                    reply_to=c_q.query.msg_id if hasattr(c_q.query, 'msg_id') else None
                 )
                 return
         
@@ -162,8 +166,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                # حذف الرسالة الأصلية
-                await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+                # محاولة حذف الرسالة الأصلية
+                try:
+                    await c_q.delete()
+                except:
+                    pass
                 
                 # إرسال رسالة جديدة بالملف
                 await c_q.client.send_file(
@@ -171,13 +178,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     msg.media,
                     caption=caption,
                     parse_mode="html",
-                    reply_to=original_msg_id
+                    reply_to=c_q.query.msg_id if hasattr(c_q.query, 'msg_id') else None
                 )
                 return
         
         # إذا لم نجد أي ملف نهائياً
         # حذف الرسالة الأصلية
-        await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+        try:
+            await c_q.delete()
+        except:
+            pass
         
         # إرسال رسالة جديدة بدون ملف
         await c_q.client.send_message(
@@ -186,13 +196,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>⏯️ {yt_url}</a>\n\n"
             f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
             f"<b>⌔╎للبوت :</b> @{bot_username}",
-            parse_mode="html"
+            parse_mode="html",
+            reply_to=original_msg if hasattr(original_msg, 'msg_id') else None
         )
         
     except Exception as e:
         # حذف الرسالة الأصلية في حالة الخطأ
         try:
-            await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+            await c_q.delete()
         except:
             pass
             
@@ -205,7 +216,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             f"<b>⌔╎للبوت :</b> @{bot_username}",
             parse_mode="html"
         )
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

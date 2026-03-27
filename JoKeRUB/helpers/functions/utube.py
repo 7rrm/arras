@@ -193,30 +193,27 @@ async def result_formatter(results: list):
 
 
 def yt_search_btns(
-    data_key: str, page: int, vid: str, total: int, del_back: bool = False, chat_id: int = None, msg_id: int = None
+    data_key: str, page: int, vid: str, total: int, del_back: bool = False
 ):
-    # تخزين chat_id و msg_id في البيانات
-    extra_data = f"_{chat_id}_{msg_id}" if chat_id and msg_id else ""
-    
     buttons = [
         [
             Button.inline(
                 text="⬅️  رجوع",
-                data=f"ytdl_back_{data_key}_{page}{extra_data}",
+                data=f"ytdl_back_{data_key}_{page}",
             ),
             Button.inline(
                 text=f"{page} / {total}",
-                data=f"ytdl_next_{data_key}_{page}{extra_data}",
+                data=f"ytdl_next_{data_key}_{page}",
             ),
         ],
         [
             Button.inline(
                 text="📜  قائمة الكل",
-                data=f"ytdl_listall_{data_key}_{page}{extra_data}",
+                data=f"ytdl_listall_{data_key}_{page}",
             ),
             Button.inline(
                 text="⬇️  تحميل",
-                data=f"ytdl_download_{vid}_0{extra_data}",
+                data=f"ytdl_download_{vid}_0",
             ),
         ],
     ]
@@ -228,24 +225,67 @@ def yt_search_btns(
 
 @pool.run_in_thread
 def download_button(vid: str, body: bool = False):
+    # sourcery skip: low-code-quality
     try:
-        # استخراج معلومات الفيديو من يوتيوب (بدون تحميل)
+        # إعدادات متقدمة لتجاوز حماية يوتيوب
         ydl_opts = {
             "no-playlist": True,
+            "cookiefile": get_cookies_file(),
+            "extract_flat": False,
             "quiet": True,
+            "no_warnings": False,
             "ignoreerrors": True,
-            "extract_flat": True,  # استخراج المعلومات فقط
-            "force_generic_extractor": False,
+            "format": "best",
+            "retries": 10,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "extractor_args": {
+                "youtube": {
+                    "skip": ["dash", "hls"],
+                    "player_client": "android",  # استخدام عميل android
+                    "player_skip": ["webpage", "configs"],
+                    "player_client": "android_embedded",  # عميل بديل
+                    "player_client": "ios",  # عميل ios
+                }
+            },
+            # إضافة هذه الخيارات المهمة
+            "compat_opts": ["no-youtube-unavailable-formats"],
+            "youtube_include_dash_manifest": False,
+            "youtube_include_hls_manifest": False,
         }
         
+        LOGS.info(f"Trying to extract info for video: {vid}")
         vid_data = yt_dlp.YoutubeDL(ydl_opts).extract_info(
             BASE_YT_URL + vid, download=False
         )
         
+        # إذا فشل، جرب بدون extractor_args
+        if vid_data is None or not vid_data.get("formats"):
+            LOGS.warning("First attempt failed, trying with basic options...")
+            ydl_opts_basic = {
+                "no-playlist": True,
+                "cookiefile": get_cookies_file(),
+                "quiet": True,
+                "ignoreerrors": True,
+                "format": "best",
+                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+            vid_data = yt_dlp.YoutubeDL(ydl_opts_basic).extract_info(
+                BASE_YT_URL + vid, download=False
+            )
+        
+        # إذا كان vid_data لا يزال None
         if vid_data is None:
-            buttons = [[Button.inline("❌ الفيديو غير متاح", data="noop")]]
+            LOGS.error("Failed to extract video info")
+            buttons = [[Button.inline("❌ الفيديو غير متاح حالياً", data="noop")]]
             if body:
                 return "لا يمكن تحميل الفيديو", buttons
+            return buttons
+            
+        if not vid_data.get("formats"):
+            LOGS.warning("No formats found for video")
+            buttons = [[Button.inline("⚠️ لا توجد صيغ متاحة للتحميل", data="noop")]]
+            if body:
+                return "لا توجد صيغ متاحة", buttons
             return buttons
             
     except Exception as e:
@@ -255,46 +295,68 @@ def download_button(vid: str, body: bool = False):
             return "حدث خطأ أثناء جلب البيانات", buttons
         return buttons
     
-    # إنشاء أزرار التحميل
+    # باقي الكود كما هو...
     buttons = [
         [
-            Button.inline("🎵 تحميل صوتي MP3", data=f"ytdl_download_audio_{vid}"),
-            Button.inline("🎬 تحميل فيديو MP4", data=f"ytdl_download_video_{vid}"),
-        ],
-        [
-            Button.inline("📜 قائمة البحث", data=f"ytdl_listall_{vid}_1"),
+            Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
+            Button.inline(
+                "⭐️ اعلى دقـه - 📹 WebM/MP4",
+                data=f"ytdl_download_{vid}_mp4_v",
+            ),
         ]
     ]
     
-    if body:
-        # تنسيق معلومات الفيديو
-        title = vid_data.get('title', 'فيديو')
-        duration = vid_data.get('duration', 0)
-        # تحويل المدة إلى دقائق وثواني
-        minutes = duration // 60
-        seconds = duration % 60
-        duration_str = f"{minutes} minutes, {seconds} seconds" if minutes > 0 else f"{seconds} seconds"
-        
-        views = vid_data.get('view_count', 0)
-        views_str = f"{views/1000000:.0f}M views" if views >= 1000000 else f"{views/1000:.0f}K views"
-        
-        upload_date = vid_data.get('upload_date', '')
-        if upload_date:
-            year = upload_date[:4]
-            ago_years = 2026 - int(year)
-            upload_str = f"{ago_years} years ago" if ago_years > 0 else "this year"
-        else:
-            upload_str = "Unknown"
-        
-        channel = vid_data.get('channel', 'Unknown')
-        
-        vid_body = f'''<b><a href="{BASE_YT_URL + vid}">{title}</a></b>
+    qual_dict = defaultdict(lambda: defaultdict(int))
+    qual_list = ["144p", "240p", "360p", "480p", "720p", "1080p", "1440p"]
+    audio_dict = {}
+    
+    for video in vid_data["formats"]:
+        if video.get("filesize"):
+            fr_note = video.get("format_note")
+            fr_id = int(video.get("format_id"))
+            fr_size = video.get("filesize")
+            if video.get("ext") == "mp4":
+                for frmt_ in qual_list:
+                    if fr_note and fr_note in (frmt_, f"{frmt_}60"):
+                        qual_dict[frmt_][fr_id] = fr_size
+            if video.get("acodec") != "none":
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0
+                if bitrrate != 0:
+                    audio_dict[
+                        bitrrate
+                    ] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
 
-❯ المـده : {duration_str}
-❯ المشـاهـدات : {views_str}
-❯ تاريـخ الرفـع : {upload_str}
-❯ القنـاة : {channel}</b>'''
-        
+    video_btns = []
+    for frmt in qual_list:
+        frmt_dict = qual_dict[frmt]
+        if len(frmt_dict) != 0:
+            frmt_id = sorted(list(frmt_dict))[-1]
+            frmt_size = humanbytes(frmt_dict.get(frmt_id)) or "N/A"
+            video_btns.append(
+                Button.inline(
+                    f"📹 {frmt} ({frmt_size})",
+                    data=f"ytdl_download_{vid}_{frmt_id}_v",
+                )
+            )
+    
+    if video_btns:
+        buttons += sublists(video_btns, width=2)
+    
+    buttons += [
+        [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
+    ]
+    
+    if audio_dict:
+        buttons += sublists(
+            [
+                Button.inline(audio_dict.get(key_), data=f"ytdl_download_{vid}_{key_}_a")
+                for key_ in sorted(audio_dict.keys())
+            ],
+            width=2,
+        )
+    
+    if body:
+        vid_body = f"<a href={vid_data.get('webpage_url', BASE_YT_URL + vid)}><b>[{vid_data.get('title', 'فيديو')}]</b></a>"
         return vid_body, buttons
     return buttons
 
@@ -362,3 +424,4 @@ def _mp3Dl(url: str, starttime, uid: str):
         return y_e
     else:
         return dloader
+    

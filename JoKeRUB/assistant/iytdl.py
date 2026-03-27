@@ -94,14 +94,38 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على chat_id من خلال الرسالة الأصلية
+    # ---------- الطريقة الصحيحة للحصول على chat_id ----------
+    # 1. من خلال الرسالة الأصلية التي تحتوي على الزر
     try:
         original_msg = await c_q.get_message()
         chat_id = original_msg.chat_id
         LOGS.info(f"Chat ID from original message: {chat_id}")
     except Exception as e:
-        LOGS.error(f"Error getting chat_id: {e}")
-        chat_id = c_q.sender_id
+        LOGS.error(f"Error getting chat_id from original message: {e}")
+        # 2. بديل: من خلال c_q.query.peer
+        if hasattr(c_q, 'query') and hasattr(c_q.query, 'peer'):
+            peer = c_q.query.peer
+            if hasattr(peer, 'chat_id'):
+                chat_id = peer.chat_id
+            elif hasattr(peer, 'user_id'):
+                chat_id = peer.user_id
+            else:
+                chat_id = c_q.sender_id
+        else:
+            chat_id = c_q.sender_id
+    
+    # التأكد من أن chat_id ليس None أو 0
+    if not chat_id or chat_id == 0:
+        await c_q.answer("❌ لا يمكن تحديد الدردشة", alert=True)
+        return
+    
+    # ---------- تأكيد أن chat_id ليس المحادثات المحفوظة ----------
+    # المحادثات المحفوظة يكون chat_id = user_id الخاص بك
+    # نتحقق إذا كان chat_id يساوي معرف المستخدم (أي المحادثات المحفوظة) 
+    # إذا كان كذلك، نستخدم chat_id = c_q.sender_id (المستخدم الذي ضغط)
+    if chat_id == l313l.uid:  # إذا كان chat_id هو معرف الحساب العادي (المحادثات المحفوظة)
+        chat_id = c_q.sender_id  # نستخدم معرف المستخدم الذي ضغط الزر
+        LOGS.info(f"Chat was saved messages, changed to user chat: {chat_id}")
     
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
@@ -111,11 +135,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         pass
     
     try:
-        # استخدام l313l (الحساب العادي) للتواصل مع البوت الخارجي
+        # استخدام الحساب العادي للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول
+            # تجاهل الرد الأول (رسالة "جاري البحث...")
             try:
                 await asyncio.wait_for(conv.get_response(), timeout=1)
             except:
@@ -134,7 +158,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف باستخدام l313l (الحساب العادي)
+                # إرسال الملف إلى نفس الدردشة باستخدام الحساب العادي
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,

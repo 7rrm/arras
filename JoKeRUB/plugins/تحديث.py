@@ -105,15 +105,23 @@ async def update_requirements():
 
 
 async def update(event, repo, ups_rem, ac_br):
+    
+    sandy = await event.edit(
+        f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n"
+        f"**•─────────────────•**\n"
+        f"**•⎆┊اهـلا عـزيـزي** - {mention}\n"
+        f"**•⎆┊يـتـم الان تـحـديـث سـورس اراس**\n"
+        f"**•⎆┊قـد يستغـرق الامـر 2-1 دقائـق ▬▭ ...**"
+    )
+    
     try:
         ups_rem.pull(ac_br)
     except GitCommandError:
         repo.git.reset("--hard", "FETCH_HEAD")
+    
     await update_requirements()
-    jasme = await event.edit(
-        "** ✧︙ تم تحديث سورس آراس بنجاح انتظر قليلا سوف نخبرك بعد اعادة التشغيل !**"
-    )
-    await event.client.reload(jasme)
+    
+    await event.client.reload(sandy)
 
 def stream_build_logs(appsetup_id):
     appsetup = Heroku.get_appsetup(appsetup_id)
@@ -324,17 +332,6 @@ async def upstream(event):
         
         # نسبة 100%
         zzz4 = await zzz3.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث سـورس اراس . . .🌐**\n\n%𝟷𝟶𝟶 ▬▬▬▬▬▬▬▬▬▬💯")
-        await asyncio.sleep(1)
-        
-        # إرسال الرسالة النهائية قبل التحديث
-        sandy = await edit_or_reply(
-            zzz4,
-            f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n"
-            f"**•─────────────────•**\n"
-            f"**•⎆┊اهـلا عـزيـزي** - {mention}\n"
-            f"**•⎆┊يـتـم الان تـحـديـث سـورس اراس**\n"
-            f"**•⎆┊قـد يستغـرق الامـر 2-1 دقائـق ▬▭ ...**",
-        )
         
         # تنفيذ عملية التحديث بعد إرسال الرسالة النهائية
         await update(event, repo, ups_rem, ac_br)

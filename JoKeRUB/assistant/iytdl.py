@@ -44,7 +44,6 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
@@ -93,23 +92,35 @@ async def iytdl_inline(event):
         else:
             target_chat = event.chat_id
         
-        # طباعة للتأكد
-        LOGS.info(f"Sending to chat: {target_chat}, is_private: {event.is_private}")
-        
-        # استخدام الطريقة المباشرة من البوت
+        # استخدام الطريقة الصحيحة لإرسال النتيجة
         try:
-            # الحصول على معرف النتيجة
-            result = results[0]
-            
-            # إرسال النتيجة عبر البوت مباشرة
-            await event.client.send_message(
-                target_chat,
-                f'@{Config.TG_BOT_USERNAME} ?start=ytdl_{input_url}',
-                reply_to=reply_to_id
-            )
-        except Exception as e:
-            LOGS.error(f"Error: {e}")
+            # الطريقة الصحيحة: استخدام click() مع target_chat
             await results[0].click(target_chat, reply_to=reply_to_id, hide_via=True)
+        except Exception as e:
+            LOGS.error(f"Error sending inline result: {e}")
+            # إذا فشل، جرب طريقة بديلة
+            try:
+                # الحصول على الـ result object
+                inline_result = results[0]
+                
+                # بناء الرسالة من البيانات
+                if hasattr(inline_result, 'send_message'):
+                    # إرسال مباشر
+                    await inline_result.send_message(target_chat, reply_to=reply_to_id)
+                else:
+                    # محاولة إرسال كنص
+                    await event.client.send_message(
+                        target_chat,
+                        f"نتيجة البحث: {input_url}",
+                        reply_to=reply_to_id
+                    )
+            except Exception as e2:
+                LOGS.error(f"Fallback error: {e2}")
+                await event.client.send_message(
+                    target_chat,
+                    f"**عذراً، حدث خطأ في عرض النتيجة**\nالرابط: {input_url}",
+                    reply_to=reply_to_id
+                )
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 

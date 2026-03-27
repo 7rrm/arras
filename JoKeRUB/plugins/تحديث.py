@@ -9,7 +9,7 @@ import urllib3
 from git import Repo
 from git.exc import GitCommandError, InvalidGitRepositoryError, NoSuchPathError
 from telethon import events 
-from JoKeRUB import HEROKU_APP, UPSTREAM_REPO_URL, l313l
+from JoKeRUB import HEROKU_APP, UPSTREAM_REPO_URL, l313l, mention
 
 from ..Config import Config
 from ..core.logger import logging
@@ -244,7 +244,7 @@ async def deploy(event, repo, ups_rem, ac_br, txt):
 async def upstream(event):
     "To check if the bot is up to date and update if specified"
     conf = event.pattern_match.group(1).strip()
-    event = await edit_or_reply(event, "**✧︙ يـتـم البـحـث عـن تـحديثـات سـورس الجوكر انـتـظـر**")
+    event = await edit_or_reply(event, "**✧︙ يـتـم البـحـث عـن تـحديثـات سـورس اراس انـتـظـر**")
     off_repo = UPSTREAM_REPO_URL
     force_update = False
     
@@ -308,7 +308,33 @@ async def upstream(event):
             "`Force-Syncing to latest stable userbot code, please wait...`"
         )
     if conf == "الان":
-        await event.edit("** ✧︙ جار تحـديـث سـورس اراس انـتـظـر قـليـلا 🔨**")
+        # نسبة 20%
+        zzz1 = await event.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث سـورس اراس . . .🌐**\n\n%𝟸𝟶 ▬▬▭▭▭▭▭▭▭▭")
+        await asyncio.sleep(1)
+        
+        # نسبة 50%
+        zzz2 = await zzz1.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث سـورس اراس . . .🌐**\n\n%𝟻𝟶 ▬▬▬▬▬▭▭▭▭▭")
+        await asyncio.sleep(1)
+        
+        # نسبة 80%
+        zzz3 = await zzz2.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث سـورس اراس . . .🌐**\n\n%𝟾𝟶 ▬▬▬▬▬▬▬▬▭▭")
+        await asyncio.sleep(1)
+        
+        # نسبة 100%
+        zzz4 = await zzz3.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث سـورس اراس . . .🌐**\n\n%𝟷𝟶𝟶 ▬▬▬▬▬▬▬▬▬▬💯")
+        await asyncio.sleep(1)
+        
+        # إرسال الرسالة النهائية قبل التحديث
+        sandy = await edit_or_reply(
+            zzz4,
+            f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث الـبـوت**\n"
+            f"**•─────────────────•**\n"
+            f"**•⎆┊اهـلا عـزيـزي** - {mention}\n"
+            f"**•⎆┊يـتـم الان تـحـديـث سـورس اراس**\n"
+            f"**•⎆┊قـد يستغـرق الامـر 2-1 دقائـق ▬▭ ...**",
+        )
+        
+        # تنفيذ عملية التحديث بعد إرسال الرسالة النهائية
         await update(event, repo, ups_rem, ac_br)
 
 @l313l.ar_cmd(

@@ -43,7 +43,6 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
@@ -66,13 +65,17 @@ async def iytdl_inline(event):
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
     
-    # تحديد chat_id الصحيح
-    # إذا كانت المحادثة خاصة، استخدم معرف المستخدم (event.sender_id)
-    # إذا كانت مجموعة، استخدم معرف المجموعة (event.chat_id)
+    # تحديد chat_id الصحيح للإرسال
     if event.is_private:
+        # في المحادثة الخاصة، نرسل إلى المستخدم نفسه
         target_chat_id = event.sender_id
     else:
+        # في المجموعة، نرسل إلى المجموعة
         target_chat_id = event.chat_id
+    
+    # للتأكد من عدم الإرسال إلى الحساب العادي نفسه
+    if target_chat_id == l313l.uid:
+        target_chat_id = event.sender_id
     
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
@@ -91,7 +94,7 @@ async def iytdl_inline(event):
             flag = False
     if results:
         await zedevent.delete()
-        # استخدام target_chat_id بدلاً من event.chat_id
+        # إرسال النتيجة إلى target_chat_id الصحيح
         await results[0].click(target_chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
@@ -104,14 +107,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على chat_id من الرسالة الأصلية (التي فيها الزر)
-    # هذه الرسالة تم إرسالها إلى target_chat_id الصحيح
+    # الحصول على chat_id من الرسالة
     if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
         chat_id = c_q.message.chat_id
-    elif hasattr(c_q, 'chat_id') and c_q.chat_id:
-        chat_id = c_q.chat_id
     else:
+        chat_id = c_q.chat_id or c_q.sender_id
+
+    # التأكد من أن chat_id ليس معرف الحساب العادي
+    if chat_id == l313l.uid:
         chat_id = c_q.sender_id
+        LOGS.info(f"Changed chat_id from saved messages to user: {chat_id}")
 
     LOGS.info(f"Download requested - Final chat_id: {chat_id}")
 
@@ -123,7 +128,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         pass
 
     try:
-        # استخدام l313l (الحساب العادي) للتواصل مع البوت الخارجي
+        # استخدام l313l للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             try:
@@ -143,7 +148,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف إلى الدردشة الصحيحة
+                # إرسال الملف
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,

@@ -125,17 +125,17 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # استخدام c_q.client كما في الكود الأصلي (event.client)
-        async with c_q.client.conversation("@W60yBot", timeout=60) as conv:
-            # إرسال الأمر مع الرابط
+        # استخدم l313l.client (الحساب العادي) كما في الكود الأصلي
+        # l313l.client هو نفس event.client الذي يستخدم في الأمر .يوت
+        async with l313l.client.conversation("@W60yBot", timeout=60) as conv:
+            # إرسال الأمر مع الرابط (نفس الطريقة)
             await conv.send_message(f"يوت {yt_url}")
             
-            # انتظار الردود (مثل الكود الأصلي)
+            # انتظار الردود (نفس الكود الأصلي)
             try:
-                first_response = await asyncio.wait_for(conv.get_response(), timeout=10)
-                LOGS.info(f"First response received")
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
-                raise Exception("البوت لم يستجب")
+                pass
             
             # انتظار الملف
             audio_response = await conv.get_response()
@@ -151,7 +151,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف للمستخدم
+                # إرسال الملف للمستخدم (استخدم البوت c_q.client للإرسال)
                 await c_q.client.send_file(
                     c_q.chat_id,
                     audio_response.media,
@@ -170,7 +170,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
+        await c_q.edit
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

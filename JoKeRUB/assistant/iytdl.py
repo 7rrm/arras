@@ -146,12 +146,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # استخدم "html" مباشرة بدلاً من CustomParseMode
+                # استخدم c_q.sender_id أو c_q.query.user_id بدلاً من c_q.chat_id
+                user_id = c_q.sender_id if hasattr(c_q, 'sender_id') else c_q.query.user_id
+                
                 await c_q.client.send_file(
-                    c_q.chat_id,
+                    user_id,  # تغيير هنا
                     audio_response.media,
                     caption=caption,
-                    parse_mode="html"  # <-- هذا التعديل
+                    parse_mode="html"
                 )
                 
                 await c_q.delete()

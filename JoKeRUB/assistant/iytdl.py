@@ -127,7 +127,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # محاولة تجاهل الرد الأول (مثل الكود الأصلي)
+            # تجاهل الرد الأول
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
@@ -146,11 +146,12 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
+                # استخدم "html" مباشرة بدلاً من CustomParseMode
                 await c_q.client.send_file(
                     c_q.chat_id,
                     audio_response.media,
                     caption=caption,
-                    parse_mode=CustomParseMode("html")
+                    parse_mode="html"  # <-- هذا التعديل
                 )
                 
                 await c_q.delete()

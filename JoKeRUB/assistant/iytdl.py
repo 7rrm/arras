@@ -96,33 +96,20 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على chat_id بشكل صحيح
-    try:
-        # محاولة الحصول من query.peer
-        if hasattr(c_q, 'query') and c_q.query:
-            if hasattr(c_q.query, 'peer') and c_q.query.peer:
-                chat_id = getattr(c_q.query.peer, 'chat_id', None) or getattr(c_q.query.peer, 'user_id', None)
-            else:
-                chat_id = getattr(c_q.query, 'user_id', None)
-        else:
-            chat_id = getattr(c_q, 'sender_id', None)
-        
-        # إذا لم نجد chat_id
-        if not chat_id:
-            # محاولة استخراج من البيانات
-            if hasattr(c_q, 'query') and hasattr(c_q.query, 'user_id'):
-                chat_id = c_q.query.user_id
-            else:
-                chat_id = c_q.sender_id
-        
-        LOGS.info(f"Chat ID for download: {chat_id}")
-        
-    except Exception as e:
-        LOGS.error(f"Error getting chat_id: {e}")
-        chat_id = None
+    # ✅ الطريقة الصحيحة للحصول على معرف المستخدم
+    # المستخدم الذي ضغط على الزر (وليس البوت)
+    user_id = c_q.sender_id or c_q.query.user_id
     
-    if not chat_id:
-        await c_q.answer("❌ حدث خطأ في تحديد المحادثة", alert=True)
+    # ✅ تأكد أننا نرسل للمستخدم وليس للبوت
+    if user_id == Config.BOT_ID:  # إذا كان معرف البوت نفسه
+        # جلب من البيانات الأخرى
+        user_id = c_q.query.user_id
+    
+    LOGS.info(f"✅ Sending to user ID: {user_id}")
+    LOGS.info(f"📥 Downloading: {yt_url}")
+    
+    if not user_id:
+        await c_q.answer("❌ حدث خطأ في تحديد المستخدم", alert=True)
         return
     
     # إعلام المستخدم
@@ -140,7 +127,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
-            # انتظار الرد (قد يكون عدة رسائل)
+            # انتظار الرد
             downloaded = False
             attempts = 0
             max_attempts = 5
@@ -150,7 +137,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     response = await asyncio.wait_for(conv.get_response(), timeout=15)
                     
                     if response and response.media:
-                        # تم استلام الملف
+                        # ✅ إرسال الملف للمستخدم في الخاص (وليس للمحفوظات)
                         caption = (
                             f"<blockquote>\n"
                             f"<b>✅ تم التحميل بنجاح</b>\n"
@@ -160,9 +147,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                             f'<a href="emoji/5368338253868968009">🦅</a>\n'
                         )
                         
-                        # إرسال الملف للمستخدم
+                        # ✅ إرسال للمستخدم مباشرة (المحادثة الخاصة)
                         await l313l.send_file(
-                            chat_id,
+                            user_id,  # ✅ هذا هو معرف المستخدم الحقيقي
                             response.media,
                             caption=caption,
                             parse_mode="html"
@@ -171,16 +158,20 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         downloaded = True
                         break
                         
-                    elif response and response.text and "فشل" in response.text.lower():
-                        # فشل التحميل
-                        await l313l.send_message(chat_id, f"❌ **فشل التحميل:**\n{response.text}")
-                        downloaded = True
-                        break
+                    elif response and response.text:
+                        # قد يكون رد نصي من البوت (مثل رابط التحميل)
+                        if "فشل" in response.text.lower() or "خطأ" in response.text.lower():
+                            await l313l.send_message(user_id, f"❌ **فشل التحميل:**\n{response.text}")
+                            downloaded = True
+                            break
+                        else:
+                            # محاولة انتظار الملف
+                            continue
                         
                 except asyncio.TimeoutError:
                     attempts += 1
                     if attempts >= max_attempts:
-                        await l313l.send_message(chat_id, "❌ **انتهت المهلة - لم يتم الرد من البوت**")
+                        await l313l.send_message(user_id, "❌ **انتهت المهلة - لم يتم الرد من البوت**")
                         break
                     continue
             
@@ -189,7 +180,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     # تحديث رسالة الزر
                     await c_q.edit(
                         "✅ **تم التحميل بنجاح!**\n"
-                        "📁 تم إرسال الملف في المحادثة",
+                        "📁 تم إرسال الملف في المحادثة الخاصة",
                         buttons=[]
                     )
                 except:
@@ -201,14 +192,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     pass
                     
     except asyncio.TimeoutError:
-        await l313l.send_message(chat_id, "❌ **انتهت المهلة - البوت لا يستجيب**")
+        await l313l.send_message(user_id, "❌ **انتهت المهلة - البوت لا يستجيب**")
         try:
             await c_q.edit("❌ **انتهت المهلة**", buttons=[])
         except:
             pass
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await l313l.send_message(chat_id, f"❌ **حدث خطأ:**\n`{str(e)[:200]}`")
+        await l313l.send_message(user_id, f"❌ **حدث خطأ:**\n`{str(e)[:200]}`")
         try:
             await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`", buttons=[])
         except:

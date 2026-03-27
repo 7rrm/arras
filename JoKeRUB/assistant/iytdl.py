@@ -86,7 +86,6 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
 @l313l.tgbot.on(
     CallbackQuery(
         data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
@@ -118,17 +117,19 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     
     bot_username = "W60yBot"
     
+    # حفظ معرف الرسالة الأصلية لحذفها لاحقاً
+    original_msg_id = c_q.query.msg_id
+    
     try:
         # إرسال الأمر للبوت الخارجي بالشكل الصحيح: "يوت" + الرابط
         await l313l.send_message(bot_username, f"يوت {yt_url}")
         
         # ننتظر قليلاً حتى يقوم البوت بالرد
-        await asyncio.sleep(8)  # زدنا الوقت لأن البوت يحتاج وقت للتحميل
+        await asyncio.sleep(8)
         
         # نبحث عن آخر رسالة من البوت تحتوي على ملف
         async for msg in l313l.iter_messages(bot_username, limit=5):
             if msg.media and msg.date:
-                # نعيد توجيه الملف للمستخدم
                 caption = (
                     f"<b>⌔╎الـرابـط 📎:</b> <a href='{yt_url}'>⏯️ اضغط للمشاهدة</a>\n"
                     f"<b>⌔╎نـوع الوسائـط :</b> {media_type}\n"
@@ -136,11 +137,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                # إرسال الملف للمستخدم
-                await c_q.edit(
-                    text=caption,
-                    file=msg.media,
-                    parse_mode="html"
+                # حذف الرسالة الأصلية (التي تحتوي على الأزرار)
+                await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+                
+                # إرسال رسالة جديدة بالملف
+                await c_q.client.send_file(
+                    c_q.chat_id,
+                    msg.media,
+                    caption=caption,
+                    parse_mode="html",
+                    reply_to=original_msg_id
                 )
                 return
         
@@ -156,15 +162,26 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                await c_q.edit(
-                    text=caption,
-                    file=msg.media,
-                    parse_mode="html"
+                # حذف الرسالة الأصلية
+                await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+                
+                # إرسال رسالة جديدة بالملف
+                await c_q.client.send_file(
+                    c_q.chat_id,
+                    msg.media,
+                    caption=caption,
+                    parse_mode="html",
+                    reply_to=original_msg_id
                 )
                 return
         
         # إذا لم نجد أي ملف نهائياً
-        await c_q.edit(
+        # حذف الرسالة الأصلية
+        await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+        
+        # إرسال رسالة جديدة بدون ملف
+        await c_q.client.send_message(
+            c_q.chat_id,
             f"<b>⌔╎عـذراً .. لم يتم العثور على الملف من البوت</b>\n\n"
             f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>⏯️ {yt_url}</a>\n\n"
             f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
@@ -173,13 +190,22 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         )
         
     except Exception as e:
-        await c_q.edit(
+        # حذف الرسالة الأصلية في حالة الخطأ
+        try:
+            await c_q.client.delete_messages(c_q.chat_id, original_msg_id)
+        except:
+            pass
+            
+        # إرسال رسالة الخطأ
+        await c_q.client.send_message(
+            c_q.chat_id,
             f"<b>⌔╎حدث خطـأ :</b>\n<code>{str(e)}</code>\n\n"
             f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>اضغط هنا للمشاهدة</a>\n\n"
             f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
             f"<b>⌔╎للبوت :</b> @{bot_username}",
             parse_mode="html"
         )
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

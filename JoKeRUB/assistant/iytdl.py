@@ -94,24 +94,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على معرف المستخدم الذي ضغط الزر
-    user_id = c_q.sender_id
-    
-    # الحصول على معرف المحادثة من المكان الذي ضغط فيه المستخدم
-    # في حالة المجموعات، نستخدم معرف المجموعة
-    if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
-        original_chat_id = c_q.message.chat_id
+    # الحصول على معرف الدردشة الحقيقي من الـ CallbackQuery
+    # في CallbackQuery، المعرف يكون في query.peer
+    if hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'user_id'):
+        chat_id = c_q.query.peer.user_id
     else:
-        original_chat_id = c_q.chat_id
+        chat_id = c_q.sender_id
     
-    # التأكد من أن المعرف صحيح للإرسال
-    # إذا كان المعرف هو نفس معرف البوت أو معرف غير صحيح، نستخدم معرف المستخدم
-    if original_chat_id == l313l.tgbot.uid or original_chat_id == 777000:
-        chat_id = user_id
-    else:
-        chat_id = original_chat_id
-    
-    LOGS.info(f"Download - User: {user_id}, Chat: {chat_id}, Type: {'group' if chat_id < 0 else 'private'}")
+    LOGS.info(f"Download - Chat ID: {chat_id}, Type: {'group' if chat_id < 0 else 'private'}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
@@ -142,49 +132,36 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @W60yBot"
                 )
                 
-                # إرسال الملف إلى المحادثة الصحيحة
+                # إرسال الملف إلى نفس الدردشة التي ضغط فيها المستخدم
+                await l313l.send_file(
+                    chat_id,
+                    audio_response.media,
+                    caption=caption,
+                    parse_mode="html"
+                )
+                
+                # تحديث رسالة البوت
                 try:
-                    await l313l.send_file(
-                        int(chat_id),  # التأكد من أن المعرف رقم صحيح
-                        audio_response.media,
-                        caption=caption,
-                        parse_mode="html"
-                    )
-                    
-                    # تحديث رسالة البوت
-                    try:
-                        await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
-                    except:
-                        pass
-                        
-                except Exception as send_error:
-                    LOGS.error(f"Send error: {send_error}")
-                    # إذا فشل الإرسال، نحاول الإرسال للمستخدم مباشرة
-                    await l313l.send_message(
-                        user_id,
-                        f"<b>✅ تم التحميل بنجاح</b>\n\n"
-                        f"<b>⌔╎الـرابـط 📎:</b> <a href='{yt_url}'>⏯️ اضغط للمشاهدة</a>\n"
-                        f"<b>⌔╎لم نتمكن من الإرسال في المحادثة الأصلية، تم الإرسال هنا</b>",
-                        parse_mode="html"
-                    )
-                    await l313l.send_file(user_id, audio_response.media)
+                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+                except:
+                    pass
                     
             else:
-                await l313l.send_message(user_id, "❌ **فشل التحميل**\nلم يتم استلام ملف من البوت")
+                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف من البوت")
                 try:
                     await c_q.edit("❌ **فشل التحميل**", buttons=[])
                 except:
                     pass
                 
     except asyncio.TimeoutError:
-        await l313l.send_message(user_id, "❌ **انتهت المهلة**\nالبوت لم يستجب خلال 60 ثانية")
+        await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب خلال 60 ثانية")
         try:
             await c_q.edit("❌ **انتهت المهلة - البوت لم يستجب**", buttons=[])
         except:
             pass
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await l313l.send_message(user_id, f"❌ **خطأ:** `{str(e)[:100]}`")
+        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

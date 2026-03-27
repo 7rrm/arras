@@ -125,10 +125,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # استخدم l313l.client (الحساب العادي) كما في الكود الأصلي
-        # l313l.client هو نفس event.client الذي يستخدم في الأمر .يوت
-        async with l313l.client.conversation("@W60yBot", timeout=60) as conv:
-            # إرسال الأمر مع الرابط (نفس الطريقة)
+        # استخدم l313l مباشرة (هو الـ client نفسه)
+        async with l313l.conversation("@W60yBot", timeout=60) as conv:
+            # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
             # انتظار الردود (نفس الكود الأصلي)
@@ -170,7 +169,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.edit
+        await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

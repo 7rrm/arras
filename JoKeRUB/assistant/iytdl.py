@@ -147,16 +147,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # استخدم الحساب العادي (l313l) لإرسال الملف بدلاً من البوت
+                # إرسال الملف عبر الحساب العادي
                 await l313l.send_file(
-                    c_q.sender_id,  # المستخدم الذي ضغط على الزر
+                    c_q.sender_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
                 
-                # حذف رسالة الأزرار
-                await c_q.delete()
+                # تعديل رسالة الأزرار بدلاً من حذفها
+                await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
             else:
                 await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")

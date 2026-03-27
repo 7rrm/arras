@@ -120,18 +120,13 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # تحديد الدردشة الصحيحة
-    # في الخاص، sender_id هو الشخص الذي يضغط على الزر
-    # في المجموعة، chat_id هو المجموعة
-    if c_q.is_private:
-        chat_id = c_q.sender_id
+    # الحصول على معرف المستخدم من peer
+    if hasattr(c_q.query.peer, 'user_id'):
+        chat_id = c_q.query.peer.user_id
     else:
-        chat_id = c_q.chat_id
+        chat_id = c_q.sender_id
     
-    # طباعة للتحقق
-    LOGS.info(f"Is Private: {c_q.is_private}")
-    LOGS.info(f"Chat ID: {chat_id}")
-    LOGS.info(f"Sender ID: {c_q.sender_id}")
+    LOGS.info(f"Chat ID from peer: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -157,7 +152,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
@@ -173,7 +167,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

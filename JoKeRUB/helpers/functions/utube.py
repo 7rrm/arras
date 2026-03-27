@@ -193,27 +193,30 @@ async def result_formatter(results: list):
 
 
 def yt_search_btns(
-    data_key: str, page: int, vid: str, total: int, del_back: bool = False
+    data_key: str, page: int, vid: str, total: int, del_back: bool = False, chat_id: int = None, msg_id: int = None
 ):
+    # تخزين chat_id و msg_id في البيانات
+    extra_data = f"_{chat_id}_{msg_id}" if chat_id and msg_id else ""
+    
     buttons = [
         [
             Button.inline(
                 text="⬅️  رجوع",
-                data=f"ytdl_back_{data_key}_{page}",
+                data=f"ytdl_back_{data_key}_{page}{extra_data}",
             ),
             Button.inline(
                 text=f"{page} / {total}",
-                data=f"ytdl_next_{data_key}_{page}",
+                data=f"ytdl_next_{data_key}_{page}{extra_data}",
             ),
         ],
         [
             Button.inline(
                 text="📜  قائمة الكل",
-                data=f"ytdl_listall_{data_key}_{page}",
+                data=f"ytdl_listall_{data_key}_{page}{extra_data}",
             ),
             Button.inline(
                 text="⬇️  تحميل",
-                data=f"ytdl_download_{vid}_0",
+                data=f"ytdl_download_{vid}_0{extra_data}",
             ),
         ],
     ]

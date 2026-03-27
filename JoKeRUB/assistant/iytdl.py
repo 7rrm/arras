@@ -86,7 +86,6 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
 @l313l.tgbot.on(
     CallbackQuery(
         data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
@@ -118,9 +117,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     
     bot_username = "W60yBot"
     
-    # حفظ معرف الرسالة الأصلية
-    original_msg = c_q.query.msg_id
-    
     try:
         # إرسال الأمر للبوت الخارجي بالشكل الصحيح: "يوت" + الرابط
         await l313l.send_message(bot_username, f"يوت {yt_url}")
@@ -138,19 +134,21 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                # محاولة حذف الرسالة الأصلية
+                # حذف الرسالة الأصلية (التي تحتوي على الأزرار)
                 try:
                     await c_q.delete()
                 except:
                     pass
                 
+                # الحصول على معرف المحادثة الصحيح
+                chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
+                
                 # إرسال رسالة جديدة بالملف
-                await c_q.client.send_file(
-                    c_q.chat_id,
+                await l313l.send_file(
+                    chat_id,
                     msg.media,
                     caption=caption,
-                    parse_mode="html",
-                    reply_to=c_q.query.msg_id if hasattr(c_q.query, 'msg_id') else None
+                    parse_mode="html"
                 )
                 return
         
@@ -166,19 +164,21 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
                 )
                 
-                # محاولة حذف الرسالة الأصلية
+                # حذف الرسالة الأصلية
                 try:
                     await c_q.delete()
                 except:
                     pass
                 
+                # الحصول على معرف المحادثة الصحيح
+                chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
+                
                 # إرسال رسالة جديدة بالملف
-                await c_q.client.send_file(
-                    c_q.chat_id,
+                await l313l.send_file(
+                    chat_id,
                     msg.media,
                     caption=caption,
-                    parse_mode="html",
-                    reply_to=c_q.query.msg_id if hasattr(c_q.query, 'msg_id') else None
+                    parse_mode="html"
                 )
                 return
         
@@ -189,15 +189,17 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         except:
             pass
         
+        # الحصول على معرف المحادثة الصحيح
+        chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
+        
         # إرسال رسالة جديدة بدون ملف
-        await c_q.client.send_message(
-            c_q.chat_id,
+        await l313l.send_message(
+            chat_id,
             f"<b>⌔╎عـذراً .. لم يتم العثور على الملف من البوت</b>\n\n"
             f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>⏯️ {yt_url}</a>\n\n"
             f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
             f"<b>⌔╎للبوت :</b> @{bot_username}",
-            parse_mode="html",
-            reply_to=original_msg if hasattr(original_msg, 'msg_id') else None
+            parse_mode="html"
         )
         
     except Exception as e:
@@ -207,9 +209,12 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         except:
             pass
             
+        # الحصول على معرف المحادثة الصحيح
+        chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
+        
         # إرسال رسالة الخطأ
-        await c_q.client.send_message(
-            c_q.chat_id,
+        await l313l.send_message(
+            chat_id,
             f"<b>⌔╎حدث خطـأ :</b>\n<code>{str(e)}</code>\n\n"
             f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>اضغط هنا للمشاهدة</a>\n\n"
             f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"

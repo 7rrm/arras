@@ -113,35 +113,37 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0(?:_(\d+)_(\d+))?$"))
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على معرف الدردشة من الرسالة الأصلية (الزر)
-    # هذا هو المفتاح - نستخدم c_q.query.peer_id أو c_q.message.chat_id
+    # استخراج chat_id و msg_id من البيانات
     chat_id = None
+    msg_id = None
     
-    # الطريقة الصحيحة للحصول على chat_id من CallbackQuery
-    if hasattr(c_q, 'query') and hasattr(c_q.query, 'peer'):
-        chat_id = c_q.query.peer.chat_id or c_q.query.peer.user_id
-    elif hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
-        chat_id = c_q.message.chat_id
-    elif hasattr(c_q, 'chat_id') and c_q.chat_id and c_q.chat_id != 0:
-        chat_id = c_q.chat_id
-    elif hasattr(c_q, 'sender_id') and c_q.sender_id and c_q.sender_id != 0:
-        chat_id = c_q.sender_id
+    if c_q.pattern_match.group(2) and c_q.pattern_match.group(3):
+        chat_id = int(c_q.pattern_match.group(2).decode("UTF-8"))
+        msg_id = int(c_q.pattern_match.group(3).decode("UTF-8"))
     
-    if not chat_id or chat_id == 0:
-        LOGS.error(f"Could not get chat_id: {c_q}")
-        await c_q.answer("❌ خطأ في تحديد المحادثة", alert=True)
+    # إذا لم نجد chat_id من البيانات، نستخدم المصادر الأخرى
+    if not chat_id:
+        if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
+            chat_id = c_q.message.chat_id
+        elif hasattr(c_q, 'chat_id') and c_q.chat_id:
+            chat_id = c_q.chat_id
+        elif hasattr(c_q, 'sender_id') and c_q.sender_id:
+            chat_id = c_q.sender_id
+    
+    if not chat_id:
+        await c_q.answer("❌ لا يمكن تحديد المحادثة", alert=True)
         return
     
-    LOGS.info(f"✅ Chat ID found: {chat_id}")
+    LOGS.info(f"Download requested - Chat ID: {chat_id}, Msg ID: {msg_id}")
     
-    await c_q.answer("🔄 جـارِ تحضير التحميل...", alert=False)
+    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
     try:
         await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -149,17 +151,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         pass
     
     try:
-        # استخدام الحساب العادي للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول
             try:
                 await asyncio.wait_for(conv.get_response(), timeout=1)
             except:
                 pass
             
-            # الرد الثاني هو الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -172,41 +171,26 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس المحادثة باستخدام l313l
+                # إرسال الملف في نفس المحادثة
                 await l313l.send_file(
-                    chat_id,  # نفس المحادثة
+                    chat_id,
                     audio_response.media,
                     caption=caption,
-                    parse_mode="html"
+                    parse_mode="html",
+                    reply_to=msg_id if msg_id else None
                 )
                 
-                # تحديث رسالة الزر
                 try:
                     await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 except:
                     pass
                 
             else:
-                error_msg = "❌ **فشل التحميل**\nلم يتم استلام ملف من البوت"
-                try:
-                    await c_q.edit(error_msg)
-                except:
-                    await l313l.send_message(chat_id, error_msg)
+                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
                 
-    except asyncio.TimeoutError:
-        error_msg = "❌ **انتهت المهلة**\nالبوت لم يستجب"
-        try:
-            await c_q.edit(error_msg)
-        except:
-            await l313l.send_message(chat_id, error_msg)
-            
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        error_msg = f"❌ **خطأ:** `{str(e)[:100]}`"
-        try:
-            await c_q.edit(error_msg)
-        except:
-            await l313l.send_message(chat_id, error_msg)
+        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))
@@ -223,24 +207,34 @@ async def ytdl_callback(c_q: CallbackQuery):
         if c_q.pattern_match.group(2) is not None
         else None
     )
-    page = (
+    page_data = (
         str(c_q.pattern_match.group(3).decode("UTF-8"))
         if c_q.pattern_match.group(3) is not None
         else None
     )
+    
+    # استخراج chat_id و msg_id من page_data
+    parts = page_data.split("_")
+    page = parts[0]
+    chat_id = int(parts[1]) if len(parts) > 1 else None
+    msg_id = int(parts[2]) if len(parts) > 2 else None
+    
     if not os.path.exists(PATH):
         return await c_q.answer(
             "عملية البحث غير دقيقة يرجى اختيار عنوان صحيح وحاول مجددا",
             alert=True,
         )
+    
     with open(PATH) as f:
         view_data = ujson.load(f)
     search_data = view_data.get(data_key)
     total = len(search_data) if search_data is not None else 0
+    
     if total == 0:
         return await c_q.answer(
             "يرجى البحث مرة اخرى لم يتم العثور على نتائج دقيقة", alert=True
         )
+    
     if choosen_btn == "back":
         index = int(page) - 1
         del_back = index == 1
@@ -255,6 +249,8 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=back_vid.get("video_id"),
                 total=total,
+                chat_id=chat_id,
+                msg_id=msg_id
             ),
             parse_mode="html",
         )
@@ -272,6 +268,8 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=front_vid.get("video_id"),
                 total=total,
+                chat_id=chat_id,
+                msg_id=msg_id
             ),
             parse_mode="html",
         )
@@ -297,7 +295,7 @@ async def ytdl_callback(c_q: CallbackQuery):
                 (
                     Button.inline(
                         "📰  عرض التفاصيل",
-                        data=f"ytdl_detail_{data_key}_{page}",
+                        data=f"ytdl_detail_{data_key}_{page}_{chat_id}_{msg_id}",
                     )
                 ),
             ],
@@ -315,7 +313,8 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=first.get("video_id"),
                 total=total,
+                chat_id=chat_id,
+                msg_id=msg_id
             ),
             parse_mode="html",
-           )
-
+        )

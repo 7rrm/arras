@@ -124,14 +124,17 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
+        # استخدام الحساب العادي للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
+            # تجاهل الرد الأول
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
                 pass
             
+            # انتظار الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -144,19 +147,22 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # استخدام c_q.sender_id
-                await c_q.client.send_file(
-                    c_q.sender_id,
+                # استخدم الحساب العادي (l313l) لإرسال الملف بدلاً من البوت
+                await l313l.send_file(
+                    c_q.sender_id,  # المستخدم الذي ضغط على الزر
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
                 
+                # حذف رسالة الأزرار
                 await c_q.delete()
                 
             else:
-                await c_q.edit("❌ فشل التحميل")
+                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")
                 
+    except asyncio.TimeoutError:
+        await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")

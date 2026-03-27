@@ -124,7 +124,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # استخدام الحساب العادي للتواصل مع البوت الخارجي
+        # الحساب العادي (l313l) يتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
@@ -147,17 +147,15 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس الدردشة
-                # استخدم c_q.message.id للرد على رسالة الأزرار
+                # الحساب العادي (l313l) يرسل المقطع في نفس الدردشة
                 await l313l.send_file(
                     c_q.chat_id,
                     audio_response.media,
                     caption=caption,
-                    parse_mode="html",
-                    reply_to=c_q.msg_id # الرد على رسالة الأزرار
+                    parse_mode="html"
                 )
                 
-                # تعديل رسالة الأزرار
+                # البوت يعدل رسالة الأزرار
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
             else:

@@ -120,23 +120,48 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على معرف الدردشة التي حدث فيها الأمر الأصلي
-    # c_q.chat_id يعيد معرف الدردشة الحالية (وهي الصحيحة)
-    chat_id = c_q.chat_id
+    # محاولة الحصول على chat_id من عدة مصادر
+    chat_id = None
+    
+    # المصدر 1: من c_q.chat_id (إذا كان موجوداً وصالحاً)
+    if hasattr(c_q, 'chat_id') and c_q.chat_id and c_q.chat_id != 0:
+        chat_id = c_q.chat_id
+    
+    # المصدر 2: من c_q.sender_id (إذا كان c_q.chat_id غير صالح)
+    elif hasattr(c_q, 'sender_id') and c_q.sender_id and c_q.sender_id != 0:
+        chat_id = c_q.sender_id
+    
+    # المصدر 3: من c_q.query.user_id
+    elif hasattr(c_q, 'query') and hasattr(c_q.query, 'user_id') and c_q.query.user_id:
+        chat_id = c_q.query.user_id
+    
+    # المصدر 4: من الرسالة الأصلية
+    elif hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id') and c_q.message.chat_id:
+        chat_id = c_q.message.chat_id
+    
+    if not chat_id or chat_id == 0:
+        LOGS.error(f"Could not determine chat_id - c_q: {c_q}")
+        await c_q.answer("❌ لا يمكن تحديد الدردشة", alert=True)
+        return
     
     # معرف المستخدم الذي ضغط على الزر
-    user_id = c_q.sender_id
+    user_id = c_q.sender_id or c_q.query.user_id
     
-    # الحصول على معرف رسالة الأمر الأصلي للرد عليها
+    # معرف رسالة الزر للرد عليها
     reply_to_msg_id = c_q.message_id
     
-    # للتوثيق - تأكد أننا في الدردشة الصحيحة
-    LOGS.info(f"Download requested - Chat ID: {chat_id}, User ID: {user_id}")
+    # للتوثيق
+    LOGS.info(f"Download requested - Chat ID: {chat_id}, User ID: {user_id}, Message ID: {reply_to_msg_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     
     # تحديث رسالة الزر لإظهار الجاري
-    await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
+    try:
+        await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
+    except Exception as e:
+        LOGS.error(f"Error editing message: {e}")
+        # إذا فشل التعديل، نرسل رسالة جديدة
+        await l313l.send_message(chat_id, "**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
         # استخدام الحساب العادي للتواصل مع البوت الخارجي
@@ -162,22 +187,23 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # محاولة الإرسال باستخدام l313l (الحساب العادي)
+                # إرسال الملف باستخدام الحساب العادي
                 try:
-                    # إرسال الملف إلى نفس الدردشة باستخدام الحساب العادي
                     await l313l.send_file(
                         chat_id,
                         audio_response.media,
                         caption=caption,
                         parse_mode="html",
-                        reply_to=reply_to_msg_id  # الرد على رسالة الزر
+                        reply_to=reply_to_msg_id if reply_to_msg_id else None
                     )
                     
-                    # تحديث رسالة الزر إلى تم بنجاح
-                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+                    # تحديث رسالة الزر إذا كانت موجودة
+                    try:
+                        await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+                    except:
+                        pass
                     
                 except Exception as send_error:
-                    # إذا فشل l313l، جرب إرسال الرابط فقط
                     LOGS.error(f"Send error with l313l: {send_error}")
                     
                     # إرسال الرابط كبديل
@@ -185,19 +211,36 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         chat_id,
                         f"✅ **تم التحميل بنجاح**\n\n"
                         f"**رابط التحميل:** {yt_url}\n"
-                        f"**الصيغة:** MP3",
-                        reply_to=reply_to_msg_id
+                        f"**يمكنك تحميله عبر:** @W60yBot",
+                        reply_to=reply_to_msg_id if reply_to_msg_id else None
                     )
-                    await c_q.edit("✅ **تم التحميل**\nتم إرسال الرابط بدلاً من الملف", buttons=[])
+                    
+                    try:
+                        await c_q.edit("✅ **تم التحميل**\nتم إرسال الرابط بدلاً من الملف", buttons=[])
+                    except:
+                        pass
                 
             else:
-                await c_q.edit("❌ **فشل التحميل**\nلم يتم استلام ملف من البوت")
+                error_msg = "❌ **فشل التحميل**\nلم يتم استلام ملف من البوت"
+                try:
+                    await c_q.edit(error_msg)
+                except:
+                    await l313l.send_message(chat_id, error_msg)
                 
     except asyncio.TimeoutError:
-        await c_q.edit("❌ **انتهت المهلة**\nالبوت لم يستجب في الوقت المحدد")
+        error_msg = "❌ **انتهت المهلة**\nالبوت لم يستجب في الوقت المحدد"
+        try:
+            await c_q.edit(error_msg)
+        except:
+            await l313l.send_message(chat_id, error_msg)
+            
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+        error_msg = f"❌ **خطأ:** `{str(e)[:100]}`"
+        try:
+            await c_q.edit(error_msg)
+        except:
+            await l313l.send_message(chat_id, error_msg)
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

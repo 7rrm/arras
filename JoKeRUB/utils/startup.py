@@ -28,7 +28,7 @@ from ..sql_helper.global_collection import (
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from .pluginmanager import load_module
 from .tools import create_supergroup
-from . import l313l, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention
+from . import l313l, mention
 
 LOGS = logging.getLogger("aljoker")
 logging.getLogger('telethon').setLevel(logging.WARNING)

@@ -65,6 +65,15 @@ async def iytdl_inline(event):
         input_url = (reply.text).strip()
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
+    
+    # تحديد chat_id الصحيح
+    # إذا كانت المحادثة خاصة، استخدم معرف المستخدم (event.sender_id)
+    # إذا كانت مجموعة، استخدم معرف المجموعة (event.chat_id)
+    if event.is_private:
+        target_chat_id = event.sender_id
+    else:
+        target_chat_id = event.chat_id
+    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
     cout = 0
@@ -82,7 +91,8 @@ async def iytdl_inline(event):
             flag = False
     if results:
         await zedevent.delete()
-        await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
+        # استخدام target_chat_id بدلاً من event.chat_id
+        await results[0].click(target_chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
@@ -94,7 +104,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على chat_id من الرسالة الأصلية
+    # الحصول على chat_id من الرسالة الأصلية (التي فيها الزر)
+    # هذه الرسالة تم إرسالها إلى target_chat_id الصحيح
     if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
         chat_id = c_q.message.chat_id
     elif hasattr(c_q, 'chat_id') and c_q.chat_id:
@@ -102,18 +113,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     else:
         chat_id = c_q.sender_id
 
-    # مهم جداً: في المحادثات الخاصة، chat_id قد يكون معرف الحساب العادي (Saved Messages)
-    # نتحقق إذا كان chat_id هو معرف الحساب العادي نفسه
-    if chat_id == l313l.uid:
-        # إذا كانت محادثة خاصة، نستخدم sender_id (المستخدم الذي ضغط الزر)
-        chat_id = c_q.sender_id
-        LOGS.info(f"Changed chat_id from saved messages to user: {chat_id}")
-    
-    # للتأكد: إذا كان chat_id لا يزال هو معرف الحساب العادي، نستخدم sender_id
-    if chat_id == l313l.uid:
-        chat_id = c_q.sender_id
-
-    LOGS.info(f"Download requested - Final chat_id: {chat_id}, type: {'group' if chat_id < 0 else 'private'}")
+    LOGS.info(f"Download requested - Final chat_id: {chat_id}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 

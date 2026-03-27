@@ -1,5 +1,7 @@
 import os
 import re
+import glob  # <-- أضف هذا
+import random  # <-- أضف هذا
 import urllib.request
 from collections import defaultdict
 

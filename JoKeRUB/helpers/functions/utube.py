@@ -222,11 +222,23 @@ def yt_search_btns(
     return buttons
 
 
+
 @pool.run_in_thread
 def download_button(vid: str, body: bool = False):  # sourcery no-metrics
     # sourcery skip: low-code-quality
     try:
-        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
+        ydl_opts = {
+            "no-playlist": True,
+            "cookiefile": get_cookies_file(),
+            "extract_flat": False,
+            "quiet": True,
+            "no_warnings": False,
+            "ignoreerrors": True,
+            "format": "best",
+            "retries": 10,
+            "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        }
+        vid_data = yt_dlp.YoutubeDL(ydl_opts).extract_info(
             BASE_YT_URL + vid, download=False
         )
     except ExtractorError:
@@ -255,7 +267,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
                     if fr_note in (frmt_, f"{frmt_}60"):
                         qual_dict[frmt_][fr_id] = fr_size
             if video.get("acodec") != "none":
-                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0
                 if bitrrate != 0:
                     audio_dict[
                         bitrrate
@@ -288,7 +300,6 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
         vid_body = f"<a href={vid_data.get('webpage_url')}><b>[{vid_data.get('title')}]</b></a>"
         return vid_body, buttons
     return buttons
-
 
 @pool.run_in_thread
 def _tubeDl(url: str, starttime, uid: str):

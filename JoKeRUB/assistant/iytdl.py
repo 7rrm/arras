@@ -127,13 +127,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
                 pass
             
-            # انتظار الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -146,11 +144,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # استخدم c_q.sender_id أو c_q.query.user_id بدلاً من c_q.chat_id
-                user_id = c_q.sender_id if hasattr(c_q, 'sender_id') else c_q.query.user_id
-                
+                # استخدام c_q.sender_id
                 await c_q.client.send_file(
-                    user_id,  # تغيير هنا
+                    c_q.sender_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
@@ -159,10 +155,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 await c_q.delete()
                 
             else:
-                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")
+                await c_q.edit("❌ فشل التحميل")
                 
-    except asyncio.TimeoutError:
-        await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")

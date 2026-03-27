@@ -94,7 +94,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على chat_id الصحيح من الرسالة التي تحتوي على الزر
+    # الحصول على chat_id من الرسالة الأصلية
     if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
         chat_id = c_q.message.chat_id
     elif hasattr(c_q, 'chat_id') and c_q.chat_id:
@@ -102,12 +102,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     else:
         chat_id = c_q.sender_id
 
-    LOGS.info(f"Download requested - chat_id: {chat_id}, sender: {c_q.sender_id}")
-
-    # إذا كان chat_id هو معرف الحساب العادي (Saved Messages)، نستبدله بـ sender_id
-    if chat_id == l313l.uid:
-        chat_id = c_q.sender_id
-        LOGS.info(f"Changed chat_id from saved messages to user: {chat_id}")
+    LOGS.info(f"Download requested - chat_id: {chat_id}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
@@ -117,15 +112,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         pass
 
     try:
-        # التواصل مع البوت الخارجي عبر الحساب العادي
+        # استخدام l313l (الحساب العادي) للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             try:
                 await asyncio.wait_for(conv.get_response(), timeout=1)
             except:
                 pass
+            
             audio_response = await conv.get_response()
-
+            
             if audio_response and audio_response.media:
                 caption = (
                     f"<blockquote>\n"
@@ -135,23 +131,23 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>↯︰By: @Lx5x5 .</b>"
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
-
-                # إرسال الملف باستخدام الحساب العادي (l313l) إلى الدردشة الصحيحة
+                
+                # إرسال الملف باستخدام l313l (الحساب العادي) إلى نفس المحادثة
+                # نفس الطريقة التي تعمل في الكود الأول
                 await l313l.send_file(
                     chat_id,
-                    audio_response.media,  # الكائن الذي استلمناه من البوت الخارجي
+                    audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
-
-                # تحديث رسالة الزر لإظهار النجاح
+                
                 try:
                     await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 except:
                     pass
             else:
                 await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
-
+                
     except asyncio.TimeoutError:
         await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
     except Exception as e:

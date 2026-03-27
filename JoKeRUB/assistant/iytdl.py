@@ -102,7 +102,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     else:
         chat_id = c_q.sender_id
 
-    LOGS.info(f"Download requested - chat_id: {chat_id}")
+    # مهم جداً: في المحادثات الخاصة، chat_id قد يكون معرف الحساب العادي (Saved Messages)
+    # نتحقق إذا كان chat_id هو معرف الحساب العادي نفسه
+    if chat_id == l313l.uid:
+        # إذا كانت محادثة خاصة، نستخدم sender_id (المستخدم الذي ضغط الزر)
+        chat_id = c_q.sender_id
+        LOGS.info(f"Changed chat_id from saved messages to user: {chat_id}")
+    
+    # للتأكد: إذا كان chat_id لا يزال هو معرف الحساب العادي، نستخدم sender_id
+    if chat_id == l313l.uid:
+        chat_id = c_q.sender_id
+
+    LOGS.info(f"Download requested - Final chat_id: {chat_id}, type: {'group' if chat_id < 0 else 'private'}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
@@ -132,8 +143,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف باستخدام l313l (الحساب العادي) إلى نفس المحادثة
-                # نفس الطريقة التي تعمل في الكود الأول
+                # إرسال الملف إلى الدردشة الصحيحة
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,

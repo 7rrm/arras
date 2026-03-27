@@ -154,7 +154,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     audio_response.media,
                     caption=caption,
                     parse_mode="html",
-                    # الرد على رسالة الأزرار
+                    reply_to=c_q.msg_id # الرد على رسالة الأزرار
                 )
                 
                 # تعديل رسالة الأزرار

@@ -86,6 +86,7 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
+
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
@@ -94,16 +95,24 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # معرف المستخدم الذي ضغط الزر
+    # الحصول على معرف المستخدم من الزر
+    # في CallbackQuery، sender_id هو المستخدم الحقيقي
     user_id = c_q.sender_id
     
-    # نحاول الحصول على معرف المجموعة إذا كان الضغط في مجموعة
-    chat_id = user_id  # الافتراضي هو الخاص
+    # تحديد الدردشة المستهدفة
+    # إذا كانت الرسالة في مجموعة (chat_id مختلف عن sender_id)
+    # وإذا كان chat_id ليس معرف الحساب نفسه
+    chat_id = user_id  # الافتراضي: الخاص
     
-    # إذا كانت الرسالة في مجموعة، نستخدم معرف المجموعة
     if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
-        if c_q.message.chat_id != user_id:  # إذا كان في مجموعة
-            chat_id = c_q.message.chat_id
+        original_chat = c_q.message.chat_id
+        # إذا كانت الدردشة الأصلية هي مجموعة (رقم سالب)
+        # وليست الرسائل المحفوظة
+        if original_chat < 0:  # رقم سالب يعني مجموعة
+            chat_id = original_chat
+        # إذا كانت الدردشة الأصلية هي خاص وليست الرسائل المحفوظة
+        elif original_chat > 0 and original_chat != l313l.uid:
+            chat_id = original_chat
     
     LOGS.info(f"Download - User: {user_id}, Target Chat: {chat_id}")
 

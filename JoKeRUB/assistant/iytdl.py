@@ -117,7 +117,6 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    """عند الضغط على زر تحميل"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
@@ -125,23 +124,19 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # التواصل مع البوت الخارجي باستخدام الحساب العادي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
-            # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول (نص مثل "جاري البحث...")
+            # محاولة تجاهل الرد الأول (مثل الكود الأصلي)
             try:
-                first_response = await asyncio.wait_for(conv.get_response(), timeout=5)
-                LOGS.info(f"First response (ignored): {first_response.text if first_response.text else 'media'}")
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
-                LOGS.info("No first response, continuing...")
+                pass
             
-            # انتظار الرد الثاني (الملف)
+            # انتظار الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
-                # نفس الكابشن المستخدم في الكود الأصلي
                 caption = (
                     f"<blockquote>\n"
                     f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -151,7 +146,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف للمستخدم
                 await c_q.client.send_file(
                     c_q.chat_id,
                     audio_response.media,
@@ -159,10 +153,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     parse_mode=CustomParseMode("html")
                 )
                 
-                # حذف رسالة الأزرار بعد التحميل
                 await c_q.delete()
-                
-                LOGS.info("تم التحميل بنجاح وإرسال الملف")
                 
             else:
                 await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")

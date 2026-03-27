@@ -88,101 +88,131 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
-    )
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
-async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
-    yt_code = (
-        str(c_q.pattern_match.group(1).decode("UTF-8"))
-        if c_q.pattern_match.group(1) is not None
-        else None
-    )
-    choice_id = (
-        str(c_q.pattern_match.group(2).decode("UTF-8"))
-        if c_q.pattern_match.group(2) is not None
-        else None
-    )
-    downtype = (
-        str(c_q.pattern_match.group(3).decode("UTF-8"))
-        if c_q.pattern_match.group(3) is not None
-        else None
-    )
-    if str(choice_id).isdigit():
-        choice_id = int(choice_id)
-        if choice_id == 0:
-            await c_q.answer("🔄  جـارِ ...", alert=False)
-            await c_q.edit(buttons=(await download_button(yt_code)))
-            return
-    startTime = time()
-    choice_str, disp_str = get_choice_by_id(choice_id, downtype)
-    media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
-    callback_continue = f"جار تحميل {media_type} يرجى الانتظار"
-    callback_continue += f"\n\nصيغـة الملـف : {disp_str}"
-    await c_q.answer(callback_continue, alert=True)
-    upload_msg = await c_q.client.send_message(
-        BOTLOG_CHATID, "**⌔╎جـارِ الـرفـع ...**"
-    )
+async def ytdl_download_callback(c_q: CallbackQuery):
+    """التحميل عبر البوت الخارجي @W60yBot"""
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
-    await c_q.edit(
-        f"<b>⌔╎جـارِ تحميـل 🎧 {media_type} ...</b>\n\n  <a href={yt_url}>  <b>⌔╎الـرابـط 📎</b></a>\n🎚 <b>⌔╎الصيغـه </b> : {disp_str}",
-        parse_mode="html",
-    )
-    if downtype == "v":
-        retcode = await _tubeDl(url=yt_url, starttime=startTime, uid=choice_str)
-    else:
-        retcode = await _mp3Dl(url=yt_url, starttime=startTime, uid=choice_str)
-    if retcode != 0:
-        return await upload_msg.edit(str(retcode))
-    _fpath = ""
-    thumb_pic = None
-    for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
-        if _path.lower().endswith((".jpg", ".png", ".webp")):
-            thumb_pic = _path
+    
+    # الحصول على chat_id بشكل صحيح
+    try:
+        # محاولة الحصول من query.peer
+        if hasattr(c_q, 'query') and c_q.query:
+            if hasattr(c_q.query, 'peer') and c_q.query.peer:
+                chat_id = getattr(c_q.query.peer, 'chat_id', None) or getattr(c_q.query.peer, 'user_id', None)
+            else:
+                chat_id = getattr(c_q.query, 'user_id', None)
         else:
-            _fpath = _path
-    if not _fpath:
-        await edit_delete(upload_msg, "**⌔╎اووبـس .. لم يتـم إيجـاد المطلـوب ؟!**")
+            chat_id = getattr(c_q, 'sender_id', None)
+        
+        # إذا لم نجد chat_id
+        if not chat_id:
+            # محاولة استخراج من البيانات
+            if hasattr(c_q, 'query') and hasattr(c_q.query, 'user_id'):
+                chat_id = c_q.query.user_id
+            else:
+                chat_id = c_q.sender_id
+        
+        LOGS.info(f"Chat ID for download: {chat_id}")
+        
+    except Exception as e:
+        LOGS.error(f"Error getting chat_id: {e}")
+        chat_id = None
+    
+    if not chat_id:
+        await c_q.answer("❌ حدث خطأ في تحديد المحادثة", alert=True)
         return
-    if not thumb_pic:
-        thumb_pic = str(await pool.run_in_thread(download)(await get_ytthumb(yt_code)))
-    attributes, mime_type = get_attributes(str(_fpath))
-    ul = io.open(Path(_fpath), "rb")
-    uploaded = await c_q.client.fast_upload_file(
-        file=ul,
-        progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-            progress(
-                d,
-                t,
-                c_q,
-                startTime,
-                "trying to upload",
-                file_name=os.path.basename(Path(_fpath)),
-            )
-        ),
-    )
-    ul.close()
-    media = types.InputMediaUploadedDocument(
-        file=uploaded,
-        mime_type=mime_type,
-        attributes=attributes,
-        force_file=False,
-        thumb=await c_q.client.upload_file(thumb_pic) if thumb_pic else None,
-    )
-    uploaded_media = await c_q.client.send_file(
-        BOTLOG_CHATID,
-        file=media,
-        caption=f"<b>⌔╎الاسـم : </b><code>{os.path.basename(Path(_fpath))}</code>",
-        parse_mode="html",
-    )
-    await upload_msg.delete()
-    await c_q.edit(
-        text=f"<b>⌔╎الـرابـط 📎: </b> <a href={yt_url}><b>{os.path.basename(Path(_fpath))}</b></a>",
-        file=uploaded_media.media,
-        parse_mode="html",
-    )
-
+    
+    # إعلام المستخدم
+    await c_q.answer("🔄 جـارِ التحميل من البوت...", alert=False)
+    
+    # تعديل رسالة الزر لإظهار حالة التحميل
+    try:
+        await c_q.edit("**🔄 جـارِ التحميل من بوت التحميل الخارجي...**\n⏳ يرجى الانتظار قليلاً")
+    except:
+        pass
+    
+    try:
+        # استخدام conversation مع البوت الخارجي
+        async with l313l.conversation("@W60yBot", timeout=90) as conv:
+            # إرسال الأمر مع الرابط
+            await conv.send_message(f"يوت {yt_url}")
+            
+            # انتظار الرد (قد يكون عدة رسائل)
+            downloaded = False
+            attempts = 0
+            max_attempts = 5
+            
+            while not downloaded and attempts < max_attempts:
+                try:
+                    response = await asyncio.wait_for(conv.get_response(), timeout=15)
+                    
+                    if response and response.media:
+                        # تم استلام الملف
+                        caption = (
+                            f"<blockquote>\n"
+                            f"<b>✅ تم التحميل بنجاح</b>\n"
+                            f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                            f"</blockquote>\n"
+                            f"<b>↯︰By: @Lx5x5</b>\n"
+                            f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                        )
+                        
+                        # إرسال الملف للمستخدم
+                        await l313l.send_file(
+                            chat_id,
+                            response.media,
+                            caption=caption,
+                            parse_mode="html"
+                        )
+                        
+                        downloaded = True
+                        break
+                        
+                    elif response and response.text and "فشل" in response.text.lower():
+                        # فشل التحميل
+                        await l313l.send_message(chat_id, f"❌ **فشل التحميل:**\n{response.text}")
+                        downloaded = True
+                        break
+                        
+                except asyncio.TimeoutError:
+                    attempts += 1
+                    if attempts >= max_attempts:
+                        await l313l.send_message(chat_id, "❌ **انتهت المهلة - لم يتم الرد من البوت**")
+                        break
+                    continue
+            
+            if downloaded:
+                try:
+                    # تحديث رسالة الزر
+                    await c_q.edit(
+                        "✅ **تم التحميل بنجاح!**\n"
+                        "📁 تم إرسال الملف في المحادثة",
+                        buttons=[]
+                    )
+                except:
+                    pass
+            else:
+                try:
+                    await c_q.edit("❌ **فشل التحميل**", buttons=[])
+                except:
+                    pass
+                    
+    except asyncio.TimeoutError:
+        await l313l.send_message(chat_id, "❌ **انتهت المهلة - البوت لا يستجيب**")
+        try:
+            await c_q.edit("❌ **انتهت المهلة**", buttons=[])
+        except:
+            pass
+    except Exception as e:
+        LOGS.error(f"Download error: {e}")
+        await l313l.send_message(chat_id, f"❌ **حدث خطأ:**\n`{str(e)[:200]}`")
+        try:
+            await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`", buttons=[])
+        except:
+            pass
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

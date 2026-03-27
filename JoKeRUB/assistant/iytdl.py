@@ -22,6 +22,7 @@ from JoKeRUB import l313l
 
 from ..Config import Config
 from ..core import check_owner, pool
+from ..helpers.functions import rand_key
 from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers import post_to_telegraph, progress, reply_id

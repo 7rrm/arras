@@ -94,14 +94,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على معرف الدردشة الحقيقي من الـ CallbackQuery
-    # في CallbackQuery، المعرف يكون في query.peer
-    if hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'user_id'):
-        chat_id = c_q.query.peer.user_id
-    else:
-        chat_id = c_q.sender_id
+    # معرف المستخدم الذي ضغط الزر
+    user_id = c_q.sender_id
     
-    LOGS.info(f"Download - Chat ID: {chat_id}, Type: {'group' if chat_id < 0 else 'private'}")
+    # نحاول الحصول على معرف المجموعة إذا كان الضغط في مجموعة
+    chat_id = user_id  # الافتراضي هو الخاص
+    
+    # إذا كانت الرسالة في مجموعة، نستخدم معرف المجموعة
+    if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
+        if c_q.message.chat_id != user_id:  # إذا كان في مجموعة
+            chat_id = c_q.message.chat_id
+    
+    LOGS.info(f"Download - User: {user_id}, Target Chat: {chat_id}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
@@ -117,7 +121,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             
             # ننتظر الرد من البوت
             audio_response = None
-            for _ in range(30):  # ننتظر 30 مرة كل ثانية
+            for _ in range(30):
                 try:
                     audio_response = await asyncio.wait_for(conv.get_response(), timeout=1)
                     if audio_response and audio_response.media:
@@ -132,7 +136,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f"<b>⌔╎تم الجلـب من :</b> @W60yBot"
                 )
                 
-                # إرسال الملف إلى نفس الدردشة التي ضغط فيها المستخدم
+                # إرسال الملف إلى الدردشة المحددة
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
@@ -140,7 +144,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     parse_mode="html"
                 )
                 
-                # تحديث رسالة البوت
                 try:
                     await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 except:

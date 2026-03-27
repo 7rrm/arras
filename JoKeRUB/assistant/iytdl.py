@@ -95,16 +95,13 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_url = BASE_YT_URL + yt_code
 
     # الحصول على chat_id الصحيح من الرسالة التي تحتوي على الزر
-    # الطريقة الأضمن: c_q.message.chat_id (الرسالة التي نقر عليها المستخدم)
     if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
         chat_id = c_q.message.chat_id
     elif hasattr(c_q, 'chat_id') and c_q.chat_id:
         chat_id = c_q.chat_id
     else:
-        # آخر حل: استخدام معرف المستخدم الذي نقر، ولكن هذا سيؤدي إلى Saved Messages غالبًا
         chat_id = c_q.sender_id
 
-    # تسجيل للتصحيح
     LOGS.info(f"Download requested - chat_id: {chat_id}, sender: {c_q.sender_id}")
 
     # إذا كان chat_id هو معرف الحساب العادي (Saved Messages)، نستبدله بـ sender_id
@@ -139,27 +136,27 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
 
-                # إرسال الملف باستخدام البوت نفسه (c_q.client) وليس الحساب العادي
-                # البوت يعرف الدردشة التي جاء منها الطلب بشكل دقيق
-                await c_q.client.send_file(
+                # إرسال الملف باستخدام الحساب العادي (l313l) إلى الدردشة الصحيحة
+                await l313l.send_file(
                     chat_id,
-                    audio_response.media,
+                    audio_response.media,  # الكائن الذي استلمناه من البوت الخارجي
                     caption=caption,
                     parse_mode="html"
                 )
 
+                # تحديث رسالة الزر لإظهار النجاح
                 try:
                     await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 except:
                     pass
             else:
-                await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
+                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
 
     except asyncio.TimeoutError:
-        await c_q.client.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
+        await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.client.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
+        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

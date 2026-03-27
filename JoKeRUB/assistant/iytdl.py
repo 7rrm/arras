@@ -6,7 +6,6 @@
 import asyncio
 import glob
 import io
-import html
 import os
 import re
 from pathlib import Path
@@ -35,30 +34,6 @@ from ..helpers.functions.utube import (
     yt_search_btns,
 )
 from ..plugins import BOTLOG_CHATID
-
-from telethon import types
-from telethon.extensions import html, markdown
-
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
 
 LOGS = logging.getLogger(__name__)
 BASE_YT_URL = "https://www.youtube.com/watch?v="
@@ -113,84 +88,101 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0(?:_(\d+)_(\d+))?$"))
+    CallbackQuery(
+        data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
+    )
 )
 @check_owner
-async def ytdl_download_callback(c_q: CallbackQuery):
-    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
+async def ytdl_download_callback(c_q: CallbackQuery):  # sourcery no-metrics
+    yt_code = (
+        str(c_q.pattern_match.group(1).decode("UTF-8"))
+        if c_q.pattern_match.group(1) is not None
+        else None
+    )
+    choice_id = (
+        str(c_q.pattern_match.group(2).decode("UTF-8"))
+        if c_q.pattern_match.group(2) is not None
+        else None
+    )
+    downtype = (
+        str(c_q.pattern_match.group(3).decode("UTF-8"))
+        if c_q.pattern_match.group(3) is not None
+        else None
+    )
+    if str(choice_id).isdigit():
+        choice_id = int(choice_id)
+        if choice_id == 0:
+            await c_q.answer("🔄  جـارِ ...", alert=False)
+            await c_q.edit(buttons=(await download_button(yt_code)))
+            return
+    startTime = time()
+    choice_str, disp_str = get_choice_by_id(choice_id, downtype)
+    media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
+    callback_continue = f"جار تحميل {media_type} يرجى الانتظار"
+    callback_continue += f"\n\nصيغـة الملـف : {disp_str}"
+    await c_q.answer(callback_continue, alert=True)
+    upload_msg = await c_q.client.send_message(
+        BOTLOG_CHATID, "**⌔╎جـارِ الـرفـع ...**"
+    )
     yt_url = BASE_YT_URL + yt_code
-    
-    # استخراج chat_id و msg_id من البيانات
-    chat_id = None
-    msg_id = None
-    
-    if c_q.pattern_match.group(2) and c_q.pattern_match.group(3):
-        chat_id = int(c_q.pattern_match.group(2).decode("UTF-8"))
-        msg_id = int(c_q.pattern_match.group(3).decode("UTF-8"))
-    
-    # إذا لم نجد chat_id من البيانات، نستخدم المصادر الأخرى
-    if not chat_id:
-        if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
-            chat_id = c_q.message.chat_id
-        elif hasattr(c_q, 'chat_id') and c_q.chat_id:
-            chat_id = c_q.chat_id
-        elif hasattr(c_q, 'sender_id') and c_q.sender_id:
-            chat_id = c_q.sender_id
-    
-    if not chat_id:
-        await c_q.answer("❌ لا يمكن تحديد المحادثة", alert=True)
+    await c_q.edit(
+        f"<b>⌔╎جـارِ تحميـل 🎧 {media_type} ...</b>\n\n  <a href={yt_url}>  <b>⌔╎الـرابـط 📎</b></a>\n🎚 <b>⌔╎الصيغـه </b> : {disp_str}",
+        parse_mode="html",
+    )
+    if downtype == "v":
+        retcode = await _tubeDl(url=yt_url, starttime=startTime, uid=choice_str)
+    else:
+        retcode = await _mp3Dl(url=yt_url, starttime=startTime, uid=choice_str)
+    if retcode != 0:
+        return await upload_msg.edit(str(retcode))
+    _fpath = ""
+    thumb_pic = None
+    for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
+        if _path.lower().endswith((".jpg", ".png", ".webp")):
+            thumb_pic = _path
+        else:
+            _fpath = _path
+    if not _fpath:
+        await edit_delete(upload_msg, "**⌔╎اووبـس .. لم يتـم إيجـاد المطلـوب ؟!**")
         return
-    
-    LOGS.info(f"Download requested - Chat ID: {chat_id}, Msg ID: {msg_id}")
-    
-    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-    
-    try:
-        await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
-    except:
-        pass
-    
-    try:
-        async with l313l.conversation("@W60yBot", timeout=60) as conv:
-            await conv.send_message(f"يوت {yt_url}")
-            
-            try:
-                await asyncio.wait_for(conv.get_response(), timeout=1)
-            except:
-                pass
-            
-            audio_response = await conv.get_response()
-            
-            if audio_response and audio_response.media:
-                caption = (
-                    f"<blockquote>\n"
-                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                    f"</blockquote>"
-                    f"<b>↯︰By: @Lx5x5 .</b>"
-                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
-                )
-                
-                # إرسال الملف في نفس المحادثة
-                await l313l.send_file(
-                    chat_id,
-                    audio_response.media,
-                    caption=caption,
-                    parse_mode="html",
-                    reply_to=msg_id if msg_id else None
-                )
-                
-                try:
-                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
-                except:
-                    pass
-                
-            else:
-                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
-                
-    except Exception as e:
-        LOGS.error(f"Download error: {e}")
-        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
+    if not thumb_pic:
+        thumb_pic = str(await pool.run_in_thread(download)(await get_ytthumb(yt_code)))
+    attributes, mime_type = get_attributes(str(_fpath))
+    ul = io.open(Path(_fpath), "rb")
+    uploaded = await c_q.client.fast_upload_file(
+        file=ul,
+        progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
+            progress(
+                d,
+                t,
+                c_q,
+                startTime,
+                "trying to upload",
+                file_name=os.path.basename(Path(_fpath)),
+            )
+        ),
+    )
+    ul.close()
+    media = types.InputMediaUploadedDocument(
+        file=uploaded,
+        mime_type=mime_type,
+        attributes=attributes,
+        force_file=False,
+        thumb=await c_q.client.upload_file(thumb_pic) if thumb_pic else None,
+    )
+    uploaded_media = await c_q.client.send_file(
+        BOTLOG_CHATID,
+        file=media,
+        caption=f"<b>⌔╎الاسـم : </b><code>{os.path.basename(Path(_fpath))}</code>",
+        parse_mode="html",
+    )
+    await upload_msg.delete()
+    await c_q.edit(
+        text=f"<b>⌔╎الـرابـط 📎: </b> <a href={yt_url}><b>{os.path.basename(Path(_fpath))}</b></a>",
+        file=uploaded_media.media,
+        parse_mode="html",
+    )
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))
@@ -207,34 +199,24 @@ async def ytdl_callback(c_q: CallbackQuery):
         if c_q.pattern_match.group(2) is not None
         else None
     )
-    page_data = (
+    page = (
         str(c_q.pattern_match.group(3).decode("UTF-8"))
         if c_q.pattern_match.group(3) is not None
         else None
     )
-    
-    # استخراج chat_id و msg_id من page_data
-    parts = page_data.split("_")
-    page = parts[0]
-    chat_id = int(parts[1]) if len(parts) > 1 else None
-    msg_id = int(parts[2]) if len(parts) > 2 else None
-    
     if not os.path.exists(PATH):
         return await c_q.answer(
             "عملية البحث غير دقيقة يرجى اختيار عنوان صحيح وحاول مجددا",
             alert=True,
         )
-    
     with open(PATH) as f:
         view_data = ujson.load(f)
     search_data = view_data.get(data_key)
     total = len(search_data) if search_data is not None else 0
-    
     if total == 0:
         return await c_q.answer(
             "يرجى البحث مرة اخرى لم يتم العثور على نتائج دقيقة", alert=True
         )
-    
     if choosen_btn == "back":
         index = int(page) - 1
         del_back = index == 1
@@ -249,8 +231,6 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=back_vid.get("video_id"),
                 total=total,
-                chat_id=chat_id,
-                msg_id=msg_id
             ),
             parse_mode="html",
         )
@@ -268,8 +248,6 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=front_vid.get("video_id"),
                 total=total,
-                chat_id=chat_id,
-                msg_id=msg_id
             ),
             parse_mode="html",
         )
@@ -295,7 +273,7 @@ async def ytdl_callback(c_q: CallbackQuery):
                 (
                     Button.inline(
                         "📰  عرض التفاصيل",
-                        data=f"ytdl_detail_{data_key}_{page}_{chat_id}_{msg_id}",
+                        data=f"ytdl_detail_{data_key}_{page}",
                     )
                 ),
             ],
@@ -313,8 +291,8 @@ async def ytdl_callback(c_q: CallbackQuery):
                 page=index,
                 vid=first.get("video_id"),
                 total=total,
-                chat_id=chat_id,
-                msg_id=msg_id
             ),
             parse_mode="html",
-        )
+           )
+
+

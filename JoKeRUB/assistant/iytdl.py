@@ -85,31 +85,42 @@ async def iytdl_inline(event):
     if results:
         await zedevent.delete()
         
-        # الحصول على chat_id الصحيح للإرسال
+        # تحديد الدردشة المستهدفة
         if event.is_private:
-            # في الخاص، نرسل إلى المستخدم نفسه
-            target_chat_id = event.sender_id
+            target_chat = event.sender_id
         else:
-            # في المجموعة، نرسل إلى المجموعة
-            target_chat_id = event.chat_id
+            target_chat = event.chat_id
         
-        # محاولة إرسال نتيجة البحث مباشرة
-        try:
-            # جلب أول نتيجة
-            result = results[0]
-            
-            # إرسال النتيجة مباشرة إلى الدردشة
-            await event.client.send_message(
-                target_chat_id,
-                result.text,
-                file=result.document or result.photo,
-                buttons=result.buttons,
-                reply_to=reply_to_id
-            )
-        except Exception as e:
-            LOGS.error(f"Error sending inline result: {e}")
-            # إذا فشل، جرب الطريقة القديمة
-            await results[0].click(target_chat_id, reply_to=reply_to_id, hide_via=True)
+        # الحصول على أول نتيجة
+        result = results[0]
+        
+        # إرسال النتيجة إلى الدردشة الصحيحة
+        if hasattr(result, 'send_message'):
+            # إذا كان الكائن يحتوي على send_message
+            await result.send_message(target_chat, reply_to=reply_to_id)
+        else:
+            # محاولة بناء الرسالة يدوياً
+            try:
+                # الحصول على تفاصيل النتيجة
+                if result.type == "photo":
+                    await event.client.send_file(
+                        target_chat,
+                        result.photo.url,
+                        caption=result.text,
+                        buttons=result.buttons,
+                        reply_to=reply_to_id
+                    )
+                else:
+                    await event.client.send_message(
+                        target_chat,
+                        result.text,
+                        buttons=result.buttons,
+                        reply_to=reply_to_id
+                    )
+            except Exception as e:
+                LOGS.error(f"Error sending: {e}")
+                # آخر حل
+                await results[0].click(target_chat, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 

@@ -6,6 +6,7 @@
 import asyncio
 import glob
 import io
+import html
 import os
 import re
 from pathlib import Path
@@ -111,39 +112,34 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
-
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(audio|video)_(.*)"))
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    download_type = c_q.pattern_match.group(1).decode("UTF-8")  # audio or video
-    yt_code = c_q.pattern_match.group(2).decode("UTF-8")
+    """عند الضغط على زر تحميل"""
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    await c_q.answer("🔄 جـارِ التحضير للتحميل...", alert=False)
+    await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # اختيار البوت المناسب
-        if download_type == "audio":
-            bot_username = "@W60yBot"  # بوت الصوت
-            command = f"يوت {yt_url}"
-        else:
-            bot_username = "@ahmedebot"  # بوت الفيديو
-            command = f"تحميل {yt_url}"
+        # استخدام الحساب الأساسي (client) للتواصل مع البوت الخارجي
+        # l313l.client هو الحساب الأساسي
         
-        # التواصل مع البوت الخارجي
-        async with c_q.client.conversation(bot_username, timeout=60) as conv:
-            await conv.send_message(command)
+        async with l313l.client.conversation("@W60yBot", timeout=60) as conv:
+            # إرسال الأمر مع الرابط
+            await conv.send_message(f"يوت {yt_url}")
             
-            # انتظار الرد الأول
+            # انتظار رد البوت
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=10)
+                LOGS.info(f"First response: {first_response.text if first_response.text else 'media'}")
             except asyncio.TimeoutError:
                 raise Exception("البوت لم يستجب")
             
-            # انتظار الملف
+            # انتظار الملف الصوتي
             file_response = await conv.get_response()
             
             if file_response and file_response.media:
@@ -156,7 +152,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
 <a href="emoji/5368338253868968009">🦅</a>"""
                 
                 # إرسال الملف للمستخدم
-                await c_q.client.send_file(
+                await l313l.client.send_file(
                     c_q.chat_id,
                     file_response.media,
                     caption=caption,
@@ -167,8 +163,10 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 await c_q.delete()  # حذف رسالة الأزرار بعد التحميل
                 
             else:
-                await c_q.edit("❌ فشل التحميل، يرجى المحاولة لاحقاً")
+                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")
                 
+    except asyncio.TimeoutError:
+        await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")

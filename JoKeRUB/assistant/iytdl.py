@@ -65,19 +65,8 @@ async def iytdl_inline(event):
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
     
-    # تحديد chat_id الصحيح للإرسال
-    if event.is_private:
-        # في المحادثة الخاصة، نرسل إلى المستخدم نفسه
-        target_chat_id = event.sender_id
-    else:
-        # في المجموعة، نرسل إلى المجموعة
-        target_chat_id = event.chat_id
-    
-    # للتأكد من عدم الإرسال إلى الحساب العادي نفسه
-    if target_chat_id == l313l.uid:
-        target_chat_id = event.sender_id
-    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
+    
     flag = True
     cout = 0
     results = None
@@ -92,10 +81,35 @@ async def iytdl_inline(event):
         cout += 1
         if cout > 5:
             flag = False
+    
     if results:
         await zedevent.delete()
-        # إرسال النتيجة إلى target_chat_id الصحيح
-        await results[0].click(target_chat_id, reply_to=reply_to_id, hide_via=True)
+        
+        # الحصول على chat_id الصحيح للإرسال
+        if event.is_private:
+            # في الخاص، نرسل إلى المستخدم نفسه
+            target_chat_id = event.sender_id
+        else:
+            # في المجموعة، نرسل إلى المجموعة
+            target_chat_id = event.chat_id
+        
+        # محاولة إرسال نتيجة البحث مباشرة
+        try:
+            # جلب أول نتيجة
+            result = results[0]
+            
+            # إرسال النتيجة مباشرة إلى الدردشة
+            await event.client.send_message(
+                target_chat_id,
+                result.text,
+                file=result.document or result.photo,
+                buttons=result.buttons,
+                reply_to=reply_to_id
+            )
+        except Exception as e:
+            LOGS.error(f"Error sending inline result: {e}")
+            # إذا فشل، جرب الطريقة القديمة
+            await results[0].click(target_chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 

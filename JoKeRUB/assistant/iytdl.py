@@ -87,140 +87,68 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 @l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
-    )
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    yt_code = (
-        str(c_q.pattern_match.group(1).decode("UTF-8"))
-        if c_q.pattern_match.group(1) is not None
-        else None
-    )
-    choice_id = (
-        str(c_q.pattern_match.group(2).decode("UTF-8"))
-        if c_q.pattern_match.group(2) is not None
-        else None
-    )
-    downtype = (
-        str(c_q.pattern_match.group(3).decode("UTF-8"))
-        if c_q.pattern_match.group(3) is not None
-        else None
-    )
-    
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
-    media_type = "فيديو" if downtype == "v" else "مقطع صوتي"
+
+    # الحصول على chat_id من المكان الذي ضغط فيه المستخدم
+    if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
+        chat_id = c_q.message.chat_id
+    else:
+        chat_id = c_q.chat_id
     
-    # إعلام المستخدم بأنه جاري التحميل
-    await c_q.answer(f"⌔╎جـارِ جلب {media_type} من البوت ...", alert=True)
-    
-    bot_username = "W60yBot"
-    
+    LOGS.info(f"Download requested - Sending to chat: {chat_id}")
+
+    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
+
     try:
-        # إرسال الأمر للبوت الخارجي بالشكل الصحيح: "يوت" + الرابط
-        await l313l.send_message(bot_username, f"يوت {yt_url}")
-        
-        # ننتظر قليلاً حتى يقوم البوت بالرد
-        await asyncio.sleep(8)
-        
-        # نبحث عن آخر رسالة من البوت تحتوي على ملف
-        async for msg in l313l.iter_messages(bot_username, limit=5):
-            if msg.media and msg.date:
-                caption = (
-                    f"<b>⌔╎الـرابـط 📎:</b> <a href='{yt_url}'>⏯️ اضغط للمشاهدة</a>\n"
-                    f"<b>⌔╎نـوع الوسائـط :</b> {media_type}\n"
-                    f"<b>⌔╎الصيغـه :</b> {choice_id}\n"
-                    f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
-                )
-                
-                # حذف الرسالة الأصلية (التي تحتوي على الأزرار)
-                try:
-                    await c_q.delete()
-                except:
-                    pass
-                
-                # الحصول على معرف المحادثة الصحيح
-                chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
-                
-                # إرسال رسالة جديدة بالملف
-                await l313l.send_file(
-                    chat_id,
-                    msg.media,
-                    caption=caption,
-                    parse_mode="html"
-                )
-                return
-        
-        # إذا لم نجد أي ملف خلال 8 ثواني، ننتظر أكثر قليلاً
-        await asyncio.sleep(5)
-        
-        async for msg in l313l.iter_messages(bot_username, limit=3):
-            if msg.media and msg.date:
-                caption = (
-                    f"<b>⌔╎الـرابـط 📎:</b> <a href='{yt_url}'>⏯️ اضغط للمشاهدة</a>\n"
-                    f"<b>⌔╎نـوع الوسائـط :</b> {media_type}\n"
-                    f"<b>⌔╎الصيغـه :</b> {choice_id}\n"
-                    f"<b>⌔╎تم الجلـب من :</b> @{bot_username}"
-                )
-                
-                # حذف الرسالة الأصلية
-                try:
-                    await c_q.delete()
-                except:
-                    pass
-                
-                # الحصول على معرف المحادثة الصحيح
-                chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
-                
-                # إرسال رسالة جديدة بالملف
-                await l313l.send_file(
-                    chat_id,
-                    msg.media,
-                    caption=caption,
-                    parse_mode="html"
-                )
-                return
-        
-        # إذا لم نجد أي ملف نهائياً
-        # حذف الرسالة الأصلية
-        try:
-            await c_q.delete()
-        except:
-            pass
-        
-        # الحصول على معرف المحادثة الصحيح
-        chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
-        
-        # إرسال رسالة جديدة بدون ملف
-        await l313l.send_message(
-            chat_id,
-            f"<b>⌔╎عـذراً .. لم يتم العثور على الملف من البوت</b>\n\n"
-            f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>⏯️ {yt_url}</a>\n\n"
-            f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
-            f"<b>⌔╎للبوت :</b> @{bot_username}",
-            parse_mode="html"
-        )
-        
-    except Exception as e:
-        # حذف الرسالة الأصلية في حالة الخطأ
-        try:
-            await c_q.delete()
-        except:
-            pass
+        await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
+    except:
+        pass
+
+    try:
+        # استخدام l313l (الحساب العادي) للتواصل مع البوت الخارجي
+        async with l313l.conversation("@W60yBot", timeout=60) as conv:
+            await conv.send_message(f"يوت {yt_url}")
+            try:
+                await asyncio.wait_for(conv.get_response(), timeout=1)
+            except:
+                pass
             
-        # الحصول على معرف المحادثة الصحيح
-        chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
-        
-        # إرسال رسالة الخطأ
-        await l313l.send_message(
-            chat_id,
-            f"<b>⌔╎حدث خطـأ :</b>\n<code>{str(e)}</code>\n\n"
-            f"<b>⌔╎الرابـط المطلـوب :</b>\n<a href='{yt_url}'>اضغط هنا للمشاهدة</a>\n\n"
-            f"<b>⌔╎جـرب إرسال الأمر يدويًا :</b>\n<code>يوت {yt_url}</code>\n"
-            f"<b>⌔╎للبوت :</b> @{bot_username}",
-            parse_mode="html"
-        )
+            audio_response = await conv.get_response()
+            
+            if audio_response and audio_response.media:
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>✅ تم التحميل بنجاح</b>\n"
+                    f"</blockquote>\n"
+                    f"<b>⌔╎الـرابـط 📎:</b> <a href='{yt_url}'>⏯️ اضغط للمشاهدة</a>\n"
+                    f"<b>⌔╎تم الجلـب من :</b> @W60yBot"
+                )
+                
+                # إرسال الملف إلى نفس المحادثة التي ضغط فيها المستخدم
+                await l313l.send_file(
+                    chat_id,
+                    audio_response.media,
+                    caption=caption,
+                    parse_mode="html"
+                )
+                
+                try:
+                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+                except:
+                    pass
+            else:
+                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف من البوت")
+                
+    except asyncio.TimeoutError:
+        await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب خلال 60 ثانية")
+    except Exception as e:
+        LOGS.error(f"Download error: {e}")
+        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

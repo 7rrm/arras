@@ -130,7 +130,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
-            # انتظار الردود (نفس الكود الأصلي)
+            # انتظار الردود
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=5)
                 LOGS.info(f"First response: {first_response.text if first_response.text else 'media'}")
@@ -151,14 +151,12 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف للمستخدم
-                # استخدم c_q.client (البوت) للإرسال
+                # إرسال الملف للمستخدم - بدون reply_to أولاً للتأكد
                 await c_q.client.send_file(
                     c_q.chat_id,
                     audio_response.media,
                     caption=caption,
-                    parse_mode=CustomParseMode("html"),
-                    reply_to=c_q.original_message_id  # تغيير هنا
+                    parse_mode=CustomParseMode("html")
                 )
                 
                 # حذف رسالة الأزرار بعد التحميل

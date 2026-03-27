@@ -120,12 +120,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # تحديد معرف الدردشة بشكل صحيح
-    # إذا كانت الدردشة خاصة (chat_id = 0) استخدم sender_id
-    if c_q.chat_id == 0 or c_q.chat_id is None:
+    # c_q.chat_id في الخاص يعطي معرف المستخدم الآخر
+    # وليس حسابك أنت
+    chat_id = c_q.chat_id
+    
+    # إذا كان chat_id = 0 (نادراً)، استخدم sender_id
+    if chat_id == 0 or chat_id is None:
         chat_id = c_q.sender_id
-    else:
-        chat_id = c_q.chat_id
+    
+    # طباعة في اللوق لتأكد
+    LOGS.info(f"سيتم إرسال الملف إلى: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -151,9 +155,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس الدردشة
+                # إرسال الملف إلى الدردشة الصحيحة
                 await l313l.send_file(
-                    chat_id,
+                    chat_id,  # هذا هو معرف المستخدم الآخر
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"

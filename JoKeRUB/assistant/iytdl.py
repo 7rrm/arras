@@ -86,82 +86,76 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    """التحميل عبر البوت الخارجي"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # معرف المستخدم
-    user_id = c_q.sender_id
+    # الحصول على chat_id من خلال الرسالة الأصلية
+    try:
+        original_msg = await c_q.get_message()
+        chat_id = original_msg.chat_id
+        LOGS.info(f"Chat ID from original message: {chat_id}")
+    except Exception as e:
+        LOGS.error(f"Error getting chat_id: {e}")
+        chat_id = c_q.sender_id
     
-    if not user_id:
-        await c_q.answer("❌ خطأ في تحديد المستخدم", alert=True)
-        return
-    
-    # إعلام المستخدم
-    await c_q.answer("🔄 جاري التحميل...", alert=False)
-    await c_q.edit("**🔄 جاري التحميل من البوت الخارجي...**\n⏳ انتظر قليلاً")
+    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
     try:
-        # فتح محادثة مع البوت
+        await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
+    except:
+        pass
+    
+    try:
+        # استخدام l313l (الحساب العادي) للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
-            # إرسال الرابط
-            await conv.send_message(yt_url)
+            await conv.send_message(f"يوت {yt_url}")
             
-            # جمع كل الردود
-            responses = []
-            for _ in range(3):  # نجمع أول 3 ردود
-                try:
-                    resp = await asyncio.wait_for(conv.get_response(), timeout=10)
-                    if resp:
-                        responses.append(resp)
-                except asyncio.TimeoutError:
-                    break
+            # تجاهل الرد الأول
+            try:
+                await asyncio.wait_for(conv.get_response(), timeout=1)
+            except:
+                pass
             
-            # البحث عن ملف في الردود
-            found_media = None
-            for resp in responses:
-                if resp and resp.media:
-                    found_media = resp.media
-                    break
+            # الرد الثاني هو الملف
+            audio_response = await conv.get_response()
             
-            if found_media:
-                # إرسال الملف للمستخدم
+            if audio_response and audio_response.media:
+                caption = (
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                )
+                
+                # إرسال الملف باستخدام l313l (الحساب العادي)
                 await l313l.send_file(
-                    user_id,
-                    found_media,
-                    caption="✅ **تم التحميل بنجاح**\n\n↯︰By: @Lx5x5"
+                    chat_id,
+                    audio_response.media,
+                    caption=caption,
+                    parse_mode="html"
                 )
                 
                 # تحديث رسالة الزر
-                await c_q.edit(
-                    "✅ **تم التحميل بنجاح!**\n📁 تم إرسال الملف في الخاص",
-                    buttons=[]
-                )
-            else:
-                # إذا لم نجد ملف، نرسل آخر رد من البوت
-                last_text = "لا يوجد رد"
-                if responses:
-                    last_text = responses[-1].text if responses[-1].text else "رد غير معروف"
+                try:
+                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
+                except:
+                    pass
                 
-                await l313l.send_message(
-                    user_id,
-                    f"❌ **فشل التحميل**\n\nرد البوت:\n`{last_text[:200]}`"
-                )
-                await c_q.edit("❌ **فشل التحميل**", buttons=[])
+            else:
+                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم استلام ملف")
                 
     except asyncio.TimeoutError:
-        await l313l.send_message(user_id, "❌ **انتهت المهلة - البوت لا يستجيب**")
-        await c_q.edit("❌ **انتهت المهلة**", buttons=[])
+        await l313l.send_message(chat_id, "❌ **انتهت المهلة**\nالبوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await l313l.send_message(user_id, f"❌ **خطأ:** `{str(e)[:200]}`")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`", buttons=[])
+        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

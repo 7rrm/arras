@@ -226,16 +226,16 @@ def yt_search_btns(
 def download_button(vid: str, body: bool = False):  # sourcery no-metrics
     # sourcery skip: low-code-quality
     try:
-        vid_data = yt_dlp.YoutubeDL({"no-playlist": True}).extract_info(
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
             BASE_YT_URL + vid, download=False
         )
     except ExtractorError:
         vid_data = {"formats": []}
     buttons = [
         [
-            Button.inline("⭐️ الافضل - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
+            Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
             Button.inline(
-                "⭐️ الافضل - 📹 WebM/MP4",
+                "⭐️ اعلى دقـه - 📹 WebM/MP4",
                 data=f"ytdl_download_{vid}_mp4_v",
             ),
         ]
@@ -255,7 +255,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
                     if fr_note in (frmt_, f"{frmt_}60"):
                         qual_dict[frmt_][fr_id] = fr_size
             if video.get("acodec") != "none":
-                bitrrate = int(video.get("abr", 0))
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
                 if bitrrate != 0:
                     audio_dict[
                         bitrrate
@@ -275,11 +275,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
             )
     buttons += sublists(video_btns, width=2)
     buttons += [
-        [
-            Button.inline(
-                "⭐️ الافضل  - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a"
-            )
-        ]
+        [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
     ]
     buttons += sublists(
         [

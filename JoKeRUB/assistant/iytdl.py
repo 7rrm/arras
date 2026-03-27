@@ -91,6 +91,8 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
+
+
 @l313l.tgbot.on(
     CallbackQuery(
         data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
@@ -98,9 +100,6 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    """
-    تم تعديل هذه الدالة لترسل رابط الفيديو إلى البوت الخارجي بدلاً من التحميل المباشر
-    """
     yt_code = (
         str(c_q.pattern_match.group(1).decode("UTF-8"))
         if c_q.pattern_match.group(1) is not None
@@ -135,9 +134,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     # رسالة تأكيد للمستخدم
     await c_q.answer(f"جـارِ إرسال طلب التحميل إلى البوت...\nالصيغة: {disp_str}", alert=True)
     
-    # إرسال رابط الفيديو إلى البوت الخارجي باستخدام l313l (الحساب العادي)
+    # إرسال رابط الفيديو إلى البوت الخارجي باستخدام الحساب العادي
     try:
-        # إرسال الأمر إلى البوت الخارجي عبر الحساب العادي
+        # استخدام الحساب العادي (l313l) للتواصل مع البوت الخارجي
         await l313l.send_message(
             EXTERNAL_BOT_USERNAME,
             f"يوت {yt_url}"
@@ -148,7 +147,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             f"<b>✅ تم إرسال طلب التحميل بنجاح</b>\n\n"
             f"<b>⌔╎الرابط 📎:</b> <a href='{yt_url}'>اضغط هنا</a>\n"
             f"<b>🎚 الصيغة:</b> {disp_str}\n\n"
-            f"<i>سيقوم البوت بإرسال الملف قريباً...</i>",
+            f"<i>سيقوم البوت @{EXTERNAL_BOT_USERNAME[1:]} بإرسال الملف قريباً...</i>",
             parse_mode="html"
         )
         
@@ -160,8 +159,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             f"<b>الخطأ:</b> {str(e)}",
             parse_mode="html"
         )
-
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

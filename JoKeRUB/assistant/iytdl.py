@@ -113,83 +113,61 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
-    CallbackQuery(
-        data=re.compile(b"^ytdl_download_(.*)_([\d]+|mkv|mp4|mp3)(?:_(a|v))?")
-    )
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
-    yt_code = (
-        str(c_q.pattern_match.group(1).decode("UTF-8"))
-        if c_q.pattern_match.group(1) is not None
-        else None
-    )
-    choice_id = (
-        str(c_q.pattern_match.group(2).decode("UTF-8"))
-        if c_q.pattern_match.group(2) is not None
-        else None
-    )
-    downtype = (
-        str(c_q.pattern_match.group(3).decode("UTF-8"))
-        if c_q.pattern_match.group(3) is not None
-        else None
-    )
-    
-    # عرض خيارات التحميل
-    if str(choice_id).isdigit() and int(choice_id) == 0:
-        await c_q.answer("🔄 جـارِ جلب خيارات التحميل...", alert=False)
-        await c_q.edit(buttons=(await download_button(yt_code)))
-        return
-    
-    # رابط الفيديو
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
-    _, disp_str = get_choice_by_id(choice_id, downtype)
     
-    await c_q.answer(f"جـارِ إرسال الطلب إلى البوت...\nالصيغة: {disp_str}", alert=True)
+    # تحديد معرف الدردشة بشكل صحيح
+    # إذا كانت الدردشة خاصة (chat_id = 0) استخدم sender_id
+    if c_q.chat_id == 0 or c_q.chat_id is None:
+        chat_id = c_q.sender_id
+    else:
+        chat_id = c_q.chat_id
+    
+    await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
+    await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # ✅ التصحيح الأهم: استخدم الحساب العادي (l313l) وليس البوت
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
-            # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول (مثل "جاري البحث...")
             try:
-                first_response = await asyncio.wait_for(conv.get_response(), timeout=3)
-                LOGS.info(f"Ignored first response: {first_response.text if first_response.text else 'media'}")
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
                 pass
             
-            # انتظار الرد الثاني (الملف)
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
                 caption = (
                     f"<blockquote>\n"
-                    f"<b>✅ تم التحميل بنجاح</b>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
                     f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                    f"</blockquote>\n"
-                    f"<b>↯︰By: @Lx5x5 .</b>\n"
-                    f'<a href="emoji/5368338253868968009">🦅</a>'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف للمستخدم عبر البوت
-                await c_q.client.send_file(
-                    c_q.chat_id,
+                # إرسال الملف في نفس الدردشة
+                await l313l.send_file(
+                    chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
                 
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
-            else:
-                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف من البوت الخارجي")
                 
-    except asyncio.TimeoutError:
-        await c_q.edit("⏰ انتهت المهلة، البوت الخارجي لم يستجب")
+            else:
+                await c_q.edit("❌ فشل التحميل")
+                
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

@@ -67,64 +67,51 @@ async def iytdl_inline(event):
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
     
-    # تحديد الدردشة المستهدفة
-    if event.is_private:
-        target_chat = event.sender_id
-    else:
-        target_chat = event.chat_id
-    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     
-    # البحث المباشر وعرض النتائج بدون Inline
-    try:
-        from ..helpers.functions.utube import ytsearch_data, result_formatter, get_ytthumb
-        from youtubesearchpython import VideosSearch
-        
-        # البحث في اليوتيوب
-        search = VideosSearch(input_url, limit=10)
-        resp = (search.result()).get("result")
-        
-        if not resp:
-            return await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
-        
-        outdata = await result_formatter(resp)
-        key_ = rand_key()
-        ytsearch_data.store_(key_, outdata)
-        
-        buttons = [
-            [
-                Button.inline(
-                    f"1 / {len(outdata)}",
-                    data=f"ytdl_next_{key_}_1_{target_chat}_{reply_to_id}",
-                ),
-                Button.inline(
-                    "القائمـة 📜",
-                    data=f"ytdl_listall_{key_}_1_{target_chat}_{reply_to_id}",
-                ),
-                Button.inline(
-                    "⬇️  تحميـل",
-                    data=f'ytdl_download_{outdata[1]["video_id"]}_0_{target_chat}_{reply_to_id}',
-                ),
-            ]
-        ]
-        
-        caption = outdata[1]["message"]
-        photo = await get_ytthumb(outdata[1]["video_id"])
-        
-        # إرسال النتيجة مباشرة
+    flag = True
+    cout = 0
+    results = None
+    while flag:
+        try:
+            results = await event.client.inline_query(
+                Config.TG_BOT_USERNAME, f"ytdl {input_url}"
+            )
+            flag = False
+        except BotResponseTimeoutError:
+            await asyncio.sleep(2)
+        cout += 1
+        if cout > 5:
+            flag = False
+    
+    if results:
         await zedevent.delete()
-        await event.client.send_file(
-            target_chat,
-            photo,
-            caption=caption,
-            buttons=buttons,
-            parse_mode="html",
-            reply_to=reply_to_id
-        )
         
-    except Exception as e:
-        LOGS.error(f"Search error: {e}")
-        await zedevent.edit(f"**⌔╎عـذراً .. حدث خطأ:** `{e}`")
+        # تحديد الدردشة المستهدفة
+        if event.is_private:
+            target_chat = event.sender_id
+        else:
+            target_chat = event.chat_id
+        
+        # طباعة للتأكد
+        LOGS.info(f"Sending to chat: {target_chat}, is_private: {event.is_private}")
+        
+        # استخدام الطريقة المباشرة من البوت
+        try:
+            # الحصول على معرف النتيجة
+            result = results[0]
+            
+            # إرسال النتيجة عبر البوت مباشرة
+            await event.client.send_message(
+                target_chat,
+                f'@{Config.TG_BOT_USERNAME} ?start=ytdl_{input_url}',
+                reply_to=reply_to_id
+            )
+        except Exception as e:
+            LOGS.error(f"Error: {e}")
+            await results[0].click(target_chat, reply_to=reply_to_id, hide_via=True)
+    else:
+        await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))

@@ -132,9 +132,10 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             
             # انتظار الردود (نفس الكود الأصلي)
             try:
-                first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
+                first_response = await asyncio.wait_for(conv.get_response(), timeout=5)
+                LOGS.info(f"First response: {first_response.text if first_response.text else 'media'}")
             except asyncio.TimeoutError:
-                pass
+                LOGS.info("No first response, continuing...")
             
             # انتظار الملف
             audio_response = await conv.get_response()
@@ -150,17 +151,20 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف للمستخدم (استخدم البوت c_q.client للإرسال)
+                # إرسال الملف للمستخدم
+                # استخدم c_q.client (البوت) للإرسال
                 await c_q.client.send_file(
                     c_q.chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode=CustomParseMode("html"),
-                    reply_to=c_q.message.reply_to_msg_id
+                    reply_to=c_q.original_message_id  # تغيير هنا
                 )
                 
                 # حذف رسالة الأزرار بعد التحميل
                 await c_q.delete()
+                
+                LOGS.info("تم التحميل بنجاح وإرسال الملف")
                 
             else:
                 await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")

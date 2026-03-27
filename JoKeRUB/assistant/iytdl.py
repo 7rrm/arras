@@ -120,8 +120,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # تخزين معرف الدردشة مثل كود اليوت
-    chat_id = c_q.chat_id
+    # تحديد معرف الدردشة بشكل صحيح
+    if c_q.chat_id and c_q.chat_id != 0:
+        chat_id = c_q.chat_id
+    else:
+        chat_id = c_q.sender_id
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -147,9 +150,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # إرسال الملف في نفس الدردشة
+                # إرسال الملف
                 await l313l.send_file(
-                    chat_id,  # استخدم نفس معرف الدردشة
+                    chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"

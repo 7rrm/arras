@@ -124,20 +124,20 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # الحصول على معرف الدردشة بشكل صحيح
-        chat_id = c_q.query.peer.user_id if hasattr(c_q.query.peer, 'user_id') else c_q.chat_id
+        # الحصول على معرف المستخدم أو المجموعة
+        if c_q.is_private:
+            chat_id = c_q.sender_id
+        else:
+            chat_id = c_q.chat_id
         
-        # الحساب العادي (l313l) يتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
             except asyncio.TimeoutError:
                 pass
             
-            # انتظار الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -150,22 +150,19 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>\n'
                 )
                 
-                # الحساب العادي يرسل المقطع
+                # إرسال الملف
                 await l313l.send_file(
-                    int(chat_id),  # تحويل إلى int
+                    int(chat_id),
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
                 
-                # البوت يعدل رسالة الأزرار
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
             else:
-                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف")
+                await c_q.edit("❌ فشل التحميل")
                 
-    except asyncio.TimeoutError:
-        await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")

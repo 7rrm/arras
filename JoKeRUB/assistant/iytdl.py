@@ -94,20 +94,22 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # طباعة للتحقق
+    # طباعة للتحقق (بدون c_q.message)
     print("=" * 50)
     print(f"c_q.chat_id: {c_q.chat_id}")
     print(f"c_q.sender_id: {c_q.sender_id}")
     print(f"c_q.is_private: {c_q.is_private}")
-    print(f"c_q.message.chat_id: {c_q.message.chat_id if c_q.message else 'None'}")
+    print(f"c_q.query.user_id: {c_q.query.user_id if hasattr(c_q, 'query') else 'None'}")
     print("=" * 50)
     
     # تحديد الدردشة الصحيحة
-    # استخدم chat_id الخاص بالرسالة الأصلية
-    if c_q.message and c_q.message.chat_id:
-        chat_id = c_q.message.chat_id
+    # في الخاص، chat_id = 0، لذلك نستخدم sender_id
+    if c_q.chat_id == 0 or c_q.chat_id is None:
+        chat_id = c_q.sender_id
     else:
         chat_id = c_q.chat_id
+    
+    print(f"سيتم الإرسال إلى: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -133,9 +135,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # طباعة مكان الإرسال
-                print(f"سيتم الإرسال إلى: {chat_id}")
-                
+                # إرسال الملف إلى المستخدم الصحيح
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,

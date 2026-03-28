@@ -100,7 +100,6 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
@@ -112,7 +111,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
     try:
-        await c_q.edit("**🔄 جـارِ جلب رابط التحميل من الخادم...**")
+        await c_q.edit("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
     except:
         pass
 
@@ -153,19 +152,20 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     
                     duration_str = format_duration(duration)
                     
+                    # الكليشة المطلوبة
                     caption = (
-                        f"<b>✅ تم التحميل بنجاح</b>\n\n"
-                        f"<a href='{yt_url}'><b>🎵 المقطع الصوتي</b></a>\n"
-                        f"⏱️ <b>المدة:</b> {duration_str}\n"
-                        f"<b>↯︰By: @JoKeRUB</b>"
+                        f"<blockquote>\n"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>\n"
+                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f"</blockquote>\n"
+                        f"<b>↯︰By: @Lx5x5</b>"
                     )
                     
-                    # ========== نفس طريقة الكود الأصلي ==========
-                    # إرسال الملف إلى BOTLOG_CHATID أولاً (للحفظ)
+                    # إرسال الملف إلى BOTLOG_CHATID أولاً
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
-                        caption=f"<b>🎵 المقطع الصوتي</b>\n⏱️ المدة: {duration_str}",
+                        caption=f"<b>🎵 {yt_code}</b>\n⏱️ {duration_str}",
                         parse_mode="html",
                         attributes=[
                             DocumentAttributeAudio(
@@ -176,7 +176,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         ]
                     )
                     
-                    # تعديل رسالة الزر وإضافة الملف إليها (نفس الطريقة الأصلية)
+                    # تعديل رسالة الزر وإضافة الملف
                     await c_q.edit(
                         text=caption,
                         file=uploaded_media.media,

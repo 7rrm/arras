@@ -89,27 +89,24 @@ async def iytdl_inline(event):
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
-@check_owner
 async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # طباعة للتحقق (بدون c_q.message)
-    print("=" * 50)
-    print(f"c_q.chat_id: {c_q.chat_id}")
-    print(f"c_q.sender_id: {c_q.sender_id}")
-    print(f"c_q.is_private: {c_q.is_private}")
-    print(f"c_q.query.user_id: {c_q.query.user_id if hasattr(c_q, 'query') else 'None'}")
-    print("=" * 50)
-    
-    # تحديد الدردشة الصحيحة
-    # في الخاص، chat_id = 0، لذلك نستخدم sender_id
-    if c_q.chat_id == 0 or c_q.chat_id is None:
-        chat_id = c_q.sender_id
+    # الحصول على الدردشة من الرسالة الأصلية
+    # c_q.query.peer هو المكان الذي أرسلت فيه رسالة الأزرار
+    if hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'channel_id'):
+        # إذا كانت مجموعة
+        chat_id = int(f"-100{c_q.query.peer.channel_id}")
+    elif hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'user_id'):
+        # إذا كانت دردشة خاصة
+        chat_id = c_q.query.peer.user_id
     else:
-        chat_id = c_q.chat_id
+        # fallback
+        chat_id = c_q.chat_id if c_q.chat_id != 0 else c_q.sender_id
     
-    print(f"سيتم الإرسال إلى: {chat_id}")
+    print(f"الدردشة الحالية: {chat_id}")
+    print(f"المستخدم الذي ضغط: {c_q.sender_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -135,9 +132,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # إرسال الملف إلى المستخدم الصحيح
+                # إرسال الملف في نفس الدردشة
                 await l313l.send_file(
-                    chat_id,
+                    chat_id,  # نفس الدردشة التي فيها الزر
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"

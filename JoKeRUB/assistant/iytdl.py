@@ -34,6 +34,7 @@ from ..helpers.functions.utube import (
     yt_search_btns,
 )
 from ..plugins import BOTLOG_CHATID
+from telethon.tl.types import DocumentAttributeAudio
 
 LOGS = logging.getLogger(__name__)
 BASE_YT_URL = "https://www.youtube.com/watch?v="
@@ -42,6 +43,18 @@ YOUTUBE_REGEX = re.compile(
 )
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
+
+
+
+def format_duration(seconds):
+    """تحويل الثواني إلى صيغة h:m:s"""
+    if not seconds or seconds == 0:
+        return "00:00"
+    h, m = divmod(int(seconds), 3600)
+    m, s = divmod(m, 60)
+    if h > 0:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
 
 
 @l313l.ar_cmd(
@@ -87,6 +100,7 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
+
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
@@ -103,99 +117,92 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     else:
         chat_id = c_q.sender_id
 
-    # إذا كان chat_id هو معرف الحساب العادي (المحادثات المحفوظة)
     if chat_id == l313l.uid:
         chat_id = c_q.sender_id
-
-    LOGS.info(f"Download requested - chat_id: {chat_id}")
 
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
     try:
-        await c_q.edit("**🔄 جـارِ جلب الملف من الخادم...**")
+        await c_q.edit("**🔄 جـارِ جلب رابط التحميل...**")
     except:
         pass
 
     try:
-        # استخدام API بدلاً من yt-dlp
-        from ..helpers.functions.utube import get_audio_from_api
+        # استخدام API
+        import requests
         
-        result = await get_audio_from_api(yt_code)
+        API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
+        api_url = f"https://muntazer.online/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
         
-        if result:
-            channel = result["channel"]
-            message_id = result["message_id"]
+        def fetch_api():
+            resp = requests.get(api_url, timeout=60)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        
+        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
+        
+        if result and result.get("status") == "ok":
+            link = result.get("link")  # https://t.me/sersesc/42170
             
-            await c_q.edit("**📥 جـارِ استلام الملف...**")
-            
-            # جلب الرسالة من القناة باستخدام الحساب العادي
-            s_msg = await l313l.get_messages(channel, ids=message_id)
-            
-            if s_msg and s_msg.media:
-                caption = (
-                    f"<blockquote>\n"
-                    f"<b>✅ تم التحميل بنجاح</b>\n"
-                    f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                    f"</blockquote>\n"
-                    f"<b>↯︰By: @JoKeRUB</b>"
-                )
+            if link:
+                # استخراج اسم القناة ورقم الرسالة
+                parts = link.strip('/').split('/')
+                channel_username = parts[-2]  # sersesc
+                message_id = int(parts[-1])   # 42170
                 
-                # إرسال الملف إلى الدردشة الصحيحة
-                await l313l.send_file(
-                    chat_id,
-                    s_msg.media,
-                    caption=caption,
-                    parse_mode="html"
-                )
+                await c_q.edit("**📥 جـارِ استلام الملف...**")
                 
-                # تحديث رسالة الزر
-                try:
-                    await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
-                except:
-                    pass
-            else:
-                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم العثور على الملف")
-        else:
-            # إذا فشل API، استخدم الطريقة القديمة (yt-dlp)
-            await c_q.edit("**⚠️ جـارِ المحاولة بطريقة بديلة...**")
-            
-            # هنا يمكن وضع كود yt-dlp القديم كحل احتياطي
-            from ..helpers.functions.utube import _mp3Dl, _tubeDl
-            
-            startTime = time()
-            choice_str, disp_str = "320", "320 Kbps"
-            
-            retcode = await _mp3Dl(url=yt_url, starttime=startTime, uid=choice_str)
-            
-            if retcode == 0:
-                # البحث عن الملف المحمل
-                _fpath = ""
-                for _path in glob.glob(os.path.join(Config.TEMP_DIR, str(startTime), "*")):
-                    if not _path.lower().endswith((".jpg", ".png", ".webp")):
-                        _fpath = _path
-                        break
+                # جلب الرسالة من القناة باستخدام البوت (c_q.client)
+                # تأكد من أن البوت عضو في القناة
+                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
-                if _fpath:
-                    await l313l.send_file(
-                        chat_id,
-                        _fpath,
-                        caption="✅ **تم التحميل بنجاح**",
-                        parse_mode="html"
+                if s_msg and s_msg.media:
+                    # استخراج المدة
+                    duration = 0
+                    if hasattr(s_msg.media, 'duration'):
+                        duration = s_msg.media.duration
+                    
+                    duration_str = format_duration(duration)
+                    
+                    caption = (
+                        f"<blockquote>\n"
+                        f"<b>✅ تم التحميل بنجاح</b>\n"
+                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                        f"</blockquote>\n"
+                        f"<b>↯︰By: @JoKeRUB</b>\n"
+                        f"⏱️ **المدة:** `{duration_str}`"
                     )
-                    # حذف الملف المؤقت
+                    
+                    # إرسال الملف باستخدام البوت
+                    await c_q.client.send_file(
+                        chat_id,
+                        s_msg.media,
+                        caption=caption,
+                        parse_mode="html",
+                        attributes=[
+                            DocumentAttributeAudio(
+                                duration=duration,
+                                title="🎵 Audio",
+                                performer="YouTube"
+                            )
+                        ]
+                    )
+                    
                     try:
-                        os.remove(_fpath)
+                        await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                     except:
                         pass
                 else:
-                    await l313l.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم العثور على الملف")
+                    await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم العثور على الملف")
             else:
-                await l313l.send_message(chat_id, "❌ **فشل التحميل**\nجميع الطرق فشلت")
-                
+                await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلا يوجد رابط")
+        else:
+            await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nAPI لم يستجب")
+            
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await l313l.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
-
+        await c_q.client.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

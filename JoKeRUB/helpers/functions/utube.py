@@ -43,42 +43,6 @@ name_dl = (
     "yt-dlp --force-ipv4 --get-filename -o './temp/%(title)s.%(ext)s' {video_link}"
 )
 
-# أضف هذه الاستيرادات في بداية الملف
-import requests
-
-# أضف هذه الإعدادات
-YOUTUBE_API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
-YOUTUBE_API_URL = "https://muntazer.online/yt/m4a={}=https://youtu.be/{}"
-
-async def get_audio_from_api(video_id: str):
-    """جلب رابط الصوت من API"""
-    try:
-        api_url = YOUTUBE_API_URL.format(YOUTUBE_API_KEY, video_id)
-        
-        def fetch_api():
-            resp = requests.get(api_url, timeout=60)
-            if resp.status_code == 200:
-                return resp.json()
-            return None
-        
-        result = await pool.run_in_thread(fetch_api)()
-        
-        if result and result.get("status") == "ok":
-            link = result.get("link")
-            if link:
-                # استخراج اسم القناة ورقم الرسالة
-                parts = link.strip('/').split('/')
-                if len(parts) >= 5:
-                    return {
-                        "channel": parts[-2],
-                        "message_id": int(parts[-1]),
-                        "link": link
-                    }
-        return None
-    except Exception as e:
-        LOGS.error(f"API Error: {e}")
-        return None
-
 
 async def yt_search(JoKeRUB):
     try:

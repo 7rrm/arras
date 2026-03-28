@@ -49,14 +49,8 @@ stored_chats = {}
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
-    info={
-        "header": "ytdl with inline buttons.",
-        "description": "To search and download youtube videos by inline buttons.",
-        "usage": "{tr}iytdl [URL / Text] or [Reply to URL / Text]",
-    },
 )
 async def iytdl_inline(event):
-    "ytdl with inline buttons."
     reply = await event.get_reply_message()
     reply_to_id = await reply_id(event)
     input_str = event.pattern_match.group(1)
@@ -67,6 +61,7 @@ async def iytdl_inline(event):
         input_url = (reply.text).strip()
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
+    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
     cout = 0
@@ -82,21 +77,24 @@ async def iytdl_inline(event):
         cout += 1
         if cout > 5:
             flag = False
+    
     if results:
+        # ✅ استخدام query_id للتخزين
+        stored_chats[str(results[0].query_id)] = event.chat_id
         await zedevent.delete()
-        stored_chats[str(results[0].id)] = event.chat_id
         await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$")))
+@l313l.tgbot.on(
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
+)
 async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # استرجاع الدردشة المخزنة
-    stored_id = str(c_q.id)
+    # استرجاع الدردشة المخزنة باستخدام query_id
+    stored_id = str(c_q.query_id)
     chat_id = stored_chats.get(stored_id)
     
     # إذا لم نجد مخزناً، استخدم الطريقة العادية
@@ -105,6 +103,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             chat_id = c_q.sender_id
         else:
             chat_id = c_q.chat_id
+    
+    print(f"Query ID: {stored_id}, Chat ID: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")

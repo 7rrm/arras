@@ -224,31 +224,72 @@ def yt_search_btns(
 
 
 @pool.run_in_thread
-def download_button(vid: str, body: bool = False):
-    """توليد أزرار تحميل مبسطة باستخدام API (صوت/فيديو)"""
+def download_button(vid: str, body: bool = False):  # sourcery no-metrics
+    # sourcery skip: low-code-quality
     try:
-        # التحقق من صحة الرابط (اختياري)
-        yt_dlp.YoutubeDL({"quiet": True, "no_warnings": True}).extract_info(
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
             BASE_YT_URL + vid, download=False
         )
-    except Exception:
-        buttons = [[Button.inline("❌ الفيديو غير متاح", data="noop")]]
-        if body:
-            return "لا يمكن تحميل الفيديو", buttons
-        return buttons
-    
-    # أزرار مبسطة: صوت وفيديو فقط
+    except ExtractorError:
+        vid_data = {"formats": []}
     buttons = [
         [
-            Button.inline("🎵 تحميل صوت MP3", data=f"ytdl_download_{vid}_audio"),
-            Button.inline("🎬 تحميل فيديو MP4", data=f"ytdl_download_{vid}_video"),
+            Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
+            Button.inline(
+                "⭐️ اعلى دقـه - 📹 WebM/MP4",
+                data=f"ytdl_download_{vid}_mp4_v",
+            ),
         ]
     ]
-    
+    # ------------------------------------------------ #
+    qual_dict = defaultdict(lambda: defaultdict(int))
+    qual_list = ["144p", "240p", "360p", "480p", "720p", "1080p", "1440p"]
+    audio_dict = {}
+    # ------------------------------------------------ #
+    for video in vid_data["formats"]:
+        if video.get("filesize"):
+            fr_note = video.get("format_note")
+            fr_id = int(video.get("format_id"))
+            fr_size = video.get("filesize")
+            if video.get("ext") == "mp4":
+                for frmt_ in qual_list:
+                    if fr_note in (frmt_, f"{frmt_}60"):
+                        qual_dict[frmt_][fr_id] = fr_size
+            if video.get("acodec") != "none":
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
+                if bitrrate != 0:
+                    audio_dict[
+                        bitrrate
+                    ] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
+
+    video_btns = []
+    for frmt in qual_list:
+        frmt_dict = qual_dict[frmt]
+        if len(frmt_dict) != 0:
+            frmt_id = sorted(list(frmt_dict))[-1]
+            frmt_size = humanbytes(frmt_dict.get(frmt_id)) or "N/A"
+            video_btns.append(
+                Button.inline(
+                    f"📹 {frmt} ({frmt_size})",
+                    data=f"ytdl_download_{vid}_{frmt_id}_v",
+                )
+            )
+    buttons += sublists(video_btns, width=2)
+    buttons += [
+        [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
+    ]
+    buttons += sublists(
+        [
+            Button.inline(audio_dict.get(key_), data=f"ytdl_download_{vid}_{key_}_a")
+            for key_ in sorted(audio_dict.keys())
+        ],
+        width=2,
+    )
     if body:
-        vid_body = f"<a href='https://youtu.be/{vid}'><b>✅ اختر صيغة التحميل</b></a>"
+        vid_body = f"<a href={vid_data.get('webpage_url')}><b>[{vid_data.get('title')}]</b></a>"
         return vid_body, buttons
     return buttons
+    
 
 @pool.run_in_thread
 def _tubeDl(url: str, starttime, uid: str):

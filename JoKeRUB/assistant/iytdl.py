@@ -90,22 +90,22 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_audio$"))
 )
 @check_owner
-async def ytdl_download_callback(c_q: CallbackQuery):
+async def ytdl_download_audio(c_q: CallbackQuery):
+    """تحميل الصوت - نفس الكود الأصلي"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
-    yt_url = BASE_YT_URL + yt_code
-
+    
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
+    # مثل الكود الأصلي: تعديل الرسالة وإزالة الصورة
     try:
-        await c_q.edit("**╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰**")
+        await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
     except:
         pass
-
+    
     try:
-        # استخدام API
         import requests
         
         API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
@@ -120,21 +120,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
         result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
         
         if result and result.get("status") == "ok":
-            link = result.get("link")  # https://t.me/sersesc/42170
+            link = result.get("link")
             
             if link:
-                # استخراج اسم القناة ورقم الرسالة
                 parts = link.strip('/').split('/')
                 channel_username = parts[-2]
                 message_id = int(parts[-1])
                 
                 await c_q.edit("**📥 جـارِ استلام الملف...**")
                 
-                # جلب الرسالة من القناة باستخدام البوت
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
                 if s_msg and s_msg.media:
-                    # الكليشة المطلوبة
                     caption = (
                         f"<blockquote>"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -144,7 +141,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
                     )
                     
-                    # إرسال الملف إلى BOTLOG_CHATID أولاً
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
@@ -152,7 +148,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         parse_mode="html"
                     )
                     
-                    # تعديل رسالة الزر وإضافة الملف
                     await c_q.edit(
                         text=caption,
                         file=uploaded_media.media,
@@ -161,7 +156,85 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     )
                     
                 else:
-                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف في القناة")
+                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
+            else:
+                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
+        else:
+            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
+            
+    except Exception as e:
+        LOGS.error(f"Download error: {e}")
+        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+
+
+@l313l.tgbot.on(
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))
+)
+@check_owner
+async def ytdl_download_video(c_q: CallbackQuery):
+    """تحميل الفيديو"""
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
+    
+    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
+    
+    # مثل الكود الأصلي: تعديل الرسالة وإزالة الصورة
+    try:
+        await c_q.edit("**╮ جـارِ التجهيز ... 🎬 ╰**")
+    except:
+        pass
+    
+    try:
+        import requests
+        
+        API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
+        api_url = f"https://muntazer.online/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
+        
+        def fetch_api():
+            resp = requests.get(api_url, timeout=60)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
+        
+        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
+        
+        if result and result.get("status") == "ok":
+            link = result.get("link")
+            
+            if link:
+                parts = link.strip('/').split('/')
+                channel_username = parts[-2]
+                message_id = int(parts[-1])
+                
+                await c_q.edit("**📥 جـارِ استلام الملف...**")
+                
+                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
+                
+                if s_msg and s_msg.media:
+                    caption = (
+                        f"<blockquote>"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
+                        f"</blockquote>"
+                        f"<b>↯︰By: @Lx5x5 .</b>"
+                        f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
+                    )
+                    
+                    uploaded_media = await c_q.client.send_file(
+                        BOTLOG_CHATID,
+                        s_msg.media,
+                        caption=f"<b>🎬 {yt_code}</b>",
+                        parse_mode="html"
+                    )
+                    
+                    await c_q.edit(
+                        text=caption,
+                        file=uploaded_media.media,
+                        parse_mode="html",
+                        buttons=[]
+                    )
+                    
+                else:
+                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
             else:
                 await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:

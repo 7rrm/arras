@@ -95,23 +95,15 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على الدردشة المخزنة باستخدام c_q.id
-    stored_chat_id = None
-    for key, value in search_chat_ids.items():
-        if str(c_q.id) in key or str(c_q.query_id) in key:
-            stored_chat_id = value
-            break
+    # ببساطة: أرسل في نفس الدردشة التي فيها الزر
+    # c_q.chat_id هو المكان الذي ضغط فيه المستخدم
+    chat_id = c_q.chat_id
     
-    if stored_chat_id:
-        chat_id = stored_chat_id
-    elif c_q.is_private:
+    # إذا كان chat_id = 0 (في الخاص)، استخدم sender_id
+    if chat_id == 0:
         chat_id = c_q.sender_id
-    else:
-        chat_id = c_q.chat_id
     
-    print(f"c_q.id: {c_q.id}")
-    print(f"الدردشة المخزنة: {stored_chat_id}")
-    print(f"الدردشة المستخدمة: {chat_id}")
+    print(f"الإرسال إلى: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")

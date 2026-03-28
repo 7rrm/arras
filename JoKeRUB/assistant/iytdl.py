@@ -89,14 +89,15 @@ async def iytdl_inline(event):
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_(audio|video)$")))
+@l313l.tgbot.on(
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_(audio|video)$"))
+)
 @check_owner
 async def ytdl_download_media_callback(c_q: CallbackQuery):
-    """معالج تحميل الصوت أو الفيديو عبر API"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     media_type = c_q.pattern_match.group(2).decode("UTF-8")  # audio أو video
 
-    # تحديد نوع الملف
+    # تحديد نوع الملف والإيموجي
     if media_type == "audio":
         file_type = "m4a"
         caption_text = "🎵 الصوت"
@@ -104,12 +105,12 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
     else:
         file_type = "mp4"
         caption_text = "🎬 الفيديو"
-        emoji_id = "5886584791809134461"  # غير الرقم حسب الإيموجي المستخدم
+        emoji_id = "5886584791809134461"
 
-    await c_q.answer("🔄 جارٍ التحميل...", alert=False)
+    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
 
     try:
-        await c_q.edit("**╮ جارٍ التجهيز ... 🎧🎬 ╰**")
+        await c_q.edit("**╮ جـارِ التجهيز ... 🎧🎬 ╰**")
     except:
         pass
 
@@ -128,14 +129,14 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
         result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
 
         if result and result.get("status") == "ok":
-            link = result.get("link")  # https://t.me/...
+            link = result.get("link")
 
             if link:
                 parts = link.strip('/').split('/')
                 channel_username = parts[-2]
                 message_id = int(parts[-1])
 
-                await c_q.edit("**📥 جارٍ استلام الملف...**")
+                await c_q.edit("**📥 جـارِ استلام الملف...**")
 
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
 
@@ -149,7 +150,6 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
                         f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
                     )
 
-                    # إرسال إلى BOTLOG_CHATID
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
@@ -157,7 +157,6 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
                         parse_mode="html"
                     )
 
-                    # تعديل رسالة الزر
                     await c_q.edit(
                         text=caption,
                         file=uploaded_media.media,

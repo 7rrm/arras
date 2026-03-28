@@ -43,14 +43,18 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-# قاموس لتخزين الدردشات
-search_chat_ids = {}
 
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
+    info={
+        "header": "ytdl with inline buttons.",
+        "description": "To search and download youtube videos by inline buttons.",
+        "usage": "{tr}iytdl [URL / Text] or [Reply to URL / Text]",
+    },
 )
 async def iytdl_inline(event):
+    "ytdl with inline buttons."
     reply = await event.get_reply_message()
     reply_to_id = await reply_id(event)
     input_str = event.pattern_match.group(1)
@@ -61,7 +65,6 @@ async def iytdl_inline(event):
         input_url = (reply.text).strip()
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
-    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
     cout = 0
@@ -77,62 +80,67 @@ async def iytdl_inline(event):
         cout += 1
         if cout > 5:
             flag = False
-    
     if results:
-        # تخزين الدردشة مع معرف عشوائي مؤقت
-        import time
-        temp_id = f"{event.chat_id}_{int(time.time())}"
-        search_chat_ids[temp_id] = event.chat_id
-        
         await zedevent.delete()
         await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
+
+
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0(?:_(\d+))?$"))
 )
 async def ytdl_download_callback(c_q: CallbackQuery):
+    """
+    دالة معالجة الضغط على زر التحميل
+    تقوم بالتواصل مع البوت الخارجي @W60yBot وإرسال الملف إلى نفس الدردشة التي تم فيها البحث
+    """
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # استرجاع الدردشة المخزنة
+    # استخراج chat_id من بيانات الزر إذا كان موجوداً
     stored_chat_id = None
-    for key, value in search_chat_ids.items():
-        if str(c_q.id) in key or key == str(c_q.id):
-            stored_chat_id = value
-            break
+    if c_q.pattern_match.group(2):
+        try:
+            stored_chat_id = int(c_q.pattern_match.group(2).decode("UTF-8"))
+            print(f"تم استخراج chat_id من الزر: {stored_chat_id}")
+        except:
+            pass
     
+    # تحديد مكان الإرسال
     if stored_chat_id:
         chat_id = stored_chat_id
-        print(f"تم استرجاع الدردشة المخزنة: {chat_id}")
-        # تنظيف
-        for key, value in list(search_chat_ids.items()):
-            if value == stored_chat_id:
-                del search_chat_ids[key]
-                break
+        print(f"استخدام chat_id المخزن: {chat_id}")
     elif c_q.is_private:
         chat_id = c_q.sender_id
+        print(f"استخدام sender_id (خاص): {chat_id}")
     else:
         chat_id = c_q.chat_id
+        print(f"استخدام chat_id (مجموعة): {chat_id}")
     
-    print(f"الإرسال إلى: {chat_id}")
-    
+    # إعلام المستخدم
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
+        # التواصل مع البوت الخارجي باستخدام الحساب العادي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
+            # إرسال الأمر مع الرابط
             await conv.send_message(f"يوت {yt_url}")
             
+            # تجاهل الرد الأول (مثل "جاري البحث...")
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=2)
+                print(f"تم تجاهل الرد الأول: {first_response.text if first_response.text else 'media'}")
             except asyncio.TimeoutError:
-                pass
+                print("لم يتم استلام رد أول (متوقع)")
             
+            # انتظار الرد الثاني (الملف)
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
+                # تنسيق الكابشن
                 caption = (
                     f"<blockquote>\n"
                     f"<b>✅ تم التحميل بنجاح</b>\n"
@@ -142,6 +150,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
+                # إرسال الملف إلى الدردشة الصحيحة
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
@@ -149,15 +158,19 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     parse_mode="html"
                 )
                 
+                print(f"تم إرسال الملف إلى: {chat_id}")
+                
+                # تعديل رسالة الأزرار
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
             else:
-                await c_q.edit("❌ فشل التحميل")
+                await c_q.edit("❌ فشل التحميل، لم يتم استلام الملف من البوت الخارجي")
                 
+    except asyncio.TimeoutError:
+        await c_q.edit("⏰ انتهت المهلة، البوت الخارجي لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))
@@ -269,3 +282,4 @@ async def ytdl_callback(c_q: CallbackQuery):
             ),
             parse_mode="html",
            )
+

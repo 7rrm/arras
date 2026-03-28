@@ -93,20 +93,11 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على الدردشة من الرسالة الأصلية
-    # c_q.query.peer هو المكان الذي أرسلت فيه رسالة الأزرار
-    if hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'channel_id'):
-        # إذا كانت مجموعة
-        chat_id = int(f"-100{c_q.query.peer.channel_id}")
-    elif hasattr(c_q.query, 'peer') and hasattr(c_q.query.peer, 'user_id'):
-        # إذا كانت دردشة خاصة
-        chat_id = c_q.query.peer.user_id
-    else:
-        # fallback
-        chat_id = c_q.chat_id if c_q.chat_id != 0 else c_q.sender_id
+    # الدردشة التي فيها الزر هي نفسها التي نريد الإرسال إليها
+    # استخدم chat_id من الرسالة التي تحتوي على الزر
+    chat_id = c_q.message.chat_id if hasattr(c_q, 'message') else c_q.chat_id
     
-    print(f"الدردشة الحالية: {chat_id}")
-    print(f"المستخدم الذي ضغط: {c_q.sender_id}")
+    print(f"الدردشة: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -134,7 +125,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 
                 # إرسال الملف في نفس الدردشة
                 await l313l.send_file(
-                    chat_id,  # نفس الدردشة التي فيها الزر
+                    chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"

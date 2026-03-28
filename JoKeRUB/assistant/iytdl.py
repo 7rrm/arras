@@ -90,14 +90,38 @@ async def iytdl_inline(event):
 
 
 @l313l.tgbot.on(
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))  # النمط القديم
+)
+@check_owner
+async def ytdl_show_choices(c_q: CallbackQuery):
+    """يعرض أزرار اختيار الصوت/الفيديو"""
+    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
+    
+    await c_q.answer("🔄 جـارِ تحضير الخيارات...", alert=False)
+    
+    # عرض أزرار الاختيار
+    buttons = [
+        [
+            Button.inline("🎵 تحميل صوت MP3", data=f"ytdl_download_{yt_code}_audio"),
+            Button.inline("🎬 تحميل فيديو MP4", data=f"ytdl_download_{yt_code}_video"),
+        ]
+    ]
+    
+    await c_q.edit(
+        text="**🎵 اختر نوع التحميل:**",
+        buttons=buttons,
+        parse_mode="html"
+    )
+
+@l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_(audio|video)$"))
 )
 @check_owner
 async def ytdl_download_media_callback(c_q: CallbackQuery):
+    """معالج تحميل الصوت أو الفيديو عبر API"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
-    media_type = c_q.pattern_match.group(2).decode("UTF-8")  # audio أو video
+    media_type = c_q.pattern_match.group(2).decode("UTF-8")
 
-    # تحديد نوع الملف والإيموجي
     if media_type == "audio":
         file_type = "m4a"
         caption_text = "🎵 الصوت"
@@ -130,14 +154,12 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
 
         if result and result.get("status") == "ok":
             link = result.get("link")
-
             if link:
                 parts = link.strip('/').split('/')
                 channel_username = parts[-2]
                 message_id = int(parts[-1])
 
                 await c_q.edit("**📥 جـارِ استلام الملف...**")
-
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
 
                 if s_msg and s_msg.media:

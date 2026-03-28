@@ -78,10 +78,14 @@ async def iytdl_inline(event):
         if cout > 5:
             flag = False
     if results:
-        # تخزين معرف الدردشة قبل عرض النتائج
-        search_chat_ids[str(results[0].id)] = event.chat_id
-        await zedevent.delete()
-        await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
+        # تخزين معرف الدردشة باستخدام query_id
+        if results and len(results) > 0:
+            query_id = results[0].query_id
+            search_chat_ids[str(query_id)] = event.chat_id
+            await zedevent.delete()
+            await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
+        else:
+            await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
@@ -92,8 +96,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الحصول على الدردشة المخزنة
-    stored_chat_id = search_chat_ids.get(str(c_q.id), None)
+    # الحصول على الدردشة المخزنة باستخدام query_id
+    query_id = str(c_q.query_id)
+    stored_chat_id = search_chat_ids.get(query_id, None)
     
     if stored_chat_id:
         chat_id = stored_chat_id
@@ -102,6 +107,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     else:
         chat_id = c_q.chat_id
     
+    print(f"Query ID: {query_id}")
     print(f"الدردشة المخزنة: {stored_chat_id}")
     print(f"الدردشة المستخدمة: {chat_id}")
     
@@ -137,8 +143,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 )
                 
                 # حذف التخزين بعد الاستخدام
-                if str(c_q.id) in search_chat_ids:
-                    del search_chat_ids[str(c_q.id)]
+                if query_id in search_chat_ids:
+                    del search_chat_ids[query_id]
                 
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 

@@ -156,7 +156,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     caption = (
                         f"<blockquote>"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5890831539507302154">🎵</a>'
+                        f'<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji>'
                         f"</blockquote>"
                         f"<b>↯︰By: @Lx5x5</b>"
                     )

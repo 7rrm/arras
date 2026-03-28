@@ -196,35 +196,38 @@ def yt_search_btns(
     data_key: str, page: int, vid: str, total: int, del_back: bool = False
 ):
     buttons = [
-    [
-        Button.inline(
-            text=f"{page} / {total}",
-            data=f"ytdl_next_{data_key}_{page}",
-        ),
-    ],
-    [
-        Button.inline(
-            text="فيديو MP4",
-            data=f"ytdl_download_{vid}_video",
-        ),
-        Button.inline(
-            text="📜  قائمة الكل",
-            data=f"ytdl_listall_{data_key}_{page}",
-        ),
-        Button.inline(
-            text="صوت MP3",
-            data=f"ytdl_download_{vid}_audio",
-        ),
-    ],
-    [
-        Button.inline(
-            text="⬅️  رجوع",
-            data=f"ytdl_back_{data_key}_{page}",
-        ),
-    ],
+        [
+            Button.inline(
+                text=f"{page} / {total}",
+                data=f"ytdl_next_{data_key}_{page}",
+            ),
+        ],
+        [
+            Button.inline(
+                text="فيديو MP4",
+                data=f"ytdl_download_{vid}_video",
+            ),
+            Button.inline(
+                text="📜  قائمة الكل",
+                data=f"ytdl_listall_{data_key}_{page}",
+            ),
+            Button.inline(
+                text="صوت MP3",
+                data=f"ytdl_download_{vid}_audio",
+            ),
+        ],
+        [
+            Button.inline(
+                text="⬅️  رجوع",
+                data=f"ytdl_back_{data_key}_{page}",
+            ),
+        ],
     ]
+    
+    # إذا كانت الصفحة الأولى، احذف السطر الثالث (زر رجوع)
     if del_back:
-        buttons[0].pop(0)
+        buttons.pop()  # يحذف آخر سطر
+    
     return buttons
 
 

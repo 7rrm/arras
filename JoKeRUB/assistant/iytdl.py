@@ -2,7 +2,8 @@
 # --------------------------- #
 #   Modded ytdl by code-rgb   #
 # --------------------------- #
-
+import random
+import time
 import asyncio
 import glob
 import io
@@ -79,8 +80,11 @@ async def iytdl_inline(event):
             flag = False
     
     if results:
-        # ✅ استخدام query_id للتخزين
-        stored_chats[str(results[0].query_id)] = event.chat_id
+        # تخزين الدردشة بمفتاح عشوائي فريد
+        temp_key = f"{event.chat_id}_{int(time.time())}_{random.randint(1000, 9999)}"
+        stored_chats[temp_key] = event.chat_id
+        print(f"تم تخزين: {temp_key} -> {event.chat_id}")
+        
         await zedevent.delete()
         await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
@@ -93,18 +97,28 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # استرجاع الدردشة المخزنة باستخدام query_id
-    stored_id = str(c_q.query_id)
+    # محاولة استرجاع الدردشة المخزنة
+    chat_id = None
+    for key, value in stored_chats.items():
+        # إذا كان المفتاح يحتوي على chat_id أو أي طريقة للربط
+        # نستخدم كل المفاتيح ونجرب
+        pass
+    
+    # طريقة أسهل: استخدام الوقت لتخزين واسترجاع
+    # لكن هذا غير دقيق
+    
+    # الحل: استخدم c_q.id كمفتاح للتخزين
+    stored_id = str(c_q.id)
     chat_id = stored_chats.get(stored_id)
     
-    # إذا لم نجد مخزناً، استخدم الطريقة العادية
+    # إذا لم نجد، استخدم الطريقة العادية
     if not chat_id:
         if c_q.is_private:
             chat_id = c_q.sender_id
         else:
             chat_id = c_q.chat_id
     
-    print(f"Query ID: {stored_id}, Chat ID: {chat_id}")
+    print(f"Callback ID: {stored_id}, Chat ID: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -137,7 +151,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     parse_mode="html"
                 )
                 
-                # حذف التخزين بعد الاستخدام
+                # تنظيف
                 if stored_id in stored_chats:
                     del stored_chats[stored_id]
                 

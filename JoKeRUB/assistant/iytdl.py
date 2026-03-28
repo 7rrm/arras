@@ -88,6 +88,7 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
+
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
@@ -98,9 +99,10 @@ async def ytdl_show_choices(c_q: CallbackQuery):
     
     await c_q.answer("🔄 جـارِ تحضير الخيارات...", alert=False)
     
-    # الحفاظ على كل شيء (نص + صورة) فقط تغيير الأزرار
-    current_text = c_q.message.message
-    current_media = c_q.message.media
+    # الحفاظ على النص والصورة الأصليين
+    original_message = c_q.query.message
+    current_text = original_message.message
+    current_media = original_message.media
     
     buttons = [
         [
@@ -122,12 +124,11 @@ async def ytdl_show_choices(c_q: CallbackQuery):
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_(audio|video)$"))
 )
 @check_owner
-async def ytdl_download_media(c_q: CallbackQuery):
-    """الخطوة 2: تحميل الملف (تختفي الصورة هنا)"""
+async def ytdl_download_media_callback(c_q: CallbackQuery):
+    """الخطوة 2: تحميل الملف (مثل الكود الأصلي - تحذف الصورة هنا)"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     media_type = c_q.pattern_match.group(2).decode("UTF-8")
-    
-    # تحديد نوع الملف
+
     if media_type == "audio":
         file_type = "m4a"
         caption_text = "🎵 الصوت"
@@ -136,15 +137,15 @@ async def ytdl_download_media(c_q: CallbackQuery):
         file_type = "mp4"
         caption_text = "🎬 الفيديو"
         emoji_id = "5886584791809134461"
-    
+
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
+    # مثل الكود الأصلي: تعديل الرسالة وإزالة الصورة (نص فقط)
     try:
-        # الخطوة الأولى: تعديل الرسالة وإزالة الصورة (نص فقط)
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧🎬 ╰**")
     except:
         pass
-    
+
     try:
         import requests
         
@@ -188,7 +189,7 @@ async def ytdl_download_media(c_q: CallbackQuery):
                         parse_mode="html"
                     )
                     
-                    # إضافة الملف النهائي (بدون صورة)
+                    # مثل الكود الأصلي: إضافة الملف
                     await c_q.edit(
                         text=caption,
                         file=uploaded_media.media,
@@ -206,7 +207,6 @@ async def ytdl_download_media(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

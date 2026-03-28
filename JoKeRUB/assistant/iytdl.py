@@ -88,18 +88,20 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
 @l313l.tgbot.on(
-    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))  # النمط القديم
+    CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
 @check_owner
 async def ytdl_show_choices(c_q: CallbackQuery):
-    """يعرض أزرار اختيار الصوت/الفيديو"""
+    """الخطوة 1: عرض أزرار الاختيار مع إبقاء الصورة"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     
     await c_q.answer("🔄 جـارِ تحضير الخيارات...", alert=False)
     
-    # عرض أزرار الاختيار
+    # الحفاظ على كل شيء (نص + صورة) فقط تغيير الأزرار
+    current_text = c_q.message.message
+    current_media = c_q.message.media
+    
     buttons = [
         [
             Button.inline("🎵 تحميل صوت MP3", data=f"ytdl_download_{yt_code}_audio"),
@@ -107,21 +109,25 @@ async def ytdl_show_choices(c_q: CallbackQuery):
         ]
     ]
     
+    # تعديل: نفس النص، نفس الصورة، أزرار جديدة
     await c_q.edit(
-        text="**🎵 اختر نوع التحميل:**",
+        text=current_text,
+        file=current_media,
         buttons=buttons,
         parse_mode="html"
     )
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_(audio|video)$"))
 )
 @check_owner
-async def ytdl_download_media_callback(c_q: CallbackQuery):
-    """معالج تحميل الصوت أو الفيديو عبر API"""
+async def ytdl_download_media(c_q: CallbackQuery):
+    """الخطوة 2: تحميل الملف (تختفي الصورة هنا)"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     media_type = c_q.pattern_match.group(2).decode("UTF-8")
-
+    
+    # تحديد نوع الملف
     if media_type == "audio":
         file_type = "m4a"
         caption_text = "🎵 الصوت"
@@ -130,38 +136,41 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
         file_type = "mp4"
         caption_text = "🎬 الفيديو"
         emoji_id = "5886584791809134461"
-
+    
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-
+    
     try:
+        # الخطوة الأولى: تعديل الرسالة وإزالة الصورة (نص فقط)
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧🎬 ╰**")
     except:
         pass
-
+    
     try:
         import requests
-
+        
         API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
         api_url = f"https://muntazer.online/yt/{file_type}={API_KEY}=https://youtu.be/{yt_code}"
-
+        
         def fetch_api():
             resp = requests.get(api_url, timeout=60)
             if resp.status_code == 200:
                 return resp.json()
             return None
-
+        
         result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
-
+        
         if result and result.get("status") == "ok":
             link = result.get("link")
+            
             if link:
                 parts = link.strip('/').split('/')
                 channel_username = parts[-2]
                 message_id = int(parts[-1])
-
+                
                 await c_q.edit("**📥 جـارِ استلام الملف...**")
+                
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
-
+                
                 if s_msg and s_msg.media:
                     caption = (
                         f"<blockquote>"
@@ -171,30 +180,33 @@ async def ytdl_download_media_callback(c_q: CallbackQuery):
                         f"<b>↯︰By: @Lx5x5 .</b>"
                         f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
                     )
-
+                    
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
                         caption=f"<b>{caption_text} {yt_code}</b>",
                         parse_mode="html"
                     )
-
+                    
+                    # إضافة الملف النهائي (بدون صورة)
                     await c_q.edit(
                         text=caption,
                         file=uploaded_media.media,
                         parse_mode="html",
                         buttons=[]
                     )
+                    
                 else:
-                    await c_q.edit(f"❌ فشل التحميل: لم أجد ملف {caption_text}")
+                    await c_q.edit(f"❌ **فشل التحميل**\nلم يتم العثور على ملف {caption_text}")
             else:
-                await c_q.edit("❌ فشل التحميل: لا يوجد رابط")
+                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:
-            await c_q.edit("❌ فشل التحميل: API لم يستجب")
-
+            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
+            
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ خطأ: `{str(e)[:100]}`")
+        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

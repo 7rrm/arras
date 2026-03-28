@@ -94,9 +94,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
+    # طباعة للتحقق
+    print("=" * 50)
+    print(f"c_q.chat_id: {c_q.chat_id}")
+    print(f"c_q.sender_id: {c_q.sender_id}")
+    print(f"c_q.is_private: {c_q.is_private}")
+    print(f"c_q.message.chat_id: {c_q.message.chat_id if c_q.message else 'None'}")
+    print("=" * 50)
+    
     # تحديد الدردشة الصحيحة
-    if c_q.is_private:
-        chat_id = c_q.sender_id
+    # استخدم chat_id الخاص بالرسالة الأصلية
+    if c_q.message and c_q.message.chat_id:
+        chat_id = c_q.message.chat_id
     else:
         chat_id = c_q.chat_id
     
@@ -104,17 +113,14 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
     
     try:
-        # استخدام الحساب العادي للتواصل مع البوت الخارجي
         async with l313l.conversation("@W60yBot", timeout=60) as conv:
             await conv.send_message(f"يوت {yt_url}")
             
-            # تجاهل الرد الأول
             try:
                 first_response = await asyncio.wait_for(conv.get_response(), timeout=2)
             except asyncio.TimeoutError:
                 pass
             
-            # انتظار الملف
             audio_response = await conv.get_response()
             
             if audio_response and audio_response.media:
@@ -127,7 +133,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # إرسال الملف في نفس الدردشة
+                # طباعة مكان الإرسال
+                print(f"سيتم الإرسال إلى: {chat_id}")
+                
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
@@ -140,12 +148,9 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             else:
                 await c_q.edit("❌ فشل التحميل")
                 
-    except asyncio.TimeoutError:
-        await c_q.edit("⏰ انتهت المهلة، البوت لم يستجب")
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

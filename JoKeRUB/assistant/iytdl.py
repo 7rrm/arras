@@ -88,7 +88,6 @@ async def iytdl_inline(event):
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_0$"))
 )
@@ -99,10 +98,24 @@ async def ytdl_show_choices(c_q: CallbackQuery):
     
     await c_q.answer("🔄 جـارِ تحضير الخيارات...", alert=False)
     
-    # الحفاظ على النص والصورة الأصليين
-    original_message = c_q.query.message
-    current_text = original_message.message
-    current_media = original_message.media
+    # الحصول على النص والصورة من الرسالة الأصلية
+    try:
+        # محاولة الحصول من _message
+        if hasattr(c_q, '_message') and c_q._message:
+            current_text = c_q._message.message
+            current_media = c_q._message.media
+        # أو من original_update
+        elif hasattr(c_q, 'original_update') and hasattr(c_q.original_update, 'message'):
+            current_text = c_q.original_update.message.message
+            current_media = c_q.original_update.message.media
+        else:
+            # إذا لم نستطع الحصول، نستخدم نص افتراضي
+            current_text = "🎵 اختر نوع التحميل:"
+            current_media = None
+    except Exception as e:
+        LOGS.error(f"Error getting message: {e}")
+        current_text = "🎵 اختر نوع التحميل:"
+        current_media = None
     
     buttons = [
         [
@@ -111,13 +124,22 @@ async def ytdl_show_choices(c_q: CallbackQuery):
         ]
     ]
     
-    # تعديل: نفس النص، نفس الصورة، أزرار جديدة
-    await c_q.edit(
-        text=current_text,
-        file=current_media,
-        buttons=buttons,
-        parse_mode="html"
-    )
+    # تعديل الرسالة
+    if current_media:
+        # إذا كانت هناك صورة، نحافظ عليها
+        await c_q.edit(
+            text=current_text,
+            file=current_media,
+            buttons=buttons,
+            parse_mode="html"
+        )
+    else:
+        # إذا لم تكن هناك صورة، نرسل نص فقط
+        await c_q.edit(
+            text="**🎵 اختر نوع التحميل:**",
+            buttons=buttons,
+            parse_mode="html"
+        )
 
 
 @l313l.tgbot.on(

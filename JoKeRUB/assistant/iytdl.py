@@ -109,21 +109,10 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
 
-    # الحصول على chat_id الصحيح
-    if hasattr(c_q, 'message') and hasattr(c_q.message, 'chat_id'):
-        chat_id = c_q.message.chat_id
-    elif hasattr(c_q, 'chat_id') and c_q.chat_id:
-        chat_id = c_q.chat_id
-    else:
-        chat_id = c_q.sender_id
-
-    if chat_id == l313l.uid:
-        chat_id = c_q.sender_id
-
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-
+    
     try:
-        await c_q.edit("**🔄 جـارِ جلب رابط التحميل...**")
+        await c_q.edit("**🔄 جـارِ جلب رابط التحميل من الخادم...**")
     except:
         pass
 
@@ -148,13 +137,12 @@ async def ytdl_download_callback(c_q: CallbackQuery):
             if link:
                 # استخراج اسم القناة ورقم الرسالة
                 parts = link.strip('/').split('/')
-                channel_username = parts[-2]  # sersesc
-                message_id = int(parts[-1])   # 42170
+                channel_username = parts[-2]
+                message_id = int(parts[-1])
                 
                 await c_q.edit("**📥 جـارِ استلام الملف...**")
                 
-                # جلب الرسالة من القناة باستخدام البوت (c_q.client)
-                # تأكد من أن البوت عضو في القناة
+                # جلب الرسالة من القناة باستخدام البوت
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
                 if s_msg and s_msg.media:
@@ -166,19 +154,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     duration_str = format_duration(duration)
                     
                     caption = (
-                        f"<blockquote>\n"
-                        f"<b>✅ تم التحميل بنجاح</b>\n"
-                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                        f"</blockquote>\n"
-                        f"<b>↯︰By: @JoKeRUB</b>\n"
-                        f"⏱️ **المدة:** `{duration_str}`"
+                        f"<b>✅ تم التحميل بنجاح</b>\n\n"
+                        f"<a href='{yt_url}'><b>🎵 المقطع الصوتي</b></a>\n"
+                        f"⏱️ <b>المدة:</b> {duration_str}\n"
+                        f"<b>↯︰By: @JoKeRUB</b>"
                     )
                     
-                    # إرسال الملف باستخدام البوت
-                    await c_q.client.send_file(
-                        chat_id,
+                    # ========== نفس طريقة الكود الأصلي ==========
+                    # إرسال الملف إلى BOTLOG_CHATID أولاً (للحفظ)
+                    uploaded_media = await c_q.client.send_file(
+                        BOTLOG_CHATID,
                         s_msg.media,
-                        caption=caption,
+                        caption=f"<b>🎵 المقطع الصوتي</b>\n⏱️ المدة: {duration_str}",
                         parse_mode="html",
                         attributes=[
                             DocumentAttributeAudio(
@@ -189,20 +176,24 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                         ]
                     )
                     
-                    try:
-                        await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
-                    except:
-                        pass
+                    # تعديل رسالة الزر وإضافة الملف إليها (نفس الطريقة الأصلية)
+                    await c_q.edit(
+                        text=caption,
+                        file=uploaded_media.media,
+                        parse_mode="html",
+                        buttons=[]
+                    )
+                    
                 else:
-                    await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلم يتم العثور على الملف")
+                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف في القناة")
             else:
-                await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nلا يوجد رابط")
+                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:
-            await c_q.client.send_message(chat_id, "❌ **فشل التحميل**\nAPI لم يستجب")
+            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
             
     except Exception as e:
         LOGS.error(f"Download error: {e}")
-        await c_q.client.send_message(chat_id, f"❌ **خطأ:** `{str(e)[:100]}`")
+        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

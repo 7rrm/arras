@@ -43,9 +43,7 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
-
-# في بداية الملف بعد الاستدعاءات
-# تخزين معرف الدردشة لكل inline query
+# قاموس لتخزين الدردشات
 search_chat_ids = {}
 
 @l313l.ar_cmd(
@@ -79,18 +77,15 @@ async def iytdl_inline(event):
         cout += 1
         if cout > 5:
             flag = False
+    
     if results:
-        # تخزين معرف الدردشة باستخدام query_id
-        if results and len(results) > 0:
-            # استخدم query_id كمفتاح للتخزين
-            query_id = str(results[0].query_id)
-            search_chat_ids[query_id] = event.chat_id
-            print(f"تم تخزين الدردشة {event.chat_id} للمفتاح {query_id}")
-            
-            await zedevent.delete()
-            await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
-        else:
-            await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
+        # تخزين الدردشة مع معرف عشوائي مؤقت
+        import time
+        temp_id = f"{event.chat_id}_{int(time.time())}"
+        search_chat_ids[temp_id] = event.chat_id
+        
+        await zedevent.delete()
+        await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
         await zedevent.edit("**⌔╎عـذراً .. لم اجد اي نتائـج**")
 
@@ -101,19 +96,27 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # استرجاع الدردشة المخزنة باستخدام query_id
-    query_id = str(c_q.query_id)
-    stored_chat_id = search_chat_ids.get(query_id)
+    # استرجاع الدردشة المخزنة
+    stored_chat_id = None
+    for key, value in search_chat_ids.items():
+        if str(c_q.id) in key or key == str(c_q.id):
+            stored_chat_id = value
+            break
     
     if stored_chat_id:
         chat_id = stored_chat_id
         print(f"تم استرجاع الدردشة المخزنة: {chat_id}")
+        # تنظيف
+        for key, value in list(search_chat_ids.items()):
+            if value == stored_chat_id:
+                del search_chat_ids[key]
+                break
     elif c_q.is_private:
         chat_id = c_q.sender_id
-        print(f"استخدام sender_id: {chat_id}")
     else:
         chat_id = c_q.chat_id
-        print(f"استخدام chat_id: {chat_id}")
+    
+    print(f"الإرسال إلى: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -139,17 +142,12 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # إرسال الملف إلى الدردشة المخزنة
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
-                
-                # حذف التخزين بعد الاستخدام
-                if query_id in search_chat_ids:
-                    del search_chat_ids[query_id]
                 
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 
@@ -159,6 +157,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ خطأ: {str(e)[:100]}")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

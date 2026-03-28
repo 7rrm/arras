@@ -43,18 +43,14 @@ YOUTUBE_REGEX = re.compile(
 PATH = "./JoKeRUB/cache/ytsearch.json"
 plugin_category = "البوت"
 
+# تخزين معرف الدردشة لكل فيديو يتم البحث عنه
+search_chat_ids = {}
 
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
-    info={
-        "header": "ytdl with inline buttons.",
-        "description": "To search and download youtube videos by inline buttons.",
-        "usage": "{tr}iytdl [URL / Text] or [Reply to URL / Text]",
-    },
 )
 async def iytdl_inline(event):
-    "ytdl with inline buttons."
     reply = await event.get_reply_message()
     reply_to_id = await reply_id(event)
     input_str = event.pattern_match.group(1)
@@ -65,6 +61,7 @@ async def iytdl_inline(event):
         input_url = (reply.text).strip()
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
+    
     zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
     flag = True
     cout = 0
@@ -81,6 +78,8 @@ async def iytdl_inline(event):
         if cout > 5:
             flag = False
     if results:
+        # تخزين معرف الدردشة قبل عرض النتائج
+        search_chat_ids[str(results[0].id)] = event.chat_id
         await zedevent.delete()
         await results[0].click(event.chat_id, reply_to=reply_to_id, hide_via=True)
     else:
@@ -93,18 +92,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # تحديد مكان الإرسال
-    if c_q.is_private:
-        # في الخاص: أرسل للمستخدم الذي يضغط على الزر
-        # sender_id هو المستخدم الذي يضغط (وليس حسابك إذا كان غيرك)
+    # الحصول على الدردشة المخزنة
+    stored_chat_id = search_chat_ids.get(str(c_q.id), None)
+    
+    if stored_chat_id:
+        chat_id = stored_chat_id
+    elif c_q.is_private:
         chat_id = c_q.sender_id
     else:
-        # في المجموعة: أرسل في نفس المجموعة
         chat_id = c_q.chat_id
     
-    print(f"الدردشة: {chat_id}")
-    print(f"خاص؟ {c_q.is_private}")
-    print(f"الضاغط: {c_q.sender_id}")
+    print(f"الدردشة المخزنة: {stored_chat_id}")
+    print(f"الدردشة المستخدمة: {chat_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -130,13 +129,16 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # إرسال الملف
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,
                     caption=caption,
                     parse_mode="html"
                 )
+                
+                # حذف التخزين بعد الاستخدام
+                if str(c_q.id) in search_chat_ids:
+                    del search_chat_ids[str(c_q.id)]
                 
                 await c_q.edit("✅ **تم التحميل بنجاح**", buttons=[])
                 

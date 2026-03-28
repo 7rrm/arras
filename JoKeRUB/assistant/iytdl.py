@@ -93,11 +93,18 @@ async def ytdl_download_callback(c_q: CallbackQuery):
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     yt_url = BASE_YT_URL + yt_code
     
-    # الدردشة التي فيها الزر هي نفسها التي نريد الإرسال إليها
-    # استخدم chat_id من الرسالة التي تحتوي على الزر
-    chat_id = c_q.message.chat_id if hasattr(c_q, 'message') else c_q.chat_id
+    # تحديد مكان الإرسال
+    if c_q.is_private:
+        # في الخاص: أرسل للمستخدم الذي يضغط على الزر
+        # sender_id هو المستخدم الذي يضغط (وليس حسابك إذا كان غيرك)
+        chat_id = c_q.sender_id
+    else:
+        # في المجموعة: أرسل في نفس المجموعة
+        chat_id = c_q.chat_id
     
     print(f"الدردشة: {chat_id}")
+    print(f"خاص؟ {c_q.is_private}")
+    print(f"الضاغط: {c_q.sender_id}")
     
     await c_q.answer("🔄 جـارِ تحضير رابط التحميل...", alert=False)
     await c_q.edit("**🔄 جـارِ طلب التحميل من البوت الخارجي...**")
@@ -123,7 +130,7 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     f'<a href="emoji/5368338253868968009">🦅</a>'
                 )
                 
-                # إرسال الملف في نفس الدردشة
+                # إرسال الملف
                 await l313l.send_file(
                     chat_id,
                     audio_response.media,

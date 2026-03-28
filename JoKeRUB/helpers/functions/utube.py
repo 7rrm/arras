@@ -225,25 +225,30 @@ def yt_search_btns(
 
 @pool.run_in_thread
 def download_button(vid: str, body: bool = False):
-    """توليد أزرار التحميل باستخدام API (صوت/فيديو)"""
+    """توليد أزرار تحميل مبسطة باستخدام API (صوت/فيديو)"""
     try:
-        # نفس الأزرار القديمة مع إضافة زر الفيديو
-        buttons = [
-            [
-                Button.inline("🎵 تحميل صوت MP3", data=f"ytdl_download_{vid}_audio"),
-                Button.inline("🎬 تحميل فيديو MP4", data=f"ytdl_download_{vid}_video"),
-            ]
-        ]
+        # التحقق من صحة الرابط (اختياري)
+        yt_dlp.YoutubeDL({"quiet": True, "no_warnings": True}).extract_info(
+            BASE_YT_URL + vid, download=False
+        )
+    except Exception:
+        buttons = [[Button.inline("❌ الفيديو غير متاح", data="noop")]]
         if body:
-            return f"<a href='https://youtu.be/{vid}'><b>✅ اختر صيغة التحميل</b></a>", buttons
-        return buttons
-    except Exception as e:
-        LOGS.error(f"Error in download_button: {e}")
-        buttons = [[Button.inline("❌ خطأ", data="noop")]]
-        if body:
-            return "حدث خطأ", buttons
+            return "لا يمكن تحميل الفيديو", buttons
         return buttons
     
+    # أزرار مبسطة: صوت وفيديو فقط
+    buttons = [
+        [
+            Button.inline("🎵 تحميل صوت MP3", data=f"ytdl_download_{vid}_audio"),
+            Button.inline("🎬 تحميل فيديو MP4", data=f"ytdl_download_{vid}_video"),
+        ]
+    ]
+    
+    if body:
+        vid_body = f"<a href='https://youtu.be/{vid}'><b>✅ اختر صيغة التحميل</b></a>"
+        return vid_body, buttons
+    return buttons
 
 @pool.run_in_thread
 def _tubeDl(url: str, starttime, uid: str):

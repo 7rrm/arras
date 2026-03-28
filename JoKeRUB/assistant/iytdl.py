@@ -46,17 +46,6 @@ plugin_category = "البوت"
 
 
 
-def format_duration(seconds):
-    """تحويل الثواني إلى صيغة h:m:s"""
-    if not seconds or seconds == 0:
-        return "00:00"
-    h, m = divmod(int(seconds), 3600)
-    m, s = divmod(m, 60)
-    if h > 0:
-        return f"{h}:{m:02d}:{s:02d}"
-    return f"{m}:{s:02d}"
-
-
 @l313l.ar_cmd(
     pattern="بحث(?:\s|$)([\s\S]*)",
     command=("يوت", plugin_category),
@@ -145,13 +134,6 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
                 if s_msg and s_msg.media:
-                    # استخراج المدة
-                    duration = 0
-                    if hasattr(s_msg.media, 'duration'):
-                        duration = s_msg.media.duration
-                    
-                    duration_str = format_duration(duration)
-                    
                     # الكليشة المطلوبة
                     caption = (
                         f"<blockquote>"
@@ -166,15 +148,8 @@ async def ytdl_download_callback(c_q: CallbackQuery):
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
-                        caption=f"<b>🎵 {yt_code}</b>\n⏱️ {duration_str}",
-                        parse_mode="html",
-                        attributes=[
-                            DocumentAttributeAudio(
-                                duration=duration,
-                                title="🎵 Audio",
-                                performer="YouTube"
-                            )
-                        ]
+                        caption=f"<b>🎵 {yt_code}</b>",
+                        parse_mode="html"
                     )
                     
                     # تعديل رسالة الزر وإضافة الملف

@@ -1319,103 +1319,41 @@ async def video_auto_search(event):
 
 
 import requests
-import pathlib
-import io
-import asyncio
-from time import time
 from telethon import types
-from telethon.events import NewMessage
+from time import time
 
 @l313l.ar_cmd(pattern="داون(?: |$)(.*)")
-async def download_video_from_api(event):
-    msg = event.pattern_match.group(1)
-    rmsg = await event.get_reply_message()
-
-    if not msg and rmsg:
-        msg = rmsg.text
-
+async def download_video_with_api(event):
+    msg = event.pattern_match.group(1) or (await event.get_reply_message()).text
     if not msg:
-        return await edit_or_reply(event, "**- قـم بادخــال رابط مع الامـر او بالــرد ع رابط ليتـم التحميل**")
+        return await event.reply("**- قـم بادخــال رابط مع الامر او بالــرد ع رابط ليتـم التحميل**")
     
-    # رابط API الخاص بـ "داون" لتحويل الرابط إلى رابط تنزيل
     API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
 
-    zedevent = await edit_or_reply(event, "**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
-    reply_to_id = await reply_id(event)
-
+    # جلب الرابط من API
     try:
-        # إرسال طلب API للحصول على رابط التحميل
-        response = requests.get(api_url, timeout=60)
-        data = response.json()
+        resp = requests.get(api_url, timeout=60)
+        data = resp.json()
+        if data.get("status") != "ok":
+            return await event.reply("❌ **فشل التحميل**\nAPI لم يستجب")
+        
+        link = data.get("links")[0]
+        if not link:
+            return await event.reply("❌ **فشل التحميل**\nلا يوجد رابط لتحميله")
 
-        if data and data.get("status") == "ok":
-            download_link = data.get("links")[0]  # استخدام الرابط الذي تم إرجاعه من الـ API
-            if not download_link:
-                return await zedevent.edit("❌ **فشل التحميل**\nلا يوجد رابط لتحميله")
-            
-            # تحميل الفيديو من الرابط الذي تم إرجاعه
-            video_data = await download_file_from_channel(download_link)
-            
-            if video_data:
-                await zedevent.edit(f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
-                \n**{video_data['title']}**")
-                
-                # إعداد الملف
-                ul = io.open(video_data['file'], "rb")
-                c_time = time()
-                
-                # رفع الفيديو
-                uploaded = await event.client.fast_upload_file(
-                    file=ul,
-                    progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                        progress(d, t, zedevent, c_time, "Upload :", file_name=video_data['title'])
-                    ),
-                )
-                ul.close()
-                
-                # إرسال الفيديو إلى الدردشة
-                media = types.InputMediaUploadedDocument(
-                    file=uploaded,
-                    mime_type="video/mp4",
-                    attributes=[],
-                )
-                await event.client.send_file(
-                    event.chat_id,
-                    file=media,
-                    reply_to=reply_to_id,
-                    caption=f'**⎉╎المقطــع :** `{video_data["title"]}`\n**⎉╎الرابـط : {msg}**\n**⎉╎تم  التحميـل .. بنجـاح ✅**',
-                )
-                os.remove(video_data['file'])  # حذف الملف بعد رفعه
-            else:
-                await zedevent.edit("❌ **فشل التحميل**\nحدث خطأ أثناء تحميل الفيديو.")
+        # جلب الفيديو من القناة
+        parts = link.strip('/').split('/')
+        channel_username, message_id = parts[-2], int(parts[-1])
+        s_msg = await event.client.get_messages(channel_username, ids=message_id)
+
+        if s_msg and s_msg.media:
+            # رفع الفيديو
+            uploaded = await event.client.upload_file(s_msg.media)
+            media = types.InputMediaUploadedDocument(file=uploaded, mime_type="video/mp4")
+            await event.client.send_file(event.chat_id, media, caption=f"**تم التحميل بنجاح**\n**الرابط**: {msg}")
         else:
-            await zedevent.edit("❌ **فشل التحميل**\nAPI لم يستجب أو الرابط غير صالح")
+            await event.reply("❌ **فشل التحميل**\nلم يتم العثور على الملف")
     
     except Exception as e:
-        await zedevent.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
-
-async def download_file_from_channel(download_link):
-    """دالة لتحميل الفيديو من رابط قناة تيليجرام"""
-    try:
-        # جلب الفيديو من الرابط (الذي هو عبارة عن رابط تيليجرام)
-        parts = download_link.split('/')
-        channel_username = parts[3]  # اسم القناة
-        message_id = int(parts[-1])  # ID الرسالة
-
-        # جلب الرسالة من القناة
-        channel_msg = await event.client.get_messages(channel_username, ids=message_id)
-        
-        if channel_msg and channel_msg.media:
-            video_filename = pathlib.Path(f"{message_id}.mp4")  # تسمية الملف باستخدام ID الرسالة
-            
-            # تنزيل الملف من القناة
-            await channel_msg.download_media(file=video_filename)
-            
-            # إرجاع معلومات الفيديو
-            return {'file': video_filename, 'title': channel_msg.text or "Video Title"}
-        return None
-    except Exception as e:
-        print(f"Error downloading video from channel: {e}")
-        return None
+        await event.reply(f"❌ **خطأ**: `{str(e)[:100]}`")

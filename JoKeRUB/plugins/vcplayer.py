@@ -254,116 +254,64 @@ async def play_audio(event):
     "لـ تشغيـل المقـاطع الصـوتيـه في المكـالمـات"
     flag = event.pattern_match.group(1)
     input_str = event.pattern_match.group(2)
-    
-    # البحث باستخدام YoutubeSearch إذا كان النص ليس رابطاً
+    photo = None
+    if input_str and input_str.startswith("فيديو"):
+        return
     if input_str and not input_str.startswith("http"):
         try:
-            from youtube_search import YoutubeSearch
-            
             results = YoutubeSearch(input_str, max_results=1).to_dict()
-            if results:
-                video_url = f"https://youtube.com{results[0]['url_suffix']}"
-                title = results[0]['title']
-                duration = results[0]['duration']
-                thumbnail = results[0]['thumbnails'][0]
-                
-                # إرسال رسالة التأكيد مع الصورة
-                zzz = await edit_or_reply(
-                    event, 
-                    f"**╮ جـارِ تشغيـل المقطـٓـع الصـٓـوتي في المكـالمـه... 🎧♥️╰**\n\n"
-                    f"**العنوان:** `{title}`\n"
-                    f"**المدة:** {duration}"
-                )
-                
-                # جلب رابط التحميل من API
-                API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
-                api_url = f"https://muntazer.online/tuob/m4a={API_KEY}={video_url}"
-                
-                def fetch_api():
-                    import requests
-                    resp = requests.get(api_url, timeout=60)
-                    if resp.status_code == 200:
-                        return resp.json()
-                    return None
-                
-                result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
-                
-                if result and result.get("status") == "ok":
-                    link = result.get("link")  # https://t.me/sersesc/42170
-                    
-                    if link:
-                        parts = link.strip('/').split('/')
-                        channel_username = parts[-2]
-                        message_id = int(parts[-1])
-                        
-                        await zzz.edit("**📥 جـارِ استلام الملف من القناة...**")
-                        
-                        # جلب الملف من القناة
-                        s_msg = await event.client.get_messages(channel_username, ids=message_id)
-                        
-                        if s_msg and s_msg.media:
-                            await zzz.edit("**📤 جـارِ رفع الملف إلى المكالمة...**")
-                            
-                            # تحميل الملف مؤقتاً
-                            temp_file = await event.client.download_media(s_msg.media, file=Config.TMP_DOWNLOAD_DIRECTORY)
-                            
-                            if temp_file:
-                                # تشغيل الملف في المكالمة
-                                if not vc_player.CHAT_ID:
-                                    await zzz.edit("⚈ **قـم بالانضمـام الى المكالمـه اولاً**\n⚈ **عبـر الامـر ⤌ ⎞** `.انضمام` **⎝**")
-                                    return
-                                
-                                if flag:
-                                    resp = await vc_player.play_song(temp_file, Stream.audio, force=True)
-                                else:
-                                    resp = await vc_player.play_song(temp_file, Stream.audio, force=False)
-                                
-                                # حذف الملف المؤقت
-                                try:
-                                    os.remove(temp_file)
-                                except:
-                                    pass
-                                
-                                if resp:
-                                    await zzz.edit(resp)
-                                else:
-                                    await zzz.delete()
-                            else:
-                                await zzz.edit("❌ **فشل تحميل الملف**")
-                        else:
-                            await zzz.edit("❌ **لم يتم العثور على الملف في القناة**")
-                    else:
-                        await zzz.edit("❌ **لا يوجد رابط من API**")
-                else:
-                    await zzz.edit("❌ **فشل الاتصال بـ API**")
-            else:
-                await edit_or_reply(event, "❌ **لم يتم العثور على نتائج**")
-            return
+            input_str = f"https://youtube.com{results[0]['url_suffix']}"
+            title = results[0]["title"][:40]
+            thumbnail = results[0]["thumbnails"][0]
+            #thumb_name = f"{title}.jpg"
+            #thumb = requests.get(thumbnail, allow_redirects=True)
+            #try:
+                #open(thumb_name, "wb").write(thumb.content)
+            #except Exception:
+                #thumb_name = None
+                #pass
+            duration = results[0]["duration"]
+            photo = thumbnail
         except Exception as e:
-            await edit_or_reply(event, f"❌ **خطأ في البحث:** `{str(e)[:100]}`")
+            await edit_or_reply(event, f"⚈ **فشـل التحميـل** \n⚈ **الخطأ :** `{str(e)}`")
             return
-    
-    # إذا كان الرابط مباشراً أو رد على ملف
+        zzz = await edit_or_reply(event, "**╮ جـارِ تشغيـل المقطـٓـع الصـٓـوتي في المكـالمـه... 🎧♥️╰**")
+        if flag:
+            resp = await vc_player.play_song(input_str, Stream.audio, force=True)
+        else:
+            resp = await vc_player.play_song(input_str, Stream.audio, force=False)
+        if resp:
+            if photo:
+                try:
+                    await event.client.send_file(
+                        event.chat_id,
+                        photo,
+                        caption=resp,
+                        link_preview=False,
+                        force_document=False,
+                    )
+                    return await zzz.delete()
+                except TypeError:
+                    return await zzz.edit(resp)
+
     if input_str == "" and event.reply_to_msg_id:
         input_str = await tg_dl(event)
-    
     if not input_str:
         return await edit_delete(
             event, "⚈ **قـم بـ إدخـال رابـط المقطـع الصوتـي للتشغيـل...**", time=20
         )
-    
     if not vc_player.CHAT_ID:
         return await edit_or_reply(event, "⚈ **قـم بالانضمـام الى المكالمـه اولاً**\n⚈ **عبـر الامـر ⤌ ⎞** `.انضمام` **⎝**")
-    
+    if not input_str:
+        return await edit_or_reply(event, "⚈ **استخـدم الامـر هكـذا**\n• (`.شغل` + **اسم المقطع الصوتي**)\n**• او**\n• (`.شغل` + **رابـط المقطع الصوتي**")
     await edit_or_reply(event, "**╮ جـارِ تشغيـل المقطـٓـع الصـٓـوتي في المكـالمـه... 🎧♥️╰**")
-    
     if flag:
         resp = await vc_player.play_song(input_str, Stream.audio, force=True)
     else:
         resp = await vc_player.play_song(input_str, Stream.audio, force=False)
-    
     if resp:
         await edit_delete(event, resp, time=30)
+
 
 @l313l.ar_cmd(
     pattern="توقف",

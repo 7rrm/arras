@@ -1332,7 +1332,7 @@ async def download_video_with_api(event):
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
 
     # إرسال رسالة أولية تفيد بأن التحميل جارٍ
-    zedevent = await event.reply("**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
+    zedevent = await event.edit("**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
     
     try:
         # إرسال طلب للـ API للحصول على رابط التحميل

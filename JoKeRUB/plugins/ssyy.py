@@ -1366,12 +1366,16 @@ async def download_video_with_api(event):
                     "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
                     "</blockquote>"
                     "<b>↯︰By: @Lx5x5 .🦅</b>"
-                    f"<b>الرابط: </b>{msg}"
                 ),
+                parse_mode="html"  # هنا تم إضافة parse_mode="html" لتفعيل تنسيق HTML
             )
             
-            # إرسال رسالة إلى مجموعة السجل (BOTLOG_CHATID)
-            await event.client.send_message(BOTLOG_CHATID, f"**تم التحَميـل ⥂**\n**الرابط**: {msg}")
+            # إرسال رسالة إلى مجموعة السجل مع رفع الملف
+            await event.client.send_message(
+                BOTLOG_CHATID, 
+                f"**تم التحَميـل ⥂**\n**الرابط**: {msg}",
+                file=uploaded_media.media
+            )
         
         else:
             await zedevent.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")

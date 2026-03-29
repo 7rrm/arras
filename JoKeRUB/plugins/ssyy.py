@@ -1319,8 +1319,9 @@ async def video_auto_search(event):
 
 
 import requests
+import asyncio
 from telethon import types
-from time import time
+from telethon.events import CallbackQuery
 
 @l313l.ar_cmd(pattern="داون(?: |$)(.*)")
 async def download_video_with_api(event):
@@ -1331,10 +1332,11 @@ async def download_video_with_api(event):
     API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
 
-    # جلب الرابط من API
     try:
+        # إرسال طلب للـ API للحصول على رابط التحميل
         resp = requests.get(api_url, timeout=60)
         data = resp.json()
+
         if data.get("status") != "ok":
             return await event.reply("❌ **فشل التحميل**\nAPI لم يستجب")
         
@@ -1342,16 +1344,27 @@ async def download_video_with_api(event):
         if not link:
             return await event.reply("❌ **فشل التحميل**\nلا يوجد رابط لتحميله")
 
-        # جلب الفيديو من القناة
+        # استخراج اسم القناة و ID الرسالة من الرابط
         parts = link.strip('/').split('/')
         channel_username, message_id = parts[-2], int(parts[-1])
+
+        await event.reply("**📥 جـارِ استلام الملف...**")
+        
+        # جلب الرسالة من القناة
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # رفع الفيديو
-            uploaded = await event.client.upload_file(s_msg.media)
-            media = types.InputMediaUploadedDocument(file=uploaded, mime_type="video/mp4")
-            await event.client.send_file(event.chat_id, media, caption=f"**تم التحميل بنجاح**\n**الرابط**: {msg}")
+            # رفع الفيديو إلى المحادثة
+            uploaded_media = await event.client.send_file(
+                event.chat_id,
+                s_msg.media,
+                caption=f"**تم التحميل بنجاح**\n**الرابط**: {msg}",
+            )
+
+            # تعديل الرسالة النهائية بعد الرفع
+            caption = f"<blockquote><b>تم التحميل بنجاح.</b></blockquote><b>↯︰By: @Lx5x5 .</b>"
+            await event.edit(text=caption, file=uploaded_media.media, parse_mode="html")
+        
         else:
             await event.reply("❌ **فشل التحميل**\nلم يتم العثور على الملف")
     

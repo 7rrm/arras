@@ -13,9 +13,9 @@ plugin_category = "البوت"
 
 async def get_group_call(chat):
     if isinstance(chat, Channel):
-        result = await zedub(functions.channels.GetFullChannelRequest(channel=chat))
+        result = await l313l(functions.channels.GetFullChannelRequest(channel=chat))
     elif isinstance(chat, Chat):
-        result = await zedub(functions.messages.GetFullChatRequest(chat_id=chat.id))
+        result = await l313l(functions.messages.GetFullChatRequest(chat_id=chat.id))
     return result.full_chat.call
 
 

@@ -1350,22 +1350,28 @@ async def download_video_with_api(event):
         parts = link.strip('/').split('/')
         channel_username, message_id = parts[-2], int(parts[-1])
 
+        # تعديل الرسالة إلى "جاري استلام الملف"
         await zedevent.edit("**📥 جـارِ استلام الملف...**")
         
         # جلب الرسالة من القناة
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # رفع الفيديو إلى المحادثة
+            # رفع الفيديو إلى المحادثة في نفس الرسالة
             uploaded_media = await event.client.send_file(
                 event.chat_id,
                 s_msg.media,
-                caption=f"**تم التحميل بنجاح**\n**الرابط**: {msg}",
+                caption=(
+                    "<blockquote>"
+                    "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
+                    "</blockquote>"
+                    "<b>↯︰By: @Lx5x5 .🦅</b>"
+                    f"<b>الرابط: </b>{msg}"
+                ),
             )
-
-            # تعديل الرسالة النهائية بعد الرفع
-            caption = f"<blockquote><b>تم التحميل بنجاح.</b></blockquote><b>↯︰By: @Lx5x5 .</b>"
-            await zedevent.edit(text=caption, file=uploaded_media.media, parse_mode="html")
+            
+            # إرسال رسالة إلى مجموعة السجل (BOTLOG_CHATID)
+            await event.client.send_message(BOTLOG_CHATID, f"**تم التحَميـل ⥂**\n**الرابط**: {msg}")
         
         else:
             await zedevent.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")

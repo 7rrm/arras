@@ -673,7 +673,7 @@ async def variable(event):
             await jep.edit("**⌔∮ تم بنجاح تغيير زخرفة الصورة الوقتية\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
         heroku_var[variable] = zinfo
         '''
-'''
+
 @l313l.ar_cmd(pattern="ميوزك(?:\s|$)([\s\S]*)")
 async def variable(event):
     if Config.HEROKU_API_KEY is None:
@@ -709,7 +709,7 @@ async def variable(event):
         else:
             await jep.edit("**⌔∮ تم بنجاح تغيير وضع الميوزك\n\n❃ جار اعادة تشغيل السورس انتظر من 2-5 دقائق ليتشغل مره اخرى**".format(input_str))
         heroku_var[variable] = zinfo
-'''
+
 @l313l.ar_cmd(pattern="استخدامي$")
 async def dyno_usage(dyno):
     if (HEROKU_APP_NAME is None) or (HEROKU_API_KEY is None):

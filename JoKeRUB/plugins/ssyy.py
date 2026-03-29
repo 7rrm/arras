@@ -1319,9 +1319,8 @@ async def video_auto_search(event):
 
 
 import requests
-import asyncio
 from telethon import types
-from telethon.events import CallbackQuery
+from time import time
 
 @l313l.ar_cmd(pattern="داون(?: |$)(.*)")
 async def download_video_with_api(event):
@@ -1332,23 +1331,26 @@ async def download_video_with_api(event):
     API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
 
+    # إرسال رسالة أولية تفيد بأن التحميل جارٍ
+    zedevent = await event.reply("**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
+    
     try:
         # إرسال طلب للـ API للحصول على رابط التحميل
         resp = requests.get(api_url, timeout=60)
         data = resp.json()
 
         if data.get("status") != "ok":
-            return await event.reply("❌ **فشل التحميل**\nAPI لم يستجب")
+            return await zedevent.edit("❌ **فشل التحميل**\nAPI لم يستجب")
         
         link = data.get("links")[0]
         if not link:
-            return await event.reply("❌ **فشل التحميل**\nلا يوجد رابط لتحميله")
+            return await zedevent.edit("❌ **فشل التحميل**\nلا يوجد رابط لتحميله")
 
         # استخراج اسم القناة و ID الرسالة من الرابط
         parts = link.strip('/').split('/')
         channel_username, message_id = parts[-2], int(parts[-1])
 
-        await event.reply("**📥 جـارِ استلام الملف...**")
+        await zedevent.edit("**📥 جـارِ استلام الملف...**")
         
         # جلب الرسالة من القناة
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
@@ -1363,10 +1365,10 @@ async def download_video_with_api(event):
 
             # تعديل الرسالة النهائية بعد الرفع
             caption = f"<blockquote><b>تم التحميل بنجاح.</b></blockquote><b>↯︰By: @Lx5x5 .</b>"
-            await event.edit(text=caption, file=uploaded_media.media, parse_mode="html")
+            await zedevent.edit(text=caption, file=uploaded_media.media, parse_mode="html")
         
         else:
-            await event.reply("❌ **فشل التحميل**\nلم يتم العثور على الملف")
+            await zedevent.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
     
     except Exception as e:
-        await event.reply(f"❌ **خطأ**: `{str(e)[:100]}`")
+        await zedevent.edit(f"❌ **خطأ**: `{str(e)[:100]}`")

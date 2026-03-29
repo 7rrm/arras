@@ -1318,77 +1318,103 @@ async def video_auto_search(event):
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 
 
-"""
-from telethon.tl.functions.users import GetFullUserRequest
-from telethon.tl.types import User, UserFull
+import requests
+import pathlib
 import os
-from contextlib import suppress
+from time import time
+import io
+import asyncio
+from telethon import types
 
-@l313l.ar_cmd(pattern="ستوري(?: |$)([\s\S]*)")
-async def story_download(event):
-    username = event.pattern_match.group(1)
-    reply = await event.get_reply_message()
+@l313l.ar_cmd(pattern="داون(?: |$)(.*)")
+async def download_video_with_api(event):
+    msg = event.pattern_match.group(1)
+    rmsg = await event.get_reply_message()
+    if not msg and rmsg:
+        msg = rmsg.text
+
+    if not msg:
+        return await edit_or_reply(event, "**- قـم بادخــال رابـط مع الامـر او بالــرد ع رابـط ليتـم التحميـل**")
     
-    # التحقق من وجود اسم المستخدم
-    if not username and reply:
-        if reply.sender_id:
-            username = reply.sender_id
-        else:
-            return await event.edit("**⎉╎ يجب وضع يوزر المستخدم مع الامر اولا او الرد على المستخدم**")
-    
-    if not username:
-        return await event.edit("**⎉╎ يجب وضع يوزر المستخدم لتنزيل الستوري الخاص به**")
-    
-    dra = await event.edit("**⎉╎ يتم الان تنزيل الستوري انتظر قليلا**")
-    
-    # محاولة تحويل إلى int إذا كان معرف
-    with suppress(ValueError):
-        username = int(username)
+    # استخدم الرابط الذي زودتني به
+    API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
+    api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
+
+    zedevent = await edit_or_reply(event, "**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
+    reply_to_id = await reply_id(event)
     
     try:
-        # جلب معلومات المستخدم
-        full_user: UserFull = (
-            await event.client(GetFullUserRequest(id=username))
-        ).full_user
-    except Exception as er:
-        return await dra.edit(f"**⎉╎ خطأ : {er}**")
-    
-    stories = full_user.stories
-    if not (stories and stories.stories):
-        return await dra.edit("**⎉╎ لم يتم العثور على ستوري خاص بالمستخدم**")
-    
-    # تحميل وإرسال الستوريات
-    story_count = 0
-    for story in stories.stories:
-        try:
-            # تحميل الميديا
-            file = await event.client.download_media(story.media)
+        # إرسال طلب للـ API لتحويل الرابط إلى رابط القناة
+        response = requests.get(api_url, timeout=60)
+        data = response.json()
+
+        if data and data.get("status") == "ok":
+            download_link = data.get("link")
+            channel_username = data.get("channel_username")  # الحصول على اسم المستخدم للقناة
             
-            # تجهيز النص
-            caption = story.caption if story.caption else ""
-            if caption:
-                caption = f"{caption}\n\n⎉╎ BY : @Lx5x5 ."
+            if not download_link or not channel_username:
+                return await zedevent.edit("❌ **فشل التحميل**\nلا يوجد رابط لتحميله أو القناة غير موجودة")
+            
+            # تحميل الفيديو من القناة
+            video_data = await download_file_from_channel(download_link, channel_username)
+            
+            if video_data:
+                # إذا تم تحميل الفيديو بنجاح
+                await zedevent.edit(f"**╮ ❐ جـارِ التحضيـر للـرفع انتظـر ...𓅫╰**:\
+                \n**{video_data['title']}**")
+                
+                # إعداد الملف
+                ul = io.open(video_data['file'], "rb")
+                c_time = time()
+                
+                # رفع الفيديو
+                uploaded = await event.client.fast_upload_file(
+                    file=ul,
+                    progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
+                        progress(
+                            d, t, zedevent, c_time, "Upload :", file_name=video_data['title']
+                        )
+                    ),
+                )
+                ul.close()
+                
+                # إرسال الفيديو إلى الدردشة
+                media = types.InputMediaUploadedDocument(
+                    file=uploaded,
+                    mime_type="video/mp4",
+                    attributes=[],
+                )
+                await event.client.send_file(
+                    event.chat_id,
+                    file=media,
+                    reply_to=reply_to_id,
+                    caption=f'**⎉╎المقطــع :** `{video_data["title"]}`\n**⎉╎الرابـط : {msg}**\n**⎉╎تم  التحميـل .. بنجـاح ✅**',
+                )
+                os.remove(video_data['file'])  # حذف الملف بعد رفعه
             else:
-                caption = f"⎉╎ BY : @Lx5x5 ."
-            
-            # إرسال الستوري
-            await event.client.send_file(
-                event.chat_id,
-                file,
-                caption=caption,
-                parse_mode="html",
-            )
-            
-            # حذف الملف المؤقت
-            os.remove(file)
-            story_count += 1
-            
-        except Exception as e:
-            await dra.edit(f"**⎉╎ حدث خطأ في تحميل احد الستوريات : {e}**")
-            continue
+                await zedevent.edit("❌ **فشل التحميل**\nحدث خطأ أثناء تحميل الفيديو.")
+        else:
+            await zedevent.edit("❌ **فشل التحميل**\nAPI لم يستجب أو الرابط غير صالح")
     
-    if story_count > 0:
-        await dra.edit(f"**⎉╎ تم بنجاح تحميل {story_count} ستوري ✅**")
-    else:
-        await dra.edit("**⎉╎ فشل تحميل الستوريات ❌**")
-"""
+    except Exception as e:
+        await zedevent.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+
+
+async def download_file_from_channel(download_link, channel_username):
+    """دالة لتحميل الفيديو من القناة بعد الحصول على الرابط"""
+    try:
+        # جلب الفيديو من القناة عبر الرابط
+        channel_msg = await event.client.get_messages(channel_username, search=download_link)
+        
+        if channel_msg and channel_msg.media:
+            video_filename = pathlib.Path(f"{download_link.split('/')[-1]}.mp4")  # تسمية الملف باستخدام رابط الفيديو
+            
+            # تنزيل الملف من القناة
+            await channel_msg.download_media(file=video_filename)
+            
+            # إرجاع معلومات الفيديو
+            return {'file': video_filename, 'title': channel_msg.text or "Video Title"}
+        return None
+    except Exception as e:
+        print(f"Error downloading video from channel: {e}")
+        return None

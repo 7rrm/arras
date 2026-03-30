@@ -1317,10 +1317,10 @@ async def video_auto_search(event):
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 
+
 import requests
 from telethon import types
 from time import time
-from telethon.utils import CustomParseMode
 
 @l313l.ar_cmd(pattern="داون(?: |$)(.*)")
 async def download_video_with_api(event):
@@ -1357,16 +1357,6 @@ async def download_video_with_api(event):
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # تنسيق النص مع الإيموجي الموحد
-            caption = (
-                f"<blockquote>\n"
-                f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                f'<a href="emoji/5258336354642697821">🎬</a>\n'
-                f"</blockquote>"
-                f"<b>↯︰By: @Lx5x5 .</b>"
-                f'<a href="emoji/5368338253868968009">🦅</a>\n'
-            )
-            
             # إرسال نسخة إلى مجموعة السجل مع رسالة التحميل
             await event.client.send_message(
                 BOTLOG_CHATID, 
@@ -1376,7 +1366,14 @@ async def download_video_with_api(event):
             
             # تعديل الرسالة الأصلية وإضافة الملف والنص
             await zedevent.edit(
-                text=caption,
+                text=(
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5258336354642697821">🎬</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                ),
                 file=s_msg.media,
                 parse_mode=CustomParseMode("html")
             )

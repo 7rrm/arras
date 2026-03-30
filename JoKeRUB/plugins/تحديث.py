@@ -543,6 +543,8 @@ async def Hussein(event):
 )
 async def update_music(event):
     "أمر تحديث مستودع الميوزك"
+    import asyncio  # ✅ أضف هذا السطر هنا
+    
     event = await edit_or_reply(event, "**✧︙ جـارِ تـحـديـث مـيـوزك اراس انـتـظـر**")
     
     # نسبة 20%
@@ -561,7 +563,7 @@ async def update_music(event):
     zzz4 = await zzz3.edit("ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث مـيـوزك**\n**•─────────────────•**\n**⇜ جـارِ تـحـديـث مـيـوزك اراس . . .🌐**\n\n%𝟷𝟶𝟶 ▬▬▬▬▬▬▬▬▬▬💯")
     await asyncio.sleep(1)
     
-    # عرض رسالة بدء التحديث (مثل update)
+    # عرض رسالة بدء التحديث
     music_msg = await zzz4.edit(
         f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـحـديـث مـيـوزك**\n"
         f"**•─────────────────•**\n"
@@ -570,11 +572,10 @@ async def update_music(event):
         f"**•⎆┊قـد يستغـرق الامـر 1-2 دقائـق ▬▭ ...**"
     )
     
-    # تنفيذ التحديث (مثل update)
+    # تنفيذ التحديث
     try:
         import os
         import shutil
-        import asyncio
         
         # حذف المجلد القديم إذا كان موجوداً
         if os.path.exists("jepvc"):

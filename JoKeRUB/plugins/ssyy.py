@@ -1357,25 +1357,23 @@ async def download_video_with_api(event):
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # تعديل نفس الرسالة وإضافة الملف إليها
-            await event.client.edit_message(
-                event.chat_id,
-                zedevent.id,
-                file=s_msg.media,
-                caption=(
-                    "<blockquote>"
-                    "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
-                    "</blockquote>"
-                    "<b>↯︰By: @Lx5x5 .🦅</b>"
-                ),
-                parse_mode="html"
-            )
-            
             # إرسال نسخة إلى مجموعة السجل مع رسالة التحميل
             await event.client.send_message(
                 BOTLOG_CHATID, 
                 f"**تم التحَميـل ⥂**\n**الرابط**: {msg}",
                 file=s_msg.media
+            )
+            
+            # تعديل الرسالة الأصلية وإضافة الملف والنص
+            await zedevent.edit(
+                text=(
+                    "<blockquote>"
+                    "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
+                    "</blockquote>"
+                    "<b>↯︰By: @Lx5x5 .🦅</b>"
+                ),
+                file=s_msg.media,
+                parse_mode="html"
             )
             
         else:

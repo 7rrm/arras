@@ -1357,21 +1357,32 @@ async def download_video_with_api(event):
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
+            # تحديد نوع الموقع من الرابط
+            platform = detect_platform(msg)
+            
+            # اختيار الإيموجي المناسب حسب المنصة
+            platform_emoji = get_platform_emoji(platform)
+            
+            # تنسيق النص مع إيموجي التليغرام المميز
+            caption = (
+                f"<blockquote>\n"
+                f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                f"{platform_emoji}"
+                f"</blockquote>"
+                f"<b>↯︰By: @Lx5x5 .</b>"
+                f'<a href="emoji/5368338253868968009">🦅</a>\n'
+            )
+            
             # إرسال نسخة إلى مجموعة السجل مع رسالة التحميل
             await event.client.send_message(
                 BOTLOG_CHATID, 
-                f"**تم التحَميـل ⥂**\n**الرابط**: {msg}",
+                f"**تم التحَميـل ⥂**\n**الرابط**: {msg}\n**المنصة**: {platform}",
                 file=s_msg.media
             )
             
             # تعديل الرسالة الأصلية وإضافة الملف والنص
             await zedevent.edit(
-                text=(
-                    "<blockquote>"
-                    "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
-                    "</blockquote>"
-                    "<b>↯︰By: @Lx5x5 .🦅</b>"
-                ),
+                text=caption,
                 file=s_msg.media,
                 parse_mode="html"
             )
@@ -1381,3 +1392,29 @@ async def download_video_with_api(event):
     
     except Exception as e:
         await zedevent.edit(f"❌ **خطأ**: `{str(e)[:100]}`")
+
+def detect_platform(url):
+    """تحديد نوع المنصة من الرابط"""
+    url_lower = url.lower()
+    
+    if "tiktok.com" in url_lower or "vt.tiktok.com" in url_lower:
+        return "tiktok"
+    elif "instagram.com" in url_lower or "instagr.am" in url_lower:
+        return "instagram"
+    elif "facebook.com" in url_lower or "fb.watch" in url_lower or "fb.com" in url_lower:
+        return "facebook"
+    elif "pinterest.com" in url_lower or "pin.it" in url_lower:
+        return "pinterest"
+    else:
+        return "other"
+
+def get_platform_emoji(platform):
+    """إرجاع إيموجي التليغرام المميز حسب المنصة"""
+    emojis = {
+        "tiktok": '<a href="emoji/5327982530702359565">🎬</a>\n',
+        "instagram": '<a href="emoji/5319160079465857105">📸</a>\n',
+        "facebook": '<a href="emoji/5323261730283863478">👍</a>\n',
+        "pinterest": '<a href="emoji/5346103513120258857">📌</a>\n',
+        "other": '<a href="emoji/5327982530702359565">🎬</a>\n'
+    }
+    return emojis.get(platform, emojis["other"])

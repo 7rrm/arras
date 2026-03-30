@@ -1414,7 +1414,7 @@ def get_platform_emoji(platform):
         "tiktok": '<a href="emoji/5327982530702359565">🎬</a>\n',
         "instagram": '<a href="emoji/5319160079465857105">📸</a>\n',
         "facebook": '<a href="emoji/5323261730283863478">👍</a>\n',
-        "pinterest": '<a href="emoji/5346103513120258857">📌</a>\n',
+        "pinterest": <a href="emoji/5346103513120258857">📌</a>\n,
         "other": '<a href="emoji/5327982530702359565">🎬</a>\n'
     }
     return emojis.get(platform, emojis["other"])

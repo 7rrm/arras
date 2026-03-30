@@ -1326,12 +1326,12 @@ from time import time
 async def download_video_with_api(event):
     msg = event.pattern_match.group(1) or (await event.get_reply_message()).text
     if not msg:
-        return await event.reply("**- قـم بادخــال رابط مع الامر او بالــرد ع رابط ليتـم التحميل**")
+        return await event.edit("**- قـم بادخــال رابط مع الامر او بالــرد ع رابط ليتـم التحميل**")
     
     API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
-
-    # إرسال رسالة أولية تفيد بأن التحميل جارٍ
+    
+    # تعديل الرسالة إلى "جاري التحميل"
     zedevent = await event.edit("**⎉╎جـارِ التحميل انتظر قليلا ▬▭ ...**")
     
     try:
@@ -1357,26 +1357,27 @@ async def download_video_with_api(event):
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # رفع الفيديو إلى المحادثة في نفس الرسالة
-            uploaded_media = await event.client.send_file(
+            # تعديل نفس الرسالة وإضافة الملف إليها
+            await event.client.edit_message(
                 event.chat_id,
-                s_msg.media,
+                zedevent.id,
+                file=s_msg.media,
                 caption=(
                     "<blockquote>"
                     "<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒.</b>"
                     "</blockquote>"
                     "<b>↯︰By: @Lx5x5 .🦅</b>"
                 ),
-                parse_mode="html"  # هنا تم إضافة parse_mode="html" لتفعيل تنسيق HTML
+                parse_mode="html"
             )
             
-            # إرسال رسالة إلى مجموعة السجل مع رفع الملف
+            # إرسال نسخة إلى مجموعة السجل مع رسالة التحميل
             await event.client.send_message(
                 BOTLOG_CHATID, 
                 f"**تم التحَميـل ⥂**\n**الرابط**: {msg}",
-                file=uploaded_media.media
+                file=s_msg.media
             )
-        
+            
         else:
             await zedevent.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
     

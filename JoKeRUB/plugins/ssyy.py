@@ -1361,13 +1361,14 @@ async def download_video_with_api(event):
             platform = detect_platform(msg)
             
             # اختيار الإيموجي المناسب حسب المنصة
-            platform_emoji = get_platform_emoji(platform)
+            emoji_id = get_platform_emoji(platform)
+            emoji_text = get_platform_icon(platform)
             
             # تنسيق النص مع إيموجي التليغرام المميز
             caption = (
                 f"<blockquote>\n"
                 f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                f"{platform_emoji}"
+                f'<a href="emoji/{emoji_id}">{emoji_text}</a>\n'
                 f"</blockquote>"
                 f"<b>↯︰By: @Lx5x5 .</b>"
                 f'<a href="emoji/5368338253868968009">🦅</a>\n'
@@ -1409,12 +1410,23 @@ def detect_platform(url):
         return "other"
 
 def get_platform_emoji(platform):
-    """إرجاع إيموجي التليغرام المميز حسب المنصة"""
+    """إرجاع ID الإيموجي حسب المنصة"""
     emojis = {
-        "tiktok": '<a href="emoji/5327982530702359565">🎬</a>\n',
-        "instagram": '<a href="emoji/5319160079465857105">📸</a>\n',
-        "facebook": '<a href="emoji/5323261730283863478">👍</a>\n',
-        "pinterest": <a href="emoji/5346103513120258857">📌</a>\n,
-        "other": '<a href="emoji/5327982530702359565">🎬</a>\n'
+        "tiktok": "5327982530702359565",
+        "instagram": "5319160079465857105",
+        "facebook": "5323261730283863478",
+        "pinterest": "5346103513120258857",
+        "other": "5327982530702359565"
     }
     return emojis.get(platform, emojis["other"])
+
+def get_platform_icon(platform):
+    """إرجاع رمز الإيموجي النصي حسب المنصة"""
+    icons = {
+        "tiktok": "🎬",
+        "instagram": "📸",
+        "facebook": "👍",
+        "pinterest": "📌",
+        "other": "🎬"
+    }
+    return icons.get(platform, "🎬")

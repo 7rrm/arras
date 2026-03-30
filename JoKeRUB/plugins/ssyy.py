@@ -1317,7 +1317,6 @@ async def video_auto_search(event):
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
 
-
 import requests
 from telethon import types
 from time import time

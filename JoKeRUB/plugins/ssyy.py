@@ -1357,33 +1357,23 @@ async def download_video_with_api(event):
         s_msg = await event.client.get_messages(channel_username, ids=message_id)
 
         if s_msg and s_msg.media:
-            # تحديد نوع الموقع من الرابط
-            platform = detect_platform(msg)
-            
-            # اختيار الإيموجي المناسب حسب المنصة
-            emoji_id = get_platform_emoji(platform)
-            emoji_text = get_platform_icon(platform)
-            
-            # تنسيق النص مع إيموجي التليغرام المميز
-            caption = (
-                f"<blockquote>\n"
-                f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                f'<a href="emoji/{emoji_id}">{emoji_text}</a>\n'
-                f"</blockquote>"
-                f"<b>↯︰By: @Lx5x5 .</b>"
-                f'<a href="emoji/5368338253868968009">🦅</a>\n'
-            )
-            
             # إرسال نسخة إلى مجموعة السجل مع رسالة التحميل
             await event.client.send_message(
                 BOTLOG_CHATID, 
-                f"**تم التحَميـل ⥂**\n**الرابط**: {msg}\n**المنصة**: {platform}",
+                f"**تم التحَميـل ⥂**\n**الرابط**: {msg}",
                 file=s_msg.media
             )
             
             # تعديل الرسالة الأصلية وإضافة الملف والنص
             await zedevent.edit(
-                text=caption,
+                text=(
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5258336354642697821">🎬</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                ),
                 file=s_msg.media,
                 parse_mode="html"
             )
@@ -1393,40 +1383,3 @@ async def download_video_with_api(event):
     
     except Exception as e:
         await zedevent.edit(f"❌ **خطأ**: `{str(e)[:100]}`")
-
-def detect_platform(url):
-    """تحديد نوع المنصة من الرابط"""
-    url_lower = url.lower()
-    
-    if "tiktok.com" in url_lower or "vt.tiktok.com" in url_lower:
-        return "tiktok"
-    elif "instagram.com" in url_lower or "instagr.am" in url_lower:
-        return "instagram"
-    elif "facebook.com" in url_lower or "fb.watch" in url_lower or "fb.com" in url_lower:
-        return "facebook"
-    elif "pinterest.com" in url_lower or "pin.it" in url_lower:
-        return "pinterest"
-    else:
-        return "other"
-
-def get_platform_emoji(platform):
-    """إرجاع ID الإيموجي حسب المنصة"""
-    emojis = {
-        "tiktok": "5327982530702359565",
-        "instagram": "5319160079465857105",
-        "facebook": "5323261730283863478",
-        "pinterest": "5346103513120258857",
-        "other": "5327982530702359565"
-    }
-    return emojis.get(platform, emojis["other"])
-
-def get_platform_icon(platform):
-    """إرجاع رمز الإيموجي النصي حسب المنصة"""
-    icons = {
-        "tiktok": "🎬",
-        "instagram": "📸",
-        "facebook": "👍",
-        "pinterest": "📌",
-        "other": "🎬"
-    }
-    return icons.get(platform, "🎬")

@@ -56,9 +56,6 @@ async def monito_p_m_s(event):  # sourcery no-metrics
             except Exception as e:
                 LOGS.warn(str(e))
 
-from telethon.tl.types import MessageEntityCustomEmoji, DocumentAttributeCustomEmoji
-from telethon.tl.functions.messages import GetCustomEmojiDocumentsRequest
-
 @l313l.ar_cmd(incoming=True, func=lambda e: e.mentioned, edited=False, forword=None)
 async def log_tagged_messages(event):
     hmm = await event.get_chat()
@@ -73,94 +70,33 @@ async def log_tagged_messages(event):
         or (await event.get_sender() and (await event.get_sender()).bot)
     ):
         return
-    
     full = None
     try:
         full = await event.client.get_entity(event.message.from_id)
     except Exception as e:
         LOGS.info(str(e))
-    
     messaget = None
     try:
         messaget = await media_type(event)
     except BaseException:
         messaget = None
-    
-    # استخراج النص مع الإيموجيات البريميوم
-    message_text = event.message.message or ""
-    premium_emojis = []
-    premium_emoji_ids = []
-    
-    # معالجة الكيانات للعثور على الإيموجي البريميوم
-    if event.message.entities:
-        for entity in event.message.entities:
-            if isinstance(entity, MessageEntityCustomEmoji):
-                # هذا هو الكيان الصحيح للإيموجي المخصص
-                emoji_doc_id = entity.document_id
-                if emoji_doc_id:
-                    premium_emoji_ids.append(emoji_doc_id)
-                    
-                    # محاولة الحصول على تفاصيل الإيموجي
-                    try:
-                        # استخدام الميثود الصحيحة للحصول على معلومات الإيموجي
-                        emoji_docs = await event.client(GetCustomEmojiDocumentsRequest(
-                            document_id=[emoji_doc_id]
-                        ))
-                        
-                        for doc in emoji_docs:
-                            if doc.attributes:
-                                for attr in doc.attributes:
-                                    if isinstance(attr, DocumentAttributeCustomEmoji):
-                                        # استخراج اسم الإيموجي إذا وجد
-                                        emoji_name = getattr(attr, 'alt', 'إيموجي بريميوم')
-                                        premium_emojis.append(f"✨ {emoji_name} ✨")
-                                        break
-                    except Exception as e:
-                        LOGS.warn(f"فشل في استخراج تفاصيل الإيموجي: {e}")
-                        premium_emojis.append(f"🎨 إيموجي بريميوم (ID: {emoji_doc_id})")
-    
-    # بناء الرسالة
     resalt = f"#التــاكــات\n\n<b>⌔┊الكــروب : </b><code>{hmm.title}</code>"
     if full is not None:
         resalt += (
             f"\n\n<b>⌔┊المـرسـل : </b> {_format.htmlmentionuser(full.first_name , full.id)}"
         )
-    
     if messaget is not None:
         resalt += f"\n\n<b>⌔┊رسـالـة ميـديـا : </b><code>{messaget}</code>"
     else:
-        if message_text:
-            resalt += f"\n\n<b>⌔┊الرســالـه : </b>{message_text}"
-        
-        if premium_emojis:
-            resalt += f"\n\n<b>⌔┊إيموجيات بريميوم : </b>{', '.join(premium_emojis)}"
-    
-    resalt += f"\n\n<b>⌔┊رابـط الرسـاله : </b><a href = 'https://t.me/c/{hmm.id}/{event.message.id}'> اضغط هنا</a>"
-    
-    # إرسال الرسالة
-    await event.client.send_message(
-        Config.PM_LOGGER_GROUP_ID,
-        resalt,
-        parse_mode="html",
-        link_preview=False,
-    )
-    
-    # 🔥 حل إضافي: إرسال نسخة forward للحفاظ على الإيموجيات
-    if premium_emoji_ids:
-        try:
-            await event.client.forward_messages(
-                Config.PM_LOGGER_GROUP_ID,
-                event.message,
-                silent=True
-            )
-            # إضافة تعليق توضيحي
-            await event.client.send_message(
-                Config.PM_LOGGER_GROUP_ID,
-                "<b>⬆️ الرسالة أعلاه تحتوي على إيموجيات بريميوم تم إرسالها كـ forward</b>",
-                parse_mode="html"
-            )
-        except Exception as e:
-            LOGS.warn(f"فشل في إعادة توجيه الإيموجي: {e}")
+        resalt += f"\n\n<b>⌔┊الرســالـه : </b>{event.message.message}"
+    resalt += f"\n\n<b>⌔┊رابـط الرسـاله : </b><a href = 'https://t.me/c/{hmm.id}/{event.message.id}'> link</a>"
+    if not event.is_private:
+        await event.client.send_message(
+            Config.PM_LOGGER_GROUP_ID,
+            resalt,
+            parse_mode="html",
+            link_preview=False,
+        )
 
 @l313l.ar_cmd(incoming=True, func=lambda e: e.is_private, edited=True, forword=None)
 async def handle_edited_messages(event):

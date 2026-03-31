@@ -1153,7 +1153,6 @@ async def disable_video(event):
 # ============================================
 # الأمر الرئيسي لتحميل اليوتيوب
 # ============================================
-
 @l313l.on(events.NewMessage(pattern=r'^(\.يوت|يوت)(?:\s|$)([\s\S]*)'))
 async def yoot_auto_search(event):
     if not event.is_private and not event.pattern_match.group(1).startswith('.'):
@@ -1183,16 +1182,31 @@ async def yoot_auto_search(event):
         
         # محاولة مع البوت الأول
         try:
-            async with event.client.conversation(youtube_settings['bot_username1'], timeout=30) as conv:
+            async with event.client.conversation(youtube_settings['bot_username1'], timeout=60) as conv:
                 await conv.send_message(f"يوت {query}")
-                try:
-                    first_response = await asyncio.wait_for(conv.get_response(), timeout=1)
-                except asyncio.TimeoutError:
-                    raise Exception("timeout")
                 
-                audio_response = await conv.get_response()
+                # انتظار الرد الأول (رسالة نصية)
+                first_response = await conv.get_response()
                 
-                if audio_response.media:
+                # انتظار تعديل الرسالة لتصبح ملفًا صوتيًا
+                audio_response = None
+                start_time = asyncio.get_event_loop().time()
+                
+                while asyncio.get_event_loop().time() - start_time < 30:  # انتظار حتى 30 ثانية
+                    # جلب آخر تحديث للرسالة
+                    updated_msg = await event.client.get_messages(
+                        youtube_settings['bot_username1'], 
+                        ids=first_response.id
+                    )
+                    
+                    # التحقق إذا أصبحت الرسالة تحتوي على ملف صوتي
+                    if updated_msg and updated_msg.media:
+                        audio_response = updated_msg
+                        break
+                    
+                    await asyncio.sleep(0.5)
+                
+                if audio_response and audio_response.media:
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1216,13 +1230,32 @@ async def yoot_auto_search(event):
                     raise Exception("no_media")
         
         except Exception as e:
-            # محاولة مع البوت الثاني
-            async with event.client.conversation(youtube_settings['bot_username2'], timeout=30) as conv:
+            # محاولة مع البوت الثاني بنفس الطريقة
+            async with event.client.conversation(youtube_settings['bot_username2'], timeout=60) as conv:
                 await conv.send_message(f"يوت {query}")
-                first_response = await conv.get_response()
-                audio_response = await conv.get_response()
                 
-                if audio_response.media:
+                # انتظار الرد الأول (رسالة نصية)
+                first_response = await conv.get_response()
+                
+                # انتظار تعديل الرسالة لتصبح ملفًا صوتيًا
+                audio_response = None
+                start_time = asyncio.get_event_loop().time()
+                
+                while asyncio.get_event_loop().time() - start_time < 30:  # انتظار حتى 30 ثانية
+                    # جلب آخر تحديث للرسالة
+                    updated_msg = await event.client.get_messages(
+                        youtube_settings['bot_username2'], 
+                        ids=first_response.id
+                    )
+                    
+                    # التحقق إذا أصبحت الرسالة تحتوي على ملف صوتي
+                    if updated_msg and updated_msg.media:
+                        audio_response = updated_msg
+                        break
+                    
+                    await asyncio.sleep(0.5)
+                
+                if audio_response and audio_response.media:
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1248,6 +1281,7 @@ async def yoot_auto_search(event):
         await search_msg.edit("**• عذراً، فشل التحميل حاول لاحقاً،**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
+
 
 # ============================================
 # الأمر الرئيسي لتحميل الفيديو

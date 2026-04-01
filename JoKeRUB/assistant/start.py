@@ -26,17 +26,6 @@ from ..sql_helper.bot_pms_sql import (
     get_user_logging,
     get_user_reply,
 )
-from ..helpers import post_to_telegraph, progress, reply_id
-from ..helpers.functions.utube import (
-    _mp3Dl,
-    _tubeDl,
-    download_button,
-    get_choice_by_id,
-    get_ytthumb,
-    yt_search_btns,
-)
-from telethon.errors import BotResponseTimeoutError
-from JoKeRUB.core.session import tgbot
 from ..sql_helper.bot_starters import add_starter_to_db, get_starter_details
 from ..sql_helper.globals import delgvar, gvarstatus
 from . import BOTLOG, BOTLOG_CHATID
@@ -198,13 +187,6 @@ async def bot_start(event):
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
-                    "text": "🎬 تحميل يوتيوب",
-                    "callback_data": "youtube_start",
-                    "style": "primary"
                 }
             ],
             [
@@ -1914,90 +1896,6 @@ async def settings_toggle(c_q: CallbackQuery):
         ],
     link_preview=False)
 
-# ========== قسم تحميل اليوتيوب ==========
-
-# قائمة لتخزين المستخدمين المنتظرين
-waiting_for_youtube = []
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_start$")))
-async def youtube_start_handler(event):
-    """بدء عملية التحميل - طلب رابط أو كلمة بحث"""
-    user_id = event.query.user_id
-    
-    # إضافة المستخدم لقائمة الانتظار
-    if user_id not in waiting_for_youtube:
-        waiting_for_youtube.append(user_id)
-    
-    # تغيير الرسالة لطلب الرابط
-    try:
-        await event.edit(
-            """**🔍 أرسل رابط الفيديو أو كلمة البحث**
-
-**مثال:**
-• رابط: `https://youtu.be/xxxxxx`
-• بحث: `احمد سعد`
-
-**لإلغاء العملية أرسل:** `/cancel_youtube`
-
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-            buttons=None,
-            link_preview=False
-        )
-    except Exception as e:
-        LOGS.error(f"خطأ في youtube_start_handler: {e}")
-
-
-@l313l.bot_cmd(pattern="^/cancel_youtube$")
-async def cancel_youtube(event):
-    """إلغاء عملية تحميل اليوتيوب"""
-    user_id = event.sender_id
-    
-    if user_id in waiting_for_youtube:
-        waiting_for_youtube.remove(user_id)
-        await event.reply("**✅ تم إلغاء عملية التحميل**")
-    else:
-        await event.reply("**⚠️ ليس لديك عملية تحميل نشطة**")
-
-
-@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def youtube_message_handler(event):
-    """معالجة الرسائل النصية لتحميل اليوتيوب"""
-    user_id = event.sender_id
-    
-    # التحقق من أن المستخدم في وضع انتظار التحميل
-    if user_id not in waiting_for_youtube:
-        return
-    
-    # التحقق من أن الرسالة نصية
-    if not event.text:
-        return
-    
-    # تجنب معالجة الأوامر
-    if event.text.startswith('/'):
-        return
-    
-    # إزالة المستخدم من قائمة الانتظار
-    waiting_for_youtube.remove(user_id)
-    
-    # إرسال رسالة جاري البحث
-    loading_msg = await event.reply("**🔍 جـارِ البحث في اليوتيوب...**")
-    
-    try:
-        # استخدم event.client (حساب المستخدم) بدلاً من tgbot
-        results = await event.client.inline_query(
-            Config.TG_BOT_USERNAME, f"ytdl {event.text}"
-        )
-        
-        if results:
-            await loading_msg.delete()
-            await results[0].click(event.chat_id, hide_via=True)
-        else:
-            await loading_msg.edit("**❌ عـذراً .. لم اجد اي نتائـج**")
-            
-    except Exception as e:
-        LOGS.error(f"خطأ في تحميل اليوتيوب: {e}")
-        await loading_msg.edit(f"**❌ حدث خطأ:** `{str(e)[:100]}`")
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 @l313l.bot_cmd(edited=True, func=lambda e: e.is_private)

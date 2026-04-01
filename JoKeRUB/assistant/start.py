@@ -31,10 +31,13 @@ from ..sql_helper.bot_pms_sql import (
 # أضف هذه الاستيرادات في بداية الملف
 from youtubesearchpython import VideosSearch
 from ..helpers.functions import rand_key
+from ..helpers import post_to_telegraph, progress, reply_id
 from ..helpers.functions.utube import (
+    _mp3Dl,
+    _tubeDl,
+    download_button,
+    get_choice_by_id,
     get_ytthumb,
-    result_formatter,
-    ytsearch_data,
     yt_search_btns,
 )
 from ..sql_helper.bot_starters import add_starter_to_db, get_starter_details

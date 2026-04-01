@@ -1189,24 +1189,16 @@ async def yoot_auto_search(event):
                 first_response = await conv.get_response()
                 
                 # انتظار تعديل الرسالة لتصبح ملفًا صوتيًا
-                audio_response = None
-                start_time = asyncio.get_event_loop().time()
-                
-                while asyncio.get_event_loop().time() - start_time < 30:  # انتظار حتى 30 ثانية
-                    # جلب آخر تحديث للرسالة
-                    updated_msg = await event.client.get_messages(
-                        youtube_settings['bot_username1'], 
-                        ids=first_response.id
+                try:
+                    edited_response = await asyncio.wait_for(
+                        conv.get_edit(), 
+                        timeout=30
                     )
-                    
-                    # التحقق إذا أصبحت الرسالة تحتوي على ملف صوتي
-                    if updated_msg and updated_msg.media:
-                        audio_response = updated_msg
-                        break
-                    
-                    await asyncio.sleep(0.5)
+                except asyncio.TimeoutError:
+                    raise Exception("timeout")
                 
-                if audio_response and audio_response.media:
+                # التحقق من أن التعديل هو لنفس الرسالة ويحتوي على ملف
+                if edited_response and edited_response.id == first_response.id and edited_response.media:
                     caption = (
                         f"<blockquote>\n"
                         f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
@@ -1218,7 +1210,7 @@ async def yoot_auto_search(event):
                     
                     await event.client.send_file(
                         event.chat_id,
-                        audio_response.media,
+                        edited_response.media,
                         caption=caption,
                         parse_mode=CustomParseMode("html"),
                         reply_to=event.message.id
@@ -1231,57 +1223,52 @@ async def yoot_auto_search(event):
         
         except Exception as e:
             # محاولة مع البوت الثاني بنفس الطريقة
-            async with event.client.conversation(youtube_settings['bot_username2'], timeout=60) as conv:
-                await conv.send_message(f"يوت {query}")
-                
-                # انتظار الرد الأول (رسالة نصية)
-                first_response = await conv.get_response()
-                
-                # انتظار تعديل الرسالة لتصبح ملفًا صوتيًا
-                audio_response = None
-                start_time = asyncio.get_event_loop().time()
-                
-                while asyncio.get_event_loop().time() - start_time < 30:  # انتظار حتى 30 ثانية
-                    # جلب آخر تحديث للرسالة
-                    updated_msg = await event.client.get_messages(
-                        youtube_settings['bot_username2'], 
-                        ids=first_response.id
-                    )
+            try:
+                async with event.client.conversation(youtube_settings['bot_username2'], timeout=60) as conv:
+                    await conv.send_message(f"يوت {query}")
                     
-                    # التحقق إذا أصبحت الرسالة تحتوي على ملف صوتي
-                    if updated_msg and updated_msg.media:
-                        audio_response = updated_msg
-                        break
+                    # انتظار الرد الأول (رسالة نصية)
+                    first_response = await conv.get_response()
                     
-                    await asyncio.sleep(0.5)
-                
-                if audio_response and audio_response.media:
-                    caption = (
-                        f"<blockquote>\n"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<a href="emoji/5890831539507302154">🎵</a>\n'
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<a href="emoji/5368338253868968009">🦅</a>\n'
-                    )
+                    # انتظار تعديل الرسالة لتصبح ملفًا صوتيًا
+                    try:
+                        edited_response = await asyncio.wait_for(
+                            conv.get_edit(), 
+                            timeout=30
+                        )
+                    except asyncio.TimeoutError:
+                        raise Exception("timeout")
                     
-                    await event.client.send_file(
-                        event.chat_id,
-                        audio_response.media,
-                        caption=caption,
-                        parse_mode=CustomParseMode("html"),
-                        reply_to=event.message.id
-                    )
-                    
-                    await search_msg.delete()
-                else:
-                    await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+                    # التحقق من أن التعديل هو لنفس الرسالة ويحتوي على ملف
+                    if edited_response and edited_response.id == first_response.id and edited_response.media:
+                        caption = (
+                            f"<blockquote>\n"
+                            f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                            f'<a href="emoji/5890831539507302154">🎵</a>\n'
+                            f"</blockquote>"
+                            f"<b>↯︰By: @Lx5x5 .</b>"
+                            f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                        )
+                        
+                        await event.client.send_file(
+                            event.chat_id,
+                            edited_response.media,
+                            caption=caption,
+                            parse_mode=CustomParseMode("html"),
+                            reply_to=event.message.id
+                        )
+                        
+                        await search_msg.delete()
+                    else:
+                        await search_msg.edit("**⎉╎لم يتم إيجاد نتيجة**")
+            
+            except Exception as e:
+                await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
         
     except asyncio.TimeoutError:
         await search_msg.edit("**• عذراً، فشل التحميل حاول لاحقاً،**")
     except Exception as e:
         await search_msg.edit(f"**⎉╎خطأ:** `{e}`")
-
 
 # ============================================
 # الأمر الرئيسي لتحميل الفيديو

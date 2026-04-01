@@ -212,6 +212,13 @@ async def bot_start(event):
             ],
             [
                 {
+                    "text": "🎬 تحميل يوتيوب",
+                    "callback_data": "youtube_search_menu",
+                    "style": "primary"
+                }
+            ],
+            [
+                {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
                     "style": "primary",

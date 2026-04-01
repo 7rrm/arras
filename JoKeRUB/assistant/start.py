@@ -208,21 +208,14 @@ async def bot_start(event):
                     "callback_data": "ttk_bot-1",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_CONTACT
-                },
+                }
+            ],
+            [
                 {
                     "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_fatfta
-                }
-            ],
-            
-            [
-                {
-                    "text": "زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
                     "style": "success",
-                    "icon_custom_emoji_id": EMOJI_DECOR
+                    "icon_custom_emoji_id": EMOJI_fatfta
                 }
             ],
             [
@@ -235,9 +228,17 @@ async def bot_start(event):
             ],
             [
                 {
+                    "text": "زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "success",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]

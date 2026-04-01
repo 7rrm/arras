@@ -1914,7 +1914,6 @@ async def settings_toggle(c_q: CallbackQuery):
         ],
     link_preview=False)
 
-
 # ========== قسم تحميل اليوتيوب ==========
 
 # قائمة لتخزين المستخدمين المنتظرين
@@ -1930,7 +1929,7 @@ async def youtube_start_handler(event):
     if user_id not in waiting_for_youtube:
         waiting_for_youtube.append(user_id)
     
-    # تغيير الرسالة لطلب الرابط - استخدم buttons=None بدلاً من []
+    # تغيير الرسالة لطلب الرابط
     try:
         await event.edit(
             """**🔍 أرسل رابط الفيديو أو كلمة البحث**
@@ -1985,11 +1984,8 @@ async def youtube_message_handler(event):
     loading_msg = await event.reply("**🔍 جـارِ البحث في اليوتيوب...**")
     
     try:
-        # استخدم tgbot بدلاً من event.client
-        # tgbot هو بوتك المساعد
-        from JoKeRUB.core.session import tgbot
-        
-        results = await tgbot.inline_query(
+        # استخدم event.client (حساب المستخدم) بدلاً من tgbot
+        results = await event.client.inline_query(
             Config.TG_BOT_USERNAME, f"ytdl {event.text}"
         )
         

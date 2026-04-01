@@ -191,6 +191,13 @@ async def bot_start(event):
             ],
             [
                 {
+                    "text": "🎬 تحميل يوتيوب",
+                    "callback_data": "youtube_start",
+                    "style": "primary"
+                }
+            ],
+            [
+                {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
                     "style": "primary",
@@ -1895,6 +1902,90 @@ async def settings_toggle(c_q: CallbackQuery):
             [Button.inline("رجوع", data="styleback")],
         ],
     link_preview=False)
+
+# ========== قسم تحميل اليوتيوب ==========
+
+# قائمة لتخزين المستخدمين المنتظرين
+waiting_for_youtube = []
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_start$")))
+async def youtube_start_handler(event):
+    """بدء عملية التحميل - طلب رابط أو كلمة بحث"""
+    user_id = event.query.user_id
+    
+    # إضافة المستخدم لقائمة الانتظار
+    if user_id not in waiting_for_youtube:
+        waiting_for_youtube.append(user_id)
+    
+    # تغيير الرسالة لطلب الرابط
+    await event.edit(
+        """**🔍 أرسل رابط الفيديو أو كلمة البحث**
+
+**مثال:**
+• رابط: `https://youtu.be/xxxxxx`
+• بحث: `احمد سعد`
+
+**لإلغاء العملية أرسل:** `/cancel_youtube`
+
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
+        buttons=[],
+        link_preview=False
+    )
+
+
+@l313l.bot_cmd(pattern="^/cancel_youtube$")
+async def cancel_youtube(event):
+    """إلغاء عملية تحميل اليوتيوب"""
+    user_id = event.sender_id
+    
+    if user_id in waiting_for_youtube:
+        waiting_for_youtube.remove(user_id)
+        await event.reply("**✅ تم إلغاء عملية التحميل**")
+    else:
+        await event.reply("**⚠️ ليس لديك عملية تحميل نشطة**")
+
+
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
+async def youtube_message_handler(event):
+    """معالجة الرسائل النصية لتحميل اليوتيوب"""
+    user_id = event.sender_id
+    
+    # التحقق من أن المستخدم في وضع انتظار التحميل
+    if user_id not in waiting_for_youtube:
+        return
+    
+    # التحقق من أن الرسالة نصية
+    if not event.text:
+        return
+    
+    # تجنب معالجة الأوامر
+    if event.text.startswith('/'):
+        return
+    
+    # إزالة المستخدم من قائمة الانتظار
+    waiting_for_youtube.remove(user_id)
+    
+    # معالجة التحميل - استدعاء نظام اليوتيوب الموجود
+    try:
+        loading_msg = await event.reply("**🔍 جـارِ البحث في اليوتيوب...**")
+        
+        # هذا السطر يستدعي نظام البحث من ملف YT.py
+        results = await event.client.inline_query(
+            Config.TG_BOT_USERNAME, f"ytdl {event.text}"
+        )
+        
+        if results:
+            await loading_msg.delete()
+            await results[0].click(event.chat_id, hide_via=True)
+        else:
+            await loading_msg.edit("**❌ عـذراً .. لم اجد اي نتائـج**")
+            
+    except BotResponseTimeoutError:
+        await loading_msg.edit("**❌ عـذراً .. لم اجد اي نتائـج**")
+    except Exception as e:
+        LOGS.error(f"خطأ في تحميل اليوتيوب: {e}")
+        await event.reply(f"**❌ حدث خطأ:** `{str(e)[:100]}`")
 
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)

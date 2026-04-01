@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import random
-import asyncio
-import os
 import json
 import requests
 from collections import defaultdict
@@ -27,18 +25,6 @@ from ..sql_helper.bot_pms_sql import (
     get_user_id,
     get_user_logging,
     get_user_reply,
-)
-# أضف هذه الاستيرادات في بداية الملف
-from youtubesearchpython import VideosSearch
-from ..helpers.functions import rand_key
-from ..helpers import post_to_telegraph, progress, reply_id
-from ..helpers.functions.utube import (
-    _mp3Dl,
-    _tubeDl,
-    download_button,
-    get_choice_by_id,
-    get_ytthumb,
-    yt_search_btns,
 )
 from ..sql_helper.bot_starters import add_starter_to_db, get_starter_details
 from ..sql_helper.globals import delgvar, gvarstatus
@@ -181,13 +167,6 @@ async def bot_start(event):
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE  # 🔥 الإيموجي داخل الزر
                 }
-            ],
-            [
-                {
-                    "text": "🎬 تحميل يوتيوب",
-                    "callback_data": "youtube_search_menu",
-                    "style": "primary"
-                }
             ]
         ]
     
@@ -208,13 +187,6 @@ async def bot_start(event):
                     "callback_data": "zzk_bot-5",
                     "style": "danger",
                     "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
-                    "text": "🎬 تحميل يوتيوب",
-                    "callback_data": "youtube_search_menu",
-                    "style": "primary"
                 }
             ],
             [
@@ -408,39 +380,7 @@ async def bot_pms(event):  # sourcery no-metrics
             )
             return
         # ===========================================
-        if int(chat.id) in kk:
-            kk.remove(int(chat.id))
-            search_msg = await event.client.send_message(
-                event.chat_id,
-                "**🔍 جـارِ البحث في اليوتيوب...**",
-                reply_to=await reply_id(event)
-            )
-            try:
-                query = event.text.strip()
-                search = VideosSearch(query, limit=15)
-                resp = (search.result()).get("result")
-                if not resp:
-                    await search_msg.edit("❌ **لم يتم العثور على نتائج**")
-                    return
-                    outdata = await result_formatter(resp)
-                    key_ = rand_key()
-                    ytsearch_data.store_(key_, outdata)
-                    buttons = yt_search_btns(key_, 1, outdata[1]["video_id"], len(outdata))
-                    caption = outdata[1]["message"]
-                    photo = await get_ytthumb(outdata[1]["video_id"])
-                    await search_msg.delete()
-                    await event.client.send_file(
-                        event.chat_id,
-                        photo,
-                        caption=caption,
-                        buttons=buttons,
-                        parse_mode="html",
-                        link_preview=False
-                    )
-            except Exception as e:
-                LOGS.error(f"خطأ في البحث: {e}")
-                await search_msg.edit(f"❌ **حدث خطأ:** `{str(e)[:100]}`")
-                return
+        
         # ========== وضع التواصل العادي ==========
         if int(chat.id) in tt:
             msg = await event.forward_to(Config.OWNER_ID)
@@ -1955,319 +1895,6 @@ async def settings_toggle(c_q: CallbackQuery):
             [Button.inline("رجوع", data="styleback")],
         ],
     link_preview=False)
-
-# ============================================
-# دوال تحميل يوتيوب
-# ============================================
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_search_menu$")))
-async def youtube_search_menu(event):
-    """عند الضغط على زر تحميل يوتيوب"""
-    # تخزين حالة المستخدم
-    if event.query.user_id not in kk:
-        kk.append(event.query.user_id)
-    
-    # تعديل الرسالة مباشرة مع طلب الإدخال
-    try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": """**🔍 أرسل الكلمة أو الرابط الذي تريد البحث عنه**
-
-**مثال:** 
-- `عبدالرحمن محمد يامن هواه`
-- `https://youtu.be/...`
-
-**لإلغاء البحث أرسل:** `/cancle`""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": [[{"text": "رجــوع ↩️", "callback_data": "styleback", "style": "danger"}]]}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(
-                """**🔍 أرسل الكلمة أو الرابط الذي تريد البحث عنه**
-
-**مثال:** 
-- `عبدالرحمن محمد يامن هواه`
-- `https://youtu.be/...`
-
-**لإلغاء البحث أرسل:** `/cancle`""",
-                buttons=[[Button.inline("رجــوع ↩️", data="styleback")]],
-                link_preview=False
-            )
-    except Exception as e:
-        LOGS.error(f"خطأ: {e}")
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_audio$")))
-async def bot_ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت من API"""
-    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
-    
-    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-    
-    try:
-        await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
-    except:
-        pass
-    
-    try:
-        import requests
-        
-        API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
-        api_url = f"https://muntazer.online/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
-        
-        def fetch_api():
-            resp = requests.get(api_url, timeout=60)
-            if resp.status_code == 200:
-                return resp.json()
-            return None
-        
-        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
-        
-        if result and result.get("status") == "ok":
-            link = result.get("link")
-            
-            if link:
-                parts = link.strip('/').split('/')
-                channel_username = parts[-2]
-                message_id = int(parts[-1])
-                
-                await c_q.edit("**📥 جـارِ استلام الملف...**")
-                
-                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
-                
-                if s_msg and s_msg.media:
-                    caption = (
-                        f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<tg-emoji emoji-id="5890831539507302154">🎵</tg-emoji>'
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
-                    )
-                    
-                    uploaded_media = await c_q.client.send_file(
-                        BOTLOG_CHATID,
-                        s_msg.media,
-                        caption=f"<b>🎵 {yt_code}</b>",
-                        parse_mode="html"
-                    )
-                    
-                    await c_q.edit(
-                        text=caption,
-                        file=uploaded_media.media,
-                        parse_mode="html",
-                        buttons=[]
-                    )
-                    
-                else:
-                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
-            else:
-                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
-        else:
-            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
-            
-    except Exception as e:
-        LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$")))
-async def bot_ytdl_download_video(c_q: CallbackQuery):
-    """تحميل الفيديو من API"""
-    yt_code = c_q.pattern_match.group(1).decode("UTF-8")
-    
-    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
-    
-    try:
-        await c_q.edit("**╮ جـارِ التجهيز ... 🎬 ╰**")
-    except:
-        pass
-    
-    try:
-        import requests
-        
-        API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
-        api_url = f"https://muntazer.online/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
-        
-        def fetch_api():
-            resp = requests.get(api_url, timeout=60)
-            if resp.status_code == 200:
-                return resp.json()
-            return None
-        
-        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
-        
-        if result and result.get("status") == "ok":
-            link = result.get("link")
-            
-            if link:
-                parts = link.strip('/').split('/')
-                channel_username = parts[-2]
-                message_id = int(parts[-1])
-                
-                await c_q.edit("**📥 جـارِ استلام الملف...**")
-                
-                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
-                
-                if s_msg and s_msg.media:
-                    caption = (
-                        f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
-                        f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
-                    )
-                    
-                    uploaded_media = await c_q.client.send_file(
-                        BOTLOG_CHATID,
-                        s_msg.media,
-                        caption=f"<b>🎬 {yt_code}</b>",
-                        parse_mode="html"
-                    )
-                    
-                    await c_q.edit(
-                        text=caption,
-                        file=uploaded_media.media,
-                        parse_mode="html",
-                        buttons=[]
-                    )
-                    
-                else:
-                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
-            else:
-                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
-        else:
-            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
-            
-    except Exception as e:
-        LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)")))
-async def bot_ytdl_callback(c_q: CallbackQuery):
-    choosen_btn = (
-        str(c_q.pattern_match.group(1).decode("UTF-8"))
-        if c_q.pattern_match.group(1) is not None
-        else None
-    )
-    data_key = (
-        str(c_q.pattern_match.group(2).decode("UTF-8"))
-        if c_q.pattern_match.group(2) is not None
-        else None
-    )
-    page = (
-        str(c_q.pattern_match.group(3).decode("UTF-8"))
-        if c_q.pattern_match.group(3) is not None
-        else None
-    )
-    
-    YOUTUBE_CACHE_PATH = "./JoKeRUB/cache/ytsearch.json"
-    
-    if not os.path.exists(YOUTUBE_CACHE_PATH):
-        return await c_q.answer(
-            "عملية البحث غير دقيقة يرجى اختيار عنوان صحيح وحاول مجددا",
-            alert=True,
-        )
-    
-    with open(YOUTUBE_CACHE_PATH) as f:
-        view_data = ujson.load(f)
-    
-    search_data = view_data.get(data_key)
-    total = len(search_data) if search_data is not None else 0
-    
-    if total == 0:
-        return await c_q.answer(
-            "يرجى البحث مرة اخرى لم يتم العثور على نتائج دقيقة", alert=True
-        )
-    
-    if choosen_btn == "back":
-        index = int(page) - 1
-        del_back = index == 1
-        await c_q.answer()
-        back_vid = search_data.get(str(index))
-        await c_q.edit(
-            text=back_vid.get("message"),
-            file=await get_ytthumb(back_vid.get("video_id")),
-            buttons=yt_search_btns(
-                del_back=del_back,
-                data_key=data_key,
-                page=index,
-                vid=back_vid.get("video_id"),
-                total=total,
-            ),
-            parse_mode="html",
-        )
-        
-    elif choosen_btn == "next":
-        index = int(page) + 1
-        if index > total:
-            return await c_q.answer("هذا كل ما يمكنني عرضه", alert=True)
-        await c_q.answer()
-        front_vid = search_data.get(str(index))
-        await c_q.edit(
-            text=front_vid.get("message"),
-            file=await get_ytthumb(front_vid.get("video_id")),
-            buttons=yt_search_btns(
-                data_key=data_key,
-                page=index,
-                vid=front_vid.get("video_id"),
-                total=total,
-            ),
-            parse_mode="html",
-        )
-        
-    elif choosen_btn == "listall":
-        await c_q.answer("العرض تغير الى :  📜  اللستة", alert=False)
-        list_res = "".join(
-            search_data.get(vid_s).get("list_view") for vid_s in search_data
-        )
-
-        from ..helpers import post_to_telegraph
-        telegraph = await post_to_telegraph(
-            f"يتم عرض {total} من الفيديوهات على اليوتيوب حسب طلبك ...",
-            list_res,
-        )
-        await c_q.edit(
-            file=await get_ytthumb(search_data.get("1").get("video_id")),
-            buttons=[
-                (
-                    Button.url(
-                        "↗️  اضغط للتحميل",
-                        url=telegraph,
-                    )
-                ),
-                (
-                    Button.inline(
-                        "📰  عرض التفاصيل",
-                        data=f"ytdl_detail_{data_key}_{page}",
-                    )
-                ),
-            ],
-        )
-        
-    else:  # Detailed
-        index = 1
-        await c_q.answer("تم تغيير العرض الى:  📰  التفاصيل", alert=False)
-        first = search_data.get(str(index))
-        await c_q.edit(
-            text=first.get("message"),
-            file=await get_ytthumb(first.get("video_id")),
-            buttons=yt_search_btns(
-                del_back=True,
-                data_key=data_key,
-                page=index,
-                vid=first.get("video_id"),
-                total=total,
-            ),
-            parse_mode="html",
-        )
 
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)

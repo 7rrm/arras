@@ -35,6 +35,8 @@ from ..helpers.functions.utube import (
     get_ytthumb,
     yt_search_btns,
 )
+from telethon.errors import BotResponseTimeoutError
+from JoKeRUB.core.session import tgbot
 from ..sql_helper.bot_starters import add_starter_to_db, get_starter_details
 from ..sql_helper.globals import delgvar, gvarstatus
 from . import BOTLOG, BOTLOG_CHATID
@@ -1912,6 +1914,7 @@ async def settings_toggle(c_q: CallbackQuery):
         ],
     link_preview=False)
 
+
 # ========== قسم تحميل اليوتيوب ==========
 
 # قائمة لتخزين المستخدمين المنتظرين
@@ -1927,9 +1930,10 @@ async def youtube_start_handler(event):
     if user_id not in waiting_for_youtube:
         waiting_for_youtube.append(user_id)
     
-    # تغيير الرسالة لطلب الرابط
-    await event.edit(
-        """**🔍 أرسل رابط الفيديو أو كلمة البحث**
+    # تغيير الرسالة لطلب الرابط - استخدم buttons=None بدلاً من []
+    try:
+        await event.edit(
+            """**🔍 أرسل رابط الفيديو أو كلمة البحث**
 
 **مثال:**
 • رابط: `https://youtu.be/xxxxxx`
@@ -1938,9 +1942,11 @@ async def youtube_start_handler(event):
 **لإلغاء العملية أرسل:** `/cancel_youtube`
 
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-        buttons=[],
-        link_preview=False
-    )
+            buttons=None,
+            link_preview=False
+        )
+    except Exception as e:
+        LOGS.error(f"خطأ في youtube_start_handler: {e}")
 
 
 @l313l.bot_cmd(pattern="^/cancel_youtube$")
@@ -1975,12 +1981,15 @@ async def youtube_message_handler(event):
     # إزالة المستخدم من قائمة الانتظار
     waiting_for_youtube.remove(user_id)
     
-    # معالجة التحميل - استدعاء نظام اليوتيوب الموجود
+    # إرسال رسالة جاري البحث
+    loading_msg = await event.reply("**🔍 جـارِ البحث في اليوتيوب...**")
+    
     try:
-        loading_msg = await event.reply("**🔍 جـارِ البحث في اليوتيوب...**")
+        # استخدم tgbot بدلاً من event.client
+        # tgbot هو بوتك المساعد
+        from JoKeRUB.core.session import tgbot
         
-        # هذا السطر يستدعي نظام البحث من ملف YT.py
-        results = await event.client.inline_query(
+        results = await tgbot.inline_query(
             Config.TG_BOT_USERNAME, f"ytdl {event.text}"
         )
         
@@ -1990,12 +1999,9 @@ async def youtube_message_handler(event):
         else:
             await loading_msg.edit("**❌ عـذراً .. لم اجد اي نتائـج**")
             
-    except BotResponseTimeoutError:
-        await loading_msg.edit("**❌ عـذراً .. لم اجد اي نتائـج**")
     except Exception as e:
         LOGS.error(f"خطأ في تحميل اليوتيوب: {e}")
-        await event.reply(f"**❌ حدث خطأ:** `{str(e)[:100]}`")
-
+        await loading_msg.edit(f"**❌ حدث خطأ:** `{str(e)[:100]}`")
 
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 @l313l.bot_cmd(edited=True, func=lambda e: e.is_private)

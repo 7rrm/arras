@@ -130,7 +130,7 @@ async def show_commands(event):
             f'<a href="emoji/6323564170482551899">❤️</a>'
             f'<a href="emoji/6323191058083613275">❤️</a>'
             f'<a href="emoji/6325310787652946500">❤️</a>\n'
-            f'<a href="emoji/5219998342687242062">❤️</a> <b> المـطـور: @Lx5x5</b>\n'
+            f'<blockquote><a href="emoji/5219998342687242062">❤️</a> <b> المـطـور: @Lx5x5</b></blockquote>'
         )
         
         try:

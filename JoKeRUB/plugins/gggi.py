@@ -944,7 +944,7 @@ async def who(event):
         message_id_to_reply = None
     
     # إضافة الاقتباس مع الحفاظ على الإيموجي
-    quoted_caption = f"<blockquote>{caption}</blockquote>"
+    quoted_caption = f"{caption}"
     
     if gvarstatus("ZID_TEMPLATE") is None:
         try:

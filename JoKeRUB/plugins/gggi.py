@@ -817,7 +817,7 @@ async def fetch_info(replied_user, event):
                 caption += f'<a href="emoji/6323564170482551899">❤️</a>'
                 caption += f'<a href="emoji/6323191058083613275">❤️</a>'
                 caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
-                caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
+                caption += f"</blockquote><b>{ZEDM}الاســم    ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
@@ -841,7 +841,7 @@ async def fetch_info(replied_user, event):
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n"
+                caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n</blockquote>"
                 caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
                 caption += f'<a href="emoji/6325684673145997914">❤️</a>'
                 caption += f'<a href="emoji/6323205570778107774">❤️</a>'

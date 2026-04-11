@@ -816,7 +816,7 @@ async def fetch_info(replied_user, event):
                 caption += f'<a href="emoji/6325480992911919689">❤️</a>'
                 caption += f'<a href="emoji/6323564170482551899">❤️</a>'
                 caption += f'<a href="emoji/6323191058083613275">❤️</a>'
-                caption += f'<a href="emoji/6325310787652946500">❤️</a>'
+                caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
                 caption += f"<blockquote><b>{ZEDM}الاســم    ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:
@@ -944,7 +944,7 @@ async def who(event):
         message_id_to_reply = None
     
     # إضافة الاقتباس مع الحفاظ على الإيموجي
-    quoted_caption = f"<blockquote>{caption}</blockquote>"
+    quoted_caption = f"{caption}"
     
     if gvarstatus("ZID_TEMPLATE") is None:
         try:

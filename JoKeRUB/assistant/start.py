@@ -1421,7 +1421,83 @@ async def cancel_arabic_decor(event):
     # العودة للقائمة الرئيسية
     await decor_main_menu_handler(event)
 
+# ========== معالج زر زخرفة العربية ==========
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-arabic$")))
+async def arabic_decor_start_handler(event):
+    """تشغيل وضع زخرفة العربية"""
+    user_id = event.query.user_id
+    
+    # إضافة المستخدم لقائمة انتظار الزخرفة العربية
+    if user_id not in arabic_decor_users:
+        arabic_decor_users.append(user_id)
+    
+    # تصميم أزرار وضع الزخرفة العربية
+    buttons = [
+        [
+            {
+                "text": "❌ إلغاء",
+                "callback_data": "cancel_arabic_decor",
+                "style": "danger"
+            }
+        ],
+        [
+            {
+                "text": "رجــوع ↩️",
+                "callback_data": "decor_main_menu",
+                "style": "primary"
+            }
+        ]
+    ]
+    
+    # نص رسالة الطلب
+    request_text = """**• مرحبـاً بك عـزيـزي 🕌
 
+• قسـم زخـرفة النصـوص العربيـة
+• أرسـل النص أو الاسـم باللغـة العربيـة
+
+• سـوف يتم زخرفتـه بـ 5 أنمـاط مختلفـة
+
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ الإلغاء اضغـط الزر بالأسفـل**"""
+    
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": request_text,
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            # Fallback
+            fallback_buttons = []
+            for row in buttons:
+                btn_row = []
+                for btn in row:
+                    if "url" in btn:
+                        btn_row.append(Button.url(btn["text"], btn["url"]))
+                    else:
+                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+                fallback_buttons.append(btn_row)
+            
+            await event.edit(request_text, buttons=fallback_buttons, link_preview=False)
+    except Exception as e:
+        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
+        fallback_buttons = []
+        for row in buttons:
+            btn_row = []
+            for btn in row:
+                if "url" in btn:
+                    btn_row.append(Button.url(btn["text"], btn["url"]))
+                else:
+                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+            fallback_buttons.append(btn_row)
+        
+        await event.edit(request_text, buttons=fallback_buttons, link_preview=False)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):

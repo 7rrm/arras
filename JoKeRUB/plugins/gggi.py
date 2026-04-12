@@ -841,7 +841,7 @@ async def fetch_info(replied_user, event):
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
                 caption += f"<b>{ZEDM}الإنشـاء  ⤎</b> {zzzsinc}  🗓\n" 
-                caption += f"<b>{ZEDM}البايـو   ⤎</b> {user_bio}\n</blockquote>"
+                caption += f"<b>{ZEDM}البايـو   ⤎</b> <code>{user_bio}</code>\n</blockquote>"
                 caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
                 caption += f'<a href="emoji/6325684673145997914">❤️</a>'
                 caption += f'<a href="emoji/6323205570778107774">❤️</a>'

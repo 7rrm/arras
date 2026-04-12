@@ -747,6 +747,53 @@ async def decorate_arabic_text_fast(text):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 💡 يمكنك نسخ أي نمط تريده"""
 
+# ========== معالج زر زخرفة العربية ==========
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"zzk_bot-arabic$")))
+async def arabic_decor_start_handler(event):
+    """تشغيل وضع زخرفة العربية"""
+    user_id = event.query.user_id
+    
+    if user_id not in arabic_decor_users:
+        arabic_decor_users.append(user_id)
+    
+    buttons = [[{"text": "رجــوع ↩️", "callback_data": "cancel_arabic_decor", "style": "danger"}]]
+    
+    request_text = """**• مرحبـاً بك عـزيـزي 🕌
+
+• قسـم زخـرفة النصـوص العربيـة
+• أرسـل النص أو الاسـم باللغـة العربيـة
+
+• سـوف يتم زخرفتـه بـ 5 أنمـاط مختلفـة
+
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+• لـ الإلغاء اضغـط الزر أو ارسـل /cancle**"""
+    
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": request_text,
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons}),
+            "disable_web_page_preview": True
+        }
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_arabic_decor")]], link_preview=False)
+    except Exception as e:
+        LOGS.error(f"خطأ: {e}")
+        await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_arabic_decor")]], link_preview=False)
+
+
+# ========== معالج إلغاء الزخرفة العربية ==========
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_arabic_decor$")))
+async def cancel_arabic_decor(event):
+    user_id = event.query.user_id
+    if user_id in arabic_decor_users:
+        arabic_decor_users.remove(user_id)
+    await decor_main_menu_handler(event)
+
 # ========== معالج استقبال النص العربي ==========
 @l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
 async def arabic_decor_input(event):
@@ -771,42 +818,6 @@ async def arabic_decor_input(event):
         
         # ✅ بدون أزرار - فقط النتيجة
         await event.reply(result, link_preview=False)
-
-
-# ========== معالج إلغاء الزخرفة العربية ==========
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_arabic_decor$")))
-async def cancel_arabic_decor(event):
-    user_id = event.query.user_id
-    if user_id in arabic_decor_users:
-        arabic_decor_users.remove(user_id)
-    await decor_main_menu_handler(event)
-
-
-# ========== معالج استقبال النص العربي ==========
-@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
-async def arabic_decor_input(event):
-    chat = await event.get_chat()
-    
-    if chat.id in arabic_decor_users:
-        text = event.text
-        
-        if text.startswith('/'):
-            return
-        
-        # التحقق من وجود نص عربي
-        arabic_chars = set('ابتثجحخدذرزسشصضطظعغفقكلمنهويءآأؤإئابةى')
-        has_arabic = any(c in arabic_chars for c in text)
-        
-        if not has_arabic:
-            await event.reply("⚠️ الرجاء إرسال نص باللغة العربية فقط!")
-            return
-        
-        arabic_decor_users.remove(chat.id)
-        result = await decorate_arabic_text_fast(text)
-        buttons = [[Button.inline("رجــوع ↩️", data="decor_main_menu")]]
-        
-        await event.reply(result, buttons=buttons, link_preview=False)
-
 
 
 @l313l.bot_cmd(edited=True)

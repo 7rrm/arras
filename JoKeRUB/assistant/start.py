@@ -1292,6 +1292,137 @@ async def whisper_off_handler(event):
             )
     # ================================
 
+# ========== متغيرات زخرفة العربية (بنفس نظام المعاملات) ==========
+# قائمة لتخزين المستخدمين في وضع الزخرفة العربية
+arabic_decor_users = []
+
+# دالة زخرفة النص العربي (5 أنماط سريعة)
+async def decorate_arabic_text_fast(text):
+    """تزخرف النص العربي بسرعة باستخدام المعاملات"""
+    
+    # قائمة الرموز العشوائية
+    iitems = ['࿐', '𖣳', '𓃠', '𖡟', '𖠜', '‌♡⁩', '‌༗', '‌𖢖', '❥', '‌ঌ', '𝆹𝅥𝅮', '𖠲', '𖤍', '𖠛', '𝅘𝅥𝅮', '‌༒', '‌ㇱ', '߷', 'メ', '〠', '𓃬', '𖠄']
+    
+    # رموز عشوائية لكل نمط
+    smiile1 = random.choice(iitems)
+    smiile2 = random.choice(iitems)
+    smiile3 = random.choice(iitems)
+    smiile4 = random.choice(iitems)
+    smiile5 = random.choice(iitems)
+    
+    # النمط العربي 1 - زخرفة بالحركات
+    AR1 = text.replace('ا', 'اެ').replace('ب', 'بَ').replace('ت', 'تَ').replace('ث', 'ثَ')
+    AR1 = AR1.replace('ج', 'جَ').replace('ح', 'حِ').replace('خ', 'خِ').replace('د', 'دَ')
+    AR1 = AR1.replace('ذ', 'ذِ').replace('ر', 'ࢪ').replace('ز', 'ࢪ࣪').replace('س', 'سِ')
+    AR1 = AR1.replace('ش', 'شِ').replace('ص', 'صِ').replace('ض', 'ضِ').replace('ط', 'طَ')
+    AR1 = AR1.replace('ظ', 'ظِ').replace('ع', 'عَ').replace('غ', 'غِ').replace('ف', 'فَ')
+    AR1 = AR1.replace('ق', 'قِ').replace('ك', 'كَ').replace('ل', 'ݪ').replace('م', 'مِ')
+    AR1 = AR1.replace('ن', 'نِ').replace('ه', 'هِـ').replace('و', 'ۅٛ').replace('ي', 'يَ')
+    AR1 = AR1.replace('أ', 'اެ').replace('إ', 'اެ').replace('آ', 'اެ').replace('ة', 'ة')
+    AR1 = AR1.replace('ى', 'يَ').replace('ؤ', 'و').replace('ئ', 'يَ')
+    
+    # النمط العربي 2 - زخرفة بالخطوط
+    AR2 = text.replace('ا', 'أ').replace('ب', 'بٰ').replace('ت', 'تٓ').replace('ث', 'ث')
+    AR2 = AR2.replace('ج', 'ج').replace('ح', 'ح').replace('خ', 'خً').replace('د', 'د')
+    AR2 = AR2.replace('ذ', 'ذْ').replace('ر', 'ࢪ').replace('ز', 'ࢪ࣪').replace('س', 'س')
+    AR2 = AR2.replace('ش', 'شُ').replace('ص', 'صّ').replace('ض', 'ض').replace('ط', 'طّ')
+    AR2 = AR2.replace('ظ', 'ظ').replace('ع', 'ع').replace('غ', 'غ').replace('ف', 'ف')
+    AR2 = AR2.replace('ق', 'ق').replace('ك', 'ڪ').replace('ل', 'لّ').replace('م', 'مٍ')
+    AR2 = AR2.replace('ن', 'ڼ').replace('ه', 'هــ').replace('و', 'وِ').replace('ي', 'ي')
+    AR2 = AR2.replace('أ', 'أ').replace('إ', 'أ').replace('آ', 'أ').replace('ة', 'ة')
+    AR2 = AR2.replace('ى', 'ي').replace('ؤ', 'وِ').replace('ئ', 'ي')
+    
+    # النمط العربي 3 - زخرفة بقوسين
+    AR3 = text.replace('ا', '﮼ا').replace('ب', '﮼ب').replace('ت', '﮼ت').replace('ث', '﮼ث')
+    AR3 = AR3.replace('ج', '﮼ج').replace('ح', '﮼ح').replace('خ', '﮼خ').replace('د', '﮼د')
+    AR3 = AR3.replace('ذ', '﮼ذ').replace('ر', '﮼ر').replace('ز', '﮼ز').replace('س', '﮼س')
+    AR3 = AR3.replace('ش', '﮼ش').replace('ص', '﮼ص').replace('ض', '﮼ض').replace('ط', '﮼ط')
+    AR3 = AR3.replace('ظ', '﮼ظ').replace('ع', '﮼ع').replace('غ', '﮼غ').replace('ف', '﮼ف')
+    AR3 = AR3.replace('ق', '﮼ق').replace('ك', '﮼ك').replace('ل', '﮼ل').replace('م', '﮼م')
+    AR3 = AR3.replace('ن', '﮼ن').replace('ه', '﮼هـ').replace('و', '﮼و').replace('ي', '﮼ي')
+    AR3 = AR3.replace('أ', '﮼ا').replace('إ', '﮼ا').replace('آ', '﮼ا').replace('ة', '﮼ة')
+    AR3 = AR3.replace('ى', '﮼ي').replace('ؤ', '﮼و').replace('ئ', '﮼ي')
+    
+    # النمط العربي 4 - زخرفة بفواصل
+    AR4 = text.replace('ا', '،ا').replace('ب', '،ب').replace('ت', '،ت').replace('ث', '،ث')
+    AR4 = AR4.replace('ج', '،ج').replace('ح', '،ح').replace('خ', '،خ').replace('د', '،د')
+    AR4 = AR4.replace('ذ', '،ذ').replace('ر', '،ر').replace('ز', '،ز').replace('س', '،س')
+    AR4 = AR4.replace('ش', '،ش').replace('ص', '،ص').replace('ض', '،ض').replace('ط', '،ط')
+    AR4 = AR4.replace('ظ', '،ظ').replace('ع', '،ع').replace('غ', '،غ').replace('ف', '،ف')
+    AR4 = AR4.replace('ق', '،ق').replace('ك', '،ك').replace('ل', '،ل').replace('م', '،م')
+    AR4 = AR4.replace('ن', '،ن').replace('ه', '،هـ').replace('و', '،و').replace('ي', '،ي')
+    AR4 = AR4.replace('أ', '،ا').replace('إ', '،ا').replace('آ', '،ا').replace('ة', '،ة')
+    AR4 = AR4.replace('ى', '،ي').replace('ؤ', '،و').replace('ئ', '،ي')
+    
+    # النمط العربي 5 - زخرفة مميزة
+    AR5 = text.replace('ا', 'ٱ').replace('ب', 'ٻ').replace('ت', 'ټ').replace('ث', 'ٿ')
+    AR5 = AR5.replace('ج', 'ڄ').replace('ح', 'ځ').replace('خ', 'څ').replace('د', 'ډ')
+    AR5 = AR5.replace('ذ', 'ڎ').replace('ر', 'ړ').replace('ز', 'ږ').replace('س', 'ښ')
+    AR5 = AR5.replace('ش', 'ڜ').replace('ص', 'ڞ').replace('ض', 'ڟ').replace('ط', 'ڠ')
+    AR5 = AR5.replace('ظ', 'ڡ').replace('ع', 'ڢ').replace('غ', 'ڣ').replace('ف', 'ڥ')
+    AR5 = AR5.replace('ق', 'ڦ').replace('ك', 'ڪ').replace('ل', 'ڵ').replace('م', 'ڷ')
+    AR5 = AR5.replace('ن', 'ڻ').replace('ه', 'ھ').replace('و', 'ۈ').replace('ي', 'ۑ')
+    AR5 = AR5.replace('أ', 'ٱ').replace('إ', 'ٱ').replace('آ', 'ٱ').replace('ة', 'ۃ')
+    AR5 = AR5.replace('ى', 'ۑ').replace('ؤ', 'ۈ').replace('ئ', 'ۑ')
+    
+    return f"""**ᯓ زخـرفـة عربـي - 5 أنمـاط** 🕌
+**⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
+{AR1} {smiile1}
+{AR2} {smiile2}
+{AR3} {smiile3}
+{AR4} {smiile4}
+{AR5} {smiile5}
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+💡 يمكنك نسخ أي نمط تريده"""
+
+
+# ========== معالج استقبال النص العربي ==========
+@l313l.bot_cmd(incoming=True, func=lambda e: e.is_private)
+async def arabic_decor_input(event):
+    """معالجة النص العربي المرسل من المستخدم"""
+    chat = await event.get_chat()
+    
+    # التحقق إذا كان المستخدم في وضع الزخرفة العربية
+    if chat.id in arabic_decor_users:
+        text = event.text
+        
+        # التحقق من عدم وجود أوامر
+        if text.startswith('/'):
+            return
+        
+        # التحقق من وجود نص عربي
+        arabic_chars = set('ابتثجحخدذرزسشصضطظعغفقكلمنهويءآأؤإئابةى')
+        has_arabic = any(c in arabic_chars for c in text)
+        
+        if not has_arabic:
+            await event.reply("⚠️ الرجاء إرسال نص باللغة العربية فقط!")
+            return
+        
+        # إزالة المستخدم من القائمة بعد الاستلام
+        arabic_decor_users.remove(chat.id)
+        
+        # زخرفة النص
+        result = await decorate_arabic_text_fast(text)
+        
+        # زر الرجوع
+        buttons = [[Button.inline("رجــوع ↩️", data="decor_main_menu")]]
+        
+        await event.reply(result, buttons=buttons, link_preview=False)
+
+
+# ========== معالج إلغاء الزخرفة العربية ==========
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_arabic_decor$")))
+async def cancel_arabic_decor(event):
+    user_id = event.query.user_id
+    
+    if user_id in arabic_decor_users:
+        arabic_decor_users.remove(user_id)
+    
+    # العودة للقائمة الرئيسية
+    await decor_main_menu_handler(event)
+
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
 async def decor_main_menu_handler(event):
     # تصميم الأزرار الملونة - فقط لون بدون إيموجي
@@ -1301,6 +1432,13 @@ async def decor_main_menu_handler(event):
                 "text": "زخرفـة انكـلـش ✍🏻",
                 "callback_data": "zzk_bot-on",
                 "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
+            }
+        ],
+        [
+            {
+                "text": "زخرفـة عربـي 🕌",
+                "callback_data": "zzk_bot-arabic",
+                "style": "primary"
             }
         ],
         [

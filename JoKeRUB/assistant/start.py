@@ -1500,12 +1500,12 @@ async def decor_main_menu_handler(event):
         ],
         [
             {
-                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❶ 🎨 : ›",
+                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❶  : ›",
                 "callback_data": "zzk_bot-1",
                 "style": "success"  # 🔵 أزرق
             },
             {
-                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❷ 🎨 : ›",
+                "text": "‹ : ❷ ࢪمۅٛز تَمبلـࢪ  : ›",
                 "callback_data": "zzk_bot-2",
                 "style": "success"  # 🔵 أزرق
             }

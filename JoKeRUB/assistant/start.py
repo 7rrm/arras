@@ -1488,31 +1488,31 @@ async def decor_main_menu_handler(event):
     buttons = [
         [
             {
-                "text": "زخرفـة انكـلـش ✍🏻",
-                "callback_data": "zzk_bot-on",
+                "text": "‹ : ࢪ࣪غࢪفةه عࢪبي 🎍: ›",
+                "callback_data": "zzk_bot-arabic",
                 "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
             },
             {
-                "text": "زخرفـة عربي ✍🏻",
-                "callback_data": "zzk_bot-arabic",
+                "text": "‹ :  EꪀgᥣᎥ᥉ɦ 🎍: ›",
+                "callback_data": "zzk_bot-on",
                 "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
             }
         ],
         [
             {
-                "text": "رمـوز تمبلـر 1 🎨",
+                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❶ 🎨 : ›",
                 "callback_data": "zzk_bot-1",
                 "style": "success"  # 🔵 أزرق
             },
             {
-                "text": "رمـوز تمبلـر 2 🎨",
+                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❷ 🎨 : ›",
                 "callback_data": "zzk_bot-2",
                 "style": "success"  # 🔵 أزرق
             }
         ],
         [
             {
-                "text": "زغـارف أرقـام 🔢",
+                "text": "‹ :  زغـاࢪف اެࢪقاެم  : ›",
                 "callback_data": "zzk_bot-3",
                 "style": "primary"  # 🔵 أزرق
             }

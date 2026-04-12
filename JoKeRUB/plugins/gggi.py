@@ -817,31 +817,31 @@ async def fetch_info(replied_user, event):
                 caption += f'<a href="emoji/6323564170482551899">❤️</a>'
                 caption += f'<a href="emoji/6323191058083613275">❤️</a>'
                 caption += f'<a href="emoji/6325310787652946500">❤️</a>\n'
-                caption += f"<blockquote><b>{ZEDM}الاســم    ⤎ </b> "
+                caption += f"<blockquote><b>{ZEDM}الاســم  ⤎ </b> "
                 caption += f'<a href="tg://user?id={user_id}">{full_name}</a> '
                 if zilzal == True:
                     caption += f'<a href="emoji/{emoji_id}">❤️</a>'
-                caption += f"\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>"
-                caption += f"\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
-                caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n"
+                caption += f"\n<b>{ZEDM}اليـوزر   ⤎ </b> {username}"
+                caption += f"\n<b>{ZEDM}الايـدي   ⤎ </b> <code>{user_id}</code>\n"
+                caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat}</b>\n"
                 if zilzal == True:
                     caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم</b>"
-                    caption += f'<a href="emoji/5832422209074762334">❤️</a>\n'
+                    caption += f'<a href="emoji/5877323064202499941">❤️</a>\n'
                 if user_id in Zed_Dev or (gvarstatus("ZThon_Vip") and user_id == int(gvarstatus("ZThon_Vip"))):
                     if zilzal == True or user_id in zelzal:
-                        caption += f"<b>{ZEDM}الاشتراك ⤎ </b>"
-                        caption += f'<a href="emoji/5832653669157310552">❤️</a> \n'
-                caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-                caption += f"<b>{ZEDM}الهدايا    ⤎</b>  {gifts_count} "
+                        caption += f"<b>{ZEDM}الاشتراك ⤎</b>"
+                        caption += f'<a href="emoji/5832653669157310552">❤️</a>\n'
+                caption += f"<b>{ZEDM}الصـور   ⤎</b> {replied_user_profile_photos_count}\n"
+                caption += f"<b>{ZEDM}الهدايا   ⤎</b> {gifts_count} "
                 caption += f'<a href="emoji/5407064810040864883">❤️</a> \n'
-                caption += f"<b>{ZEDM}المستــوى   ⤎ {level_message}</b>\n"
-                caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz} "
-                caption += f'<a href="emoji/5253742260054409879">❤️</a>\n'
-                caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" 
+                caption += f"<b>{ZEDM}المستــوى   ⤎</b> {level_message}\n"
+                caption += f"<b>{ZEDM}الرسائل   ⤎</b> {zzz} "
+                caption += f'<a href="emoji/5436089112400506645">❤️</a>\n'
+                caption += f"<b>{ZEDM}التفاعل  ⤎</b> {zelzzz}\n" 
                 if user_id != (await event.client.get_me()).id: 
                     caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" 
-                caption += f"<b>{ZEDM}البايـو     ⤎</b>  {user_bio}\n</blockquote>"
+                caption += f"<b>{ZEDM}الإنشـاء  ⤎</b> {zzzsinc}  🗓\n" 
+                caption += f"<b>{ZEDM}البايـو   ⤎</b> {user_bio}\n</blockquote>"
                 caption += f'ٴ<a href="emoji/6323136954380585694">❤️</a>'
                 caption += f'<a href="emoji/6325684673145997914">❤️</a>'
                 caption += f'<a href="emoji/6323205570778107774">❤️</a>'

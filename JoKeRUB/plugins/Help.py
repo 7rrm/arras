@@ -1,6 +1,8 @@
 from telethon import events
+from telethon.events import CallbackQuery
 import json
 import requests
+import re
 from ..Config import Config
 from ..core import check_owner
 from . import l313l
@@ -20,7 +22,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         user_id = event.query.user_id
         
         if query.startswith("مساعدة"):
-            # 🎨 أزرار ملونة - زرين فقط للتجربة
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
             keyboard = {
@@ -28,7 +29,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     [
                         {
                             "text": "🔥 اوامر الادارة 🔥",
-                            "callback_data": "admin_commands",
+                            "callback_data": "admin_commands_test",
                             "style": "primary",
                             "icon_custom_emoji_id": FIRE_EMOJI
                         }
@@ -36,7 +37,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     [
                         {
                             "text": "✨ اوامر التنظيف ✨",
-                            "callback_data": "clean_cmd",
+                            "callback_data": "clean_cmd_test",
                             "style": "success",
                             "icon_custom_emoji_id": STAR_EMOJI
                         }
@@ -66,15 +67,156 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             try:
                 requests.post(url, json=inline_data)
-                print(f"✅ تم إرسال قائمة المساعدة للمستخدم {user_id}")
             except Exception as e:
-                print(f"❌ خطأ في inline: {e}")
+                print(f"❌ خطأ: {e}")
 
-@l313l.ar_cmd(pattern="مساعدة$")
-async def help_cmd(event):
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    TG_BOT = Config.TG_BOT_USERNAME
-    response = await l313l.inline_query(TG_BOT, "مساعدة")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    # =========================================================== #
+    # معالج الزر الأول: اوامر الادارة
+    # =========================================================== #
+    
+    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands_test")))
+    @check_owner
+    async def admin_commands_handler(event):
+        buttons = [
+            [
+                {
+                    "text": "🔥 امر الحظر",
+                    "callback_data": "ban_cmd_detail",
+                    "style": "danger",
+                    "icon_custom_emoji_id": FIRE_EMOJI
+                },
+                {
+                    "text": "✨ امر الكتم",
+                    "callback_data": "mute_cmd_detail",
+                    "style": "primary",
+                    "icon_custom_emoji_id": STAR_EMOJI
+                }
+            ],
+            [
+                {
+                    "text": "↩️ رجوع",
+                    "callback_data": "back_to_help",
+                    "style": "secondary",
+                    "icon_custom_emoji_id": FIRE_EMOJI
+                }
+            ]
+        ]
+        
+        try:
+            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+            edit_data = {
+                "chat_id": event.chat_id,
+                "message_id": event.message_id,
+                "text": "**👮 أوامر الإدارة**\n\nاختر الأمر الذي تريد معرفة شرحه:",
+                "parse_mode": "Markdown",
+                "reply_markup": json.dumps({"inline_keyboard": buttons})
+            }
+            requests.post(edit_url, json=edit_data, timeout=3)
+        except Exception as e:
+            print(f"❌ خطأ: {e}")
+
+    # =========================================================== #
+    # شرح امر الحظر
+    # =========================================================== #
+    
+    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_cmd_detail")))
+    @check_owner
+    async def ban_cmd_detail(event):
+        text = """**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أمر الحظر 𓆪**
+━━━━━━━━━━━━━━━━━━━━
+
+**☑️ ⦗ `.حظر` ⦘**
+❐ لحظر عضو من المجموعة
+❐ طريقة الاستخدام: `.حظر` بالرد على العضو او كتابة يوزره
+
+**☑️ ⦗ `.الغاء حظر` ⦘**
+❐ لإلغاء حظر عضو محظور
+❐ طريقة الاستخدام: `.الغاء حظر` بالرد على العضو
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙Dev : @Lx5x5"""
+        
+        buttons = [
+            [
+                {
+                    "text": "↩️ رجوع لأوامر الادارة",
+                    "callback_data": "admin_commands_test",
+                    "style": "secondary",
+                    "icon_custom_emoji_id": FIRE_EMOJI
+                }
+            ],
+            [
+                {
+                    "text": "🏠 القائمة الرئيسية",
+                    "callback_data": "back_to_help",
+                    "style": "primary",
+                    "icon_custom_emoji_id": STAR_EMOJI
+                }
+            ]
+        ]
+        
+        try:
+            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+            edit_data = {
+                "chat_id": event.chat_id,
+                "message_id": event.message_id,
+                "text": text,
+                "parse_mode": "Markdown",
+                "reply_markup": json.dumps({"inline_keyboard": buttons})
+            }
+            requests.post(edit_url, json=edit_data, timeout=3)
+        except Exception as e:
+            print(f"❌ خطأ: {e}")
+
+    # =========================================================== #
+    # شرح امر الكتم
+    # =========================================================== #
+    
+    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"mute_cmd_detail")))
+    @check_owner
+    async def mute_cmd_detail(event):
+        text = """**𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أمر الكتم 𓆪**
+━━━━━━━━━━━━━━━━━━━━
+
+**☑️ ⦗ `.كتم` ⦘**
+❐ لكتم عضو في المجموعة
+❐ طريقة الاستخدام: `.كتم` بالرد على العضو
+
+**☑️ ⦗ `.الغاء كتم` ⦘**
+❐ لإلغاء كتم عضو مكتوم
+❐ طريقة الاستخدام: `.الغاء كتم` بالرد على العضو
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙Dev : @Lx5x5"""
+        
+        buttons = [
+            [
+                {
+                    "text": "↩️ رجوع لأوامر الادارة",
+                    "callback_data": "admin_commands_test",
+                    "style": "secondary",
+                    "icon_custom_emoji_id": STAR_EMOJI
+                }
+            ],
+            [
+                {
+                    "text": "🏠 القائمة الرئيسية",
+                    "callback_data": "back_to_help",
+                    "style": "primary",
+                    "icon_custom_emoji_id": FIRE_EMOJI
+                }
+            ]
+        ]
+        
+        try:
+            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+            edit_data = {
+                "chat_id": event.chat_id,
+                "message_id": event.message_id,
+                "text": text,
+                "parse_mode": "Markdown",
+                "reply_markup": json.dumps({"inline_keyboard": buttons})
+            }
+            requests.post(edit_url, json=edit_data, timeout=3)
+        except Exception as e:
+            print(f"❌ خطأ: {e}")

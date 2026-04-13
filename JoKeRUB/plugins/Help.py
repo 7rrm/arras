@@ -1,4 +1,4 @@
-from telethon import events
+from telethon import events, Button
 from telethon.events import CallbackQuery
 import json
 import requests
@@ -8,13 +8,6 @@ from ..core import check_owner
 from . import l313l
 
 HELP_TEXT = "**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊قائمـة المسـاعـده (نسخة تجريبية)**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
-
-# نفس الإيموجيات المستخدمة في أمر start
-PREMIUM_EMOJI_ID = "5210763312597326700"  # ✨
-EMOJI_CONTACT = "5258215850745275216"      # 💌
-EMOJI_DECOR = "5411580731929411768"        # 🎨
-EMOJI_WARN = "5350477112677515642"         # ⚠️
-EMOJI_Fatf = "5188619457651567219"         # ✉️
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -30,18 +23,16 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": "اوامر الادارة 👮",
+                            "text": "🔥 اوامر الادارة 🔥",
                             "callback_data": "admin_commands",
-                            "style": "primary",
-                            "icon_custom_emoji_id": EMOJI_CONTACT
+                            "style": "primary"
                         }
                     ],
                     [
                         {
-                            "text": "اوامر التنظيف 🧹",
+                            "text": "✨ اوامر التنظيف ✨",
                             "callback_data": "clean_cmd",
-                            "style": "success",
-                            "icon_custom_emoji_id": EMOJI_DECOR
+                            "style": "success"
                         }
                     ]
                 ]
@@ -53,11 +44,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     {
                         "type": "article",
                         "id": "help_menu_1",
-                        "title": "📚 قائمة المساعدة",
-                        "description": "اضغط لعرض الأوامر",
+                        "title": "📚 قائمة المساعدة - آراس",
+                        "description": "اضغط لعرض الأوامر المتاحة",
                         "input_message_content": {
                             "message_text": HELP_TEXT,
-                            "parse_mode": "HTML",
+                            "parse_mode": "Markdown",
                             "disable_web_page_preview": True
                         },
                         "reply_markup": keyboard
@@ -91,28 +82,36 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 ⌔︙Dev : @Lx5x5"""
         
         buttons = [
-            [
-                {
-                    "text": "↩️ رجوع",
-                    "callback_data": "back_to_help",
-                    "style": "secondary",
-                    "icon_custom_emoji_id": EMOJI_WARN
-                }
-            ]
+            [Button.inline("↩️ رجوع", data="back_to_help", color=Button.Color.DANGER)]
         ]
         
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": text,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps({"inline_keyboard": buttons})
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        await event.edit(text, buttons=buttons)
+
+    # =========================================================== #
+    # معالج زر اوامر التنظيف
+    # =========================================================== #
+    
+    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd")))
+    @check_owner
+    async def clean_commands_handler(event):
+        text = """**🧹 أوامر التنظيف**
+
+**☑️ ⦗ `.تنظيف` ⦘**
+❐ لحذف عدد معين من الرسائل
+❐ طريقة الاستخدام: `.تنظيف 10`
+
+**☑️ ⦗ `.مسح` ⦘**
+❐ لحذف رسالة محددة
+❐ طريقة الاستخدام: بالرد على الرسالة
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙Dev : @Lx5x5"""
+        
+        buttons = [
+            [Button.inline("↩️ رجوع", data="back_to_help", color=Button.Color.DANGER)]
+        ]
+        
+        await event.edit(text, buttons=buttons)
 
     # =========================================================== #
     # معالج زر الرجوع
@@ -121,40 +120,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_help")))
     @check_owner
     async def back_to_help_handler(event):
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {
-                        "text": "اوامر الادارة 👮",
-                        "callback_data": "admin_commands",
-                        "style": "primary",
-                        "icon_custom_emoji_id": EMOJI_CONTACT
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر التنظيف 🧹",
-                        "callback_data": "clean_cmd",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_DECOR
-                    }
-                ]
-            ]
-        }
+        buttons = [
+            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands", color=Button.Color.PRIMARY)],
+            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd", color=Button.Color.SUCCESS)]
+        ]
         
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": HELP_TEXT,
-                "parse_mode": "HTML",
-                "reply_markup": json.dumps(keyboard),
-                "disable_web_page_preview": True
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        await event.edit(HELP_TEXT, buttons=buttons)
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help_cmd(event):

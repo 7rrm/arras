@@ -18,163 +18,53 @@ EMOJI_WARNING = "5188619457651567219"      # ⚠️
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
-    @tgbot.on(events.InlineQuery)
-    @check_owner
-    async def inline_handler(event):
-        query = event.text
-        
-        if query.startswith("مساعدة"):
-            buttons = [
-                [
-                    {
-                        "text": "اوامر الادارة 👮",
-                        "callback_data": "admin_commands",
-                        "style": "primary",
-                        "icon_custom_emoji_id": EMOJI_PRIMARY
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر التنظيف 🧹",
-                        "callback_data": "clean_cmd",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_SUCCESS
-                    },
-                    {
-                        "text": "اوامر المسح 🗑️",
-                        "callback_data": "delete_cmd",
-                        "style": "danger",
-                        "icon_custom_emoji_id": EMOJI_DANGER
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الوقت والتاريخ 📅",
-                        "callback_data": "time_date_cmd",
-                        "style": "secondary",
-                        "icon_custom_emoji_id": EMOJI_SECONDARY
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الوقتي 🔄",
-                        "callback_data": "timely_cmd",
-                        "style": "primary",
-                        "icon_custom_emoji_id": EMOJI_PRIMARY
-                    },
-                    {
-                        "text": "اوامر الصلاة 🕌",
-                        "callback_data": "prayer_cmd",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_SUCCESS
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر المساعدة 🆘",
-                        "callback_data": "help_commands",
-                        "style": "warning",
-                        "icon_custom_emoji_id": EMOJI_WARNING
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الروابط 🔗",
-                        "callback_data": "link_commands",
-                        "style": "secondary",
-                        "icon_custom_emoji_id": EMOJI_SECONDARY
-                    },
-                    {
-                        "text": "اوامر الكشف 🔍",
-                        "callback_data": "detect_commands",
-                        "style": "primary",
-                        "icon_custom_emoji_id": EMOJI_PRIMARY
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر التسلية والميمز 😂",
-                        "callback_data": "fun_meme_commands",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_SUCCESS
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الاذاعة 📢",
-                        "callback_data": "broadcast_commands",
-                        "style": "danger",
-                        "icon_custom_emoji_id": EMOJI_DANGER
-                    },
-                    {
-                        "text": "اوامر التحويل 🔄",
-                        "callback_data": "convert_commands",
-                        "style": "secondary",
-                        "icon_custom_emoji_id": EMOJI_SECONDARY
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الجهات 👥",
-                        "callback_data": "contacts_commands",
-                        "style": "primary",
-                        "icon_custom_emoji_id": EMOJI_PRIMARY
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر الحساب 👤",
-                        "callback_data": "account_commands",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_SUCCESS
-                    },
-                    {
-                        "text": "اوامر الفارات ⚙️",
-                        "callback_data": "var_commands",
-                        "style": "warning",
-                        "icon_custom_emoji_id": EMOJI_WARNING
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر التجميع 💰",
-                        "callback_data": "collect_commands",
-                        "style": "danger",
-                        "icon_custom_emoji_id": EMOJI_DANGER
-                    }
-                ],
-                [
-                    {
-                        "text": "اوامر وعد 🏦",
-                        "callback_data": "w3d_commands",
-                        "style": "secondary",
-                        "icon_custom_emoji_id": EMOJI_SECONDARY
-                    },
-                    {
-                        "text": "اوامر الاذكار 📿",
-                        "callback_data": "azkar_commands",
-                        "style": "success",
-                        "icon_custom_emoji_id": EMOJI_SUCCESS
-                    }
-                ],
+    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"test_buttons")))
+@check_owner
+async def test_buttons(event):
+    buttons = [
+        [
+            {
+                "text": "اوامر الادارة 👮",
+                "callback_data": "admin_commands",
+                "style": "primary",
+                "icon_custom_emoji_id": "5258215850745275216"
+            }
+        ],
+        [
+            {
+                "text": "اوامر التنظيف 🧹",
+                "callback_data": "clean_cmd",
+                "style": "success",
+                "icon_custom_emoji_id": "5411580731929411768"
+            }
+        ],
+        [
+            {
+                "text": "رجوع ↩️",
+                "callback_data": "back_menu",
+                "style": "danger",
+                "icon_custom_emoji_id": "5350477112677515642"
+            }
+        ]
+    ]
+    
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": "**📍 اختر الأمر الذي تريد معرفته:**",
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps({"inline_keyboard": buttons})
+        }
+        requests.post(edit_url, json=edit_data, timeout=3)
+    except Exception as e:
+        # fallback
+        await event.edit(
+            "**📍 اختر الأمر الذي تريد معرفته:**",
+            buttons=[
+                [Button.inline("اوامر الادارة 👮", data="admin_commands")],
+                [Button.inline("اوامر التنظيف 🧹", data="clean_cmd")],
+                [Button.inline("رجوع ↩️", data="back_menu")]
             ]
-            
-            # إرسال عبر Bot API
-            result_id = "help_menu_1"
-            send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-            
-            results = [{
-                "type": "article",
-                "id": result_id,
-                "title": "قائمة المساعدة - آراس",
-                "input_message_content": {
-                    "message_text": HELP,
-                    "parse_mode": "HTML",
-                    "disable_web_page_preview": True
-                },
-                "reply_markup": {
-                    "inline_keyboard": buttons
-                }
-            }]
-            
-            await event.answer(results, cache_time=0)
+        )

@@ -22,7 +22,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         user_id = event.query.user_id
         
         if query.startswith("مساعدة"):
-            # 🎨 أزرار ملونة - زرين فقط للتجربة
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             
             keyboard = {
@@ -68,9 +67,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             try:
                 requests.post(url, json=inline_data)
-                print(f"✅ تم إرسال قائمة المساعدة للمستخدم {user_id}")
             except Exception as e:
-                print(f"❌ خطأ في inline: {e}")
+                print(f"❌ خطأ: {e}")
 
     # =========================================================== #
     # معالج زر اوامر الادارة
@@ -79,49 +77,22 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
     @check_owner
     async def admin_commands_handler(event):
-        # رسالة شرح لأوامر الادارة
         text = """**👮 أوامر الإدارة**
 
 **☑️ ⦗ `.حظر` ⦘**
 ❐ لحظر عضو من المجموعة
-❐ طريقة الاستخدام: `.حظر` بالرد على العضو او كتابة يوزره
 
 **☑️ ⦗ `.كتم` ⦘**
 ❐ لكتم عضو في المجموعة
-❐ طريقة الاستخدام: `.كتم` بالرد على العضو
-
-**☑️ ⦗ `.رفع مشرف` ⦘**
-❐ لرفع عضو إلى مشرف
-❐ طريقة الاستخدام: `.رفع مشرف` بالرد على العضو
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
         
         buttons = [
-            [
-                {
-                    "text": "↩️ رجوع للقائمة الرئيسية",
-                    "callback_data": "back_to_help",
-                    "style": "secondary",
-                    "icon_custom_emoji_id": FIRE_EMOJI
-                }
-            ]
+            [Button.inline("↩️ رجوع", data="back_to_help")]
         ]
         
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": text,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps({"inline_keyboard": buttons})
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ في معالج الادارة: {e}")
-            # Fallback
-            await event.edit(text, buttons=[Button.inline("↩️ رجوع", data="back_to_help")])
+        await event.edit(text, buttons=buttons)
 
     # =========================================================== #
     # معالج زر الرجوع
@@ -130,40 +101,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_help")))
     @check_owner
     async def back_to_help_handler(event):
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {
-                        "text": "🔥 اوامر الادارة 🔥",
-                        "callback_data": "admin_commands",
-                        "style": "primary",
-                        "icon_custom_emoji_id": FIRE_EMOJI
-                    }
-                ],
-                [
-                    {
-                        "text": "✨ اوامر التنظيف ✨",
-                        "callback_data": "clean_cmd",
-                        "style": "success",
-                        "icon_custom_emoji_id": STAR_EMOJI
-                    }
-                ]
-            ]
-        }
+        buttons = [
+            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
+            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
+        ]
         
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": HELP_TEXT,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps(keyboard),
-                "disable_web_page_preview": True
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        await event.edit(HELP_TEXT, buttons=buttons)
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help_cmd(event):

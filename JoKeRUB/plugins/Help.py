@@ -9,9 +9,12 @@ from . import l313l
 
 HELP_TEXT = "**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊قائمـة المسـاعـده (نسخة تجريبية)**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
 
-# إيموجيات ملونة
-FIRE_EMOJI = "5368324170671202286"      # 🔥
-STAR_EMOJI = "5258215850745275216"      # ✨
+# نفس الإيموجيات المستخدمة في أمر start
+PREMIUM_EMOJI_ID = "5210763312597326700"  # ✨
+EMOJI_CONTACT = "5258215850745275216"      # 💌
+EMOJI_DECOR = "5411580731929411768"        # 🎨
+EMOJI_WARN = "5350477112677515642"         # ⚠️
+EMOJI_Fatf = "5188619457651567219"         # ✉️
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -27,18 +30,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": "🔥 اوامر الادارة 🔥",
+                            "text": "اوامر الادارة 👮",
                             "callback_data": "admin_commands",
                             "style": "primary",
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "icon_custom_emoji_id": EMOJI_CONTACT
                         }
                     ],
                     [
                         {
-                            "text": "✨ اوامر التنظيف ✨",
+                            "text": "اوامر التنظيف 🧹",
                             "callback_data": "clean_cmd",
                             "style": "success",
-                            "icon_custom_emoji_id": STAR_EMOJI
+                            "icon_custom_emoji_id": EMOJI_DECOR
                         }
                     ]
                 ]
@@ -50,11 +53,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     {
                         "type": "article",
                         "id": "help_menu_1",
-                        "title": "📚 قائمة المساعدة - آراس",
-                        "description": "اضغط لعرض الأوامر المتاحة",
+                        "title": "📚 قائمة المساعدة",
+                        "description": "اضغط لعرض الأوامر",
                         "input_message_content": {
                             "message_text": HELP_TEXT,
-                            "parse_mode": "Markdown",
+                            "parse_mode": "HTML",
                             "disable_web_page_preview": True
                         },
                         "reply_markup": keyboard
@@ -70,7 +73,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    # معالج زر اوامر الادارة (مع ايموجي مميز)
+    # معالج زر اوامر الادارة
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
@@ -93,7 +96,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     "text": "↩️ رجوع",
                     "callback_data": "back_to_help",
                     "style": "secondary",
-                    "icon_custom_emoji_id": FIRE_EMOJI
+                    "icon_custom_emoji_id": EMOJI_WARN
                 }
             ]
         ]
@@ -112,7 +115,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    # معالج زر الرجوع (مع ايموجي مميز)
+    # معالج زر الرجوع
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_help")))
@@ -122,18 +125,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             "inline_keyboard": [
                 [
                     {
-                        "text": "🔥 اوامر الادارة 🔥",
+                        "text": "اوامر الادارة 👮",
                         "callback_data": "admin_commands",
                         "style": "primary",
-                        "icon_custom_emoji_id": FIRE_EMOJI
+                        "icon_custom_emoji_id": EMOJI_CONTACT
                     }
                 ],
                 [
                     {
-                        "text": "✨ اوامر التنظيف ✨",
+                        "text": "اوامر التنظيف 🧹",
                         "callback_data": "clean_cmd",
                         "style": "success",
-                        "icon_custom_emoji_id": STAR_EMOJI
+                        "icon_custom_emoji_id": EMOJI_DECOR
                     }
                 ]
             ]
@@ -145,7 +148,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "chat_id": event.chat_id,
                 "message_id": event.message_id,
                 "text": HELP_TEXT,
-                "parse_mode": "Markdown",
+                "parse_mode": "HTML",
                 "reply_markup": json.dumps(keyboard),
                 "disable_web_page_preview": True
             }

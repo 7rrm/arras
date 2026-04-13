@@ -1,5 +1,7 @@
 import re
-from telethon import Button, events
+import json
+import requests
+from telethon import events
 from telethon.events import CallbackQuery
 from ..core import check_owner
 from ..Config import Config
@@ -19,8 +21,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     @check_owner
     async def inline_handler(event):
-        builder = event.builder
-        result = None
         query = event.text
         
         if query.startswith("مساعدة"):
@@ -158,10 +158,23 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     }
                 ],
             ]
-            result = builder.article(
-                title="قائمة المساعدة - آراس",
-                text=HELP,
-                buttons=buttons,
-                link_preview=False,
-            )
-            await event.answer([result] if result else None)
+            
+            # إرسال عبر Bot API
+            result_id = "help_menu_1"
+            send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            results = [{
+                "type": "article",
+                "id": result_id,
+                "title": "قائمة المساعدة - آراس",
+                "input_message_content": {
+                    "message_text": HELP,
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True
+                },
+                "reply_markup": {
+                    "inline_keyboard": buttons
+                }
+            }]
+            
+            await event.answer(results, cache_time=0)

@@ -681,6 +681,16 @@ async def decorate_arabic_text_fast(text):
     smiile3 = random.choice(iitems)
     smiile4 = random.choice(iitems)
     smiile5 = random.choice(iitems)
+    smiile6 = random.choice(iitems)
+    smiile7 = random.choice(iitems)
+    smiile8 = random.choice(iitems)
+    smiile9 = random.choice(iitems)
+    smiile10 = random.choice(iitems)
+    smiile11 = random.choice(iitems)
+    smiile12 = random.choice(iitems)
+    smiile13 = random.choice(iitems)
+    smiile14 = random.choice(iitems)
+    smiile15 = random.choice(iitems)
     
     # النمط العربي 1
     AR1 = text.replace('ا', 'اެ').replace('ب', 'بَ').replace('ت', 'تَ').replace('ث', 'ثَ')
@@ -737,13 +747,133 @@ async def decorate_arabic_text_fast(text):
     AR5 = AR5.replace('أ', 'ٱ').replace('إ', 'ٱ').replace('آ', 'ٱ').replace('ة', 'ۃ')
     AR5 = AR5.replace('ى', 'ۑ').replace('ؤ', 'ۈ').replace('ئ', 'ۑ')
     
-    return f"""**ᯓ زخـرفـة عربـي - 5 أنمـاط** 🕌
+    # النمط العربي 6 (زخارف بالحركات والرموز)
+    AR6 = text.replace('ا', 'آ').replace('ب', 'بِٰـِۢ').replace('ت', 'تِٰـِۢ').replace('ث', 'ثِٰـِۢ')
+    AR6 = AR6.replace('ج', 'جِٰـِۢ').replace('ح', 'حِٰـِۢ').replace('خ', 'خ‌ِٰـِۢ').replace('د', 'د')
+    AR6 = AR6.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'سِٰـِۢ')
+    AR6 = AR6.replace('ش', 'شِٰـِۢ').replace('ص', 'صِٰـِۢ').replace('ض', 'ضِٰـِۢ').replace('ط', 'طِٰـِۢ')
+    AR6 = AR6.replace('ظ', 'ظِٰـِۢ').replace('ع', 'عِٰـِۢ').replace('غ', 'غِٰـِۢ').replace('ف', 'ف‌ِٰـِۢ')
+    AR6 = AR6.replace('ق', 'قِٰـِۢ').replace('ك', 'ڪِٰـِۢ').replace('ل', 'لِٰـِۢ').replace('م', 'مِٰـِۢ')
+    AR6 = AR6.replace('ن', 'نََ').replace('ه', 'ۿۿہ').replace('و', 'ﯛ‌୭').replace('ي', 'يِٰـِۢ')
+    AR6 = AR6.replace('أ', 'آ').replace('إ', 'آ').replace('آ', 'آ').replace('ة', 'ۿۿہ')
+    AR6 = AR6.replace('ى', 'يِٰـِۢ').replace('ؤ', 'ﯛ‌୭').replace('ئ', 'يِٰـِۢ')
+    
+    # النمط العربي 7 (زخارف بخطوط مختلفة)
+    AR7 = text.replace('ا', 'آ').replace('ب', 'ﭘ').replace('ت', 'ٿ').replace('ث', 'ﺚ')
+    AR7 = AR7.replace('ج', 'ݘ').replace('ح', 'حُ').replace('خ', 'ݗ').replace('د', 'د')
+    AR7 = AR7.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'ﺴ')
+    AR7 = AR7.replace('ش', 'ﺸ').replace('ص', 'ﺻ').replace('ض', 'ﺿ').replace('ط', 'ط')
+    AR7 = AR7.replace('ظ', 'ظ').replace('ع', 'ع').replace('غ', 'ڠ').replace('ف', 'ﭫ')
+    AR7 = AR7.replace('ق', 'ﭱ').replace('ك', 'ﮗ').replace('ل', 'ڸ').replace('م', 'ﻢ')
+    AR7 = AR7.replace('ن', 'ﮡ').replace('ه', 'ۿۿہ').replace('و', 'ﯛ‌୭').replace('ي', 'ﯥ')
+    AR7 = AR7.replace('أ', 'آ').replace('إ', 'آ').replace('آ', 'آ').replace('ة', 'ۿۿہ')
+    AR7 = AR7.replace('ى', 'ﯥ').replace('ؤ', 'ﯛ‌୭').replace('ئ', 'ﯥ')
+    
+    # النمط العربي 8 (زخارف مميزة)
+    AR8 = text.replace('ا', 'ཻا').replace('ب', 'ب‌ꪰـﮧ').replace('ت', 'تـٰۧﮧ').replace('ث', 'ث‌ꫭـﮧ')
+    AR8 = AR8.replace('ج', 'ج‌ꪸـﮧ').replace('ح', 'ح‌ꪳـﮧ').replace('خ', 'خ‌ﮧ').replace('د', 'دُ')
+    AR8 = AR8.replace('ذ', 'ذٖ').replace('ر', 'ر').replace('ز', 'ژٰ').replace('س', 'سـ‌ٰٰﮧْ')
+    AR8 = AR8.replace('ش', 'ش‌ꪾـﮧ').replace('ص', 'صـ⁠⁠⁠⁠‌ﮧْ').replace('ض', 'ضـ⁠⁠⁠‌ﮧٰ').replace('ط', 'ط‌꫁ـﮧ')
+    AR8 = AR8.replace('ظ', 'ظَـ๋‌ﮧْ').replace('ع', 'ع').replace('غ', 'غـّٰ‌ہٰٰ').replace('ف', 'فـ⁠⁠⁠⁠‌ﮧ')
+    AR8 = AR8.replace('ق', 'ق⁠⁠⁠‌ـِٰ‌ﮧْ').replace('ك', 'كـِّﮧ⁠⁠⁠').replace('ل', 'لٍُـّٰ‌ہ').replace('م', 'م⁠⁠⁠‌ـِٰ‌ﮧْ')
+    AR8 = AR8.replace('ن', 'نٰ‌‌ـﮧْ').replace('ه', 'ٰ‌ھہ').replace('و', 'ﯛ૭').replace('ي', 'يـِٰ‌ﮧ')
+    AR8 = AR8.replace('أ', 'ཻا').replace('إ', 'ཻا').replace('آ', 'ཻا').replace('ة', 'ٰ‌ھہ')
+    AR8 = AR8.replace('ى', 'يـِٰ‌ﮧ').replace('ؤ', 'ﯛ૭').replace('ئ', 'يـِٰ‌ﮧ')
+    
+    # النمط العربي 9
+    AR9 = text.replace('ا', 'ٱ').replace('ب', 'ﭜ').replace('ت', 'ﭠ').replace('ث', 'ﭦ')
+    AR9 = AR9.replace('ج', 'چ').replace('ح', 'ڂ').replace('خ', 'خ').replace('د', 'ﮃ')
+    AR9 = AR9.replace('ذ', 'ڎ').replace('ر', 'ر').replace('ز', 'ژ').replace('س', 'ﺳ‌‌')
+    AR9 = AR9.replace('ش', 'شَ').replace('ص', 'ڝ').replace('ض', 'ڞ').replace('ط', 'ط')
+    AR9 = AR9.replace('ظ', 'ڟ').replace('ع', '؏').replace('غ', 'ﻏ‌').replace('ف', 'ڤ')
+    AR9 = AR9.replace('ق', 'ڦ').replace('ك', 'ڳ').replace('ل', 'لَ').replace('م', 'م')
+    AR9 = AR9.replace('ن', 'ڻ').replace('ه', 'هـﮧ').replace('و', 'و').replace('ي', 'يِّ')
+    AR9 = AR9.replace('أ', 'ٱ').replace('إ', 'ٱ').replace('آ', 'ٱ').replace('ة', 'هـﮧ')
+    AR9 = AR9.replace('ى', 'يِّ').replace('ؤ', 'و').replace('ئ', 'يِّ')
+    
+    # النمط العربي 10
+    AR10 = text.replace('ا', 'ٱ').replace('ب', 'بّےـ').replace('ت', 'تُےـ').replace('ث', 'ثًےـ')
+    AR10 = AR10.replace('ج', 'جَےـ').replace('ح', 'حًےـ').replace('خ', 'خٌےـ').replace('د', 'دُ')
+    AR10 = AR10.replace('ذ', 'ذٌ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'سًےـ')
+    AR10 = AR10.replace('ش', 'شّےـ').replace('ص', 'صِےـ').replace('ض', 'ض').replace('ط', 'طٌےـ')
+    AR10 = AR10.replace('ظ', 'ظٌےـ').replace('ع', 'عَےـ').replace('غ', 'غّےـ').replace('ف', 'فُےـ')
+    AR10 = AR10.replace('ق', 'قَےـ').replace('ك', 'كےـ').replace('ل', 'ل').replace('م', 'مِےـ')
+    AR10 = AR10.replace('ن', 'نٌےـ').replace('ه', 'هےـِ').replace('و', 'وِ').replace('ي', 'يِّےـ')
+    AR10 = AR10.replace('أ', 'ٱ').replace('إ', 'ٱ').replace('آ', 'ٱ').replace('ة', 'هےـِ')
+    AR10 = AR10.replace('ى', 'يِّےـ').replace('ؤ', 'وِ').replace('ئ', 'يِّےـ')
+    
+    # النمط العربي 11
+    AR11 = text.replace('ا', 'ا').replace('ب', 'ب').replace('ت', 'تہ').replace('ث', 'ثہ')
+    AR11 = AR11.replace('ج', 'جہ').replace('ح', 'حہ').replace('خ', 'خہ').replace('د', 'د')
+    AR11 = AR11.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'سہ')
+    AR11 = AR11.replace('ش', 'شہ').replace('ص', 'ص').replace('ض', 'ض').replace('ط', 'طہ')
+    AR11 = AR11.replace('ظ', 'ظ').replace('ع', 'عہ').replace('غ', 'غہ').replace('ف', 'فُہ')
+    AR11 = AR11.replace('ق', 'ق').replace('ك', 'كُہ').replace('ل', 'لہ').replace('م', 'م')
+    AR11 = AR11.replace('ن', 'ن').replace('ه', 'ه').replace('و', 'و').replace('ي', 'يہ')
+    AR11 = AR11.replace('أ', 'ا').replace('إ', 'ا').replace('آ', 'ا').replace('ة', 'ہ')
+    AR11 = AR11.replace('ى', 'يہ').replace('ؤ', 'و').replace('ئ', 'يہ')
+    
+    # النمط العربي 12
+    AR12 = text.replace('ا', 'ا').replace('ب', 'ب').replace('ت', 'ت').replace('ث', 'ث')
+    AR12 = AR12.replace('ج', 'جٍ').replace('ح', 'حٍ').replace('خ', 'خـ').replace('د', 'دِ')
+    AR12 = AR12.replace('ذ', 'ڌ').replace('ر', 'رٍ').replace('ز', 'ز').replace('س', 'س')
+    AR12 = AR12.replace('ش', 'شُ').replace('ص', 'ص').replace('ض', 'ض').replace('ط', 'طُ')
+    AR12 = AR12.replace('ظ', 'ظً').replace('ع', 'عٍ').replace('غ', 'غ').replace('ف', 'فَ')
+    AR12 = AR12.replace('ق', 'ق').replace('ك', 'گ').replace('ل', 'لُ').replace('م', 'م')
+    AR12 = AR12.replace('ن', 'ن').replace('ه', 'ه').replace('و', 'ۆ').replace('ي', 'يَ')
+    AR12 = AR12.replace('أ', 'ا').replace('إ', 'ا').replace('آ', 'ا').replace('ة', 'ه')
+    AR12 = AR12.replace('ى', 'يَ').replace('ؤ', 'ۆ').replace('ئ', 'يَ')
+    
+    # النمط العربي 13
+    AR13 = text.replace('ا', 'のا').replace('ب', 'ب').replace('ت', 'ت').replace('ث', 'ث')
+    AR13 = AR13.replace('ج', 'ج').replace('ح', 'ح').replace('خ', 'خ').replace('د', 'د')
+    AR13 = AR13.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'س')
+    AR13 = AR13.replace('ش', 'ش').replace('ص', 'ص').replace('ض', 'ض').replace('ط', 'ط')
+    AR13 = AR13.replace('ظ', 'ظ').replace('ع', 'ع').replace('غ', 'غ').replace('ف', 'ف')
+    AR13 = AR13.replace('ق', 'ق').replace('ك', 'ك').replace('ل', 'ل').replace('م', 'م')
+    AR13 = AR13.replace('ن', 'ن').replace('ه', 'ه').replace('و', 'و').replace('ي', 'يの')
+    AR13 = AR13.replace('أ', 'のا').replace('إ', 'のا').replace('آ', 'のا').replace('ة', 'ه')
+    AR13 = AR13.replace('ى', 'يの').replace('ؤ', 'و').replace('ئ', 'يの')
+    
+    # النمط العربي 14
+    AR14 = text.replace('ا', '༊෴✿ا').replace('ب', 'ب').replace('ت', 'ت').replace('ث', 'ث')
+    AR14 = AR14.replace('ج', 'ج').replace('ح', 'ح').replace('خ', 'خ').replace('د', 'د')
+    AR14 = AR14.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'س')
+    AR14 = AR14.replace('ش', 'ش').replace('ص', 'ص').replace('ض', 'ض').replace('ط', 'ط')
+    AR14 = AR14.replace('ظ', 'ظ').replace('ع', 'ع').replace('غ', 'غ').replace('ف', 'ف')
+    AR14 = AR14.replace('ق', 'ق').replace('ك', 'ك').replace('ل', 'ل').replace('م', 'م')
+    AR14 = AR14.replace('ن', 'ن').replace('ه', 'ه').replace('و', 'و').replace('ي', 'ي✿〄')
+    AR14 = AR14.replace('أ', '༊෴✿ا').replace('إ', '༊෴✿ا').replace('آ', '༊෴✿ا').replace('ة', 'ه')
+    AR14 = AR14.replace('ى', 'ي✿〄').replace('ؤ', 'و').replace('ئ', 'ي✿〄')
+    
+    # النمط العربي 15
+    AR15 = text.replace('ا', '◥ツا').replace('ب', 'ب').replace('ت', 'ت').replace('ث', 'ث')
+    AR15 = AR15.replace('ج', 'ج').replace('ح', 'ح').replace('خ', 'خ').replace('د', 'د')
+    AR15 = AR15.replace('ذ', 'ذ').replace('ر', 'ر').replace('ز', 'ز').replace('س', 'س')
+    AR15 = AR15.replace('ش', 'ش').replace('ص', 'ص').replace('ض', 'ض').replace('ط', 'ط')
+    AR15 = AR15.replace('ظ', 'ظ').replace('ع', 'ع').replace('غ', 'غ').replace('ف', 'ف')
+    AR15 = AR15.replace('ق', 'ق').replace('ك', 'ك').replace('ل', 'ل').replace('م', 'م')
+    AR15 = AR15.replace('ن', 'ن').replace('ه', 'ه').replace('و', 'و').replace('ي', 'يツ◤')
+    AR15 = AR15.replace('أ', '◥ツا').replace('إ', '◥ツا').replace('آ', '◥ツا').replace('ة', 'ه')
+    AR15 = AR15.replace('ى', 'يツ◤').replace('ؤ', 'و').replace('ئ', 'يツ◤')
+    
+    return f"""**ᯓ زخـرفـة عربـي - 15 نمـط** 🕌
 **⋆┄─┄─┄─┄─┄─┄─┄─┄⋆**
 {AR1} {smiile1}
 {AR2} {smiile2}
 {AR3} {smiile3}
 {AR4} {smiile4}
 {AR5} {smiile5}
+{AR6} {smiile6}
+{AR7} {smiile7}
+{AR8} {smiile8}
+{AR9} {smiile9}
+{AR10} {smiile10}
+{AR11} {smiile11}
+{AR12} {smiile12}
+{AR13} {smiile13}
+{AR14} {smiile14}
+{AR15} {smiile15}
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 💡 يمكنك نسخ أي نمط تريده"""
 
@@ -758,7 +888,7 @@ async def arabic_decor_start_handler(event):
     
     buttons = [[{"text": "رجــوع ↩️", "callback_data": "cancel_arabic_decor", "style": "danger"}]]
     
-    request_text = """**• مرحبـاً بك عـزيـزي 🕌
+    request_text = """**• مرحبـاً بك عـزيـزي
 
 • قسـم زخـرفة النصـوص العربيـة
 • أرسـل النص أو الاسـم باللغـة العربيـة

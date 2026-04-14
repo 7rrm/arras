@@ -18,7 +18,7 @@ HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 # إيموجي بريميوم
 EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
 EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
-EMOJI_HEART = "5258215850745275216"    # قلب
+EMOJI_HEART = "5220157149103023925"    # قلب
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 

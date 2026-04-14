@@ -5,8 +5,8 @@ import requests
 import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
-ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
 
+ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
 
 # الكليشة مباشرة (بدون استدعاء)
 ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮
@@ -67,8 +67,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             try:
                 requests.post(url, json=inline_data)
-            except Exception as e:
-                print(f"❌ خطأ: {e}")
+            except Exception:
+                pass
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):
@@ -79,6 +79,8 @@ async def repo(event):
     try:
         await event.get_sender()
         await event.get_chat()
+    except Exception:
+        pass
     
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:

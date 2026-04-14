@@ -1,4 +1,3 @@
-
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery
@@ -146,7 +145,277 @@ async def source_menu(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# أوامر التحديث
+# قائمة الحساب
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu")))
+@check_owner
+async def account_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة الحـساب
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر الحـساب 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [
+            Button.inline("‹ : الأسـم الوقَتـي : ›", data="name_commands"),
+            Button.inline("‹ : البايـو الوقَتـي : ›", data="bio_commands")
+        ],
+        [Button.inline("‹ : الصـورة الوقتيـة : ›", data="photo_commands")],
+        [
+            Button.inline("‹ : قَـنواتـي : ›", data="channels_commands"),
+            Button.inline("‹ : كَٕروباتـي : ›", data="groups_commands")
+        ],
+        [Button.inline("‹ : مَـغادرة القَنـوات والمجموعات : ›", data="leave_commands")],
+        [Button.inline("‹ : حَـماية الخَـاص : ›", data="privacy_commands")],
+        [
+            Button.inline("‹ : رجــوع ↩️ : ›", data="ZEDHELP"),
+            Button.inline("‹ : التَالـي : ›", data="account_menu_next")
+        ]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الاسم الوقتي
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"name_commands")))
+@check_owner
+async def name_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاسم 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اسم وقتي</code> <b>⦘</b>
+❐ إضافة اسم وقتي في خانة 1
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اسم وقتي2</code> <b>⦘</b>
+❐ إضافة اسم وقتي في خانة 2
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انهاء اسم وقتي</code> <b>⦘</b>
+❐ إنهاء الاسم الوقتي 1 و 2 
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اوامر الاسم الوقتي</code> <b>⦘</b>
+❐ لـ عرض الاوامر الخاصه ب اسم الوقتي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر البايو الوقتي
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"bio_commands")))
+@check_owner
+async def bio_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البايو 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بايو وقتي</code> <b>⦘</b>
+❐ إضافة بايو وقتي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انهاء البايو الوقتي</code> <b>⦘</b>
+❐ إنهاء البايو الوقتي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الصورة الوقتية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"photo_commands")))
+@check_owner
+async def photo_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصورة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الصورة الوقتية</code> <b>⦘</b>
+❐ وضع صورة تتغير مع الوقت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انهاء الصورة الوقتية</code> <b>⦘</b>
+❐ إنهاء الصورة الوقتية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الكروبات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groups_commands")))
+@check_owner
+async def groups_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكروبات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كروباتي مالك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كروباتي ادمن</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كروباتي الكل</code> <b>⦘</b>
+❐ لـ عرض قوائم بمجموعاتك
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انشائي</code> <b>⦘</b>
+❐ لـ عرض قائمة بمجموعاتك وقنواتك
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر القنوات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"channels_commands")))
+@check_owner
+async def channels_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر القنوات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قنواتي مالك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قنواتي ادمن</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قنواتي الكل</code> <b>⦘</b>
+❐ لـ عرض قوائم بقنواتك
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انشائي</code> <b>⦘</b>
+❐ لـ عرض قائمة بمجموعاتك وقنواتك
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر مغادرة القنوات والمجموعات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"leave_commands")))
+@check_owner
+async def leave_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المغادرة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مغادرة القنوات</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مغادرة الكروبات</code> <b>⦘</b>
+
+❐ لـمغادرة قنواتك ومجموعاتك (ماعدى التي مالكها انت )
+❐ إذا أردت دردشة معينة لاتنشمل في التصفية، قم بوضعها في الأرشيف
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر حماية الخاص
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"privacy_commands")))
+@check_owner
+async def privacy_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحماية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الحماية</code> <b>⦘</b>
+❐ تفعيل/تعطيل الحماية في الخاص
+❐ <b>طريقة الاستخدام:</b> <code>.الحماية تعطيل/تفعيل</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سماح</code> / <code>.قبول</code> <b>⦘</b>
+❐ السماح للشخص بالتكلم في الخاص
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفض</code> / <code>.ر</code> <b>⦘</b>
+❐ رفض الشخص من الخاص
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.عقوبة الخاص</code> <b>⦘</b>
+❐ بالكتم / بالحظر 
+❐ لتحديد نوع العقوبة عندما يتجاوز التحذيرات
+❐ <b>طريقة الاستخدام:</b> <code>.عقوبة الخاص بالكتم</code> او <code>.عقوبة الخاص بالحظر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المقبولين</code> <b>⦘</b>
+❐ عرض قائمة المسموح
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح المقبولين</code> <b>⦘</b>
+❐ لـ مسح قائمة المسموح
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح حماية الخاص</code> <b>⦘</b>
+❐ لمسح جميع المتغيرات التي اضفتها
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المميز تفعيل</code> <b>⦘</b>
+❐ لمنع ارسال المميز في خاصك
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المميز تعطيل</code> <b>⦘</b>
+❐ للسماح ارسال المميز في خاصك
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الخاص تفعيل</code> <b>⦘</b>
+❐ لـ فتح الخاص والسماح بالأشخاص بمراسلتك 
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الخاص تعطيل</code> <b>⦘</b>
+❐ لـ منع الاشخاص من مراسلتك 
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة الحساب التالية (صفحة 2)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu_next")))
+@check_owner
+async def account_menu_next(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة الحـساب (صفحة 2)
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر الحـساب 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [Button.inline("‹ : مَـعلوماتي : ›", data="info_commands")],
+        [Button.inline("‹ : حَـسابي : ›", data="myaccount_commands")],
+        [
+            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu"),
+            Button.inline("‹ : السَـابق : ›", data="account_menu")
+        ]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التحديث (الموجودة مسبقاً)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"update_commands")))
@@ -155,19 +424,19 @@ async def update_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التشغيل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحديث</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحديث</code> <b>⦘</b>
 ❐ التحقق من التحديثات
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحديث الان</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحديث الان</code> <b>⦘</b>
 ❐ لتحديث السورس
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحديثات تشغيل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.التحديثات تشغيل</code> <b>⦘</b>
 ❐ تشغيل الرسالة التجريبية
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحديثات ايقاف</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.التحديثات ايقاف</code> <b>⦘</b>
 ❐ إيقاف الرسالة التجريبية
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
@@ -177,17 +446,13 @@ async def update_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر إعادة التشغيل
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"restart_commands")))
 @check_owner
 async def restart_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التشغيل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.اعادة التشغيل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اعادة التشغيل</code> <b>⦘</b>
 ❐ إعادة تشغيل البوت
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
@@ -197,17 +462,13 @@ async def restart_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر إيقاف البوت
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"stop_commands")))
 @check_owner
 async def stop_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاطفاء 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.اطفاء</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اطفاء</code> <b>⦘</b>
 ❐ إيقاف تشغيل البوت
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
@@ -217,25 +478,21 @@ async def stop_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر الفحص وسرعة الإنترنت
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"speed_commands")))
 @check_owner
 async def speed_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المساعدة 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سرعة النت</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سرعة النت</code> <b>⦘</b>
 ❐ قياس سرعة الانترنت
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.بنك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بنك</code> <b>⦘</b>
 ❐ قياس سرعة البنك
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فحص</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فحص</code> <b>⦘</b>
 ❐ لعرض معلومات التشغيل
 ❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
 
@@ -245,21 +502,17 @@ async def speed_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر السليب
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"sleep_commands")))
 @check_owner
 async def sleep_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السليب 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سليب</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سليب</code> <b>⦘</b>
 ❐ وضعك في وضع غير المتصل
 ❐ <b>طريقة الاستخدام:</b> <code>.سليب السبب</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سليب_ميديا</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سليب_ميديا</code> <b>⦘</b>
 ❐ سليب مع صورة أو متحركة
 ❐ <b>طريقة الاستخدام:</b> <code>.سليب_ميديا السبب بالرد</code>
 
@@ -269,10 +522,6 @@ async def sleep_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر المطور المساعد
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"assistant_dev_commands")))
 @check_owner
 async def assistant_dev_commands(event):
@@ -281,40 +530,40 @@ async def assistant_dev_commands(event):
 ⎉╎قائـمـه اوامـر رفـع المطـور المسـاعـد 🧑🏻‍💻✅ 🦾 : 
 - اضغـط ع الامـر للنسـخ ثـم استخـدمهـا بالتـرتيـب 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.رفع مطور</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مطور</code> <b>⦘</b>
 - لـ رفـع الشخـص مطـور مسـاعـد معـك بالبـوت 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تنزيل مطور</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تنزيل مطور</code> <b>⦘</b>
 - لـ تنزيـل الشخـص مطـور مسـاعـد مـن البـوت 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.المطورين</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المطورين</code> <b>⦘</b>
 - لـ عـرض قائمـة بمطـورين البـوت الخـاص بـك 🧑🏻‍💻📑 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.امر المطور تفعيل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.امر المطور تفعيل</code> <b>⦘</b>
 - لـ تفعيـل وضـع المطـورين المسـاعدين 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.امر المطور تعطيل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.امر المطور تعطيل</code> <b>⦘</b>
 - لـ تعطيـل وضـع المطـورين المسـاعدين 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم كامل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحكم كامل</code> <b>⦘</b>
 - اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم الكـاملـه بالاوامــر ✓ 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم آمن</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحكم آمن</code> <b>⦘</b>
 - اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم الآمـن لـ الاوامــر الامنـه فقـط ✓ 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم + اسم الامـر</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحكم + اسم الامـر</code> <b>⦘</b>
 - اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم بأمـر واحـد فقـط او عـدة اوامـر معينـه ✓ .. مثـال (<code>.تحكم ايدي</code>) او (<code>.تحكم ايدي فحص كتم</code>)
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم كامل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم كامل</code> <b>⦘</b>
 - ايقـاف صلاحيـة التحكـم الكـاملـه بالاوامــر للمطـورين المرفـوعيـن ✓ 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم آمن</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم آمن</code> <b>⦘</b>
 - ايقـاف صلاحيـة التحكـم الآمـن لـ الاوامــر الآمنـه للمطـورين المرفـوعيـن ✓ 
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم + اسم الامـر</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم + اسم الامـر</code> <b>⦘</b>
 - ايقـاف صلاحيـة التحكـم المعطـاه لـ امـر واحـد فقـط او عـدة اوامـر للمطـورين المرفـوعيـن ✓ .. مثـال (<code>.ايقاف تحكم ايدي</code>) او (<code>.ايقاف تحكم ايدي فحص كتم</code>)
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحكم</code> / <code>.التحكم المعطل</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.التحكم</code> / <code>.التحكم المعطل</code> <b>⦘</b>
 - لـ عـرض قائمـة بالاوامـر المسمـوحـه والغيـر مسمـوحـه للمطـوريـن التحكـم فيهـا 🛃🚷 
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
@@ -324,23 +573,7 @@ async def assistant_dev_commands(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# قائمة الحساب (مؤقت - سيتم إكمالها لاحقاً)
-# =========================================================== #
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu")))
-@check_owner
-async def account_menu(event):
-    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
-‹ : في قائمـة الحسـاب
-‹ : سيتم إضافة الأوامر قريباً 
-
-ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
-    
-    buttons = [[Button.inline("رجــوع ↩️", data="ZEDHELP")]]
-    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
-
-# =========================================================== #
-# أوامر البحث والتحميل (الأنلاين) - موجودة مسبقاً
+# أوامر البحث والتحميل (الموجودة مسبقاً)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_commands")))
@@ -349,29 +582,29 @@ async def youtube_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.يوت</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.يوت</code> <b>⦘</b>
 ❐ البحث عن أغنية
 ❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الاغنية</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل يوت</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل يوت</code> <b>⦘</b>
 ❐ لتسمح ب استخدام امر يوت للأشخاص الآخرين
 ❐ <b>طريقة الاستخدام:</b> <code>.تفعيل يوت</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل يوت</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل يوت</code> <b>⦘</b>
 ❐ لتعطيل استخدام امر يوت
 ❐ <b>طريقة الاستخدام:</b> <code>.تعطيل يوت</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيديو</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فيديو</code> <b>⦘</b>
 ❐ البحث عن فيديو
 ❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الفيديو</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل فيديو</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل فيديو</code> <b>⦘</b>
 ❐ لتسمح ب استخدام امر فيديو للأشخاص الآخرين
 ❐ <b>طريقة الاستخدام:</b> <code>.تفعيل فيديو</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل فيديو</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل فيديو</code> <b>⦘</b>
 ❐ لتعطيل استخدام امر فيديو
 ❐ <b>طريقة الاستخدام:</b> <code>.تعطيل فيديو</code>
 
@@ -387,7 +620,7 @@ async def inline_search_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البحث والتحميل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.بحث</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بحث</code> <b>⦘</b>
 ❐ تحميل( صوت / فيديو ) من يوتيوب 
 ❐ <b>طريقة الاستخدام:</b> <code>.بحث الكلمة أو الرابط</code>
 
@@ -403,19 +636,19 @@ async def social_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السوشيال ميديا 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيس</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فيس</code> <b>⦘</b>
 ❐ تحميل من الفيس بوك
 ❐ <b>طريقة الاستخدام:</b> <code>.فيس الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تيك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تيك</code> <b>⦘</b>
 ❐ تحميل من تيك توك
 ❐ <b>طريقة الاستخدام:</b> <code>.تيك الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
 ❐ تحميل ستوري من التلكرام
 ❐ <b>طريقة الاستخدام:</b> <code>.ستوري الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.داون</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.داون</code> <b>⦘</b>
 ❐ تحميل من جميع مواقع التواصل
 ❐ <b>طريقة الاستخدام:</b> <code>.داون الرابط</code>
 
@@ -433,7 +666,7 @@ async def social_commands(event):
 @check_owner
 async def back_to_main(event):
     buttons = [
-        [Button.inline("‹ : البحـث والتحميل : ›", data="main_menu")],
+        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")],
         [
             Button.inline("‹ : السـورس : ›", data="source_menu"),
             Button.inline("‹ : الحـساب : ›", data="account_menu")

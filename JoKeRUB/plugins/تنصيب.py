@@ -48,11 +48,14 @@ async def repo(event):
     try:
         response = requests.post(send_url, json=send_data, timeout=5)
         if response.status_code == 200:
-            await event.delete()  # حذف رسالة الأمر فقط إذا نجح الإرسال
+            await event.delete()
         else:
-            # فشل API → استخدم الطريقة العادية
-            await event.edit(ROZ, buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], parse_mode="HTML")
+            # فشل API → استخدم الطريقة العادية بدون ايموجي مميز
+            await event.edit(ROZ.replace('<tg-emoji emoji-id="5974491287615706239">✅</tg-emoji>', '✅').replace('<tg-emoji emoji-id="5778296180807046576">📨</tg-emoji>', '📨'), 
+                           buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], 
+                           parse_mode="HTML")
     except Exception as e:
         print(f"❌ خطأ: {e}")
-        # فشل API → استخدم الطريقة العادية
-        await event.edit(ROZ, buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], parse_mode="HTML")
+        await event.edit(ROZ.replace('<tg-emoji emoji-id="5974491287615706239">✅</tg-emoji>', '✅').replace('<tg-emoji emoji-id="5778296180807046576">📨</tg-emoji>', '📨'), 
+                       buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], 
+                       parse_mode="HTML")

@@ -923,22 +923,176 @@ async def history_commands(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# قائمة الحساب التالية (صفحة 3) - مؤقت
+# قائمة الحساب التالية (صفحة 3)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu_nextt")))
 @check_owner
-async def account_menu_next2(event):
+async def account_menu_nextt(event):
     text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
 ‹ : في قائمـة الحـساب (صفحة 3)
-‹ : سيتم إضافة المزيد من الأوامر قريباً 
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر الحـساب 
 
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
         [
-            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu_next"),
-            Button.inline("‹ : السَـابق : ›", data="account_menu_next")
+            Button.inline("‹ : التقليـد : ›", data="fake_commands"),
+            Button.inline("‹ : الأنتحَـال : ›", data="spoof_commands")
+        ],
+        [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_commands2")],
+        [
+            Button.inline("‹ : المحَظورين : ›", data="blocked_commands"),
+            Button.inline("‹ : حَذف دردشـة : ›", data="delete_chat_commands")
+        ],
+        [
+            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu_next")
         ]
     ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التقليد
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fake_commands")))
+@check_owner
+async def fake_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التقليد 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تقليد</code> <b>⦘</b>
+❐ تقليد جميع رسائل الشخص
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الغاء التقليد</code> <b>⦘</b>
+❐ إيقاف تقليد الشخص
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المقلدهم</code> <b>⦘</b>
+❐ عرض قائمة الأشخاص المقلدهم
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح المقلدهم</code> <b>⦘</b>
+❐ مسح قائمة المقلدهم
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الانتحال
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"spoof_commands")))
+@check_owner
+async def spoof_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الانتحال 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انتحال</code> <b>⦘</b>
+❐ نسخ حساب شخص بالكامل
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اعادة</code> <b>⦘</b>
+❐ إرجاع الحساب إلى وضعه الطبيعي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.انتحال_الدردشه</code> <b>⦘</b>
+❐ انتحال دردشة معينة
+❐ <b>طريقة الاستخدام:</b> <code>.انتحال_الدردشه معرف</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اعادة_الدردشه</code> <b>⦘</b>
+❐ إرجاع الدردشة إلى وضعها الطبيعي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الاذاعة
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"broadcast_commands2")))
+@check_owner
+async def broadcast_commands2(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الإذاعة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.وجه</code> <b>⦘</b>
+❐ إذاعة نص للمجموعات
+❐ <b>طريقة الاستخدام:</b> <code>.وجه النص</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حول</code> <b>⦘</b>
+❐ إذاعة نص للخاص
+❐ <b>طريقة الاستخدام:</b> <code>.حول النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر المحظورين
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"blocked_commands")))
+@check_owner
+async def blocked_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المحظورين 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الحاظرهم</code> <b>⦘</b>
+❐ لـ عرض الاشخص إلي حاضرهم في حسابك
+❐ <b>طريقة الاستخدام:</b> <code>.الحاظرهم</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح الحاظرهم</code> <b>⦘</b>
+❐ لـ مسح جميع المحظورين في حسابك
+❐ <b>طريقة الاستخدام:</b> <code>.مسح الحاظرهم</code>
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح المحظورين</code> <b>⦘</b>
+❐ لرفع الحظر عن جميع الأعضاء المحظورين في القناة
+❐ <b>طريقة الاستخدام:</b> <code>.مسح المحظورين</code>
+❐ ملاحظة: هذا الأمر للقنوات فقط ويتطلب صلاحيات المشرف
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حذف المحظورين</code> <b>⦘</b>
+❐ لمسح وإلغاء حظر جميع الحسابات المحظورة في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.حذف المحظورين</code>
+❐ ملاحظة: هذا الأمر للمجموعات فقط ويتطلب صلاحيات المشرف
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر حذف الدردشة
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_chat_commands")))
+@check_owner
+async def delete_chat_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحذف 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.احذف</code> <b>⦘</b>
+❐ لحذف الدردشة مع أي شخص من الطرفين في الخاص
+❐ <b>طريقة الاستخدام:</b> <code>.احذف + معرف الشخص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

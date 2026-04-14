@@ -22,14 +22,7 @@ async def repo(event):
     if event.fwd_from:
         return
     
-    # ✅ حل مشكلة PeerUser
-    try:
-        await event.get_sender()
-        await event.get_chat()
-    except Exception:
-        pass
-    
-    # ✅ أزرار ملونة مع ايموجي
+    # ✅ أزرار ملونة
     keyboard = {
         "inline_keyboard": [
             [
@@ -42,7 +35,7 @@ async def repo(event):
         ]
     }
     
-    # ✅ إرسال مباشر عبر API (عشان الإيموجي يشتغل)
+    # ✅ إرسال مباشر عبر API
     send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
     send_data = {
         "chat_id": event.chat_id,
@@ -53,9 +46,13 @@ async def repo(event):
     }
     
     try:
-        requests.post(send_url, json=send_data, timeout=3)
-        await event.delete()  # حذف رسالة الأمر
+        response = requests.post(send_url, json=send_data, timeout=5)
+        if response.status_code == 200:
+            await event.delete()  # حذف رسالة الأمر فقط إذا نجح الإرسال
+        else:
+            # فشل API → استخدم الطريقة العادية
+            await event.edit(ROZ, buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], parse_mode="HTML")
     except Exception as e:
         print(f"❌ خطأ: {e}")
-        # بديل إذا فشل
+        # فشل API → استخدم الطريقة العادية
         await event.edit(ROZ, buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], parse_mode="HTML")

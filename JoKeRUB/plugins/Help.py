@@ -87,7 +87,7 @@ async def help(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"download_commands")))
 @check_owner
 async def download_cmd(event):
-    text = f'''<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
+    text = f"""<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.يوت` ⦘</b>
@@ -135,48 +135,18 @@ async def download_cmd(event):
 ❐ طريقة الاستخدام: <code>.داون الرابط</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>Dev : @Lx5x5 🦅</b>'''
+<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>Dev : @Lx5x5 🦅</b>"""
     
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML")
 
 # =========================================================== #
-# زر الرجوع - يعيد الأزرار الملونة (باستخدام API)
+# زر الرجوع - يعيد الأزرار الملونة (بدون API)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    # ✅ أزرار ملونة
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "📥 اوامر التحميل 📥",
-                    "callback_data": "download_commands",
-                    "style": "primary"
-                }
-            ]
-        ]
-    }
-    
-    try:
-        # استخدام API لتعديل الرسالة
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": HELP,
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps(keyboard),
-            "disable_web_page_preview": True
-        }
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            # إذا فشل، نستخدم Telethon
-            buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-            await event.edit(HELP, buttons=buttons)
-    except Exception as e:
-        print(f"❌ خطأ في الرجوع: {e}")
-        buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-        await event.edit(HELP, buttons=buttons)
+    # ✅ استخدام Telethon مباشرة (بدون API عشان يشتغل)
+    buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
+    await event.edit(HELP, buttons=buttons)

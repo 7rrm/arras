@@ -43,25 +43,40 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 ]
             }
             
-            # إرسال عبر API للحصول على الألوان
+            # ✅ إرسال الصورة بشكل صحيح
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            
+            # التحقق من وجود الصورة
+            if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", ".gif", ".mp4")):
+                result_data = {
+                    "type": "photo",
+                    "id": "sorous_1",
+                    "title": "🔥 JoKeRUB - السورس",
+                    "description": "السورس الرسمي - اضغط للإرسال",
+                    "photo_url": ROZ_PIC,
+                    "thumb_url": ROZ_PIC,
+                    "input_message_content": {
+                        "message_text": ROZ,
+                        "parse_mode": "Markdown"
+                    },
+                    "reply_markup": keyboard
+                }
+            else:
+                result_data = {
+                    "type": "article",
+                    "id": "sorous_1",
+                    "title": "🔥 JoKeRUB - السورس",
+                    "description": "السورس الرسمي - اضغط للإرسال",
+                    "input_message_content": {
+                        "message_text": ROZ,
+                        "parse_mode": "Markdown"
+                    },
+                    "reply_markup": keyboard
+                }
+            
             inline_data = {
                 "inline_query_id": event.id,
-                "results": json.dumps([
-                    {
-                        "type": "photo" if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else "article",
-                        "id": "sorous_1",
-                        "title": "🔥 JoKeRUB - السورس",
-                        "description": "السورس الرسمي - اضغط للإرسال",
-                        "input_message_content": {
-                            "message_text": ROZ,
-                            "parse_mode": "Markdown"
-                        },
-                        "reply_markup": keyboard,
-                        "photo_url": ROZ_PIC if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else None,
-                        "thumb_url": ROZ_PIC if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else None
-                    }
-                ]),
+                "results": json.dumps([result_data]),
                 "cache_time": 0,
                 "is_personal": True
             }

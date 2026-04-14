@@ -1,3 +1,4 @@
+
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery
@@ -35,6 +36,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                             "text": "‹ : أوامـر البحـث والتحميل : ›",
                             "callback_data": "main_menu",
                             "style": "danger"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "‹ : السـورس : ›",
+                            "callback_data": "source_menu",
+                            "style": "primary"
+                        },
+                        {
+                            "text": "‹ : الحـساب : ›",
+                            "callback_data": "account_menu",
+                            "style": "primary"
                         }
                     ]
                 ]
@@ -82,7 +95,7 @@ async def help(event):
     await event.delete()
 
 # =========================================================== #
-# القائمة الرئيسية
+# القائمة الرئيسية (أوامر البحث والتحميل)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"main_menu")))
@@ -105,7 +118,229 @@ async def main_menu(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# أوامر اليوت والفيديو (البوت)
+# قائمة السورس (التحديث والتشغيل)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"source_menu")))
+@check_owner
+async def source_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة التحديث والتشغيل
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر التحديثات 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [Button.inline("‹ : التحَـديث : ›", data="update_commands")],
+        [
+            Button.inline("‹ : أعَـادة التشغيل : ›", data="restart_commands"),
+            Button.inline("‹ : أيـقاف البوت : ›", data="stop_commands")
+        ],
+        [Button.inline("‹ : الفحَـص و سَرعة الأنترنت : ›", data="speed_commands")],
+        [
+            Button.inline("‹ : السَليب : ›", data="sleep_commands"),
+            Button.inline("‹ : المـطور المَساعـد : ›", data="assistant_dev_commands")
+        ],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التحديث
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"update_commands")))
+@check_owner
+async def update_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التشغيل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحديث</code> <b>⦘</b>
+❐ التحقق من التحديثات
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحديث الان</code> <b>⦘</b>
+❐ لتحديث السورس
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحديثات تشغيل</code> <b>⦘</b>
+❐ تشغيل الرسالة التجريبية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحديثات ايقاف</code> <b>⦘</b>
+❐ إيقاف الرسالة التجريبية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر إعادة التشغيل
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"restart_commands")))
+@check_owner
+async def restart_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التشغيل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.اعادة التشغيل</code> <b>⦘</b>
+❐ إعادة تشغيل البوت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر إيقاف البوت
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"stop_commands")))
+@check_owner
+async def stop_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاطفاء 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.اطفاء</code> <b>⦘</b>
+❐ إيقاف تشغيل البوت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الفحص وسرعة الإنترنت
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"speed_commands")))
+@check_owner
+async def speed_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المساعدة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سرعة النت</code> <b>⦘</b>
+❐ قياس سرعة الانترنت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.بنك</code> <b>⦘</b>
+❐ قياس سرعة البنك
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فحص</code> <b>⦘</b>
+❐ لعرض معلومات التشغيل
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر السليب
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"sleep_commands")))
+@check_owner
+async def sleep_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السليب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سليب</code> <b>⦘</b>
+❐ وضعك في وضع غير المتصل
+❐ <b>طريقة الاستخدام:</b> <code>.سليب السبب</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.سليب_ميديا</code> <b>⦘</b>
+❐ سليب مع صورة أو متحركة
+❐ <b>طريقة الاستخدام:</b> <code>.سليب_ميديا السبب بالرد</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر المطور المساعد
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"assistant_dev_commands")))
+@check_owner
+async def assistant_dev_commands(event):
+    text = f'''<b>ᯓ اوامــر المطـور المســاعد .</b>
+
+⎉╎قائـمـه اوامـر رفـع المطـور المسـاعـد 🧑🏻‍💻✅ 🦾 : 
+- اضغـط ع الامـر للنسـخ ثـم استخـدمهـا بالتـرتيـب 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.رفع مطور</code> <b>⦘</b>
+- لـ رفـع الشخـص مطـور مسـاعـد معـك بالبـوت 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تنزيل مطور</code> <b>⦘</b>
+- لـ تنزيـل الشخـص مطـور مسـاعـد مـن البـوت 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.المطورين</code> <b>⦘</b>
+- لـ عـرض قائمـة بمطـورين البـوت الخـاص بـك 🧑🏻‍💻📑 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.امر المطور تفعيل</code> <b>⦘</b>
+- لـ تفعيـل وضـع المطـورين المسـاعدين 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.امر المطور تعطيل</code> <b>⦘</b>
+- لـ تعطيـل وضـع المطـورين المسـاعدين 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم كامل</code> <b>⦘</b>
+- اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم الكـاملـه بالاوامــر ✓ 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم آمن</code> <b>⦘</b>
+- اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم الآمـن لـ الاوامــر الامنـه فقـط ✓ 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تحكم + اسم الامـر</code> <b>⦘</b>
+- اعطـاء المطـورين المرفـوعيـن صلاحيـة التحكـم بأمـر واحـد فقـط او عـدة اوامـر معينـه ✓ .. مثـال (<code>.تحكم ايدي</code>) او (<code>.تحكم ايدي فحص كتم</code>)
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم كامل</code> <b>⦘</b>
+- ايقـاف صلاحيـة التحكـم الكـاملـه بالاوامــر للمطـورين المرفـوعيـن ✓ 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم آمن</code> <b>⦘</b>
+- ايقـاف صلاحيـة التحكـم الآمـن لـ الاوامــر الآمنـه للمطـورين المرفـوعيـن ✓ 
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ايقاف تحكم + اسم الامـر</code> <b>⦘</b>
+- ايقـاف صلاحيـة التحكـم المعطـاه لـ امـر واحـد فقـط او عـدة اوامـر للمطـورين المرفـوعيـن ✓ .. مثـال (<code>.ايقاف تحكم ايدي</code>) او (<code>.ايقاف تحكم ايدي فحص كتم</code>)
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.التحكم</code> / <code>.التحكم المعطل</code> <b>⦘</b>
+- لـ عـرض قائمـة بالاوامـر المسمـوحـه والغيـر مسمـوحـه للمطـوريـن التحكـم فيهـا 🛃🚷 
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة الحساب (مؤقت - سيتم إكمالها لاحقاً)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu")))
+@check_owner
+async def account_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة الحسـاب
+‹ : سيتم إضافة الأوامر قريباً 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [[Button.inline("رجــوع ↩️", data="ZEDHELP")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر البحث والتحميل (الأنلاين) - موجودة مسبقاً
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_commands")))
@@ -146,10 +381,6 @@ async def youtube_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="main_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
-# =========================================================== #
-# أوامر البحث والتحميل (الأنلاين)
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"inline_search_commands")))
 @check_owner
 async def inline_search_commands(event):
@@ -165,10 +396,6 @@ async def inline_search_commands(event):
     
     buttons = [[Button.inline("↩️ رجوع", data="main_menu")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
-
-# =========================================================== #
-# أوامر السوشيال ميديا
-# =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"social_commands")))
 @check_owner
@@ -199,20 +426,17 @@ async def social_commands(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# أوامر البحث والتحميل (الرجوع للقائمة الرئيسية)
-# =========================================================== #
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"search_commands")))
-@check_owner
-async def search_commands(event):
-    await main_menu(event)
-
-# =========================================================== #
-# زر الرجوع النهائي (بدون ألوان)
+# زر الرجوع النهائي
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    buttons = [[Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")]]
+    buttons = [
+        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")],
+        [
+            Button.inline("‹ : السـورس : ›", data="source_menu"),
+            Button.inline("‹ : الحـساب : ›", data="account_menu")
+        ]
+    ]
     await event.edit(HELP, buttons=buttons, link_preview=False)

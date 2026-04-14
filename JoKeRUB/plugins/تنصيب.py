@@ -79,7 +79,6 @@ async def repo(event):
     try:
         await event.get_sender()
         await event.get_chat()
-    except Exception as e:
     
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:

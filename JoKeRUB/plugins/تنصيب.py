@@ -1,9 +1,16 @@
 from telethon import events, Button
+from telethon.events import CallbackQuery
+import json
+import requests
+import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from l313l.razan.resources.mybot import *
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
+
+# إيموجي بريميوم
+FIRE_EMOJI = "5368324170671202286"  # 🔥
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
@@ -12,22 +19,64 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         result = None
         query = event.text
         await bot.get_me()
+        
         if query.startswith("السورس") and event.query.user_id == bot.uid:
-            buttons = [
-                [Button.url("∙ المـطور ∙", "https://t.me/lx5x5")]
-            ]
-            if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")):
-                result = builder.photo(ROZ_PIC, text=ROZ, buttons=buttons, link_preview=False)
-            elif ROZ_PIC:
-                result = builder.document(ROZ_PIC, title="JoKeRUB", text=ROZ, buttons=buttons, link_preview=False)
-            else:
-                result = builder.article(title="JoKeRUB", text=ROZ, buttons=buttons, link_preview=False)
-            await event.answer([result] if result else None)
+            # ✅ أزرار ملونة باستخدام API
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "🔥 المطور @lx5x5 🔥",
+                            "url": "https://t.me/lx5x5",
+                            "style": "primary",
+                            "icon_custom_emoji_id": FIRE_EMOJI
+                        }
+                    ]
+                ]
+            }
+            
+            # إرسال عبر API للحصول على الألوان
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "photo" if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else "article",
+                        "id": "sorous_1",
+                        "title": "🔥 JoKeRUB - السورس",
+                        "description": "السورس الرسمي - اضغط للإرسال",
+                        "input_message_content": {
+                            "message_text": ROZ,
+                            "parse_mode": "Markdown"
+                        },
+                        "reply_markup": keyboard,
+                        "photo_url": ROZ_PIC if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else None,
+                        "thumb_url": ROZ_PIC if ROZ_PIC and ROZ_PIC.endswith((".jpg", ".png", "gif", "mp4")) else None
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            try:
+                requests.post(url, json=inline_data)
+            except Exception as e:
+                print(f"❌ خطأ: {e}")
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):
     if event.fwd_from:
         return
+    
+    # ✅ حل مشكلة PeerUser (نفس طريقة أمر مساعدة)
+    try:
+        await event.get_sender()
+        await event.get_chat()
+    except Exception as e:
+        print(f"تم التحميل: {e}")
+    
+    await asyncio.sleep(0.5)
+    
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:
         await event.get_reply_message()

@@ -1,5 +1,5 @@
 import re
-from telethon import events, Button
+from telethon import Button, events
 from telethon.events import CallbackQuery
 import json
 import requests
@@ -17,7 +17,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("مساعدة"):
-            # ✅ أزرار ملونة باستخدام API
+            # أزرار ملونة
             keyboard = {
                 "inline_keyboard": [
                     [
@@ -45,7 +45,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         "type": "article",
                         "id": "help_menu_1",
                         "title": "📚 قائمة المساعدة - آراس",
-                        "description": "اضغط لعرض الأوامر المتاحة",
+                        "description": "اضغط لعرض الأوامر",
                         "input_message_content": {
                             "message_text": HELP,
                             "parse_mode": "Markdown",
@@ -64,7 +64,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    #                   معالج زر اوامر الادارة (ملون)            #
+    # معالج زر اوامر الادارة (باستخدام Telethon)
     # =========================================================== #
 
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands_test")))
@@ -81,31 +81,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
         
-        buttons = [
-            [
-                {
-                    "text": "↩️ رجوع للقائمة الرئيسية",
-                    "callback_data": "ZEDHELP",
-                    "style": "danger"
-                }
-            ]
-        ]
-        
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": text,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps({"inline_keyboard": buttons})
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
+        await event.edit(text, buttons=buttons)
 
     # =========================================================== #
-    #                   معالج زر اوامر التنظيف (ملون)            #
+    # معالج زر اوامر التنظيف (باستخدام Telethon)
     # =========================================================== #
 
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd_test")))
@@ -122,65 +102,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
         
-        buttons = [
-            [
-                {
-                    "text": "↩️ رجوع للقائمة الرئيسية",
-                    "callback_data": "ZEDHELP",
-                    "style": "danger"
-                }
-            ]
-        ]
-        
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": text,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps({"inline_keyboard": buttons})
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
+        await event.edit(text, buttons=buttons)
 
     # =========================================================== #
-    #                   القائمة الرئيسية (ZEDHELP)               #
+    # القائمة الرئيسية (باستخدام Telethon)
     # =========================================================== #
 
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
     @check_owner
     async def back_to_main(event):
-        keyboard = {
-            "inline_keyboard": [
-                [
-                    {
-                        "text": "🔥 اوامر الادارة 🔥",
-                        "callback_data": "admin_commands_test",
-                        "style": "primary"
-                    }
-                ],
-                [
-                    {
-                        "text": "✨ اوامر التنظيف ✨",
-                        "callback_data": "clean_cmd_test",
-                        "style": "success"
-                    }
-                ]
-            ]
-        }
-        
-        try:
-            edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-            edit_data = {
-                "chat_id": event.chat_id,
-                "message_id": event.message_id,
-                "text": HELP,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps(keyboard),
-                "disable_web_page_preview": True
-            }
-            requests.post(edit_url, json=edit_data, timeout=3)
-        except Exception as e:
-            print(f"❌ خطأ: {e}")
+        buttons = [
+            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands_test")],
+            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd_test")]
+        ]
+        await event.edit(HELP, buttons=buttons)

@@ -372,7 +372,7 @@ async def handle_unblock_all(event):
             await event.edit(f"حدث خطأ أثناء إلغاء حظر المستخدم بمعرّف: {user.id}, الخطأ: {e}")
             continue
             
-@l313l.ar_cmd(pattern="(الاسماء|تاريخة)(?: |$)(.*)")
+@l313l.ar_cmd(pattern="(تاريخة)(?: |$)(.*)")
 async def zelzal_gif(event):
     input_str = event.pattern_match.group(1)
     reply_message = await event.get_reply_message()

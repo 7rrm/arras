@@ -195,7 +195,7 @@ async def count(event):
 
 @l313l.ar_cmd(
     pattern="الصوره حذف ?(.*)",
-    command=("حذف صوره", plugin_category),
+    command=("الصوره حذف", plugin_category),
     info={
         "header": "To delete profile pic for this account.",
         "description": "If you havent mentioned no of profile pics then only 1 will be deleted.",
@@ -205,7 +205,7 @@ async def count(event):
 async def remove_profilepic(delpfp):
     """For .delpfp command, delete your current profile picture in Telegram."""
     group = delpfp.text[8:]
-    if group == "all":
+    if group == "الكل":
         lim = 0
     elif group.isdigit():
         lim = int(group)

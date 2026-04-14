@@ -64,7 +64,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 print(f"❌ خطأ في inline: {e}")
 
     # =========================================================== #
-    # معالج زر اوامر الادارة
+    # معالج زر اوامر الادارة (باستخدام API)
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
@@ -102,10 +102,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ: {e}")
+            print(f"❌ خطأ في معالج الادارة: {e}")
 
     # =========================================================== #
-    # معالج زر اوامر التنظيف
+    # معالج زر اوامر التنظيف (باستخدام API)
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd")))
@@ -145,10 +145,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ: {e}")
+            print(f"❌ خطأ في معالج التنظيف: {e}")
 
     # =========================================================== #
-    # معالج زر الرجوع
+    # معالج زر الرجوع (باستخدام API)
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_help")))
@@ -185,14 +185,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ: {e}")
+            print(f"❌ خطأ في معالج الرجوع: {e}")
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help_cmd(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
     
-    # إرسال مباشر بدون inline_query
+    # إرسال الأزرار الملونة عبر API
     keyboard = {
         "inline_keyboard": [
             [
@@ -225,8 +225,7 @@ async def help_cmd(event):
         requests.post(send_url, json=send_data, timeout=3)
         await event.delete()
     except Exception as e:
-        print(f"❌ خطأ: {e}")
-        # بديل إذا فشل
+        print(f"❌ خطأ في الإرسال: {e}")
         await event.edit(HELP_TEXT, buttons=[
             [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
             [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]

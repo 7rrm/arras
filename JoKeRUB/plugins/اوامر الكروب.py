@@ -185,6 +185,32 @@ async def _(event):
         f"᯽︙  تم بنجاح حظر من {total} الاعضاء ✅ "
     )
 
+@l313l.ar_cmd(pattern="مسح المحظورين ?(.*)")
+async def _(event):
+    if event.fwd_from:
+        return
+    input_str = event.pattern_match.group(1)
+    if input_str:
+        LOGS.info("TODO: Not yet Implemented")
+    else:
+        if event.is_private:
+            return False
+        et = await edit_or_reply(event, "**↫ البحث في قوائم المشاركين ⇲**")
+        p = 0
+        async for i in event.client.iter_participants(
+            event.chat_id, filter=ChannelParticipantsKicked, aggressive=True
+        ):
+            rights = ChatBannedRights(until_date=0, view_messages=False)
+            try:
+                await event.client(
+                    functions.channels.EditBannedRequest(event.chat_id, i, rights)
+                )
+            except Exception as ex:
+                await et.edit(str(ex))
+            else:
+                p += 1
+        await et.edit("⪼ {} **↫** {} **رفع الحظر عنهم**".format(event.chat_id, p))
+
 
 @l313l.ar_cmd(
     pattern="حذف المحظورين$",

@@ -33,7 +33,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": "‹ : أوامـر البحـث والتحميل : ›",
+                            "text": "‹ : البحـث والتحميل : ›",
                             "callback_data": "main_menu",
                             "style": "danger"
                         }
@@ -108,10 +108,10 @@ async def main_menu(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : أوامـر اليوت والفيديـو( البوت ) : ›", data="youtube_commands")],
+        [Button.inline("‹ : اليوت والفيديـو( البوت ) : ›", data="youtube_commands")],
         [
-            Button.inline("‹ : أوامـر البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands"),
-            Button.inline("‹ : أوامـر السوشيال مَيـديا : ›", data="social_commands")
+            Button.inline("‹ : البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands"),
+            Button.inline("‹ : السوشيال مَيـديا : ›", data="social_commands")
         ],
         [Button.inline("رجــوع ↩️", data="ZEDHELP")]
     ]
@@ -433,7 +433,7 @@ async def social_commands(event):
 @check_owner
 async def back_to_main(event):
     buttons = [
-        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")],
+        [Button.inline("‹ : البحـث والتحميل : ›", data="main_menu")],
         [
             Button.inline("‹ : السـورس : ›", data="source_menu"),
             Button.inline("‹ : الحـساب : ›", data="account_menu")

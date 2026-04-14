@@ -371,14 +371,57 @@ async def handle_unblock_all(event):
             await event.edit(f"حدث خطأ أثناء إلغاء حظر المستخدم بمعرّف: {user.id}, الخطأ: {e}")
             continue
             
-@l313l.on(admin_cmd(pattern="(تاريخه|تاريخة)$"))
-async def Hussein(event):
-    reply_to = event.reply_to_msg_id
-    if reply_to:
-        msg = await client.get_messages(event.chat_id, ids=reply_to)
-        user_id = msg.sender_id
-        chat = await client.get_entity("@SangMata_beta_bot")
-        async with client.conversation(chat) as conv:
-            await conv.send_message(f'{user_id}')
-            response = await conv.get_response()
-            await event.edit(response.text)
+@l313l.ar_cmd(pattern="(الاسماء|تاريخة)(?: |$)(.*)")
+async def zelzal_gif(event):
+    input_str = event.pattern_match.group(1)
+    reply_message = await event.get_reply_message()
+    if not input_str and not reply_message:
+        await edit_or_reply(event, "**- بالـرد ع الشخص او باضافة معـرف/ايـدي الشخـص للامـر**")
+    if input_str and not reply_message:
+        if input_str.isnumeric():
+            uid = input_str
+        if input_str.startswith("@"):
+            user = await event.client.get_entity(input_str)
+            uid = user.id
+    if input_str and reply_message:
+        if input_str.isnumeric():
+            uid = input_str
+        if input_str.startswith("@"):
+            user = await event.client.get_entity(input_str)
+            uid = user.id
+    if not input_str and reply_message:
+        user = await event.client.get_entity(reply_message.sender_id)
+        uid = user.id
+    #user = await get_user_from_event(event)
+    #if not user:
+        #return
+    #uid = user.id
+    chat = "@SangMata_beta_bot" 
+    zed = await edit_or_reply(event, "**⎉╎جـارِ الكشـف ...**")
+    async with borg.conversation(chat) as conv: 
+        try:
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(f"{uid}")
+        except YouBlockedUserError:
+            await l313l(unblock("SangMata_beta_bot"))
+            await conv.send_message("/start")
+            await conv.get_response()
+            await conv.send_message(f"{uid}")
+        zlz = await conv.get_response()
+        mallath = zlz.text
+        if "No data available" in mallath: 
+            zzl = "<b>⎉╎المستخدم ليس لديه أي سجل اسمـاء بعـد ...</b>"
+            await zed.delete()
+            return await borg.send_message(event.chat_id, zzl, parse_mode="html")
+        if "Sorry, you have used up your quota for today" in zlz.text:
+            zzl = "<b>⎉╎عـذراً .. لقد استنفدت محاولاتك لهذا اليوم.\n⎉╎لديـك 5 محاولات فقط كل يوم\n⎉╎يتم تحديث محاولاتك في الساعة 03:00 بتوقيت مكة كل يوم</b>"
+            await zed.delete()
+            return await borg.send_message(event.chat_id, zzl, parse_mode="html")
+        if "👤 History for" in mallath:
+            zzl = mallath.replace("👤 History for", "ᯓ 𝗦𝗼𝘂𝗿𝗰𝗲 𝗮𝗥𝗥𝗮𝗦 - <b>سجـل الحسـاب 🪪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔ تم جلب السجـلات .. بنجـاح ☑️</b> ❝") 
+            await zed.delete()
+            return await borg.send_message(event.chat_id, zzl, parse_mode="html")
+        await zed.delete()
+        return await borg.send_message(event.chat_id, zlz, parse_mode="html")
+

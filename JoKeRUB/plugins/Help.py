@@ -644,7 +644,7 @@ async def social_commands(event):
 @check_owner
 async def back_to_main(event):
     buttons = [
-        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")],
+        [Button.inline("‹ : البحـث والتحميل : ›", data="main_menu")],
         [
             Button.inline("‹ : السـورس : ›", data="source_menu"),
             Button.inline("‹ : الحـساب : ›", data="account_menu")
@@ -679,7 +679,7 @@ async def account_menu_next(event):
         [Button.inline("‹ : سَـجل الأسمـاء : ›", data="history_commands")],
         [
             Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu"),
-            Button.inline("‹ : التَالـي : ›", data="account_menu_next2")
+            Button.inline("‹ : التَالـي : ›", data="account_menu_nextt")
         ]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -926,7 +926,7 @@ async def history_commands(event):
 # قائمة الحساب التالية (صفحة 3) - مؤقت
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu_next2")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu_nextt")))
 @check_owner
 async def account_menu_next2(event):
     text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>

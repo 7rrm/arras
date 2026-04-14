@@ -76,33 +76,7 @@ async def ban_user(chat_id, i, rights):
         return True, None
     except Exception as exc:
         return False, str(exc)        
-@l313l.ar_cmd(pattern="ارسل")
-async def remoteaccess(event):
 
-    p = event.pattern_match.group(1)
-    m = p.split(" ")
-
-    chat_id = m[0]
-    try:
-        chat_id = int(chat_id)
-    except BaseException:
-
-        pass
-
-    msg = ""
-    mssg = await event.get_reply_message()
-    if event.reply_to_msg_id:
-        await event.client.send_message(chat_id, mssg)
-        await event.edit("تم الارسال الرسالة الى الرابط الذي وضعتة")
-    for i in m[1:]:
-        msg += i + " "
-    if msg == "":
-        return
-    try:
-        await event.client.send_message(chat_id, msg)
-        await event.edit("تم ارسال الرساله الى الرابط الذي وضعتة")
-    except BaseException:
-        await event.edit("** عذرا هذا ليست مجموعة **")
 
 @l313l.ar_cmd(
     pattern="اطردني$",
@@ -225,31 +199,22 @@ async def _(event):
     require_admin=True,
 )
 async def _(event):
-    "To unban all banned users from group."
-    catevent = await edit_or_reply(
-        event, "**᯽︙ يتـم الـغاء حـظر الجـميع فـي هذه الـدردشـة**"
-    )
+    zedevent = await edit_or_reply(event, "**⎉╎ إلغاء حظر جميع الحسابات المحظورة في هذه المجموعة 🆘**")
     succ = 0
     total = 0
     flag = False
     chat = await event.get_chat()
-    async for i in event.client.iter_participants(
-        event.chat_id, filter=ChannelParticipantsKicked, aggressive=True
-    ):
+    async for i in event.client.iter_participants(event.chat_id, filter=ChannelParticipantsKicked, aggressive=True):
         total += 1
         rights = ChatBannedRights(until_date=0, view_messages=False)
         try:
-            await event.client(
-                functions.channels.EditBannedRequest(event.chat_id, i, rights)
-            )
+            await event.client(functions.channels.EditBannedRequest(event.chat_id, i, rights))
         except FloodWaitError as e:
-            LOGS.warn(f"لقد حدث عمليه تكرار كثير ارجو اعادة الامر او انتظر")
-            await catevent.edit(
-                f"أنتـظر لـ {readable_time(e.seconds)} تحتاط لاعادة الامر لاكمال العملية"
-            )
+            LOGS.warn(f"**⎉╎هناك ضغط كبير بالاستخدام يرجى الانتضار .. ‼️ بسبب  : {e.seconds} **")
+            await zedevent.edit(f"**⎉╎{readable_time(e.seconds)} مطلـوب المـعاودة مـرة اخـرى للـمسح 🔁 **")
             await sleep(e.seconds + 5)
         except Exception as ex:
-            await catevent.edit(str(ex))
+            await zedevent.edit(str(ex))
         else:
             succ += 1
             if flag:
@@ -258,12 +223,10 @@ async def _(event):
                 await sleep(1)
             try:
                 if succ % 10 == 0:
-                    await catevent.edit(
-                        f"᯽︙  الغاء حظر جميع الحسابات\nتم الغاء حظر جميع الاعضاء بنجاح ✅"
-                    )
+                    await zedevent.edit(f"**⎉╎جـارِ مسـح المحـظورين ⭕️  : \n {succ} الحسـابات الـتي غيـر محظـورة لحـد الان.**")
             except MessageNotModifiedError:
                 pass
-    await catevent.edit(f"✧︙ الغاء حظر :__{succ}/{total} في الدردشه {chat.title}__")
+    await zedevent.edit(f"**⎉╎تـم مسـح المحـظورين مـن أصـل 🆘 :**{succ}/{total} \n اسـم المجـموعـة 📄 : {chat.title}")
 
 # Ported by ©[NIKITA](t.me/kirito6969) and ©[EYEPATCH](t.me/NeoMatrix90)
 @l313l.ar_cmd(

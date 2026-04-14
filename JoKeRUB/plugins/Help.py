@@ -1,4 +1,4 @@
-from telethon import events, Button
+from telethon import events
 from telethon.events import CallbackQuery
 import json
 import requests
@@ -7,7 +7,7 @@ from ..Config import Config
 from ..core import check_owner
 from . import l313l
 
-HELP_TEXT = "**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊قائمـة المسـاعـده (نسخة تجريبية)**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
+HELP_TEXT = "**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**\n**🛂┊قائمـة المسـاعـده**\n\n[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)\n\n"
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     
@@ -61,10 +61,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             try:
                 requests.post(url, json=inline_data)
             except Exception as e:
-                print(f"❌ خطأ في inline: {e}")
+                print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    # معالج زر اوامر الادارة (باستخدام API)
+    # معالج زر اوامر الادارة
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
@@ -84,7 +84,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         buttons = [
             [
                 {
-                    "text": "↩️ رجوع",
+                    "text": "↩️ رجوع للقائمة",
                     "callback_data": "back_to_help",
                     "style": "danger"
                 }
@@ -102,10 +102,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ في معالج الادارة: {e}")
+            print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    # معالج زر اوامر التنظيف (باستخدام API)
+    # معالج زر اوامر التنظيف
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd")))
@@ -115,11 +115,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
 **☑️ ⦗ `.تنظيف` ⦘**
 ❐ لحذف عدد معين من الرسائل
-❐ طريقة الاستخدام: `.تنظيف 10`
 
 **☑️ ⦗ `.مسح` ⦘**
 ❐ لحذف رسالة محددة
-❐ طريقة الاستخدام: بالرد على الرسالة
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
@@ -127,7 +125,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         buttons = [
             [
                 {
-                    "text": "↩️ رجوع",
+                    "text": "↩️ رجوع للقائمة",
                     "callback_data": "back_to_help",
                     "style": "danger"
                 }
@@ -145,10 +143,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ في معالج التنظيف: {e}")
+            print(f"❌ خطأ: {e}")
 
     # =========================================================== #
-    # معالج زر الرجوع (باستخدام API)
+    # معالج زر الرجوع
     # =========================================================== #
     
     @l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_help")))
@@ -185,14 +183,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             }
             requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
-            print(f"❌ خطأ في معالج الرجوع: {e}")
+            print(f"❌ خطأ: {e}")
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help_cmd(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
     
-    # إرسال الأزرار الملونة عبر API
+    # البوت يرسل الأزرار الملونة
     keyboard = {
         "inline_keyboard": [
             [
@@ -225,8 +223,4 @@ async def help_cmd(event):
         requests.post(send_url, json=send_data, timeout=3)
         await event.delete()
     except Exception as e:
-        print(f"❌ خطأ في الإرسال: {e}")
-        await event.edit(HELP_TEXT, buttons=[
-            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
-            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
-        ])
+        print(f"❌ خطأ: {e}")

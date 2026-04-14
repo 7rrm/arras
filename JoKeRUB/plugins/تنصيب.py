@@ -5,12 +5,20 @@ import requests
 import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
-from l313l.razan.resources.mybot import *
-
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
 
-# إيموجي بريميوم
-FIRE_EMOJI = "5368324170671202286"  # 🔥
+
+# الكليشة مباشرة (بدون استدعاء)
+ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮
+│ **● ʙᴏᴛ sᴛᴀᴛᴜs: ʀᴜɴɴɪɴɢ ✅**
+├──────────────────────
+│ **● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:**
+│ • ᴛᴇʟᴇᴛʜᴏɴ: `1.23.0`
+│ • sᴏᴜʀᴄᴇ: `4.0.1`
+│ • ʙᴏᴛ: `@{Config.TG_BOT_USERNAME}`
+│ • ᴘʏᴛʜᴏɴ: `3.9.10`
+│ • ᴜsᴇʀ: {mention}
+╰──────────────────────╯"""
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
@@ -26,10 +34,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": "🔥 المطور @lx5x5 🔥",
+                            "text": "‹ : المـطـور : ›",
                             "url": "https://t.me/lx5x5",
-                            "style": "primary",
-                            "icon_custom_emoji_id": FIRE_EMOJI
+                            "style": "primary"
                         }
                     ]
                 ]
@@ -68,14 +75,11 @@ async def repo(event):
     if event.fwd_from:
         return
     
-    # ✅ حل مشكلة PeerUser (نفس طريقة أمر مساعدة)
+    # ✅ حل مشكلة PeerUser
     try:
         await event.get_sender()
         await event.get_chat()
     except Exception as e:
-        print(f"تم التحميل: {e}")
-    
-    await asyncio.sleep(0.5)
     
     TG_BOT = Config.TG_BOT_USERNAME
     if event.reply_to_msg_id:

@@ -1,8 +1,6 @@
 from telethon import events, Button
-from telethon.events import CallbackQuery
 import json
 import requests
-import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from JoKeRUB.plugins import mention
@@ -24,19 +22,19 @@ async def repo(event):
     if event.fwd_from:
         return
     
-    # حل مشكلة PeerUser
+    # ✅ حل مشكلة PeerUser
     try:
         await event.get_sender()
         await event.get_chat()
     except Exception:
         pass
     
-    # ✅ إرسال مباشر عبر API عشان الإيموجي المميز يشتغل
+    # ✅ أزرار ملونة مع ايموجي
     keyboard = {
         "inline_keyboard": [
             [
                 {
-                    "text": "‹ : المـطـور : ›",
+                    "text": "🔥 المطور @lx5x5 🔥",
                     "url": "https://t.me/lx5x5",
                     "style": "primary"
                 }
@@ -44,6 +42,7 @@ async def repo(event):
         ]
     }
     
+    # ✅ إرسال مباشر عبر API (عشان الإيموجي يشتغل)
     send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
     send_data = {
         "chat_id": event.chat_id,
@@ -55,7 +54,8 @@ async def repo(event):
     
     try:
         requests.post(send_url, json=send_data, timeout=3)
-        await event.delete()
+        await event.delete()  # حذف رسالة الأمر
     except Exception as e:
         print(f"❌ خطأ: {e}")
-        await event.edit(ROZ, buttons=[[Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5")]])
+        # بديل إذا فشل
+        await event.edit(ROZ, buttons=[[Button.url("🔥 المطور @lx5x5 🔥", "https://t.me/lx5x5")]], parse_mode="HTML")

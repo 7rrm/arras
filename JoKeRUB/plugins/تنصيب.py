@@ -5,6 +5,7 @@ import requests
 import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
+from JoKeRUB.plugins import mention
 
 ROZ_PIC = "https://graph.org/file/2e51431a290028d612377-07abd6e9a86fde6949.jpg"
 

@@ -106,7 +106,7 @@ async def _(e):
     tultd = [Button.inline(f"{x}", data=f"calc{x}") for x in m]
     lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
     lst.append([Button.inline("=", data="calc=")])
-    await e.edit("**الحـاسبة العـلمية لسـورس الجوكر\n @jepthon**", buttons=lst)
+    await e.edit("**الحـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
 
 CMD_HELP.update({
     "الحسابة": ".حاسبة" "\n فقط اكتب الامر لعرض حاسبة علميه تحتاج الى تفعيل وضع الانلاين اولا\n\n"

@@ -183,8 +183,16 @@ async def help_cmd(event):
                     "reply_markup": json.dumps(keyboard),
                     "disable_web_page_preview": True
                 }
-                requests.post(send_url, json=send_data, timeout=3)
-                await event.delete()
+                response = requests.post(send_url, json=send_data, timeout=3)
+                if response.status_code == 200:
+                    await event.delete()
+                else:
+                    # فشل إرسال البوت → حسابك يرسل
+                    buttons = [
+                        [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
+                        [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
+                    ]
+                    await event.edit(HELP_TEXT, buttons=buttons)
             else:
                 # ❌ البوت مو موجود → حسابك يرسل أزرار عادية
                 buttons = [
@@ -193,7 +201,8 @@ async def help_cmd(event):
                 ]
                 await event.edit(HELP_TEXT, buttons=buttons)
                 
-        except Exception:
+        except Exception as e:
+            print(f"خطأ: {e}")
             # ❌ البوت مو موجود → حسابك يرسل أزرار عادية
             buttons = [
                 [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],

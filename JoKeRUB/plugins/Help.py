@@ -1,4 +1,4 @@
-from telethon import events, Button 
+from telethon import events
 from telethon.events import CallbackQuery
 import json
 import requests
@@ -91,11 +91,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             ]
         ]
         
-        # استخدام event.edit مع buttons عادية
-        fallback_buttons = [[Button.inline("↩️ رجوع", data="back_to_help")]]
-        
         try:
-            # محاولة API
             edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
             edit_data = {
                 "chat_id": event.chat_id,
@@ -104,13 +100,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "parse_mode": "Markdown",
                 "reply_markup": json.dumps({"inline_keyboard": buttons})
             }
-            response = requests.post(edit_url, json=edit_data, timeout=3)
-            if response.status_code != 200:
-                # فشل API -> استخدم Telethon
-                await event.edit(text, buttons=fallback_buttons)
+            requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
             print(f"❌ خطأ: {e}")
-            await event.edit(text, buttons=fallback_buttons)
 
     # =========================================================== #
     # معالج زر اوامر التنظيف
@@ -142,8 +134,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             ]
         ]
         
-        fallback_buttons = [[Button.inline("↩️ رجوع", data="back_to_help")]]
-        
         try:
             edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
             edit_data = {
@@ -153,12 +143,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "parse_mode": "Markdown",
                 "reply_markup": json.dumps({"inline_keyboard": buttons})
             }
-            response = requests.post(edit_url, json=edit_data, timeout=3)
-            if response.status_code != 200:
-                await event.edit(text, buttons=fallback_buttons)
+            requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
             print(f"❌ خطأ: {e}")
-            await event.edit(text, buttons=fallback_buttons)
 
     # =========================================================== #
     # معالج زر الرجوع
@@ -186,11 +173,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             ]
         }
         
-        fallback_buttons = [
-            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
-            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
-        ]
-        
         try:
             edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
             edit_data = {
@@ -201,18 +183,51 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "reply_markup": json.dumps(keyboard),
                 "disable_web_page_preview": True
             }
-            response = requests.post(edit_url, json=edit_data, timeout=3)
-            if response.status_code != 200:
-                await event.edit(HELP_TEXT, buttons=fallback_buttons)
+            requests.post(edit_url, json=edit_data, timeout=3)
         except Exception as e:
             print(f"❌ خطأ: {e}")
-            await event.edit(HELP_TEXT, buttons=fallback_buttons)
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help_cmd(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    TG_BOT = Config.TG_BOT_USERNAME
-    response = await l313l.inline_query(TG_BOT, "مساعدة")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    
+    # إرسال مباشر بدون inline_query
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {
+                    "text": "🔥 اوامر الادارة 🔥",
+                    "callback_data": "admin_commands",
+                    "style": "primary"
+                }
+            ],
+            [
+                {
+                    "text": "✨ اوامر التنظيف ✨",
+                    "callback_data": "clean_cmd",
+                    "style": "success"
+                }
+            ]
+        ]
+    }
+    
+    send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
+    send_data = {
+        "chat_id": event.chat_id,
+        "text": HELP_TEXT,
+        "parse_mode": "Markdown",
+        "reply_markup": json.dumps(keyboard),
+        "disable_web_page_preview": True
+    }
+    
+    try:
+        requests.post(send_url, json=send_data, timeout=3)
+        await event.delete()
+    except Exception as e:
+        print(f"❌ خطأ: {e}")
+        # بديل إذا فشل
+        await event.edit(HELP_TEXT, buttons=[
+            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
+            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
+        ])

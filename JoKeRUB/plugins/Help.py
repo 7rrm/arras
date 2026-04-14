@@ -17,20 +17,20 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("مساعدة"):
-            # أزرار ملونة
+            # ✅ أزرار ملونة
             keyboard = {
                 "inline_keyboard": [
                     [
                         {
                             "text": "🔥 اوامر الادارة 🔥",
-                            "callback_data": "admin_commands_test",
+                            "callback_data": "admin_commands",
                             "style": "primary"
                         }
                     ],
                     [
                         {
                             "text": "✨ اوامر التنظيف ✨",
-                            "callback_data": "clean_cmd_test",
+                            "callback_data": "clean_cmd",
                             "style": "success"
                         }
                     ]
@@ -63,14 +63,26 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             except Exception as e:
                 print(f"❌ خطأ: {e}")
 
-    # =========================================================== #
-    # معالج زر اوامر الادارة (باستخدام Telethon)
-    # =========================================================== #
+# =========================================================== #
+# ⚠️ هذا الجزء أساسي - لا تحذفه ⚠️
+# =========================================================== #
 
-    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands_test")))
-    @check_owner
-    async def admin_test(event):
-        text = """**👮 أوامر الإدارة**
+@l313l.ar_cmd(pattern="مساعدة$")
+async def help(event):
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "مساعدة")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
+# =========================================================== #
+# معالج الأزرار (بدون ألوان عشان يشتغل بسرعة)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
+@check_owner
+async def admin_cmd(event):
+    text = """**👮 أوامر الإدارة**
 
 **☑️ ⦗ `.حظر` ⦘**
 ❐ لحظر عضو من المجموعة
@@ -80,18 +92,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
-        
-        buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
-        await event.edit(text, buttons=buttons)
+    
+    buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
+    await event.edit(text, buttons=buttons)
 
-    # =========================================================== #
-    # معالج زر اوامر التنظيف (باستخدام Telethon)
-    # =========================================================== #
-
-    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd_test")))
-    @check_owner
-    async def clean_test(event):
-        text = """**🧹 أوامر التنظيف**
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cmd")))
+@check_owner
+async def clean_cmd(event):
+    text = """**🧹 أوامر التنظيف**
 
 **☑️ ⦗ `.تنظيف` ⦘**
 ❐ لحذف عدد معين من الرسائل
@@ -101,19 +109,15 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
-        
-        buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
-        await event.edit(text, buttons=buttons)
+    
+    buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
+    await event.edit(text, buttons=buttons)
 
-    # =========================================================== #
-    # القائمة الرئيسية (باستخدام Telethon)
-    # =========================================================== #
-
-    @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
-    @check_owner
-    async def back_to_main(event):
-        buttons = [
-            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands_test")],
-            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd_test")]
-        ]
-        await event.edit(HELP, buttons=buttons)
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
+@check_owner
+async def back_to_main(event):
+    buttons = [
+        [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
+        [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
+    ]
+    await event.edit(HELP, buttons=buttons)

@@ -18,8 +18,6 @@ HELP = """**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 # إيموجي بريميوم
 EMOJI_DOWNLOAD = "5933974679269151927"  # 📨
 EMOJI_CHECK = "5974491287615706239"      # ✅
-EMOJI_TIME = "5839380464116175529"       # 🕖
-EMOJI_ARROW = "4931832872081294660"      # 📨
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -29,7 +27,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("مساعدة"):
-            # ✅ زر واحد فقط - اوامر التحميل
             keyboard = {
                 "inline_keyboard": [
                     [
@@ -68,10 +65,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             except Exception as e:
                 print(f"❌ خطأ: {e}")
 
-# =========================================================== #
-# ⚠️ هذا الجزء أساسي - لا تحذفه ⚠️
-# =========================================================== #
-
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):
     if event.reply_to_msg_id:
@@ -88,7 +81,7 @@ async def help(event):
     await event.delete()
 
 # =========================================================== #
-# معالج اوامر التحميل مع ايموجي مميز
+# معالج اوامر التحميل
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"download_commands")))
@@ -142,44 +135,18 @@ async def download_cmd(event):
 ❐ طريقة الاستخدام: <code>.داون الرابط</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-<tg-emoji emoji-id="{EMOJI_ARROW}">📨</tg-emoji> <b>Dev : @Lx5x5 🦅</b>'''
+<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>Dev : @Lx5x5 🦅</b>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML")
 
 # =========================================================== #
-# زر الرجوع - يعيد الأزرار الملونة
+# زر الرجوع - يعيد الأزرار الملونة (بدون API)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    # ✅ رجوع مع أزرار ملونة
-    keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "📥 اوامر التحميل 📥",
-                    "callback_data": "download_commands",
-                    "style": "primary"
-                }
-            ]
-        ]
-    }
-    
-    try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": HELP,
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps(keyboard),
-            "disable_web_page_preview": True
-        }
-        requests.post(edit_url, json=edit_data, timeout=3)
-    except Exception as e:
-        print(f"❌ خطأ في الرجوع: {e}")
-        # بديل إذا فشل API
-        buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-        await event.edit(HELP, buttons=buttons)
+    # ✅ استخدام Telethon مباشرة (بدون API عشان يشتغل)
+    buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
+    await event.edit(HELP, buttons=buttons)

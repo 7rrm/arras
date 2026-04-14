@@ -34,7 +34,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         {
                             "text": "‹ : أوامـر البحـث والتحميل : ›",
                             "callback_data": "main_menu",
-                            "style": "primary"
+                            "style": "danger"
                         }
                     ]
                 ]

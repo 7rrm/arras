@@ -2,20 +2,21 @@ from telethon import events, Button
 from telethon.events import CallbackQuery
 import json
 import requests
+import html
 import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from JoKeRUB.plugins import mention
 
-# الكليشة مباشرة (بدون استدعاء)
+# الكليشة مع الإيموجي المميز
 ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮
-│ **● ʙᴏᴛ sᴛᴀᴛᴜs: ʀᴜɴɴɪɴɢ ✅**
+│ ● ʙᴏᴛ sᴛᴀᴛᴜs: ʀᴜɴɴɪɴɢ <tg-emoji emoji-id="5974491287615706239">✅</tg-emoji>
 ├──────────────────────
-│ **● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:**
-│ • ᴛᴇʟᴇᴛʜᴏɴ: `1.23.0`
-│ • sᴏᴜʀᴄᴇ: `4.0.1`
-│ • ʙᴏᴛ: `{Config.TG_BOT_USERNAME}`
-│ • ᴘʏᴛʜᴏɴ: `3.9.10`
+│ ● ᴘʟᴀᴛғᴏʀᴍ ᴅᴇᴛᴀɪʟs:
+│ • ᴛᴇʟᴇᴛʜᴏɴ: <code>1.23.0</code>
+│ • sᴏᴜʀᴄᴇ: <code>4.0.1</code>
+│ • ʙᴏᴛ: <code>@{Config.TG_BOT_USERNAME}</code> <tg-emoji emoji-id="5778296180807046576">📨</tg-emoji>
+│ • ᴘʏᴛʜᴏɴ: <code>3.9.10</code>
 │ • ᴜsᴇʀ: {mention}
 ╰──────────────────────╯"""
 
@@ -28,20 +29,20 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         await bot.get_me()
         
         if query.startswith("السورس") and event.query.user_id == bot.uid:
-            # ✅ أزرار ملونة باستخدام API (بدون صورة)
+            # أزرار ملونة
             keyboard = {
                 "inline_keyboard": [
                     [
                         {
                             "text": "‹ : المـطـور : ›",
                             "url": "https://t.me/lx5x5",
-                            "style": "danger"
+                            "style": "primary"
                         }
                     ]
                 ]
             }
             
-            # إرسال عبر API (article فقط، بدون صورة)
+            # إرسال عبر API
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             inline_data = {
                 "inline_query_id": event.id,
@@ -53,7 +54,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         "description": "السورس الرسمي - اضغط للإرسال",
                         "input_message_content": {
                             "message_text": ROZ,
-                            "parse_mode": "Markdown"
+                            "parse_mode": "HTML"
                         },
                         "reply_markup": keyboard
                     }
@@ -72,7 +73,7 @@ async def repo(event):
     if event.fwd_from:
         return
     
-    # ✅ حل مشكلة PeerUser
+    # حل مشكلة PeerUser
     try:
         await event.get_sender()
         await event.get_chat()

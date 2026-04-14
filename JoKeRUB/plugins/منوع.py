@@ -348,7 +348,7 @@ async def Hussein(event):
         #await event.reply(response)
 client = l313l
 
-@l313l.on(admin_cmd(pattern="فك الحظر$"))
+@l313l.on(admin_cmd(pattern="مسح الحاظرهم$"))
 async def handle_unblock_all(event):
     blocked_users = await client(functions.contacts.GetBlockedRequest(
         offset=0,
@@ -384,6 +384,10 @@ async def main(event):
             alist.append(zzz)
     if alist:
         await l313l.send_message("me", "\n".join(alist))
+        # رسالة تأكيد هنا
+        await event.edit("✅ **تم إرسال قائمة المحظورين إلى الرسائل المحفوظة بنجاح.**")
+    else:
+        await event.edit("❌ **لا يوجد مستخدمين محظورين لعرضهم.**")
         
 @l313l.ar_cmd(pattern="(الاسماء|تاريخة)(?: |$)(.*)")
 async def zelzal_gif(event):

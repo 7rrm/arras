@@ -141,12 +141,42 @@ async def download_cmd(event):
     await event.edit(text, buttons=buttons, parse_mode="HTML")
 
 # =========================================================== #
-# زر الرجوع - يعيد الأزرار الملونة (بدون API)
+# زر الرجوع - يعيد الأزرار الملونة (باستخدام API)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    # ✅ استخدام Telethon مباشرة (بدون API عشان يشتغل)
-    buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-    await event.edit(HELP, buttons=buttons)
+    # ✅ أزرار ملونة
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {
+                    "text": "📥 اوامر التحميل 📥",
+                    "callback_data": "download_commands",
+                    "style": "primary"
+                }
+            ]
+        ]
+    }
+    
+    try:
+        # استخدام API لتعديل الرسالة
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": HELP,
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps(keyboard),
+            "disable_web_page_preview": True
+        }
+        response = requests.post(edit_url, json=edit_data, timeout=3)
+        if response.status_code != 200:
+            # إذا فشل، نستخدم Telethon
+            buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
+            await event.edit(HELP, buttons=buttons)
+    except Exception as e:
+        print(f"❌ خطأ في الرجوع: {e}")
+        buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
+        await event.edit(HELP, buttons=buttons)

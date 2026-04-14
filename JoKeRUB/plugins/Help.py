@@ -15,49 +15,31 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @check_owner
     async def inline_handler(event):
         query = event.text
-        
         if query.startswith("مساعدة"):
-            # ✅ أزرار ملونة
             keyboard = {
                 "inline_keyboard": [
-                    [
-                        {
-                            "text": "🔥 اوامر الادارة 🔥",
-                            "callback_data": "admin_commands",
-                            "style": "primary"
-                        }
-                    ],
-                    [
-                        {
-                            "text": "✨ اوامر التنظيف ✨",
-                            "callback_data": "clean_cmd",
-                            "style": "success"
-                        }
-                    ]
+                    [{"text": "🔥 اوامر الادارة 🔥", "callback_data": "admin_commands", "style": "primary"}],
+                    [{"text": "✨ اوامر التنظيف ✨", "callback_data": "clean_cmd", "style": "success"}]
                 ]
             }
-            
             url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
             inline_data = {
                 "inline_query_id": event.id,
-                "results": json.dumps([
-                    {
-                        "type": "article",
-                        "id": "help_menu_1",
-                        "title": "📚 قائمة المساعدة - آراس",
-                        "description": "اضغط لعرض الأوامر",
-                        "input_message_content": {
-                            "message_text": HELP,
-                            "parse_mode": "Markdown",
-                            "disable_web_page_preview": True
-                        },
-                        "reply_markup": keyboard
-                    }
-                ]),
+                "results": json.dumps([{
+                    "type": "article",
+                    "id": "help_menu_1",
+                    "title": "📚 قائمة المساعدة - آراس",
+                    "description": "اضغط لعرض الأوامر",
+                    "input_message_content": {
+                        "message_text": HELP,
+                        "parse_mode": "Markdown",
+                        "disable_web_page_preview": True
+                    },
+                    "reply_markup": keyboard
+                }]),
                 "cache_time": 0,
                 "is_personal": True
             }
-            
             try:
                 requests.post(url, json=inline_data)
             except Exception as e:
@@ -76,7 +58,7 @@ async def help(event):
     await event.delete()
 
 # =========================================================== #
-# معالج الأزرار (بدون ألوان عشان يشتغل بسرعة)
+# معالج الأزرار (بدون ألوان)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"admin_commands")))
@@ -92,7 +74,6 @@ async def admin_cmd(event):
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
-    
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
     await event.edit(text, buttons=buttons)
 
@@ -109,15 +90,39 @@ async def clean_cmd(event):
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙Dev : @Lx5x5"""
-    
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
     await event.edit(text, buttons=buttons)
+
+# =========================================================== #
+# ✅ زر الرجوع المعدل (يعيد الأزرار الملونة)
+# =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    buttons = [
-        [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
-        [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
-    ]
-    await event.edit(HELP, buttons=buttons)
+    # ✅ إعادة إرسال القائمة الملونة عبر API
+    keyboard = {
+        "inline_keyboard": [
+            [{"text": "🔥 اوامر الادارة 🔥", "callback_data": "admin_commands", "style": "primary"}],
+            [{"text": "✨ اوامر التنظيف ✨", "callback_data": "clean_cmd", "style": "success"}]
+        ]
+    }
+    edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+    edit_data = {
+        "chat_id": event.chat_id,
+        "message_id": event.message_id,
+        "text": HELP,
+        "parse_mode": "Markdown",
+        "reply_markup": json.dumps(keyboard),
+        "disable_web_page_preview": True
+    }
+    try:
+        requests.post(edit_url, json=edit_data, timeout=3)
+    except Exception as e:
+        print(f"❌ خطأ في الرجوع: {e}")
+        # البديل: استخدام الأزرار العادية
+        buttons = [
+            [Button.inline("🔥 اوامر الادارة 🔥", data="admin_commands")],
+            [Button.inline("✨ اوامر التنظيف ✨", data="clean_cmd")]
+        ]
+        await event.edit(HELP, buttons=buttons)

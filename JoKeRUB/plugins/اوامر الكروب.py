@@ -240,32 +240,26 @@ async def _(event):
     groups_only=True,
 )
 async def rm_deletedacc(show):
-    "To check deleted accounts and clean"
     con = show.pattern_match.group(1).lower()
     del_u = 0
-    del_status = "✧︙  لم يتم العثور على حسابات متروكه او حسابات محذوفة الكروب نظيف"
+    del_status = "**⎉╎لا توجـد حـسابات محذوفـة في هـذه المجموعـة !**"
     if con != "اطردهم":
-        event = await edit_or_reply(
-            show, "✧︙  يتم البحث عن حسابات محذوفة او حسابات متروكة انتظر"
-        )
+        event = await edit_or_reply(show, "**⎉╎جـارِ البحـث عـن الحسابـات المحذوفـة ⌯**")
         async for user in show.client.iter_participants(show.chat_id):
             if user.deleted:
                 del_u += 1
                 await sleep(0.5)
         if del_u > 0:
-            del_status = f"✧︙ تـم العـثور : **{del_u}** على حسابات محذوفة ومتروكه في هذه الدردشه من الحسابات في هذه الدردشه,\
-                           \nاطردهم بواسطه  `.المحذوفين اطردهم`"
+            del_status = f"**⎉╎تم ايجـاد  {del_u}  من  الحسابـات المحذوفـه في هـذه المجموعـه**\n**⎉╎لحذفهـم إستخـدم الأمـر  ⩥ :**  `.المحذوفين اطردهم`"
         await event.edit(del_status)
         return
     chat = await show.get_chat()
     admin = chat.admin_rights
     creator = chat.creator
     if not admin and not creator:
-        await edit_delete(show, "أنا لسـت مشرف هـنا", 5)
+        await edit_delete(show, "**⎉╎ليس لـدي صلاحيـات المشـرف هنـا ؟!**", 5)
         return
-    event = await edit_or_reply(
-        show, "✧︙ جاري حذف الحسابات المحذوفة"
-    )
+    event = await edit_or_reply(show, "**⎉╎جـارِ حـذف الحسـابات المحذوفـة ⌯**")
     del_u = 0
     del_a = 0
     async for user in show.client.iter_participants(show.chat_id):
@@ -275,22 +269,21 @@ async def rm_deletedacc(show):
                 await sleep(0.5)
                 del_u += 1
             except ChatAdminRequiredError:
-                await edit_delete(event, "✧︙  ليس لدي صلاحيات الحظر هنا", 5)
+                await edit_delete(event, "**⎉╎ ليس لدي صلاحيات الحظر هنا**", 5)
                 return
             except UserAdminInvalidError:
                 del_a += 1
     if del_u > 0:
-        del_status = f"التنظيف **{del_u}** من الحسابات المحذوفة"
+        del_status = f"**⎉╎تـم حـذف  {del_u}  الحسـابات المحذوفـة ✓**"
     if del_a > 0:
-        del_status = f"التنظيف **{del_u}** من الحسابات المحذوف \
-        \n**{del_a}** لا يمكنني حذف حسابات المشرفين المحذوفة"
+        del_status = f"**⎉╎تـم حـذف {del_u} الحسـابات المحذوفـة، ولڪـن لـم يتـم حذف الحسـابات المحذوفـة للمشرفيـن !**"
     await edit_delete(event, del_status, 5)
     if BOTLOG:
         await show.client.send_message(
             BOTLOG_CHATID,
-            f"#تنـظيف الـمحذوفات\
-            \n{del_status}\
-            \nالـدردشة: {show.chat.title}(`{show.chat_id}`)",
+            f"**⎉╎تنظيف :**\
+            \n⎉╎{del_status}\
+            \n*⎉╎المحادثـة ⌂** {show.chat.title}(`{show.chat_id}`)",
         )
 
 @l313l.ar_cmd(pattern="حظر_الكل(?:\s|$)([\s\S]*)")

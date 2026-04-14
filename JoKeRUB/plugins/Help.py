@@ -7,17 +7,17 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-HELP = """**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
+HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
 
 [ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)
 
-"""
+'''
 
 # إيموجي بريميوم
-EMOJI_DOWNLOAD = "5933974679269151927"  # 📨
-EMOJI_CHECK = "5974491287615706239"      # ✅
+EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
+EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -87,66 +87,65 @@ async def help(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"download_commands")))
 @check_owner
 async def download_cmd(event):
-    text = f"""<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
+    text = f'''<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.يوت` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.يوت</code> <b>⦘</b>
 ❐ البحث عن أغنية
-❐ طريقة الاستخدام: <code>.بحث اسم الاغنية</code>
+❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الاغنية</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.تفعيل يوت` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل يوت</code> <b>⦘</b>
 ❐ لتسمح ب استخدام امر يوت للأشخاص الآخرين
-❐ طريقة الاستخدام: <code>.تفعيل يوت</code>
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل يوت</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.تعطيل يوت` ⦘</b>
-❐ لتعطيل استخدام امر يوت 
-❐ طريقة الاستخدام: <code>.تعطيل يوت</code>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل يوت</code> <b>⦘</b>
+❐ لتعطيل استخدام امر يوت
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل يوت</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.فيديو` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيديو</code> <b>⦘</b>
 ❐ البحث عن فيديو
-❐ طريقة الاستخدام: <code>.بحث اسم الفيديو</code>
+❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الفيديو</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.تفعيل فيديو` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل فيديو</code> <b>⦘</b>
 ❐ لتسمح ب استخدام امر فيديو للأشخاص الآخرين
-❐ طريقة الاستخدام: <code>.تفعيل فيديو</code>
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل فيديو</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.تعطيل فيديو` ⦘</b>
-❐ لتعطيل استخدام امر فيديو 
-❐ طريقة الاستخدام: <code>.تعطيل فيديو</code>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل فيديو</code> <b>⦘</b>
+❐ لتعطيل استخدام امر فيديو
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل فيديو</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.فيس` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيس</code> <b>⦘</b>
 ❐ تحميل من الفيس بوك
-❐ طريقة الاستخدام: <code>.فيس الرابط</code>
+❐ <b>طريقة الاستخدام:</b> <code>.فيس الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.تيك` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تيك</code> <b>⦘</b>
 ❐ تحميل من تيك توك
-❐ طريقة الاستخدام: <code>.تيك الرابط</code>
+❐ <b>طريقة الاستخدام:</b> <code>.تيك الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.ستوري` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
 ❐ تحميل ستوري من التلكرام
-❐ طريقة الاستخدام: <code>.ستوري الرابط</code>
+❐ <b>طريقة الاستخدام:</b> <code>.ستوري الرابط</code>
 
-<tg-emoji emoji-id="{EMOJI_CHECK}">✅</tg-emoji> <b>⦗ `.داون` ⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.داون</code> <b>⦘</b>
 ❐ تحميل من جميع مواقع التواصل
-❐ طريقة الاستخدام: <code>.داون الرابط</code>
+❐ <b>طريقة الاستخدام:</b> <code>.داون الرابط</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-<tg-emoji emoji-id="{EMOJI_DOWNLOAD}">📨</tg-emoji> <b>Dev : @Lx5x5 🦅</b>"""
+<b>Dev : @Lx5x5 🦅</b> <tg-emoji emoji-id="{EMOJI_OWNER}">👑</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
-    await event.edit(text, buttons=buttons, parse_mode="HTML")
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# زر الرجوع - يعيد الأزرار الملونة (بدون API)
+# زر الرجوع
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    # ✅ استخدام Telethon مباشرة (بدون API عشان يشتغل)
     buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-    await event.edit(HELP, buttons=buttons)
+    await event.edit(HELP, buttons=buttons, link_preview=False)

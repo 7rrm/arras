@@ -100,7 +100,6 @@ async def main_menu(event):
             Button.inline("‹ : أوامـر البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands"),
             Button.inline("‹ : أوامـر السوشيال مَيـديا : ›", data="social_commands")
         ],
-        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="search_commands")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

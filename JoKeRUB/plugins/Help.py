@@ -7,17 +7,84 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
-**🛂┊في قائمـة المسـاعـده والشـروحـات
-🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
-
-[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)
-
-'''
-
 # إيموجي بريميوم
 EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
 EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
+EMOJI_HEART = "5258215850745275216"    # قلب
+
+# القائمة الرئيسية
+MAIN_MENU_TEXT = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة البحـث والتحَميـل
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر البحـث والتحَمـيل 
+
+[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)'''
+
+# نص أوامر اليوت والفيديو (البوت)
+TEXT_YOUTUBE = f'''<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.يوت</code> <b>⦘</b>
+❐ البحث عن أغنية
+❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الاغنية</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل يوت</code> <b>⦘</b>
+❐ لتسمح ب استخدام امر يوت للأشخاص الآخرين
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل يوت</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل يوت</code> <b>⦘</b>
+❐ لتعطيل استخدام امر يوت
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل يوت</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيديو</code> <b>⦘</b>
+❐ البحث عن فيديو
+❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الفيديو</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل فيديو</code> <b>⦘</b>
+❐ لتسمح ب استخدام امر فيديو للأشخاص الآخرين
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل فيديو</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل فيديو</code> <b>⦘</b>
+❐ لتعطيل استخدام امر فيديو
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل فيديو</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+
+# نص أوامر البحث والتحميل (الأنلاين)
+TEXT_INLINE_SEARCH = f'''<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البحث والتحميل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.بحث</code> <b>⦘</b>
+❐ تحميل( صوت / فيديو ) من يوتيوب 
+❐ <b>طريقة الاستخدام:</b> <code>.بحث الكلمة أو الرابط</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+
+# نص أوامر السوشيال ميديا
+TEXT_SOCIAL = f'''<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السوشيال ميديا 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيس</code> <b>⦘</b>
+❐ تحميل من الفيس بوك
+❐ <b>طريقة الاستخدام:</b> <code>.فيس الرابط</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تيك</code> <b>⦘</b>
+❐ تحميل من تيك توك
+❐ <b>طريقة الاستخدام:</b> <code>.تيك الرابط</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
+❐ تحميل ستوري من التلكرام
+❐ <b>طريقة الاستخدام:</b> <code>.ستوري الرابط</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.داون</code> <b>⦘</b>
+❐ تحميل من جميع مواقع التواصل
+❐ <b>طريقة الاستخدام:</b> <code>.داون الرابط</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -31,8 +98,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "inline_keyboard": [
                     [
                         {
-                            "text": "📥 اوامر التحميل 📥",
-                            "callback_data": "download_commands",
+                            "text": "‹ : أوامـر البحـث والتحميل : ›",
+                            "callback_data": "main_menu",
                             "style": "primary"
                         }
                     ]
@@ -49,7 +116,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         "title": "📚 قائمة المساعدة - آراس",
                         "description": "اضغط لعرض الأوامر",
                         "input_message_content": {
-                            "message_text": HELP,
+                            "message_text": "اضغط على الزر لبدء الاستخدام",
                             "parse_mode": "Markdown",
                             "disable_web_page_preview": True
                         },
@@ -81,71 +148,93 @@ async def help(event):
     await event.delete()
 
 # =========================================================== #
-# معالج اوامر التحميل
+# القائمة الرئيسية
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"download_commands")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"main_menu")))
 @check_owner
-async def download_cmd(event):
-    text = f'''<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحميل 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.يوت</code> <b>⦘</b>
-❐ البحث عن أغنية
-❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الاغنية</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل يوت</code> <b>⦘</b>
-❐ لتسمح ب استخدام امر يوت للأشخاص الآخرين
-❐ <b>طريقة الاستخدام:</b> <code>.تفعيل يوت</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل يوت</code> <b>⦘</b>
-❐ لتعطيل استخدام امر يوت
-❐ <b>طريقة الاستخدام:</b> <code>.تعطيل يوت</code>
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيديو</code> <b>⦘</b>
-❐ البحث عن فيديو
-❐ <b>طريقة الاستخدام:</b> <code>.بحث اسم الفيديو</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تفعيل فيديو</code> <b>⦘</b>
-❐ لتسمح ب استخدام امر فيديو للأشخاص الآخرين
-❐ <b>طريقة الاستخدام:</b> <code>.تفعيل فيديو</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تعطيل فيديو</code> <b>⦘</b>
-❐ لتعطيل استخدام امر فيديو
-❐ <b>طريقة الاستخدام:</b> <code>.تعطيل فيديو</code>
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.فيس</code> <b>⦘</b>
-❐ تحميل من الفيس بوك
-❐ <b>طريقة الاستخدام:</b> <code>.فيس الرابط</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.تيك</code> <b>⦘</b>
-❐ تحميل من تيك توك
-❐ <b>طريقة الاستخدام:</b> <code>.تيك الرابط</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
-❐ تحميل ستوري من التلكرام
-❐ <b>طريقة الاستخدام:</b> <code>.ستوري الرابط</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">📨</tg-emoji> <b>⦗</b> <code>.داون</code> <b>⦘</b>
-❐ تحميل من جميع مواقع التواصل
-❐ <b>طريقة الاستخدام:</b> <code>.داون الرابط</code>
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-<b>Dev : @Lx5x5 🦅</b> <tg-emoji emoji-id="{EMOJI_OWNER}">👑</tg-emoji>'''
-    
-    buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP")]]
-    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+async def main_menu(event):
+    buttons = [
+        [Button.inline("‹ : أوامـر اليوت والفيديـو( البوت ) : ›", data="youtube_commands")],
+        [
+            Button.inline("‹ : أوامـر البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands"),
+            Button.inline("‹ : أوامـر السوشيال مَيـديا : ›", data="social_commands")
+        ],
+        [Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="search_commands")],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP")]
+    ]
+    await event.edit(MAIN_MENU_TEXT, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
-# زر الرجوع
+# أوامر اليوت والفيديو (البوت)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"youtube_commands")))
+@check_owner
+async def youtube_commands(event):
+    buttons = [[Button.inline("↩️ رجوع", data="main_menu")]]
+    await event.edit(TEXT_YOUTUBE, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر البحث والتحميل (الأنلاين)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"inline_search_commands")))
+@check_owner
+async def inline_search_commands(event):
+    buttons = [[Button.inline("↩️ رجوع", data="main_menu")]]
+    await event.edit(TEXT_INLINE_SEARCH, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر السوشيال ميديا
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"social_commands")))
+@check_owner
+async def social_commands(event):
+    buttons = [[Button.inline("↩️ رجوع", data="main_menu")]]
+    await event.edit(TEXT_SOCIAL, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر البحث والتحميل (الرجوع للقائمة الرئيسية)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"search_commands")))
+@check_owner
+async def search_commands(event):
+    await main_menu(event)
+
+# =========================================================== #
+# زر الرجوع النهائي
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ZEDHELP")))
 @check_owner
 async def back_to_main(event):
-    buttons = [[Button.inline("📥 اوامر التحميل 📥", data="download_commands")]]
-    await event.edit(HELP, buttons=buttons, link_preview=False)
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {
+                    "text": "‹ : أوامـر البحـث والتحميل : ›",
+                    "callback_data": "main_menu",
+                    "style": "primary"
+                }
+            ]
+        ]
+    }
+    
+    try:
+        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
+        edit_data = {
+            "chat_id": event.chat_id,
+            "message_id": event.message_id,
+            "text": "اضغط على الزر لبدء الاستخدام",
+            "parse_mode": "Markdown",
+            "reply_markup": json.dumps(keyboard),
+            "disable_web_page_preview": True
+        }
+        requests.post(edit_url, json=edit_data, timeout=3)
+    except Exception as e:
+        print(f"❌ خطأ: {e}")
+        buttons = [[Button.inline("‹ : أوامـر البحـث والتحميل : ›", data="main_menu")]]
+        await event.edit("اضغط على الزر لبدء الاستخدام", buttons=buttons)

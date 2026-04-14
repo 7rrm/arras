@@ -371,7 +371,20 @@ async def handle_unblock_all(event):
         except Exception as e:
             await event.edit(f"حدث خطأ أثناء إلغاء حظر المستخدم بمعرّف: {user.id}, الخطأ: {e}")
             continue
-            
+
+@l313l.ar_cmd(pattern="الحاظرهم$")
+async def main(event):
+    result = await l313l(functions.contacts.GetBlockedRequest(offset=0, limit=1000000))
+    alist = []
+    for user in result.users:
+        if not user.bot:
+            username = "@" + user.username if user.username else " "
+            zzz = f"{user.id} {user.first_name} {username}"
+            print(zzz)
+            alist.append(zzz)
+    if alist:
+        await l313l.send_message("me", "\n".join(alist))
+        
 @l313l.ar_cmd(pattern="(الاسماء|تاريخة)(?: |$)(.*)")
 async def zelzal_gif(event):
     input_str = event.pattern_match.group(2).strip()  # النص بعد الأمر

@@ -528,8 +528,6 @@ async def promote(event):
 
 # ================== رفع وتنزيل مشرف عام في جميع المجموعات ==================
 
-# ================== رفع وتنزيل مشرف عام في جميع المجموعات ==================
-
 @l313l.ar_cmd(
     pattern="رفع م عام(?:\s|$)([\s\S]*)",
     command=("رفع م عام", plugin_category),
@@ -676,8 +674,7 @@ async def demote_all_groups(event):
             \n**الشخص :** [{user.first_name}](tg://user?id={user.id})\
             \n**تم تنزيله من :** {i} مجموعة"
         )
-
-
+        
 @l313l.ar_cmd(pattern="اخفاء(?:\s|$)([\s\S]*)")
 async def promote(event):
     chat = await event.get_chat()

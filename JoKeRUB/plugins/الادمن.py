@@ -1062,3 +1062,5 @@ async def get_wallpaper_info(event):
         # تنظيف الملف المؤقت
         if 'photo' in locals() and os.path.exists(photo):
             os.remove(photo)
+
+'''

@@ -1,3 +1,4 @@
+
 import asyncio
 import shutil
 import contextlib
@@ -8,7 +9,8 @@ from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
 from telethon.utils import get_display_name
 
-from . import l313l
+#from . import l313l
+from JoKeRUB import l313l
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import _format
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
@@ -42,7 +44,6 @@ UNBAN_RIGHTS = ChatBannedRights(
     embed_links=None,
 )
 
-zel_dev = (5176749470, 5426390871, 6269975462, 1985225531)
 
 @l313l.ar_cmd(
     pattern="ح عام(?:\s|$)([\s\S]*)",
@@ -60,11 +61,9 @@ async def zedgban(event):  # sourcery no-metrics
     user, reason = await get_user_from_event(event, zede)
     if not user:
         return
-    if user.id == event.client.uid:
+    if user.id == l313l.uid:
         return await edit_delete(zede, "**⎉╎عـذراً ..لا استطيـع حظـࢪ نفسـي **")
-    if user.id in zel_dev:
-        return await edit_delete(zede, "**⎉╎عـذراً ..لا استطيـع حظـࢪ احـد المطـورين عـام **")
-    if user.id == 925972505 or user.id == 1895219306 or user.id == 2095357462:
+    if user.id == 5427469031:
         return await edit_delete(zede, "**⎉╎عـذراً ..لا استطيـع حظـࢪ مطـور السـورس عـام **")
 
 
@@ -249,11 +248,9 @@ async def catgkick(event):  # sourcery no-metrics
     user, reason = await get_user_from_event(event, zede)
     if not user:
         return
-    if user.id == event.client.uid:
+    if user.id == l313l.uid:
         return await edit_delete(zede, "**╮ ❐ ... عــذراً لا استطــيع طــرد نفســي ... ❏╰**")
-    if user.id in zel_dev:
-        return await edit_delete(zede, "**╮ ❐ ... عــذࢪاً .. لا استطــيع طــرد المطـورين ... ❏╰**")
-    if user.id == 925972505 or user.id == 1895219306 or user.id == 2095357462:
+    if user.id == 5427469031:
         return await edit_delete(zede, "**╮ ❐ ... عــذࢪاً .. لا استطــيع طــرد مطـور السـورس ... ❏╰**")
     san = await admin_groups(event.client)
     count = 0
@@ -311,10 +308,11 @@ async def catgkick(event):  # sourcery no-metrics
         if reply:
             await reply.forward_to(BOTLOG_CHATID)
 
+
 # ================================================================================================ #
 # ================================================================================================ #
 # ================================================================================================ #
-'''
+
 import contextlib
 import shutil
 
@@ -1062,5 +1060,3 @@ async def get_wallpaper_info(event):
         # تنظيف الملف المؤقت
         if 'photo' in locals() and os.path.exists(photo):
             os.remove(photo)
-
-'''

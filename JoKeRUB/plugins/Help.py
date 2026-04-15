@@ -138,14 +138,14 @@ async def source_menu(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : التحَـديث : ›", data="update_commands", style="primary")],
+        [Button.inline("‹ : التحَـديث : ›", data="update_commands", style="danger")],
         [
-            Button.inline("‹ : أعَـادة التشغيل : ›", data="restart_commands", style="success"),
-            Button.inline("‹ : أيـقاف البوت : ›", data="stop_commands", style="danger")
+            Button.inline("‹ : أعَـادة التشغيل : ›", data="restart_commands", style="primary"),
+            Button.inline("‹ : أيـقاف البوت : ›", data="stop_commands", style="primary")
         ],
-        [Button.inline("‹ : الفحَـص و سَرعة الأنترنت : ›", data="speed_commands", style="primary")],
+        [Button.inline("‹ : الفحَـص و سَرعة الأنترنت : ›", data="speed_commands", style="danger")],
         [
-            Button.inline("‹ : السَليب : ›", data="sleep_commands", style="success"),
+            Button.inline("‹ : السَليب : ›", data="sleep_commands", style="primary"),
             Button.inline("‹ : المـطور المَساعـد : ›", data="assistant_dev_commands", style="primary")
         ],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
@@ -168,18 +168,18 @@ async def account_menu(event):
     buttons = [
         [
             Button.inline("‹ : الأسـم الوقَتـي : ›", data="name_commands", style="primary"),
-            Button.inline("‹ : البايـو الوقَتـي : ›", data="bio_commands", style="success")
+            Button.inline("‹ : البايـو الوقَتـي : ›", data="bio_commands", style="primary")
         ],
         [Button.inline("‹ : الصـورة الوقتيـة : ›", data="photo_commands", style="primary")],
         [
             Button.inline("‹ : قَـنواتـي : ›", data="channels_commands", style="success"),
             Button.inline("‹ : كَٕروباتـي : ›", data="groups_commands", style="success")
         ],
-        [Button.inline("‹ : مَـغادرة القَنـوات والمجموعات : ›", data="leave_commands", style="danger")],
-        [Button.inline("‹ : حَـماية الخَـاص : ›", data="privacy_commands", style="danger")],
+        [Button.inline("‹ : مَـغادرة القَنـوات والمجموعات : ›", data="leave_commands", style="primary")],
+        [Button.inline("‹ : حَـماية الخَـاص : ›", data="privacy_commands", style="primary")],
         [
-            Button.inline("‹ : رجــوع ↩️ : ›", data="ZEDHELP", style="primary"),
-            Button.inline("‹ : التَالـي : ›", data="account_menu_next", style="primary")
+            Button.inline("‹ : رجــوع ↩️ : ›", data="ZEDHELP", style="danger"),
+            Button.inline("‹ : التَالـي : ›", data="account_menu_next", style="danger")
         ]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

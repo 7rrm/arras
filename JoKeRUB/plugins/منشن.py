@@ -144,23 +144,10 @@ async def tagall(event):
         usrtxt = ""
 
 
-@l313l.ar_cmd(pattern="تبليغ$")
-async def _(event):
-    mentions = "- انتباه الى المشرفين تم تبليغكم \n@admin"
-    chat = await event.get_input_chat()
-    reply_to_id = await reply_id(event)
-    async for x in event.client.iter_participants(
-        chat, filter=ChannelParticipantsAdmins
-    ):
-        if not x.bot:
-            mentions += f"[\u2063](tg://user?id={x.id})"
-    await event.client.send_message(event.chat_id, mentions, reply_to=reply_to_id)
-    await event.delete()
-
 
 @l313l.ar_cmd(
-    pattern="منشن(?:\s|$)([\s\S]*)",
-    command=("منشن", plugin_category),
+    pattern="اذكر(?:\s|$)([\s\S]*)",
+    command=("اذكر", plugin_category),
     info={
         "header": "لـ جـلب اسـم الشخـص بشكـل ماركـدون ⦇.منشن بالـرد او + معـرف/ايـدي الشخص⦈ ",
         "الاسـتخـدام": "{tr}منشن <username/userid/reply>",
@@ -175,3 +162,49 @@ async def permalink(event):
         return await edit_or_reply(event, f"[{custom}](tg://user?id={user.id})")
     tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
     await edit_or_reply(event, f"[{tag}](tg://user?id={user.id})")
+
+
+
+
+spam_chats = []
+
+@l313l.ar_cmd(pattern="منشن(?:\s|$)([\s\S]*)")
+async def menall(event):
+    chat_id = event.chat_id
+    if event.is_private:
+        return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+    msg = event.pattern_match.group(1)
+    if not msg:
+        return await edit_or_reply(event, "** ᯽︙ ضع رسالة للمنشن اولاً**")
+    is_admin = False
+    try:
+        partici_ = await l313l(GetParticipantRequest(
+          event.chat_id,
+          event.sender_id
+        ))
+    except UserNotParticipantError:
+        is_admin = False
+    spam_chats.append(chat_id)
+    usrnum = 0
+    usrtxt = ''
+    async for usr in l313l.iter_participants(chat_id):
+        if not chat_id in spam_chats:
+            break
+        usrtxt = f"{msg}\n[{usr.first_name}](tg://user?id={usr.id}) "
+        await l313l.send_message(chat_id, usrtxt)
+        await asyncio.sleep(2)
+        await event.delete()
+    try:
+        spam_chats.remove(chat_id)
+    except:
+        pass
+@l313l.ar_cmd(pattern="الغاء منشن")
+async def ca_sp(event):
+  if not event.chat_id in spam_chats:
+    return await edit_or_reply(event, "** ᯽︙ 🤷🏻 لا يوجد منشن لألغائه**")
+  else:
+    try:
+      spam_chats.remove(event.chat_id)
+    except:
+      pass
+    return await edit_or_reply(event, "** ᯽︙ تم الغاء المنشن بنجاح ✓**")

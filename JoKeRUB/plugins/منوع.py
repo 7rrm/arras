@@ -20,6 +20,13 @@ from telethon.tl.functions.phone import InviteToGroupCallRequest as invitetovc
 from JoKeRUB import l313l
 from ..core.managers import edit_delete, edit_or_reply
 
+from telethon.tl.functions.messages import ImportChatInviteRequest as Get
+from telethon.utils import get_display_name
+
+from ..core.logger import logging
+from ..helpers.utils import _format, get_user_from_event
+
+
 from telethon.tl.types import InputChannel, InputPeerChannel, InputFileLocation, InputWebFileLocation
 from telethon import events, functions
 from telethon.tl.functions.channels import JoinChannelRequest
@@ -442,3 +449,19 @@ async def zelzal_gif(event):
         except:
             await zed.delete()
             await edit_or_reply(event, "**- حدث خطأ، تأكد من أن البوت @SangMata_beta_bot يعمل**")
+
+
+@l313l.ar_cmd(pattern="ازالة التوجيه")
+async def Reda (event):
+    if event.message.reply_to_msg_id:
+        
+        replied_msg = await event.get_reply_message()
+        
+        if replied_msg.media:
+            
+            await l313l.send_message(event.chat_id, "", file=replied_msg.media)
+        else:
+            
+            await l313l.send_message(chat_id=event.chat_id, message=replied_msg.message)
+    else:
+        await edit_delete(event, "**قم بالرد على رسالة أولاً **")

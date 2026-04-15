@@ -704,10 +704,10 @@ async def account_menu_next(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : أوامـر البروفايـل : ›", data="profile_commands", style="primary")],
+        [Button.inline("‹ : أوامـر البروفايـل : ›", data="profile_commands", style="danger")],
         [
-            Button.inline("‹ : أحَصائياتي : ›", data="stats_commands", style="success"),
-            Button.inline("‹ : الكشـف : ›", data="detect_commands", style="primary")
+            Button.inline("‹ : أحَصائياتي : ›", data="stats_commands", style="danger"),
+            Button.inline("‹ : الكشـف : ›", data="detect_commands", style="danger")
         ],
         [Button.inline("‹ : التخَزيـن والمَراقبـة : ›", data="storage_commands", style="primary")],
         [
@@ -716,8 +716,8 @@ async def account_menu_next(event):
         ],
         [Button.inline("‹ : سَـجل الأسمـاء : ›", data="history_commands", style="primary")],
         [
-            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu", style="primary"),
-            Button.inline("‹ : التَالـي : ›", data="account_menu_nextt", style="primary")
+            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu", style="danger"),
+            Button.inline("‹ : التَالـي : ›", data="account_menu_nextt", style="danger")
         ]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -976,15 +976,15 @@ async def account_menu_nextt(event):
     buttons = [
         [
             Button.inline("‹ : التقليـد : ›", data="fake_commands", style="primary"),
-            Button.inline("‹ : الأنتحَـال : ›", data="spoof_commands", style="danger")
+            Button.inline("‹ : الأنتحَـال : ›", data="spoof_commands", style="primary")
         ],
-        [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_commands2", style="primary")],
+        [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_commands2", style="danger")],
         [
-            Button.inline("‹ : المحَظورين : ›", data="blocked_commands", style="danger"),
-            Button.inline("‹ : حَذف دردشـة : ›", data="delete_chat_commands", style="danger")
+            Button.inline("‹ : المحَظورين : ›", data="blocked_commands", style="primary"),
+            Button.inline("‹ : حَذف دردشـة : ›", data="delete_chat_commands", style="primary")
         ],
         [
-            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu_next", style="primary")
+            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu_next", style="danger")
         ]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -1063,13 +1063,9 @@ async def broadcast_commands2(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الإذاعة 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.وجه</code> <b>⦘</b>
-❐ إذاعة نص للمجموعات
-❐ <b>طريقة الاستخدام:</b> <code>.وجه النص</code>
-
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حول</code> <b>⦘</b>
-❐ إذاعة نص للخاص
-❐ <b>طريقة الاستخدام:</b> <code>.حول النص</code>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الاذاعه</code> <b>⦘</b>
+❐ لعَرض أوامر الاذاعة
+❐ <b>طريقة الاستخدام:</b> <code>.الاذاعه</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''

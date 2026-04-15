@@ -42,32 +42,6 @@ UNBAN_RIGHTS = ChatBannedRights(
     embed_links=None,
 )
 
-class CustomParseMode:
-    def __init__(self, parse_mode: str):
-        self.parse_mode = parse_mode
-
-    def parse(self, text):
-        if self.parse_mode == 'html':
-            text, entities = html.parse(text)
-            # معالجة إيموجيات البريميوم
-            for i, e in enumerate(entities):
-                if isinstance(e, types.MessageEntityTextUrl):
-                    if e.url.startswith('emoji/'):
-                        document_id = int(e.url.split('/')[1])
-                        entities[i] = types.MessageEntityCustomEmoji(
-                            offset=e.offset,
-                            length=e.length,
-                            document_id=document_id
-                        )
-            return text, entities
-        elif self.parse_mode == 'markdown':
-            return markdown.parse(text)
-        raise ValueError("Unsupported parse mode")
-
-    @staticmethod
-    def unparse(text, entities):
-        return html.unparse(text, entities)
-
 
 @l313l.ar_cmd(
     pattern="ح عام(?:\s|$)([\s\S]*)",

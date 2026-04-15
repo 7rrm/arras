@@ -451,7 +451,7 @@ async def zelzal_gif(event):
             await edit_or_reply(event, "**- حدث خطأ، تأكد من أن البوت @SangMata_beta_bot يعمل**")
 
 
-@l313l.ar_cmd(pattern="ازالة التوجيه")
+@l313l.ar_cmd(pattern="مسح التوجيه")
 async def Reda (event):
     if event.message.reply_to_msg_id:
         

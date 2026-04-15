@@ -230,6 +230,13 @@ async def custom_HuRe(event):
                 event, "**⎙ :: عزيزي المستخدم انت لم تقوم باضافه هذا الفار اصلا**"
             )
         delgvar("TIME_JEP")
+
+    if input_str == "زاجل" or input_str == "قائمة زاجل" or input_str == "يوزرات زاجل":
+        if gvarstatus("ZAGL_Zed") is None:
+            return await edit_delete(
+                event, "**⎙ :: عزيزي المستخدم انت لم تقوم باضافه هذا الفار اصلا**"
+            )
+        delgvar("ZAGL_Zed")
     if input_str == "عدد التحذيرات":
         if gvarstatus("MAX_FLOOD_IN_PMS") is None:
             return await edit_delete(

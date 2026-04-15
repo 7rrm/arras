@@ -58,13 +58,13 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     ],
                     [
                         {
-                            "text": "‹ : ➊ المجموعَـة : ›",
-                            "callback_data": "group_menu_1",
+                            "text": "‹ : المجموعَـة ➋ : ›",
+                            "callback_data": "group_menu_2",
                             "style": "primary"
                         },
                         {
-                            "text": "‹ : المجموعَـة ➋ : ›",
-                            "callback_data": "group_menu_2",
+                            "text": "‹ : ➊ المجموعَـة : ›",
+                            "callback_data": "group_menu_1",
                             "style": "primary"
                         }
                     ],
@@ -211,8 +211,8 @@ async def back_to_main(event):
         ],
         [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="primary")],
         [
-            Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger"),
-            Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="danger")
+            Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="danger"),
+            Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
         ]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
@@ -1117,7 +1117,6 @@ async def blocked_commands(event):
 ❐ ملاحظة: هذا الأمر للمجموعات فقط ويتطلب صلاحيات المشرف
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="danger")]]
@@ -1152,7 +1151,7 @@ async def delete_chat_commands(event):
 @check_owner
 async def broadcast_main_menu(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الإذاعة 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الاذاعه</code> <b>⦘</b>
 ❐ لعرض قائمة أوامر الإذاعة المتاحة
@@ -1164,20 +1163,14 @@ async def broadcast_main_menu(event):
 ❐ لإذاعة رسالة أو ميديا لجميع المجموعات التي أنت موجود فيها
 ❐ <b>طريقة الاستخدام:</b> قم بالرد على الرسالة أو الوسائط ثم أرسل <code>.للكروبات</code>
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.للخاص</code> <b>⦘</b>
 ❐ لإذاعة رسالة أو ميديا لجميع الأشخاص في الخاص
 ❐ <b>طريقة الاستخدام:</b> قم بالرد على الرسالة أو الوسائط ثم أرسل <code>.للخاص</code>
 ❐ ملاحظة: يمكنك تحديد عدد محدد (<code>.للخاص + عدد</code>) لآخر أشخاص حسب العدد لديك بالخاص
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.خاص</code> <b>⦘</b>
 ❐ لإرسال رسالة إلى شخص محدد بدون الدخول للخاص
 ❐ <b>طريقة الاستخدام:</b> <code>.خاص + معرف الشخص + الرسالة</code>
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.للكل</code> <b>⦘</b>
 ❐ لإذاعة رسالة لجميع أعضاء المجموعة الحالية
@@ -1188,7 +1181,6 @@ async def broadcast_main_menu(event):
 ❐ <b>طريقة الاستخدام:</b> <code>.ايقاف للكل</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP", style="danger")]]

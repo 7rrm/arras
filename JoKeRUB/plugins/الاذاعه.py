@@ -57,9 +57,6 @@ ZelzalPRO_cmd = (
     "**⎞4⎝** `.للكل`\n"
     "**بالــࢪد ؏ــلى ࢪســالة نصيــه او وسـائــط تحتهــا نــص**\n"
     " **- ارسـال رسـاله اذاعـة الى جميـع اعضـاء مجموعـة محددة .. قم باستخـدام الامـر داخـل المجموعـة . .**\n\n"
-    "**⎞5⎝** `.زاجل`\n"
-    "**بالــࢪد ؏ــلى ࢪســالة نصيــه او وسـائــط تحتهــا نــص**\n"
-    " **- ارسـال رسـاله اذاعـة الى اشخاص محددة 🕊. .**\n\n"
     "\n 𓆩 [𝗦𝗼𝘂𝗿𝗰𝗲  𝗮𝗥𝗥𝗮𝗦](t.me/lx5x5) 𓆪"
 )
 
@@ -249,7 +246,6 @@ async def pmto(event):
 
 Warn = "تخمـط بـدون ذكـر المصـدر - ابلعــك نعــال وراح اهينــك"
 ZTHON_BEST_SOURCE = "[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة خـاص 🚹](t.me/lx5x5) .\n\n**- جـارِ الاذاعـه خـاص لـ أعضـاء الكـروب 🛗\n- الرجـاء الانتظـار .. لحظـات ⏳**"
-ZTHON_PRO_SOURCE = "[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة زاجـل 🕊](t.me/lx5x5) .\n\n**- جـارِ الاذاعـه لـ قائمـة زاجـل 📜\n- الرجـاء الانتظـار .. لحظـات ⏳**"
 ZELZAL_PRO_DEV = "[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة زاجـل 🕊](t.me/lx5x5) .\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⎉╎قائمـة الاذاعـه فارغـه ؟! ❌**\n**⎉╎قم باضافة يوزرات عبـر الامر**\n`.اضف فار زاجل` **بالـرد ع عدة يوزرات تفصل بينهم مسافات**"
 
 @l313l.ar_cmd(pattern=f"للكل(?: |$)(.*)", groups_only=True)
@@ -316,46 +312,3 @@ async def unmalath(event):
         except:
             pass
         return await event.edit("**⎉╎تم إيقـاف عمليـة الاذاعـه للاعضـاء هنـا .. بنجـاح✓**")
-
-
-@l313l.ar_cmd(pattern="زاجل(?: |$)(.*)")
-async def malath(event):
-    zedthon = event.pattern_match.group(1)
-    if zedthon:
-        await edit_or_reply(event, "**⎉╎بالـࢪد ؏ــلى ࢪسـالة او وسائـط**")
-        return
-    zilzal = await event.get_reply_message()
-    if gvarstatus("ZAGL_Zed") is None:
-        return await event.edit(ZELZAL_PRO_DEV, link_preview=False)
-    zelzal = gvarstatus("ZAGL_Zed")
-    users = zelzal.split(" ")
-    zzz = await edit_or_reply(event, ZTHON_PRO_SOURCE, link_preview=False)
-    total = 0
-    success = 0
-    user_entity = None
-    for user in users:
-        total += 1
-        if zilzal.text:
-            try:
-                user_entity = await l313l.get_entity(user)
-                if user_entity.bot or user_entity.deleted:
-                    continue
-                await l313l.send_message(user_entity.id, zilzal, link_preview=False)
-                success += 1
-            except UserAdminInvalidError:
-                pass
-            except Exception as e:
-                zzz.edit(f"خطأ في إرسال الرسالة إلى {user_entity.id}: {str(e)}")
-        elif zilzal.media:
-            try:
-                user_entity = await l313l.get_entity(user)
-                if user_entity.bot or user_entity.deleted:
-                    continue
-                await l313l.send_file(user_entity.id, zilzal.media, caption=zilzal.text)
-                success += 1
-            except UserAdminInvalidError:
-                pass
-            except Exception as e:
-                zzz.edit(f"خطأ في إرسال الرسالة إلى {user_entity.id}: {str(e)}")
-    ZELZAL_BEST_DEV = f"[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة زاجـل 🕊](t.me/lx5x5) .\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⎉╎تمت الاذاعـه .. بنجـاح  ✅**\n**⎉╎عـدد {success} أشخـاص**"
-    await zzz.edit(ZELZAL_BEST_DEV, link_preview=False)

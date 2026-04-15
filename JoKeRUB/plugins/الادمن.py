@@ -60,7 +60,7 @@ async def zedgban(event):  # sourcery no-metrics
     user, reason = await get_user_from_event(event, zede)
     if not user:
         return
-    if user.id == l313l.uid:
+    if user.id == event.client.uid:
         return await edit_delete(zede, "**⎉╎عـذراً ..لا استطيـع حظـࢪ نفسـي **")
     if user.id in zel_dev:
         return await edit_delete(zede, "**⎉╎عـذراً ..لا استطيـع حظـࢪ احـد المطـورين عـام **")
@@ -249,7 +249,7 @@ async def catgkick(event):  # sourcery no-metrics
     user, reason = await get_user_from_event(event, zede)
     if not user:
         return
-    if user.id == l313l.uid:
+    if user.id == event.client.uid:
         return await edit_delete(zede, "**╮ ❐ ... عــذراً لا استطــيع طــرد نفســي ... ❏╰**")
     if user.id in zel_dev:
         return await edit_delete(zede, "**╮ ❐ ... عــذࢪاً .. لا استطــيع طــرد المطـورين ... ❏╰**")

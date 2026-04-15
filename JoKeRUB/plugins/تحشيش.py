@@ -331,7 +331,7 @@ async def permalink(mention):
     me = await mention.client.get_me()
     my_mention = f"[{me.first_name}](tg://user?id={me.id})"
     await edit_or_reply(mention, f"**✧︙ الحلو** 「[{JoKeRUB}](tg://user?id={user.id})」 \n**✧︙ تـم رفعه ادمن بواسطة :** {my_mention}")
-
+'''
 @l313l.on(admin_cmd(pattern="رفع منشئ(?:\s|$)([\s\S]*)"))
 async def permalink(mention):
     user_info = await get_user_from_event(mention)
@@ -357,7 +357,7 @@ async def permalink(mention):
     me = await mention.client.get_me()
     my_mention = f"[{me.first_name}](tg://user?id={me.id})"
     await edit_or_reply(mention, f"**✧︙ الحلو** 「[{JoKeRUB}](tg://user?id={user.id})」 \n**✧︙ تـم رفعه مالك الكروب بواسطة :** {my_mention}")
-
+'''
 @l313l.on(admin_cmd(pattern="رفع مجنب(?:\s|$)([\s\S]*)"))
 async def permalink(mention):
     user_info = await get_user_from_event(mention)
@@ -433,7 +433,7 @@ async def Hussein(event):
                  #   else:
                    #     await event.reply("**❌ يجب كتابة رسالة بعد كلمة دز**\nمثال: `دز احبك`")
 
-@l313l.on(admin_cmd(pattern="رفع(?:\s|$)([\s\S]*)"))
+@l313l.on(admin_cmd(pattern="رفعع(?:\s|$)([\s\S]*)"))
 async def custom_raise(event):
     # قائمة الأوامر المحجوزة (الأوامر القديمة)
     reserved_commands = [

@@ -84,7 +84,7 @@ async def _(event):
     await event.client.send_message(event.chat_id, mentions, reply_to=reply_message)
     await event.delete()
 
-
+'''
 @l313l.ar_cmd(pattern=f"البوتات ?(.*)")
 async def zelzal(zed):
     con = zed.pattern_match.group(1).lower()
@@ -137,7 +137,7 @@ async def zelzal(zed):
             \n ✧╎{del_status}\
             \n ✧╎الدردشه: {zed.chat.title}(`{zed.chat_id}`)",
         )
-
+'''
 
 @l313l.ar_cmd(
     pattern="الاعضاء(?:\s|$)([\s\S]*)",

@@ -45,7 +45,7 @@ async def get_readable_time(seconds: int) -> str:
 # gban
 
 
-async def admin_groups(catub):
+async def admin_groups(l313l):
     catgroups = []
     async for dialog in l313l.iter_dialogs():
         entity = dialog.entity

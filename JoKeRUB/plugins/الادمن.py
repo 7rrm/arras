@@ -768,7 +768,7 @@ async def pin(event):
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الغاء تثبيت( الكل|$)",
     command=("الغاء تثبيت", plugin_category),
     info={

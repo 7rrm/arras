@@ -10,7 +10,6 @@ from telethon.tl.types import ChatBannedRights
 from telethon.utils import get_display_name
 
 from . import l313l
-from JoKeRUB import l313l
 from ..core.managers import edit_delete, edit_or_reply
 from ..helpers.utils import _format
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus

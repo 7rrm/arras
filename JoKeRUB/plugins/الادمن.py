@@ -332,7 +332,7 @@ from telethon.tl.types import (
 )
 from telethon.utils import get_display_name
 
-from . import zedub
+from . import l313l
 
 from ..core.data import _sudousers_list
 from ..core.logger import logging
@@ -393,7 +393,7 @@ KICK = gvarstatus("Z_KICK") or "طرد"
 PC_BANE = gvarstatus("PC_BANE")
 # ================================================
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الصورة (وضع|حذف)$",
     command=("الصورة", plugin_category),
     info={
@@ -455,7 +455,7 @@ async def set_group_photo(event):  # sourcery no-metrics
         )
 
 
-@zedub.zed_cmd(pattern=f"{ADMZ}(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern=f"{ADMZ}(?:\s|$)([\s\S]*)")
 async def promote(event):
     chat = await event.get_chat()
     admin = chat.admin_rights
@@ -491,7 +491,7 @@ async def promote(event):
         )
 
 
-@zedub.zed_cmd(pattern="رفع مالك(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="رفع مالك(?:\s|$)([\s\S]*)")
 async def promote(event):
     chat = await event.get_chat()
     admin = chat.admin_rights
@@ -528,7 +528,7 @@ async def promote(event):
         )
 
 
-@zedub.zed_cmd(pattern="اخفاء(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern="اخفاء(?:\s|$)([\s\S]*)")
 async def promote(event):
     chat = await event.get_chat()
     admin = chat.admin_rights
@@ -566,7 +566,7 @@ async def promote(event):
         )
 
 
-@zedub.zed_cmd(pattern=f"{UNADMZ}(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern=f"{UNADMZ}(?:\s|$)([\s\S]*)")
 async def demote(event):
     chat = await event.get_chat()
     admin = chat.admin_rights
@@ -601,7 +601,7 @@ async def demote(event):
         )
 
 
-@zedub.zed_cmd(pattern=f"{BANN}(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern=f"{BANN}(?:\s|$)([\s\S]*)")
 async def _ban_person(event):
     user, reason = await get_user_from_event(event)
     if reason and reason == "عام":
@@ -610,10 +610,8 @@ async def _ban_person(event):
         return
     if user.id == event.client.uid:
         return await edit_delete(event, "**⪼ عـذراً ..لا استطيـع حظـࢪ نفسـي 𓆰**")
-    if user.id == 925972505 or user.id == 1895219306 or user.id == 2095357462:
+    if user.id == 5427469031:
         return await edit_delete(event, "**╮ ❐ دي لا يمڪنني حظـر مطـور السـورس  ❏╰**")
-    if user.id in zel_dev:
-        return await edit_delete(event, "**╮ ❐ دي لا يمڪنني حظـر مطـوريـن السـورس  ❏╰**")
     zedevent = await edit_or_reply(event, "**╮ ❐... جـاࢪِ الحـظـࢪ ...❏╰**")
     try:
         await event.client(EditBannedRequest(event.chat_id, user.id, BANNED_RIGHTS))
@@ -670,7 +668,7 @@ async def _ban_person(event):
             )
 
 
-@zedub.zed_cmd(pattern=f"{UNBANN}(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern=f"{UNBANN}(?:\s|$)([\s\S]*)")
 async def nothanos(event):
     user, _ = await get_user_from_event(event)
     if not user:
@@ -694,7 +692,7 @@ async def nothanos(event):
         await zedevent.edit(f"**- خطــأ :**\n`{e}`")
 
 
-@zedub.zed_cmd(incoming=True)
+@l313l.ar_cmd(incoming=True)
 async def watcher(event):
     if is_muted(event.sender_id, event.chat_id):
         try:
@@ -703,14 +701,12 @@ async def watcher(event):
             LOGS.info(str(e))
 
 
-@zedub.zed_cmd(pattern=f"{KICK}(?:\s|$)([\s\S]*)")
+@l313l.ar_cmd(pattern=f"{KICK}(?:\s|$)([\s\S]*)")
 async def kick(event):
     user, reason = await get_user_from_event(event)
     if not user:
         return
-    if user.id in zel_dev:
-        return await edit_delete(event, "**╮ ❐ دي لا يمڪنني طـرد مطـوريـن السـورس  ❏╰**")
-    if user.id == 925972505 or user.id == 1895219306 or user.id == 2095357462:
+    if user.id == 5427469031:
         return await edit_delete(event, "**╮ ❐ دي . . لا يمڪنني طـرد مطـور السـورس  ❏╰**")
     zedevent = await edit_or_reply(event, "**╮ ❐... جـاࢪِ الطــࢪد ...❏╰**")
     try:
@@ -732,7 +728,7 @@ async def kick(event):
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="تثبيت( بالاشعار|$)",
     command=("تثبيت", plugin_category),
     info={
@@ -821,7 +817,7 @@ async def unpin(event):
         )
 
 
-@zedub.zed_cmd(
+@l313l.ar_cmd(
     pattern="الاحداث( م)?(?: |$)(\d*)?",
     command=("الاحداث", plugin_category),
     info={

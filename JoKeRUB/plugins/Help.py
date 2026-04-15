@@ -704,7 +704,7 @@ async def account_menu_next(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : أوامـر البروفايـل : ›", data="profile_commands", style="danger")],
+        [Button.inline("‹ : أوامـر البروفايـل : ›", data="profile_commands", style="primary")],
         [
             Button.inline("‹ : أحَصائياتي : ›", data="stats_commands", style="danger"),
             Button.inline("‹ : الكشـف : ›", data="detect_commands", style="danger")

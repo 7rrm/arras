@@ -528,41 +528,13 @@ async def promote(event):
 
 # ================== رفع وتنزيل مشرف عام في جميع المجموعات ==================
 
-async def get_full_user(event):  
-    args = event.pattern_match.group(1).split(':', 1)
-    extra = None
-    if event.reply_to_msg_id and not len(args) == 2:
-        previous_message = await event.get_reply_message()
-        user_obj = await event.client.get_entity(previous_message.sender_id)
-        extra = event.pattern_match.group(1)
-    elif len(args[0]) > 0:
-        user = args[0]
-        if len(args) == 2:
-            extra = args[1]
-        if user.isnumeric():
-            user = int(user)
-        if not user:
-            await event.edit("▾∮ لا يمكنك بدون ايدي المستخدم")
-            return
-        if event.message.entities is not None:
-            probable_user_mention_entity = event.message.entities[0]
-            if isinstance(probable_user_mention_entity,
-                          MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                user_obj = await event.client.get_entity(user_id)
-                return user_obj
-        try:
-            user_obj = await event.client.get_entity(user)
-        except Exception as err:
-            return await event.edit("▾∮ هنالك خطأ", str(err))           
-    return user_obj, extra
-
+# ================== رفع وتنزيل مشرف عام في جميع المجموعات ==================
 
 @l313l.ar_cmd(
     pattern="رفع م عام(?:\s|$)([\s\S]*)",
     command=("رفع م عام", plugin_category),
     info={
-        "header": "لرفع مستخدم مشرف عام في جميع المجموعات",
+        "header": "لرفع مستخدم مشرف عام في جميع المجموعات التي أنت أدمن فيها",
         "الاستخدام": [
             ".رفع م عام بالرد على الشخص",
             ".رفع م عام <ايدي المستخدم>"
@@ -570,7 +542,7 @@ async def get_full_user(event):
     },
 )
 async def promote_all_groups(event):
-    "رفع مستخدم مشرف عام في جميع المجموعات"
+    "رفع مستخدم مشرف عام في جميع المجموعات التي أنت أدمن فيها"
     razan = await edit_or_reply(event, "**▾∮ جاري رفع المستخدم في جميع المجموعات ...**")
     i = 0
     me = await event.client.get_me()
@@ -590,9 +562,13 @@ async def promote_all_groups(event):
     if me.id == user.id:
         return await edit_delete(razan, "**▾∮ لا استطيع رفع نفسي 🧸🤍**")
     
-    # جلب جميع المجموعات التي فيها البوت
-    telchanel = [d.entity.id for d in await event.client.get_dialogs() 
-                 if (d.is_group or d.is_channel)]
+    # جلب المجموعات التي فيها البوت أدمن (نفس طريقة ح عام)
+    san = await admin_groups(event.client)
+    telchanel = san
+    sandy = len(telchanel)
+    
+    if sandy == 0:
+        return await edit_delete(razan, "**⎉╎عــذراً .. يجـب ان تكــون مشـرفـاً فـي مجموعـة واحـده ع الأقــل **")
     
     # صلاحيات المشرف الكاملة
     rgt = ChatAdminRights(
@@ -604,19 +580,19 @@ async def promote_all_groups(event):
         pin_messages=True
     )
     
-    rank = "مشرف عام"
+    rank = "admin"
     
     for x in telchanel:
         try:
             await event.client(EditAdminRequest(x, user.id, rgt, rank))
             i += 1
-            await razan.edit(f"**▾∮ تم الرفع في :** `{i}` **من المجموعات**")
-        except:
-            pass
+            await razan.edit(f"**▾∮ تم الرفع في :** `{i}` **من {sandy} مجموعة**")
+        except BadRequestError:
+            pass  # تخطي المجموعات التي لا توجد صلاحيات كافية
     
     await razan.edit(
         f"**▾∮ المستخدم :** [{user.first_name}](tg://user?id={user.id})\n"
-        f"**▾∮ تم رفعه مشرف عام في : {i} من المجموعات ✓**"
+        f"**▾∮ تم رفعه مشرف عام في : {i} من {sandy} مجموعة ✓**"
     )
     
     if BOTLOG and i != 0:
@@ -632,7 +608,7 @@ async def promote_all_groups(event):
     pattern="تنزيل م عام(?:\s|$)([\s\S]*)",
     command=("تنزيل م عام", plugin_category),
     info={
-        "header": "لتنزيل مستخدم من المشرف العام في جميع المجموعات",
+        "header": "لتنزيل مستخدم من المشرف العام في جميع المجموعات التي أنت أدمن فيها",
         "الاستخدام": [
             ".تنزيل م عام بالرد على الشخص",
             ".تنزيل م عام <ايدي المستخدم>"
@@ -640,7 +616,7 @@ async def promote_all_groups(event):
     },
 )
 async def demote_all_groups(event):
-    "تنزيل مستخدم من المشرف العام في جميع المجموعات"
+    "تنزيل مستخدم من المشرف العام في جميع المجموعات التي أنت أدمن فيها"
     razan = await edit_or_reply(event, "**▾∮ جاري تنزيل المستخدم من جميع المجموعات ...**")
     i = 0
     me = await event.client.get_me()
@@ -660,9 +636,13 @@ async def demote_all_groups(event):
     if me.id == user.id:
         return await edit_delete(razan, "**▾∮ لا استطيع تنزيل نفسي 🧸🤍**")
     
-    # جلب جميع المجموعات التي فيها البوت
-    telchanel = [d.entity.id for d in await event.client.get_dialogs() 
-                 if (d.is_group or d.is_channel)]
+    # جلب المجموعات التي فيها البوت أدمن (نفس طريقة ح عام)
+    san = await admin_groups(event.client)
+    telchanel = san
+    sandy = len(telchanel)
+    
+    if sandy == 0:
+        return await edit_delete(razan, "**⎉╎عــذراً .. يجـب ان تكــون مشـرفـاً فـي مجموعـة واحـده ع الأقــل **")
     
     # صلاحيات فارغة لتنزيل المشرف
     rgt = ChatAdminRights(
@@ -680,13 +660,13 @@ async def demote_all_groups(event):
         try:
             await event.client(EditAdminRequest(x, user.id, rgt, rank))
             i += 1
-            await razan.edit(f"**▾∮ تم التنزيل في :** `{i}` **من المجموعات**")
-        except:
+            await razan.edit(f"**▾∮ تم التنزيل في :** `{i}` **من {sandy} مجموعة**")
+        except BadRequestError:
             pass
     
     await razan.edit(
         f"**▾∮ المستخدم :** [{user.first_name}](tg://user?id={user.id})\n"
-        f"**▾∮ تم تنزيله من المشرف العام في : {i} من المجموعات ✓**"
+        f"**▾∮ تم تنزيله من المشرف العام في : {i} من {sandy} مجموعة ✓**"
     )
     
     if BOTLOG and i != 0:
@@ -695,7 +675,7 @@ async def demote_all_groups(event):
             f"#تنزيل_مشرف_عام\
             \n**الشخص :** [{user.first_name}](tg://user?id={user.id})\
             \n**تم تنزيله من :** {i} مجموعة"
-    )
+        )
 
 
 @l313l.ar_cmd(pattern="اخفاء(?:\s|$)([\s\S]*)")

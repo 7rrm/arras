@@ -244,6 +244,26 @@ async def pmto(event):
     except BaseException:
         await event.edit("**⎉╎اووبس .. لقـد حدث خطـأ مـا .. اعـد المحـاوله**")
 
+@l313l.ar_cmd(pattern="رسالة ?(.*)")
+async def pmto(event):
+    r = event.pattern_match.group(1)
+    p = r.split(" ")
+    chat_id = p[0]
+    try:
+        chat_id = int(chat_id)
+    except BaseException:
+        pass
+    zelzal = ""
+    for i in p[1:]:
+        zelzal += i + " "
+    if zelzal == "":
+        return
+    try:
+        await l313l.send_message(chat_id, zelzal)
+        await event.edit("**⎉╎تـم ارسال الرسـالة بنجـاح ✓**\n**⎉╎بـدون الدخـول للخـاص**")
+    except BaseException:
+        await event.edit("**⎉╎اووبس .. لقـد حدث خطـأ مـا .. اعـد المحـاوله**")
+
 Warn = "تخمـط بـدون ذكـر المصـدر - ابلعــك نعــال وراح اهينــك"
 ZTHON_BEST_SOURCE = "[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة خـاص 🚹](t.me/lx5x5) .\n\n**- جـارِ الاذاعـه خـاص لـ أعضـاء الكـروب 🛗\n- الرجـاء الانتظـار .. لحظـات ⏳**"
 ZELZAL_PRO_DEV = "[ᯓ  𝗮𝗥𝗥𝗮𝗦 𝗨𝘀𝗲𝗿𝗯𝗼𝘁 - اذاعـة زاجـل 🕊](t.me/lx5x5) .\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⎉╎قائمـة الاذاعـه فارغـه ؟! ❌**\n**⎉╎قم باضافة يوزرات عبـر الامر**\n`.اضف فار زاجل` **بالـرد ع عدة يوزرات تفصل بينهم مسافات**"

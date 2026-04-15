@@ -107,6 +107,10 @@ async def custom_HuRe(event):
     if input_str == "التخزين" or input_str == "تخزين":
         addgvar("PM_LOGGER_GROUP_ID", text)
         var = "PM_LOGGER_GROUP_ID"
+    if input_str == "زاجل" or input_str == "قائمة زاجل" or input_str == "يوزرات زاجل":
+        addgvar("ZAGL_Zed", text)
+        var = "ZAGL_Zed"
+        await zed.edit(f"**⎉╎تم إضافة قائمة الزاجل بنجاح ✓**\n**⎉╎اليوزرات:** `{text}`")
     if input_str == "كليشة الخاص" or input_str == "كليشه الخاص":
         addgvar("aljoker_message", text)
         var = "aljoker_message"

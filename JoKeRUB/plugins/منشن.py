@@ -17,6 +17,7 @@ from telethon import functions, types
 from telethon.sync import errors
 from telethon import events
 from telethon.tl import functions
+from telethon.errors import UserNotParticipantError
 
 from telethon.tl.types import ChannelParticipantsAdmins
 
@@ -208,3 +209,4 @@ async def ca_sp(event):
     except:
       pass
     return await edit_or_reply(event, "** ᯽︙ تم الغاء المنشن بنجاح ✓**")
+

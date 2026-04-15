@@ -82,7 +82,7 @@ async def gcast(event):
         if x.is_group:
             chat = x.id
             if chat not in ZED_BLACKLIST:
-                await event.client.send_message(chat, msg)
+                #await event.client.send_message(chat, msg)
                 try:
                     if zelzal.text:
                         try:
@@ -126,7 +126,7 @@ async def gcast(event):
         if x.is_group:
             chat = x.id
             if chat not in ZED_BLACKLIST:
-                await event.client.send_message(chat, msg)
+                #await event.client.send_message(chat, msg)
                 try:
                     if zelzal.text:
                         try:

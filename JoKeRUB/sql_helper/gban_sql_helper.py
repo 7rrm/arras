@@ -1,5 +1,5 @@
 """
-credits to @mrconfused and @sandy1709
+credits to @mrconfused and @lMl10l
 """
 #    Copyright (C) 2020  sandeep.n(π.$)
 #    This program is free software: you can redistribute it and/or modify
@@ -27,7 +27,7 @@ class GBan(BASE):
         self.reason = reason
 
 
-GBan.__table__.create(bind=SESSION.get_bind(), checkfirst=True)
+GBan.__table__.create(checkfirst=True)
 
 
 def is_gbanned(chat_id):
@@ -62,3 +62,4 @@ def get_all_gbanned():
     rem = SESSION.query(GBan).all()
     SESSION.close()
     return rem
+    

@@ -387,8 +387,6 @@ ADMZ = gvarstatus("Z_ADMIN") or "رفع مشرف"
 UNADMZ = gvarstatus("Z_UNADMIN") or "تنزيل مشرف"
 BANN = gvarstatus("Z_BAN") or "حظر"
 UNBANN = gvarstatus("Z_UNBAN") or "الغاء حظر"
-MUTE = gvarstatus("Z_MUTE") or "كتم"
-UNMUTE = gvarstatus("Z_UNMUTE") or "الغاء كتم"
 KICK = gvarstatus("Z_KICK") or "طرد"
 
 PC_BANE = gvarstatus("PC_BANE")
@@ -527,6 +525,177 @@ async def promote(event):
             \n**⎉╎الشخـص :** [{user.first_name}](tg://user?id={user.id})\
             \n**⎉╎المجمــوعــه :** {get_display_name(await event.get_chat())} (`{event.chat_id}`)",
         )
+
+# ================== رفع وتنزيل مشرف عام في جميع المجموعات ==================
+
+async def get_full_user(event):  
+    args = event.pattern_match.group(1).split(':', 1)
+    extra = None
+    if event.reply_to_msg_id and not len(args) == 2:
+        previous_message = await event.get_reply_message()
+        user_obj = await event.client.get_entity(previous_message.sender_id)
+        extra = event.pattern_match.group(1)
+    elif len(args[0]) > 0:
+        user = args[0]
+        if len(args) == 2:
+            extra = args[1]
+        if user.isnumeric():
+            user = int(user)
+        if not user:
+            await event.edit("▾∮ لا يمكنك بدون ايدي المستخدم")
+            return
+        if event.message.entities is not None:
+            probable_user_mention_entity = event.message.entities[0]
+            if isinstance(probable_user_mention_entity,
+                          MessageEntityMentionName):
+                user_id = probable_user_mention_entity.user_id
+                user_obj = await event.client.get_entity(user_id)
+                return user_obj
+        try:
+            user_obj = await event.client.get_entity(user)
+        except Exception as err:
+            return await event.edit("▾∮ هنالك خطأ", str(err))           
+    return user_obj, extra
+
+
+@l313l.ar_cmd(
+    pattern="رفع م عام(?:\s|$)([\s\S]*)",
+    command=("رفع م عام", plugin_category),
+    info={
+        "header": "لرفع مستخدم مشرف عام في جميع المجموعات",
+        "الاستخدام": [
+            ".رفع م عام بالرد على الشخص",
+            ".رفع م عام <ايدي المستخدم>"
+        ]
+    },
+)
+async def promote_all_groups(event):
+    "رفع مستخدم مشرف عام في جميع المجموعات"
+    razan = await edit_or_reply(event, "**▾∮ جاري رفع المستخدم في جميع المجموعات ...**")
+    i = 0
+    me = await event.client.get_me()
+    
+    # الحصول على المستخدم
+    if event.reply_to_msg_id:
+        previous_message = await event.get_reply_message()
+        user = await event.client.get_entity(previous_message.sender_id)
+    else:
+        try:
+            user, _ = await get_user_from_event(event, razan)
+            if not user:
+                return
+        except:
+            return await edit_delete(razan, "**▾∮ يجب عليك الرد على المستخدم اولاً**")
+    
+    if me.id == user.id:
+        return await edit_delete(razan, "**▾∮ لا استطيع رفع نفسي 🧸🤍**")
+    
+    # جلب جميع المجموعات التي فيها البوت
+    telchanel = [d.entity.id for d in await event.client.get_dialogs() 
+                 if (d.is_group or d.is_channel)]
+    
+    # صلاحيات المشرف الكاملة
+    rgt = ChatAdminRights(
+        add_admins=True,
+        invite_users=True,
+        change_info=True,
+        ban_users=True,
+        delete_messages=True,
+        pin_messages=True
+    )
+    
+    rank = "مشرف عام"
+    
+    for x in telchanel:
+        try:
+            await event.client(EditAdminRequest(x, user.id, rgt, rank))
+            i += 1
+            await razan.edit(f"**▾∮ تم الرفع في :** `{i}` **من المجموعات**")
+        except:
+            pass
+    
+    await razan.edit(
+        f"**▾∮ المستخدم :** [{user.first_name}](tg://user?id={user.id})\n"
+        f"**▾∮ تم رفعه مشرف عام في : {i} من المجموعات ✓**"
+    )
+    
+    if BOTLOG and i != 0:
+        await event.client.send_message(
+            BOTLOG_CHATID,
+            f"#رفع_مشرف_عام\
+            \n**الشخص :** [{user.first_name}](tg://user?id={user.id})\
+            \n**تم رفعه في :** {i} مجموعة"
+        )
+
+
+@l313l.ar_cmd(
+    pattern="تنزيل م عام(?:\s|$)([\s\S]*)",
+    command=("تنزيل م عام", plugin_category),
+    info={
+        "header": "لتنزيل مستخدم من المشرف العام في جميع المجموعات",
+        "الاستخدام": [
+            ".تنزيل م عام بالرد على الشخص",
+            ".تنزيل م عام <ايدي المستخدم>"
+        ]
+    },
+)
+async def demote_all_groups(event):
+    "تنزيل مستخدم من المشرف العام في جميع المجموعات"
+    razan = await edit_or_reply(event, "**▾∮ جاري تنزيل المستخدم من جميع المجموعات ...**")
+    i = 0
+    me = await event.client.get_me()
+    
+    # الحصول على المستخدم
+    if event.reply_to_msg_id:
+        previous_message = await event.get_reply_message()
+        user = await event.client.get_entity(previous_message.sender_id)
+    else:
+        try:
+            user, _ = await get_user_from_event(event, razan)
+            if not user:
+                return
+        except:
+            return await edit_delete(razan, "**▾∮ يجب عليك الرد على المستخدم اولاً**")
+    
+    if me.id == user.id:
+        return await edit_delete(razan, "**▾∮ لا استطيع تنزيل نفسي 🧸🤍**")
+    
+    # جلب جميع المجموعات التي فيها البوت
+    telchanel = [d.entity.id for d in await event.client.get_dialogs() 
+                 if (d.is_group or d.is_channel)]
+    
+    # صلاحيات فارغة لتنزيل المشرف
+    rgt = ChatAdminRights(
+        add_admins=None,
+        invite_users=None,
+        change_info=None,
+        ban_users=None,
+        delete_messages=None,
+        pin_messages=None
+    )
+    
+    rank = "ㅤㅤ"
+    
+    for x in telchanel:
+        try:
+            await event.client(EditAdminRequest(x, user.id, rgt, rank))
+            i += 1
+            await razan.edit(f"**▾∮ تم التنزيل في :** `{i}` **من المجموعات**")
+        except:
+            pass
+    
+    await razan.edit(
+        f"**▾∮ المستخدم :** [{user.first_name}](tg://user?id={user.id})\n"
+        f"**▾∮ تم تنزيله من المشرف العام في : {i} من المجموعات ✓**"
+    )
+    
+    if BOTLOG and i != 0:
+        await event.client.send_message(
+            BOTLOG_CHATID,
+            f"#تنزيل_مشرف_عام\
+            \n**الشخص :** [{user.first_name}](tg://user?id={user.id})\
+            \n**تم تنزيله من :** {i} مجموعة"
+    )
 
 
 @l313l.ar_cmd(pattern="اخفاء(?:\s|$)([\s\S]*)")

@@ -1,100 +1,177 @@
-# By Reda for JoKeRUB
-# Tel: @rd0r0
-# شعندك داخل للملف تريد تخمطة ههههههههه اخمط ونسبة لنفسك ماوصيك :*
-from JoKeRUB import l313l
+
 import asyncio
 import time
-from ..core.managers import edit_or_reply
+import io
+import os
+import shutil
+import random
+import logging
+import glob
+
+from datetime import datetime
+from math import sqrt
+from asyncio import sleep
+from asyncio.exceptions import TimeoutError
+
+from telethon import functions, types
+from telethon.sync import errors
 from telethon import events
-from telethon.tl.types import ChannelParticipantAdmin
-from telethon.tl.types import ChannelParticipantCreator
-from telethon.tl.functions.channels import GetParticipantRequest
-from telethon.errors import UserNotParticipantError
+from telethon.tl import functions
 
-spam_chats = []
-mention_in_progress = False
+from telethon.tl.types import ChannelParticipantsAdmins
 
-@l313l.ar_cmd(pattern="منشن(?:\s|$)([\s\S]*)")
-async def menall(event):
-    chat_id = event.chat_id
-    if event.is_private:
-        return await edit_or_reply(event, "** ᯽︙ هذا الامر يستعمل للقنوات والمجموعات فقط !**")
+from . import l313l
+
+from ..core.logger import logging
+from ..core.managers import edit_delete, edit_or_reply
+from ..helpers import reply_id
+from ..helpers.utils import _format, get_user_from_event, reply_id 
+from . import BOTLOG, BOTLOG_CHATID, mention, progress
+
+LOGS = logging.getLogger(__name__)
+plugin_category = "الادمن"
+
+
+moment_worker = []
+@l313l.ar_cmd(pattern="all?(.*)")
+async def tagall(event):
+  global moment_worker
+  if event.is_private:
+    return await edit_or_reply(event, "**- عـذراً ... هـذه ليـست مجمـوعـة ؟!**")
+  if event.pattern_match.group(1):
+    mode = "by_cmd"
     msg = event.pattern_match.group(1)
-    if not msg:
-        return await edit_or_reply(event, "** ᯽︙ ضع رسالة للمنشن اولاً**")
-    is_admin = False
-    try:
-        partici_ = await l313l(GetParticipantRequest(
-          event.chat_id,
-          event.sender_id
-        ))
-    except UserNotParticipantError:
-        is_admin = False
-    spam_chats.append(chat_id)
+  elif event.reply_to_msg_id:
+    mode = "by_reply"
+    msg = event.reply_to_msg_id
+    if msg == None:
+        return await edit_or_reply(event, "**- عـذراً ... الرسـالة غيـر ظـاهـرة للأعضـاء الجـدد ؟!**")
+  elif event.pattern_match.group(1) and event.reply_to_msg_id:
+    return await edit_or_reply(event, "**- اضـف نـص لـ الامـر . . .**\n\n**- مثـال :** `.all وينكـم`")
+  else:
+    return await edit_or_reply(event, "**- بالـرد عـلى رسـالـه . . او باضـافة نـص مـع الامـر**")
+  if mode == "by_cmd":
+    moment_worker.append(event.chat_id)
     usrnum = 0
-    usrtxt = ''
-    async for usr in l313l.iter_participants(chat_id):
-        if not chat_id in spam_chats:
-            break
-        usrtxt = f"{msg}\n[{usr.first_name}](tg://user?id={usr.id}) "
-        await l313l.send_message(chat_id, usrtxt)
+    usrtxt = ""
+    async for usr in l313l.iter_participants(event.chat_id):
+      usrnum += 1
+      usrtxt += f"- [{usr.first_name}](tg://user?id={usr.id}) "
+      if event.chat_id not in moment_worker:
+        await edit_or_reply(event, "**⎉╎تم إيقـاف التـاك .. بنجـاح ✓**")
+        return
+      if usrnum == 5:
+        await l313l.send_message(event.chat_id, f"{usrtxt}\n\n- {msg}")
         await asyncio.sleep(2)
-        await event.delete()
-    try:
-        spam_chats.remove(chat_id)
-    except:
-        pass
-@l313l.ar_cmd(pattern="الغاء منشن")
-async def ca_sp(event):
-  if not event.chat_id in spam_chats:
-    return await edit_or_reply(event, "** ᯽︙ 🤷🏻 لا يوجد منشن لألغائه**")
+        usrnum = 0
+        usrtxt = ""
+  if mode == "by_reply":
+    moment_worker.append(event.chat_id)
+    usrnum = 0
+    usrtxt = ""
+    async for usr in l313l.iter_participants(event.chat_id):
+      usrnum += 1
+      usrtxt += f"- [{usr.first_name}](tg://user?id={usr.id}) "
+      if event.chat_id not in moment_worker:
+        await edit_or_reply(event, "**⎉╎تم إيقـاف التـاك .. بنجـاح ✓**")
+        return
+      if usrnum == 5:
+        await l313l.send_message(event.chat_id, usrtxt, reply_to=msg)
+        await asyncio.sleep(2)
+        usrnum = 0
+        usrtxt = ""
+
+
+
+@l313l.ar_cmd(pattern="ايقاف التاك?(.*)")
+async def stop_tagall(event):
+  if not event.chat_id in moment_worker:
+    return await edit_or_reply(event, '**- عـذراً .. لا يوجـد هنـاك تـاك لـ إيقـافـه ؟!**')
   else:
     try:
-      spam_chats.remove(event.chat_id)
+      moment_worker.remove(event.chat_id)
     except:
       pass
-    return await edit_or_reply(event, "** ᯽︙ تم الغاء المنشن بنجاح ✓**")
+    return await edit_or_reply(event, '**⎉╎تم إيقـاف التـاك .. بنجـاح ✓**')
+
+
 @l313l.ar_cmd(pattern="تاك(?:\s|$)([\s\S]*)")
-async def Hussein(event):
-    global mention_in_progress
-    if mention_in_progress:
-        await event.edit("᯽︙ تم الغاء عملية التاك بنجاح ✅")
-        mention_in_progress = False
+async def tagall(event):
+  global moment_worker
+  if event.is_private:
+    return await edit_or_reply(event, "**- عـذراً ... هـذه ليـست مجمـوعـة ؟!**")
+  if event.pattern_match.group(1):
+    mode = "by_cmd"
+    msg = event.pattern_match.group(1)
+  elif event.reply_to_msg_id:
+    mode = "by_reply"
+    msg = event.reply_to_msg_id
+    if msg == None:
+        return await edit_or_reply(event, "**- عـذراً ... الرسـالة غيـر ظـاهـرة للأعضـاء الجـدد ؟!**")
+  elif event.pattern_match.group(1) and event.reply_to_msg_id:
+    return await edit_or_reply(event, "**- اضـف نـص لـ الامـر . . .**\n\n**- مثـال :** `.all وينكـم`")
+  else:
+    return await edit_or_reply(event, "**- بالـرد عـلى رسـالـه . . او باضـافة نـص مـع الامـر**")
+  if mode == "by_cmd":
+    moment_worker.append(event.chat_id)
+    usrnum = 0
+    usrtxt = ""
+    async for usr in l313l.iter_participants(event.chat_id):
+      usrnum += 1
+      usrtxt += f"- [{usr.first_name}](tg://user?id={usr.id}) "
+      if event.chat_id not in moment_worker:
+        await edit_or_reply(event, "**⎉╎تم إيقـاف التـاك .. بنجـاح ✓**")
         return
-    mention_in_progress = True
-    chat = await event.get_chat()
-    participants = []
-    async for member in l313l.iter_participants(chat):
-        participants.append(member)
-    total_participants = len(participants)
-    message = event.pattern_match.group(1)
-    if not message:
-        await event.edit("**᯽︙ يُرجى وضع الرسالة مع التاك لتنبيه الأعضاء بهذه الرسالة**")
-        mention_in_progress = False
+      if usrnum == 5:
+        await l313l.send_message(event.chat_id, f"{usrtxt}\n\n- {msg}")
+        await asyncio.sleep(2)
+        usrnum = 0
+        usrtxt = ""
+  if mode == "by_reply":
+    moment_worker.append(event.chat_id)
+    usrnum = 0
+    usrtxt = ""
+    async for usr in l313l.iter_participants(event.chat_id):
+      usrnum += 1
+      usrtxt += f"- [{usr.first_name}](tg://user?id={usr.id}) "
+      if event.chat_id not in moment_worker:
+        await edit_or_reply(event, "**⎉╎تم إيقـاف التـاك .. بنجـاح ✓**")
         return
-    mention = ""
-    for i, member in enumerate(participants, start=1):
-        if member.username:
-            mention += f"{i}• @{member.username}\n"
-        else:
-            mention += f"{i}• [{member.first_name}](tg://user?id={member.id})\n"
-        if i % 99 == 0 or i == total_participants:
-            final_message = f"**{message}**\n\n{mention}"
-            try:
-                await l313l.send_message(event.chat_id, final_message, reply_to=event.reply_to_msg_id)
-            except Exception as e:
-                print(f"حدث خطأ أثناء الإرسال: {e}")
-                mention_in_progress = False
-                return
-            mention = ""
-            time.sleep(3)
-    mention_in_progress = False
+      if usrnum == 5:
+        await l313l.send_message(event.chat_id, usrtxt, reply_to=msg)
+        await asyncio.sleep(2)
+        usrnum = 0
+        usrtxt = ""
+
+
+@l313l.ar_cmd(pattern="تبليغ$")
+async def _(event):
+    mentions = "- انتباه الى المشرفين تم تبليغكم \n@admin"
+    chat = await event.get_input_chat()
+    reply_to_id = await reply_id(event)
+    async for x in event.client.iter_participants(
+        chat, filter=ChannelParticipantsAdmins
+    ):
+        if not x.bot:
+            mentions += f"[\u2063](tg://user?id={x.id})"
+    await event.client.send_message(event.chat_id, mentions, reply_to=reply_to_id)
     await event.delete()
-@l313l.ar_cmd(pattern="الغاء تاك(?:\s|$)([\s\S]*)")
-async def Hussein(event):
-    global mention_in_progress
-    if mention_in_progress:
-        await event.edit("**᯽︙ تم الغاء عملية التاك بنجاح ✅**")
-        mention_in_progress = False
-    else:
-        await event.edit("**᯽︙ 🤷🏻 لاتوجد عملية تاك في هذه المجموعة **")
+
+
+@l313l.ar_cmd(
+    pattern="منشن(?:\s|$)([\s\S]*)",
+    command=("منشن", plugin_category),
+    info={
+        "header": "لـ جـلب اسـم الشخـص بشكـل ماركـدون ⦇.منشن بالـرد او + معـرف/ايـدي الشخص⦈ ",
+        "الاسـتخـدام": "{tr}منشن <username/userid/reply>",
+    },
+)
+async def permalink(event):
+    """Generates a link to the user's PM with a custom text."""
+    user, custom = await get_user_from_event(event)
+    if not user:
+        return
+    if custom:
+        return await edit_or_reply(event, f"[{custom}](tg://user?id={user.id})")
+    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    await edit_or_reply(event, f"[{tag}](tg://user?id={user.id})")

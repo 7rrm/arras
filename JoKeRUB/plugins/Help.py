@@ -35,7 +35,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                             "text": "‹ : البحـث والتحميل : ›",
                             "callback_data": "main_menu",
                             "style": "danger",
-                            "icon": "5411580731929411768"
+                            "icon": "5220157149103023925"
                         }
                     ],
                     [

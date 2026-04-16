@@ -77,7 +77,7 @@ async def inline_handler(event):  # sourcery no-metrics
                                 style="danger"
                             ),
                             Button.inline(
-                                "‹ : صوت 🅜🅟❸ : ›",
+                                "‹ : 🅜🅟❸ صوت : ›",
                                 data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
                                 style="danger"
                             ),

@@ -193,31 +193,31 @@ def yt_search_btns(
             Button.inline(
                 text=f"{page} / {total}",
                 data=f"ytdl_next_{data_key}_{page}",
-                style="danger"
+                style="primary"
             ),
         ],
         [
             Button.inline(
                 text="‹ : فَيديـو : ›",
                 data=f"ytdl_download_{vid}_video",
-                style="primary"
+                style="danger"
             ),
             Button.inline(
                 text="📜  قائمة الكل",
                 data=f"ytdl_listall_{data_key}_{page}",
-                style="danger"
+                style="success"
             ),
             Button.inline(
                 text="‹ : صَــوت : ›",
                 data=f"ytdl_download_{vid}_audio",
-                style="primary"
+                style="danger"
             ),
         ],
         [
             Button.inline(
                 text="‹ : رجــوع : ›",
                 data=f"ytdl_back_{data_key}_{page}",
-                style="danger"
+                style="primary"
             ),
         ],
     ]

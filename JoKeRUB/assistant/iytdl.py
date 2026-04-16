@@ -325,15 +325,16 @@ async def ytdl_callback(c_q: CallbackQuery):
             file=await get_ytthumb(search_data.get("1").get("video_id")),
             buttons=[
                 (
-                    Button.url(
-                        "↗️  اضغط للتحميل",
-                        url=telegraph,
+                    Button.inline(
+                        "‹ : رجــوع : ›",
+                        data=f'ytdl_detail_{data_key}_{page}style="primary"',
                     )
                 ),
                 (
-                    Button.inline(
-                        "📰  عرض التفاصيل",
-                        data=f"ytdl_detail_{data_key}_{page}",
+                    Button.url(
+                        "‹ : النتائـج : ›",
+                        url=telegraph,
+                        style="primary"
                     )
                 ),
             ],

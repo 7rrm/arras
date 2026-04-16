@@ -1205,7 +1205,7 @@ async def group_menu_1(event):
         [Button.inline("‹ : الأشـراف : ›", data="admin_commands_group", style="primary")],
         [Button.inline("‹ : رسائلي/ رسائله : ›", data="my_msgs_commands", style="primary"),
          Button.inline("‹ : اسمي/اسمه : ›", data="my_name_commands", style="primary")],
-        [Button.inline("‹ : مسح رسـائلي : ›", data="del_my_msgs_commands", style="primary")],
+        [Button.inline("‹ : مسح رسـائلي/رسائله : ›", data="del_my_msgs_commands", style="primary")],
         [Button.inline("‹ : الأحـداث : ›", data="events_commands", style="primary"),
          Button.inline("‹ : المعلومات : ›", data="info_commands", style="primary")],
         [Button.inline("‹ : الأعضـاء : ›", data="members_commands", style="primary"),
@@ -1303,7 +1303,7 @@ async def link_commands(event):
 @check_owner
 async def admin_commands_group(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الرفع والتنزيل 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مشرف</code> <b>⦘</b>
 ❐ لرفع عضو إلى مشرف بصلاحيات محدودة
@@ -1311,14 +1311,11 @@ async def admin_commands_group(event):
    - بالرد على الشخص: <code>.رفع مشرف</code>
    - مع معرف الشخص: <code>.رفع مشرف @username</code>
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تنزيل مشرف</code> <b>⦘</b>
 ❐ لتنزيل مشرف من رتبته
 ❐ <b>طريقة الاستخدام:</b> 
    - بالرد على المشرف: <code>.تنزيل مشرف</code>
    - مع معرف المشرف: <code>.تنزيل مشرف @username</code>
-
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مالك</code> <b>⦘</b>
@@ -1326,7 +1323,6 @@ async def admin_commands_group(event):
 ❐ <b>طريقة الاستخدام:</b> 
    - بالرد على الشخص: <code>.رفع مالك</code>
    - مع معرف الشخص: <code>.رفع مالك @username</code>
-
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع م عام</code> <b>⦘</b>
@@ -1335,14 +1331,11 @@ async def admin_commands_group(event):
    - بالرد على الشخص: <code>.رفع م عام</code>
    - مع ايدي المستخدم: <code>.رفع م عام 123456789</code>
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تنزيل م عام</code> <b>⦘</b>
 ❐ لتنزيل مستخدم من المشرف العام في جميع المجموعات
 ❐ <b>طريقة الاستخدام:</b> 
    - بالرد على الشخص: <code>.تنزيل م عام</code>
    - مع ايدي المستخدم: <code>.تنزيل م عام 123456789</code>
-
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اخفاء</code> <b>⦘</b>
@@ -1352,7 +1345,6 @@ async def admin_commands_group(event):
    - مع معرف الشخص: <code>.اخفاء @username</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="group_menu_1", style="primary")]]
@@ -1366,14 +1358,12 @@ async def admin_commands_group(event):
 @check_owner
 async def my_msgs_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر عرض الرسائل 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رسائلي</code> <b>⦘</b>
 ❐ لعرض عدد رسائلك في المجموعة
 ❐ <b>طريقة الاستخدام:</b> 
    - <code>.رسائلي</code> (يتم كتابته داخل المجموعة)
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رسائله</code> <b>⦘</b>
 ❐ لعرض عدد رسائل شخص معين في المجموعة
@@ -1383,7 +1373,6 @@ async def my_msgs_commands(event):
    - مع ايدي الشخص: <code>.رسائله 123456789</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="group_menu_1", style="primary")]]
@@ -1397,22 +1386,21 @@ async def my_msgs_commands(event):
 @check_owner
 async def my_name_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر عرض الأسماء 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اسمي</code> <b>⦘</b>
 ❐ لعرض اسمك في المجموعة
 ❐ <b>طريقة الاستخدام:</b> 
    - <code>.اسمي</code> (يتم كتابته داخل المجموعة)
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اسمه</code> <b>⦘</b>
 ❐ لعرض اسم شخص معين في المجموعة
 ❐ <b>طريقة الاستخدام:</b> 
    - بالرد على الشخص فقط: <code>.اسمه</code>
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="group_menu_1", style="primary")]]
@@ -1426,7 +1414,7 @@ async def my_name_commands(event):
 @check_owner
 async def del_my_msgs_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر حذف الرسائل 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح رسائلي</code> <b>⦘</b>
 ❐ لحذف جميع رسائلك في الخاص أو المجموعة
@@ -1434,8 +1422,13 @@ async def del_my_msgs_commands(event):
    - في المجموعة: <code>.مسح رسائلي</code>
    - في الخاص: <code>.مسح رسائلي</code>
 
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح رسائله</code> <b>⦘</b>
+❐ لحذف جميع رسائل الشخص في الخاص أو المجموعة
+❐ <b>طريقة الاستخدام:</b> 
+   - في المجموعة بالرد: <code>.مسح رسائله</code>
+   - في الخاص بالرد: <code>.مسح رسائله</code>
 
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="group_menu_1", style="primary")]]
@@ -1456,8 +1449,6 @@ async def events_commands(event):
 ❐ <b>طريقة الاستخدام:</b> <code>.الاحداث &lt;عدد&gt;</code>
 ❐ مثال: <code>.الاحداث 7</code>
 ❐ ملاحظة: أقصى عدد هو 15
-
-•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الاحداث م</code> <b>⦘</b>
 ❐ لجلب آخر رسائل الميديا المحذوفة من الأحداث بالعدد المطلوب

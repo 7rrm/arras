@@ -27,12 +27,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     async def inline_handler(event):
         if event.text.startswith("مساعدة"):
             buttons = [
-                [Button.inline("‹ : البحـث والتحميل : ›",data="main_menu", style="danger")],
-                [Button.inline("‹ : السـورس : ›", data="source_menu", style="primary")],
-                [Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")],
-                [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
-                [Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary")],
-                [Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")],
+                [
+                    Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="danger")],
+                [
+                    Button.inline("‹ : السـورس : ›", data="source_menu", style="primary"),
+                    Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")
+                ],
+                [
+                    Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
+                [
+                    Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary"),
+                    Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")
+                ],
             ]
             await event.answer(
                 [await event.builder.article(

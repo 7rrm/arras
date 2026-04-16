@@ -99,7 +99,7 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="primary")]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -165,7 +165,7 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="primary")]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",

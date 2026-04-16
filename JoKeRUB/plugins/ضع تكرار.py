@@ -35,7 +35,7 @@ async def _(event):
     except Exception as e:
         no_admin_privilege_message = await event.client.send_message(
             entity=event.chat_id,
-            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━━━━━━━━━━━\n\n**✧╎ قام↫** [المستخدم](tg://user?id={event.message.sender_id})\n**✧╎بتكرار رسائله في المجموعة**\x1f`{e}`",
+            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━━━━━━━\n**✧╎ قام↫** [المستخدم](tg://user?id={event.message.sender_id})\n**✧╎بتكرار رسائله في المجموعة**\x1f`{e}`",
             reply_to=event.message.id,
         )
 
@@ -46,10 +46,10 @@ async def _(event):
     else:
         await event.client.send_message(
             entity=event.chat_id,
-            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━━━━━━━━━━━\n\n**✧╎قام ↫**[المستخدم ](tg://user?id={event.message.sender_id})\n**✧╎بتجاوز عدد الـتكرار لـذلك تـم تقيـيده**",
+            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━
+            ━━━━━━━\n**✧╎قام ↫**[المستخدم ](tg://user?id={event.message.sender_id})\n**✧╎بتجاوز عدد الـتكرار لـذلك تـم تقيـيده**",
             reply_to=event.message.id,
         )
-
 
 @l313l.ar_cmd(
     pattern="ضع تكرار(?:\s|$)([\s\S]*)",
@@ -58,33 +58,21 @@ async def _(event):
 )
 async def _(event):
     input_str = event.pattern_match.group(1)
-    event = await edit_or_reply(event, "**✧╎تم تحديث عدد التكرار ..بنجـاح**")
-    await asyncio.sleep(2)
+    event = await edit_or_reply(event, "**✧╎جاري معالجة الطلب ..**")
+    await asyncio.sleep(1)
     try:
-        sql.set_flood(event.chat_id, input_str)
-        sql.__load_flood_settings()
-        await event.edit(f"**✧╎تم تحديث التكرار الى {input_str} في الدردشة الحالية**")
+        # إذا كان الرقم 99999 أو أكبر، قم بحذف الإعداد بدلاً من وضعه
+        if int(input_str) >= 99999:
+            # حذف الإعداد من قاعدة البيانات
+            sql.set_flood(event.chat_id, "0")
+            sql.__load_flood_settings()
+            await event.edit("**✧╎تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓**")
+        else:
+            # وضع العدد المطلوب
+            sql.set_flood(event.chat_id, input_str)
+            sql.__load_flood_settings()
+            await event.edit(f"**✧╎تم تحديث التكرار الى {input_str} في الدردشة الحالية**")
+    except ValueError:
+        await event.edit("**✧╎الرجاء إدخال رقم صحيح**")
     except Exception as e:
         await event.edit(str(e))
-
-@l313l.ar_cmd(
-    pattern="مسح ضع تكرار$",
-    groups_only=True,
-    require_admin=True,
-)
-async def delete_flood(event):
-    """لحذف مكافح التكرار تمامًا من المجموعة"""
-    try:
-        # حذف الإعداد من قاعدة البيانات تمامًا
-        from ..sql_helper import antiflood_sql as sql
-        
-        # محاولة حذف الإعداد
-        sql.set_flood(event.chat_id, None)  # أو قم بتعديل هذا حسب هيكل قاعدة البيانات
-        
-        # إعادة تحميل الإعدادات
-        global CHAT_FLOOD
-        CHAT_FLOOD = sql.__load_flood_settings()
-        
-        await edit_or_reply(event, "**✧╎تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓**")
-    except Exception as e:
-        await edit_or_reply(event, f"**✧╎حدث خطأ:** {str(e)}")

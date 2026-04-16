@@ -44,6 +44,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     title="📚 قائمة المساعدة",
                     text=HELP,
                     buttons=buttons,
+                    parse_mode="HTML",
                     link_preview=False,
                 )],
                 cache_time=0
@@ -165,7 +166,7 @@ async def back_to_main(event):
             Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
         ]
     ]
-    await event.edit(HELP, buttons=buttons, link_preview=False)
+    await event.edit(HELP, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
 # أوامر الاسم الوقتي

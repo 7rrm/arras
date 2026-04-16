@@ -938,6 +938,7 @@ async def mute_commands(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_command")))
 @check_owner
 async def ban_commands(event):
+    print("✅ تم استدعاء دالة mute_commands_group (خاصة بالحساب)")
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحظر 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
 
@@ -1708,6 +1709,7 @@ async def group_menu_2(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_commands_group")))
 @check_owner
 async def ban_commands_group(event):
+    print("✅ تم استدعاء دالة mute_commands_group (خاصة بالمجموعة)")
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحظر 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━
 

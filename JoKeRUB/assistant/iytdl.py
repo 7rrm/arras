@@ -327,14 +327,15 @@ async def ytdl_callback(c_q: CallbackQuery):
                 (
                     Button.inline(
                         "‹ : رجــوع : ›",
-                        data=f'ytdl_detail_{data_key}_{page}style="primary"',
+                        data=f"ytdl_detail_{data_key}_{page}",
+                        style="danger"
                     )
                 ),
                 (
                     Button.url(
                         "‹ : النتائـج : ›",
                         url=telegraph,
-                        style="primary"
+                        style="danger"
                     )
                 ),
             ],

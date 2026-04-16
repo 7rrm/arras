@@ -66,3 +66,18 @@ async def _(event):
         await event.edit(f"**✧╎تم تحديث التكرار الى {input_str} في الدردشة الحالية**")
     except Exception as e:
         await event.edit(str(e))
+
+@l313l.ar_cmd(
+    pattern="مسح ضع تكرار$",
+    groups_only=True,
+    require_admin=True,
+)
+async def delete_flood(event):
+    """لحذف مكافح التكرار تمامًا من المجموعة"""
+    try:
+        # حذف الإعداد من قاعدة البيانات
+        sql.set_flood(event.chat_id, "0")
+        sql.__load_flood_settings()
+        await edit_or_reply(event, "**✧╎تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓**")
+    except Exception as e:
+        await edit_or_reply(event, f"**✧╎حدث خطأ:** {str(e)}")

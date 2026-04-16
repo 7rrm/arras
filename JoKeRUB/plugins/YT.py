@@ -72,12 +72,12 @@ async def inline_handler(event):  # sourcery no-metrics
                         ],
                         [
                             Button.inline(
-                                "‹ : 🅜🅟❹ فيديو : ›",
+                                "‹ : فَيديـو : ›",
                                 data=f'ytdl_download_{outdata[1]["video_id"]}_video',
                                 style="danger"
                             ),
                             Button.inline(
-                                "‹ : 🅜🅟❸ صوت : ›",
+                                "‹ : صَــوت : ›",
                                 data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
                                 style="danger"
                             ),

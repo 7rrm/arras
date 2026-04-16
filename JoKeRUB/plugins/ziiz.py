@@ -112,9 +112,9 @@ async def repozedub(event):
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
     if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="danger"))]
     else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="danger"))]
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()

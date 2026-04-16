@@ -187,7 +187,7 @@ async def account_menu(event):
             Button.inline("‹ : قَـنواتـي : ›", data="channels_commands", style="primary"),
             Button.inline("‹ : كَٕروباتـي : ›", data="groups_commands", style="primary")
         ],
-        [Button.inline("‹ : مَـغادرة القَنـوات والمجموعات : ›", data="leave_commands", style="primary")],
+        [Button.inline("‹ : مَـغادرة القَنـوات والمجموعات : ›", data="lleave_commands", style="primary")],
         [Button.inline("‹ : حَـماية الخَـاص : ›", data="privacy_commands", style="primary")],
         [
             Button.inline("‹ : رجــوع ↩️ : ›", data="ZEDHELP", style="danger"),
@@ -349,7 +349,7 @@ async def channels_commands(event):
 # أوامر مغادرة القنوات والمجموعات
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"leave_commands")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"lleave_commands")))
 @check_owner
 async def leave_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المغادرة 𓆪</b>

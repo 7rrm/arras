@@ -13,7 +13,7 @@ EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
 EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
 EMOJI_HEART = "5220157149103023925"    # قلب
 
-HELP = f'''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي '<tg-emoji emoji-id="5368324170671202286">👍</tg-emoji>'**
+HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
 
@@ -44,7 +44,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     title="📚 قائمة المساعدة",
                     text=HELP,
                     buttons=buttons,
-                    parse_mode="HTML",
                     link_preview=False,
                 )],
                 cache_time=0

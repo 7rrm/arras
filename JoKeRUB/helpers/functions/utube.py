@@ -20,13 +20,6 @@ from .functions import sublists
 
 LOGS = logging.getLogger(__name__)
 
-def get_cookies_file():
-    folder_path = f"{os.getcwd()}/karar"
-    txt_files = glob.glob(os.path.join(folder_path, '*.txt'))
-    if not txt_files:
-        raise FileNotFoundError("No .txt files found in the specified folder.")
-    cookie_txt_file = random.choice(txt_files)
-    return cookie_txt_file
 
 
 BASE_YT_URL = "https://www.youtube.com/watch?v="
@@ -200,26 +193,31 @@ def yt_search_btns(
             Button.inline(
                 text=f"{page} / {total}",
                 data=f"ytdl_next_{data_key}_{page}",
+                style="danger"
             ),
         ],
         [
             Button.inline(
-                text="فيديو MP4",
+                text="‹ : فَيديـو : ›",
                 data=f"ytdl_download_{vid}_video",
+                style="primary"
             ),
             Button.inline(
                 text="📜  قائمة الكل",
                 data=f"ytdl_listall_{data_key}_{page}",
+                style="danger"
             ),
             Button.inline(
-                text="صوت MP3",
+                text="‹ : صَــوت : ›",
                 data=f"ytdl_download_{vid}_audio",
+                style="primary"
             ),
         ],
         [
             Button.inline(
-                text="⬅️  رجوع",
+                text="‹ : رجــوع : ›",
                 data=f"ytdl_back_{data_key}_{page}",
+                style="danger"
             ),
         ],
     ]

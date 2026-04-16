@@ -22,25 +22,28 @@ HELP = f'''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي <tg-emoji emoji-
 '''
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
-
-@tgbot.on(events.InlineQuery)
-@check_owner
-async def inline_handler(event):
-    if event.text.startswith("مساعدة"):
-        keyboard = {
-            "inline_keyboard": [
-                [{"text": "‹ : البحـث والتحميل : ›", "callback_data": "main_menu", "style": "danger"}],
-                [
-                    {"text": "‹ : السـورس : ›", "callback_data": "source_menu", "style": "primary"},
-                    {"text": "‹ : الحـساب : ›", "callback_data": "account_menu", "style": "primary"}
-                ],
-                [{"text": "‹ : الأذاعَـة : ›", "callback_data": "broadcast_main_menu", "style": "danger"}],
-                [
-                    {"text": "‹ : المجموعَـة ➊ : ›", "callback_data": "group_menu_1", "style": "primary"},
-                    {"text": "‹ : المجموعَـة ➋ : ›", "callback_data": "group_menu_2", "style": "primary"}
-                ],
-            ]
-        }
+    @tgbot.on(events.InlineQuery)
+    @check_owner
+    async def inline_handler(event):
+        if event.text.startswith("مساعدة"):
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {"text": "‹ : البحـث والتحميل : ›", "callback_data": "main_menu", "style": "danger"}
+                    ],
+                    [
+                        {"text": "‹ : السـورس : ›", "callback_data": "source_menu", "style": "primary"},
+                        {"text": "‹ : الحـساب : ›", "callback_data": "account_menu", "style": "primary"}
+                    ],
+                    [
+                        {"text": "‹ : الأذاعَـة : ›", "callback_data": "broadcast_main_menu", "style": "danger"}
+                    ],
+                    [
+                        {"text": "‹ : المجموعَـة ➊ : ›", "callback_data": "group_menu_1", "style": "primary"},
+                        {"text": "‹ : المجموعَـة ➋ : ›", "callback_data": "group_menu_2", "style": "primary"}
+                    ],
+                ]
+            }
         
         url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
         inline_data = {

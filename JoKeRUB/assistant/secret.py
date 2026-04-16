@@ -71,7 +71,7 @@ async def on_plug_in_callback_query_handler(event):
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>عَـند</b> <code>{time_str}</code> . </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
                     
                     # زر الرد يرسل همسة للمرسل الأصلي
-                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True)]]
+                    btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True, style="primary")]]
                     
                     try:
                         await event.edit(new_text, buttons=btn, parse_mode='html')

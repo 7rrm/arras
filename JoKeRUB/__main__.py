@@ -58,7 +58,7 @@ async def startup_process():
 
 async def externalrepo():
     if Config.VCMODE:
-        await install_externalrepo("https://github.com/Ksidhdnkddbos/JepVc", "jepvc", "jepthonvc")
+        await install_externalrepo("https://github.com/7rrm/JepVc", "jepvc", "jepthonvc")
 
 l313l.loop.run_until_complete(externalrepo())
 l313l.loop.run_until_complete(startup_process())

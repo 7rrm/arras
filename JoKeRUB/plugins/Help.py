@@ -7,65 +7,97 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-# إيموجي بريميوم
-EMOJI_AWAMER = "5667948420749328402"
-EMOJI_OWNER = "5046707123942066452"
-EMOJI_HEART = "5220157149103023925"
-
-EMOJI_OWNER = "5667948420749328402"
-
-# رسالة الترحيب المبسطة
-WELCOME_TEXT = '''**‹ : مـࢪحبـاً عـزيـزي .**
-**‹ : للدخول إلى القائمة اضغط على الزر أدناه**
-
-ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
-
-# رسالة HELP الأصلية (تظهر في ZEDHELP)
 HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
 
-[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)'''
+[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)
+
+'''
+
+# إيموجي بريميوم
+EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
+EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
+EMOJI_HEART = "5220157149103023925"    # قلب
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
     @check_owner
     async def inline_handler(event):
-        if event.text.startswith("مساعدة"):
+        query = event.text
+        
+        if query.startswith("مساعدة"):
             keyboard = {
                 "inline_keyboard": [
-                    [{
-                        "text": "📌 اضغط هَنا",
-                        "callback_data": "ZEDHELP",
-                        "style": "primary",
-                        "icon_custom_emoji_id": "5667948420749328402"
-                    }],
-                    [{
-                        "text": "👨‍💻 المـطـور",
-                        "url": "https://t.me/lx5x5",
-                        "style": "danger"
-                    }]
+                    [
+                        {
+                            "text": "‹ : البحـث والتحميل : ›",
+                            "callback_data": "main_menu",
+                            "style": "danger"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "‹ : السـورس : ›",
+                            "callback_data": "source_menu",
+                            "style": "primary"
+                        },
+                        {
+                            "text": "‹ : الحـساب : ›",
+                            "callback_data": "aaccount_menu",
+                            "style": "primary",
+                            "icon_custom_emoji_id": "5667948420749328402"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "‹ : الأذاعَـة : ›",
+                            "callback_data": "broadcast_main_menu",
+                            "style": "danger"
+                        }
+                    ],
+                    [
+                        {
+                            "text": "‹ : المجموعَـة ➋ : ›",
+                            "callback_data": "group_menu_2",
+                            "style": "primary"
+                        },
+                        {
+                            "text": "‹ : ➊ المجموعَـة : ›",
+                            "callback_data": "group_menu_1",
+                            "style": "primary"
+                        }
+                    ],
+                        
                 ]
             }
-        
-        url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-        inline_data = {
-            "inline_query_id": event.id,
-            "results": json.dumps([
-                {
-                    "type": "article",
-                    "id": "help_menu_1",
-                    "title": "📚 قائمة المساعدة",
-                    "input_message_content": {
-                        "message_text": WELCOME_TEXT,
-                        "parse_mode": "HTML"
-                    },
-                    "reply_markup": keyboard
-                }
-            ])
-        }
-        requests.post(url, json=inline_data)
+            
+            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+            inline_data = {
+                "inline_query_id": event.id,
+                "results": json.dumps([
+                    {
+                        "type": "article",
+                        "id": "help_menu_1",
+                        "title": "📚 قائمة المساعدة - آراس",
+                        "description": "اضغط لعرض الأوامر",
+                        "input_message_content": {
+                            "message_text": HELP,
+                            "parse_mode": "Markdown",
+                            "disable_web_page_preview": True
+                        },
+                        "reply_markup": keyboard
+                    }
+                ]),
+                "cache_time": 0,
+                "is_personal": True
+            }
+            
+            try:
+                requests.post(url, json=inline_data)
+            except Exception as e:
+                print(f"❌ خطأ: {e}")
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):

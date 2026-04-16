@@ -38,7 +38,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         "description": "اضغط لرؤية الأزرار الملونة",
                         "input_message_content": {
                             "message_text": "**🎨 مرحباً بك في تجربة الألوان**\nاختر الزر المناسب👇 <tg-emoji emoji-id="5368324170671202286">🔥</tg-emoji>",
-                            "parse_mode": "Markdown"
+                            "parse_mode": "HTML"
                         },
                         "reply_markup": keyboard
                     }

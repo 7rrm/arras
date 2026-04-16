@@ -23,27 +23,26 @@ EMOJI_HEART = "5220157149103023925"    # قلب
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
-@check_owner
-async def inline_handler(event):
-    if event.text.startswith("مساعدة"):
-        buttons = [
-            [Button.inline("‹ : البحـث والتحميل : ›",data="main_menu", style="danger")],
-            [Button.inline("‹ : السـورس : ›", data="source_menu", style="primary")],
-            [Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")],
-            [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
-            [Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary")],
-            [Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")],
-        ]
-        
-        await event.answer(
-            [await event.builder.article(
-                title="📚 قائمة المساعدة",
-                text=HELP,
-                buttons=buttons,
-                link_preview=False,
-            )],
-            cache_time=0
-        )
+    @check_owner
+    async def inline_handler(event):
+        if event.text.startswith("مساعدة"):
+            buttons = [
+                [Button.inline("‹ : البحـث والتحميل : ›",data="main_menu", style="danger")],
+                [Button.inline("‹ : السـورس : ›", data="source_menu", style="primary")],
+                [Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")],
+                [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
+                [Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary")],
+                [Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")],
+            ]
+            await event.answer(
+                [await event.builder.article(
+                    title="📚 قائمة المساعدة",
+                    text=HELP,
+                    buttons=buttons,
+                    link_preview=False,
+                )],
+                cache_time=0
+            )
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):
     if event.reply_to_msg_id:

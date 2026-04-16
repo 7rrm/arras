@@ -727,7 +727,7 @@ async def account_menu_next(event):
         [Button.inline("‹ : التخَزيـن والمَراقبـة : ›", data="storage_commands", style="primary")],
         [
             Button.inline("‹ : الكـتم : ›", data="mute_commands", style="primary"),
-            Button.inline("‹ : الحَـظر : ›", data="ban_commands", style="primary")
+            Button.inline("‹ : الحَـظر : ›", data="ban_command", style="primary")
         ],
         [Button.inline("‹ : سَـجل الأسمـاء : ›", data="history_commands", style="primary")],
         [
@@ -935,11 +935,19 @@ async def mute_commands(event):
 # أوامر الحظر
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_commands")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_command")))
 @check_owner
 async def ban_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحظر 𓆪</b>
 ━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بلوك</code> <b>⦘</b>
+❐ لـ حظر شخص من خاصك
+❐ <b>طريقة الاستخدام:</b> <code>.بلوك</code> في محادثة الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الغاء بلوك</code> <b>⦘</b>
+❐ إلغاء حظر الشخص
+❐ <b>طريقة الاستخدام:</b> <code>.الغاء حظر</code> بكتابه يوزره
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حظر</code> <b>⦘</b>
 ❐ حظر عضو من المجموعة

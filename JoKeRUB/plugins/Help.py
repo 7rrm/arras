@@ -1041,7 +1041,7 @@ async def fake_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -1073,7 +1073,7 @@ async def spoof_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -1093,7 +1093,7 @@ async def broadcast_commands2(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -1127,7 +1127,7 @@ async def blocked_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -1148,7 +1148,7 @@ async def delete_chat_commands(event):
 
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu_nextt", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #

@@ -21,8 +21,8 @@ StartTime = time.time()
 JEPVERSION = "3.1.3"
 
 
-if Config.UPSTREAM_REPO == "Ksidhdnkddbos":
-    UPSTREAM_REPO_URL = "https://github.com/7rrm/jepthon"
+if Config.UPSTREAM_REPO == "7rrm":
+    UPSTREAM_REPO_URL = "https://github.com/7rrm/arras"
   #  UPSTREAM_REPO_BRANCH = "HuRe"
 else:
     UPSTREAM_REPO_URL = Config.UPSTREAM_REPO

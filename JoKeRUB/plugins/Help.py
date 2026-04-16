@@ -12,12 +12,11 @@ EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
 EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
 EMOJI_HEART = "5220157149103023925"    # قلب
 
-HELP = f'''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>**
+HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
 
-[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)
-'''
+[ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)'''
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -44,7 +43,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     title="📚 قائمة المساعدة",
                     text=HELP,
                     buttons=buttons,
-                    parse_mode="HTML",
                     link_preview=False,
                 )],
                 cache_time=0
@@ -166,7 +164,7 @@ async def back_to_main(event):
             Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
         ]
     ]
-    await event.edit(HELP, buttons=buttons, parse_mode="HTML", link_preview=False)
+    await event.edit(HELP, buttons=buttons, link_preview=False)
 
 # =========================================================== #
 # أوامر الاسم الوقتي

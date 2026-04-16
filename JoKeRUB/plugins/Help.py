@@ -7,17 +7,17 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-HELP = f'''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="5220157149103023925">❤️</tg-emoji>**
+# إيموجي بريميوم
+EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
+EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
+EMOJI_HEART = "5220157149103023925"    # قلب
+
+HELP = f'''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
 
 [ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️](https://t.me/lx5x5)
 '''
-
-# إيموجي بريميوم
-EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
-EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
-EMOJI_HEART = "5220157149103023925"    # قلب
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 

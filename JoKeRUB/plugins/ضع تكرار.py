@@ -75,9 +75,16 @@ async def _(event):
 async def delete_flood(event):
     """لحذف مكافح التكرار تمامًا من المجموعة"""
     try:
-        # حذف الإعداد من قاعدة البيانات
-        sql.set_flood(event.chat_id, "0")
-        sql.__load_flood_settings()
+        # حذف الإعداد من قاعدة البيانات تمامًا
+        from ..sql_helper import antiflood_sql as sql
+        
+        # محاولة حذف الإعداد
+        sql.set_flood(event.chat_id, None)  # أو قم بتعديل هذا حسب هيكل قاعدة البيانات
+        
+        # إعادة تحميل الإعدادات
+        global CHAT_FLOOD
+        CHAT_FLOOD = sql.__load_flood_settings()
+        
         await edit_or_reply(event, "**✧╎تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓**")
     except Exception as e:
         await edit_or_reply(event, f"**✧╎حدث خطأ:** {str(e)}")

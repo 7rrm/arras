@@ -45,7 +45,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         },
                         {
                             "text": "‹ : الحـساب : ›",
-                            "callback_data": "account_menu",
+                            "callback_data": "aaccount_menu",
                             "style": "primary"
                         }
                     ],
@@ -168,7 +168,7 @@ async def source_menu(event):
 # قائمة الحساب (الصفحة 1)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"aaccount_menu")))
 @check_owner
 async def account_menu(event):
     text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
@@ -207,7 +207,7 @@ async def back_to_main(event):
         [Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="primary")],
         [
             Button.inline("‹ : السـورس : ›", data="source_menu", style="danger"),
-            Button.inline("‹ : الحـساب : ›", data="account_menu", style="danger")
+            Button.inline("‹ : الحـساب : ›", data="aaccount_menu", style="danger")
         ],
         [Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="primary")],
         [
@@ -246,7 +246,7 @@ async def name_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -270,7 +270,7 @@ async def bio_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="success")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="success")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -294,7 +294,7 @@ async def photo_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -318,7 +318,7 @@ async def groups_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="success")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="success")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -342,7 +342,7 @@ async def channels_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="success")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="success")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -364,7 +364,7 @@ async def leave_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -429,7 +429,7 @@ async def privacy_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_menu", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="aaccount_menu", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -726,13 +726,13 @@ async def account_menu_next(event):
             Button.inline("‹ : الكشـف : ›", data="detect_commands", style="primary")],
         [Button.inline("‹ : التخَزيـن والمَراقبـة : ›", data="storage_commands", style="primary")],
         [
-            Button.inline("‹ : الكـتم : ›", data="mute_commands", style="primary"),
+            Button.inline("‹ : الكـتم : ›", data="mmute_commands", style="primary"),
             Button.inline("‹ : الحَـظر : ›", data="bban_commands", style="primary")
         ],
         [Button.inline("‹ : سَـجل الأسمـاء : ›", data="history_commands", style="primary")],
         [
-            Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu", style="danger"),
-            Button.inline("‹ : التَالـي : ›", data="account_menu_nextt", style="success")
+            Button.inline("‹ : رجــوع ↩️ : ›", data="aaccount_menu", style="danger"),
+            Button.inline("‹ : التَالـي : ›", data="account_mmenu_next", style="success")
         ]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -899,7 +899,7 @@ async def storage_commands(event):
 # أوامر الكتم
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"mute_commands")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"mmute_commands")))
 @check_owner
 async def mute_commands(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكتم 𓆪</b>
@@ -987,7 +987,7 @@ async def history_commands(event):
 # قائمة الحساب التالية (صفحة 3)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_menu_nextt")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"account_mmenu_next")))
 @check_owner
 async def account_menu_nextt(event):
     text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>

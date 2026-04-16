@@ -46,8 +46,7 @@ async def _(event):
     else:
         await event.client.send_message(
             entity=event.chat_id,
-            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━
-            ━━━━━━━\n**✧╎قام ↫**[المستخدم ](tg://user?id={event.message.sender_id})\n**✧╎بتجاوز عدد الـتكرار لـذلك تـم تقيـيده**",
+            message=f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 - **مانع التكرار**\n━━━━━━━━━━━━━━━━━\n**✧╎قام ↫**[المستخدم ](tg://user?id={event.message.sender_id})\n**✧╎بتجاوز عدد الـتكرار لـذلك تـم تقيـيده**",
             reply_to=event.message.id,
         )
 
@@ -58,21 +57,22 @@ async def _(event):
 )
 async def _(event):
     input_str = event.pattern_match.group(1)
-    event = await edit_or_reply(event, "**✧╎جاري معالجة الطلب ..**")
+    event = await edit_or_reply(event, "جاري معالجة الطلب ..")
     await asyncio.sleep(1)
     try:
-        # إذا كان الرقم 99999 أو أكبر، قم بحذف الإعداد بدلاً من وضعه
         if int(input_str) >= 99999:
-            # حذف الإعداد من قاعدة البيانات
-            sql.set_flood(event.chat_id, "0")
-            sql.__load_flood_settings()
-            await event.edit("**✧╎تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓**")
+            try:
+                sql.set_flood(event.chat_id, "0")
+            except:
+                pass
+            global CHAT_FLOOD
+            CHAT_FLOOD = sql.__load_flood_settings()
+            await event.edit("تم إيقاف وحذف مكافح التكرار من هذه المجموعة ✓")
         else:
-            # وضع العدد المطلوب
             sql.set_flood(event.chat_id, input_str)
             sql.__load_flood_settings()
-            await event.edit(f"**✧╎تم تحديث التكرار الى {input_str} في الدردشة الحالية**")
+            await event.edit(f"تم تحديث التكرار الى {input_str} في الدردشة الحالية")
     except ValueError:
-        await event.edit("**✧╎الرجاء إدخال رقم صحيح**")
+        await event.edit("الرجاء إدخال رقم صحيح")
     except Exception as e:
-        await event.edit(str(e))
+        await event.edit(f"حدث خطأ: {str(e)}")

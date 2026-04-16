@@ -12,6 +12,8 @@ EMOJI_AWAMER = "5667948420749328402"
 EMOJI_OWNER = "5046707123942066452"
 EMOJI_HEART = "5220157149103023925"
 
+EMOJI_OWNER = "5667948420749328402"
+
 # رسالة الترحيب المبسطة
 WELCOME_TEXT = '''**‹ : مـࢪحبـاً عـزيـزي .**
 **‹ : للدخول إلى القائمة اضغط على الزر أدناه**
@@ -34,7 +36,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             # زر واحد فقط
             buttons = [
                 [Button.inline("‹ : أضـغـط هُـنا : ›", data="ZEDHELP", style="primary")],
-                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger")],
+                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger", "icon_custom_emoji_id": EMOJI_OWNER)],
             ]
             
             await event.answer(

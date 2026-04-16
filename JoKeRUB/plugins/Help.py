@@ -35,8 +35,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if event.text.startswith("مساعدة"):
             # زر واحد فقط
             buttons = [
-                [Button.inline("‹ : أضـغـط هُـنا : ›", data="ZEDHELP", style="primary", icon_custom_emoji_id="5667948420749328402")],
-                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger")],
+                [Button.inline("📌 اضغط هَنا", data="ZEDHELP", style="primary", icon_custom_emoji_id="5667948420749328402")],
+                [Button.url("👨‍💻 المـطـور", "https://t.me/lx5x5", style="danger")],
             ]
             
             await event.answer(

@@ -12,7 +12,6 @@ EMOJI_AWAMER = "5667948420749328402"   # قبل كل امر
 EMOJI_OWNER = "5046707123942066452"    # عند اسم المطور
 EMOJI_HEART = "5220157149103023925"    # قلب
 
-EMOJI_DECOR = "5220157149103023925"
 HELP = '''**🧑🏻‍💻┊مـࢪحبـاً عـزيـزي**
 **🛂┊في قائمـة المسـاعـده والشـروحـات
 🛃┊من هنـا يمكنـك ايجـاد شـرح لكـل اوامـر السـورس**
@@ -27,7 +26,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if event.text.startswith("مساعدة"):
             buttons = [
                 [
-                    Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="danger", icon=EMOJI_DECOR)],
+                    Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="danger")],
                 [
                     Button.inline("‹ : السـورس : ›", data="source_menu", style="primary"),
                     Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")

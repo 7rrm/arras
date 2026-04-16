@@ -33,21 +33,39 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @check_owner
     async def inline_handler(event):
         if event.text.startswith("مساعدة"):
-            # زر واحد فقط
-            buttons = [
-                [Button.inline("📌 اضغط هَنا", data="ZEDHELP", style="primary", icon_custom_emoji_id="5667948420749328402")],
-                [Button.url("👨‍💻 المـطـور", "https://t.me/lx5x5", style="danger")],
-            ]
-            
-            await event.answer(
-                [await event.builder.article(
-                    title="📚 قائمة المساعدة",
-                    text=WELCOME_TEXT,
-                    buttons=buttons,
-                    link_preview=False,
-                )],
-                cache_time=0
-            )
+            keyboard = {
+                "inline_keyboard": [
+                    [{
+                        "text": "📌 اضغط هَنا",
+                        "callback_data": "ZEDHELP",
+                        "style": "primary",
+                        "icon_custom_emoji_id": "5667948420749328402"
+                    }],
+                    [{
+                        "text": "👨‍💻 المـطـور",
+                        "url": "https://t.me/lx5x5",
+                        "style": "danger"
+                    }]
+                ]
+            }
+        
+        url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
+        inline_data = {
+            "inline_query_id": event.id,
+            "results": json.dumps([
+                {
+                    "type": "article",
+                    "id": "help_menu_1",
+                    "title": "📚 قائمة المساعدة",
+                    "input_message_content": {
+                        "message_text": WELCOME_TEXT,
+                        "parse_mode": "HTML"
+                    },
+                    "reply_markup": keyboard
+                }
+            ])
+        }
+        requests.post(url, json=inline_data)
 
 @l313l.ar_cmd(pattern="مساعدة$")
 async def help(event):

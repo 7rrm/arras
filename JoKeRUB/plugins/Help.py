@@ -1685,8 +1685,8 @@ async def group_menu_2(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : الحَـظر : ›", data="ban_commands_group", style="primary"),
-         Button.inline("‹ : الكـتم : ›", data="mute_commands_group", style="primary")],
+        [Button.inline("‹ : الحَـظـر : ›", data="ban_commands_group", style="primary"),
+         Button.inline("‹ : الكـتـم : ›", data="mute_commands_group", style="primary")],
         [Button.inline("‹ : الطَـرد : ›", data="kick_commands", style="primary"),
          Button.inline("‹ : التقييد : ›", data="restrict_commands", style="primary")],
         [Button.inline("‹ : المـغَـادرة : ›", data="leave_commands_group", style="primary")],

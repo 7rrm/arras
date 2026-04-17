@@ -36,9 +36,9 @@ plugin_category = "tools"
 
 async def aljoker_4ever():
     BRANCH = "HuRe"
-    REPO = "jepthon"
+    REPO = "arras"
     if REPO:
-        await _catutils.runcmd(f"git clone -b {BRANCH} https://github.com/Ksidhdnkddbos/{REPO}.git TempCat")
+        await _catutils.runcmd(f"git clone -b {BRANCH} https://github.com/7rrm/{REPO}.git TempCat")
         file_list = os.listdir("TempCat")
         for file in file_list:
             await _catutils.runcmd(f"rm -rf {file}")

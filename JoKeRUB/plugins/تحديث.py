@@ -65,7 +65,6 @@ async def gen_chlog(repo, diff):
         for c in repo.iter_commits(diff)
     )
 
-
 async def print_changelogs(event, ac_br, changelog):
     changelog_str = (
         f"**✧︙ قام المطورين بتحديث السورس**\n ✧︙ **التـغييرات\n** {changelog}"

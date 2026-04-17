@@ -981,7 +981,7 @@ async def _(malatha):
                 image_url,
                 caption=f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
                        f"**⎉╎الرابط:** `{image_url}`\n"
-                       f"**⎉╎قنـاة السـورس : @ZThon**",
+                       f"**⎉╎قنـاة السـورس : @lx5x5**",
             )
             await zed.delete()
             
@@ -990,7 +990,7 @@ async def _(malatha):
                 f"**⎉╎تم تغييـر صـورة {display_name} .. بنجـاح ☑️**\n"
                 f"**⎉╎المتغيـر:** `{variable_name}`\n"
                 f"**⎉╎الرابط:** `{image_url}`\n\n"
-                f"**⎉╎قنـاة السـورس : @ZThon**"
+                f"**⎉╎قنـاة السـورس : @lx5x5**"
             )
         except Exception as e:
             await zed.edit(

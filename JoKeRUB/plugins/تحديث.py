@@ -61,14 +61,16 @@ requirements_path = os.path.join(
 async def gen_chlog(repo, diff):
     d_form = "%d/%m/%y"
     return "".join(
-        f" • {c.message} بواسطة المطور\n ({c.committed_datetime.strftime(d_form)}) "
+        f"ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗔𝗥𝗥𝗔𝗦 🝢 **تـغـيـرات الـبـوت**\n"
+        f"**•─────────────────•**\n"
+        f"**•⎆┊ {c.message}**\n"
+        f"**•⎆┊ BY : المـطور**\n"
+        f"**•⎆┊ {c.committed_datetime.strftime(d_form)}**\n\n"
         for c in repo.iter_commits(diff)
     )
 
 async def print_changelogs(event, ac_br, changelog):
-    changelog_str = (
-        f"**⌔︙ قام المطورين بتحديث السورس**\n⌔︙ **التـغييرات**\n{changelog}"
-    )
+    changelog_str = f"{changelog}"
     if len(changelog_str) > 4096:
         await event.edit("`Changelog is too big, view the file to see it.`")
         with open("output.txt", "w+") as file:

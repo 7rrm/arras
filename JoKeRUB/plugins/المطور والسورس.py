@@ -4,6 +4,7 @@ import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 from JoKeRUB.plugins import mention
+from . import l313l
 
 # الكليشة مباشرة (بدون استدعاء)
 ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮

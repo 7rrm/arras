@@ -32,7 +32,7 @@ async def my_event_handler(event):
                 file.write(event_info.stringify())
             await l313l.send_file(event.chat_id, "event_info.txt")
             os.remove("event_info.txt")
-
+"""
 @l313l.ar_cmd(
     pattern="المطور$",
     command=("المطور", plugin_category),
@@ -67,7 +67,7 @@ async def amireallyalive(event):
 async def on_plug_in_callback_query_handler(event):
     statstext = await catalive(StartTime)
     await event.answer(statstext, cache_time=0, alert=True)
-
+"""
 progs = [5427469031, 393120911]
 
 @l313l.on(events.NewMessage(incoming=True))

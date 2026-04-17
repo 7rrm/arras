@@ -27,7 +27,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if event.text.startswith("مساعدة"):
             buttons = [
                 [
-                    Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="danger")],
+                    Button.inline("‹ : البحـث والتحميل : ›", data="main_menu", style="Secondary")],
                 [
                     Button.inline("‹ : السـورس : ›", data="source_menu", style="primary"),
                     Button.inline("‹ : الحـساب : ›", data="account_menu", style="primary")

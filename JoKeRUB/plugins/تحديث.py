@@ -12,7 +12,6 @@ from telethon import events
 from JoKeRUB import HEROKU_APP, UPSTREAM_REPO_URL, l313l
 from . import l313l, BOTLOG, BOTLOG_CHATID, HEROKU_APP, mention, StartTime
 
-
 from ..Config import Config
 from ..core.logger import logging
 from ..core.managers import edit_delete, edit_or_reply

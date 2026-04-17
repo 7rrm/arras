@@ -36,7 +36,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
                 [
                     Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary"),
-                    Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")
+                    Button.inline("‹ : ➋ المجموعَـة : ›", data="group_menu_2", style="primary")
                 ],
                 [
                     Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")

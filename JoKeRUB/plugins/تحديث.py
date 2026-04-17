@@ -58,13 +58,12 @@ requirements_path = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "requirements.txt"
 )
 
-
 async def gen_chlog(repo, diff):
     d_form = "%d/%m/%y"
     return "".join(
-        f" • {c.message} {c.author}\n ({c.committed_datetime.strftime(d_form)}) "
+        f" • {c.message} بواسطة المطور\n ({c.committed_datetime.strftime(d_form)}) "
         for c in repo.iter_commits(diff)
-        )
+    )
 
 
 async def print_changelogs(event, ac_br, changelog):

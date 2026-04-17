@@ -66,29 +66,32 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
 
 
-@l313l.ar_cmd(pattern="السورس")
-async def help(event):
+@l313l.ar_cmd(pattern="السورس$")
+async def repo(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
+
+    try:
+        await event.get_sender()
+        await event.get_chat()
+    except Exception as e:
+        pass
+
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "السورس")
     await response[0].click(event.chat_id)
     await event.delete()
 
-# ✅ أمر المطور
-@bot.on(admin_cmd(outgoing=True, pattern="المطور"))
+@l313l.ar_cmd(pattern="المطور$")
 async def dev_cmd(event):
-    if event.fwd_from:
-        return
-    
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+
     try:
         await event.get_sender()
         await event.get_chat()
-    except Exception:
+    except Exception as e:
         pass
-    
-    TG_BOT = Config.TG_BOT_USERNAME
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-    response = await bot.inline_query(TG_BOT, "المطور")
+
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "المطور")
     await response[0].click(event.chat_id)
     await event.delete()

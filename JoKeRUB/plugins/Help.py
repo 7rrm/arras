@@ -2133,7 +2133,7 @@ async def protection_menu(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [
-        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger"),
         [Button.inline("‹ : حَـماية القنوات : ›", data="channel_protection_menu", style="success")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

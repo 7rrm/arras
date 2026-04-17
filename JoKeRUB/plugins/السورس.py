@@ -1,7 +1,5 @@
 from telethon import events, Button
 from telethon.events import CallbackQuery
-import json
-import requests
 import asyncio
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
@@ -23,49 +21,25 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @tgbot.on(events.InlineQuery)
     async def inline_handler(event):
         builder = event.builder
-        result = None
         query = event.text
-        await bot.get_me()
         
         if query.startswith("السورس") and event.query.user_id == bot.uid:
-            # ✅ أزرار ملونة باستخدام API (بدون صورة)
-            keyboard = {
-                "inline_keyboard": [
-                    [
-                        {
-                            "text": "‹ : المـطـور : ›",
-                            "url": "https://t.me/lx5x5",
-                            "style": "danger"
-                        }
-                    ]
-                ]
-            }
+            # ✅ أزرار ملونة مباشرة (بدون requests)
+            buttons = [
+                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger")],
+            ]
             
-            # إرسال عبر API (article فقط، بدون صورة)
-            url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/answerInlineQuery"
-            inline_data = {
-                "inline_query_id": event.id,
-                "results": json.dumps([
-                    {
-                        "type": "article",
-                        "id": "sorous_1",
-                        "title": "🔥 JoKeRUB - السورس",
-                        "description": "السورس الرسمي - اضغط للإرسال",
-                        "input_message_content": {
-                            "message_text": ROZ,
-                            "parse_mode": "Markdown"
-                        },
-                        "reply_markup": keyboard
-                    }
-                ]),
-                "cache_time": 0,
-                "is_personal": True
-            }
-            
-            try:
-                requests.post(url, json=inline_data)
-            except Exception:
-                pass
+            # إرسال مباشرة عبر Telethon
+            await event.answer(
+                [await builder.article(
+                    title="🔥 JoKeRUB - السورس",
+                    description="السورس الرسمي - اضغط للإرسال",
+                    text=ROZ,
+                    buttons=buttons,
+                    link_preview=False,
+                )],
+                cache_time=0
+            )
 
 @bot.on(admin_cmd(outgoing=True, pattern="السورس"))
 async def repo(event):

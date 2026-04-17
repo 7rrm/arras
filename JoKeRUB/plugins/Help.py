@@ -38,6 +38,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary"),
                     Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary")
                 ],
+                [
+                    Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")
+                ]
             ]
             await event.answer(
                 [await event.builder.article(
@@ -163,6 +166,9 @@ async def back_to_main(event):
         [
             Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="danger"),
             Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
+        ],
+        [
+            Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")
         ]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
@@ -2078,4 +2084,95 @@ async def replay_commands(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="group_menu_2", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+
+# =========================================================== #
+# قائمة الحماية الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"protection_menu")))
+@check_owner
+async def protection_menu(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحماية والقفل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قفل</code> <b>⦘</b>
+❐ لقفل شيء معين في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.قفل الاضافة</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فتح</code> <b>⦘</b>
+❐ لفتح شيء معين في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.فتح الاضافة</code>
+
+<b>الاضافات:</b>
+• الدردشه - الوسائط - الملصقات
+• الروابط - المتحركه - الالعاب - المميز
+• الانلاين - التصويت - الكل
+• الفارسيه - الفشار - المعرفات
+• الدخول - الاضافه - التوجيه
+• التفليش - تعديل الميديا - البوتات
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الاعدادات</code> <b>⦘</b>
+❐ لعرض إعدادات الحماية في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.الاعدادات</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.البوتات</code> <b>⦘</b>
+❐ لعرض البوتات في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.البوتات</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.البوتات طرد</code> <b>⦘</b>
+❐ لطرد جميع البوتات من المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.البوتات طرد</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [
+        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")],
+        [Button.inline("‹ : حَـماية القنوات : ›", data="channel_protection_menu", style="success")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة حماية القنوات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"channel_protection_menu")))
+@check_owner
+async def channel_protection_menu(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر حماية القنوات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قفل</code> <b>⦘</b>
+❐ لقفل شيء معين في القناة
+❐ <b>طريقة الاستخدام:</b> <code>.قفل الاضافة</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فتح</code> <b>⦘</b>
+❐ لفتح شيء معين في القناة
+❐ <b>طريقة الاستخدام:</b> <code>.فتح الاضافة</code>
+
+<b>الاضافات:</b>
+• الدردشه - الوسائط - الملصقات
+• الروابط - المتحركه - الالعاب - المميز
+• الانلاين - التصويت - الكل
+• الفشار - المعرفات - التوجيه
+• الصور - الفيديو - الصوت
+• البصمات - الميديا - تعديل الميديا
+• البوتات - الملفات
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الاعدادات</code> / <code>.حماية القناة</code> <b>⦘</b>
+❐ لعرض إعدادات حماية القناة
+❐ <b>طريقة الاستخدام:</b> <code>.الاعدادات</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("رجــوع ↩️", data="protection_menu", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

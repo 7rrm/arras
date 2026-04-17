@@ -168,7 +168,7 @@ async def back_to_main(event):
             Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
         ],
         [
-            Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")
+            Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="primary")
         ]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)

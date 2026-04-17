@@ -26,7 +26,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         if query.startswith("السورس") and event.query.user_id == bot.uid:
             # ✅ أزرار ملونة مباشرة (بدون requests)
             buttons = [
-                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger", icon="5368324170671202286")
+                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger", icon=5368324170671202286)
                 ],
             ]
             

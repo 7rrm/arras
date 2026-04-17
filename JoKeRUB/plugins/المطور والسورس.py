@@ -64,21 +64,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 cache_time=0
             )
 
-@bot.on(admin_cmd(outgoing=True, pattern="السورس"))
-async def repo(event):
-    if event.fwd_from:
-        return
-    
-    try:
-        await event.get_sender()
-        await event.get_chat()
-    except Exception:
-        pass
-    
-    TG_BOT = Config.TG_BOT_USERNAME
+
+@l313l.ar_cmd(pattern="السورس")
+async def help(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()
-    response = await bot.inline_query(TG_BOT, "السورس")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "السورس")
     await response[0].click(event.chat_id)
     await event.delete()
 

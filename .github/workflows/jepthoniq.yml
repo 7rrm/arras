@@ -1,4 +1,4 @@
-name: Ksidhdnkddbos
+name: 7rrm
 
 on:
     push:
@@ -17,7 +17,7 @@ jobs:
          with:
             all_but_latest: true
             access_token: ${{ github.token }}
-       - name: initialization Ksidhdnkddbos
+       - name: initialization 7rrm
          continue-on-error: true
          run: |
            git config --global user.name ${{ secrets.GIT_NAME }}
@@ -27,13 +27,13 @@ jobs:
        - name: cloning repository
          continue-on-error: true
          run: |
-           git clone https://${{ secrets.GIT_NAME }}:${{ secrets.GIT_TOKEN }}@${{ secrets.BOT_REPO }} jepthoniq
+           git clone https://${{ secrets.GIT_NAME }}:${{ secrets.GIT_TOKEN }}@${{ secrets.BOT_REPO }} 7rrm
        - name: running jepthoniq server
          timeout-minutes: 350
          continue-on-error: true
          run: |
            cd Ksidhdnkddbos
-           docker build . -t Ksidhdnkddbos
+           docker build . -t 7rrm
            docker run jepthoniq
        - name: loop jepthoniq server
          continue-on-error: true

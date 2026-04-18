@@ -147,28 +147,28 @@ async def bot_start(event):
     if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
             [
-                Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)
+                Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon_custom_emoji_id=EMOJI_DECOR)
             ],
             [
-                Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)
+                Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id=EMOJI_DELETE)
             ]
         ]
     
     # 2️⃣ أزرار المطورين المميزين
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)],
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon_custom_emoji_id=EMOJI_DECOR)],
+            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id=EMOJI_DELETE)],
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
     # 3️⃣ أزرار العامة
     else:
         buttons = [
-            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary", icon=EMOJI_CONTACT)],
-            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success", icon=EMOJI_fatfta)],
-            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)],
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success", icon=EMOJI_DECOR)],
+            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary", icon_custom_emoji_id=EMOJI_CONTACT)],
+            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success", icon_custom_emoji_id=EMOJI_fatfta)],
+            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id=EMOJI_DELETE)],
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success", icon_custom_emoji_id=EMOJI_DECOR)],
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     

@@ -18,7 +18,7 @@ async def d_paste(message, extension=None):
     """
     To Paste the given message/text/code to dogbin
     """
-    siteurl = "https://del.dog/documss"
+    siteurl = "https://del.dog/djshsh"
     data = {"content": message}
     try:
         response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
@@ -43,9 +43,8 @@ async def save_to_local_file(message, extension=None):
     """
     حفظ النص كملف محلي (احتياطي عند فشل الخدمات)
     """
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    ext = extension if extension else "txt"
-    filename = f"paste_{timestamp}.{ext}"
+    timestamp = datetime.now().strftime("%Y%m%d")
+    filename = f"Source_aRaS_{timestamp}.txt"
     
     try:
         with open(filename, 'w', encoding='utf-8') as file:

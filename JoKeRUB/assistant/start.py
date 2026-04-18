@@ -1238,90 +1238,42 @@ async def settings_toggle(c_q: CallbackQuery):
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-1$")))
 async def settings_toggle(c_q: CallbackQuery):
-    # تصميم الأزرار الملونة
+    # ✅ تصميم الأزرار الملونة (Telethon مباشر)
     buttons = [
-        [
-            {
-                "text": "تفعيـل التواصـل",
-                "callback_data": "ttk_bot-on",
-                "style": "primary"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "تعطيـل التواصـل",
-                "callback_data": "ttk_bot-off",
-                "style": "primary"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "رجــوع",
-                "callback_data": "styleback",
-                "style": "danger"  # 🔴 أحمر
-            }
-        ]
+        [Button.inline("تفعيـل التواصـل", data="ttk_bot-on", style="primary")],
+        [Button.inline("تعطيـل التواصـل", data="ttk_bot-off", style="primary")],
+        [Button.inline("رجــوع", data="styleback", style="danger")]
     ]
 
-    # إرسال عبر Bot API
+    text = """**- مرحبـاً بك عـزيـزي ✍🏻**
+**- عنـد تفعيـل وضـع التواصـل 📨**
+**- سـوف يتم تحويـل البوت الى بوت تواصـل**
+**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
+**- سوف يتلقاها مالك البـوت 📫**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
+."""
+
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": c_q.chat_id,
-            "message_id": c_q.message_id,
-            "text": """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            # Fallback
-            fallback_buttons = [
-                [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
-                [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
-                [Button.inline("رجــوع", data="styleback")]
-            ]
-            
-            await c_q.edit(
-                """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
-                buttons=fallback_buttons,
-                link_preview=False
-            )
+        await c_q.edit(
+            text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ في تعديل الرسالة: {e}")
-        # Fallback
+        # Fallback بدون ألوان
         fallback_buttons = [
             [Button.inline("تفعيـل التواصـل", data="ttk_bot-on")],
             [Button.inline("تعطيـل التواصـل", data="ttk_bot-off")],
             [Button.inline("رجــوع", data="styleback")]
         ]
-        
         await c_q.edit(
-            """**- مرحبـاً بك عـزيـزي ✍🏻**
-**- عنـد تفعيـل وضـع التواصـل 📨**
-**- سـوف يتم تحويـل البوت الى بوت تواصـل**
-**- بمعنى اي رسالة سوف ترسلهـا هنـا 💌**
-**- سوف يتلقاها مالك البـوت 📫**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل 🛃**
-.""",
+            text,
             buttons=fallback_buttons,
+            parse_mode="Markdown",
             link_preview=False
         )
 

@@ -786,32 +786,10 @@ async def _(dyno):
         return await dyno.reply(
             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
         )
-    
     data = app.get_log()
-    
-    # استخدام pastetext المعدل (يحاول Dogbin ثم الملف المحلي)
-    result = await pastetext(data, extension="txt")
-    
-    if "error" in result:
-        return await edit_or_reply(dyno, f"**❌ فشل النشر:**\n`{result['error']}`")
-    
-    # إذا كانت النتيجة ملف محلي
-    if result.get("is_file"):
-        await edit_or_reply(dyno, "**📤 جاري إرسال الملف...**")
-        await dyno.client.send_file(
-            dyno.chat_id,
-            result["url"],
-            caption=f"**📄 لوك هيروكو**\n\n⏰ الوقت: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-            force_document=True
-        )
-        os.remove(result["url"])  # حذف الملف بعد الإرسال
-    else:
-        # رابط Dogbin
-        await edit_or_reply(
-            dyno,
-            f"**📄 آخر 200 سطر في لوك هيروكو:**\n\n{result['url']}",
-            linktext="اضغط هنا لعرض اللوك"
-        )
+    await edit_or_reply(
+        dyno, data, deflink=True, linktext="**اخر 200 سطر في لوك هيروكو: **"
+    )
 
 
 def prettyjson(obj, indent=4, maxlinelength=80):

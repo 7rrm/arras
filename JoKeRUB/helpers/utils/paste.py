@@ -62,9 +62,11 @@ async def save_to_local_file(message, extension=None):
         return {"error": f"File save failed: {str(e)}"}
 
 
-async def pastetext(text_to_print, extension=None):
+async def pastetext(text_to_print, pastetype=None, extension=None):
     """
     النشر على Dogbin أولاً، في حال الفشل يحفظ كملف محلي
+    - pastetype: يتم تجاهله (نستخدم Dogbin فقط)
+    - extension: امتداد الملف مثل txt, py, json
     """
     # محاولة Dogbin أولاً
     response = await d_paste(text_to_print, extension)

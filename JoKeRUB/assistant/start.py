@@ -428,7 +428,7 @@ async def bot_pms(event):  # sourcery no-metrics
 **⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"""
             buttons = [
                 [
-                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off, style="danger"")
+                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off", style="danger")
                 ]
             ]
             await event.client.send_message(

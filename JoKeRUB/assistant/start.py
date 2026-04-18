@@ -36,6 +36,7 @@ Zel_Uid = l313l.uid
 dd = []
 kk = []
 tt = []
+whisper_users = []
 arabic_decor_users = []
 
 # إيموجي بريميوم

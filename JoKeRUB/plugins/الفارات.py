@@ -7,6 +7,7 @@ import requests
 import urllib3
 from telethon import events
 from JoKeRUB import l313l
+from ..helpers.utils import pastetext
 
 
 from ..Config import Config

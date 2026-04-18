@@ -39,7 +39,7 @@ kk = []
 tt = []
 arabic_decor_users = []
 
-# إيموجي بريميوم - بدون أسماء ألوان، بأسماء الأزرار
+# إيموجي بريميوم - معرفات الإيموجي
 EMOJI_CONTACT = "5258215850745275216"      # ✨ لزر التواصل
 EMOJI_DECOR = "5411580731929411768"        # ✅ لزر الزخرفة
 EMOJI_DELETE = "5350477112677515642"       # 🔥 لزر الحذف
@@ -48,7 +48,7 @@ EMOJI_CHANNEL = "5260450573768990626"      # ✨ لزر القناة
 EMOJI_fatfta = "5188619457651567219"        # فضفضه
 
 # إيموجي بريميوم للتأثيرات
-EFFECT_ID = "5046509860389126442"  # التأثير الذي طلبته
+EFFECT_ID = "5046509860389126442"
 
 class FloodConfig:
     BANNED_USERS = set()
@@ -90,7 +90,6 @@ async def bot_start(event):
         kk.remove(int(chat.id))
     reply_to = await reply_id(event)
     
-    # استخدام HTML للجميع
     mention = f'<a href="tg://user?id={chat.id}">{chat.first_name}</a>'
     my_mention = f'<a href="tg://user?id={user.id}">{user.first_name}</a>'
     
@@ -122,14 +121,14 @@ async def bot_start(event):
     
     custompic = gvarstatus("BOT_START_PIC") or None
   
-    # أولاً: تعريف الإيموجيات الخاصة بالنص (إذا لم تكن موجودة)
-    PREMIUM_EMOJI_ID = 5210763312597326700  # ✨
-    EMOJI_HEART = 5258215850745275216        # 💌
-    EMOJI_ART = 5411580731929411768        # 🎨
+    PREMIUM_EMOJI_ID = 5210763312597326700
+    EMOJI_HEART = 5258215850745275216
+    EMOJI_ART = 5411580731929411768
     EMOJI_WARN = 5350477112677515642
     EMOJI_Fatf = 5188619457651567219
+    
     start_msg = f'''\
-<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي  {mention} </b>
+<tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">✨</tg-emoji> <b>⌔ مـرحباً بـك عزيـزي {mention}</b>
 
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">🤖</tg-emoji> <b>انـا البـوت الخـاص بـ</b> <code>{my_fullname}</code>
 
@@ -142,44 +141,31 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
 
     # ============================================
-    # ✅ الأزرار حسب نوع المستخدم
+    # ✅ الأزرار مع إيموجي داخل الزر (باستخدام icon)
     # ============================================
-    
-    # تحويل الأزرار إلى تنسيق Telethon
-    def build_telethon_buttons(buttons_list):
-        result = []
-        for row in buttons_list:
-            btn_row = []
-            for btn in row:
-                if "url" in btn:
-                    btn_row.append(Button.url(btn["text"], btn["url"]))
-                else:
-                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-            result.append(btn_row)
-        return result
     
     # 1️⃣ أزرار المالك الأساسي
     if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary")],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger")]
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)],
+            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)]
         ]
     
     # 2️⃣ أزرار المطورين المميزين
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary")],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger")],
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)],
+            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)],
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
     # 3️⃣ أزرار العامة (المستخدمين العاديين)
     else:
         buttons = [
-            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary")],
-            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success")],
-            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger")],
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success")],
+            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary", icon=EMOJI_CONTACT)],
+            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success", icon=EMOJI_fatfta)],
+            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)],
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success", icon=EMOJI_DECOR)],
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
@@ -195,7 +181,6 @@ async def bot_start(event):
                 parse_mode='html'
             )
         
-        # إرسال الرسالة مع الأزرار مباشرة
         await event.reply(
             start_msg,
             buttons=buttons,

@@ -215,24 +215,24 @@ async def bot_start(event):
                 {
                     "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",
-                    "style": "success",
+                    "style": "danger",
                     "icon_custom_emoji_id": EMOJI_fatfta
-                }
-            ],
-            [
-                {
-                    "text": "لـ حـ.ـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "Danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
                 {
                     "text": "زخـارف تمبلـر",
                     "callback_data": "decor_main_menu",
-                    "style": "success",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـ.ـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
@@ -1600,16 +1600,8 @@ async def settings_toggle(event):
                 {
                     "text": "فَضفضة بَهوية مجهولـة",
                     "callback_data": "whisper_menu",
-                    "style": "primary",
+                    "style": "danger",
                     "icon_custom_emoji_id": EMOJI_fatfta
-                }
-            ],
-            [
-                {
-                    "text": "لـ حـ.ـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "Danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
@@ -1618,6 +1610,14 @@ async def settings_toggle(event):
                     "callback_data": "decor_main_menu",
                     "style": "primary",
                     "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـ.ـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
                 }
             ],
             [
@@ -1666,7 +1666,7 @@ async def settings_toggle(event):
                 {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "success",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]
@@ -1707,7 +1707,7 @@ async def settings_toggle(event):
                 {
                     "text": zz_txt,
                     "url": f"https://t.me/{zz_ch}",
-                    "style": "success",
+                    "style": "primary",
                     "icon_custom_emoji_id": EMOJI_CHANNEL
                 }
             ]

@@ -36,8 +36,8 @@ Zel_Uid = l313l.uid
 dd = []
 kk = []
 tt = []
-whisper_users = []
 arabic_decor_users = []
+whisper_users = []  # ✅ تم تعريف المتغير
 
 # إيموجي بريميوم
 EMOJI_CONTACT = "5258215850745275216"
@@ -139,29 +139,105 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
 
     # ============================================
-    # ✅ الأزرار مع icon_custom_emoji_id (لن يعمل مع Telethon)
+    # ✅ الأزرار باستخدام القواميس (dict) - تعمل مع Telethon العادي
     # ============================================
     
+    # 1️⃣ أزرار المالك الأساسي
     if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon_custom_emoji_id="5258215850745275216")],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id="5258215850745275216")]
-        ]
-    elif chat.id == Config.OWNER_ID and chat.id == zid:
-        buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon_custom_emoji_id="5258215850745275216")],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id="5258215850745275216")],
-            [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
-        ]
-    else:
-        buttons = [
-            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary", icon_custom_emoji_id="5258215850745275216")],
-            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success", icon_custom_emoji_id="5258215850745275216")],
-            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger", icon_custom_emoji_id="5258215850745275216")],
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success", icon_custom_emoji_id="5258215850745275216")],
-            [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
+            [
+                {
+                    "text": "زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
+            ]
         ]
     
+    # 2️⃣ أزرار المطورين المميزين
+    elif chat.id == Config.OWNER_ID and chat.id == zid:
+        buttons = [
+            [
+                {
+                    "text": "زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                }
+            ]
+        ]
+    
+    # 3️⃣ أزرار العامة
+    else:
+        buttons = [
+            [
+                {
+                    "text": "اضغـط لـ التواصـل",
+                    "callback_data": "ttk_bot-1",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CONTACT
+                }
+            ],
+            [
+                {
+                    "text": "فَضفضة بَهوية مجهولـة",
+                    "callback_data": "whisper_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_fatfta
+                }
+            ],
+            [
+                {
+                    "text": "لـ حـ.ـذف حسـابك",
+                    "callback_data": "zzk_bot-5",
+                    "style": "danger",
+                    "icon_custom_emoji_id": EMOJI_DELETE
+                }
+            ],
+            [
+                {
+                    "text": "زخـارف تمبلـر",
+                    "callback_data": "decor_main_menu",
+                    "style": "success",
+                    "icon_custom_emoji_id": EMOJI_DECOR
+                }
+            ],
+            [
+                {
+                    "text": zz_txt,
+                    "url": f"https://t.me/{zz_ch}",
+                    "style": "primary",
+                    "icon_custom_emoji_id": EMOJI_CHANNEL
+                }
+            ]
+        ]
+    
+    # إرسال الرسالة
     try:
         if custompic:
             await event.client.send_file(

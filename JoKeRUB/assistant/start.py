@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 import random
-import json
-import requests
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional, Union
@@ -78,8 +76,6 @@ async def check_bot_started_users(user, event):
     if BOTLOG:
         await event.client.send_message(BOTLOG_CHATID, notification, parse_mode='html')
 
-
-
 @l313l.bot_cmd(
     pattern=f"^/start({botusername})?([\\s]+)?$",
     incoming=True,
@@ -145,107 +141,49 @@ async def bot_start(event):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
 
-
     # ============================================
     # ✅ الأزرار حسب نوع المستخدم
     # ============================================
     
+    # تحويل الأزرار إلى تنسيق Telethon
+    def build_telethon_buttons(buttons_list):
+        result = []
+        for row in buttons_list:
+            btn_row = []
+            for btn in row:
+                if "url" in btn:
+                    btn_row.append(Button.url(btn["text"], btn["url"]))
+                else:
+                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
+            result.append(btn_row)
+        return result
+    
     # 1️⃣ أزرار المالك الأساسي
     if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
-            [
-                {
-                    "text": "زخـارف تمبلـر",  # بدون إيموجي في النص
-                    "callback_data": "decor_main_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_DECOR  # ✅ الإيموجي داخل الزر
-                }
-            ],
-            [
-                {
-                    "text": "لـ حـذف حسـابك",  # بدون إيموجي في النص
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE  # 🔥 الإيموجي داخل الزر
-                }
-            ]
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary")],
+            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger")]
         ]
     
     # 2️⃣ أزرار المطورين المميزين
     elif chat.id == Config.OWNER_ID and chat.id == zid:
         buttons = [
-            [
-                {
-                    "text": "زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_DECOR
-                }
-            ],
-            [
-                {
-                    "text": "لـ حـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_CHANNEL
-                }
-            ]
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary")],
+            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger")],
+            [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
     # 3️⃣ أزرار العامة (المستخدمين العاديين)
     else:
         buttons = [
-            [
-                {
-                    "text": "اضغـط لـ التواصـل",
-                    "callback_data": "ttk_bot-1",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_CONTACT
-                }
-            ],
-            [
-                {
-                    "text": "فَضفضة بَهوية مجهولـة",
-                    "callback_data": "whisper_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_fatfta
-                }
-            ],
-            [
-                {
-                    "text": "لـ حـ.ـذف حسـابك",
-                    "callback_data": "zzk_bot-5",
-                    "style": "Danger",
-                    "icon_custom_emoji_id": EMOJI_DELETE
-                }
-            ],
-            [
-                {
-                    "text": "زخـارف تمبلـر",
-                    "callback_data": "decor_main_menu",
-                    "style": "success",
-                    "icon_custom_emoji_id": EMOJI_DECOR
-                }
-            ],
-            [
-                {
-                    "text": zz_txt,
-                    "url": f"https://t.me/{zz_ch}",
-                    "style": "primary",
-                    "icon_custom_emoji_id": EMOJI_CHANNEL
-                }
-            ]
+            [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary")],
+            [Button.inline("فَضفضة بَهوية مجهولـة", data="whisper_menu", style="success")],
+            [Button.inline("لـ حـ.ـذف حسـابك", data="zzk_bot-5", style="danger")],
+            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="success")],
+            [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
-    # إرسال الرسالة عبر Bot API
+    # إرسال الرسالة مباشرة عبر Telethon
     try:
         if custompic:
             await event.client.send_file(
@@ -256,55 +194,20 @@ async def bot_start(event):
                 reply_to=reply_to,
                 parse_mode='html'
             )
-            
-        send_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendMessage"
-        send_data = {
-            "chat_id": chat.id,
-            "text": start_msg,
-            "parse_mode": "HTML",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True,
-            "message_effect_id": EFFECT_ID  # ✅ استخدام المتغير
-        }
         
-        response = requests.post(send_url, json=send_data, timeout=3)
-        if response.status_code == 200:
-            pass
-        else:
-            # Fallback
-            fallback_buttons = []
-            for row in buttons:
-                btn_row = []
-                for btn in row:
-                    if "url" in btn:
-                        btn_row.append(Button.url(btn["text"], btn["url"]))
-                    else:
-                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-                fallback_buttons.append(btn_row)
-            
-            await event.reply(
-                start_msg,
-                buttons=fallback_buttons,
-                parse_mode='html',
-                link_preview=False
-            )
+        # إرسال الرسالة مع الأزرار مباشرة
+        await event.reply(
+            start_msg,
+            buttons=buttons,
+            parse_mode='html',
+            link_preview=False
+        )
             
     except Exception as e:
         LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
-        # Fallback
-        fallback_buttons = []
-        for row in buttons:
-            btn_row = []
-            for btn in row:
-                if "url" in btn:
-                    btn_row.append(Button.url(btn["text"], btn["url"]))
-                else:
-                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-            fallback_buttons.append(btn_row)
-        
         await event.reply(
             start_msg,
-            buttons=fallback_buttons,
+            buttons=buttons,
             parse_mode='html',
             link_preview=False
         )

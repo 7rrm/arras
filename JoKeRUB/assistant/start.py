@@ -369,7 +369,7 @@ async def bot_pms(event):  # sourcery no-metrics
 **⌔ دون اضهار هويتك .**"""
 
             buttons = [
-                [Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off")]
+                [Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off", style="danger")]
             ]
             
             await event.client.send_message(
@@ -428,7 +428,7 @@ async def bot_pms(event):  # sourcery no-metrics
 **⌔ تحلى بالصبـر وانتظـر الـرد 📨.**"""
             buttons = [
                 [
-                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off")
+                    Button.inline("تعطيـل التواصـل", data="ttk_bot-off, style="danger"")
                 ]
             ]
             await event.client.send_message(
@@ -902,7 +902,8 @@ async def arabic_decor_start_handler(event):
     if user_id not in arabic_decor_users:
         arabic_decor_users.append(user_id)
     
-    buttons = [[{"text": "رجــوع ↩️", "callback_data": "cancel_arabic_decor", "style": "danger"}]]
+    # ✅ أزرار Telethon مباشرة
+    buttons = [[Button.inline("رجــوع ↩️", data="cancel_arabic_decor", style="danger")]]
     
     request_text = """**• مرحبـاً بك عـزيـزي
 
@@ -914,24 +915,24 @@ async def arabic_decor_start_handler(event):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 • لـ الإلغاء اضغـط الزر أو ارسـل /cancle**"""
     
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": request_text,
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_arabic_decor")]], link_preview=False)
+        await event.edit(
+            request_text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ: {e}")
-        await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_arabic_decor")]], link_preview=False)
-
-
+        # Fallback بدون لون
+        await event.edit(
+            request_text,
+            buttons=[[Button.inline("رجــوع ↩️", data="cancel_arabic_decor")]],
+            parse_mode="Markdown",
+            link_preview=False
+        )
+        
 # ========== معالج إلغاء الزخرفة العربية ==========
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_arabic_decor$")))
 async def cancel_arabic_decor(event):

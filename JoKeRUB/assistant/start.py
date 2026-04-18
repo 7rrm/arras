@@ -1286,7 +1286,8 @@ async def english_decor_start_handler(event):
     if user_id not in dd:
         dd.append(user_id)
     
-    buttons = [[{"text": "رجــوع ↩️", "callback_data": "cancel_english_decor", "style": "danger"}]]
+    # ✅ أزرار Telethon مباشرة
+    buttons = [[Button.inline("رجــوع ↩️", data="cancel_english_decor", style="danger")]]
     
     request_text = """**• مرحبـاً بك عـزيـزي ✍🏻
 
@@ -1298,23 +1299,23 @@ async def english_decor_start_handler(event):
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 • لـ الإلغاء اضغـط الزر أو ارسـل /cancle**"""
     
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": request_text,
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_english_decor")]], link_preview=False)
+        await event.edit(
+            request_text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ: {e}")
-        await event.edit(request_text, buttons=[[Button.inline("رجــوع ↩️", data="cancel_english_decor")]], link_preview=False)
-
+        # Fallback بدون لون
+        await event.edit(
+            request_text,
+            buttons=[[Button.inline("رجــوع ↩️", data="cancel_english_decor")]],
+            parse_mode="Markdown",
+            link_preview=False
+        )
 
 # ========== معالج إلغاء الزخرفة الانكليزية ==========
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_english_decor$")))
@@ -1323,8 +1324,6 @@ async def cancel_english_decor(event):
     if user_id in dd:
         dd.remove(user_id)
     await decor_main_menu_handler(event)
-
-
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-on$")))
 async def ttk_on_handler(event):
@@ -1341,48 +1340,30 @@ async def ttk_on_handler(event):
     
     tt.append(user_id)
     
-    buttons = [
-        [
-            {
-                "text": "❌ تعطيل وضع التواصل",
-                "callback_data": "ttk_bot-off",
-                "style": "danger"
-            }
-        ]
-    ]
+    # ✅ أزرار Telethon مباشرة
+    buttons = [[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off", style="danger")]]
     
+    text = """**- تم تفعيـل وضع التواصل ✓**
+**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎"""
+    
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": """**- تم تفعيـل وضع التواصل ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(
-                """**- تم تفعيـل وضع التواصل ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-                buttons=[[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off")]],
-                link_preview=False
-            )
-    except Exception as e:
-        LOGS.error(f"خطأ في ttk_on: {e}")
         await event.edit(
-            """**- تم تفعيـل وضع التواصل ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 📨**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-            buttons=[[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off")]],
+            text,
+            buttons=buttons,
+            parse_mode="Markdown",
             link_preview=False
         )
-
+    except Exception as e:
+        LOGS.error(f"خطأ في ttk_on: {e}")
+        # Fallback بدون لون
+        await event.edit(
+            text,
+            buttons=[[Button.inline("❌ تعطيل وضع التواصل", data="ttk_bot-off")]],
+            parse_mode="Markdown",
+            link_preview=False
+        )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttk_bot-off$")))
 async def settings_toggle(c_q: CallbackQuery):
@@ -1398,91 +1379,45 @@ whisper_users = []
 async def whisper_menu_handler(event):
     """قائمة وضع الفضفضة - مثل التواصل تماماً"""
     
+    # ✅ أزرار Telethon مباشرة
     buttons = [
-        [
-            {
-                "text": "✅ تفعيـل فضفضـه",
-                "callback_data": "whisper_on",
-                "style": "primary"
-            }
-        ],
-        [
-            {
-                "text": "❌ تعطيـل فضفضـه",
-                "callback_data": "whisper_off",
-                "style": "primary"
-            }
-        ],
-        [
-            {
-                "text": "رجــوع ↩️",
-                "callback_data": "styleback",
-                "style": "danger"
-            }
-        ]
+        [Button.inline("✅ تفعيـل فضفضـه", data="whisper_on", style="primary")],
+        [Button.inline("❌ تعطيـل فضفضـه", data="whisper_off", style="primary")],
+        [Button.inline("رجــوع ↩️", data="styleback", style="danger")]
     ]
+    
+    text = """**- مرحبـاً بك عـزيـزي 🫂**
 
+**- عنـد تفعيـل وضـع الفضفضـه 💭**
+**- سـوف يتم تحويـل البوت الى وضع الفضفضـه**
+**- اي رسالة سوف ترسلهـا هنـا ستصـل للمـالك**
+**- بدون ظهور اي بيانات عنـك 🔒**
+
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل**"""
+    
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": """**- مرحبـاً بك عـزيـزي 🫂**
-
-**- عنـد تفعيـل وضـع الفضفضـه 💭**
-**- سـوف يتم تحويـل البوت الى وضع الفضفضـه**
-**- اي رسالة سوف ترسلهـا هنـا ستصـل للمـالك**
-**- بدون ظهور اي بيانات عنـك 🔒**
-
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل**""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            # Fallback
-            fallback_buttons = [
-                [Button.inline("✅ تفعيـل فضفضـه", data="whisper_on")],
-                [Button.inline("❌ تعطيـل فضفضـه", data="whisper_off")],
-                [Button.inline("رجــوع ↩️", data="styleback")]
-            ]
-            await event.edit(
-                """**- مرحبـاً بك عـزيـزي 🫂**
-
-**- عنـد تفعيـل وضـع الفضفضـه 💭**
-**- سـوف يتم تحويـل البوت الى وضع الفضفضـه**
-**- اي رسالة سوف ترسلهـا هنـا ستصـل للمـالك**
-**- بدون ظهور اي بيانات عنـك 🔒**
-
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل**""",
-                buttons=fallback_buttons,
-                link_preview=False
-            )
+        await event.edit(
+            text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ في whisper_menu: {e}")
+        # Fallback بدون ألوان
         fallback_buttons = [
             [Button.inline("✅ تفعيـل فضفضـه", data="whisper_on")],
             [Button.inline("❌ تعطيـل فضفضـه", data="whisper_off")],
             [Button.inline("رجــوع ↩️", data="styleback")]
         ]
         await event.edit(
-            """**- مرحبـاً بك عـزيـزي 🫂**
-
-**- عنـد تفعيـل وضـع الفضفضـه 💭**
-**- سـوف يتم تحويـل البوت الى وضع الفضفضـه**
-**- اي رسالة سوف ترسلهـا هنـا ستصـل للمـالك**
-**- بدون ظهور اي بيانات عنـك 🔒**
-
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**- لـ التفعيـل او لـ تعطيـل استخـدم الازرار بالاسفـل**""",
+            text,
             buttons=fallback_buttons,
+            parse_mode="Markdown",
             link_preview=False
         )
-
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"whisper_on$")))
 async def whisper_on_handler(event):
@@ -1499,48 +1434,29 @@ async def whisper_on_handler(event):
     
     whisper_users.append(user_id)
     
-    buttons = [
-        [
-            {
-                "text": "❌ تعطيل وضع الفضفضة",
-                "callback_data": "whisper_off",
-                "style": "danger"
-            }
-        ]
-    ]
+    # ✅ أزرار Telethon مباشرة
+    buttons = [[Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off", style="danger")]]
     
+    text = """**- تم تفعيـل وضع الفضفضـه ✓**
+**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 💭**
+**- بدون ظهور هويتك 🔒**
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎"""
+    
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": """**- تم تفعيـل وضع الفضفضـه ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 💭**
-**- بدون ظهور هويتك 🔒**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(
-                """**- تم تفعيـل وضع الفضفضـه ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 💭**
-**- بدون ظهور هويتك 🔒**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
-                buttons=[[Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off")]],
-                link_preview=False
-            )
+        await event.edit(
+            text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ في whisper_on: {e}")
+        # Fallback بدون لون
         await event.edit(
-            """**- تم تفعيـل وضع الفضفضـه ✓**
-**- كل ماترسلـه الان سـوف يرسـل لـ مالك البـوت 💭**
-**- بدون ظهور هويتك 🔒**
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎""",
+            text,
             buttons=[[Button.inline("❌ تعطيل وضع الفضفضة", data="whisper_off")]],
+            parse_mode="Markdown",
             link_preview=False
         )
 
@@ -1555,148 +1471,78 @@ async def whisper_off_handler(event):
     
     whisper_users.remove(user_id)
     
+    text = "**- تم الخروج من وضع الفضفضه ✓**\n\n**- لـ العودة ارسـل /start**"
+    
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
     try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": "**- تم الخروج من وضع الفضفضه ✓**\n\n**- لـ العودة ارسـل /start**",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": []}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            await event.edit(
-                "**- تم الخروج من وضع الفضفضه ✓**\n\n**- لـ العودة ارسـل /start**",
-                link_preview=False
-            )
+        await event.edit(
+            text,
+            parse_mode="Markdown",
+            link_preview=False
+        )
     except Exception as e:
         LOGS.error(f"خطأ في whisper_off: {e}")
         await event.edit(
-            "**- تم الخروج من وضع الفضفضه ✓**\n\n**- لـ العودة ارسـل /start**",
-            link_preview=False
-            )
-    # ================================
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
-async def decor_main_menu_handler(event):
-    # تصميم الأزرار الملونة - فقط لون بدون إيموجي
-    buttons = [
-        [
-            {
-                "text": "‹ : ࢪ࣪غࢪفةه عࢪبي 🎍: ›",
-                "callback_data": "zzk_bot-arabic",
-                "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
-            },
-            {
-                "text": "‹ :  EꪀgᥣᎥ᥉ɦ 🎍: ›",
-                "callback_data": "zzk_bot-on",
-                "style": "primary"  # 🔵 أزرق فقط - بدون icon_custom_emoji_id
-            }
-        ],
-        [
-            {
-                "text": "‹ :  ࢪمۅٛز تَمبلـࢪ ❶  : ›",
-                "callback_data": "zzk_bot-1",
-                "style": "success"  # 🔵 أزرق
-            },
-            {
-                "text": "‹ : ❷ ࢪمۅٛز تَمبلـࢪ  : ›",
-                "callback_data": "zzk_bot-2",
-                "style": "success"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "‹ :  زغـاࢪف اެࢪقاެم  : ›",
-                "callback_data": "zzk_bot-3",
-                "style": "primary"  # 🔵 أزرق
-            }
-        ],
-        [
-            {
-                "text": "رجــوع ↩️",
-                "callback_data": "styleback",
-                "style": "danger"  
-            }
-        ]
-    ]
-
-    # إرسال عبر Bot API
-    try:
-        edit_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/editMessageText"
-        edit_data = {
-            "chat_id": event.chat_id,
-            "message_id": event.message_id,
-            "text": """‹ : أههلا بك عَـزيزي  .
-‹ : في بوت الزغرفة المتطور 🌳💖 : ›
-
-‹ : ❶ يمكنك الزغرفة باللغة العربية و الانكليزية :›
-‹ : ❷ رمـوز تمبلـر ممطروقـه 💠 :›
-‹ : ❸ جميـع زخـارف الارقـام 🌀 :›
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**• لـ البـدء إستخـدم الازرار بالاسفـل ⌨**
-.""",
-            "parse_mode": "Markdown",
-            "reply_markup": json.dumps({"inline_keyboard": buttons}),
-            "disable_web_page_preview": True
-        }
-        
-        response = requests.post(edit_url, json=edit_data, timeout=3)
-        if response.status_code != 200:
-            # Fallback
-            fallback_buttons = []
-            for row in buttons:
-                btn_row = []
-                for btn in row:
-                    if "url" in btn:
-                        btn_row.append(Button.url(btn["text"], btn["url"]))
-                    else:
-                        btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-                fallback_buttons.append(btn_row)
-            
-            await event.edit(
-                """‹ : أههلا بك عَـزيزي  .
-‹ : في بوت الزغرفة المتطور 🌳💖 : ›
-
-‹ : ❶ يمكنك الزغرفة باللغة العربية و الانكليزية :›
-‹ : ❷ رمـوز تمبلـر ممطروقـه 💠 :›
-‹ : ❸ جميـع زخـارف الارقـام 🌀 :›
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**• لـ البـدء إستخـدم الازرار بالاسفـل ⌨**
-.""",
-                buttons=fallback_buttons,
-                link_preview=False
-            )
-    except Exception as e:
-        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
-        # Fallback
-        fallback_buttons = []
-        for row in buttons:
-            btn_row = []
-            for btn in row:
-                if "url" in btn:
-                    btn_row.append(Button.url(btn["text"], btn["url"]))
-                else:
-                    btn_row.append(Button.inline(btn["text"], data=btn["callback_data"]))
-            fallback_buttons.append(btn_row)
-        
-        await event.edit(
-            """‹ : أههلا بك عَـزيزي  .
-‹ : في بوت الزغرفة المتطور 🌳💖 : ›
-
-‹ : ❶ يمكنك الزغرفة باللغة العربية و الانكليزية :›
-‹ : ❷ رمـوز تمبلـر ممطروقـه 💠 : ›
-‹ : ❸ جميـع زخـارف الارقـام 🌀 : ›
-﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
-**• لـ البـدء إستخـدم الازرار بالاسفـل ⌨**
-.""",
-            buttons=fallback_buttons,
+            text,
+            parse_mode="Markdown",
             link_preview=False
         )
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"decor_main_menu$")))
+async def decor_main_menu_handler(event):
+    # ✅ أزرار Telethon مباشرة
+    buttons = [
+        [
+            Button.inline("‹ : ࢪ࣪غࢪفةه عࢪبي 🎍: ›", data="zzk_bot-arabic", style="primary"),
+            Button.inline("‹ :  EꪀgᥣᎥ᥉ɦ 🎍: ›", data="zzk_bot-on", style="primary")
+        ],
+        [
+            Button.inline("‹ :  ࢪمۅٛز تَمبلـࢪ ❶  : ›", data="zzk_bot-1", style="success"),
+            Button.inline("‹ : ❷ ࢪمۅٛز تَمبلـࢪ  : ›", data="zzk_bot-2", style="success")
+        ],
+        [
+            Button.inline("‹ :  زغـاࢪف اެࢪقاެم  : ›", data="zzk_bot-3", style="primary")
+        ],
+        [
+            Button.inline("رجــوع ↩️", data="styleback", style="danger")
+        ]
+    ]
+    
+    text = """‹ : أههلا بك عَـزيزي  .
+‹ : في بوت الزغرفة المتطور 🌳💖 : ›
+
+‹ : ❶ يمكنك الزغرفة باللغة العربية و الانكليزية :›
+‹ : ❷ رمـوز تمبلـر ممطروقـه 💠 :›
+‹ : ❸ جميـع زخـارف الارقـام 🌀 :›
+﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
+**• لـ البـدء إستخـدم الازرار بالاسفـل ⌨**
+."""
+    
+    # ✅ إرسال مباشرة عبر Telethon (بدون requests)
+    try:
+        await event.edit(
+            text,
+            buttons=buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
+    except Exception as e:
+        LOGS.error(f"خطأ في تعديل الرسالة: {e}")
+        # Fallback بدون ألوان
+        fallback_buttons = [
+            [Button.inline("‹ : ࢪ࣪غࢪفةه عࢪبي 🎍: ›", data="zzk_bot-arabic")],
+            [Button.inline("‹ :  EꪀgᥣᎥ᥉ɦ 🎍: ›", data="zzk_bot-on")],
+            [Button.inline("‹ :  ࢪمۅٛز تَمبلـࢪ ❶  : ›", data="zzk_bot-1")],
+            [Button.inline("‹ : ❷ ࢪمۅٛز تَمبلـࢪ  : ›", data="zzk_bot-2")],
+            [Button.inline("‹ :  زغـاࢪف اެࢪقاެم  : ›", data="zzk_bot-3")],
+            [Button.inline("رجــوع ↩️", data="styleback")]
+        ]
+        await event.edit(
+            text,
+            buttons=fallback_buttons,
+            parse_mode="Markdown",
+            link_preview=False
+        )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"styleback$")))
 async def settings_toggle(event):

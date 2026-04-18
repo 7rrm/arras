@@ -3,7 +3,6 @@ import re
 import random
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional, Union
 
 from telethon import Button, events
 from telethon.errors import UserIsBlockedError
@@ -39,15 +38,15 @@ kk = []
 tt = []
 arabic_decor_users = []
 
-# إيموجي بريميوم - معرفات الإيموجي
-EMOJI_CONTACT = "5258215850745275216"      # ✨ لزر التواصل
-EMOJI_DECOR = "5411580731929411768"        # ✅ لزر الزخرفة
-EMOJI_DELETE = "5350477112677515642"       # 🔥 لزر الحذف
-EMOJI_PAID = "5408997493784467607"         # 💎 لزر المدفوع
-EMOJI_CHANNEL = "5260450573768990626"      # ✨ لزر القناة
-EMOJI_fatfta = "5188619457651567219"        # فضفضه
+# إيموجي بريميوم
+EMOJI_CONTACT = "5258215850745275216"
+EMOJI_DECOR = "5411580731929411768"
+EMOJI_DELETE = "5350477112677515642"
+EMOJI_PAID = "5408997493784467607"
+EMOJI_CHANNEL = "5260450573768990626"
+EMOJI_fatfta = "5188619457651567219"
 
-# إيموجي بريميوم للتأثيرات
+# تأثير
 EFFECT_ID = "5046509860389126442"
 
 class FloodConfig:
@@ -141,14 +140,18 @@ async def bot_start(event):
 <tg-emoji emoji-id="{PREMIUM_EMOJI_ID}">👇</tg-emoji> <b>لـ البـدء إستخـدم الازرار بالاسفـل</b>'''
 
     # ============================================
-    # ✅ الأزرار مع إيموجي داخل الزر (باستخدام icon)
+    # ✅ الأزرار مع icon_custom_emoji_id (بدون API - جرب)
     # ============================================
     
     # 1️⃣ أزرار المالك الأساسي
     if chat.id == Config.OWNER_ID and chat.id != zid:
         buttons = [
-            [Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)],
-            [Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)]
+            [
+                Button.inline("زخـارف تمبلـر", data="decor_main_menu", style="primary", icon=EMOJI_DECOR)
+            ],
+            [
+                Button.inline("لـ حـذف حسـابك", data="zzk_bot-5", style="danger", icon=EMOJI_DELETE)
+            ]
         ]
     
     # 2️⃣ أزرار المطورين المميزين
@@ -159,7 +162,7 @@ async def bot_start(event):
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
-    # 3️⃣ أزرار العامة (المستخدمين العاديين)
+    # 3️⃣ أزرار العامة
     else:
         buttons = [
             [Button.inline("اضغـط لـ التواصـل", data="ttk_bot-1", style="primary", icon=EMOJI_CONTACT)],
@@ -169,7 +172,7 @@ async def bot_start(event):
             [Button.url(zz_txt, f"https://t.me/{zz_ch}")]
         ]
     
-    # إرسال الرسالة مباشرة عبر Telethon
+    # إرسال الرسالة مباشرة
     try:
         if custompic:
             await event.client.send_file(
@@ -181,15 +184,17 @@ async def bot_start(event):
                 parse_mode='html'
             )
         
+        # ✅ استخدام message_effect_id
         await event.reply(
             start_msg,
             buttons=buttons,
             parse_mode='html',
-            link_preview=False
+            link_preview=False,
+            effect=EFFECT_ID  # 👈 التأثير
         )
             
     except Exception as e:
-        LOGS.error(f"❌ خطأ في إرسال رسالة البداية: {str(e)}")
+        LOGS.error(f"❌ خطأ: {str(e)}")
         await event.reply(
             start_msg,
             buttons=buttons,

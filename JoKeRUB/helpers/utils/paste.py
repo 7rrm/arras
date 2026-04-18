@@ -1,7 +1,7 @@
-
 import json
-
 import requests
+import os
+from datetime import datetime
 
 from ...Config import Config
 from ...core.logger import logging
@@ -12,88 +12,6 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36",
     "content-type": "application/json",
 }
-
-
-async def p_paste(message, extension=None):
-    """
-    To Paste the given message/text/code to paste.pelkum.dev
-    """
-    siteurl = "https://pasty.lus.pm/api/v1/pastes"
-    data = {"content": message}
-    try:
-        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
-    except Exception as e:
-        return {"error": str(e)}
-    if response.ok:
-        response = response.json()
-        purl = (
-            f"https://pasty.lus.pm/{response['id']}.{extension}"
-            if extension
-            else f"https://pasty.lus.pm/{response['id']}.txt"
-        )
-        try:
-            from ...core.session import l313l
-
-            await l313l.send_message(
-                Config.BOTLOG_CHATID,
-                f"**You have created a new paste in pasty bin.** Link to pasty is [here]({purl}). You can delete that paste by using this token `{response['deletionToken']}`",
-            )
-        except Exception as e:
-            LOGS.info(str(e))
-        return {
-            "url": purl,
-            "raw": f"https://pasty.lus.pm/{response['id']}/raw",
-            "bin": "Pasty",
-        }
-    return {"error": "Unable to reach pasty.lus.pm"}
-
-
-async def s_paste(message, extension="txt"):
-    """
-    To Paste the given message/text/code to spaceb.in
-    """
-    siteurl = "https://spaceb.in/api/v1/documents/"
-    try:
-        response = requests.post(
-            siteurl, data={"content": message, "extension": extension}
-        )
-    except Exception as e:
-        return {"error": str(e)}
-    if response.ok:
-        response = response.json()
-        if response["error"] != "" and response["status"] < 400:
-            return {"error": response["error"]}
-        return {
-            "url": f"https://spaceb.in/{response['payload']['id']}",
-            "raw": f"{siteurl}{response['payload']['id']}/raw",
-            "bin": "Spacebin",
-        }
-    return {"error": "Unable to reach spacebin."}
-
-
-async def n_paste(message, extension=None):
-    """
-    To Paste the given message/text/code to nekobin
-    """
-    siteurl = "https://nekobin.com/api/documents"
-    data = {"content": message}
-    try:
-        response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)
-    except Exception as e:
-        return {"error": str(e)}
-    if response.ok:
-        response = response.json()
-        purl = (
-            f"nekobin.com/{response['result']['key']}.{extension}"
-            if extension
-            else f"nekobin.com/{response['result']['key']}"
-        )
-        return {
-            "url": purl,
-            "raw": f"nekobin.com/raw/{response['result']['key']}",
-            "bin": "Neko",
-        }
-    return {"error": "Unable to reach nekobin."}
 
 
 async def d_paste(message, extension=None):
@@ -121,28 +39,39 @@ async def d_paste(message, extension=None):
     return {"error": "Unable to reach dogbin."}
 
 
-async def pastetext(text_to_print, pastetype=None, extension=None):
-    response = {"error": "something went wrong"}
-    if pastetype is not None:
-        if pastetype == "p":
-            response = await p_paste(text_to_print, extension)
-        elif pastetype == "s" and extension:
-            response = await s_paste(text_to_print, extension)
-        elif pastetype == "s":
-            response = await s_paste(text_to_print)
-        elif pastetype == "d":
-            response = await d_paste(text_to_print, extension)
-        elif pastetype == "n":
-            response = await n_paste(text_to_print, extension)
-    if "error" in response:
-        response = await p_paste(text_to_print, extension)
-    if "error" in response:
-        response = await n_paste(text_to_print, extension)
-    if "error" in response:
-        if extension:
-            response = await s_paste(text_to_print, extension)
-        else:
-            response = await s_paste(text_to_print)
-    if "error" in response:
-        response = await d_paste(text_to_print, extension)
-    return response
+async def save_to_local_file(message, extension=None):
+    """
+    حفظ النص كملف محلي (احتياطي عند فشل الخدمات)
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ext = extension if extension else "txt"
+    filename = f"paste_{timestamp}.{ext}"
+    
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            file.write(message)
+        
+        return {
+            "url": filename,
+            "raw": filename,
+            "bin": "LocalFile",
+            "is_file": True,
+            "filename": filename
+        }
+    except Exception as e:
+        return {"error": f"File save failed: {str(e)}"}
+
+
+async def pastetext(text_to_print, extension=None):
+    """
+    النشر على Dogbin أولاً، في حال الفشل يحفظ كملف محلي
+    """
+    # محاولة Dogbin أولاً
+    response = await d_paste(text_to_print, extension)
+    
+    if "error" not in response:
+        return response
+    
+    # إذا فشل Dogbin → حفظ كملف محلي
+    LOGS.info(f"Dogbin failed: {response['error']}, switching to local file")
+    return await save_to_local_file(text_to_print, extension)

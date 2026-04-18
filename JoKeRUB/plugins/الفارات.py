@@ -790,12 +790,15 @@ async def _(dyno):
     
     data = app.get_log(lines=120)
     
+    # رسالة انتظار
+    msg = await edit_or_reply(dyno, "**📥 جاري تجهيز اللوك...**")
+    
     # استخدام pastetext المعدل
     result = await pastetext(data, extension="txt")
     
     # إذا كان النتيجة ملف محلي
     if result.get("is_file"):
-        msg = await edit_or_reply(dyno, "**📤 جاري إرسال الملف...**")
+        await msg.edit("**📤 جاري إرسال الملف...**")
         await dyno.client.send_file(
             dyno.chat_id,
             result["filename"],
@@ -809,11 +812,14 @@ async def _(dyno):
         os.remove(result["filename"])
     else:
         # رابط من Dogbin
+        await msg.edit("**🔗 جاري تجهيز الرابط...**")
         await edit_or_reply(
             dyno, 
             result["url"], 
             linktext="**اخر 200 سطر في لوك هيروكو:** "
         )
+        await msg.delete()
+
 
 def prettyjson(obj, indent=4, maxlinelength=80):
     items, _ = getsubitems(

@@ -791,7 +791,6 @@ async def _(dyno):
         dyno, data, deflink=True, linktext="**اخر 200 سطر في لوك هيروكو: **"
     )
 
-
 def prettyjson(obj, indent=4, maxlinelength=80):
     items, _ = getsubitems(
         obj,

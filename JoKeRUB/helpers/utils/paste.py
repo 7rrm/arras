@@ -18,7 +18,7 @@ async def d_paste(message, extension=None):
     """
     To Paste the given message/text/code to dogbin
     """
-    siteurl = "https://del.dog/documents"
+    siteurl = "https://del.dog/documss"
     data = {"content": message}
     try:
         response = requests.post(url=siteurl, data=json.dumps(data), headers=headers)

@@ -790,12 +790,15 @@ async def _(dyno):
     
     data = app.get_log(lines=120)
     
+    # رسالة انتظار
+    msg = await edit_or_reply(dyno, "**📥 جاري تجهيز اللوك...**")
+    
     # استخدام pastetext المعدل
     result = await pastetext(data, extension="txt")
     
     # إذا كان النتيجة ملف محلي
     if result.get("is_file"):
-        msg = await edit_or_reply(dyno, "**📤 جاري إرسال الملف...**")
+        await msg.edit("**📤 جاري إرسال الملف...**")
         await dyno.client.send_file(
             dyno.chat_id,
             result["filename"],
@@ -808,11 +811,10 @@ async def _(dyno):
         await msg.delete()
         os.remove(result["filename"])
     else:
-        # رابط من Dogbin
-        await edit_or_reply(
-            dyno, 
-            result["url"], 
-            linktext="**اخر 200 سطر في لوك هيروكو:** "
+        # رابط من Dogbin - التعديل هنا
+        await msg.delete()  # حذف رسالة "جاري التجهيز"
+        await dyno.reply(
+            f"**اخر 200 سطر في لوك هيروكو:**\n{result['url']}"
         )
 
 

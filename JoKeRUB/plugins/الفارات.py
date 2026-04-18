@@ -788,7 +788,7 @@ async def _(dyno):
             " يجب التذكر من ان قيمه الفارات التاليه ان تكون بشكل صحيح \nHEROKU_APP_NAME\n HEROKU_API_KEY"
         )
     
-    data = app.get_log()
+    data = app.get_log(lines=120)
     
     # استخدام pastetext المعدل
     result = await pastetext(data, extension="txt")
@@ -799,7 +799,8 @@ async def _(dyno):
         await dyno.client.send_file(
             dyno.chat_id,
             result["filename"],
-            caption=f"**📄 لوك هيروكو**\n\n"
+            caption=f"** 📄 | لوك هيروكو | آراس 🖤**\n\n"
+                   f"📊 آخر 200 سطر من سجلات هيروكو .\n"
                    f"⏰ الوقت: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
                    f"🔗 التطبيق: `{HEROKU_APP_NAME}`",
             force_document=True

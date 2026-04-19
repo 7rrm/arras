@@ -1754,7 +1754,7 @@ async def simulate_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="group_menu_2", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"quotes_commands")))
@@ -1777,7 +1777,7 @@ async def quotes_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    buttons = [[Button.inline("↩️ رجوع", data="group_menu_2", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
     
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_commands_group")))

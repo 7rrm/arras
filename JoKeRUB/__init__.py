@@ -5,6 +5,7 @@ import heroku3
 from .Config import Config
 from .core.logger import logging
 from .core.session import l313l
+from .helpers.functions.converter import Convert
 from .sql_helper.globals import addgvar, delgvar, gvarstatus
 
 __version__ = "3.1.3"

@@ -35,8 +35,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [
                     Button.inline("‹ : الأذاعَـة : ›", data="broadcast_main_menu", style="danger")],
                 [
-                    Button.inline("‹ : المجموعَـة ➊ : ›", data="group_menu_1", style="primary"),
-                    Button.inline("‹ : ➋ المجموعَـة : ›", data="group_menu_2", style="primary")
+                    Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="primary"),
+                    Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="primary")
                 ],
                 [
                     Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")
@@ -1682,6 +1682,8 @@ async def group_menu_2(event):
         [Button.inline("‹ : الترحَـيب : ›", data="welcome_commands", style="primary")],
         [Button.inline("‹ : الـردود : ›", data="replay_commands", style="primary"),
          Button.inline("‹ : التـحَذيرات : ›", data="warn_commands", style="primary")],
+        [Button.inline("‹ : الأقتـباسات : ›", data="quotes_commands", style="primary"),
+         Button.inline("‹ : المحاكاة : ›", data="simulate_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -1689,7 +1691,95 @@ async def group_menu_2(event):
 # =========================================================== #
 # أوامر الحظر (المجموعة)
 # =========================================================== #
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"simulate_commands")))
+@check_owner
+async def simulate_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر المحاكاة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
 
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل اعلام</code> <b>⦘</b>
+❐ تفعيل الرد على الأعلام
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل اعلام</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل اعلام</code> <b>⦘</b>
+❐ تعطيل الرد على الأعلام
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل اعلام</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل نص اعلام</code> <b>⦘</b>
+❐ تعيين نص محفز للأعلام
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل نص اعلام + النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل معاني</code> <b>⦘</b>
+❐ تفعيل الرد على معاني السمايلات
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل معاني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل معاني</code> <b>⦘</b>
+❐ تعطيل الرد على معاني السمايلات
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل معاني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل نص معاني</code> <b>⦘</b>
+❐ تعيين نص محفز للمعاني
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل نص معاني + النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل تفكيك</code> <b>⦘</b>
+❐ تفعيل تفكيك الكلمات
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل تفكيك</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل تفكيك</code> <b>⦘</b>
+❐ تعطيل تفكيك الكلمات
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل تفكيك</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل نص تفكيك</code> <b>⦘</b>
+❐ تعيين نص محفز للتفكيك
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل نص تفكيك + النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل مقالات</code> <b>⦘</b>
+❐ تفعيل الرد على المقالات
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل مقالات</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل مقالات</code> <b>⦘</b>
+❐ تعطيل الرد على المقالات
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل مقالات</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل نص مقالات</code> <b>⦘</b>
+❐ تعيين نص محفز للمقالات
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل نص مقالات + النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"quotes_commands")))
+@check_owner
+async def quotes_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الاقتباسات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل الاقتباس</code> <b>⦘</b>
+❐ لتفعيل الاقتباسات في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.تفعيل الاقتباس</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل الاقتباس</code> <b>⦘</b>
+❐ لتعطيل الاقتباسات في المجموعة
+❐ <b>طريقة الاستخدام:</b> <code>.تعطيل الاقتباس</code>
+
+<tg-emoji emoji-id="{EMOJI_INFO}">📌</tg-emoji> <b>ملاحظة:</b>
+❐ يتم إرسال الاقتباس تلقائياً عندما يرسل الشخص (.) أو (-)
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+    
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ban_commands_group")))
 @check_owner
 async def ban_commands_group(event):

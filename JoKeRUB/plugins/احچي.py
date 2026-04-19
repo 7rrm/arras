@@ -69,7 +69,7 @@ async def _(event):
     # now, remove the temporary file
     os.remove(oggfi)
     os.remove(f"{ogg}.wav")
-'''
+
 langs = {
     'عربي': 'ara',
     'بلغاري': 'bul',
@@ -134,4 +134,3 @@ async def _(event):
              return await edit_delete(event, "**᯽︙ !لا يوجد هكذا لغة**")
      await edit_or_reply(event, "**᯽︙ يجري استخراج النص...**")
      await edit_or_reply(event, to_text(pic_file, api))
-'''

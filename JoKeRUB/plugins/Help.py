@@ -2995,7 +2995,7 @@ async def filter_leave_commands(event):
 # قائمة الأدوات التالية (صفحة 2)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"tools_menu_next")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ttools_menu_next")))
 @check_owner
 async def tools_menu_next(event):
     text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
@@ -3042,7 +3042,7 @@ async def ocr_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3062,7 +3062,7 @@ async def creation_date_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3082,7 +3082,7 @@ async def transfer_ownership_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3103,7 +3103,7 @@ async def calculator_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3131,7 +3131,7 @@ async def link_tools_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3157,7 +3157,7 @@ async def azkar_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3184,7 +3184,7 @@ async def prayer_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3207,7 +3207,7 @@ async def weather_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #
@@ -3228,5 +3228,5 @@ async def location_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

@@ -86,9 +86,11 @@ async def main_menu(event):
     buttons = [
         [Button.inline("‹ : اليوت والفيديـو( البوت ) : ›", data="youtube_commands", style="primary")],
         [
-            Button.inline("‹ : البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands", style="primary"),
+            Button.inline("‹ : سَتـوري : ›", data="store_commands", style="primary"),
             Button.inline("‹ : السوشيال مَيـديا : ›", data="social_commands", style="primary")
         ],
+        [Button.inline("‹ : البحـث والفيـديو ( الأنلاين ) : ›", data="inline_search_commands", style="primary")],
+        [Button.inline("‹ : التلكـرام : ›", data="searchte_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -668,6 +670,43 @@ async def social_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="main_menu", style="success")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"store_commands")))
+@check_owner
+async def store_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الستوري 𓆪</b>
+━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ستوري</code> <b>⦘</b>
+❐ تحميل ستوري من التلكرام
+❐ <b>طريقة الاستخدام:</b> <code>.ستوري + الرابط</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="main_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"searchte_commands")))
+@check_owner
+async def search_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البحث 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كلمه + كلمة</code> <b>⦘</b>
+❐ للبحث عن الكلمة في نفس الدردشة التي كتبت فيها الأمر
+❐ <b>طريقة الاستخدام:</b> <code>.كلمه نص البحث</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كلمة + كلمة</code> <b>⦘</b>
+❐ للبحث عن الكلمة في جميع دردشاتك
+❐ <b>طريقة الاستخدام:</b> <code>.كلمة نص البحث</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="main_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 # =========================================================== #
 # قائمة الحساب التالية (صفحة 2)
 # =========================================================== #

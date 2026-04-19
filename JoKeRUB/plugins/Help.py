@@ -46,7 +46,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="primary")
                 ],
                 [
-                    Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="danger")]
+                    Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="danger")],
+                [
+                    Button.inline("‹ : المَيوزك والتشَغيـل : ›", data="music_menu", style="primary"),
+                    Button.inline("‹ : الصَـ.ـيد والتثبيـت : ›", data="hunt_pin_menu", style="primary")
+                ]
             ]
             await event.answer(
                 [await event.builder.article(
@@ -182,7 +186,11 @@ async def back_to_main(event):
             Button.inline("‹ : الأدوات : ›", data="tools_menu", style="danger"),
             Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="danger")
         ],
-        [Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="primary")]
+        [Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="primary")],
+        [
+            Button.inline("‹ : المَيوزك والتشَغيـل : ›", data="music_menu", style="danger"),
+            Button.inline("‹ : الصَـ.ـيد والتثبيـت : ›", data="hunt_pin_menu", style="danger")
+        ]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
 
@@ -3459,4 +3467,197 @@ async def games_commands_next(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("رجــوع ↩️", data="games_commands", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة الصيد والتثبيت الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"hunt_pin_menu")))
+@check_owner
+async def hunt_pin_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة الصيد والتثبيت
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر الصيد والتثبيت 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [Button.inline("‹ : صَـ.ـيد اليـوزرات : ›", data="hunt_usernames_commands", style="primary")],
+        [Button.inline("‹ : التَثبيـت : ›", data="pin_commands_usernames", style="primary"),
+         Button.inline("‹ : النَقـل : ›", data="transfer_commands_usernames", style="primary")],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر صيد اليوزرات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"hunt_usernames_commands")))
+@check_owner
+async def hunt_usernames_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصيد 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.النوع</code> / <code>.الانواع</code> <b>⦘</b>
+❐ عرض جميع أنواع اليوزرات المتاحة
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.صيد + النوع</code> <b>⦘</b>
+❐ بدء صيد يوزرات حسب النوع المحدد
+❐ <b>طريقة الاستخدام:</b> <code>.صيد + اسم النوع</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حالة الصيد</code> <b>⦘</b>
+❐ عرض حالة عملية الصيد الجارية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.صيد ايقاف</code> <b>⦘</b>
+❐ إيقاف عملية الصيد الجارية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الانووااع</code> <b>⦘</b>
+❐ عرض أنواع إضافية (VIP)
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="hunt_pin_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التثبيت (اليوزرات)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"pin_commands_usernames")))
+@check_owner
+async def pin_commands_usernames(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التثبيت 𓆪</b>
+━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تثبيت_قناة + @يوزر</code> <b>⦘</b>
+❐ تثبيت يوزر في قناة
+❐ <b>طريقة الاستخدام:</b> <code>.تثبيت_قناة + @اليوزر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تثبيت_حساب + @يوزر</code> <b>⦘</b>
+❐ تثبيت يوزر في حسابك
+❐ <b>طريقة الاستخدام:</b> <code>.تثبيت_حساب + @اليوزر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تثبيت_بوت + @يوزر</code> <b>⦘</b>
+❐ تثبيت يوزر في بوت
+❐ <b>طريقة الاستخدام:</b> <code>.تثبيت_بوت + @اليوزر</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حالة تثبيت_القناة</code> <b>⦘</b>
+❐ عرض حالة تثبيت القناة
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حالة تثبيت_الحساب</code> <b>⦘</b>
+❐ عرض حالة تثبيت الحساب
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حالة تثبيت_البوت</code> <b>⦘</b>
+❐ عرض حالة تثبيت البوت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تثبيت_القناة</code> <b>⦘</b>
+❐ إيقاف تثبيت القناة
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تثبيت_الحساب</code> <b>⦘</b>
+❐ إيقاف تثبيت الحساب
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف تثبيت_البوت</code> <b>⦘</b>
+❐ إيقاف تثبيت البوت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="hunt_pin_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر النقل (اليوزرات)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"transfer_commands_usernames")))
+@check_owner
+async def transfer_commands_usernames(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر النقل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نقل_قناة</code> <b>⦘</b>
+❐ نقل اليوزر الحالي من حسابك إلى قناة جديدة
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نقل_حساب + @يوزر</code> <b>⦘</b>
+❐ نقل يوزر إلى حسابك الشخصي
+❐ <b>طريقة الاستخدام:</b> <code>.نقل_حساب + @اليوزر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نقل_بوت_القناة + @يوزر</code> <b>⦘</b>
+❐ نقل يوزر القناة إلى بوت
+❐ <b>طريقة الاستخدام:</b> <code>.نقل_بوت_القناة + @اليوزر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نقل_بوت_الحساب + @يوزر</code> <b>⦘</b>
+❐ نقل يوزر الحساب إلى بوت
+❐ <b>طريقة الاستخدام:</b> <code>.نقل_бут_الحساب + @اليوزر</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="hunt_pin_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+
+
+# =========================================================== #
+# أوامر الميوزك
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"music_menu")))
+@check_owner
+async def music_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الميوزك 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تفعيل</code> <b>⦘</b>
+❐ لتفعيل الميوزك في المجموعة
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تعطيل</code> <b>⦘</b>
+❐ لتعطيل الميوزك في المجموعة
+
+⋆─┄─┄─┄─┄──┄─┄─┄─┄─⋆
+
+⚉ <code>.شغل</code>
+⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع صوتـي
+
+⚉ <code>.شغل فيديو</code>
+⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع فيديـو
+
+Ⓜ️ اوامـر تشغيـل اجباريـه مـع تخطـي قائمـة التشغيـل :
+
+⚉ <code>.شغل 1</code>
+⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع صوتـي
+
+⚉ <code>.شغل فيديو 1</code>
+⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع فيديـو
+
+⚉ <code>.قائمة التشغيل</code>
+⚉ <code>.توقف</code>
+⚉ <code>.كمل</code>
+⚉ <code>.تخطي</code>
+
+⚉ <code>.انضمام</code>
+⚉ <code>.خروج</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

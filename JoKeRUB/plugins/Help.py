@@ -119,6 +119,7 @@ async def source_menu(event):
             Button.inline("‹ : السَليب : ›", data="sleep_commands", style="primary"),
             Button.inline("‹ : المـطور المَساعـد : ›", data="assistant_dev_commands", style="primary")
         ],
+        [Button.inline("‹ : الـسورس & الـمـطور : ›", data="source_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -445,9 +446,28 @@ async def restart_commands(event):
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
-    buttons = [[Button.inline("↩️ رجوع", data="source_menu", style="success")]]
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"source_commands")))
+@check_owner
+async def restart_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السورس والمطور 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.السورس</code> <b>⦘</b>
+❐ لعـرض معلومات السورس
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المطور</code> <b>⦘</b>
+❐ لعـرض مطوري السورس
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 # =========================================================== #
 # أوامر إيقاف البوت
 # =========================================================== #

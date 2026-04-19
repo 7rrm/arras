@@ -1683,7 +1683,7 @@ async def group_menu_2(event):
         [Button.inline("‹ : الـردود : ›", data="replay_commands", style="primary"),
          Button.inline("‹ : التـحَذيرات : ›", data="warn_commands", style="primary")],
         [Button.inline("‹ : الأقتـباسات : ›", data="quotes_commands", style="primary"),
-         Button.inline("‹ : المحاكاة : ›", data="simulate_commands", style="primary")],
+         Button.inline("‹ : المحَـاكـاة : ›", data="simulate_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -1771,7 +1771,7 @@ async def quotes_commands(event):
 ❐ لتعطيل الاقتباسات في المجموعة
 ❐ <b>طريقة الاستخدام:</b> <code>.تعطيل الاقتباس</code>
 
-<tg-emoji emoji-id="{EMOJI_INFO}">📌</tg-emoji> <b>ملاحظة:</b>
+📌 <b>ملاحظة:</b>
 ❐ يتم إرسال الاقتباس تلقائياً عندما يرسل الشخص (.) أو (-)
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•

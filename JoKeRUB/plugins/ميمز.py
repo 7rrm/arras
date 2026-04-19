@@ -17,11 +17,6 @@ from ..helpers.utils import reply_id
 plugin_category = "tools"
 # الي يخمط ويكول من كتابتي الا امه انيجه وقد اعذر من انذر
 
-@l313l.ar_cmd(pattern="بوتي$")
-async def _(event):
-    TG_BOT_USERNAME = Config.TG_BOT_USERNAME
-    await event.reply(f"**⎉╎البـوت المسـاعد الخـاص بك هـو** \n {TG_BOT_USERNAME}")
-
 @l313l.ar_cmd(pattern="حالتي ?(.*)")
 async def kkr(event):
     await edit_or_reply(event, "**- جـارِ التحقـق انتظـر قليـلاً . . .**")

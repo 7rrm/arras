@@ -44,7 +44,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [
                     Button.inline("‹ : الأدوات : ›", data="tools_menu", style="primary"),
                     Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="primary")
-                ]
+                ],
+                [
+                    Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="danger")]
             ]
             await event.answer(
                 [await event.builder.article(
@@ -179,7 +181,8 @@ async def back_to_main(event):
         [
             Button.inline("‹ : الأدوات : ›", data="tools_menu", style="danger"),
             Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="danger")
-        ]
+        ],
+        [Button.inline("‹ : التسليـة والألعـاب : ›", data="fun_games_menu", style="danger")]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
 
@@ -3229,4 +3232,231 @@ async def location_commands(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="ttools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة التسليـة والألعـاب الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fun_games_menu")))
+@check_owner
+async def fun_games_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة التسليـة والألعـاب
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر التسليـة والألعـاب 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [Button.inline("‹ : التسليـة : ›", data="fun_commands", style="primary"),
+         Button.inline("‹ : التحشيش : ›", data="meme_commands", style="primary")],
+        [Button.inline("‹ : الألـعـاب : ›", data="games_commands", style="primary")],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة التسليـة (صفحة 1)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fun_commands")))
+@check_owner
+async def fun_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التسلية 1 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
+
+⦗ <code>.غبي</code> ⦘ ▬ ⦗ <code>.كريس</code> ⦘ ▬ ⦗ <code>.القنابل</code> ⦘
+⦗ <code>.اتصل</code> ⦘ ▬ ⦗ <code>.قتل</code> ⦘ ▬ ⦗ <code>.شنو</code> ⦘
+⦗ <code>.طوبة</code> ⦘ ▬ ⦗ <code>.مربعات</code> ⦘ ▬ ⦗ <code>.حلويات</code> ⦘
+⦗ <code>.نار</code> ⦘ ▬ ⦗ <code>.شحن</code> ⦘ ▬ ⦗ <code>.افكر</code> ⦘
+⦗ <code>.متت</code> ⦘ ▬ ⦗ <code>.ضايج</code> ⦘ ▬ ⦗ <code>.ساعه</code> ⦘
+⦗ <code>.مح</code> ⦘ ▬ ⦗ <code>.قلب</code> ⦘ ▬ ⦗ <code>.جيم</code> ⦘
+⦗ <code>.الارض</code> ⦘ ▬ ⦗ <code>.قمر</code> ⦘ ▬ ⦗ <code>.اقمار</code> ⦘
+⦗ <code>.قمور</code> ⦘ ▬ ⦗ <code>.نجمه</code> ⦘ ▬ ⦗ <code>.مكعبات</code> ⦘
+⦗ <code>.مطر</code> ⦘ ▬ ⦗ <code>.تفريغ</code> ⦘ ▬ ⦗ <code>.فليم</code> ⦘
+⦗ <code>.احبك</code> ⦘ ▬ ⦗ <code>.طائره</code> ⦘ ▬ ⦗ <code>.شرطه</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [
+        [Button.inline("رجــوع ↩️", data="fun_games_menu", style="danger"),
+         Button.inline("التَالـي ➡️", data="fun_commands_next", style="success")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة التسليـة (صفحة 2)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fun_commands_next")))
+@check_owner
+async def fun_commands_next(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التسلية 2 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⦗ <code>.النضام الشمسي</code> ⦘ ▬ ⦗ <code>.قاتل</code> ⦘ ▬ ⦗ <code>.عين</code> ⦘
+⦗ <code>.افكرر</code> ⦘ ▬ ⦗ <code>.افعى</code> ⦘ ▬ ⦗ <code>.رجل</code> ⦘
+⦗ <code>.مايكرو</code> ⦘ ▬ ⦗ <code>.فايروس</code> ⦘ ▬ ⦗ <code>.قطار</code> ⦘
+⦗ <code>.نيكول</code> ⦘ ▬ ⦗ <code>.موسيقى</code> ⦘ ▬ ⦗ <code>.رسم</code> ⦘
+⦗ <code>.تحميل</code> ⦘ ▬ ⦗ <code>.مربع</code> ⦘ ▬ ⦗ <code>.دائره</code> ⦘
+⦗ <code>.انيم</code> ⦘ ▬ ⦗ <code>.بشره</code> ⦘ ▬ ⦗ <code>.قرد</code> ⦘
+⦗ <code>.يد</code> ⦘ ▬ ⦗ <code>.العد التنازلي</code> ⦘ ▬ ⦗ <code>.قلوب</code> ⦘
+⦗ <code>.ترامب + النص</code> ⦘ ▬ ⦗ <code>.مودي + النص</code> ⦘ ▬ ⦗ <code>.بنر + النص</code> ⦘
+⦗ <code>.كانا + النص</code> ⦘ ▬ ⦗ <code>.تويت + المعرف ; النص</code> ⦘ ▬ ⦗ <code>.تراش</code> ⦘
+⦗ <code>.تهديد</code> ⦘ ▬ ⦗ <code>.فخ</code> ⦘ ▬ ⦗ <code>.بورن</code> ⦘
+
+⚠️ تحذير: لا تكثر من الاستخدام
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("رجــوع ↩️", data="fun_commands", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة التحشيش
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"meme_commands")))
+@check_owner
+async def meme_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحشيش 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+جميع الأوامر تستخدم بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع تاج</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع بكلبي</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مطي</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع جلب</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع قرد</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مرتي</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع زوجي</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الانوثة</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الحب</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الغباء</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع زاحف</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع كحبة</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع فرخ</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رزله</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع صاك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع حاته</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع بقره</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع ايجة</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع زبال</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع كواد</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع ديوث</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مجنب</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مميز</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع ادمن</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع منشئ</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع مالك</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع وصخ</code> <b>⦘</b>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ••ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الكذب</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الدياثه</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الشذوذ</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الجمال</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نسبة الخيانه</code> <b>⦘</b>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رفع + كلمة</code> <b>⦘</b>
+❐ لـ رفع الشخص بالكلمة التي وضعتها 
+❐ <b>طريقة الاستخدام:</b> ارسل الامر مع وضع كلمة 
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("رجــوع ↩️", data="fun_games_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة الألعاب (صفحة 1)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"games_commands")))
+@check_owner
+async def games_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الألعاب 1 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.محيبس</code> <b>⦘</b>
+❐ لعبة محيبس - إيجاد المحبس
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نرد2</code> <b>⦘</b>
+❐ لعبة نرد ذكية
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.احكام</code> <b>⦘</b>
+❐ لعبة الحاكم والمحكوم
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اكس او</code> <b>⦘</b>
+❐ لعبة إكس أو (XO)
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.المليون</code> <b>⦘</b>
+❐ لعبة من سيربح المليون
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كت</code> <b>⦘</b>
+❐ لعبة كت
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بلي</code> <b>⦘</b>
+❐ لعبة بلي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [
+        [Button.inline("رجــوع ↩️", data="fun_games_menu", style="danger"),
+         Button.inline("التَالـي ➡️", data="games_commands_next", style="success")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة الألعاب (صفحة 2)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"games_commands_next")))
+@check_owner
+async def games_commands_next(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الألعاب 2 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سباق</code> <b>⦘</b>
+❐ لعبة سباق الإيموجيات
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اسرع</code> <b>⦘</b>
+❐ لعبة السرعة - أول شخص يكتب الكلمة يفوز
+❐ <b>طريقة الاستخدام:</b> <code>.اسرع + الكلمة</code>
+❐ مثال: <code>.اسرع اراس</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ت</code> / <code>.تفكيك</code> <b>⦘</b>
+❐ لتفكيك الكلمة إلى حروف منفصلة
+❐ <b>طريقة الاستخدام:</b> <code>.ت + الكلمة</code>
+❐ مثال: <code>.ت احبك</code> → ا ح ب ك
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.خيروك</code> <b>⦘</b>
+❐ لعبة خيروك
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فلم</code> <b>⦘</b>
+❐ لعبة فلم
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("رجــوع ↩️", data="games_commands", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

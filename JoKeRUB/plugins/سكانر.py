@@ -1,12 +1,4 @@
-# =========================================================== #
-#                                                             𝙕𝙏𝙝𝙤𝙣                                                                 #
 
-"""امـر استخـراج النص من الصـوره
-كتابـة وتطويـر الكـود لـ زلـزال الهيبـه T.ME/zzzzl1l
-حقـــوق زدثـــون™ T.me/ZThon"""
-
-#                                                             𝙕𝙏𝙝𝙤𝙣                                                                 #
-# =========================================================== #
 import json
 import os
 from PIL import Image
@@ -62,19 +54,7 @@ def conv_image(image):
 
 
 def ocr_space_file(filename, overlay=False, api_key=Apikey, language='eng'):
-    """ OCR.space API request with local file.
-        Python3.5 - not tested on 2.7
-    :param filename: Your file path & name.
-    :param overlay: Is OCR.space overlay required in your response.
-                    Defaults to False.
-    :param api_key: OCR.space API key.
-                    Defaults to 'helloworld'.
-    :param language: Language code to be used in OCR.
-                    List of available language codes can be found on https://ocr.space/OCRAPI
-                    Defaults to 'en'.
-    :return: Result in JSON format.
-    """
-
+    """ OCR.space API request with local file."""
     payload = {'isOverlayRequired': overlay,
                'apikey': api_key,
                'language': language,
@@ -88,19 +68,7 @@ def ocr_space_file(filename, overlay=False, api_key=Apikey, language='eng'):
 
 
 def ocr_space_url(url, overlay=False, api_key=Apikey, language='eng'):
-    """ OCR.space API request with remote file.
-        Python3.5 - not tested on 2.7
-    :param url: Image url.
-    :param overlay: Is OCR.space overlay required in your response.
-                    Defaults to False.
-    :param api_key: OCR.space API key.
-                    Defaults to 'helloworld'.
-    :param language: Language code to be used in OCR.
-                    List of available language codes can be found on https://ocr.space/OCRAPI
-                    Defaults to 'en'.
-    :return: Result in JSON format.
-    """
-
+    """ OCR.space API request with remote file."""
     payload = {'url': url,
                'isOverlayRequired': overlay,
                'apikey': api_key,
@@ -159,10 +127,15 @@ async def parse_ocr_space_api(event):
     if not os.path.isdir(Config.TEMP_DIR):
         os.makedirs(Config.TEMP_DIR)
     lang_code = event.pattern_match.group(1)
+    
+    # ========== التعديل هنا ==========
+    langcode = "eng"  # اللغة الافتراضية
     if lang_code in glist:
         if lang_code in oldlang:
             langcode = oldlang[lang_code]
-    downloaded_file_name = await zedub.download_media(
+    # =================================
+    
+    downloaded_file_name = await l313l.download_media(
         await event.get_reply_message(),
         Config.TEMP_DIR
     )
@@ -179,7 +152,6 @@ async def parse_ocr_space_api(event):
         await event.edit("**⎉╎تم جلب النص من الميديـا\n**⎉╎خـلال {} ثـانيـه...**\n\n`{}`".format(ProcessingTimeInMilliseconds, ParsedText))
     os.remove(downloaded_file_name)
     await event.edit(ParsedText)
-
 
 
 @l313l.ar_cmd(
@@ -209,9 +181,14 @@ async def ocr(event):
         return await edit_delete(
             zevent, "**- هل انت متأكد من ان هذه صـورة ؟!**"
         )
-    if lang_code in glist:
+    
+    # ========== التعديل هنا (الأهم) ==========
+    langcode = "eng"  # اللغة الافتراضية
+    if lang_code and lang_code in glist:
         if lang_code in oldlang:
             langcode = oldlang[lang_code]
+    # =========================================
+    
     test_file = await ocr_space_file(filename=output_file[1], language=langcode)
     try:
         ParsedText = test_file["ParsedResults"][0]["ParsedText"]
@@ -241,4 +218,3 @@ async def ocr(event):
             )
     if os.path.exists(output_file[1]):
         os.remove(output_file[1])
-

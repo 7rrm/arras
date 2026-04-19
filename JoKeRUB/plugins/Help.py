@@ -3484,7 +3484,7 @@ async def hunt_pin_menu(event):
     
     buttons = [
         [Button.inline("‹ : صَـ.ـيد اليـوزرات : ›", data="hunt_usernames_commands", style="primary")],
-        [Button.inline("‹ : التَثبيـت : ›", data="pin_commands_usernames", style="primary"),
+        [Button.inline("‹ : التَثبيـت : ›", data="ppin_commands_usernames", style="primary"),
          Button.inline("‹ : النَقـل : ›", data="transfer_commands_usernames", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
@@ -3530,7 +3530,7 @@ async def hunt_usernames_commands(event):
 # أوامر التثبيت (اليوزرات)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"pin_commands_usernames")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ppin_commands_usernames")))
 @check_owner
 async def pin_commands_usernames(event):
     text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التثبيت 𓆪</b>

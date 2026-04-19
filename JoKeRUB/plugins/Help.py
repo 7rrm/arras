@@ -2697,7 +2697,7 @@ async def tools_menu(event):
          Button.inline("‹ : الخـطوط : ›", data="fonts_commands", style="primary")],
         [Button.inline("‹ : تصفية الحساب ( المغادرة ) : ›", data="filter_leave_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger"),
-         Button.inline("‹ : التَالـي : ›", data="tools_menu_next", style="success")]
+         Button.inline("‹ : التَالـي : ›", data="ttools_menu_next", style="success")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 

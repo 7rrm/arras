@@ -1044,6 +1044,7 @@ async def account_menu_nextt(event):
             Button.inline("‹ : المحَظورين : ›", data="blocked_commands", style="primary"),
             Button.inline("‹ : حَذف دردشـة : ›", data="delete_chat_commands", style="primary")
         ],
+        [Button.inline("‹ : حـالة الحَساب : ›", data="condition_commands", style="primary")],
         [
             Button.inline("‹ : رجــوع ↩️ : ›", data="account_menu_next", style="danger")
         ]
@@ -1248,6 +1249,22 @@ async def delete_chat_commands(event):
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مؤقت</code> <b>⦘</b>
 ❐ إرسال رسالة مؤقتة
 ❐ <b>طريقة الاستخدام:</b> <code>.مؤقت 5 النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"condition_commands")))
+@check_owner
+async def condition_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر حالة الحساب 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حالتي</code> <b>⦘</b>
+❐ لرؤية حالة الحساب
+❐ <b>طريقة الاستخدام:</b> <code>.حالتي</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
@@ -2610,7 +2627,6 @@ async def memz_commands(event):
 ❐ <b>طريقة الاستخدام:</b> <code>.ازالة_البصمات</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="danger")]]
@@ -2638,17 +2654,22 @@ async def musicsh_commands(event):
 
 <b>أوامر التحكم:</b>
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل غنيلي</code> <b>⦘</b> ❐ لتفعيل الرد على غنيلي للأعضاء
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف غنيلي</code> <b>⦘</b> ❐ لتعطيل الرد على غنيلي
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل غنيلي</code> <b>⦘</b> 
+❐ لتفعيل الرد على غنيلي للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف غنيلي</code> <b>⦘</b>
+❐ لتعطيل الرد على غنيلي
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل شعر</code> <b>⦘</b> ❐ لتفعيل الرد على شعر للأعضاء
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف شعر</code> <b>⦘</b> ❐ لتعطيل الرد على شعر
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل شعر</code> <b>⦘</b> 
+❐ لتفعيل الرد على شعر للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف شعر</code> <b>⦘</b> 
+❐ لتعطيل الرد على شعر
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل ريمكس</code> <b>⦘</b> ❐ لتفعيل الرد على ريمكس للأعضاء
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف ريمكس</code> <b>⦘</b> ❐ لتعطيل الرد على ريمكس
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل ريمكس</code> <b>⦘</b> 
+❐ لتفعيل الرد على ريمكس للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف ريمكس</code> <b>⦘</b>
+❐ لتعطيل الرد على ريمكس
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="danger")]]

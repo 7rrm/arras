@@ -15,22 +15,32 @@ from . import BOTLOG, BOTLOG_CHATID, l313l
 from ..helpers.utils import reply_id
 plugin_category = "tools"
 # الي يخمط ويكول من كتابتي الا امه انيجه وقد اعذر من انذر
-    
-@l313l.on(admin_cmd(pattern="حالتي ?(.*)"))
+
+@l313l.ar_cmd(pattern="بوتي$")
 async def _(event):
-    await event.edit("**- يتم التاكد من حالتك اذا كنت محظور او لا**")
+    TG_BOT_USERNAME = Config.TG_BOT_USERNAME
+    await event.reply(f"**⎉╎البـوت المسـاعد الخـاص بك هـو** \n {TG_BOT_USERNAME}")
+
+@l313l.ar_cmd(pattern="حالتي ?(.*)")
+async def kkr(event):
+    await edit_or_reply(event, "**- جـارِ التحقـق انتظـر قليـلاً . . .**")
     async with bot.conversation("@SpamBot") as conv:
         try:
-            response = conv.wait_event(
-                events.NewMessage(incoming=True, from_users=178220800)
-            )
+            dontTag = conv.wait_event(
+                events.NewMessage(incoming=True, from_users=178220800))
             await conv.send_message("/start")
-            response = await response
-            await bot.send_read_acknowledge(conv.chat_id)
+            dontTag = await dontTag
+            await bot.send_read_acknowledge(zdd.chat_id)
         except YouBlockedUserError:
-            await event.edit("** اولا الغي حظر @SpamBot وحاول مجددا**")
-            return
-        await event.edit(f"- {response.message.message} .")
+            await l313l(unblock("SpamBot"))
+            dontTag = conv.wait_event(
+                events.NewMessage(incoming=True, from_users=178220800))
+            await conv.send_message("/start")
+            dontTag = await dontTag
+            await bot.send_read_acknowledge(conv.chat_id)
+        await edit_or_reply(event, f"**⌔╎حالة حسابـك حاليـاً هـي :**\n\n~ {dontTag.message.message}")    
+
+
 
 @l313l.on(admin_cmd(pattern="الاغنية ?(.*)"))
 async def _(event):

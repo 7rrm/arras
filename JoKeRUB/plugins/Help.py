@@ -2636,7 +2636,7 @@ async def musicsh_commands(event):
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 
-<tg-emoji emoji-id="{EMOJI_INFO}">📌</tg-emoji> <b>أوامر التحكم:</b>
+<b>أوامر التحكم:</b>
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل غنيلي</code> <b>⦘</b> ❐ لتفعيل الرد على غنيلي للأعضاء
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف غنيلي</code> <b>⦘</b> ❐ لتعطيل الرد على غنيلي

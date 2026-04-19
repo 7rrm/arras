@@ -2388,10 +2388,12 @@ async def attachments_menu(event):
     buttons = [
         [Button.inline("‹ : الميديـا والصيـغ : ›", data="media_convert_commands", style="primary")],
         [Button.inline("‹ : الوقت والتاريخ : ›", data="time_date_commands", style="primary"),
-         Button.inline("‹ : التلكَراف : ›", data="telegraph_commands", style="primary")],
+         Button.inline("‹ : التلـكَراف : ›", data="telegraph_commands", style="primary")],
         [Button.inline("‹ : الملصقـات : ›", data="sticker_commands", style="primary")],
         [Button.inline("‹ : السبـام : ›", data="spam_commands", style="primary"),
          Button.inline("‹ : التـكرار : ›", data="repeat_commands", style="primary")],
+        [Button.inline("‹ : الاغاني والشعر : ›", data="musicsh_commands", style="primary"),
+         Button.inline("‹ : بصمات الميمز : ›", data="memz_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -2582,4 +2584,72 @@ async def repeat_commands(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"memz_commands")))
+@check_owner
+async def memz_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الميمز 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>ميمز + كلمة</code> <b>⦘</b>
+❐ لإرسال ميديا مخزنة بكلمة معينة
+❐ <b>طريقة الاستخدام:</b> <code>ميمز + الكلمة</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ازالة + كلمة</code> <b>⦘</b>
+❐ لحذف بصمة ميمز معينة
+❐ <b>طريقة الاستخدام:</b> <code>.ازالة + الكلمة</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.قائمة الميمز</code> <b>⦘</b>
+❐ لعرض قائمة جميع بصمات الميمز
+❐ <b>طريقة الاستخدام:</b> <code>.قائمة الميمز</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ازالة_البصمات</code> <b>⦘</b>
+❐ لحذف جميع بصمات الميمز
+❐ <b>طريقة الاستخدام:</b> <code>.ازالة_البصمات</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"musicsh_commands")))
+@check_owner
+async def musicsh_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الأغاني والريمكس 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.غنيلي</code> <b>⦘</b>
+❐ لإرسال أغنية عشوائية
+❐ <b>طريقة الاستخدام:</b> <code>.غنيلي</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.شعر</code> <b>⦘</b>
+❐ لإرسال قصيدة عشوائية
+❐ <b>طريقة الاستخدام:</b> <code>.شعر</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ريمكس</code> <b>⦘</b>
+❐ لإرسال ريمكس عشوائي
+❐ <b>طريقة الاستخدام:</b> <code>.ريمكس</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+<tg-emoji emoji-id="{EMOJI_INFO}">📌</tg-emoji> <b>أوامر التحكم:</b>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل غنيلي</code> <b>⦘</b> ❐ لتفعيل الرد على غنيلي للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف غنيلي</code> <b>⦘</b> ❐ لتعطيل الرد على غنيلي
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل شعر</code> <b>⦘</b> ❐ لتفعيل الرد على شعر للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف شعر</code> <b>⦘</b> ❐ لتعطيل الرد على شعر
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تفعيل ريمكس</code> <b>⦘</b> ❐ لتفعيل الرد على ريمكس للأعضاء
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف ريمكس</code> <b>⦘</b> ❐ لتعطيل الرد على ريمكس
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

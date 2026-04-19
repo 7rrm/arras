@@ -1,4 +1,12 @@
+# =========================================================== #
+#                                                             𝙕𝙏𝙝𝙤𝙣                                                                 #
 
+"""امـر استخـراج النص من الصـوره
+كتابـة وتطويـر الكـود لـ زلـزال الهيبـه T.ME/zzzzl1l
+حقـــوق زدثـــون™ T.me/ZThon"""
+
+#                                                             𝙕𝙏𝙝𝙤𝙣                                                                 #
+# =========================================================== #
 import json
 import os
 from PIL import Image
@@ -128,12 +136,12 @@ async def parse_ocr_space_api(event):
         os.makedirs(Config.TEMP_DIR)
     lang_code = event.pattern_match.group(1)
     
-    # ========== التعديل هنا ==========
-    langcode = "eng"  # اللغة الافتراضية
+    # ========== اللغة الافتراضية ==========
+    langcode = "eng"
     if lang_code in glist:
         if lang_code in oldlang:
             langcode = oldlang[lang_code]
-    # =================================
+    # =======================================
     
     downloaded_file_name = await l313l.download_media(
         await event.get_reply_message(),
@@ -182,14 +190,17 @@ async def ocr(event):
             zevent, "**- هل انت متأكد من ان هذه صـورة ؟!**"
         )
     
-    # ========== التعديل هنا (الأهم) ==========
-    langcode = "eng"  # اللغة الافتراضية
+    # ========== اللغة الافتراضية ==========
+    langcode = "eng"
     if lang_code and lang_code in glist:
         if lang_code in oldlang:
             langcode = oldlang[lang_code]
-    # =========================================
+    # =======================================
     
-    test_file = await ocr_space_file(filename=output_file[1], language=langcode)
+    # ========== تم حذف await هنا ==========
+    test_file = ocr_space_file(filename=output_file[1], language=langcode)
+    # =======================================
+    
     try:
         ParsedText = test_file["ParsedResults"][0]["ParsedText"]
     except BaseException:

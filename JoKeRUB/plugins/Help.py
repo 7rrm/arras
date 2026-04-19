@@ -953,6 +953,7 @@ async def account_menu_nextt(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
+        [Button.inline("‹ : الرسائل المؤقتة : ›", data="Messages_Temporary", style="primary")],
         [
             Button.inline("‹ : التقليـد : ›", data="fake_commands", style="primary"),
             Button.inline("‹ : الأنتحَـال : ›", data="spoof_commands", style="primary")
@@ -1101,7 +1102,6 @@ async def delete_chat_commands(event):
 ❐ <b>طريقة الاستخدام:</b> <code>.احذف + معرف الشخص</code>
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
-
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
@@ -1150,6 +1150,29 @@ async def broadcast_main_menu(event):
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"Messages_Temporary")))
+@check_owner
+async def delete_chat_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الرسائل المؤقتة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ضبط_المؤقت</code> <b>⦘</b>
+❐ ضبط وقت حذف الرسائل تلقائياً
+❐ <b>طريقة الاستخدام:</b> <code>.ضبط_المؤقت 10</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تعطيل_المؤقت</code> <b>⦘</b>
+❐ إيقاف حذف الرسائل التلقائي
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مؤقت</code> <b>⦘</b>
+❐ إرسال رسالة مؤقتة
+❐ <b>طريقة الاستخدام:</b> <code>.مؤقت 5 النص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="account_mmenu_next", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 # =========================================================== #
 # قائمة المجموعة الرئيسية (صفحة 1)
 # =========================================================== #

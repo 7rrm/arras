@@ -3005,7 +3005,228 @@ async def tools_menu_next(event):
 ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
     
     buttons = [
-        [Button.inline("‹ : السَـابق : ›", data="tools_menu", style="success"),
-         Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
+        [Button.inline("‹ : الماسـح الضوئـي : ›", data="ocr_commands", style="primary"),
+         Button.inline("‹ : تاريخ الأنشـاء : ›", data="creation_date_commands", style="primary")],
+        [Button.inline("‹ : نـقـل الملكية : ›", data="transfer_ownership_commands", style="primary")],
+        [Button.inline("‹ : الحاسبـة : ›", data="calculator_commands", style="primary"),
+         Button.inline("‹ : أدوات الروابـط : ›", data="link_tools_commands", style="primary")],
+        [Button.inline("‹ : الأذكـار : ›", data="azkar_commands", style="primary")],
+        [Button.inline("‹ : الصلاة : ›", data="prayer_commands", style="primary"),
+         Button.inline("‹ : الطقس : ›", data="weather_commands", style="primary"),
+         Button.inline("‹ : الموقع : ›", data="location_commands", style="primary")],
+        [Button.inline("رجــوع ↩️", data="tools_menu", style="danger")]
     ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الماسح الضوئي (استخراج النص)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ocr_commands")))
+@check_owner
+async def ocr_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر استخراج النص 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.استخرج</code> <b>⦘</b>
+❐ لاستخراج النص من الصورة
+❐ <b>طريقة الاستخدام:</b> بالرد على الصورة + <code>.استخرج</code>
+❐ إضافة: يمكنك تحديد اللغة بعد الأمر
+❐ مثال: <code>.استخرج عربي</code>
+
+<b>اللغات المتاحة:</b>
+عربي - انجليزي - تركي - روسي - اسباني
+فرنسي - الماني - ايطالي - ياباني - كوري
+صيني - هندي - برتغالي - وغيرها
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر تاريخ الإنشاء
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"creation_date_commands")))
+@check_owner
+async def creation_date_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أمر الإنشاء 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الانشاء</code> <b>⦘</b>
+❐ لمعرفة تاريخ إنشاء حسابك
+❐ <b>طريقة الاستخدام:</b> <code>.الانشاء</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر نقل الملكية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"transfer_ownership_commands")))
+@check_owner
+async def transfer_ownership_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الملكية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ملكية</code> <b>⦘</b>
+❐ نقل ملكية القناة لشخص
+❐ <b>طريقة الاستخدام:</b> <code>.ملكية معرف الشخص</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الحاسبة
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"calculator_commands")))
+@check_owner
+async def calculator_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحاسبة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حاسبة</code> <b>⦘</b>
+❐ لعرض حاسبة علمية متكاملة
+❐ <b>طريقة الاستخدام:</b> <code>.حاسبة</code>
+❐ ملاحظة: يتطلب تفعيل وضع الإنلاين أولاً
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر أدوات الروابط
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"link_tools_commands")))
+@check_owner
+async def link_tools_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الروابط 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.دنس</code> <b>⦘</b>
+❐ كشف نظام دومين الموقع
+❐ <b>طريقة الاستخدام:</b> <code>.دنس الرابط</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مصغر</code> <b>⦘</b>
+❐ تصغير الرابط
+❐ <b>طريقة الاستخدام:</b> بالرد على الرابط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.رابط_مخفي</code> <b>⦘</b>
+❐ إخفاء الرابط في مسافة معينة
+❐ <b>طريقة الاستخدام:</b> بالرد على الرابط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الأذكار
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"azkar_commands")))
+@check_owner
+async def azkar_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الأذكار 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اذكار الصباح</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اذكار المساء</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اذكار النوم</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اذكار الصلاة</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اذكار الاستيقاظ</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.احاديث</code> <b>⦘</b>
+
+❐ عرض الأذكار
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الصلاة
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"prayer_commands")))
+@check_owner
+async def prayer_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الصلاة 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.صلاة</code> <b>⦘</b>
+❐ لعرض أوقات الصلاة لمدينة عراقية
+❐ <b>طريقة الاستخدام:</b> <code>.صلاة + اسم المدينة</code>
+❐ مثال: <code>.صلاة كربلاء</code>
+
+<b>المدن المتاحة:</b>
+بغداد - كربلاء - النجف - الموصل - البصرة
+اربيل - كركوك - ديالى - الأنبار - بابل
+واسط - ذي قار - ميسان - صلاح الدين
+القادسية - دهوك - السليمانية
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الطقس
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"weather_commands")))
+@check_owner
+async def weather_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الطقس 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الطقس</code> <b>⦘</b>
+❐ لعرض تقرير الطقس لمدينة معينة
+❐ <b>طريقة الاستخدام:</b> 
+   - <code>.الطقس</code> (للمدينة الافتراضية بغداد)
+   - <code>.الطقس + اسم المدينة</code>
+❐ مثال: <code>.الطقس بغداد</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الموقع
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"location_commands")))
+@check_owner
+async def location_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الموقع 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.موقع</code> <b>⦘</b>
+❐ لعرض معلومات عن موقع معين
+❐ <b>طريقة الاستخدام:</b> <code>.موقع + اسم المكان</code>
+❐ مثال: <code>.موقع بغداد</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

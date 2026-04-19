@@ -70,15 +70,25 @@ async def _(event):
     os.remove(oggfi)
     os.remove(f"{ogg}.wav")
 
+import os
+import ocrspace
+from ..Config import Config
+from ..core.managers import edit_delete, edit_or_reply
+
+plugin_category = "الادوات"
+
+# ========== جميع اللغات المدعومة ==========
 langs = {
     'عربي': 'ara',
     'بلغاري': 'bul',
     'صيني مبسط': 'chs',
     'صيني تقليدي': 'cht',
     'كرواتي': 'hrv',
+    'تشيكي': 'cze',
     'دنماركي': 'dan',
     'هولندي': 'dut',
     'انجليزي': 'eng',
+    'استوني': 'est',
     'فنلندي': 'fin',
     'فرنسي': 'fre',
     'الماني': 'ger',
@@ -87,87 +97,93 @@ langs = {
     'كوري': 'kor',
     'ايطالي': 'ita',
     'ياباني': 'jpn',
+    'لاتفي': 'lav',
+    'ليتواني': 'lit',
     'نرويجي': 'nor',
     'بولندي': 'pol',
     'برتغالي': 'por',
+    'روماني': 'ron',
     'روسي': 'rus',
+    'سلوفاكي': 'slk',
     'سلوفيني': 'slv',
     'اسباني': 'spa',
     'سويدي': 'swe',
     'تركي': 'tur',
+    'اوكراني': 'ukr',
+    'فيتنامي': 'vie',
 }
 
-# ========== أمر عرض اللغات المدعومة ==========
+# ========== أمر عرض جميع اللغات ==========
 @l313l.ar_cmd(pattern="اللغات")
-async def get_supported_languages(event):
-    """⌔ عرض اللغات المدعومة لاستخراج النص"""
-    languages_list = "**⌔ اللغات المدعومة لأمر استخراج النص:**\n\n"
-    for lang_name, lang_code in langs.items():
-        languages_list += f"• **{lang_name}** : `{lang_code}`\n"
-    
-    languages_list += "\n**⌔ استخدم الأمر:** `.استخرج <اسم اللغة>`"
-    await edit_or_reply(event, languages_list)
+async def get_langs(event):
+    """⌔ عرض جميع اللغات المدعومة"""
+    txt = "**⌔ اللغات المدعومة لاستخراج النص:**\n\n"
+    for name, code in langs.items():
+        txt += f"• **{name}** : `{code}`\n"
+    txt += "\n**⌔ استخدم:** `.استخرج <اسم اللغة>`"
+    await edit_or_reply(event, txt)
 
-# ========== دالة استخراج النص ==========
-def to_text(pic, api):
+# ========== أمر استخراج النص ==========
+@l313l.ar_cmd(pattern="استخرج(?:\s|$)([\s\S]*)")
+async def extract(event):
+    """⌔ استخراج النص من الصورة"""
+    reply = await event.get_reply_message()
+    lan = event.pattern_match.group(1).strip()
+
+    if not reply:
+        return await edit_delete(event, "**⌔ قم بالرد على صورة لاستخراج النص منها**")
+
+    if not reply.photo and not reply.document:
+        return await edit_delete(event, "**⌔ هذا ليس بصورة**")
+
+    tmp = Config.TMP_DOWNLOAD_DIRECTORY or "./temp/"
+    if not os.path.exists(tmp):
+        os.makedirs(tmp)
+
+    pic = await reply.download_media(tmp)
+    if not pic:
+        return await edit_delete(event, "**⌔ فشل تحميل الصورة**")
+
+    status = await edit_or_reply(event, "**⌔ جاري استخراج النص...**")
+
+    # ========== تحديد اللغة ==========
     try:
-        output = api.ocr_file(open(pic, 'rb'))
-    except Exception as e:
-        return f"**⌔ حدث الخطأ التالي:**\n`{e}`"
-    else:
-        if output:
-            return f"**⌔ النص المستخرج:**\n\n`{output}`"
+        if not lan:
+            api = ocrspace.API()
+            lang_used = "الانجليزي (الافتراضية)"
+        elif lan in langs.values():
+            api = ocrspace.API(language=lan)
+            lang_used = lan
+        elif lan in langs:
+            api = ocrspace.API(language=langs[lan])
+            lang_used = lan
         else:
-            return "**⌔ حدث خطأ في النظام , حاول مجدداً**"
+            # البحث عن لغة مطابقة
+            found = None
+            for name, code in langs.items():
+                if lan.lower() in name.lower() or name.lower() in lan.lower():
+                    found = name
+                    api = ocrspace.API(language=code)
+                    lang_used = name
+                    break
+            if not found:
+                return await status.edit(f"**⌔ لا توجد لغة باسم `{lan}`**\n**⌔ استخدم `.اللغات` لعرض اللغات المدعومة**")
+    except Exception as e:
+        return await status.edit(f"**⌔ خطأ في اللغة:**\n`{e}`")
+
+    await status.edit(f"**⌔ يجري الاستخراج...**\n**⌔ اللغة:** `{lang_used}`")
+
+    # ========== استخراج النص ==========
+    try:
+        with open(pic, 'rb') as f:
+            result = api.ocr_file(f)
+    except Exception as e:
+        return await status.edit(f"**⌔ فشل الاستخراج:**\n`{e}`")
     finally:
         if os.path.exists(pic):
             os.remove(pic)
 
-# ========== أمر استخراج النص ==========
-@l313l.ar_cmd(pattern="استخرج(?:\s|$)([\s\S]*)",
-               command=("استخرج", plugin_category),
-              )
-async def extract_text(event):
-    """⌔ استخراج النص من الصورة"""
-    reply = await event.get_reply_message()
-    lan = event.pattern_match.group(1).strip()
-    
-    if not reply:
-        return await edit_delete(event, "**⌔ قم بالرد على الصورة المراد استخراج النص منها**")
-    
-    # التحقق من وجود صورة
-    if not reply.photo and not reply.document:
-        return await edit_delete(event, "**⌔ قم بالرد على صورة فقط**")
-    
-    pic_file = await l313l.download_media(reply, Config.TMP_DOWNLOAD_DIRECTORY)
-    
-    if not pic_file:
-        return await edit_delete(event, "**⌔ فشل تحميل الصورة , حاول مجدداً**")
-    
-    # إعداد API مع اللغة المطلوبة
-    if not lan:
-        api = ocrspace.API()
-        lang_used = "الانجليزي (الافتراضية)"
-    else:
-        try:
-            # البحث عن اللغة حتى لو كان الاسم غير كامل
-            matched_lang = None
-            for lang_name in langs:
-                if lan.lower() in lang_name.lower() or lang_name.lower() in lan.lower():
-                    matched_lang = lang_name
-                    break
-            
-            if matched_lang:
-                lang = langs[matched_lang]
-                api = ocrspace.API(language=lang)
-                lang_used = matched_lang
-            else:
-                return await edit_delete(event, f"**⌔ لا توجد لغة باسم `{lan}`**\n**⌔ استخدم امر `.اللغات` لعرض اللغات المدعومة**")
-        except Exception as er:
-            return await edit_delete(event, f"**⌔ حدث خطأ في اللغة:**\n`{er}`")
-    
-    # استخراج النص
-    status_msg = await edit_or_reply(event, f"**⌔ يجري استخراج النص...**\n**⌔ اللغة المستخدمة:** `{lang_used}`")
-    
-    result = to_text(pic_file, api)
-    await status_msg.edit(result)
+    if not result or result.strip() == "":
+        return await status.edit("**⌔ لم يتم العثور على نص في الصورة**\n**⌔ تأكد أن النص واضح**")
+
+    await status.edit(f"**⌔ النص المستخرج:**\n\n`{result}`")

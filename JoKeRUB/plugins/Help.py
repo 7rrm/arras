@@ -120,6 +120,7 @@ async def source_menu(event):
             Button.inline("‹ : المـطور المَساعـد : ›", data="assistant_dev_commands", style="primary")
         ],
         [Button.inline("‹ : الـسورس & الـمـطور : ›", data="source_commands", style="primary")],
+        [Button.inline("‹ : بوتي : ›", data="bote_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
@@ -429,6 +430,21 @@ async def update_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="source_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"bote_commands")))
+@check_owner
+async def bote_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر البوت المساعد 𓆪</b>
+━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.بوتي</code> <b>⦘</b>
+❐ لعرض البوت المساعد الخاص بك
+❐ <b>طريقة الاستخدام:</b> <code>.بوتي</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="source_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 # =========================================================== #
 # أوامر إعادة التشغيل
 # =========================================================== #

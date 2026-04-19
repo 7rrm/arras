@@ -40,6 +40,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 ],
                 [
                     Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="danger")
+                ],
+                [
+                    Button.inline("‹ : الأدوات : ›", data="tools_menu", style="primary"),
+                    Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="primary")
                 ]
             ]
             await event.answer(
@@ -167,8 +171,10 @@ async def back_to_main(event):
             Button.inline("‹ : المجموعَـة ➋ : ›", data="group_menu_2", style="danger"),
             Button.inline("‹ : ➊ المجموعَـة : ›", data="group_menu_1", style="danger")
         ],
+        [Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="primary")],
         [
-            Button.inline("‹ : حماية المجموعات / القنوات : ›", data="protection_menu", style="primary")
+            Button.inline("‹ : الأدوات : ›", data="tools_menu", style="primary"),
+            Button.inline("‹ : المرفقـات : ›", data="attachments_menu", style="primary")
         ]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
@@ -2198,4 +2204,217 @@ async def channel_protection_menu(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("رجــوع ↩️", data="protection_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+
+# =========================================================== #
+# قائمة المرفقات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"attachments_menu")))
+@check_owner
+async def attachments_menu(event):
+    text = f'''‹ : مـࢪحبـاً عـزيـزي <tg-emoji emoji-id="{EMOJI_HEART}">❤️</tg-emoji>
+‹ : في قائمـة المرفقـات
+‹ : من هنـا يمكنـك إيجـاد شـرح لكـل أوامـر المرفقـات 
+
+ᯓ 𝗦𝗢𝗨𝗥𝗖𝗘 𝗮𝗥𝗥𝗮𝗦 ♥️'''
+    
+    buttons = [
+        [Button.inline("‹ : الميديـا والصيـغ : ›", data="media_convert_commands", style="primary")],
+        [Button.inline("‹ : الوقت والتاريخ : ›", data="time_date_commands", style="primary"),
+         Button.inline("‹ : التلكَراف : ›", data="telegraph_commands", style="primary")],
+        [Button.inline("‹ : الملصقـات : ›", data="sticker_commands", style="primary")],
+        [Button.inline("‹ : السبـام : ›", data="spam_commands", style="primary"),
+         Button.inline("‹ : التـكرار : ›", data="repeat_commands", style="primary")],
+        [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
+    ]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الميديا والصيغ (التحويل)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"media_convert_commands")))
+@check_owner
+async def media_convert_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التحويل 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.لصوره</code> <b>⦘</b>
+❐ تحويل الملصق إلى صورة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.لملصق</code> <b>⦘</b>
+❐ تحويل الصورة إلى ملصق
+❐ <b>طريقة الاستخدام:</b> بالرد على الصورة
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.لملف</code> <b>⦘</b>
+❐ تحويل نص إلى ملف
+❐ <b>طريقة الاستخدام:</b> بالرد على النص + اسم الملف
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحويل بصمه</code> <b>⦘</b>
+❐ تحويل المقطع إلى بصمة صوتية
+❐ <b>طريقة الاستخدام:</b> بالرد على المقطع
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحويل صوت</code> <b>⦘</b>
+❐ تحويل البصمة إلى مقطع mp3
+❐ <b>طريقة الاستخدام:</b> بالرد على البصمة
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.دائري</code> <b>⦘</b>
+❐ تحويل أي وسائط إلى فيديو دائري
+❐ <b>طريقة الاستخدام:</b> بالرد على صورة/فيديو/صوت
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تحويل متحركة</code> <b>⦘</b>
+❐ تحويل فيديو إلى صورة متحركة GIF
+❐ <b>طريقة الاستخدام:</b> بالرد على الفيديو + (سرعة اختياري)
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الوقت والتاريخ
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"time_date_commands")))
+@check_owner
+async def time_date_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الوقت والتاريخ 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تاريخ</code> <b>⦘</b>
+❐ عرض سجل أسماء الحساب
+❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.الوقت</code> <b>⦘</b>
+❐ عرض الوقت على شكل ملصق
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.وقت</code> <b>⦘</b>
+❐ عرض الوقت على شكل كتابة
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التلكراف
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"telegraph_commands")))
+@check_owner
+async def telegraph_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التلكراف 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تلكراف ميديا</code> <b>⦘</b>
+❐ تحويل الصورة إلى رابط تلكراف
+❐ <b>طريقة الاستخدام:</b> بالرد على الصورة
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تلكراف نص</code> <b>⦘</b>
+❐ تحويل النص إلى رابط تلكراف
+❐ <b>طريقة الاستخدام:</b> بالرد على النص
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الملصقات
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"sticker_commands")))
+@check_owner
+async def sticker_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الملصقات 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ملصق</code> <b>⦘</b>
+❐ أخذ الملصق وإضافته لحزمة خاصة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حزمة</code> <b>⦘</b>
+❐ نسخ الحزمة كاملة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.حزمه</code> <b>⦘</b>
+❐ نسخ الحزمة كاملة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.معلومات_الملصق</code> <b>⦘</b>
+❐ عرض معلومات الحزمة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر السبام
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"spam_commands")))
+@check_owner
+async def spam_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر السبام 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.سبام</code> <b>⦘</b>
+❐ تفصيخ أحرف الكلمة وإرسالها
+❐ <b>طريقة الاستخدام:</b> <code>.سبام كلمة</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.وسبام</code> <b>⦘</b>
+❐ تفصيخ الجملة كلمة كلمة
+❐ <b>طريقة الاستخدام:</b> <code>.وسبام الجملة</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر التكرار
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"repeat_commands")))
+@check_owner
+async def repeat_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر التكرار 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كرر</code> <b>⦘</b>
+❐ تكرار النصوص والوسائط
+❐ <b>طريقة الاستخدام:</b> <code>.كرر 10</code> بالرد
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تكرار الملصق</code> <b>⦘</b>
+❐ استخراج جميع ملصقات الحزمة
+❐ <b>طريقة الاستخدام:</b> بالرد على الملصق
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مكرر</code> <b>⦘</b>
+❐ تكرار مع وقت محدد
+❐ <b>طريقة الاستخدام:</b> <code>.مكرر 10 2</code> بالرد
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ضع تكرار</code> <b>⦘</b>
+❐ منع التكرار بالعدد المحدد
+❐ <b>طريقة الاستخدام:</b> <code>.ضع تكرار 10</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ايقاف التكرار</code> <b>⦘</b>
+❐ إيقاف جميع التكرارات
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

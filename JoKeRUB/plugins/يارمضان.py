@@ -435,6 +435,19 @@ async def skip_question_handler(event):
             parse_mode="Markdown"
         )
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_game")))
+async def cancel_game(event):
+    user_id = event.query.user_id
+    
+    # ✅ إذا كانت هناك جلسة للمستخدم، احذفها
+    if user_id in game_sessions:
+        del game_sessions[user_id]
+        await event.edit("❌ تم إلغاء اللعبة!", buttons=None, parse_mode="Markdown")
+    else:
+        # ✅ إذا لم تكن هناك جلسة، فقط أغلق الرسالة
+        await event.edit("❌ تم الإلغاء!", buttons=None, parse_mode="Markdown")
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"next_question_(\\d+)")))
 async def next_question(event):
     match = re.match(r"next_question_(\d+)", event.data.decode())

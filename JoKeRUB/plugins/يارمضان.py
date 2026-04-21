@@ -164,6 +164,7 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
+
 from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 from datetime import datetime
@@ -179,10 +180,7 @@ from ..core import check_owner
 
 plugin_category = "fun"
 
-# =========================================================== #
 # جميع الأسئلة (40 سؤال)
-# =========================================================== #
-
 QUESTIONS = [
     {"aW": "ما هو الحيوان الذي يمتلك أكبر عدد من الأسنان؟", "choices": ["التمساح", "القرش", "الفيل"], "Wa": "القرش"},
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'Au'؟", "choices": ["الذهب", "الفضة", "النحاس"], "Wa": "الذهب"},
@@ -193,7 +191,7 @@ QUESTIONS = [
     {"aW": "من هو مخترع المصباح الكهربائي؟", "choices": ["توماس إديسون", "ألكسندر جراهام بيل", "نيكولا تسلا"], "Wa": "توماس إديسون"},
     {"aW": "ما هي عاصمة اليابان؟", "choices": ["طوكيو", "أوساكا", "كيوتو"], "Wa": "طوكيو"},
     {"aW": "ما هي الدولة التي تضم مدينة البندقية؟", "choices": ["إيطاليا", "فرنسا", "إسبانيا"], "Wa": "إيطاليا"},
-    {"aW": "ما هو أطول نهر في العالم؟", "choices": ["النيل", "الأمازون", "المسيسيبي"], "Wa": "الأمازون"},
+    {"aW": "ما هو أطول نهر في العالم？", "choices": ["النيل", "الأمازون", "المسيسيبي"], "Wa": "الأمازون"},
     {"aW": "من هو مؤلف كتاب 'الإخوان كارامازوف'؟", "choices": ["فيودور دوستويفسكي", "ليو تولستوي", "أنطون تشيخوف"], "Wa": "فيودور دوستويفسكي"},
     {"aW": "ما هو الطائر الذي يمكنه الطيران للخلف؟", "choices": ["الطنان", "النسر", "البومة"], "Wa": "الطنان"},
     {"aW": "ما هي أصغر دولة في العالم؟", "choices": ["الفاتيكان", "موناكو", "ناورو"], "Wa": "الفاتيكان"},
@@ -203,9 +201,9 @@ QUESTIONS = [
     {"aW": "ما هو أقدم جامعة في العالم؟", "choices": ["جامعة القرويين", "جامعة بولونيا", "جامعة أكسفورد"], "Wa": "جامعة القرويين"},
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'O'؟", "choices": ["أكسجين", "أوزون", "أوسميوم"], "Wa": "أكسجين"},
     {"aW": "ما هي عملة اليابان؟", "choices": ["الين", "الوون", "اليوان"], "Wa": "الين"},
-    {"aW": "من هو مؤلف مسرحية 'مكبث'؟", "choices": ["ويليام شكسبير", "كريستوفر مارلو", "بن جونسون"], "Wa": "ويليام شكسبير"},
+    {"aW": "من هو مؤلف مسرحية 'مكبث'？", "choices": ["ويليام شكسبير", "كريستوفر مارلو", "بن جونسون"], "Wa": "ويليام شكسبير"},
     {"aW": "ما هو الحيوان الوطني لأستراليا؟", "choices": ["الكنغر", "الكوالا", "الإيمو"], "Wa": "الكنغر"},
-    {"aW": "ما هي أكبر دولة في أفريقيا من حيث المساحة؟", "choices": ["الجزائر", "السودان", "ليبيا"], "Wa": "الجزائر"},
+    {"aW": "ما هي أكبر دولة في أفريقيا من حيث المساحة？", "choices": ["الجزائر", "السودان", "ليبيا"], "Wa": "الجزائر"},
     {"aW": "ما هو أطول نفق في العالم؟", "choices": ["نفق سانت غوتارد", "نفق سيكان", "نفق لوشبرغ"], "Wa": "نفق سانت غوتارد"},
     {"aW": "ما هي أكبر جزيرة في العالم؟", "choices": ["غرينلاند", "نيو غينيا", "بورنيو"], "Wa": "غرينلاند"},
     {"aW": "من هو مؤلف كتاب 'الأمير'؟", "choices": ["نيكولو مكيافيلي", "توماس هوبز", "جون لوك"], "Wa": "نيكولو مكيافيلي"},
@@ -216,13 +214,13 @@ QUESTIONS = [
     {"aW": "ما هو البركان الأكثر نشاطاً في العالم؟", "choices": ["كيلاويا", "إتنا", "فيزوف"], "Wa": "كيلاويا"},
     {"aW": "ما هي اللغة الرسمية للأرجنتين؟", "choices": ["الإسبانية", "البرتغالية", "الإنجليزية"], "Wa": "الإسبانية"},
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'Fe'؟", "choices": ["الحديد", "الفلور", "الفرانسيوم"], "Wa": "الحديد"},
-    {"aW": "ما هي عاصمة جنوب أفريقيا؟", "choices": ["بريتوريا", "كيب تاون", "جوهانسبرغ"], "Wa": "بريتوريا"},
+    {"aW": "ما هي عاصمة جنوب أفريقيا？", "choices": ["بريتوريا", "كيب تاون", "جوهانسبرغ"], "Wa": "بريتوريا"},
     {"aW": "ما هو الحيوان الذي يعيش أطول عمراً؟", "choices": ["السلحفاة", "الفيل", "الببغاء"], "Wa": "السلحفاة"},
-    {"aW": "ما هي اللغة الرسمية لمصر؟", "choices": ["العربية", "الإنجليزية", "الفرنسية"], "Wa": "العربية"},
+    {"aW": "ما هي اللغة الرسمية لمصر？", "choices": ["العربية", "الإنجليزية", "الفرنسية"], "Wa": "العربية"},
     {"aW": "من هو مؤلف كتاب 'الجمهورية'؟", "choices": ["أفلاطون", "أرسطو", "سقراط"], "Wa": "أفلاطون"},
     {"aW": "ما هي عاصمة الهند؟", "choices": ["نيودلهي", "مومباي", "بنغالور"], "Wa": "نيودلهي"},
     {"aW": "كم عدد الكواكب في نظامنا الشمسي؟", "choices": ["8", "9", "10"], "Wa": "8"},
-    {"aW": "ما هو أطول جبل في العالم؟", "choices": ["إيفرست", "كيليمانجارو", "ماونت كينيا"], "Wa": "إيفرست"},
+    {"aW": "ما هو أطول جبل في العالم？", "choices": ["إيفرست", "كيليمانجارو", "ماونت كينيا"], "Wa": "إيفرست"},
     {"aW": "من هو مخترع التلفزيون؟", "choices": ["جون لوجي بيرد", "توماس إديسون", "نيكولا تسلا"], "Wa": "جون لوجي بيرد"},
 ]
 
@@ -238,6 +236,7 @@ GAME_TEXT = """**🎮 لعبة من سيربح المليون 🎮**
 
 • **المستوى:** {level}/{total}
 • **النتيجة:** {score} ✔️
+• **الوسائل المساعدة:** {help_used}/2
 
 ﹎﹎﹎﹎﹎﹎﹎﹎﹎﹎
 **• اختر إجابتك من الأزرار أدناه:**"""
@@ -248,7 +247,8 @@ WIN_TEXT = """**🎉 فوز! 🎉**
 • انتقلت إلى المستوى التالي
 
 • **المستوى:** {level}/{total}
-• **النتيجة:** {score} ✔️"""
+• **النتيجة:** {score} ✔️
+• **الوسائل المساعدة:** {help_used}/2"""
 
 LOSE_TEXT = """**❌ خسارة! ❌**
 
@@ -307,8 +307,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 "current": 0,
                 "score": 0,
                 "total": len(all_questions),
+                "help_used": 0,
+                "fifty_fifty_used": False,
+                "skip_used": False,
                 "message_id": None,
-                "chat_id": None
+                "chat_id": None,
+                "current_choices": None
             }
             
             # زر بدء اللعبة
@@ -321,7 +325,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [await event.builder.article(
                     title="🎮 لعبة من سيربح المليون",
                     description="اضغط لبدء اللعبة",
-                    text=GAME_TEXT.format(level=1, total=len(all_questions), score=0),
+                    text=GAME_TEXT.format(level=1, total=len(all_questions), score=0, help_used=0),
                     buttons=buttons,
                     link_preview=False,
                 )],
@@ -378,15 +382,25 @@ async def handle_answer(event):
         return
     
     question = session["questions"][question_index]
-    selected_choice = question["choices"][choice_index]
+    
+    # الحصول على الخيارات الحالية (قد تكون مختلفة بسبب 50/50)
+    current_choices = session.get("current_choices")
+    if current_choices:
+        selected_choice = current_choices[choice_index]
+    else:
+        selected_choice = question["choices"][choice_index]
     
     if selected_choice == question["Wa"]:
         session["score"] += 1
         session["current"] += 1
+        session["fifty_fifty_used"] = False
+        session["skip_used"] = False
+        session["current_choices"] = None
         
         current = session["current"]
         total = session["total"]
         score = session["score"]
+        help_used = session["help_used"]
         
         if current >= total:
             percent = int(score / total * 100)
@@ -398,7 +412,7 @@ async def handle_answer(event):
             del game_sessions[user_id]
         else:
             await event.edit(
-                WIN_TEXT.format(level=current+1, total=total, score=score),
+                WIN_TEXT.format(level=current+1, total=total, score=score, help_used=help_used),
                 buttons=[[Button.inline("➡️ التالي", data=f"next_question_{user_id}", style="primary")]],
                 parse_mode="Markdown"
             )
@@ -416,6 +430,109 @@ async def handle_answer(event):
             parse_mode="Markdown"
         )
         del game_sessions[user_id]
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fifty_fifty_(\\d+)_(\\d+)")))
+async def fifty_fifty_handler(event):
+    match = re.match(r"fifty_fifty_(\d+)_(\d+)", event.data.decode())
+    if not match:
+        return
+    
+    user_id = int(match.group(1))
+    question_index = int(match.group(2))
+    
+    if event.query.user_id != user_id:
+        await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
+        return
+    
+    session = game_sessions.get(user_id)
+    if not session:
+        await event.answer("❌ انتهت الجلسة!", alert=True)
+        return
+    
+    if session["help_used"] >= 2:
+        await event.answer("❌ لقد استنفذت جميع وسائل المساعدة!", alert=True)
+        return
+    
+    if session["fifty_fifty_used"]:
+        await event.answer("❌ لقد استخدمت هذه المساعدة بالفعل!", alert=True)
+        return
+    
+    if session["current"] != question_index:
+        await event.answer("⏳ هذا السؤال قديم!", alert=True)
+        return
+    
+    question = session["questions"][question_index]
+    correct = question["Wa"]
+    wrong_choices = [c for c in question["choices"] if c != correct]
+    random.shuffle(wrong_choices)
+    
+    # الاحتفاظ بالإجابة الصحيحة + إجابة خاطئة واحدة
+    remaining = [correct, wrong_choices[0]]
+    random.shuffle(remaining)
+    
+    session["current_choices"] = remaining
+    session["fifty_fifty_used"] = True
+    session["help_used"] += 1
+    
+    await send_question(event, user_id)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"skip_question_(\\d+)_(\\d+)")))
+async def skip_question_handler(event):
+    match = re.match(r"skip_question_(\d+)_(\d+)", event.data.decode())
+    if not match:
+        return
+    
+    user_id = int(match.group(1))
+    question_index = int(match.group(2))
+    
+    if event.query.user_id != user_id:
+        await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
+        return
+    
+    session = game_sessions.get(user_id)
+    if not session:
+        await event.answer("❌ انتهت الجلسة!", alert=True)
+        return
+    
+    if session["help_used"] >= 2:
+        await event.answer("❌ لقد استنفذت جميع وسائل المساعدة!", alert=True)
+        return
+    
+    if session["skip_used"]:
+        await event.answer("❌ لقد استخدمت هذه المساعدة بالفعل!", alert=True)
+        return
+    
+    if session["current"] != question_index:
+        await event.answer("⏳ هذا السؤال قديم!", alert=True)
+        return
+    
+    # تخطي السؤال (اعتباره صحيحاً)
+    session["score"] += 1
+    session["current"] += 1
+    session["skip_used"] = True
+    session["help_used"] += 1
+    session["current_choices"] = None
+    session["fifty_fifty_used"] = False
+    
+    current = session["current"]
+    total = session["total"]
+    score = session["score"]
+    help_used = session["help_used"]
+    
+    if current >= total:
+        percent = int(score / total * 100)
+        await event.edit(
+            END_TEXT.format(score=score, total=total, percent=percent),
+            buttons=[[Button.inline("🔄 العب مرة أخرى", data=f"restart_game_{user_id}", style="primary")]],
+            parse_mode="Markdown"
+        )
+        del game_sessions[user_id]
+    else:
+        await event.edit(
+            WIN_TEXT.format(level=current+1, total=total, score=score, help_used=help_used),
+            buttons=[[Button.inline("➡️ التالي", data=f"next_question_{user_id}", style="primary")]],
+            parse_mode="Markdown"
+        )
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"next_question_(\\d+)")))
 async def next_question(event):
@@ -456,8 +573,12 @@ async def restart_game(event):
         "current": 0,
         "score": 0,
         "total": len(all_questions),
+        "help_used": 0,
+        "fifty_fifty_used": False,
+        "skip_used": False,
         "message_id": event.message_id,
-        "chat_id": event.chat_id
+        "chat_id": event.chat_id,
+        "current_choices": None
     }
     
     await send_question(event, user_id)
@@ -466,10 +587,13 @@ async def restart_game(event):
 async def cancel_game(event):
     user_id = event.query.user_id
     
-    if user_id in game_sessions:
+    # التحقق من أن المستخدم هو صاحب الجلسة
+    session = game_sessions.get(user_id)
+    if session and session.get("chat_id") == event.chat_id:
         del game_sessions[user_id]
-    
-    await event.edit("❌ تم إلغاء اللعبة!", buttons=None, parse_mode="Markdown")
+        await event.edit("❌ تم إلغاء اللعبة!", buttons=None, parse_mode="Markdown")
+    else:
+        await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
 
 async def send_question(event, user_id):
     """إرسال السؤال الحالي"""
@@ -481,20 +605,59 @@ async def send_question(event, user_id):
     questions = session["questions"]
     total = session["total"]
     score = session["score"]
+    help_used = session["help_used"]
     
     question = questions[current]
-    choices = question["choices"]
     
-    buttons = [
-        [Button.inline(f"❶ {choices[0]}", data=f"answer_{user_id}_{current}_0", style="primary")],
-        [Button.inline(f"❷ {choices[1]}", data=f"answer_{user_id}_{current}_1", style="primary")],
-        [Button.inline(f"❸ {choices[2]}", data=f"answer_{user_id}_{current}_2", style="primary")],
-        [Button.inline("❌ إنهاء اللعبة", data="cancel_game", style="danger")]
-    ]
+    # الحصول على الخيارات (قد تكون مختلفة بسبب 50/50)
+    if session.get("current_choices"):
+        choices = session["current_choices"]
+    else:
+        choices = question["choices"]
+    
+    # إنشاء الأزرار (في صف واحد)
+    buttons_row = []
+    for i, choice in enumerate(choices):
+        emoji = ["❶", "❷", "❸"][i]
+        buttons_row.append(Button.inline(f"{emoji} {choice}", data=f"answer_{user_id}_{current}_{i}", style="primary"))
+    
+    buttons = [buttons_row]
+    
+    # إضافة أزرار المساعدة
+    help_buttons = []
+    if not session.get("fifty_fifty_used") and help_used < 2:
+        help_buttons.append(Button.inline("🎲 50/50", data=f"fifty_fifty_{user_id}_{current}", style="success"))
+    if not session.get("skip_used") and help_used < 2:
+        help_buttons.append(Button.inline("⏭️ تخطي", data=f"skip_question_{user_id}_{current}", style="success"))
+    
+    if help_buttons:
+        buttons.append(help_buttons)
+    
+    # زر إنهاء اللعبة
+    buttons.append([Button.inline("❌ إنهاء اللعبة", data=f"cancel_game_{user_id}", style="danger")])
     
     text = f"**❓ {question['aW']}**\n\n"
     text += f"• **المستوى:** {current + 1}/{total}\n"
-    text += f"• **النتيجة:** {score} ✔️\n\n"
+    text += f"• **النتيجة:** {score} ✔️\n"
+    text += f"• **الوسائل المساعدة:** {help_used}/2\n\n"
     text += f"• اختر إجابتك من الأزرار أدناه:"
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# زر إلغاء خاص بالمستخدم
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"cancel_game_(\\d+)")))
+async def cancel_game_user(event):
+    match = re.match(r"cancel_game_(\d+)", event.data.decode())
+    if not match:
+        return
+    
+    user_id = int(match.group(1))
+    
+    if event.query.user_id != user_id:
+        await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
+        return
+    
+    if user_id in game_sessions:
+        del game_sessions[user_id]
+    
+    await event.edit("❌ تم إلغاء اللعبة!", buttons=None, parse_mode="Markdown")

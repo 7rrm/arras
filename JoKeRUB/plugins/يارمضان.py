@@ -89,7 +89,6 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
-
 from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 from datetime import datetime
@@ -151,7 +150,7 @@ QUESTIONS = [
 
 # متغيرات اللعبة
 game_sessions = {}
-owner_id = l313l.uid  # ايدي المطور
+owner_id = l313l.uid
 
 # نصوص اللعبة
 GAME_TEXT = """**🎮 لعبة من سيربح المليون 🎮**
@@ -222,26 +221,23 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("المليون"):
-            # خلط الأسئلة
             all_questions = QUESTIONS.copy()
             random.shuffle(all_questions)
             
-            # تخزين جلسة اللعبة
             user_id = event.query.user_id
             game_sessions[user_id] = {
                 "questions": all_questions,
                 "current": 0,
                 "score": 0,
                 "total": len(all_questions),
-                "help_used": 0,
-                "fifty_fifty_used": False,
-                "skip_used": False,
+                "help_used": 0,          # عدد الوسائل المستخدمة
+                "skip_used": False,      # هل استخدم التخطي؟
+                "fifty_used": False,     # هل استخدم 50/50؟
                 "message_id": None,
                 "chat_id": None,
                 "current_choices": None
             }
             
-            # زر بدء اللعبة
             buttons = [
                 [Button.inline("🎮 ابدأ اللعبة", data=f"start_game_{user_id}", style="success")],
                 [Button.inline("❌ إلغاء", data="cancel_game", style="danger")]
@@ -304,12 +300,11 @@ async def handle_answer(event):
         return
     
     if session["current"] != question_index:
-        await event.answer("⏳ هذا السؤال قديم! انتظر السؤال الجديد", alert=True)
+        await event.answer("⏳ هذا السؤال قديم!", alert=True)
         return
     
     question = session["questions"][question_index]
     
-    # الحصول على الخيارات الحالية (قد تكون مختلفة بسبب 50/50)
     current_choices = session.get("current_choices")
     if current_choices:
         selected_choice = current_choices[choice_index]
@@ -319,9 +314,6 @@ async def handle_answer(event):
     if selected_choice == question["Wa"]:
         session["score"] += 1
         session["current"] += 1
-        # إعادة تعيين وسائل المساعدة للسؤال الجديد
-        session["fifty_fifty_used"] = False
-        session["skip_used"] = False
         session["current_choices"] = None
         
         current = session["current"]
@@ -356,6 +348,7 @@ async def handle_answer(event):
             ],
             parse_mode="Markdown"
         )
+        del game_sessions[user_id]
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"fifty_fifty_(\\d+)_(\\d+)")))
 async def fifty_fifty_handler(event):
@@ -375,11 +368,13 @@ async def fifty_fifty_handler(event):
         await event.answer("❌ انتهت الجلسة!", alert=True)
         return
     
+    # التحقق من أن الوسائل لم تنتهي (2 كحد أقصى)
     if session["help_used"] >= 2:
         await event.answer("❌ لقد استنفذت جميع وسائل المساعدة!", alert=True)
         return
     
-    if session["fifty_fifty_used"]:
+    # التحقق من عدم استخدام 50/50 مسبقاً
+    if session["fifty_used"]:
         await event.answer("❌ لقد استخدمت هذه المساعدة بالفعل!", alert=True)
         return
     
@@ -392,12 +387,11 @@ async def fifty_fifty_handler(event):
     wrong_choices = [c for c in question["choices"] if c != correct]
     random.shuffle(wrong_choices)
     
-    # الاحتفاظ بالإجابة الصحيحة + إجابة خاطئة واحدة
     remaining = [correct, wrong_choices[0]]
     random.shuffle(remaining)
     
     session["current_choices"] = remaining
-    session["fifty_fifty_used"] = True
+    session["fifty_used"] = True
     session["help_used"] += 1
     
     await send_question(event, user_id)
@@ -420,10 +414,12 @@ async def skip_question_handler(event):
         await event.answer("❌ انتهت الجلسة!", alert=True)
         return
     
+    # التحقق من أن الوسائل لم تنتهي
     if session["help_used"] >= 2:
         await event.answer("❌ لقد استنفذت جميع وسائل المساعدة!", alert=True)
         return
     
+    # التحقق من عدم استخدام التخطي مسبقاً
     if session["skip_used"]:
         await event.answer("❌ لقد استخدمت هذه المساعدة بالفعل!", alert=True)
         return
@@ -432,13 +428,12 @@ async def skip_question_handler(event):
         await event.answer("⏳ هذا السؤال قديم!", alert=True)
         return
     
-    # تخطي السؤال (اعتباره صحيحاً)
+    # تخطي السؤال واعتباره صحيحاً
     session["score"] += 1
     session["current"] += 1
     session["skip_used"] = True
     session["help_used"] += 1
     session["current_choices"] = None
-    session["fifty_fifty_used"] = False
     
     current = session["current"]
     total = session["total"]
@@ -500,8 +495,8 @@ async def restart_game(event):
         "score": 0,
         "total": len(all_questions),
         "help_used": 0,
-        "fifty_fifty_used": False,
         "skip_used": False,
+        "fifty_used": False,
         "message_id": event.message_id,
         "chat_id": event.chat_id,
         "current_choices": None
@@ -509,7 +504,6 @@ async def restart_game(event):
     
     await send_question(event, user_id)
 
-# إنهاء اللعبة بالقوة (للمطور فقط)
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"force_end_game_(\\d+)")))
 async def force_end_game(event):
     match = re.match(r"force_end_game_(\d+)", event.data.decode())
@@ -518,9 +512,8 @@ async def force_end_game(event):
     
     user_id = int(match.group(1))
     
-    # السماح للمطور أو صاحب الجلسة بإنهاء اللعبة
     if event.query.user_id != user_id and event.query.user_id != owner_id:
-        await event.answer("⚠️ هذه اللعبة ليست لك ولا يمكنك إنهائها!", alert=True)
+        await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
         return
     
     if user_id in game_sessions:
@@ -553,13 +546,12 @@ async def send_question(event, user_id):
     
     question = questions[current]
     
-    # الحصول على الخيارات (قد تكون مختلفة بسبب 50/50)
     if session.get("current_choices"):
         choices = session["current_choices"]
     else:
         choices = question["choices"]
     
-    # إنشاء الأزرار (في صف واحد)
+    # أزرار الخيارات
     buttons_row = []
     for i, choice in enumerate(choices):
         emoji = ["❶", "❷", "❸"][i]
@@ -567,17 +559,18 @@ async def send_question(event, user_id):
     
     buttons = [buttons_row]
     
-    # إضافة أزرار المساعدة (بشكل ‹ : تَخطـي : › & ‹ : حذف أجابـة : ›)
+    # أزرار المساعدة (تظهر فقط إذا لم تستخدم من قبل)
     help_buttons = []
-    if not session.get("skip_used") and help_used < 2:
+    # زر التخطي: يظهر إذا لم يستخدم التخطي مسبقاً
+    if not session["skip_used"] and help_used < 2:
         help_buttons.append(Button.inline("‹ : تَخطـي : ›", data=f"skip_question_{user_id}_{current}", style="success"))
-    if not session.get("fifty_fifty_used") and help_used < 2:
+    # زر حذف إجابة: يظهر إذا لم يستخدم 50/50 مسبقاً
+    if not session["fifty_used"] and help_used < 2:
         help_buttons.append(Button.inline("‹ : حذف أجابـة : ›", data=f"fifty_fifty_{user_id}_{current}", style="success"))
     
     if help_buttons:
         buttons.append(help_buttons)
     
-    # زر إنهاء اللعبة
     buttons.append([Button.inline("❌ إنهاء اللعبة", data=f"force_end_game_{user_id}", style="danger")])
     
     text = f"**❓ {question['aW']}**\n\n"

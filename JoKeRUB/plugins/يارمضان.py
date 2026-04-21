@@ -6,7 +6,7 @@ import asyncio
 from telethon import events
 plugin_category = "fun"
 #str 122939#المليون
-
+'''
     #تكدر تضيف بعد وره ال plus
 A_qq = [
     {"aW": "ما هو الحيوان الذي يمتلك أكبر عدد من الأسنان؟", "choices": ["التمساح", "القرش", "الفيل"], "Wa": "القرش"},
@@ -81,7 +81,7 @@ async def million(event):
             await response.reply("🎉 صحيح! إجابتك صحيحة.")
         else:
             await response.reply(f"❌ خطأ! الإجابة الصحيحة هي: {aW['Wa']}")
-
+'''
 Io = [
     "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ - البقرة 153",
     "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ - النحل 127",

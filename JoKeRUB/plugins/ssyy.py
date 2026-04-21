@@ -1349,7 +1349,7 @@ async def download_video_with_api(event):
     if not msg:
         return await event.edit("**- قـم بادخــال رابط مع الامر او بالــرد ع رابط ليتـم التحميل**")
     
-    API_KEY = "37829bae-8a86-4b31-8e7d-0f3f9d82a638"
+    API_KEY = "60177503-3647-4d6c-be9c-cd0b47a80a6b"
     api_url = f"https://muntazer.online/all/{API_KEY}={msg}"
     
     # تعديل الرسالة إلى "جاري التحميل"

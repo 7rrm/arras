@@ -89,6 +89,7 @@ async def emoji_race(event):
     Wi = await l313l.get_entity(response.sender_id)
     await response.reply(f"🎉 مبروك [{Wi.first_name}](tg://user?id={Wi.id}) \n- ثواني: {int(time_taken)} !!", parse_mode="md")
 
+
 from JoKeRUB import l313l
 from ..core.managers import edit_or_reply
 from datetime import datetime
@@ -121,7 +122,7 @@ QUESTIONS = [
     {"aW": "ما هي أصغر دولة في العالم؟", "choices": ["الفاتيكان", "موناكو", "ناورو"], "Wa": "الفاتيكان"},
     {"aW": "من هو مؤلف مسرحية 'هاملت'؟", "choices": ["ويليام شكسبير", "سوفوكليس", "موليير"], "Wa": "ويليام شكسبير"},
     {"aW": "ما هو الكوكب الأصغر في المجموعة الشمسية؟", "choices": ["عطارد", "بلوتو", "المريخ"], "Wa": "عطارد"},
-    {"aW": "من هو مؤلف رواية 'الحرب والسلام'？", "choices": ["ليو تولستوي", "فيودور دوستويفسكي", "أنطون تشيخوف"], "Wa": "ليو تولستوي"},
+    {"aW": "من هو مؤلف رواية 'الحرب والسلام'؟", "choices": ["ليو تولستوي", "فيودور دوستويفسكي", "أنطون تشيخوف"], "Wa": "ليو تولستوي"},
     {"aW": "ما هو أقدم جامعة في العالم؟", "choices": ["جامعة القرويين", "جامعة بولونيا", "جامعة أكسفورد"], "Wa": "جامعة القرويين"},
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'O'؟", "choices": ["أكسجين", "أوزون", "أوسميوم"], "Wa": "أكسجين"},
     {"aW": "ما هي عملة اليابان؟", "choices": ["الين", "الوون", "اليوان"], "Wa": "الين"},
@@ -129,7 +130,7 @@ QUESTIONS = [
     {"aW": "ما هو الحيوان الوطني لأستراليا؟", "choices": ["الكنغر", "الكوالا", "الإيمو"], "Wa": "الكنغر"},
     {"aW": "ما هي أكبر دولة في أفريقيا من حيث المساحة؟", "choices": ["الجزائر", "السودان", "ليبيا"], "Wa": "الجزائر"},
     {"aW": "ما هو أطول نفق في العالم؟", "choices": ["نفق سانت غوتارد", "نفق سيكان", "نفق لوشبرغ"], "Wa": "نفق سانت غوتارد"},
-    {"aW": "ما هي أكبر جزيرة في العالم？", "choices": ["غرينلاند", "نيو غينيا", "بورنيو"], "Wa": "غرينلاند"},
+    {"aW": "ما هي أكبر جزيرة في العالم؟", "choices": ["غرينلاند", "نيو غينيا", "بورنيو"], "Wa": "غرينلاند"},
     {"aW": "من هو مؤلف كتاب 'الأمير'؟", "choices": ["نيكولو مكيافيلي", "توماس هوبز", "جون لوك"], "Wa": "نيكولو مكيافيلي"},
     {"aW": "من هو مخترع الراديو؟", "choices": ["غوليلمو ماركوني", "نيكولا تسلا", "ألكسندر جراهام بيل"], "Wa": "غوليلمو ماركوني"},
     {"aW": "ما هي عاصمة كندا؟", "choices": ["أوتاوا", "تورونتو", "مونتريال"], "Wa": "أوتاوا"},
@@ -140,17 +141,17 @@ QUESTIONS = [
     {"aW": "ما هو العنصر الكيميائي الذي يرمز له بـ 'Fe'؟", "choices": ["الحديد", "الفلور", "الفرانسيوم"], "Wa": "الحديد"},
     {"aW": "ما هي عاصمة جنوب أفريقيا؟", "choices": ["بريتوريا", "كيب تاون", "جوهانسبرغ"], "Wa": "بريتوريا"},
     {"aW": "ما هو الحيوان الذي يعيش أطول عمراً؟", "choices": ["السلحفاة", "الفيل", "الببغاء"], "Wa": "السلحفاة"},
-    {"aW": "ما هي اللغة الرسمية لمصر？", "choices": ["العربية", "الإنجليزية", "الفرنسية"], "Wa": "العربية"},
+    {"aW": "ما هي اللغة الرسمية لمصر؟", "choices": ["العربية", "الإنجليزية", "الفرنسية"], "Wa": "العربية"},
     {"aW": "من هو مؤلف كتاب 'الجمهورية'؟", "choices": ["أفلاطون", "أرسطو", "سقراط"], "Wa": "أفلاطون"},
     {"aW": "ما هي عاصمة الهند؟", "choices": ["نيودلهي", "مومباي", "بنغالور"], "Wa": "نيودلهي"},
     {"aW": "كم عدد الكواكب في نظامنا الشمسي؟", "choices": ["8", "9", "10"], "Wa": "8"},
     {"aW": "ما هو أطول جبل في العالم؟", "choices": ["إيفرست", "كيليمانجارو", "ماونت كينيا"], "Wa": "إيفرست"},
-    {"aW": "من هو مخترع التلفزيون？", "choices": ["جون لوجي بيرد", "توماس إديسون", "نيكولا تسلا"], "Wa": "جون لوجي بيرد"},
+    {"aW": "من هو مخترع التلفزيون؟", "choices": ["جون لوجي بيرد", "توماس إديسون", "نيكولا تسلا"], "Wa": "جون لوجي بيرد"},
 ]
 
 # متغيرات اللعبة
 game_sessions = {}
-owner_id = l313l.uid  # ايدي المطور
+owner_id = l313l.uid
 
 # نصوص اللعبة
 GAME_TEXT = """**🎮 لعبة من سيربح المليون 🎮**
@@ -221,13 +222,6 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("المليون"):
-            all_questions = QUESTIONS.copy()
-            random.shuffle(all_questions)
-            
-            # اللاعب هو من يضغط على الزر (وليس من كتب الأمر)
-            # سيتم تعيين اللاعب عند الضغط على "ابدأ اللعبة"
-            
-            # زر بدء اللعبة (سيتم تعيين اللاعب عند الضغط)
             buttons = [
                 [Button.inline("🎮 ابدأ اللعبة", data="ready_to_start", style="success")],
                 [Button.inline("❌ إلغاء", data="cancel_game", style="danger")]
@@ -250,10 +244,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"ready_to_start")))
 async def ready_to_start(event):
-    """عند الضغط على زر بدء اللعبة - يبدأ اللعب مع الشخص الذي ضغط"""
-    user_id = event.query.user_id  # اللاعب هو من ضغط على الزر
+    """عند الضغط على زر بدء اللعبة"""
+    user_id = event.query.user_id
     
-    # إنشاء جلسة جديدة للاعب
     all_questions = QUESTIONS.copy()
     random.shuffle(all_questions)
     
@@ -282,7 +275,6 @@ async def handle_answer(event):
     question_index = int(match.group(2))
     choice_index = int(match.group(3))
     
-    # التحقق من أن اللاعب هو من يلعب
     if event.query.user_id != user_id:
         await event.answer("⚠️ هذه اللعبة ليست لك!", alert=True)
         return
@@ -293,7 +285,7 @@ async def handle_answer(event):
         return
     
     if session["current"] != question_index:
-        await event.answer("⏳ هذا السؤال قديم! انتظر السؤال الجديد", alert=True)
+        await event.answer("⏳ هذا السؤال قديم!", alert=True)
         return
     
     question = session["questions"][question_index]
@@ -325,7 +317,7 @@ async def handle_answer(event):
         else:
             await event.edit(
                 WIN_TEXT.format(level=current+1, total=total, score=score, help_used=help_used),
-                buttons=[[Button.inline("➡️ التالي", data=f"next_question_{user_id}", style="primary")]],
+                buttons=[[Button.inline("‹ : ➡️ التَالـي : ›", data=f"next_question_{user_id}", style="primary")]],
                 parse_mode="Markdown"
             )
     else:
@@ -337,7 +329,7 @@ async def handle_answer(event):
             LOSE_TEXT.format(correct=question["Wa"], level=current+1, total=total, score=score),
             buttons=[
                 [Button.inline("🔄 العب مرة أخرى", data=f"restart_game_{user_id}", style="primary")],
-                [Button.inline("❌ إنهاء", data=f"force_end_game_{user_id}", style="danger")]
+                [Button.inline("‹ : ❌ إنهاء اللعبـة : ›", data=f"force_end_game_{user_id}", style="danger")]
             ],
             parse_mode="Markdown"
         )
@@ -432,14 +424,14 @@ async def skip_question_handler(event):
         percent = int(score / total * 100)
         await event.edit(
             END_TEXT.format(score=score, total=total, percent=percent),
-            buttons=[[Button.inline("‹ : 🔄 العب مرة أخرى : ›", data=f"restart_game_{user_id}", style="primary")]],
+            buttons=[[Button.inline("🔄 العب مرة أخرى", data=f"restart_game_{user_id}", style="primary")]],
             parse_mode="Markdown"
         )
         del game_sessions[user_id]
     else:
         await event.edit(
             WIN_TEXT.format(level=current+1, total=total, score=score, help_used=help_used),
-            buttons=[[Button.inline("‹ : التَالـي ➡️ : ›", data=f"next_question_{user_id}", style="primary")]],
+            buttons=[[Button.inline("‹ : ➡️ التَالـي : ›", data=f"next_question_{user_id}", style="primary")]],
             parse_mode="Markdown"
         )
 
@@ -499,10 +491,11 @@ async def force_end_game(event):
         return
     
     user_id = int(match.group(1))
+    current_user = event.query.user_id
     
-    # ✅ المطور فقط لديه صلاحية إنهاء أي لعبة
-    if event.query.user_id != owner_id:
-        await event.answer("⚠️ فقط المطور لديه صلاحية إنهاء اللعبة!", alert=True)
+    # اللاعب ينهي لعبته الخاصة أو المطور ينهي أي لعبة
+    if current_user != user_id and current_user != owner_id:
+        await event.answer("⚠️ هذه اللعبة ليست لك ولا يمكنك إنهائها!", alert=True)
         return
     
     if user_id in game_sessions:
@@ -556,7 +549,7 @@ async def send_question(event, user_id):
     if help_buttons:
         buttons.append(help_buttons)
     
-    buttons.append([Button.inline("‹ : ❌ إنهاء اللعبة : ›", data=f"force_end_game_{user_id}", style="danger")])
+    buttons.append([Button.inline("‹ : ❌ إنهاء اللعبـة : ›", data=f"force_end_game_{user_id}", style="danger")])
     
     text = f"**❓ {question['aW']}**\n\n"
     text += f"• **المستوى:** {current + 1}/{total}\n"

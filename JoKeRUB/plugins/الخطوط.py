@@ -86,28 +86,36 @@ async def disable_decorative(event):
         await edit_delete(event, "**⎉╎خط المزخرف معطل مسبقاً ✓**", 1)
     update_cache()
 
-# ========== فحص سريع للإيموجي البريميوم ==========
-def has_premium_emoji(text):
-    """أسرع فحص للإيموجي البريميوم"""
-    for ch in text:
-        if ord(ch) >= 0x10000:
+# ========== الطريقة الصحيحة لفحص الإيموجي البريميوم (من الـ entities) ==========
+def has_premium_emoji(message):
+    """
+    فحص وجود إيموجي بريميوم من خلال الـ entities
+    هذه الطريقة أدق وأسرع من فحص الـ Unicode
+    """
+    if not message.entities:
+        return False
+    
+    for entity in message.entities:
+        if isinstance(entity, types.MessageEntityCustomEmoji):
             return True
     return False
 
-# ========== معالج واحد فقط لجميع الخطوط ==========
+# ========== معالج واحد فقط لجميع الخطوط (أسرع) ==========
 @l313l.on(events.NewMessage(outgoing=True))
 async def fast_formatting_handler(event):
     msg = event.message
+    
+    # فحوصات سريعة أولاً
     if not msg.text or msg.media or msg.text.startswith('.'):
         return
     
+    # فحص الإيموجي البريميوم من الـ entities (دقيق وسريع)
+    if has_premium_emoji(msg):
+        return  # يوجد إيموجي بريميوم -> لا نعدل أي شيء
+    
     text = msg.text
     
-    # فحص سريع للإيموجي البريميوم
-    if has_premium_emoji(text):
-        return
-    
-    # الخطوط العادية
+    # استخدام الكاش بدلاً من استدعاء قاعدة البيانات
     if _status_cache["bold"]:
         await event.edit(f"**{text}**")
     elif _status_cache["tshwesh"]:

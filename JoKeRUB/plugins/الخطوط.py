@@ -3,7 +3,23 @@ from JoKeRUB import l313l
 from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.managers import edit_delete
 from telethon.extensions import html
-import re
+
+# ========== تخزين مؤقت للحالات (ذاكرة مؤقتة) ==========
+_status_cache = {
+    "bold": False,
+    "tshwesh": False,
+    "ramz": False,
+    "joker": False,
+    "decorative_line": False
+}
+
+def update_cache():
+    """تحديث الذاكرة المؤقتة بقاعدة البيانات"""
+    _status_cache["bold"] = bool(gvarstatus("bold"))
+    _status_cache["tshwesh"] = bool(gvarstatus("tshwesh"))
+    _status_cache["ramz"] = bool(gvarstatus("ramz"))
+    _status_cache["joker"] = bool(gvarstatus("joker"))
+    _status_cache["decorative_line"] = bool(gvarstatus("decorative_line"))
 
 # ========== أوامر التحكم السريعة ==========
 @l313l.on(admin_cmd(pattern="(خط الغامق|خط غامق)"))
@@ -15,6 +31,7 @@ async def bold_toggle(event):
     else:
         delgvar(key)
         await edit_delete(event, "**᯽︙ تم إيقاف خط الغامق ✓**", 1)
+    update_cache()
 
 @l313l.on(admin_cmd(pattern="(خط المشطوب|خط مشطوب)"))
 async def strikethrough_toggle(event):
@@ -25,6 +42,7 @@ async def strikethrough_toggle(event):
     else:
         delgvar(key)
         await edit_delete(event, "**᯽︙ تم إيقاف خط المشطوب ✓**", 1)
+    update_cache()
 
 @l313l.on(admin_cmd(pattern="(خط رمز|خط الرمز)"))
 async def monospace_toggle(event):
@@ -35,6 +53,7 @@ async def monospace_toggle(event):
     else:
         delgvar(key)
         await edit_delete(event, "**᯽︙ تم إيقاف خط الرمز ✓**", 1)
+    update_cache()
 
 @l313l.on(admin_cmd(pattern="(خط الجوكر|خط جوكر)"))
 async def joker_toggle(event):
@@ -45,6 +64,7 @@ async def joker_toggle(event):
     else:
         delgvar(key)
         await edit_delete(event, "**᯽︙ تم إيقاف خط الجوكر ✓**", 1)
+    update_cache()
 
 @l313l.on(admin_cmd(pattern="(خط مزخرف|تفعيل خط مزخرف)"))
 async def enable_decorative(event):
@@ -54,6 +74,7 @@ async def enable_decorative(event):
         await edit_delete(event, "**⎉╎تم تفعيل خط المزخرف مع التشويش ✓**", 1)
     else:
         await edit_delete(event, "**⎉╎خط المزخرف مفعل مسبقاً ✓**", 1)
+    update_cache()
 
 @l313l.on(admin_cmd(pattern="(تعطيل خط مزخرف|إيقاف خط مزخرف)"))
 async def disable_decorative(event):
@@ -63,74 +84,49 @@ async def disable_decorative(event):
         await edit_delete(event, "**⎉╎تم تعطيل خط المزخرف ✓**", 1)
     else:
         await edit_delete(event, "**⎉╎خط المزخرف معطل مسبقاً ✓**", 1)
+    update_cache()
 
-# ========== دالة للتحقق من وجود إيموجي بريميوم ==========
+# ========== تحسين السرعة: تجميع الشرط في دالة واحدة سريعة ==========
 def has_premium_emoji(text):
-    """
-    التحقق من وجود إيموجي بريميوم في النص
-    الإيموجي البريميوم يبدأ غالباً بـ \U00010000 إلى \U0010FFFF
-    """
-    for char in text:
-        if ord(char) >= 0x10000:  # رموز بريميوم أو إيموجيات مركبة
+    """أسرع فحص للإيموجي البريميوم"""
+    # أسرع طريقة: فحص أول 50 حرف فقط (معظم النصوص قصيرة)
+    for i, char in enumerate(text):
+        if i > 50:  # حد أقصى للفحص
+            return False
+        if ord(char) >= 0x10000:
             return True
     return False
 
-# ========== المعالج السريع للخطوط العادية ==========
+# ========== معالج واحد فقط لجميع الخطوط (أسرع) ==========
 @l313l.on(events.NewMessage(outgoing=True))
-async def fast_text_formatting(event):
-    if not event.message.text or event.message.media or event.message.text.startswith('.'):
+async def fast_formatting_handler(event):
+    # أسرع الفحوصات أولاً
+    msg = event.message
+    if not msg.text or msg.media or msg.text.startswith('.'):
         return
     
-    text = event.message.text
+    text = msg.text
     
-    # إذا كان النص يحتوي على إيموجي بريميوم، لا تفعل شيء
-    if has_premium_emoji(text):
-        return
+    # فحص سريع للإيموجي البريميوم
+    for ch in text:
+        if ord(ch) >= 0x10000:
+            return  # يوجد إيموجي بريميوم -> اخرج فوراً
     
-    # الخطوط العادية (سريعة)
-    if gvarstatus("bold"):
+    # استخدام الكاش بدلاً من استدعاء قاعدة البيانات
+    if _status_cache["bold"]:
         await event.edit(f"**{text}**")
-    elif gvarstatus("tshwesh"):
+    elif _status_cache["tshwesh"]:
         await event.edit(f"~~{text}~~")
-    elif gvarstatus("ramz"):
+    elif _status_cache["ramz"]:
         await event.edit(f"`{text}`")
-    elif gvarstatus("joker"):
+    elif _status_cache["joker"]:
         await event.edit(f"```{text}```")
+    elif _status_cache["decorative_line"]:
+        # خط مزخرف سريع (مباشر بدون html.parse)
+        try:
+            await event.edit(f'<a href="emoji/5447181973544008180">✨</a> <a href="spoiler">{text}</a> <a href="emoji/5447389832781264371">✨</a>', parse_mode='html')
+        except:
+            pass
 
-# ========== معالج الخط المزخرف (كما كان قبل التعديل) ==========
-@l313l.on(events.NewMessage(outgoing=True))
-async def decorative_line_handler(event):
-    if not event.message.text or event.message.media or event.message.text.startswith('.'):
-        return
-    
-    if not gvarstatus("decorative_line"):
-        return
-    
-    # إذا كان أحد الخطوط العادية مفعل، لا تشتغل
-    if gvarstatus("bold") or gvarstatus("tshwesh") or gvarstatus("ramz") or gvarstatus("joker"):
-        return
-    
-    text = event.message.text
-    
-    # إذا كان النص يحتوي على إيموجي بريميوم، لا تفعل شيء
-    if has_premium_emoji(text):
-        return
-    
-    # خط مزخرف بنفس الطريقة القديمة
-    decorated = f'<a href="emoji/5447181973544008180">✨</a> <a href="spoiler">{text}</a> <a href="emoji/5447389832781264371">✨</a>'
-    
-    try:
-        parsed_text, entities = html.parse(decorated)
-        
-        # تحويل entities
-        for i, e in enumerate(entities):
-            if isinstance(e, types.MessageEntityTextUrl):
-                if e.url == 'spoiler':
-                    entities[i] = types.MessageEntitySpoiler(e.offset, e.length)
-                elif e.url.startswith('emoji/'):
-                    emoji_id = int(e.url.split('/')[1])
-                    entities[i] = types.MessageEntityCustomEmoji(e.offset, e.length, emoji_id)
-        
-        await event.edit(parsed_text, parse_mode=None, formatting_entities=entities)
-    except Exception as e:
-        print(f"خطأ في المزخرف: {e}")
+# تحديث الكاش عند بدء التشغيل
+update_cache()

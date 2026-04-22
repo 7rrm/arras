@@ -130,6 +130,7 @@ async def telegraph_media(event):
                     await jokevent.edit(
                         f"**⌔︙الـرابـط :** [اضغـط هنـا]({telegraph_link})\n"
                         f"**⌔︙الـوقـت :** `{ms} ثـانيـة`",
+                        link_preview=True,
                     )
                     return
                 else:

@@ -85,14 +85,9 @@ async def telegraph_text(event):
 @l313l.ar_cmd(
     pattern="تلكراف ميديا$",
     command=("تلكراف ميديا", plugin_category),
-    info={
-        "header": "رفع الصور إلى Telegraph",
-        "description": "الرد على صورة لرفعها إلى Telegra.ph عبر البوت",
-        "usage": ["{tr}تلكراف ميديا"],
-    },
 )
 async def telegraph_media(event):
-    """رفع الصورة إلى Telegraph عبر @vTelegraphBot"""
+    """رفع الصورة إلى Telegraph عبر @vTelegraphBot بدون تحميل"""
     jokevent = await edit_or_reply(event, "⌔︙جـار رفع الصورة إلى تلكراف...")
     
     if not event.reply_to_msg_id:
@@ -109,8 +104,8 @@ async def telegraph_media(event):
     try:
         async with event.client.conversation(bot_username, timeout=30) as conv:
             try:
-                # إرسال الصورة للبوت
-                await conv.send_message(r_message.media)
+                # إرسال الصورة مباشرة باستخدام photo (وليس media)
+                await conv.send_message(r_message.photo)
                 
                 # انتظار الرد الأول (الرسالة التي فيها الزر)
                 response1 = await conv.get_response()
@@ -124,6 +119,7 @@ async def telegraph_media(event):
                     
                     # استخراج رابط Telegraph
                     if response2.text and "telegra.ph" in response2.text:
+                        import re
                         urls = re.findall(r'https?://telegra\.ph/\S+', response2.text)
                         if urls:
                             telegraph_link = urls[0]

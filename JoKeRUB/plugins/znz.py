@@ -26,20 +26,17 @@ LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
 scc = "secret"
-hmm = "همسـة"
+hmm = "همسـة لـ"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسة سرية 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسة لـ**"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسة سرية 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ ارسال همسة سرية الى**"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
 ddd = "💌"
 bbb = None
-
-# الصورة الافتراضية في حال عدم وجود صورة للمستخدم
-DEFAULT_THUMB = "https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -73,7 +70,6 @@ async def inline_handler(event):
         if match2:
             user_list = []
             zilzal = ""
-            photo_url = None  # متغير لتخزين صورة المستخدم
             query = query[7:]
             info_type = [hmm, ymm, fmm]
             if "|" in query:
@@ -88,15 +84,6 @@ async def inline_handler(event):
                     u = await l313l.get_entity(usr)
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
-                
-                # جلب صورة المستخدم
-                try:
-                    user_photo = await l313l.get_profile_photos(u, limit=1)
-                    if user_photo:
-                        photo_url = user_photo[0].sizes[-1].url if hasattr(user_photo[0].sizes[-1], 'url') else None
-                except Exception:
-                    photo_url = None
-                
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
@@ -114,23 +101,12 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            
-            # تعريف الصورة المصغرة (صورة المستخدم أو الافتراضية)
-            if photo_url:
-                thumb = InputWebDocument(
-                    url=photo_url,
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            else:
-                thumb = InputWebDocument(
-                    url=DEFAULT_THUMB,
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            
+            thumb = InputWebDocument(
+                url="https://graph.org/file/9caea5f0ee853f9402891-20a7c59706b89648b2.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -167,7 +143,6 @@ async def inline_handler(event):
         if match2:
             user_list = []
             zilzal = ""
-            photo_url = None  # متغير لتخزين صورة المستخدم
             query = query[7:]
             info_type = [hmm, ymm, fmm]
             if "|" in query:
@@ -182,15 +157,6 @@ async def inline_handler(event):
                     u = await l313l.get_entity(usr)
                 except ValueError:
                     u = await l313l(GetUsersRequest(usr))
-                
-                # جلب صورة المستخدم
-                try:
-                    user_photo = await l313l.get_profile_photos(u, limit=1)
-                    if user_photo:
-                        photo_url = user_photo[0].sizes[-1].url if hasattr(user_photo[0].sizes[-1], 'url') else None
-                except Exception:
-                    photo_url = None
-                
                 if u.username:
                     zilzal += f"@{u.username}"
                 else:
@@ -208,27 +174,16 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            
-            # تعريف الصورة المصغرة (صورة المستخدم أو الافتراضية)
-            if photo_url:
-                thumb = InputWebDocument(
-                    url=photo_url,
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            else:
-                thumb = InputWebDocument(
-                    url=DEFAULT_THUMB,
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            
+            thumb = InputWebDocument(
+                url="https://graph.org/file/9caea5f0ee853f9402891-20a7c59706b89648b2.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
                 thumb=thumb,

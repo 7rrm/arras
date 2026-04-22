@@ -102,7 +102,7 @@ async def inline_handler(event):
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             thumb = InputWebDocument(
-                url="https://graph.org/file/9caea5f0ee853f9402891-20a7c59706b89648b2.jpg",
+                url="https://graph.org/file/3ca3c5a3af45fe4912d43-d1633d0d3f8f2f0a8c.jpg",
                 size=0,
                 mime_type="image/jpeg",
                 attributes=[]
@@ -175,7 +175,7 @@ async def inline_handler(event):
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             thumb = InputWebDocument(
-                url="https://graph.org/file/9caea5f0ee853f9402891-20a7c59706b89648b2.jpg",
+                url="https://graph.org/file/3ca3c5a3af45fe4912d43-d1633d0d3f8f2f0a8c.jpg",
                 size=0,
                 mime_type="image/jpeg",
                 attributes=[]

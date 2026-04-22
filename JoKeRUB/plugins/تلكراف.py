@@ -11,6 +11,7 @@ from telethon.utils import get_display_name
 from telethon.errors import YouBlockedUserError
 from JoKeRUB import l313l
 from ..Config import Config
+from ..helpers.functions import delete_conv
 from ..core.logger import logging
 from ..core.managers import edit_or_reply
 from . import BOTLOG, BOTLOG_CHATID

@@ -1,12 +1,27 @@
+import os
 import random
 import string
+import asyncio
+import re
+import requests
 from datetime import datetime
+from PIL import Image
+from telegraph import Telegraph, exceptions
 from telethon.utils import get_display_name
-from telegraph import Telegraph
+from telethon.errors import YouBlockedUserError
+from JoKeRUB import l313l
+from ..Config import Config
+from ..core.logger import logging
+from ..core.managers import edit_or_reply
+from . import BOTLOG, BOTLOG_CHATID
+
+LOGS = logging.getLogger(__name__)
+plugin_category = "utils"
 
 telegraph = Telegraph()
 telegraph.create_account(short_name=Config.TELEGRAPH_SHORT_NAME)
 
+# ==================== أمر تلكراف نص ====================
 @l313l.ar_cmd(
     pattern="تلكراف نص(?:\s|$)([\s\S]*)",
     command=("تلكراف نص", plugin_category),
@@ -32,8 +47,8 @@ async def telegraph_text(event):
     user_object = await event.client.get_entity(r_message.sender_id)
     title_of_page = get_display_name(user_object)
     
-    if optional_title:
-        title_of_page = optional_title
+    if optional_title and optional_title.strip():
+        title_of_page = optional_title.strip()
     
     # محتوى الصفحة
     page_content = r_message.message
@@ -66,12 +81,7 @@ async def telegraph_text(event):
     )
 
 
-
-import asyncio
-import re
-from datetime import datetime
-from telethon.errors import YouBlockedUserError
-
+# ==================== أمر تلكراف ميديا ====================
 @l313l.ar_cmd(
     pattern="تلكراف ميديا$",
     command=("تلكراف ميديا", plugin_category),

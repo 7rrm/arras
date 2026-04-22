@@ -177,9 +177,10 @@ async def inline_handler(event):
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n{dss}",
+                text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:

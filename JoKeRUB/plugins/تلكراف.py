@@ -87,7 +87,7 @@ async def telegraph_text(event):
     command=("تلكراف ميديا", plugin_category),
 )
 async def telegraph_media(event):
-    """رفع الصورة إلى Telegraph عبر @vTelegraphBot بدون تحميل"""
+    """رفع الصورة إلى Telegraph عبر @vTelegraphBot"""
     jokevent = await edit_or_reply(event, "⌔︙جـار رفع الصورة إلى تلكراف...")
     
     if not event.reply_to_msg_id:
@@ -104,8 +104,8 @@ async def telegraph_media(event):
     try:
         async with event.client.conversation(bot_username, timeout=30) as conv:
             try:
-                # إرسال الصورة مباشرة باستخدام photo (وليس media)
-                await conv.send_message(r_message.photo)
+                # ✅ الطريقة الصحيحة: استخدام send_file
+                await conv.send_file(r_message.media)
                 
                 # انتظار الرد الأول (الرسالة التي فيها الزر)
                 response1 = await conv.get_response()

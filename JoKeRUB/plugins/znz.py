@@ -174,6 +174,12 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
+            thumb = InputWebDocument(
+                url="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",

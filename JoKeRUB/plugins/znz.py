@@ -106,6 +106,7 @@ async def inline_handler(event):
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                thumb="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
             )
             await event.answer([result] if result else None)
             if jsondata:

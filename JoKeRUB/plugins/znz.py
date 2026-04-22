@@ -99,15 +99,14 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            result = builder.article(
+            result = builder.document(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
-                link_preview=False,
+                file="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
                 thumb="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
-            )
+                )
             await event.answer([result] if result else None)
             if jsondata:
                 jsondata.update(new_msg)

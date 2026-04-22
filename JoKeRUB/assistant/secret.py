@@ -67,7 +67,7 @@ async def on_plug_in_callback_query_handler(event):
                     
                     new_text = f'''\
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji> <b> تم قراءة الهمسـة </b>
-<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>قــرأهـا</b> <tg-emoji emoji-id="5287782852287557349">📨</tg-emoji>{receiver_name}</b> <tg-emoji emoji-id="5290004119178734919">✅</tg-emoji>
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>قــرأهـا</b> <tg-emoji emoji-id="5290004119178734919">📨</tg-emoji>{receiver_name}</b> <tg-emoji emoji-id="5287782852287557349">✅</tg-emoji>
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>عَـند</b> <code>{time_str}</code> . </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
                     
                     # زر الرد يرسل همسة للمرسل الأصلي

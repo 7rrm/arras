@@ -26,7 +26,7 @@ LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
 scc = "secret"
-hmm = "همسـة"
+hmm = "همسـة لـ"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"

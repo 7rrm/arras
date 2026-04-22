@@ -12,6 +12,7 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
+from telethon.tl.types import InputWebDocument
 
 from . import l313l
 from ..Config import Config
@@ -100,13 +101,19 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            result = builder.document(
+            thumb = InputWebDocument(
+                url="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
+            result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
-                file="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
-                thumb="https://graph.org/file/e32c1bfc6a8cc56c10b3a-c264edc557d99acb70.jpg",
+                link_preview=False,
+                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:

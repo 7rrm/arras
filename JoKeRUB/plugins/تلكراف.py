@@ -104,7 +104,7 @@ async def telegraph_media(event):
     try:
         async with event.client.conversation(bot_username, timeout=30) as conv:
             try:
-                # ✅ الطريقة الصحيحة: استخدام send_file
+                # إرسال الصورة للبوت
                 await conv.send_file(r_message.media)
                 
                 # انتظار الرد الأول (الرسالة التي فيها الزر)
@@ -114,27 +114,21 @@ async def telegraph_media(event):
                 if response1.buttons:
                     await response1.click(0)
                     
-                    # انتظار الرد بعد الضغط (رابط Telegraph)
+                    # ✅ جلب الرابط (الرسالة بعد الضغط على الزر)
                     response2 = await conv.get_response()
                     
-                    # استخراج رابط Telegraph
-                    if response2.text and "telegra.ph" in response2.text:
-                        import re
-                        urls = re.findall(r'https?://telegra\.ph/\S+', response2.text)
-                        if urls:
-                            telegraph_link = urls[0]
-                            
-                            end = datetime.now()
-                            ms = (end - start).seconds
-                            
-                            await jokevent.edit(
-                                f"**⌔︙الـرابـط :** [اضغـط هنـا]({telegraph_link})\n"
-                                f"**⌔︙الـوقـت :** `{ms} ثـانيـة`",
-                                link_preview=False,
-                            )
-                            return
+                    # الرابط موجود مباشرة في response2.text
+                    telegraph_link = response2.text.strip()
                     
-                    await jokevent.edit(f"**⌔︙لم أجد رابطاً في رد البوت**")
+                    end = datetime.now()
+                    ms = (end - start).seconds
+                    
+                    await jokevent.edit(
+                        f"**⌔︙الـرابـط :** [اضغـط هنـا]({telegraph_link})\n"
+                        f"**⌔︙الـوقـت :** `{ms} ثـانيـة`",
+                        link_preview=False,
+                    )
+                    return
                 else:
                     await jokevent.edit("**⌔︙لم أجد زراً في رد البوت**")
                     

@@ -133,7 +133,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                 if s_msg and s_msg.media:
                     caption = (
                         f"<blockquote>"
-                        f"<b>✅ تم التحميل بنجاح</b>"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
                         f'<tg-emoji emoji-id="5890831539507302154">🎵</tg-emoji>'
                         f"</blockquote>"
                     )
@@ -211,7 +211,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                 if s_msg and s_msg.media:
                     caption = (
                         f"<blockquote>"
-                        f"<b>✅ تم التحميل بنجاح</b>"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
                         f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
                         f"</blockquote>"
                     )

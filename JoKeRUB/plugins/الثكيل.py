@@ -24,110 +24,88 @@ import re
 from telethon import events
 from JoKeRUB import l313l
 
-# تعريف المتغيرات العامة
+# ============================================
+# ميزة الكلمات
+# ============================================
 word_game_enabled = False
-word_game_allowed_user_id = None  # معرف الشخص أو البوت المسموح له
-word_game_trigger_text = "- اسرع واحد يكتب الكلمه ->"  # النص المحفز الافتراضي
+word_game_allowed_user_id = None
+word_game_trigger_text = "- اسرع واحد يكتب الكلمه ->"
 
-# تفعيل ميزة الكلمات مع معرف الشخص أو البوت
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل كلمات(?: (\d+))?$'))
 async def enable_word_game(event):
     global word_game_enabled, word_game_allowed_user_id
-    user_id = event.pattern_match.group(1)  # الحصول على المعرف إذا تم إدخالها
-
+    user_id = event.pattern_match.group(1)
     if user_id:
-        word_game_allowed_user_id = int(user_id)  # تعيين المعرف المسموح له
+        word_game_allowed_user_id = int(user_id)
+        word_game_enabled = True
+        await event.edit("**᯽︙ تم تفعيل ميزة الكلمات بنجاح ✅**")
     else:
-        # إذا لم يتم إدخال معرف، يتم إعلام المستخدم بضرورة إدخال معرف
         await event.edit("**᯽︙ يرجى إدخال معرف صحيح بعد الأمر.**")
-        return
 
-    word_game_enabled = True
-    await event.edit(f"ش")
-
-# تعطيل ميزة الكلمات
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل كلمات$'))
 async def disable_word_game(event):
     global word_game_enabled, word_game_allowed_user_id
     word_game_enabled = False
-    word_game_allowed_user_id = None  # إلغاء تعيين المعرف المسموح له
+    word_game_allowed_user_id = None
     await event.edit("**᯽︙ تم تعطيل ميزة الكلمات بنجاح ✅**")
 
-# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص كلمات (.*)$'))
 async def set_word_game_trigger_text(event):
     global word_game_trigger_text
-    word_game_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"ش")
+    word_game_trigger_text = event.pattern_match.group(1)
+    await event.edit(f"**᯽︙ تم تعيين نص الكلمات إلى:** `{word_game_trigger_text}`")
 
-# الرد التلقائي على الرسائل
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_word_game(event):
     global word_game_enabled, word_game_allowed_user_id, word_game_trigger_text
-    
-    # التحقق من أن الميزة مفعلة وأن الرسالة من المعرف المسموح له
-    if word_game_enabled and event.sender_id == word_game_allowed_user_id:
+    if not word_game_enabled:
+        return
+    if event.sender_id == word_game_allowed_user_id:
         if word_game_trigger_text in event.raw_text:
-            # استخراج الكلمة بين الأقواس (أي من () أو {})
             match = re.search(r'[\({]([^)}]+)[\)}]', event.raw_text)
             if match:
-                word = match.group(1).strip()  # إزالة المسافات الزائدة
-                # إزالة النقطة من نهاية الكلمة إذا وجدت
+                word = match.group(1).strip()
                 if word.endswith('.'):
                     word = word[:-1]
-                # تأخير الرد بـ 1 ثانية
                 await asyncio.sleep(1)
-                # إرسال رسالة جديدة تحتوي على الكلمة المستخرجة (بدون الرد على الرسالة الأصلية)
                 await event.client.send_message(event.chat_id, word)
 
-# باقي الكود الح
-
-import asyncio
-import re
-from telethon import events
-from JoKeRUB import l313l
-
-# تعريف المتغيرات العامة
+# ============================================
+# ميزة المقالات
+# ============================================
 articles_enabled = False
 articles_chat_id = None
 articles_allowed_user_ids = set()
 articles_trigger_text = "⌔︙اكتبها بدون فواصل"
-reply_mode = False
-reply_delay = 3
+articles_reply_mode = False
+articles_reply_delay = 3
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل مقالات(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_articles_bot(event):
-    global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_reply_mode
     user_id = event.pattern_match.group(2)
     group_id = event.pattern_match.group(3)
     is_reply_mode = bool(event.pattern_match.group(1))
-    
     if not user_id:
         await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل مقالات 123456789`\nأو `/تفعيل مقالات` للوضع العادي")
         return
-    
     articles_allowed_user_ids.add(int(user_id))
-    reply_mode = is_reply_mode
-    
+    articles_reply_mode = is_reply_mode
     if group_id:
         articles_chat_id = int(group_id)
     else:
         articles_chat_id = event.chat_id
-    
     articles_enabled = True
     mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
-    await event.edit(f"**✅ تم تفعيل المقالات بنجاح**\n"
-                    f"المجموعة: `{articles_chat_id}`\n"
-                    f"المستخدم المسموح: `{user_id}`\n"
-                    f"الوضع: `{mode_text}`")
+    await event.edit(f"**✅ تم تفعيل المقالات بنجاح**\nالمجموعة: `{articles_chat_id}`\nالمستخدم المسموح: `{user_id}`\nالوضع: `{mode_text}`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل مقالات$'))
 async def disable_articles_bot(event):
-    global articles_enabled, articles_chat_id, articles_allowed_user_ids, reply_mode
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_reply_mode
     articles_enabled = False
     articles_chat_id = None
     articles_allowed_user_ids.clear()
-    reply_mode = False
+    articles_reply_mode = False
     await event.edit("**✅ تم تعطيل المقالات بنجاح**")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص مقالات (.*)$'))
@@ -138,137 +116,76 @@ async def set_articles_trigger_text(event):
 
 @l313l.on(events.NewMessage(incoming=True))
 async def process_articles(event):
-    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_trigger_text, reply_mode, reply_delay
-    
-    if not articles_enabled or event.chat_id != articles_chat_id or event.sender_id not in articles_allowed_user_ids:
+    global articles_enabled, articles_chat_id, articles_allowed_user_ids, articles_trigger_text, articles_reply_mode, articles_reply_delay
+    if not articles_enabled:
         return
-    
-    if reply_mode:
-        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+    if event.chat_id != articles_chat_id or event.sender_id not in articles_allowed_user_ids:
+        return
+    if articles_reply_mode:
         if not event.is_reply:
             return
-            
         replied_msg = await event.get_reply_message()
         if replied_msg.sender_id != l313l.uid or articles_trigger_text not in event.raw_text:
             return
-            
-        # في وضع الرد، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = reply_delay
     else:
-        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if articles_trigger_text not in event.raw_text:
             return
-            
-        # في الوضع العادي، نأخذ النص قبل النص المحفز فقط
         text_to_process = event.raw_text.split(articles_trigger_text)[0].strip()
-        delay = reply_delay
-    
-    # تنظيف النص من الرموز واستبدالها بمسافات
     cleaned_text = text_to_process.replace("*", " ").replace("/", " ").replace("،", " ").replace(",", " ")
-    
-    # إزالة المسافات الزائدة
     cleaned_text = re.sub(r'\s+', ' ', cleaned_text).strip()
-    
     if cleaned_text:
-        await asyncio.sleep(delay)
+        await asyncio.sleep(articles_reply_delay)
         await event.respond(cleaned_text)
 
-
-
-
-
-# باقي الكود الحالي...
-import asyncio
-import re
-from telethon import events
-from JoKeRUB import l313l
-
-# تعريف المتغيرات العامة
+# ============================================
+# ميزة الأعلام
+# ============================================
 flags_enabled = False
 flags_chat_id = None
 flags_allowed_user_ids = set()
 flags_trigger_text = "⌔︙اسرع واحد يكتب اسم الدولة للعلم↫"
-reply_mode = False  # متغير جديد لتحديد وضع الرد
+flags_reply_mode = False
 
-# قاموس الأعلام والبلدان
 flags_dict = {
-    "🇯🇴": "الأردن",
-    "🇪🇸": "إسبانيا",
-    "🇷🇺": "روسيا",
-    "🇮🇷": "ايران",
-    "🇷🇴": "رومانيا",
-    "🇺🇦": "أوكرانيا",
-    "🇱🇾": "ليبيا",
-    "🇶🇦": "قطر",
-    "🇲🇦": "المغرب",
-    "🇹🇳": "تونس",
-    "🇦🇪": "الامارات",
-    "🇻🇪": "فنزويلا",
-    "🇨🇳": "الصين",
-    "🇪🇬": "مصر",
-    "🇮🇶": "العراق",
-    "🇸🇦": "السعوديه",
-    "🇩🇿": "الجزائر",
-    "🇰🇵": "كوريا الشمالية",
-    "🇸🇩": "السودان",
-    "🇵🇰": "باكستان",
-    "🇺🇸": "امريكا",
-    "🇰🇼": "الكويت",
-    "🇧🇷": "البرازيل",
-    "🇫🇷": "فرنسا",
-    "🇵🇸": "فلسطين",
-    "🇧🇭": "البحرين",
-    "🇸🇾": "سوريا",
-    "🇳🇱": "هولندا",
-    "🇸🇪": "السويد",
-    "🇾🇪": "اليمن",
-    "🇸🇸": "السودان",
-    "🇦🇹": "النمسا",
-    "🇯🇵": "اليابان",
-    "🇱🇧": "لبنان",
-    "🇲🇷": "موريتانيا",
-    "🇦🇺": "استراليا",
-    "🇮🇹": "ايطاليا",
-    "🇬🇷": "اليونان",
-    "🇬🇧": "بريطانيا",
-    "🇷🇴": "رومانيا",
-    "🇨🇭": "سويسرا",
+    "🇯🇴": "الأردن", "🇪🇸": "إسبانيا", "🇷🇺": "روسيا", "🇮🇷": "ايران",
+    "🇷🇴": "رومانيا", "🇺🇦": "أوكرانيا", "🇱🇾": "ليبيا", "🇶🇦": "قطر",
+    "🇲🇦": "المغرب", "🇹🇳": "تونس", "🇦🇪": "الامارات", "🇻🇪": "فنزويلا",
+    "🇨🇳": "الصين", "🇪🇬": "مصر", "🇮🇶": "العراق", "🇸🇦": "السعوديه",
+    "🇩🇿": "الجزائر", "🇰🇵": "كوريا الشمالية", "🇸🇩": "السودان", "🇵🇰": "باكستان",
+    "🇺🇸": "امريكا", "🇰🇼": "الكويت", "🇧🇷": "البرازيل", "🇫🇷": "فرنسا",
+    "🇵🇸": "فلسطين", "🇧🇭": "البحرين", "🇸🇾": "سوريا", "🇳🇱": "هولندا",
+    "🇸🇪": "السويد", "🇾🇪": "اليمن", "🇸🇸": "السودان", "🇦🇹": "النمسا",
+    "🇯🇵": "اليابان", "🇱🇧": "لبنان", "🇲🇷": "موريتانيا", "🇦🇺": "استراليا",
+    "🇮🇹": "ايطاليا", "🇬🇷": "اليونان", "🇬🇧": "بريطانيا", "🇨🇭": "سويسرا",
 }
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل اعلام(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_flags_bot(event):
-    global flags_enabled, flags_chat_id, flags_allowed_user_ids, reply_mode
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, flags_reply_mode
     user_id = event.pattern_match.group(2)
     group_id = event.pattern_match.group(3)
-    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
-    
+    is_reply_mode = bool(event.pattern_match.group(1))
     if not user_id:
         await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل اعلام 123456789`\nأو `/تفعيل اعلام` للوضع العادي")
         return
-    
     flags_allowed_user_ids.add(int(user_id))
-    reply_mode = is_reply_mode  # تعيين وضع الرد
-    
+    flags_reply_mode = is_reply_mode
     if group_id:
         flags_chat_id = int(group_id)
     else:
         flags_chat_id = event.chat_id
-    
     flags_enabled = True
     mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
-    await event.edit(f"**✅ تم تفعيل الأعلام بنجاح**\n"
-                    f"المجموعة: `{flags_chat_id}`\n"
-                    f"المستخدم المسموح: `{user_id}`\n"
-                    f"الوضع: `{mode_text}`")
+    await event.edit(f"**✅ تم تفعيل الأعلام بنجاح**\nالمجموعة: `{flags_chat_id}`\nالمستخدم المسموح: `{user_id}`\nالوضع: `{mode_text}`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل اعلام$'))
 async def disable_flags_bot(event):
-    global flags_enabled, flags_chat_id, flags_allowed_user_ids, reply_mode
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, flags_reply_mode
     flags_enabled = False
     flags_chat_id = None
     flags_allowed_user_ids.clear()
-    reply_mode = False
+    flags_reply_mode = False
     await event.edit("**✅ تم تعطيل الأعلام بنجاح**")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص اعلام (.*)$'))
@@ -279,89 +196,68 @@ async def set_flags_trigger_text(event):
 
 @l313l.on(events.NewMessage(incoming=True))
 async def process_flags(event):
-    global flags_enabled, flags_chat_id, flags_allowed_user_ids, flags_trigger_text, flags_dict, reply_mode
-    
-    if not flags_enabled or event.chat_id != flags_chat_id or event.sender_id not in flags_allowed_user_ids:
+    global flags_enabled, flags_chat_id, flags_allowed_user_ids, flags_trigger_text, flags_dict, flags_reply_mode
+    if not flags_enabled:
         return
-    
-    if reply_mode:
-        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+    if event.chat_id != flags_chat_id or event.sender_id not in flags_allowed_user_ids:
+        return
+    if flags_reply_mode:
         if not event.is_reply:
             return
-            
         replied_msg = await event.get_reply_message()
         if replied_msg.sender_id != l313l.uid or flags_trigger_text not in event.raw_text:
             return
-            
         text_to_process = event.raw_text
     else:
-        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if flags_trigger_text not in event.raw_text:
             return
-            
         text_to_process = event.raw_text
-    
-    # البحث عن العلم داخل الأقواس (إذا وجد)
     flag_with_brackets = re.search(r'[\({]([^})]+)[\)}]', text_to_process)
     if flag_with_brackets:
         flag = flag_with_brackets.group(1).strip()
         if flag.endswith('.'):
             flag = flag[:-1]
     else:
-        # إذا لم يكن هناك أقواس، يتم البحث عن العلم مباشرة
         flag = text_to_process.split(flags_trigger_text)[-1].strip()
-    
-    # البحث عن العلم في القاموس
     if flag in flags_dict:
-        country = flags_dict[flag]
         await asyncio.sleep(1)
-        await event.reply(country)
+        await event.reply(flags_dict[flag])
 
-import asyncio
-import re
-from telethon import events
-from JoKeRUB import l313l
-
-# تعريف المتغيرات العامة
+# ============================================
+# ميزة التفكيك
+# ============================================
 break_enabled = False
-active_chat_id = None
+break_active_chat_id = None
 break_allowed_user_ids = set()
 break_trigger_text = "⌔︙فكك :"
-reply_mode = False  # متغير جديد لتحديد وضع الرد
+break_reply_mode = False
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.(/?)تفعيل تفكيك(?:\s+(\d+))?(?:\s+(-?\d+))?$'))
 async def enable_break_bot(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, reply_mode
+    global break_enabled, break_active_chat_id, break_allowed_user_ids, break_reply_mode
     user_id = event.pattern_match.group(2)
     group_id = event.pattern_match.group(3)
-    is_reply_mode = bool(event.pattern_match.group(1))  # إذا كان هناك / قبل الأمر
-    
+    is_reply_mode = bool(event.pattern_match.group(1))
     if not user_id:
         await event.edit("**⚠️ يرجى إدخال معرف المستخدم/البوت بعد الأمر**\nمثال: `.تفعيل تفكيك 123456789`\nأو `.تفعيل تفكيك` للوضع العادي")
         return
-    
     break_allowed_user_ids.add(int(user_id))
-    reply_mode = is_reply_mode  # تعيين وضع الرد
-    
+    break_reply_mode = is_reply_mode
     if group_id:
-        active_chat_id = int(group_id)
+        break_active_chat_id = int(group_id)
     else:
-        active_chat_id = event.chat_id
-    
+        break_active_chat_id = event.chat_id
     break_enabled = True
     mode_text = "وضع الرد" if is_reply_mode else "الوضع العادي"
-    await event.edit(f"**✅ تم تفعيل التفكيك بنجاح**\n"
-                    f"المجموعة: `{active_chat_id}`\n"
-                    f"المستخدم المسموح: `{user_id}`\n"
-                    f"الوضع: `{mode_text}`")
+    await event.edit(f"**✅ تم تفعيل التفكيك بنجاح**\nالمجموعة: `{break_active_chat_id}`\nالمستخدم المسموح: `{user_id}`\nالوضع: `{mode_text}`")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل تفكيك$'))
 async def disable_break_bot(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, reply_mode
+    global break_enabled, break_active_chat_id, break_allowed_user_ids, break_reply_mode
     break_enabled = False
-    active_chat_id = None
+    break_active_chat_id = None
     break_allowed_user_ids.clear()
-    reply_mode = False
+    break_reply_mode = False
     await event.edit("**✅ تم تعطيل التفكيك بنجاح**")
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص تفكيك (.*)$'))
@@ -372,125 +268,84 @@ async def set_break_trigger_text(event):
 
 @l313l.on(events.NewMessage(incoming=True))
 async def break_word_on_trigger(event):
-    global break_enabled, active_chat_id, break_allowed_user_ids, break_trigger_text, reply_mode
-    
-    if not break_enabled or event.chat_id != active_chat_id or event.sender_id not in break_allowed_user_ids:
+    global break_enabled, break_active_chat_id, break_allowed_user_ids, break_trigger_text, break_reply_mode
+    if not break_enabled:
         return
-    
-    if reply_mode:
-        # وضع الرد: يتأكد من أن الرسالة رد على رسالة البوت وتحتوي على النص المحفز
+    if event.chat_id != break_active_chat_id or event.sender_id not in break_allowed_user_ids:
+        return
+    if break_reply_mode:
         if not event.is_reply:
             return
-            
         replied_msg = await event.get_reply_message()
         if replied_msg.sender_id != l313l.uid or break_trigger_text not in event.raw_text:
             return
-            
         text_to_search = event.raw_text
-        delay = 1
     else:
-        # الوضع العادي: يتأكد من وجود النص المحفز في الرسالة الحالية
         if break_trigger_text not in event.raw_text:
             return
-            
         text_to_search = event.raw_text.split(break_trigger_text)[-1]
-        delay = 1
-    
-    # البحث عن الأقواس {} أو ()
     match = re.search(r'[{(]([^})]+)[})]', text_to_search)
     if match:
         word = match.group(1).strip()
         word = re.sub(r'[\s\n]+', '', word)
         if word:
             letters = ' '.join(list(word))
-            await asyncio.sleep(delay)
+            await asyncio.sleep(1)
             await event.reply(letters)
 
-
-import asyncio
-from telethon import events
-from JoKeRUB import l313l
-
-# تعريف المتغيرات العامة
+# ============================================
+# ميزة المعاني
+# ============================================
 meanings_enabled = False
-active_chat_id = None
-meanings_allowed_user_ids = set()  # مجموعة لتخزين معرفات المستخدمين المسموح لهم
-meanings_trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "  # النص المحفز الافتراضي للمعان
+meanings_active_chat_id = None
+meanings_allowed_user_ids = set()
+meanings_trigger_text = "⌔︙اسرع واحد يدز معنى السمايل ~ "
 
-# قاموس السمايلات ومعانيها
 smiley_meanings = {
-    "🐭": "فأر",
-    "🍎": "تفاحه",
-    "🦁": "اسد",
-    "🐓": "ديك",
-    "🐄": "بقره",
-    "🦂": "عقرب",
-    "🦉": "بومه",
-    "🐫": "جمل",
-    "🦋": "ف��اشه",
-    "🐟": "سمكه",
-    "🐔": "دجاجه",
-    "🦈": "قرش",
-    "🐺": "ذئب",
-    "🐧": "بطريق",
-    "🐝": "نحله",
-    "🐸": "ضفدع",
-    "🐬": "دولفين",
-    "🐅": "نمر",
-    "🦇": "خفاش",
-    # يمكنك إضافة المزيد من السمايلات ومعانيها هنا
+    "🐭": "فأر", "🍎": "تفاحه", "🦁": "اسد", "🐓": "ديك",
+    "🐄": "بقره", "🦂": "عقرب", "🦉": "بومه", "🐫": "جمل",
+    "🦋": "فراشه", "🐟": "سمكه", "🐔": "دجاجه", "🦈": "قرش",
+    "🐺": "ذئب", "🐧": "بطريق", "🐝": "نحله", "🐸": "ضفدع",
+    "🐬": "دولفين", "🐅": "نمر", "🦇": "خفاش",
 }
 
-# تفعيل ميزة المعاني
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل معاني(?: (\d+(?:,\d+)*))?$'))
 async def enable_meanings_bot(event):
-    global meanings_enabled, active_chat_id, meanings_allowed_user_ids
-    ids_input = event.pattern_match.group(1)  # الحصول على المعرفات إذا تم إدخالها
-
-    # إضافة المعرفات إلى المجموعة
+    global meanings_enabled, meanings_active_chat_id, meanings_allowed_user_ids
+    ids_input = event.pattern_match.group(1)
     if ids_input:
         meanings_allowed_user_ids.update(map(int, ids_input.split(',')))
+        meanings_active_chat_id = event.chat_id
+        meanings_enabled = True
+        await event.edit("**᯽︙ تم تفعيل معاني السمايلات بنجاح ✅**")
     else:
-        # إذا لم يتم إدخال معرفات، يتم إعلام المستخدم بضرورة إدخال معرفات
         await event.edit("**᯽︙ يرجى إدخال معرفات صحيحة بعد الأمر.**")
-        return
 
-    active_chat_id = event.chat_id  # حفظ معرف المجموعة
-    meanings_enabled = True
-    await event.edit(f"ش")
-                   #  f"**المعرفات المسموحة:** {', '.join(map(str, meanings_allowed_user_ids))}")
-
-# تعطيل ميزة المعاني
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تعطيل معاني$'))
 async def disable_meanings_bot(event):
-    global meanings_enabled, active_chat_id, meanings_allowed_user_ids
-    active_chat_id = None  # إلغاء تفعيل المجموعة
+    global meanings_enabled, meanings_active_chat_id, meanings_allowed_user_ids
     meanings_enabled = False
-    meanings_allowed_user_ids.clear()  # مسح جميع المعرفات المسموحة
-    await event.edit("**᯽︙ تم تعطيل معاني السمايلات في جميع المجموعات بنجاح ✅**")
+    meanings_active_chat_id = None
+    meanings_allowed_user_ids.clear()
+    await event.edit("**᯽︙ تم تعطيل معاني السمايلات بنجاح ✅**")
 
-# تفعيل نص محفز مخصص
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.تفعيل نص معاني (.*)$'))
 async def set_meanings_trigger_text(event):
     global meanings_trigger_text
-    meanings_trigger_text = event.pattern_match.group(1)  # تعيين النص المحفز المخصص
-    await event.edit(f"ش")
+    meanings_trigger_text = event.pattern_match.group(1)
+    await event.edit(f"**᯽︙ تم تعيين نص المعاني إلى:** `{meanings_trigger_text}`")
 
-# الرد التلقائي على السمايلات
 @l313l.on(events.NewMessage(incoming=True))
 async def auto_reply_meanings(event):
-    global meanings_enabled, active_chat_id, meanings_allowed_user_ids, meanings_trigger_text, smiley_meanings
-    
-    # التحقق من أن الرسالة في المجموعة المفعلة ومن المستخدم المسموح له
-    if meanings_enabled and event.chat_id == active_chat_id and event.sender_id in meanings_allowed_user_ids:
+    global meanings_enabled, meanings_active_chat_id, meanings_allowed_user_ids, meanings_trigger_text, smiley_meanings
+    if not meanings_enabled:
+        return
+    if event.chat_id == meanings_active_chat_id and event.sender_id in meanings_allowed_user_ids:
         if meanings_trigger_text in event.raw_text:
-            # البحث عن السمايل في الرسالة
             for smiley, meaning in smiley_meanings.items():
                 if smiley in event.raw_text:
-                    # إرسال معنى السمايل كرسالة جديدة (بدون رد)
-                    await event.client.send_message(event.chat_id, f"{meaning}")
+                    await event.client.send_message(event.chat_id, meaning)
                     break
-
                     
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def mark_as_read(event):

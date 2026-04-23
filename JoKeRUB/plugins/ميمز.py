@@ -26,7 +26,7 @@ async def kkr(event):
                 events.NewMessage(incoming=True, from_users=178220800))
             await conv.send_message("/start")
             dontTag = await dontTag
-            await bot.send_read_acknowledge(zdd.chat_id)
+            await bot.send_read_acknowledge(conv.chat_id)
         except YouBlockedUserError:
             await l313l(unblock("SpamBot"))
             dontTag = conv.wait_event(

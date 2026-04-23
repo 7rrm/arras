@@ -4,6 +4,7 @@ import random
 import re
 import json
 import base64
+from ..helpers.functions import delete_conv
 from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.functions.contacts import UnblockRequest as unblock
 from asyncio.exceptions import TimeoutError

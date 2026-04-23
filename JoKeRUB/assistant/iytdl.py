@@ -94,12 +94,11 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت - نفس الكود الأصلي"""
+    """تحميل الصوت"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
-    # مثل الكود الأصلي: تعديل الرسالة وإزالة الصورة
     try:
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
     except:
@@ -134,12 +133,14 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                 if s_msg and s_msg.media:
                     caption = (
                         f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f"<b>✅ تم التحميل بنجاح</b>"
                         f'<tg-emoji emoji-id="5890831539507302154">🎵</tg-emoji>'
                         f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
                     )
+                    
+                    buttons = [
+                        [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
+                    ]
                     
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
@@ -152,7 +153,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                         text=caption,
                         file=uploaded_media.media,
                         parse_mode="html",
-                        buttons=[]
+                        buttons=buttons
                     )
                     
                 else:
@@ -166,7 +167,6 @@ async def ytdl_download_audio(c_q: CallbackQuery):
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))
 )
@@ -177,7 +177,6 @@ async def ytdl_download_video(c_q: CallbackQuery):
     
     await c_q.answer("🔄 جـارِ التحميل...", alert=False)
     
-    # مثل الكود الأصلي: تعديل الرسالة وإزالة الصورة
     try:
         await c_q.edit("**╮ جـارِ التجهيز ... 🎬 ╰**")
     except:
@@ -212,12 +211,14 @@ async def ytdl_download_video(c_q: CallbackQuery):
                 if s_msg and s_msg.media:
                     caption = (
                         f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f"<b>✅ تم التحميل بنجاح</b>"
                         f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
                         f"</blockquote>"
-                        f"<b>↯︰By: @Lx5x5 .</b>"
-                        f'<tg-emoji emoji-id="4985898208166151959">🦅</tg-emoji>'
                     )
+                    
+                    buttons = [
+                        [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
+                    ]
                     
                     uploaded_media = await c_q.client.send_file(
                         BOTLOG_CHATID,
@@ -230,7 +231,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         text=caption,
                         file=uploaded_media.media,
                         parse_mode="html",
-                        buttons=[]
+                        buttons=buttons
                     )
                     
                 else:

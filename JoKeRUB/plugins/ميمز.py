@@ -21,25 +21,26 @@ plugin_category = "tools"
 @l313l.ar_cmd(pattern="حالتي ?(.*)")
 async def kkr(event):
     jokevent = await edit_or_reply(event, "**- جـارِ التحقـق انتظـر قليـلاً . . .**")
-    async with bot.conversation("@SpamBot") as conv:
+    bot_spam = "@SpamBot"
+    async with bot.conversation(bot_spam) as conv:
         try:
             dontTag = conv.wait_event(
                 events.NewMessage(incoming=True, from_users=178220800))
-            await conv.send_message("/start")
+            purgeflag = await conv.send_message("/start")
             dontTag = await dontTag
             await bot.send_read_acknowledge(conv.chat_id)
         except YouBlockedUserError:
-            await l313l(unblock("SpamBot"))
+            await l313l(unblock(bot_spam))
             dontTag = conv.wait_event(
                 events.NewMessage(incoming=True, from_users=178220800))
-            await conv.send_message("/start")
+            purgeflag = await conv.send_message("/start")
             dontTag = await dontTag
             await bot.send_read_acknowledge(conv.chat_id)
         
-        # حذف المحادثة بالكامل
-        await delete_conv(event, "@SpamBot")
-        
         await jokevent.edit(f"**⌔╎حالة حسابـك حاليـاً هـي :**\n\n~ {dontTag.message.message}")
+        
+        # حذف المحادثة بالكامل باستخدام delete_conv
+        await delete_conv(event, bot_spam, purgeflag)
 
 @l313l.on(admin_cmd(pattern="الاغنية ?(.*)"))
 async def _(event):

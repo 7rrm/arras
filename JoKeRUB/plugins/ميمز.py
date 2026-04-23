@@ -39,7 +39,7 @@ async def kkr(event):
         
         await jokevent.edit(f"**⌔╎حالة حسابـك حاليـاً هـي :**\n\n~ {dontTag.message.message}")
         
-        # حذف المحادثة بالكامل باستخدام delete_conv
+        # حذف المحادثة كامله بنفس الطريقة
         await delete_conv(event, bot_spam, purgeflag)
 
 @l313l.on(admin_cmd(pattern="الاغنية ?(.*)"))

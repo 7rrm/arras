@@ -120,14 +120,14 @@ async def amireallyalive(event):
         caption += f'<a href="emoji/5231211454325088296">❤️</a>\n'
         
         # محتوى الكليشة مع الزخرفة المطلوبة والإيموجي الجديد
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ɴᴀᴍᴇ ➪</b> {mention}\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴋᴀʀᴀʀ ➪</b> <code>{version.__version__}</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴘʏᴛʜᴏɴ ➪</b> <code>{python_version()}</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴘʟᴀᴛғᴏʀᴍ ➪</b> <code>𐋏ᥱr᧐κᥙ</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴘɪɴɢ ➪</b> <code>{ms} ms</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴜᴘ ᴛɪᴍᴇ ➪</b> <code>{uptime}</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪</b> <code>{installation_time}</code>\n'
-        caption += f'<a href="emoji/5436008921066123074">❤️</a><b>ᴍʏ ᴄʜᴀɴɴᴇʟ ➪</b> <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ɴᴀᴍᴇ ➪ {mention}\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴋᴀʀᴀʀ ➪ <code>{version.__version__}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴘʏᴛʜᴏɴ ➪ <code>{python_version()}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴘʟᴀᴛғᴏʀᴍ ➪ <code>𐋏ᥱr᧐κᥙ</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴘɪɴɢ ➪ <code>{ms} ms</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴜᴘ ᴛɪᴍᴇ ➪ <code>{uptime}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴀʟɪᴠᴇ sɪɴᴇᴄ ➪ <code>{installation_time}</code>\n'
+        caption += f'<a href="emoji/5436008921066123074">❤️</a>ᴍʏ ᴄʜᴀɴɴᴇʟ ➪ <a href="https://t.me/aRRaS_iD">[ᴄʟɪᴄᴋ ʜᴇʀᴇ]</a>\n'
         
         # السطر السفلي من الإيموجيات
         caption += f'<a href="emoji/5436209929830544879">❤️</a>'

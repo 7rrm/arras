@@ -17,7 +17,7 @@ HELP = '''**🧑🏻‍💻┊ مرحبـاً بك عَـزيزي**
 **🧰┊ قائمـة اوامـر سـورس** 𝗮𝗥𝗥𝗮𝗦
 **⚙┊ أخـتر ماتـريـد من الأزرار أسـفـل**
 
-[**ᯓ ᥉᥆ᥙᖇᥴᥱ ᥲᖇᥲ᥉ ♥️**](https://t.me/lx5x5)'''
+[ᯓ ᥉᥆ᥙᖇᥴᥱ ᥲᖇᥲ᥉ ♥️](https://t.me/lx5x5)'''
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 

@@ -61,7 +61,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 )],
                 cache_time=0
             )
-@l313l.ar_cmd(pattern="مساعدة$")
+@l313l.ar_cmd(pattern="الاوامر$")
 async def help(event):
     if event.reply_to_msg_id:
         await event.get_reply_message()

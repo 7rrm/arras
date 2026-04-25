@@ -9,6 +9,7 @@ import ujson
 import yt_dlp
 from telethon import Button
 from yt_dlp.utils import DownloadError, ExtractorError, GeoRestrictedError
+from youtube_search import YoutubeSearch
 
 from ...Config import Config
 from ...core import pool
@@ -58,56 +59,42 @@ async def yt_search(JoKeRUB):
 
 
 async def ytsearch(query, limit):
-    """بحث باستخدام yt_dlp بدلاً من youtubesearchpython"""
+    """بحث باستخدام youtube_search بدلاً من youtubesearchpython"""
     result = ""
     
-    ydl_opts = {
-        'extract_flat': True,
-        'quiet': True,
-        'no_warnings': True,
-    }
-    
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            search_query = f"ytsearch{limit}:{query}"
-            data = ydl.extract_info(search_query, download=False)
+        results = YoutubeSearch(query, max_results=limit).to_dict()
+        
+        for v in results:
+            duration = v.get('duration', '0:00')
             
-            for v in data['entries']:
-                # تحويل المدة من ثواني إلى صيغة مقروءة
-                duration_seconds = v.get('duration', 0)
-                if duration_seconds >= 3600:
-                    hours = duration_seconds // 3600
-                    minutes = (duration_seconds % 3600) // 60
-                    seconds = duration_seconds % 60
-                    duration = f"{hours}:{minutes:02d}:{seconds:02d}"
+            views = v.get('views', '0 views')
+            views_clean = views.replace(' views', '').replace(',', '')
+            try:
+                views_int = int(views_clean)
+                if views_int >= 1000000:
+                    views_short = f"{views_int / 1000000:.1f}M"
+                elif views_int >= 1000:
+                    views_short = f"{views_int / 1000:.1f}K"
                 else:
-                    minutes = duration_seconds // 60
-                    seconds = duration_seconds % 60
-                    duration = f"{minutes}:{seconds:02d}"
-                
-                # تنسيق المشاهدات
-                views = v.get('view_count', 0)
-                if views >= 1000000:
-                    views_short = f"{views / 1000000:.1f}M"
-                elif views >= 1000:
-                    views_short = f"{views / 1000:.1f}K"
-                else:
-                    views_short = str(views)
-                
-                textresult = f"[{v['title']}](https://www.youtube.com/watch?v={v['id']})\n"
-                
-                # الوصف
-                if v.get('description'):
-                    desc = v['description'][:100].replace('\n', ' ') + "..."
-                    textresult += f"**الشرح : **`{desc}`\n"
-                else:
-                    textresult += "**الشرح : **`None`\n"
-                
-                textresult += (
-                    f"**المدة : **{duration}  **المشاهدات : **{views_short}\n"
-                )
-                result += f"☞ {textresult}\n"
-                
+                    views_short = str(views_int)
+            except:
+                views_short = views
+            
+            textresult = f"[{v['title']}](https://www.youtube.com/watch?v={v['id']})\n"
+            
+            desc = v.get('long_desc', '')
+            if desc:
+                desc_snippet = desc[:100].replace('\n', ' ') + "..."
+                textresult += f"**الشرح : **`{desc_snippet}`\n"
+            else:
+                textresult += "**الشرح : **`None`\n"
+            
+            textresult += (
+                f"**المدة : **{duration}  **المشاهدات : **{views_short}\n"
+            )
+            result += f"☞ {textresult}\n"
+            
     except Exception as e:
         LOGS.error(f"خطأ في البحث: {e}")
         result = "حدث خطأ أثناء البحث"
@@ -178,54 +165,48 @@ def get_choice_by_id(choice_id, media_type: str):
     return choice_str, disp_str
 
 
-async def result_formatter(results: dict):
-    """تهيئة نتائج البحث من yt_dlp إلى نفس صيغة الكود الأصلي"""
+async def result_formatter(results: list):
+    """تهيئة نتائج البحث من youtube_search إلى صيغة الكود الأصلي"""
     output = {}
-    for index, r in enumerate(results.get('entries', []), start=1):
-        video_id = r.get('id')
+    for index, v in enumerate(results, start=1):
+        video_id = v.get('id')
         thumb = await get_ytthumb(video_id)
         
-        # تهيئة الوصف
-        description = r.get('description', '')
-        if description:
-            desc_snippet = description[:100].replace('\n', ' ')
-        else:
-            desc_snippet = ''
+        duration = v.get('duration', '0:00')
         
-        # تحويل المدة
-        duration_seconds = r.get('duration', 0)
-        if duration_seconds >= 3600:
-            duration_str = f"{duration_seconds // 3600}:{(duration_seconds % 3600) // 60:02d}:{duration_seconds % 60:02d}"
-        else:
-            duration_str = f"{duration_seconds // 60}:{duration_seconds % 60:02d}"
+        views = v.get('views', '0 views')
+        views_clean = views.replace(' views', '').replace(',', '')
+        try:
+            views_int = int(views_clean)
+            if views_int >= 1000000:
+                views_short = f"{views_int / 1000000:.1f}M"
+            elif views_int >= 1000:
+                views_short = f"{views_int / 1000:.1f}K"
+            else:
+                views_short = str(views_int)
+        except:
+            views_short = views
         
-        # تنسيق المشاهدات
-        views = r.get('view_count', 0)
-        if views >= 1000000:
-            views_short = f"{views / 1000000:.1f}M"
-        elif views >= 1000:
-            views_short = f"{views / 1000:.1f}K"
-        else:
-            views_short = str(views)
+        desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
         
-        title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{r.get("title")}</b></a>\n'
+        title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{v.get("title")}</b></a>\n'
         out = title
         
         if desc_snippet:
             out += f"<code>{desc_snippet}</code>\n\n"
         
-        out += f'<b>❯ المـده :</b> {duration_str}\n'
+        out += f'<b>❯ المـده :</b> {duration}\n'
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
-        out += f'<b>❯ تاريـخ الرفـع :</b> {r.get("upload_date", "غير معروف")}\n'
+        out += f'<b>❯ تاريـخ الرفـع :</b> {v.get("publish_time", "غير معروف")}\n'
         
-        if r.get('uploader'):
-            out += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{r.get("uploader")}">{r.get("uploader")}</a>'
+        if v.get('channel'):
+            out += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{v.get("channel")}">{v.get("channel")}</a>'
         
         output[index] = dict(
             message=out,
             thumb=thumb,
             video_id=video_id,
-            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {r.get("title")}</a></b><br>',
+            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {v.get("title")}</a></b><br>',
         )
     
     return output

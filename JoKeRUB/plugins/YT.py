@@ -19,7 +19,6 @@ from ..helpers.functions.utube import (
     download_button,
     get_yt_video_id,
     get_ytthumb,
-    result_formatter,
     ytsearch_data,
 )
 from ..sql_helper.globals import gvarstatus
@@ -69,8 +68,57 @@ async def inline_handler(event):
                         if len(results_list) == 0:
                             found_ = False
                         else:
-                            # تحويل النتائج إلى الصيغة المطلوبة
-                            outdata = await result_formatter(resp)
+                            # تحويل النتائج إلى الصيغة المطلوبة يدوياً
+                            outdata = {}
+                            for index, v in enumerate(results_list, start=1):
+                                video_id = v.get('id')
+                                thumb = await get_ytthumb(video_id)
+                                
+                                # تحويل المدة
+                                duration_seconds = v.get('duration', 0)
+                                if duration_seconds >= 3600:
+                                    hours = duration_seconds // 3600
+                                    minutes = (duration_seconds % 3600) // 60
+                                    seconds = duration_seconds % 60
+                                    duration_str = f"{hours}:{minutes:02d}:{seconds:02d}"
+                                else:
+                                    minutes = duration_seconds // 60
+                                    seconds = duration_seconds % 60
+                                    duration_str = f"{minutes}:{seconds:02d}"
+                                
+                                # تنسيق المشاهدات
+                                views = v.get('view_count', 0)
+                                if views >= 1000000:
+                                    views_short = f"{views / 1000000:.1f}M"
+                                elif views >= 1000:
+                                    views_short = f"{views / 1000:.1f}K"
+                                else:
+                                    views_short = str(views)
+                                
+                                # الوصف
+                                desc_snippet = ''
+                                if v.get('description'):
+                                    desc_snippet = v.get('description', '')[:100].replace('\n', ' ')
+                                
+                                title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{v.get("title")}</b></a>\n'
+                                message = title
+                                if desc_snippet:
+                                    message += f"<code>{desc_snippet}</code>\n\n"
+                                message += f'<b>❯ المـده :</b> {duration_str}\n'
+                                message += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
+                                message += f'<b>❯ تاريـخ الرفـع :</b> {v.get("upload_date", "غير معروف")}\n'
+                                if v.get('uploader'):
+                                    message += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{v.get("uploader")}">{v.get("uploader")}</a>'
+                                
+                                list_view = f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {v.get("title")}</a></b><br>'
+                                
+                                outdata[index] = dict(
+                                    message=message,
+                                    thumb=thumb,
+                                    video_id=video_id,
+                                    list_view=list_view,
+                                )
+                            
                             key_ = rand_key()
                             ytsearch_data.store_(key_, outdata)
                             buttons = [
@@ -112,7 +160,7 @@ async def inline_handler(event):
             
             if found_:
                 markup = event.client.build_reply_markup(buttons)
-                photo = types.InputWebDocument(
+                photo_input = types.InputWebDocument(
                     url=photo, size=0, mime_type="image/jpeg", attributes=[]
                 )
                 text, msg_entities = await event.client._parse_message_text(
@@ -121,10 +169,10 @@ async def inline_handler(event):
                 result = types.InputBotInlineResult(
                     id=str(uuid4()),
                     type="photo",
-                    title=link,
+                    title=link if link else str_y[1],
                     description="⬇️ اضغـط للتحميـل",
-                    thumb=photo,
-                    content=photo,
+                    thumb=photo_input,
+                    content=photo_input,
                     send_message=types.InputBotInlineMessageMediaAuto(
                         reply_markup=markup, message=text, entities=msg_entities
                     ),

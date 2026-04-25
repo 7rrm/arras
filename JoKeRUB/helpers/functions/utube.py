@@ -190,7 +190,7 @@ async def result_formatter(results: list):
         desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
         
         title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{v.get("title")}</b></a>\n'
-        out = title
+        out = title+ "\n"
         
         if desc_snippet:
             out += f"<code>{desc_snippet}</code>\n\n"
@@ -199,8 +199,9 @@ async def result_formatter(results: list):
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
         out += f'<b>❯ تاريـخ الرفـع :</b> {v.get("publish_time", "غير معروف")}\n'
         
-        if v.get('channel'):
-            out += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{v.get("channel")}">{v.get("channel")}</a>'
+        if upld:
+            out += "<b>❯ القنـاة :</b> "
+            out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
         
         output[index] = dict(
             message=out,

@@ -11,6 +11,7 @@ import yt_dlp
 from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
+from youtube_search import YoutubeSearch
 
 from . import l313l
 from ..Config import Config
@@ -19,6 +20,7 @@ from ..helpers.functions.utube import (
     download_button,
     get_yt_video_id,
     get_ytthumb,
+    result_formatter,
     ytsearch_data,
 )
 from ..sql_helper.globals import gvarstatus
@@ -54,7 +56,6 @@ async def inline_handler(event):
             link = get_yt_video_id(search_query)
             
             if link is not None:
-                # إذا كان الرابط صحيحاً، اعرض أزرار التحميل مباشرة
                 try:
                     caption, buttons = await download_button(link, body=True)
                     photo = await get_ytthumb(link)
@@ -63,119 +64,48 @@ async def inline_handler(event):
                     LOGS.error(f"خطأ في download_button: {e}")
                     found_ = False
             else:
-                # بحث باستخدام yt_dlp
-                ydl_opts = {
-                    'extract_flat': True,
-                    'quiet': True,
-                    'no_warnings': True,
-                }
                 try:
-                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                        search_term = f"ytsearch15:{search_query}"
-                        resp = ydl.extract_info(search_term, download=False)
-                        results_list = resp.get('entries', [])
-                        
-                        if len(results_list) == 0:
-                            found_ = False
-                        else:
-                            # تحويل النتائج إلى الصيغة المطلوبة
-                            outdata = {}
-                            for index, v in enumerate(results_list, start=1):
-                                video_id = v.get('id')
-                                thumb = await get_ytthumb(video_id)
-                                
-                                # تحويل المدة
-                                duration_seconds = v.get('duration', 0)
-                                if duration_seconds is None:
-                                    duration_seconds = 0
-                                if duration_seconds >= 3600:
-                                    hours = int(duration_seconds // 3600)
-                                    minutes = int((duration_seconds % 3600) // 60)
-                                    seconds = int(duration_seconds % 60)
-                                    duration_str = f"{hours}:{minutes:02d}:{seconds:02d}"
-                                else:
-                                    minutes = int(duration_seconds // 60)
-                                    seconds = int(duration_seconds % 60)
-                                    duration_str = f"{minutes}:{seconds:02d}"
-                                
-                                # تنسيق المشاهدات
-                                views = v.get('view_count', 0)
-                                if views is None:
-                                    views = 0
-                                if views >= 1000000:
-                                    views_short = f"{views / 1000000:.1f}M"
-                                elif views >= 1000:
-                                    views_short = f"{views / 1000:.1f}K"
-                                else:
-                                    views_short = str(views)
-                                
-                                # الوصف
-                                desc_snippet = ''
-                                description = v.get('description', '')
-                                if description:
-                                    desc_snippet = description[:100].replace('\n', ' ')
-                                
-                                # تاريخ الرفع
-                                upload_date = v.get('upload_date', 'غير معروف')
-                                if upload_date and len(str(upload_date)) == 8:
-                                    upload_date = f"{upload_date[6:8]}/{upload_date[4:6]}/{upload_date[0:4]}"
-                                
-                                title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{v.get("title", "بدون عنوان")}</b></a>\n'
-                                message = title
-                                if desc_snippet:
-                                    message += f"<code>{desc_snippet}</code>\n\n"
-                                message += f'<b>❯ المـده :</b> {duration_str}\n'
-                                message += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
-                                message += f'<b>❯ تاريـخ الرفـع :</b> {upload_date}\n'
-                                
-                                uploader = v.get('uploader', '')
-                                if uploader:
-                                    message += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{uploader}">{uploader}</a>'
-                                
-                                list_view = f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {v.get("title", "بدون عنوان")}</a></b><br>'
-                                
-                                outdata[index] = dict(
-                                    message=message,
-                                    thumb=thumb,
-                                    video_id=video_id,
-                                    list_view=list_view,
+                    results_list = YoutubeSearch(search_query, max_results=15).to_dict()
+                    
+                    if len(results_list) == 0:
+                        found_ = False
+                    else:
+                        outdata = await result_formatter(results_list)
+                        key_ = rand_key()
+                        ytsearch_data.store_(key_, outdata)
+                        buttons = [
+                            [
+                                Button.inline(
+                                    f"1 / {len(outdata)}",
+                                    data=f"ytdl_next_{key_}_1",
+                                    style="primary"
+                                ),
+                            ],
+                            [
+                                Button.inline(
+                                    "‹ : فَيديـو : ›",
+                                    data=f'ytdl_download_{outdata[1]["video_id"]}_video',
+                                    style="danger"
+                                ),
+                                Button.inline(
+                                    "‹ : صَــوت : ›",
+                                    data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
+                                    style="danger"
+                                ),
+                            ],
+                            [
+                                Button.inline(
+                                    "📜 القائمـة",
+                                    data=f"ytdl_listall_{key_}_1",
+                                    style="primary"
                                 )
-                            
-                            key_ = rand_key()
-                            ytsearch_data.store_(key_, outdata)
-                            buttons = [
-                                [
-                                    Button.inline(
-                                        f"1 / {len(outdata)}",
-                                        data=f"ytdl_next_{key_}_1",
-                                        style="primary"
-                                    ),
-                                ],
-                                [
-                                    Button.inline(
-                                        "‹ : فَيديـو : ›",
-                                        data=f'ytdl_download_{outdata[1]["video_id"]}_video',
-                                        style="danger"
-                                    ),
-                                    Button.inline(
-                                        "‹ : صَــوت : ›",
-                                        data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
-                                        style="danger"
-                                    ),
-                                ],
-                                [
-                                    Button.inline(
-                                        "📜 القائمـة",
-                                        data=f"ytdl_listall_{key_}_1",
-                                        style="primary"
-                                    )
-                                ],
-                            ]
-                            caption = outdata[1]["message"]
-                            photo = await get_ytthumb(outdata[1]["video_id"])
-                            found_ = True
+                            ],
+                        ]
+                        caption = outdata[1]["message"]
+                        photo = await get_ytthumb(outdata[1]["video_id"])
+                        found_ = True
                 except Exception as e:
-                    LOGS.error(f"بحث yt_dlp error: {e}")
+                    LOGS.error(f"بحث youtube_search error: {e}")
                     found_ = False
             
             if found_:

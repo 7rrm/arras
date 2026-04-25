@@ -107,26 +107,22 @@ async def disable_song(event):
 async def send_song(event):
     global song_enabled
     
-    # ✅ الخاصية المرجعة: إذا كان المرسل هو المالك، يرد دائمًا
     if event.sender_id == my_id:
-        pass  # يستمر في التنفيذ (يعمل دائمًا)
-    # إذا كان المرسل شخصًا آخر، يرد فقط إذا كان مفعلًا
+        pass
     elif not song_enabled:
         return
     
     try:
         rl = random.randint(5, 141)
-        url = f"https://t.me/Kii_ti/{rl}"
+        msg = await event.client.get_messages('Kii_ti', ids=rl)
         
-        await event.client.send_file(
-            event.chat_id,
-            url,
-            caption="- تم اختيارها لك .",
-            parse_mode="html"
-        )
-        await event.delete()
+        if msg and msg.media:
+            await event.client.forward_messages(event.chat_id, msg, event.chat_id)
+            await event.delete()
+        else:
+            await event.reply("الملف غير موجود!")
     except Exception as e:
-        await event.reply(f"حدث خطأ أثناء إرسال الغناء: {str(e)}")
+        await event.reply(f"حدث خطأ: {str(e)}")
 
 # ========== نظام "شعر" ==========
 @l313l.on(events.NewMessage(pattern="^\.تفعيل شعر$"))
@@ -147,26 +143,21 @@ async def disable_poem(event):
 async def send_poem(event):
     global poem_enabled
     
-    # ✅ الخاصية المرجعة: إذا كان المرسل هو المالك، يرد دائمًا
     if event.sender_id == my_id:
-        pass  # يستمر في التنفيذ (يعمل دائمًا)
-    # إذا كان المرسل شخصًا آخر، يرد فقط إذا كان مفعلًا
+        pass
     elif not poem_enabled:
         return
     
     try:
         rl = random.randint(4, 67)
-        url = f"https://t.me/Lx1x2/{rl}"
+        msg = await event.client.get_messages('Lx1x2', ids=rl)
         
-        await event.client.send_file(
-            event.chat_id,
-            url,
-            caption="- تم اختيارها لك .",
-            reply_to=event.id,
-            parse_mode="html"
-        )
+        if msg and msg.media:
+            await event.client.forward_messages(event.chat_id, msg, event.chat_id)
+        else:
+            await event.reply("الملف غير موجود!")
     except Exception as e:
-        await event.reply(f"حدث خطأ أثناء إرسال الشعر: {str(e)}")
+        await event.reply(f"حدث خطأ: {str(e)}")
 
 # ========== نظام "ريمكس" ==========
 @l313l.on(events.NewMessage(pattern="^\.تفعيل ريمكس$"))
@@ -187,26 +178,21 @@ async def disable_remix(event):
 async def send_remix(event):
     global remix_enabled
     
-    # ✅ الخاصية المرجعة: إذا كان المرسل هو المالك، يرد دائمًا
     if event.sender_id == my_id:
-        pass  # يستمر في التنفيذ (يعمل دائمًا)
-    # إذا كان المرسل شخصًا آخر، يرد فقط إذا كان مفعلًا
+        pass
     elif not remix_enabled:
         return
     
     try:
         rl = random.randint(4, 70)
-        url = f"https://t.me/rem77e/{rl}"
+        msg = await event.client.get_messages('rem77e', ids=rl)
         
-        await event.client.send_file(
-            event.chat_id,
-            url,
-            caption="- تم اختيار هذا الريمكس لك .",
-            reply_to=event.id,
-            parse_mode="html"
-        )
+        if msg and msg.media:
+            await event.client.forward_messages(event.chat_id, msg, event.chat_id)
+        else:
+            await event.reply("الملف غير موجود!")
     except Exception as e:
-        await event.reply(f"حدث خطأ أثناء إرسال الريمكس: {str(e)}")
+        await event.reply(f"حدث خطأ: {str(e)}")
 
 @l313l.on(admin_cmd(outgoing=True, pattern=r"ميمز (\S+) (.+)"))
 async def Hussein(event):

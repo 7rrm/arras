@@ -83,101 +83,136 @@ from telethon import events
 # معرف المالك من l313l.uid
 my_id = l313l.uid
 
+# ========== روابط/معرفات القنوات ==========
+SONG_CHANNEL = 'Kii_ti'        # https://t.me/Kii_ti
+POEM_CHANNEL = 'Lx1x2'         # https://t.me/Lx1x2
+REMIX_CHANNEL = 'rem77e'       # https://t.me/rem77e
+
+# نطاقات الأرقام لكل قناة
+SONG_RANGE = (5, 141)
+POEM_RANGE = (4, 67)
+REMIX_RANGE = (4, 70)
+
 # متغيرات حالة الأنظمة
 song_enabled = False
 poem_enabled = False
 remix_enabled = False
 
-# قاموس لتخزين كائنات القنوات (لتحسين الأداء)
-channels = {
-    'song': None,
-    'poem': None,
-    'remix': None
-}
-
-async def get_cached_channel(client, username):
-    """الحصول على كائن القناة مع تخزين مؤقت لتجنب طلبات API المتكررة"""
-    if channels[username] is None:
-        channels[username] = await client.get_entity(username)
-    return channels[username]
-
-async def send_media_from_channel(event, channel_username, start_num, end_num, caption):
-    """وظيفة عامة لإرسال وسائط من أي قناة"""
-    try:
-        # الحصول على رقم عشوائي
-        rl = random.randint(start_num, end_num)
-        
-        # الحصول على كائن القناة (من التخزين المؤقت)
-        channel = await get_cached_channel(event.client, channel_username)
-        
-        # 🔥 التحسين الأهم: جلب الرسالة الحقيقية بدلاً من تحميل الملف
-        message = await event.client.get_messages(channel, ids=rl)
-        
-        if message and message.media:
-            # إرسال الميديا مباشرة (نقل داخلي سريع)
-            await event.client.send_file(
-                event.chat_id,
-                message.media,
-                caption=caption,
-                reply_to=event.id if event.sender_id != my_id else None,
-                parse_mode="html"
-            )
-            # حذف أمر المستخدم فقط إذا لم يكن المالك (اختياري)
-            if event.sender_id != my_id:
-                await event.delete()
-        else:
-            await event.reply("⚠️ لم يتم العثور على الميديا بهذا الرقم.")
-            
-    except Exception as e:
-        await event.reply(f"حدث خطأ: {str(e)}")
-
-# ========== نظام "غنيلي" (مدمج) ==========
-@l313l.on(events.NewMessage(pattern="^\.(تفعيل|ايقاف) غنيلي$"))
-async def toggle_song(event):
+# ========== نظام "غنيلي" ==========
+@l313l.on(events.NewMessage(pattern="^\.تفعيل غنيلي$"))
+async def enable_song(event):
     global song_enabled
     if event.sender_id == my_id:
-        action = event.pattern_match.group(1)
-        song_enabled = (action == "تفعيل")
-        status = "تم تفعيل" if song_enabled else "تم إلغاء تفعيل"
-        await event.reply(f"{status} غنيلي بنجاح!")
+        song_enabled = True
+        await event.reply("✅ تم تفعيل غنيلي بنجاح!")
+
+@l313l.on(events.NewMessage(pattern="^\.ايقاف غنيلي$"))
+async def disable_song(event):
+    global song_enabled
+    if event.sender_id == my_id:
+        song_enabled = False
+        await event.reply("❌ تم إلغاء تفعيل غنيلي بنجاح!")
 
 @l313l.on(events.NewMessage(pattern="^\.غنيلي$"))
 async def send_song(event):
-    if not song_enabled and event.sender_id != my_id:
+    global song_enabled
+    
+    if event.sender_id != my_id and not song_enabled:
         return
-    await send_media_from_channel(event, "Kii_ti", 5, 141, "- تم اختيارها لك .")
+    
+    try:
+        rl = random.randint(SONG_RANGE[0], SONG_RANGE[1])
+        msg = await event.client.get_messages(SONG_CHANNEL, ids=rl)
+        
+        if msg and msg.media:
+            # استخدام send_file بدلاً من forward_messages
+            await event.client.send_file(
+                event.chat_id,
+                msg.media,
+                caption="🎵 - تم اختيارها لك .",
+                reply_to=event.id
+            )
+            await event.delete()
+        else:
+            await event.reply("🎵 الملف غير موجود!")
+    except Exception as e:
+        await event.reply(f"⚠️ حدث خطأ: {str(e)}")
 
-# ========== نظام "شعر" (مدمج) ==========
-@l313l.on(events.NewMessage(pattern="^\.(تفعيل|ايقاف) شعر$"))
-async def toggle_poem(event):
+# ========== نظام "شعر" ==========
+@l313l.on(events.NewMessage(pattern="^\.تفعيل شعر$"))
+async def enable_poem(event):
     global poem_enabled
     if event.sender_id == my_id:
-        action = event.pattern_match.group(1)
-        poem_enabled = (action == "تفعيل")
-        status = "تم تفعيل" if poem_enabled else "تم إلغاء تفعيل"
-        await event.reply(f"{status} الشعر بنجاح!")
+        poem_enabled = True
+        await event.reply("✅ تم تفعيل الشعر بنجاح!")
+
+@l313l.on(events.NewMessage(pattern="^\.ايقاف شعر$"))
+async def disable_poem(event):
+    global poem_enabled
+    if event.sender_id == my_id:
+        poem_enabled = False
+        await event.reply("❌ تم إلغاء تفعيل الشعر بنجاح!")
 
 @l313l.on(events.NewMessage(pattern="^\.شعر$"))
 async def send_poem(event):
-    if not poem_enabled and event.sender_id != my_id:
+    global poem_enabled
+    
+    if event.sender_id != my_id and not poem_enabled:
         return
-    await send_media_from_channel(event, "Lx1x2", 4, 67, "- تم اختيارها لك .")
+    
+    try:
+        rl = random.randint(POEM_RANGE[0], POEM_RANGE[1])
+        msg = await event.client.get_messages(POEM_CHANNEL, ids=rl)
+        
+        if msg and msg.media:
+            await event.client.send_file(
+                event.chat_id,
+                msg.media,
+                caption="📜 - تم اختيارها لك .",
+                reply_to=event.id
+            )
+        else:
+            await event.reply("📜 الملف غير موجود!")
+    except Exception as e:
+        await event.reply(f"⚠️ حدث خطأ: {str(e)}")
 
-# ========== نظام "ريمكس" (مدمج) ==========
-@l313l.on(events.NewMessage(pattern="^\.(تفعيل|ايقاف) ريمكس$"))
-async def toggle_remix(event):
+# ========== نظام "ريمكس" ==========
+@l313l.on(events.NewMessage(pattern="^\.تفعيل ريمكس$"))
+async def enable_remix(event):
     global remix_enabled
     if event.sender_id == my_id:
-        action = event.pattern_match.group(1)
-        remix_enabled = (action == "تفعيل")
-        status = "تم تفعيل" if remix_enabled else "تم إلغاء تفعيل"
-        await event.reply(f"{status} الريمكس بنجاح!")
+        remix_enabled = True
+        await event.reply("✅ تم تفعيل الريمكس بنجاح!")
+
+@l313l.on(events.NewMessage(pattern="^\.ايقاف ريمكس$"))
+async def disable_remix(event):
+    global remix_enabled
+    if event.sender_id == my_id:
+        remix_enabled = False
+        await event.reply("❌ تم إلغاء تفعيل الريمكس بنجاح!")
 
 @l313l.on(events.NewMessage(pattern="^\.ريمكس$"))
 async def send_remix(event):
-    if not remix_enabled and event.sender_id != my_id:
+    global remix_enabled
+    
+    if event.sender_id != my_id and not remix_enabled:
         return
-    await send_media_from_channel(event, "rem77e", 4, 70, "- تم اختيار هذا الريمكس لك .")
+    
+    try:
+        rl = random.randint(REMIX_RANGE[0], REMIX_RANGE[1])
+        msg = await event.client.get_messages(REMIX_CHANNEL, ids=rl)
+        
+        if msg and msg.media:
+            await event.client.send_file(
+                event.chat_id,
+                msg.media,
+                caption="🎧 - تم اختيار هذا الريمكس لك .",
+                reply_to=event.id
+            )
+        else:
+            await event.reply("🎧 الملف غير موجود!")
+    except Exception as e:
+        await event.reply(f"⚠️ حدث خطأ: {str(e)}")
 
 @l313l.on(admin_cmd(outgoing=True, pattern=r"ميمز (\S+) (.+)"))
 async def Hussein(event):

@@ -7,10 +7,10 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
+import yt_dlp
 from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
-from youtubesearchpython import VideosSearch
 
 from . import l313l
 from ..Config import Config
@@ -40,7 +40,7 @@ def ibuild_keyboard(buttons):
     return keyb
 
 @l313l.tgbot.on(InlineQuery)
-async def inline_handler(event):  # sourcery no-metrics
+async def inline_handler(event):
     builder = event.builder
     result = None
     query = event.text
@@ -54,47 +54,62 @@ async def inline_handler(event):  # sourcery no-metrics
             link = get_yt_video_id(str_y[1].strip())
             found_ = True
             if link is None:
-                search = VideosSearch(str_y[1].strip(), limit=15)
-                resp = (search.result()).get("result")
-                if len(resp) == 0:
+                # استخدام yt_dlp للبحث بدلاً من youtubesearchpython
+                ydl_opts = {
+                    'extract_flat': True,
+                    'quiet': True,
+                    'no_warnings': True,
+                }
+                try:
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        search_query = f"ytsearch15:{str_y[1].strip()}"
+                        resp = ydl.extract_info(search_query, download=False)
+                        results_list = resp.get('entries', [])
+                        
+                        if len(results_list) == 0:
+                            found_ = False
+                        else:
+                            # تحويل النتائج إلى الصيغة المطلوبة
+                            outdata = await result_formatter(resp)
+                            key_ = rand_key()
+                            ytsearch_data.store_(key_, outdata)
+                            buttons = [
+                                [
+                                    Button.inline(
+                                        f"1 / {len(outdata)}",
+                                        data=f"ytdl_next_{key_}_1",
+                                        style="primary"
+                                    ),
+                                ],
+                                [
+                                    Button.inline(
+                                        "‹ : فَيديـو : ›",
+                                        data=f'ytdl_download_{outdata[1]["video_id"]}_video',
+                                        style="danger"
+                                    ),
+                                    Button.inline(
+                                        "‹ : صَــوت : ›",
+                                        data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
+                                        style="danger"
+                                    ),
+                                ],
+                                [
+                                    Button.inline(
+                                        "📜 القائمـة",
+                                        data=f"ytdl_listall_{key_}_1",
+                                        style="primary"
+                                    )
+                                ],
+                            ]
+                            caption = outdata[1]["message"]
+                            photo = await get_ytthumb(outdata[1]["video_id"])
+                except Exception as e:
+                    LOGS.error(f"بحث yt_dlp error: {e}")
                     found_ = False
-                else:
-                    outdata = await result_formatter(resp)
-                    key_ = rand_key()
-                    ytsearch_data.store_(key_, outdata)
-                    buttons = [
-                        [
-                            Button.inline(
-                                f"1 / {len(outdata)}",
-                                data=f"ytdl_next_{key_}_1",
-                                style="primary"
-                            ),
-                        ],
-                        [
-                            Button.inline(
-                                "‹ : فَيديـو : ›",
-                                data=f'ytdl_download_{outdata[1]["video_id"]}_video',
-                                style="danger"
-                            ),
-                            Button.inline(
-                                "‹ : صَــوت : ›",
-                                data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
-                                style="danger"
-                            ),
-                        ],
-                        [
-                            Button.inline(
-                                "📜 القائمـة",
-                                data=f"ytdl_listall_{key_}_1",
-                                style="primary"
-                            )
-                        ],
-                    ]
-                    caption = outdata[1]["message"]
-                    photo = await get_ytthumb(outdata[1]["video_id"])
             else:
                 caption, buttons = await download_button(link, body=True)
                 photo = await get_ytthumb(link)
+            
             if found_:
                 markup = event.client.build_reply_markup(buttons)
                 photo = types.InputWebDocument(
@@ -146,25 +161,24 @@ async def inline_handler(event):  # sourcery no-metrics
                 ZZZ_IMG = random.choice(PIC)
             else:
                 ZZZ_IMG = None
-            query = gvarstatus("pmpermit_text")
+            query_ = gvarstatus("pmpermit_text")
             if ZZZ_IMG and ZZZ_IMG.endswith((".jpg", ".jpeg", ".png")):
                 result = builder.photo(
                     ZZZ_IMG,
-                    # title="Alive zzz",
-                    text=query,
+                    text=query_,
                     buttons=buttons,
                 )
             elif ZZZ_IMG:
                 result = builder.document(
                     ZZZ_IMG,
                     title="Alive zzz",
-                    text=query,
+                    text=query_,
                     buttons=buttons,
                 )
             else:
                 result = builder.article(
                     title="Alive zzz",
-                    text=query,
+                    text=query_,
                     buttons=buttons,
                 )
             await event.answer([result] if result else None)

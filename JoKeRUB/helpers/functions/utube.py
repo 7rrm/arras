@@ -199,9 +199,8 @@ async def result_formatter(results: list):
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
         out += f'<b>❯ تاريـخ الرفـع :</b> {v.get("publish_time", "غير معروف")}\n'
         
-        if upld:
-            out += "<b>❯ القنـاة :</b> "
-            out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
+        if v.get('channel'):
+            out += f'<b>❯ القنـاة :</b> {v.get("channel")}'
         
         output[index] = dict(
             message=out,

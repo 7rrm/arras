@@ -125,14 +125,13 @@ async def send_song(event):
         msg = await event.client.get_messages(SONG_CHANNEL, ids=rl)
         
         if msg and msg.media:
-            # استخدام send_file بدلاً من forward_messages
             await event.client.send_file(
                 event.chat_id,
                 msg.media,
                 caption="🎵 - تم اختيارها لك .",
                 reply_to=event.id
             )
-            await event.delete()
+            # تم إزالة سطر حذف الرسالة
         else:
             await event.reply("🎵 الملف غير موجود!")
     except Exception as e:
@@ -213,6 +212,7 @@ async def send_remix(event):
             await event.reply("🎧 الملف غير موجود!")
     except Exception as e:
         await event.reply(f"⚠️ حدث خطأ: {str(e)}")
+        
 
 @l313l.on(admin_cmd(outgoing=True, pattern=r"ميمز (\S+) (.+)"))
 async def Hussein(event):

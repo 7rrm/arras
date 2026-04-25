@@ -34,7 +34,7 @@ async def mark_as_read(event):
 async def Hussein(event):
     global aljoker_enabled
     aljoker_enabled = False
-    await event.edit('**᯽︙ تم تعطيل امر التكبر بنجاح ✅**')
+    await event.edit('**⌔︙ تم تعطيل امر التكبر بنجاح ✅**')
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.التكبر (\d+) (\d+)$'))
 async def Hussein(event):
@@ -43,20 +43,20 @@ async def Hussein(event):
     user_id = int(event.pattern_match.group(2)) 
     JOKER_ID[user_id] = joker_time
     aljoker_enabled = True
-    await event.edit(f'**᯽︙ تم تفعيل امر التكبر بنجاح مع  {joker_time} ثانية للمستخدم {user_id}**')
+    await event.edit(f'**⌔︙ تم تفعيل امر التكبر بنجاح مع  {joker_time} ثانية للمستخدم {user_id}\n لتعطيله أرسل التكبر تعطيل**')
 
 @l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.مود التكبر تعطيل$'))
 async def Hussein(event):
     global hussein_enabled
     hussein_enabled = False
-    await event.edit('**᯽︙ تم تعطيل امر التكبر على الجميع بنجاح ✅**')
+    await event.edit('**⌔︙ تم تعطيل امر التكبر على الجميع بنجاح ✅**')
     
 @l313l.on(admin_cmd(pattern=f"مود التكبر (\d+)"))
 async def Hussein(event):
     global hussein_enabled, hussein_time
     hussein_time = int(event.pattern_match.group(1))
     hussein_enabled = True
-    await event.edit(f'**᯽︙ تم تفعيل امر التكبر بنجاح مع  {hussein_time} ثانية**')
+    await event.edit(f'**⌔︙ تم تفعيل امر التكبر بنجاح مع  {hussein_time} ثانية**')
 
 @l313l.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def Hussein(event):

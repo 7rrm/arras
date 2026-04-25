@@ -1,14 +1,13 @@
 import os
 import re
-import glob  # <-- أضف هذا
-import random  # <-- أضف هذا
+import glob
+import random
 import urllib.request
 from collections import defaultdict
 
 import ujson
 import yt_dlp
 from telethon import Button
-from youtubesearchpython import VideosSearch
 from yt_dlp.utils import DownloadError, ExtractorError, GeoRestrictedError
 
 from ...Config import Config
@@ -19,8 +18,6 @@ from ..progress import humanbytes
 from .functions import sublists
 
 LOGS = logging.getLogger(__name__)
-
-
 
 BASE_YT_URL = "https://www.youtube.com/watch?v="
 YOUTUBE_REGEX = re.compile(
@@ -61,18 +58,60 @@ async def yt_search(JoKeRUB):
 
 
 async def ytsearch(query, limit):
+    """بحث باستخدام yt_dlp بدلاً من youtubesearchpython"""
     result = ""
-    videolinks = VideosSearch(query.lower(), limit=limit)
-    for v in videolinks.result()["result"]:
-        textresult = f"[{v['title']}](https://www.youtube.com/watch?v={v['id']})\n"
-        try:
-            textresult += f"**الشرح : **`{v['descriptionSnippet'][-1]['text']}`\n"
-        except Exception:
-            textresult += "**الشرح : **`None`\n"
-        textresult += (
-            f"**المدة : **{v['duration']}  **المشاهدات : **{v['viewCount']['short']}\n"
-        )
-        result += f"☞ {textresult}\n"
+    
+    ydl_opts = {
+        'extract_flat': True,
+        'quiet': True,
+        'no_warnings': True,
+    }
+    
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            search_query = f"ytsearch{limit}:{query}"
+            data = ydl.extract_info(search_query, download=False)
+            
+            for v in data['entries']:
+                # تحويل المدة من ثواني إلى صيغة مقروءة
+                duration_seconds = v.get('duration', 0)
+                if duration_seconds >= 3600:
+                    hours = duration_seconds // 3600
+                    minutes = (duration_seconds % 3600) // 60
+                    seconds = duration_seconds % 60
+                    duration = f"{hours}:{minutes:02d}:{seconds:02d}"
+                else:
+                    minutes = duration_seconds // 60
+                    seconds = duration_seconds % 60
+                    duration = f"{minutes}:{seconds:02d}"
+                
+                # تنسيق المشاهدات
+                views = v.get('view_count', 0)
+                if views >= 1000000:
+                    views_short = f"{views / 1000000:.1f}M"
+                elif views >= 1000:
+                    views_short = f"{views / 1000:.1f}K"
+                else:
+                    views_short = str(views)
+                
+                textresult = f"[{v['title']}](https://www.youtube.com/watch?v={v['id']})\n"
+                
+                # الوصف
+                if v.get('description'):
+                    desc = v['description'][:100].replace('\n', ' ') + "..."
+                    textresult += f"**الشرح : **`{desc}`\n"
+                else:
+                    textresult += "**الشرح : **`None`\n"
+                
+                textresult += (
+                    f"**المدة : **{duration}  **المشاهدات : **{views_short}\n"
+                )
+                result += f"☞ {textresult}\n"
+                
+    except Exception as e:
+        LOGS.error(f"خطأ في البحث: {e}")
+        result = "حدث خطأ أثناء البحث"
+    
     return result
 
 
@@ -95,30 +134,18 @@ class YT_Search_X:
 
 ytsearch_data = YT_Search_X()
 
-"""
-async def yt_data(JoKeRUB):
-    params = {"format": "json", "url": JoKeRUB}
-    url = "https://www.youtube.com/oembed"  # https://stackoverflow.com/questions/29069444/returning-the-urls-as-a-list-from-a-youtube-search-query
-    query_string = urllib.parse.urlencode(params)
-    url = f"{url}?{query_string}"
-    with urllib.request.urlopen(url) as response:
-        response_text = response.read()
-        data = ujson.loads(response_text.decode())
-    return data
-"""
-
 
 async def get_ytthumb(videoid: str):
     thumb_quality = [
-        "maxresdefault.jpg",  # Best quality
+        "maxresdefault.jpg",
         "hqdefault.jpg",
         "sddefault.jpg",
         "mqdefault.jpg",
-        "default.jpg",  # Worst quality
+        "default.jpg",
     ]
     thumb_link = "https://i.imgur.com/4LwPLai.png"
-    for qualiy in thumb_quality:
-        link = f"https://i.ytimg.com/vi/{videoid}/{qualiy}"
+    for quality in thumb_quality:
+        link = f"https://i.ytimg.com/vi/{videoid}/{quality}"
         if await AioHttp().get_status(link) == 200:
             thumb_link = link
             break
@@ -130,18 +157,14 @@ def get_yt_video_id(url: str):
         return match.group(1)
 
 
-# Based on https://gist.github.com/AgentOak/34d47c65b1d28829bb17c24c04a0096f
 def get_choice_by_id(choice_id, media_type: str):
     if choice_id == "mkv":
-        # default format selection
         choice_str = "bestvideo+bestaudio/best"
         disp_str = "best(video+audio)"
     elif choice_id == "mp3":
         choice_str = "320"
         disp_str = "320 Kbps"
     elif choice_id == "mp4":
-        # Download best Webm / Mp4 format available or any other best if no mp4
-        # available
         choice_str = "bestvideo[ext=webm]+251/bestvideo[ext=mp4]+(258/256/140/bestaudio[ext=m4a])/bestvideo[ext=webm]+(250/249)/best"
         disp_str = "best(video+audio)[webm/mp4]"
     else:
@@ -155,33 +178,56 @@ def get_choice_by_id(choice_id, media_type: str):
     return choice_str, disp_str
 
 
-async def result_formatter(results: list):
+async def result_formatter(results: dict):
+    """تهيئة نتائج البحث من yt_dlp إلى نفس صيغة الكود الأصلي"""
     output = {}
-    for index, r in enumerate(results, start=1):
-        v_deo_id = r.get("id")
-        thumb = await get_ytthumb(v_deo_id)
-        upld = r.get("channel")
-        title = f'<a href={r.get("link")}><b>{r.get("title")}</b></a>\n'
+    for index, r in enumerate(results.get('entries', []), start=1):
+        video_id = r.get('id')
+        thumb = await get_ytthumb(video_id)
+        
+        # تهيئة الوصف
+        description = r.get('description', '')
+        if description:
+            desc_snippet = description[:100].replace('\n', ' ')
+        else:
+            desc_snippet = ''
+        
+        # تحويل المدة
+        duration_seconds = r.get('duration', 0)
+        if duration_seconds >= 3600:
+            duration_str = f"{duration_seconds // 3600}:{(duration_seconds % 3600) // 60:02d}:{duration_seconds % 60:02d}"
+        else:
+            duration_str = f"{duration_seconds // 60}:{duration_seconds % 60:02d}"
+        
+        # تنسيق المشاهدات
+        views = r.get('view_count', 0)
+        if views >= 1000000:
+            views_short = f"{views / 1000000:.1f}M"
+        elif views >= 1000:
+            views_short = f"{views / 1000:.1f}K"
+        else:
+            views_short = str(views)
+        
+        title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{r.get("title")}</b></a>\n'
         out = title
-        if r.get("descriptionSnippet"):
-            out += "<code>{}</code>\n\n".format(
-                "".join(x.get("text") for x in r.get("descriptionSnippet"))
-            )
-        out += f'<b>❯ المـده :</b> {r.get("accessibility").get("duration")}\n'
-        views = f'<b>❯ المشـاهـدات :</b> {r.get("viewCount").get("short")}\n'
-        out += views
-        out += f'<b>❯ تاريـخ الرفـع :</b> {r.get("publishedTime")}\n'
-        if upld:
-            out += "<b>❯ القنـاة :</b> "
-            out += f'<a href={upld.get("link")}>{upld.get("name")}</a>'
-
+        
+        if desc_snippet:
+            out += f"<code>{desc_snippet}</code>\n\n"
+        
+        out += f'<b>❯ المـده :</b> {duration_str}\n'
+        out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
+        out += f'<b>❯ تاريـخ الرفـع :</b> {r.get("upload_date", "غير معروف")}\n'
+        
+        if r.get('uploader'):
+            out += f'<b>❯ القنـاة :</b> <a href="https://youtube.com/@{r.get("uploader")}">{r.get("uploader")}</a>'
+        
         output[index] = dict(
             message=out,
             thumb=thumb,
-            video_id=v_deo_id,
-            list_view=f'<img src={thumb}><b><a href={r.get("link")}>{index}. {r.get("accessibility").get("title")}</a></b><br>',
+            video_id=video_id,
+            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {r.get("title")}</a></b><br>',
         )
-
+    
     return output
 
 
@@ -222,23 +268,21 @@ def yt_search_btns(
         ],
     ]
     
-    # إذا كانت الصفحة الأولى، احذف السطر الثالث (زر رجوع)
     if del_back:
-        buttons.pop()  # يحذف آخر سطر
+        buttons.pop()
     
     return buttons
 
 
-
 @pool.run_in_thread
-def download_button(vid: str, body: bool = False):  # sourcery no-metrics
-    # sourcery skip: low-code-quality
+def download_button(vid: str, body: bool = False):
     try:
-        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": get_cookies_file()}).extract_info(
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": ""}).extract_info(
             BASE_YT_URL + vid, download=False
         )
     except ExtractorError:
         vid_data = {"formats": []}
+    
     buttons = [
         [
             Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
@@ -248,11 +292,11 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
             ),
         ]
     ]
-    # ------------------------------------------------ #
+    
     qual_dict = defaultdict(lambda: defaultdict(int))
     qual_list = ["144p", "240p", "360p", "480p", "720p", "1080p", "1440p"]
     audio_dict = {}
-    # ------------------------------------------------ #
+    
     for video in vid_data["formats"]:
         if video.get("filesize"):
             fr_note = video.get("format_note")
@@ -263,7 +307,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
                     if fr_note in (frmt_, f"{frmt_}60"):
                         qual_dict[frmt_][fr_id] = fr_size
             if video.get("acodec") != "none":
-                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0 # تم اضافتها مع الكوكيز
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0
                 if bitrrate != 0:
                     audio_dict[
                         bitrrate
@@ -296,7 +340,7 @@ def download_button(vid: str, body: bool = False):  # sourcery no-metrics
         vid_body = f"<a href={vid_data.get('webpage_url')}><b>[{vid_data.get('title')}]</b></a>"
         return vid_body, buttons
     return buttons
-    
+
 
 @pool.run_in_thread
 def _tubeDl(url: str, starttime, uid: str):
@@ -307,18 +351,15 @@ def _tubeDl(url: str, starttime, uid: str):
         "outtmpl": os.path.join(
             Config.TEMP_DIR, str(starttime), "%(title)s-%(format)s.%(ext)s"
         ),
-        #         "logger": LOGS,
         "format": uid,
         "writethumbnail": True,
         "prefer_ffmpeg": True,
         "postprocessors": [
             {"key": "FFmpegMetadata"}
-            # ERROR R15: Memory quota vastly exceeded
-            # {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"},
         ],
         "quiet": True,
         "no_warnings": True,
-        "cookiefile" : get_cookies_file(),
+        "cookiefile": "",
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -326,7 +367,7 @@ def _tubeDl(url: str, starttime, uid: str):
     except DownloadError as e:
         LOGS.error(e)
     except GeoRestrictedError:
-        LOGS.error("هذا الفيديو غير متاح  في بلدك")
+        LOGS.error("هذا الفيديو غير متاح في بلدك")
     else:
         return x
 
@@ -335,7 +376,6 @@ def _tubeDl(url: str, starttime, uid: str):
 def _mp3Dl(url: str, starttime, uid: str):
     _opts = {
         "outtmpl": os.path.join(Config.TEMP_DIR, str(starttime), "%(title)s.%(ext)s"),
-        #         "logger": LOGS,
         "writethumbnail": True,
         "prefer_ffmpeg": True,
         "format": "bestaudio/best",
@@ -347,12 +387,12 @@ def _mp3Dl(url: str, starttime, uid: str):
                 "preferredcodec": "mp3",
                 "preferredquality": uid,
             },
-            {"key": "EmbedThumbnail"},  # ERROR: Conversion failed!
+            {"key": "EmbedThumbnail"},
             {"key": "FFmpegMetadata"},
         ],
         "quiet": True,
         "no_warnings": True,
-        "cookiefile" : get_cookies_file(),
+        "cookiefile": "",
     }
     try:
         with yt_dlp.YoutubeDL(_opts) as ytdl:
@@ -362,4 +402,3 @@ def _mp3Dl(url: str, starttime, uid: str):
         return y_e
     else:
         return dloader
-    

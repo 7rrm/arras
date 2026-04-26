@@ -34,28 +34,12 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سريـه الى**"
 ddd = "💌"
 bbb = None
 
-# Cache for whispers to avoid disk I/O delay
-whisper_cache = {}
-
-async def save_json_async(data, path):
-    """Save JSON data asynchronously without blocking"""
-    try:
-        with open(path, "w") as f:
-            json.dump(data, f)
-    except Exception as e:
-        LOGS.error(f"Error saving JSON: {e}")
-
-async def get_users_parallel(users, client):
-    """Get multiple users in parallel for speed"""
-    tasks = []
-    for user in users:
-        usr = int(user) if str(user).isdigit() else user
-        tasks.append(client.get_entity(usr))
-    return await asyncio.gather(*tasks, return_exceptions=True)
+# مسار الصورة المحلية الثابتة (نفس طريقة أمر بحث)
+DEFAULT_THUMBNAIL = "l313l/razan/resources/start/Jepthon2.JPEG"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -77,13 +61,13 @@ async def inline_handler(event):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         malathid = Config.OWNER_ID
-    elif query_user_id == user_id:
+    elif query_user_id == user_id: #or query_user_id == int(user_id):
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -95,42 +79,44 @@ async def inline_handler(event):
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
             else:
-                user_part, query = query.split(" ", 1)
-                users = [user_part]
-            
-            # Get users in parallel for speed
-            users_entities = await get_users_parallel(users, l313l)
-            
-            for u in users_entities:
-                if isinstance(u, Exception):
-                    continue
-                if hasattr(u, 'username') and u.username:
+                user, query = query.split(" ", 1)
+                users = [user]
+            for user in users:
+                usr = int(gvarstatus("hmsa_id")) if gvarstatus("hmsa_id") else int(user)
+                try:
+                    u = await l313l.get_entity(usr)
+                except ValueError:
+                    u = await l313l(GetUsersRequest(usr))
+                if u.username:
                     zilzal += f"@{u.username}"
                 else:
                     zilzal += f"[{u.first_name}](tg://user?id={u.id})"
                 user_list.append(u.id)
                 zilzal += " "
-            zilzal = zilzal[:-1] if zilzal else ""
-            
+            zilzal = zilzal[:-1]
             old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            
             try:
                 jsondata = json.load(open(old_msg))
             except Exception:
                 jsondata = False
-            
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }
-            
+            }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            thumb = InputWebDocument(
-                url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
-                size=0,
-                mime_type="image/jpeg",
-                attributes=[]
-            )
+            
+            # استخدام الصورة المحلية بدلاً من InputWebDocument
+            if os.path.exists(DEFAULT_THUMBNAIL):
+                thumb = DEFAULT_THUMBNAIL
+            else:
+                # صورة احتياطية من الرابط في حال عدم وجود الملف المحلي
+                thumb = InputWebDocument(
+                    url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
+                    size=0,
+                    mime_type="image/jpeg",
+                    attributes=[]
+                )
+            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -140,17 +126,14 @@ async def inline_handler(event):
                 thumb=thumb,
             )
             await event.answer([result] if result else None)
-            
-            # Save asynchronously without blocking
             if jsondata:
                 jsondata.update(new_msg)
-                asyncio.create_task(save_json_async(jsondata, old_msg))
+                json.dump(jsondata, open(old_msg, "w"))
             else:
-                asyncio.create_task(save_json_async(new_msg, old_msg))
-                
+                json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True, style="primary"))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="primary"))]
             else:
                 return
             results = []
@@ -164,7 +147,7 @@ async def inline_handler(event):
                 ),
             )
             await event.answer(results)
-    elif query_user_id == user_id:
+    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -176,42 +159,44 @@ async def inline_handler(event):
                 iris, query = query.replace(" |", "|").replace("| ", "|").split("|")
                 users = iris.split(" ")
             else:
-                user_part, query = query.split(" ", 1)
-                users = [user_part]
-            
-            # Get users in parallel for speed
-            users_entities = await get_users_parallel(users, l313l)
-            
-            for u in users_entities:
-                if isinstance(u, Exception):
-                    continue
-                if hasattr(u, 'username') and u.username:
+                user, query = query.split(" ", 1)
+                users = [user]
+            for user in users:
+                usr = int(user) if user.isdigit() else user
+                try:
+                    u = await l313l.get_entity(usr)
+                except ValueError:
+                    u = await l313l(GetUsersRequest(usr))
+                if u.username:
                     zilzal += f"@{u.username}"
                 else:
                     zilzal += f"[{u.first_name}](tg://user?id={u.id})"
                 user_list.append(u.id)
                 zilzal += " "
-            zilzal = zilzal[:-1] if zilzal else ""
-            
+            zilzal = zilzal[:-1]
             old_msg = os.path.join("./JoKeRUB", f"{user_id}.txt")
-            
             try:
                 jsondata = json.load(open(old_msg))
             except Exception:
                 jsondata = False
-            
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }
-            
+            }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            thumb = InputWebDocument(
-                url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
-                size=0,
-                mime_type="image/jpeg",
-                attributes=[]
-            )
+            
+            # استخدام الصورة المحلية بدلاً من InputWebDocument
+            if os.path.exists(DEFAULT_THUMBNAIL):
+                thumb = DEFAULT_THUMBNAIL
+            else:
+                # صورة احتياطية من الرابط في حال عدم وجود الملف المحلي
+                thumb = InputWebDocument(
+                    url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
+                    size=0,
+                    mime_type="image/jpeg",
+                    attributes=[]
+                )
+            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
@@ -221,17 +206,14 @@ async def inline_handler(event):
                 thumb=thumb,
             )
             await event.answer([result] if result else None)
-            
-            # Save asynchronously without blocking
             if jsondata:
                 jsondata.update(new_msg)
-                asyncio.create_task(save_json_async(jsondata, old_msg))
+                json.dump(jsondata, open(old_msg, "w"))
             else:
-                asyncio.create_task(save_json_async(new_msg, old_msg))
-                
+                json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True, style="primary"))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True,style="primary"))]
             else:
                 return
             results = []

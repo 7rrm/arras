@@ -44,7 +44,7 @@ from . import BOTLOG, BOTLOG_CHATID, spamwatch, mention
 
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
-#Code by T.me/zzzzl1l
+
 zed_dev = Zed_Dev
 zel_dev = (5427469031, 1985225531)
 zelzal = (5427469031, 5280339206)
@@ -52,7 +52,7 @@ Zel_Uid = l313l.uid
 
 ZED_BLACKLIST = [
     -1001935599871,
-    ]
+]
 
 # ====================== قاموس الكليشات ======================
 ZID_TEMPLATES = {
@@ -79,8 +79,39 @@ ZID_TEMPLATES = {
 }
 
 # متغيرات لتخزين اختيارات المستخدم
-user_selected_template = {}  # {user_id: template_id}
-user_selected_button = {}     # {user_id: button_type}  # 'likes' or 'profile_link'
+user_selected_template = {}
+user_selected_button = {}
+
+# ====================== دوال مساعدة معدلة ======================
+
+async def fetch_zelzal(user_id):
+    """جلب تاريخ إنشاء الحساب - مع معالجة الأخطاء"""
+    try:
+        headers = {
+            'Host': 'restore-access.indream.app',
+            'Connection': 'keep-alive',
+            'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
+            'Accept': '*/*',
+            'Accept-Language': 'ar',
+            'Content-Length': '25',
+            'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        }
+        data = '{"telegramId":' + str(user_id) + '}'
+        response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data, timeout=10)
+        
+        if response.status_code != 200:
+            return None
+            
+        result = response.json()
+        
+        if result and 'data' in result and result['data'] and 'date' in result['data']:
+            return result['data']['date']
+        else:
+            return None
+    except Exception as e:
+        LOGS.error(f"خطأ في جلب تاريخ الإنشاء: {e}")
+        return None
 
 async def get_user_from_event(event):
     if event.reply_to_msg_id:
@@ -109,115 +140,6 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-# Copyright (C) 2023 T.me/ZThon . All Rights Reserved
-async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
-    headers = {
-        'Host': 'restore-access.indream.app',
-        'Connection': 'keep-alive',
-        'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
-        'Accept': '*/*',
-        'Accept-Language': 'ar',
-        'Content-Length': '25',
-        'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-    }
-    data = '{"telegramId":' + str(user_id) + '}'
-    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
-    zelzal_date = response['data']['date']
-    return zelzal_date
-
-async def fetch_info(event):
-    """Get details from the User object."""
-    replied_user = await l313l.get_me()
-    FullUser = (await l313l(GetFullUserRequest(replied_user.id))).full_user
-    replied_user_profile_photos = await l313l(
-        GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
-    )
-    replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
-    dc_id = "Can't get dc id"
-    with contextlib.suppress(AttributeError):
-        replied_user_profile_photos_count = replied_user_profile_photos.count
-        dc_id = replied_user.photo.dc_id
-    user_id = replied_user.id
-    zelzal_sinc = await fetch_zelzal(user_id)
-    first_name = replied_user.first_name
-    full_name = FullUser.private_forward_name
-    common_chat = FullUser.common_chats_count
-    username = replied_user.username
-    user_bio = FullUser.about
-    is_bot = replied_user.bot
-    restricted = replied_user.restricted
-    verified = replied_user.verified
-    zilzal = (await l313l.get_entity(user_id)).premium
-    if zilzal == True or user_id in zelzal:
-        zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
-    else:
-        zpre = "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
-    
-    photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg")
-    photo = await l313l.download_profile_photo(
-        user_id,
-        photo_path,
-        download_big=True,
-    )
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else ("هذا المستخدم ليس له اسم أول")
-    )
-    full_name = full_name or first_name
-    username = "@{}".format(username) if username else ("لا يـوجـد")
-    user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
-    zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
-    zzz = zmsg.total
-    if zzz < 100:
-        zelzzz = "غير متفاعل  🗿"
-    elif zzz > 200 and zzz < 500:
-        zelzzz = "ضعيف  🗿"
-    elif zzz > 500 and zzz < 700:
-        zelzzz = "شد حيلك  🏇"
-    elif zzz > 700 and zzz < 1000:
-        zelzzz = "ماشي الحال  🏄🏻‍♂"
-    elif zzz > 1000 and zzz < 2000:
-        zelzzz = "ملك التفاعل  🎖"
-    elif zzz > 2000 and zzz < 3000:
-        zelzzz = "امبراطور التفاعل  🥇"
-    elif zzz > 3000 and zzz < 4000:
-        zelzzz = "غنبله  💣"
-    else:
-        zelzzz = "نار وشرر  🏆"
-
-    if user_id in zelzal:
-        rotbat = "مطـور السـورس 𓄂" 
-    elif user_id in zel_dev:
-        rotbat = "مـطـور 𐏕" 
-    elif user_id == (await l313l.get_me()).id:
-        rotbat = "مـالك الحساب 𓀫" 
-    else:
-        rotbat = "العضـو 𓅫"
-    
-    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن سـورس آراس"
-    ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ "
-    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆"
-    
-    return photo_path, {
-        'znam': full_name,
-        'zusr': username,
-        'zidd': user_id,
-        'zrtb': rotbat,
-        'zpre': zpre,
-        'zpic': replied_user_profile_photos_count,
-        'zmsg': zzz,
-        'ztmg': zelzzz,
-        'zcom': common_chat,
-        'zsnc': zzzsinc,
-        'zbio': user_bio,
-        'ZED_TEXT': ZED_TEXT,
-        'ZEDM': ZEDM,
-        'ZEDF': ZEDF
-    }
-
 # ====================== أوامر تغيير الكليشة والزر ======================
 
 @l313l.ar_cmd(pattern="تغيير الكليشة$")
@@ -227,9 +149,12 @@ async def change_template(event):
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
     
     zed = await edit_or_reply(event, "⇆")
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تغيير_الكليشة")
-    await response[0].click(event.chat_id)
-    await zed.delete()
+    if Config.TG_BOT_USERNAME:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تغيير_الكليشة")
+        await response[0].click(event.chat_id)
+        await zed.delete()
+    else:
+        await zed.edit("**- يرجى تعيين متغير TG_BOT_USERNAME اولا**")
 
 @l313l.ar_cmd(pattern="تغيير الزر$")
 async def change_button(event):
@@ -238,9 +163,12 @@ async def change_button(event):
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
     
     zed = await edit_or_reply(event, "⇆")
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تغيير_الزر")
-    await response[0].click(event.chat_id)
-    await zed.delete()
+    if Config.TG_BOT_USERNAME:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تغيير_الزر")
+        await response[0].click(event.chat_id)
+        await zed.delete()
+    else:
+        await zed.edit("**- يرجى تعيين متغير TG_BOT_USERNAME اولا**")
 
 @l313l.ar_cmd(pattern="مسح التعديلات$")
 async def reset_settings(event):
@@ -254,7 +182,6 @@ async def reset_settings(event):
     if user_id in user_selected_button:
         del user_selected_button[user_id]
     
-    # حذف من قاعدة البيانات اذا موجود
     delgvar("Like_Id")
     remove_all_likes(l313l.uid)
     
@@ -266,69 +193,63 @@ async def reset_settings(event):
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
-    input_str = event.pattern_match.group(1)
-    reply = event.reply_to_msg_id
-    if input_str and reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
-    if input_str or reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
+    
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫**")
+    
     zed = await edit_or_reply(event, "⇆")
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
-    await response[0].click(event.chat_id)
-    await zed.delete()
+    if Config.TG_BOT_USERNAME:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
+        await response[0].click(event.chat_id)
+        await zed.delete()
+    else:
+        await zed.edit("**- يرجى تعيين متغير TG_BOT_USERNAME اولا**")
 
 @l313l.ar_cmd(pattern="like(?: |$)(.*)")
-async def who(event):
+async def who_like(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
-    input_str = event.pattern_match.group(1)
-    reply = event.reply_to_msg_id
-    if input_str and reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
-    if input_str or reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
+    
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
         return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
+    
     zed = await edit_or_reply(event, "⇆")
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
-    await response[0].click(event.chat_id)
-    await zed.delete()
+    if Config.TG_BOT_USERNAME:
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
+        await response[0].click(event.chat_id)
+        await zed.delete()
+    else:
+        await zed.edit("**- يرجى تعيين متغير TG_BOT_USERNAME اولا**")
 
 # ====================== قائمة المعجبين ======================
 
 @l313l.ar_cmd(pattern="المعجبين$")
 async def on_like_list(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع **")
-    count = 1
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس**")
+    
     likers = get_likes(l313l.uid)
     if likers:
         OUT_STR = f"𓆩 𝗮𝗥𝗥𝗮𝗦 𝗟𝗶𝗸𝗲 - **قائمـة المعجبيــن** ❤️𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المعجبيـن {len(likers)}**\n\n"
         for mogab in likers:
             OUT_STR += "**• الاسم:** [{}](tg://user?id={})\n**• الايـدي:** `{}`\n**• اليـوزر:** {}\n\n".format(mogab.f_name, mogab.lik_id, mogab.lik_id, mogab.f_user)
-        await edit_or_reply(
-            event,
-            OUT_STR
-        )
-    else:
-        OUT_STR = "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**"
         await edit_or_reply(event, OUT_STR)
+    else:
+        await edit_or_reply(event, "**- مسكيـن ع باب الله 🧑🏻‍🦯\n- ماعنـدك معجبيـن حالياً ❤️‍🩹**")
 
 @l313l.ar_cmd(pattern="مسح المعجبين$")
 async def on_all_liked_delete(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
-    liikers = get_likes(l313l.uid)
-    if liikers:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة**")
+    
+    likers = get_likes(l313l.uid)
+    if likers:
         zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المعجبيـن .. انتظـر ⏳**")
         remove_all_likes(l313l.uid)
         delgvar("Like_Id")
         await zed.edit("**⪼ تم حـذف جميـع المعجبيـن .. بنجـاح ✅**")
     else:
-        OUT_STR = "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**"
-        await edit_or_reply(event, OUT_STR)
+        await edit_or_reply(event, "**- مسكيـن ع باب الله 🧑🏻‍🦯\n- ماعنـدك معجبيـن حالياً ❤️‍🩹**")
 
 # ====================== نظام الاستعلام المضمن ======================
 
@@ -381,28 +302,47 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             try:
                 # جلب معلومات المستخدم
                 replied_user = await l313l.get_me()
+                if not replied_user:
+                    return
+                
                 FullUser = (await l313l(GetFullUserRequest(replied_user.id))).full_user
+                
                 replied_user_profile_photos = await l313l(
                     GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
                 )
+                
                 replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
                 with contextlib.suppress(AttributeError):
-                    replied_user_profile_photos_count = replied_user_profile_photos.count
+                    if replied_user_profile_photos and hasattr(replied_user_profile_photos, 'count'):
+                        replied_user_profile_photos_count = replied_user_profile_photos.count
                 
                 user_id = replied_user.id
+                
+                # جلب تاريخ الإنشاء
                 zelzal_sinc = await fetch_zelzal(user_id)
+                if not zelzal_sinc:
+                    zelzal_sinc = "غيـر معلـوم"
+                
                 first_name = replied_user.first_name or "لا يوجد"
-                full_name = FullUser.private_forward_name or first_name
-                common_chat = FullUser.common_chats_count
+                full_name = FullUser.private_forward_name if FullUser.private_forward_name else first_name
+                common_chat = FullUser.common_chats_count if FullUser.common_chats_count else 0
                 username = f"@{replied_user.username}" if replied_user.username else "لا يـوجـد"
                 user_bio = FullUser.about if FullUser.about else "لا يـوجـد"
-                zilzal = (await l313l.get_entity(user_id)).premium
+                
+                # التحقق من premium
+                zilzal = False
+                try:
+                    user_entity = await l313l.get_entity(user_id)
+                    zilzal = user_entity.premium if user_entity else False
+                except:
+                    zilzal = False
                 
                 if zilzal == True or user_id in zelzal:
                     zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
                 else:
                     zpre = "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
                 
+                # الرتبة
                 if user_id in zelzal:
                     rotbat = "مطـور السـورس 𓄂" 
                 elif user_id in zel_dev:
@@ -412,21 +352,27 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 else:
                     rotbat = "العضـو 𓅫"
                 
-                zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
-                zzz = zmsg.total
+                # عدد الرسائل
+                try:
+                    zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
+                    zzz = zmsg.total if zmsg else 0
+                except:
+                    zzz = 0
+                
+                # تقييم التفاعل
                 if zzz < 100:
                     zelzzz = "غير متفاعل  🗿"
-                elif zzz > 200 and zzz < 500:
+                elif 200 < zzz < 500:
                     zelzzz = "ضعيف  🗿"
-                elif zzz > 500 and zzz < 700:
+                elif 500 < zzz < 700:
                     zelzzz = "شد حيلك  🏇"
-                elif zzz > 700 and zzz < 1000:
+                elif 700 < zzz < 1000:
                     zelzzz = "ماشي الحال  🏄🏻‍♂"
-                elif zzz > 1000 and zzz < 2000:
+                elif 1000 < zzz < 2000:
                     zelzzz = "ملك التفاعل  🎖"
-                elif zzz > 2000 and zzz < 3000:
+                elif 2000 < zzz < 3000:
                     zelzzz = "امبراطور التفاعل  🥇"
-                elif zzz > 3000 and zzz < 4000:
+                elif 3000 < zzz < 4000:
                     zelzzz = "غنبله  💣"
                 else:
                     zelzzz = "نار وشرر  🏆"
@@ -437,7 +383,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 
                 # تحميل الصورة
                 photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, str(user_id) + ".jpg")
-                await l313l.download_profile_photo(user_id, photo_path, download_big=True)
+                try:
+                    await l313l.download_profile_photo(user_id, photo_path, download_big=True)
+                except:
+                    photo_path = None
                 
                 # جلب اختيارات المستخدم
                 user_id_query = event.query.user_id
@@ -456,14 +405,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         zmsg=zzz,
                         ztmg=zelzzz,
                         zcom=common_chat,
-                        zsnc=zelzal_sinc if zelzal_sinc else "غيـر معلـوم",
+                        zsnc=zelzal_sinc,
                         zbio=user_bio,
                         ZED_TEXT=ZED_TEXT,
                         ZEDM=ZEDM,
                         ZEDF=ZEDF
                     )
                 else:
-                    caption = f"<b> {ZED_TEXT} </b>\nٴ<b>{ZEDF}</b>\n<b>{ZEDM}الاســم    ⤎ </b> <a href='tg://user?id={user_id}'>{full_name}</a>\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n<b>{ZEDM}الحساب  ⤎  {zpre}</b>\n<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n<b>{ZEDM}الإنشـاء  ⤎</b>  {zelzal_sinc if zelzal_sinc else 'غيـر معلـوم'}  🗓\n<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\nٴ<b>{ZEDF}</b>"
+                    caption = f"<b> {ZED_TEXT} </b>\nٴ<b>{ZEDF}</b>\n<b>{ZEDM}الاســم    ⤎ </b> <a href='tg://user?id={user_id}'>{full_name}</a>\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n<b>{ZEDM}الحساب  ⤎  {zpre}</b>\n<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n<b>{ZEDM}الإنشـاء  ⤎</b>  {zelzal_sinc}  🗓\n<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\nٴ<b>{ZEDF}</b>"
                 
                 # إنشاء الزر حسب الاختيار
                 Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
@@ -471,13 +420,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 if button_type == "likes":
                     button_text = f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}"
                     buttons = [[Button.inline(button_text, data="likes", style="primary")]]
-                else:  # profile_link
-                    # استخدام اسم المستخدم كاسم للزر
-                    user_name = first_name if first_name else "حسابي"
+                else:
+                    user_name = first_name if first_name and first_name != "لا يوجد" else "حسابي"
                     buttons = [[Button.url(f"👤 {user_name}", f"tg://user?id={user_id}")]]
                 
                 try:
-                    if os.path.exists(photo_path):
+                    if photo_path and os.path.exists(photo_path):
                         uploaded_file = await event.client.upload_file(file=photo_path)
                         result = builder.photo(
                             uploaded_file,
@@ -489,7 +437,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         os.remove(photo_path)
                     else:
                         result = builder.article(
-                            title="معلومات المستخدم",
+                            title=f"معلومات {full_name}",
                             text=caption,
                             buttons=buttons,
                             link_preview=False,
@@ -497,7 +445,16 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         )
                     await event.answer([result])
                 except Exception as e:
-                    LOGS.error(f"Error in inline handler: {e}")
+                    LOGS.error(f"Error sending result: {e}")
+                    result = builder.article(
+                        title=f"معلومات {full_name}",
+                        text=caption,
+                        buttons=buttons,
+                        link_preview=False,
+                        parse_mode="html",
+                    )
+                    await event.answer([result])
+                    
             except Exception as e:
                 LOGS.error(f"Error in idid: {e}")
             return
@@ -552,6 +509,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             user_username = "لا يوجد"
         
         Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
+        
         if add_like(str(l313l.uid), str(user_id), user_name, user_username) is True:
             Like_id += 1
             addgvar("Like_Id", Like_id)
@@ -571,7 +529,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 f"**- لـ مسح قائمـة المعجبيـن ارسـل:** ( `.مسح المعجبين` ) 🗑",
             )
         except Exception as e:
-            await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
+            LOGS.error(f"Error sending like notification: {e}")
         
         try:
             await event.edit(buttons=[[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]])

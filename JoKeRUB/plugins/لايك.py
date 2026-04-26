@@ -243,7 +243,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     uploaded_file = await event.client.upload_file(file=photo_path)
                     Like_id = gvarstatus("Like_Id")
                     Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
                     result = builder.photo(
                         uploaded_file,
                         #title="l313l",
@@ -258,7 +258,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 except (TypeError, ChatSendMediaForbiddenError, Exception):
                     Like_id = gvarstatus("Like_Id")
                     Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
                     result = builder.article(
                         title="l313l",
                         text=caption,
@@ -286,7 +286,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 except (TypeError, ChatSendMediaForbiddenError, Exception):
                     Like_id = gvarstatus("Like_Id")
                     Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
+                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
                     result = builder.article(
                         title="l313l",
                         text=caption,

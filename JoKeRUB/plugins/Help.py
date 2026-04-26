@@ -879,12 +879,23 @@ async def detect_commands(event):
 ❐ لـ مسح معجبينك
 ❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
 
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كليشات الايدي</code> <b>⦘</b>
+❐ لتغيير شكل بطاقة المعلومات
+❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.نمط اللايك</code> <b>⦘</b>
+❐ لتغيير شكل زر اللايك (قلوب / حساب)
+❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح الاعدادات</code> <b>⦘</b>
+❐ لإعادة كل شيء للوضع الافتراضي
+❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
+
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="account_menu_next", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
-
 # =========================================================== #
 # أوامر التخزين والمراقبة
 # =========================================================== #

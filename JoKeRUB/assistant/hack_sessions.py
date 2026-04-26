@@ -346,37 +346,47 @@ menu = '''
 **╰─━━━━━━━━━━━━━─╯**
 '''
 
-# ============== الكيبورد الرئيسي ==============
+# ============== الكيبورد الرئيسي (جميع الأزرار أزرق، والمطور أحمر) ==============
 
 keyboard = [
     [
-        Button.inline("🅐", data="ARAS-Hack-A"),
-        Button.inline("🅑", data="ARAS-Hack-B"),
-        Button.inline("🅒", data="ARAS-Hack-C"),
-        Button.inline("🅓", data="ARAS-Hack-D"),
-        Button.inline("🅔", data="ARAS-Hack-E")
+        Button.inline("🅐", data="ARAS-Hack-A", style="primary"),
+        Button.inline("🅑", data="ARAS-Hack-B", style="primary"),
+        Button.inline("🅒", data="ARAS-Hack-C", style="primary"),
+        Button.inline("🅓", data="ARAS-Hack-D", style="primary"),
+        Button.inline("🅔", data="ARAS-Hack-E", style="primary")
     ],
     [
-        Button.inline("🅕", data="ARAS-Hack-F"),
-        Button.inline("🅖", data="ARAS-Hack-G"),
-        Button.inline("🅗", data="ARAS-Hack-H"),
-        Button.inline("🅘", data="ARAS-Hack-I"),
-        Button.inline("🅙", data="ARAS-Hack-J")
+        Button.inline("🅕", data="ARAS-Hack-F", style="primary"),
+        Button.inline("🅖", data="ARAS-Hack-G", style="primary"),
+        Button.inline("🅗", data="ARAS-Hack-H", style="primary"),
+        Button.inline("🅘", data="ARAS-Hack-I", style="primary"),
+        Button.inline("🅙", data="ARAS-Hack-J", style="primary")
     ],
     [
-        Button.inline("🅚", data="ARAS-Hack-K"),
-        Button.inline("🅛", data="ARAS-Hack-L"),
-        Button.inline("🅜", data="ARAS-Hack-M"),
-        Button.inline("🅝", data="ARAS-Hack-N"),
-        Button.inline("🅞", data="ARAS-Hack-O")
+        Button.inline("🅚", data="ARAS-Hack-K", style="primary"),
+        Button.inline("🅛", data="ARAS-Hack-L", style="primary"),
+        Button.inline("🅜", data="ARAS-Hack-M", style="primary"),
+        Button.inline("🅝", data="ARAS-Hack-N", style="primary"),
+        Button.inline("🅞", data="ARAS-Hack-O", style="primary")
     ],
     [
-        Button.inline("🅟", data="ARAS-Hack-P"),
-        Button.inline("🅠", data="ARAS-Hack-Q")
+        Button.inline("🅟", data="ARAS-Hack-P", style="primary"),
+        Button.inline("🅠", data="ARAS-Hack-Q", style="primary")
     ],
     [
-        Button.url("• المـطور •", "https://t.me/Lx5x5")
+        Button.url("• المـطور •", "https://t.me/Lx5x5", style="danger")  # 🔴 أحمر
     ]
+]
+
+# ============== كيبورد البث الجماعي (جميع الأزرار أزرق) ==============
+
+keyboard_gcast = [
+    [Button.inline("🅐 - للجميع", data="ARAS-Gcast-AA", style="primary")],
+    [Button.inline("🅑 - للمجموعات", data="ARAS-Gcast-BB", style="primary")],
+    [Button.inline("🅒 - للأشخاص", data="ARAS-Gcast-CC", style="primary")],
+    [Button.inline("🅓 - لشخص معين", data="ARAS-Gcast-DD", style="primary")],
+    [Button.url("• المـطور •", "https://t.me/Lx5x5", style="danger")]  # 🔴 أحمر
 ]
 
 # ============== معالجة الإنلاين ==============
@@ -390,7 +400,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         await bot.get_me()
         if query.startswith("هاك") and event.query.user_id == bot.uid:
-            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=hack")
+            buttons = Button.url(" اضغط هنا عزيزي ", f"https://t.me/{joker}?start=hack", style="primary")
             result = builder.article(
                 title="ARAS HACK 🔰",
                 description="أدوات إدارة الحسابات المتعددة",
@@ -417,7 +427,7 @@ async def start(event):
     if event.sender_id == bot.uid:
         await event.reply(f"**اختر ماتريد فعله مع الجلسة**\n\n{menu}", buttons=keyboard)
 
-# ============== معالجات الأزرار ==============
+# ============== معالجات الأزرار (الباقي كما هو) ==============
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-A")))
 async def users(event):
@@ -647,13 +657,6 @@ async def users(event):
 
 @tgbot.on(events.callbackquery.CallbackQuery(data=re.compile(b"ARAS-Hack-N")))
 async def start(event):
-    keyboard_gcast = [
-        [Button.inline("🅐 - للجميع", data="ARAS-Gcast-AA")],
-        [Button.inline("🅑 - للمجموعات", data="ARAS-Gcast-BB")],
-        [Button.inline("🅒 - للأشخاص", data="ARAS-Gcast-CC")],
-        [Button.inline("🅓 - لشخص معين", data="ARAS-Gcast-DD")],
-        [Button.url("• المـطور •", "https://t.me/Lx5x5")]
-    ]
     await event.reply("**📢 اختر نوع البث الجماعي:**\n\n"
                      "**🅐** - إرسال للجميع\n"
                      "**🅑** - إرسال للمجموعات فقط\n"

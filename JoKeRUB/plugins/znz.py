@@ -12,7 +12,6 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
-from telethon.tl.types import InputWebDocument
 
 from . import l313l
 from ..Config import Config
@@ -26,7 +25,7 @@ LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
 scc = "secret"
-hmm = "همسـة لـ"
+hmm = "همسـة"
 ymm = "يستطيـع"
 fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
@@ -34,12 +33,9 @@ hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سريـه الى**"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
 ddd = "💌"
 bbb = None
-
-# مسار الصورة المحلية الثابتة (نفس طريقة أمر بحث)
-DEFAULT_THUMBNAIL = "l313l/razan/resources/start/Jepthon2.JPEG"
 
 # Copyright (C) 2023 Zilzalll . All Rights Reserved
 @l313l.tgbot.on(InlineQuery)
@@ -104,26 +100,12 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            
-            # استخدام الصورة المحلية بدلاً من InputWebDocument
-            if os.path.exists(DEFAULT_THUMBNAIL):
-                thumb = DEFAULT_THUMBNAIL
-            else:
-                # صورة احتياطية من الرابط في حال عدم وجود الملف المحلي
-                thumb = InputWebDocument(
-                    url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
-                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -184,26 +166,12 @@ async def inline_handler(event):
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
-            
-            # استخدام الصورة المحلية بدلاً من InputWebDocument
-            if os.path.exists(DEFAULT_THUMBNAIL):
-                thumb = DEFAULT_THUMBNAIL
-            else:
-                # صورة احتياطية من الرابط في حال عدم وجود الملف المحلي
-                thumb = InputWebDocument(
-                    url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
-                    size=0,
-                    mime_type="image/jpeg",
-                    attributes=[]
-                )
-            
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
-                text=f"{hss} {zilzal} \n**{dss}**",
+                text=f"{hss} {zilzal} \n{dss}",
                 buttons=buttons,
                 link_preview=False,
-                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -229,3 +197,4 @@ async def inline_handler(event):
             await event.answer(results)
     else:
         return
+            

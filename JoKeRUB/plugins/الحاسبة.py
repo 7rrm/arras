@@ -66,7 +66,7 @@ async def calc_handler(e):
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)
-        await e.answer("🗑 تم الحذف", alert=True)
+        await e.answer("🗑 تم الحذف", alert=False)  # ✅ نفس طريقة الكود الأصلي
     
     elif x == "⌫":
         if CALC.get(user):

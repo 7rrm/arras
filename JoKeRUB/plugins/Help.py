@@ -879,7 +879,7 @@ async def detect_commands(event):
 ❐ لـ مسح معجبينك
 ❐ <b>طريقة الاستخدام:</b> بالرد على الشخص
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كليشات الايدي</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كليشات اللايك</code> <b>⦘</b>
 ❐ لتغيير شكل بطاقة المعلومات
 ❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
 
@@ -887,7 +887,7 @@ async def detect_commands(event):
 ❐ لتغيير شكل زر اللايك (قلوب / حساب)
 ❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
 
-<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح الاعدادات</code> <b>⦘</b>
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.مسح اللايك</code> <b>⦘</b>
 ❐ لإعادة كل شيء للوضع الافتراضي
 ❐ <b>طريقة الاستخدام:</b> ارسل الامر فقط
 

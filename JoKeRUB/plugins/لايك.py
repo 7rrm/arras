@@ -463,6 +463,10 @@ async def reset_settings(event):
 # أزرار التفاعل (CallbackQuery)
 # =========================================================== #
 
+# =========================================================== #
+# أزرار التفاعل (CallbackQuery) - النسخة المصححة
+# =========================================================== #
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
 async def like_callback(event):
     user_id = event.sender_id
@@ -506,7 +510,6 @@ async def like_callback(event):
         button_data = "likes"
         buttons = [[Button.inline(button_text, data=button_data, style="primary")]]
     else:
-        # نمط المستخدم: لا يتغير الزر (يبقى رابط الحساب)
         my_username, my_name, my_id = await get_my_account_info()
         my_link = f"https://t.me/{my_username}" if my_username else f"tg://user?id={my_id}"
         buttons = [[Button.url(f"👤 {my_name}", my_link, style="primary")]]
@@ -524,9 +527,10 @@ async def template_prev(event):
     if current_page > 0:
         template_pages[user_id] = current_page - 1
     
-    # ✅ إصلاح زر التالي
+    # إصلاح: استخدام chat_id مباشرة
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
-    await response[0].click(event.chat_id)
+    if response:
+        await response[0].click(event.chat_id)
     await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_next")))
@@ -535,9 +539,10 @@ async def template_next(event):
     current_page = template_pages.get(user_id, 0)
     template_pages[user_id] = current_page + 1
     
-    # ✅ إصلاح زر التالي
+    # إصلاح: استخدام chat_id مباشرة
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
-    await response[0].click(event.chat_id)
+    if response:
+        await response[0].click(event.chat_id)
     await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_save_(.+)")))
@@ -560,9 +565,12 @@ async def toggle_like_mode(event):
     addgvar("LIKE_BUTTON_MODE", new_mode)
     
     mode_name = "نمط الحساب" if new_mode == "profile" else "نمط القلوب"
+    
+    # تعديل الرسالة بدلاً من حذفها (لأنها رسالة مضمنة)
     await event.edit(f"✅ تم التبديل إلى **{mode_name}** بنجاح!")
     await asyncio.sleep(2)
-    await event.delete()
+    # إغلاق القائمة
+    await event.edit("❌ تم إغلاق القائمة!", buttons=None, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_panel")))
 async def close_panel(event):

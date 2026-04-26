@@ -253,3 +253,133 @@ def yt_search_btns(
         buttons.pop()
     
     return buttons
+
+
+@pool.run_in_thread
+def download_button(vid: str, body: bool = False):
+    try:
+        vid_data = yt_dlp.YoutubeDL({"no-playlist": True, "cookiefile": ""}).extract_info(
+            BASE_YT_URL + vid, download=False
+        )
+    except ExtractorError:
+        vid_data = {"formats": []}
+    
+    buttons = [
+        [
+            Button.inline("⭐️ اعلى دقـه - 📹 MKV", data=f"ytdl_download_{vid}_mkv_v"),
+            Button.inline(
+                "⭐️ اعلى دقـه - 📹 WebM/MP4",
+                data=f"ytdl_download_{vid}_mp4_v",
+            ),
+        ]
+    ]
+    
+    qual_dict = defaultdict(lambda: defaultdict(int))
+    qual_list = ["144p", "240p", "360p", "480p", "720p", "1080p", "1440p"]
+    audio_dict = {}
+    
+    for video in vid_data["formats"]:
+        if video.get("filesize"):
+            fr_note = video.get("format_note")
+            fr_id = int(video.get("format_id"))
+            fr_size = video.get("filesize")
+            if video.get("ext") == "mp4":
+                for frmt_ in qual_list:
+                    if fr_note in (frmt_, f"{frmt_}60"):
+                        qual_dict[frmt_][fr_id] = fr_size
+            if video.get("acodec") != "none":
+                bitrrate = int(video.get("abr", 0)) if video.get("abr", 0) else 0
+                if bitrrate != 0:
+                    audio_dict[
+                        bitrrate
+                    ] = f"🎵 {bitrrate}Kbps ({humanbytes(fr_size) or 'N/A'})"
+
+    video_btns = []
+    for frmt in qual_list:
+        frmt_dict = qual_dict[frmt]
+        if len(frmt_dict) != 0:
+            frmt_id = sorted(list(frmt_dict))[-1]
+            frmt_size = humanbytes(frmt_dict.get(frmt_id)) or "N/A"
+            video_btns.append(
+                Button.inline(
+                    f"📹 {frmt} ({frmt_size})",
+                    data=f"ytdl_download_{vid}_{frmt_id}_v",
+                )
+            )
+    buttons += sublists(video_btns, width=2)
+    buttons += [
+        [Button.inline("⭐️ اعلى دقـه - 🎵 320Kbps - MP3", data=f"ytdl_download_{vid}_mp3_a")]
+    ]
+    buttons += sublists(
+        [
+            Button.inline(audio_dict.get(key_), data=f"ytdl_download_{vid}_{key_}_a")
+            for key_ in sorted(audio_dict.keys())
+        ],
+        width=2,
+    )
+    if body:
+        vid_body = f"<a href={vid_data.get('webpage_url')}><b>[{vid_data.get('title')}]</b></a>"
+        return vid_body, buttons
+    return buttons
+
+
+@pool.run_in_thread
+def _tubeDl(url: str, starttime, uid: str):
+    ydl_opts = {
+        "addmetadata": True,
+        "geo_bypass": True,
+        "nocheckcertificate": True,
+        "outtmpl": os.path.join(
+            Config.TEMP_DIR, str(starttime), "%(title)s-%(format)s.%(ext)s"
+        ),
+        "format": uid,
+        "writethumbnail": True,
+        "prefer_ffmpeg": True,
+        "postprocessors": [
+            {"key": "FFmpegMetadata"}
+        ],
+        "quiet": True,
+        "no_warnings": True,
+        "cookiefile": "",
+    }
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            x = ydl.download([url])
+    except DownloadError as e:
+        LOGS.error(e)
+    except GeoRestrictedError:
+        LOGS.error("هذا الفيديو غير متاح في بلدك")
+    else:
+        return x
+
+
+@pool.run_in_thread
+def _mp3Dl(url: str, starttime, uid: str):
+    _opts = {
+        "outtmpl": os.path.join(Config.TEMP_DIR, str(starttime), "%(title)s.%(ext)s"),
+        "writethumbnail": True,
+        "prefer_ffmpeg": True,
+        "format": "bestaudio/best",
+        "geo_bypass": True,
+        "nocheckcertificate": True,
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": uid,
+            },
+            {"key": "EmbedThumbnail"},
+            {"key": "FFmpegMetadata"},
+        ],
+        "quiet": True,
+        "no_warnings": True,
+        "cookiefile": "",
+    }
+    try:
+        with yt_dlp.YoutubeDL(_opts) as ytdl:
+            dloader = ytdl.download([url])
+    except Exception as y_e:
+        LOGS.exception(y_e)
+        return y_e
+    else:
+        return dloader

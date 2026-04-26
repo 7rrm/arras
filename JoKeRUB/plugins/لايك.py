@@ -53,7 +53,7 @@ Zel_Uid = l313l.uid
 ZED_BLACKLIST = [-1001935599871]
 
 # =========================================================== #
-# كليشات الايدي (ID Templates)
+# كليشات الايدي (ID Templates) - جديدة
 # =========================================================== #
 
 ID_TEMPLATES = {
@@ -148,7 +148,7 @@ ID_TEMPLATES = {
 }
 
 # =========================================================== #
-# دوال مساعدة
+# دوال مساعدة (الأصلية مع تعديل بسيط)
 # =========================================================== #
 
 async def get_user_from_event(event):
@@ -241,8 +241,14 @@ async def fetch_info(event, user_id=None):
     username = "@{}".format(username) if username else ("لا يـوجـد")
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
-    zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
-    zzz = zmsg.total
+    
+    # ✅ إصلاح: حساب الرسائل بأمان
+    try:
+        zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
+        zzz = zmsg.total if zmsg else 0
+    except Exception:
+        zzz = 0
+    
     if zzz < 100:
         zelzzz = "غير متفاعل  🗿"
     elif zzz > 200 and zzz < 500:
@@ -269,7 +275,7 @@ async def fetch_info(event, user_id=None):
     else:
         rotbat = "العضـو 𓅫"
     
-    # الحصول على الكليشة المختارة
+    # ✅ استخدام الكليشة المختارة
     selected_template = gvarstatus("SELECTED_ID_TEMPLATE") or "default"
     template_data = ID_TEMPLATES.get(selected_template, ID_TEMPLATES["default"])
     template = template_data["template"]
@@ -294,7 +300,7 @@ async def fetch_info(event, user_id=None):
     return photo_path, caption
 
 # =========================================================== #
-# الاستعلامات المضمنة
+# الاستعلام المضمن (الأصلي مع إضافة دعم الكليشات)
 # =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -303,10 +309,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @check_owner
     async def inline_handler_like(event):
         builder = event.builder
+        result = None
         query = event.text
         await l313l.get_me()
         
-        # ✅ استعلام idid - بطاقة المعلومات
+        # ✅ استعلام idid - بطاقة المعلومات (الأصلي)
         if query.startswith("idid") and event.query.user_id == l313l.uid:
             try:
                 photo_path, caption = await fetch_info(event)
@@ -343,7 +350,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             await event.answer([result] if result else None)
         
-        # ✅ استعلام كليشات الايدي
+        # ✅ استعلام كليشات الايدي (جديد)
         elif query.startswith("id_templates") and event.query.user_id == l313l.uid:
             text = "**🎨 قائمة كليشات الايدي المتاحة:**\n\n"
             buttons = []
@@ -371,7 +378,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
             await event.answer([result], cache_time=0)
         
-        # ✅ استعلام نمط اللايك
+        # ✅ استعلام نمط اللايك (جديد)
         elif query.startswith("like_mode") and event.query.user_id == l313l.uid:
             current_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
             
@@ -396,7 +403,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# أوامر المستخدم
+# أوامر المستخدم (الأصلية مع إضافة الأوامر الجديدة)
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
@@ -412,16 +419,28 @@ async def who(event):
     await response[0].click(event.chat_id)
     await zed.delete()
 
+@l313l.ar_cmd(pattern="like(?: |$)(.*)")
+async def who_like(event):
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
+    
+    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
+    
+    zed = await edit_or_reply(event, "⇆")
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
+    await response[0].click(event.chat_id)
+    await zed.delete()
+
+# ✅ أوامر جديدة
 @l313l.ar_cmd(pattern="كليشات الايدي$")
 async def id_templates_cmd(event):
-    """عرض قائمة كليشات الايدي"""
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
     await response[0].click(event.chat_id)
     await event.delete()
 
 @l313l.ar_cmd(pattern="نمط اللايك$")
 async def like_mode_cmd(event):
-    """اختيار نمط زر اللايك"""
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "like_mode")
     await response[0].click(event.chat_id)
     await event.delete()
@@ -459,16 +478,14 @@ async def on_all_liked_delete(event):
 
 @l313l.ar_cmd(pattern="مسح الاعدادات$")
 async def reset_settings(event):
-    """مسح جميع التغييرات"""
     delgvar("SELECTED_ID_TEMPLATE")
     delgvar("LIKE_BUTTON_MODE")
     delgvar("Like_Id")
     remove_all_likes(l313l.uid)
-    
     await edit_or_reply(event, "✅ تم مسح جميع الإعدادات والتغييرات بنجاح!\n\n• عادت الكليشة إلى الافتراضية\n• عاد نمط اللايك إلى القلوب\n• تم مسح جميع المعجبين")
 
 # =========================================================== #
-# أزرار التفاعل
+# أزرار التفاعل (CallbackQuery)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
@@ -549,20 +566,3 @@ async def set_like_mode(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_panel")))
 async def close_panel(event):
     await event.delete()
-
-# =========================================================== #
-# أمر اللايك القديم (للتوافق)
-# =========================================================== #
-
-@l313l.ar_cmd(pattern="like(?: |$)(.*)")
-async def who_like(event):
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
-    
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
-    
-    zed = await edit_or_reply(event, "⇆")
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
-    await response[0].click(event.chat_id)
-    await zed.delete()

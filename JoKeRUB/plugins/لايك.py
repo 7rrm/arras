@@ -10,7 +10,6 @@ import os
 import base64
 import requests
 from requests import get
-import psutil
 from datetime import datetime
 from platform import python_version
 
@@ -33,7 +32,6 @@ from ..core.logger import logging
 from ..core.managers import edit_or_reply, edit_delete
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
-from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from ..sql_helper.like_sql import (
     add_like,
     get_likes,
@@ -53,7 +51,7 @@ Zel_Uid = l313l.uid
 ZED_BLACKLIST = [-1001935599871]
 
 # =========================================================== #
-# كليشات الايدي (ID Templates) - جديدة
+# كليشات الايدي (ID Templates)
 # =========================================================== #
 
 ID_TEMPLATES = {
@@ -148,7 +146,7 @@ ID_TEMPLATES = {
 }
 
 # =========================================================== #
-# دوال مساعدة (الأصلية مع تعديل بسيط)
+# دوال مساعدة
 # =========================================================== #
 
 async def get_user_from_event(event):
@@ -242,7 +240,6 @@ async def fetch_info(event, user_id=None):
     user_bio = "لا يـوجـد" if not user_bio else user_bio
     zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
     
-    # ✅ إصلاح: حساب الرسائل بأمان
     try:
         zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
         zzz = zmsg.total if zmsg else 0
@@ -275,7 +272,6 @@ async def fetch_info(event, user_id=None):
     else:
         rotbat = "العضـو 𓅫"
     
-    # ✅ استخدام الكليشة المختارة
     selected_template = gvarstatus("SELECTED_ID_TEMPLATE") or "default"
     template_data = ID_TEMPLATES.get(selected_template, ID_TEMPLATES["default"])
     template = template_data["template"]
@@ -300,8 +296,11 @@ async def fetch_info(event, user_id=None):
     return photo_path, caption
 
 # =========================================================== #
-# الاستعلام المضمن (الأصلي مع إضافة دعم الكليشات)
+# الاستعلامات المضمنة
 # =========================================================== #
+
+# متغير لتخزين الصفحات
+template_pages = {}
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -309,11 +308,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @check_owner
     async def inline_handler_like(event):
         builder = event.builder
-        result = None
         query = event.text
         await l313l.get_me()
         
-        # ✅ استعلام idid - بطاقة المعلومات (الأصلي)
+        # ✅ استعلام idid - بطاقة المعلومات
         if query.startswith("idid") and event.query.user_id == l313l.uid:
             try:
                 photo_path, caption = await fetch_info(event)
@@ -350,51 +348,95 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             await event.answer([result] if result else None)
         
-        # ✅ استعلام كليشات الايدي (جديد)
+        # ✅ استعلام كليشات الايدي (عرض الكليشة مع أزرار)
         elif query.startswith("id_templates") and event.query.user_id == l313l.uid:
-            text = "**🎨 قائمة كليشات الايدي المتاحة:**\n\n"
+            user_id = event.query.user_id
+            template_keys = list(ID_TEMPLATES.keys())
+            total_pages = len(template_keys)
+            
+            # الحصول على الصفحة الحالية
+            current_page = template_pages.get(user_id, 0)
+            current_key = template_keys[current_page]
+            current_template = ID_TEMPLATES[current_key]
+            
+            # بيانات تجريبية لعرض الكليشة
+            sample_data = {
+                "znam": "أراس",
+                "zusr": "@Lx5x5",
+                "zidd": "5427469031",
+                "zrtb": "مطـور السـورس",
+                "zpre": "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟",
+                "zvip": "𝕍𝕀ℙ 💎",
+                "zpic": "10",
+                "zmsg": "1500",
+                "ztmg": "امبراطور التفاعل 🥇",
+                "zcom": "50",
+                "zsnc": "2023-01-01",
+                "zbio": "مطور سورس آراس"
+            }
+            
+            # تطبيق الكليشة
+            try:
+                preview_text = current_template["template"].format(**sample_data)
+            except Exception:
+                preview_text = current_template["template"]
+            
+            text = f"**🎨 الكليشة {current_page + 1}/{total_pages}**\n\n"
+            text += preview_text
+            text += f"\n\n• **الاسم:** {current_template['name']}"
+            
             buttons = []
-            row = []
             
-            for key, template in ID_TEMPLATES.items():
-                selected = "✅ " if gvarstatus("SELECTED_ID_TEMPLATE") == key else ""
-                row.append(Button.inline(f"{selected}{template['name']}", data=f"select_template_{key}", style="primary"))
-                if len(row) == 2:
-                    buttons.append(row)
-                    row = []
+            # أزرار التنقل
+            nav_buttons = []
+            if current_page > 0:
+                nav_buttons.append(Button.inline("◀️ رجوع", data=f"template_prev_{user_id}", style="primary"))
+            if current_page < total_pages - 1:
+                nav_buttons.append(Button.inline("التالي ▶️", data=f"template_next_{user_id}", style="primary"))
             
-            if row:
-                buttons.append(row)
+            if nav_buttons:
+                buttons.append(nav_buttons)
             
-            buttons.append([Button.inline("❌ إغلاق", data="close_panel", style="danger")])
+            # أزرار الإجراءات
+            buttons.append([
+                Button.inline("💾 حفظ الكليشة", data=f"template_save_{current_key}", style="success"),
+                Button.inline("❌ إغلاق", data="close_panel", style="danger")
+            ])
             
             result = builder.article(
                 title="🎨 كليشات الايدي",
-                description="اختر الكليشة التي تريدها",
+                description="تصفح واختر الكليشة المناسبة",
                 text=text,
                 buttons=buttons,
                 link_preview=False,
-                parse_mode="Markdown",
+                parse_mode="html",
             )
             await event.answer([result], cache_time=0)
         
-        # ✅ استعلام نمط اللايك (جديد)
+        # ✅ استعلام نمط اللايك (عرض النمط الحالي فقط)
         elif query.startswith("like_mode") and event.query.user_id == l313l.uid:
             current_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+            Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
             
-            text = f"**⚙️ إعدادات زر اللايك:**\n\n"
-            text += f"• النمط الحالي: **{'قلوب' if current_mode == 'likes' else 'اسم المستخدم'}**\n\n"
-            text += f"• اختر النمط الذي تريده:"
+            text = f"**⚙️ إعدادات زر اللايك**\n\n"
+            text += f"• النمط الحالي: **{'❤️ نمط القلوب' if current_mode == 'likes' else '👤 نمط اسم المستخدم'}**\n\n"
+            text += f"**📝 شكل الزر حالياً:**\n"
             
-            buttons = [
-                [Button.inline(f"{'✅ ' if current_mode == 'likes' else ''}❤️ نمط القلوب", data="set_like_mode_likes", style="primary")],
-                [Button.inline(f"{'✅ ' if current_mode == 'profile' else ''}👤 نمط اسم المستخدم", data="set_like_mode_profile", style="primary")],
-                [Button.inline("❌ إغلاق", data="close_panel", style="danger")]
-            ]
+            if current_mode == "likes":
+                text += f"```\nʟɪᴋᴇ ♥️ ⤑ {Like_id}\n```\n"
+                text += f"• عند الضغط على الزر، يزيد عدد الإعجابات"
+            else:
+                text += f"```\n❤️ [اسم المستخدم] ⤑ {Like_id}\n```\n"
+                text += f"• عند الضغط على الزر، يظهر اسم الشخص الذي أعجب بك"
+            
+            text += f"\n\n• استخدم الأمر `.نمط اللايك` مرة أخرى للتبديل"
+            
+            buttons = [[Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")]]
+            buttons.append([Button.inline("❌ إغلاق", data="close_panel", style="danger")])
             
             result = builder.article(
                 title="⚙️ إعدادات اللايك",
-                description="اختر نمط زر اللايك",
+                description=f"النمط الحالي: {'قلوب' if current_mode == 'likes' else 'اسم المستخدم'}",
                 text=text,
                 buttons=buttons,
                 link_preview=False,
@@ -403,16 +445,16 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# أوامر المستخدم (الأصلية مع إضافة الأوامر الجديدة)
+# أوامر المستخدم
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
     
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷**")
     
     zed = await edit_or_reply(event, "⇆")
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
@@ -425,14 +467,13 @@ async def who_like(event):
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
     
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷**")
     
     zed = await edit_or_reply(event, "⇆")
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
     await response[0].click(event.chat_id)
     await zed.delete()
 
-# ✅ أوامر جديدة
 @l313l.ar_cmd(pattern="كليشات الايدي$")
 async def id_templates_cmd(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
@@ -538,30 +579,58 @@ async def like_callback(event):
     except Exception:
         await event.answer(f"✅ تم إضافة إعجابك لـ {user_name}!", alert=True)
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"select_template_(.+)")))
-async def select_template(event):
-    match = re.match(r"select_template_(.+)", event.data.decode())
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_prev_(\\d+)")))
+async def template_prev(event):
+    match = re.match(r"template_prev_(\d+)", event.data.decode())
+    if not match:
+        return
+    
+    user_id = int(match.group(1))
+    current_page = template_pages.get(user_id, 0)
+    template_pages[user_id] = current_page - 1
+    
+    # إعادة فتح الاستعلام
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_next_(\\d+)")))
+async def template_next(event):
+    match = re.match(r"template_next_(\d+)", event.data.decode())
+    if not match:
+        return
+    
+    user_id = int(match.group(1))
+    current_page = template_pages.get(user_id, 0)
+    template_pages[user_id] = current_page + 1
+    
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_save_(.+)")))
+async def template_save(event):
+    match = re.match(r"template_save_(.+)", event.data.decode())
     if not match:
         return
     
     template_key = match.group(1)
     if template_key in ID_TEMPLATES:
         addgvar("SELECTED_ID_TEMPLATE", template_key)
-        await event.edit(f"✅ تم اختيار كليشة **{ID_TEMPLATES[template_key]['name']}** بنجاح!")
+        await event.edit(f"✅ تم حفظ كليشة **{ID_TEMPLATES[template_key]['name']}** بنجاح!\n\n• ستظهر في جميع بطاقات الـ .لايك")
     else:
         await event.answer("❌ كليشة غير موجودة!", alert=True)
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"set_like_mode_(.+)")))
-async def set_like_mode(event):
-    match = re.match(r"set_like_mode_(.+)", event.data.decode())
-    if not match:
-        return
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"toggle_like_mode")))
+async def toggle_like_mode(event):
+    current_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+    new_mode = "profile" if current_mode == "likes" else "likes"
+    addgvar("LIKE_BUTTON_MODE", new_mode)
     
-    mode = match.group(1)
-    addgvar("LIKE_BUTTON_MODE", mode)
-    
-    mode_name = "نمط القلوب" if mode == "likes" else "نمط اسم المستخدم"
-    await event.edit(f"✅ تم تغيير نمط اللايك إلى **{mode_name}** بنجاح!")
+    mode_name = "نمط اسم المستخدم" if new_mode == "profile" else "نمط القلوب"
+    await event.edit(f"✅ تم التبديل إلى **{mode_name}** بنجاح!")
+    await asyncio.sleep(2)
+    await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_panel")))
 async def close_panel(event):

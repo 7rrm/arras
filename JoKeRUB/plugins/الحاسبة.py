@@ -7,18 +7,31 @@ from ..core.decorators import check_owner
 CALC = {}
 plugin_category = "utils"
 
+# تعريف الأزرار بألوان مختلفة
 m = [
     "AC", "C", "⌫", "%", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "x", "00", "0", ".", "÷"
 ]
-tultd = [Button.inline(f"{x}", data=f"calc{x}") for x in m]
-lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
-lst.append([Button.inline("=", data="calc=")])
 
-@l313l.on(admin_cmd(pattern="حاسبة(?:\s|$)([\s\S]*)"))
+# تلوين الأزرار حسب النوع
+def get_button_style(btn):
+    if btn in ["AC", "C", "⌫"]:
+        return "danger"  # أحمر للأزرار التحكم
+    elif btn in ["+", "-", "x", "÷", "%"]:
+        return "success"  # أخضر للعمليات الحسابية
+    elif btn in ["="]:
+        return "primary"  # أزرق للنتيجة
+    else:
+        return "primary"  # أزرق للأرقام
+
+tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
+lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
+lst.append([Button.inline("=", data="calc=", style="primary")])
+
+@l313l.on(admin_cmd(pattern="(حاسبة|الحاسبة)(?:\s|$)([\s\S]*)"))
 async def icalc(e):
     # التحقق مما إذا كان العميل يعمل كبوت
     if hasattr(e.client, 'bot_token') and e.client.bot_token:
-        return await e.reply("**الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=lst)
+        return await e.reply("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
     
     # إذا لم يكن بوت، قم بتنفيذ الاستعلام المضمن
     results = await e.client.inline_query(Config.TG_BOT_USERNAME, "calc")
@@ -31,47 +44,75 @@ async def inlinecalc(event):
     query = event.text
     string = query.lower()
     if (query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS) and string == "calc":
-        calc = event.builder.article("Calc", text="****الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=lst)
+        calc = event.builder.article("Calc", text="**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
         await event.answer([calc])
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"calc(.*)")))
 @check_owner
-async def _(e):
+async def calc_handler(e):
     x = (e.data_match.group(1)).decode()
     user = e.query.user_id
     get = None
+    
     if x == "AC":
         if CALC.get(user):
             CALC.pop(user)
-        await e.edit("***الحَـاسبة العـملية للـمطور\n @Lx5x5**", buttons=[Button.inline("افتح مره اخرى", data="recalc")])
+        # إعادة فتح الحاسبة بأزرار ملونة
+        m = [
+            "AC", "C", "⌫", "%", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "x", "00", "0", ".", "÷"
+        ]
+        tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
+        lst_new = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
+        lst_new.append([Button.inline("=", data="calc=", style="primary")])
+        await e.edit("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst_new)
+    
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)
-        await e.answer("تم الحذف")
+        await e.answer("🗑 تم الحذف", alert=True)
+    
     elif x == "⌫":
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get[:-1]})
-            await e.answer(str(get[:-1]))
+            await e.answer(str(get[:-1]), alert=False)
+    
     elif x == "%":
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get + "/100"})
-            await e.answer(str(get + "/100"))
+            await e.answer(str(get + "/100"), alert=False)
+    
     elif x == "÷":
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get + "/"})
-            await e.answer(str(get + "/"))
+            await e.answer(str(get + "/"), alert=False)
+    
     elif x == "x":
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get + "*"})
-            await e.answer(str(get + "*"))
+            await e.answer(str(get + "*"), alert=False)
+    
+    elif x == "+":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "+"})
+            await e.answer(str(get + "+"), alert=False)
+    
+    elif x == "-":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "-"})
+            await e.answer(str(get + "-"), alert=False)
+    
     elif x == "=":
         if CALC.get(user):
             get = CALC[user]
@@ -80,34 +121,36 @@ async def _(e):
                 get = get[:-1]
             try:
                 out = eval(get)
-                num = float(out)
-                await e.answer(f"▾∮ الجـواب : {num}", cache_time=0, alert=True)
+                if isinstance(out, float) and out.is_integer():
+                    out = int(out)
+                await e.answer(f"📐 النتيجة: {out}", cache_time=0, alert=True)
             except Exception as ex:
                 CALC.pop(user)
-                await e.answer(f"خـطأ: {str(ex)}", cache_time=0, alert=True)
+                await e.answer(f"❌ خطأ: {str(ex)}", cache_time=0, alert=True)
         else:
-            await e.answer("غير معروف")
+            await e.answer("⚠️ لا توجد معادلة", alert=True)
+    
     else:
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get + x})
-            await e.answer(str(get + x))
+            await e.answer(str(get + x), alert=False)
         else:
             CALC.update({user: x})
-            await e.answer(str(x))
+            await e.answer(str(x), alert=False)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"recalc")))
 @check_owner
-async def _(e):
+async def recalc_handler(e):
     m = [
         "AC", "C", "⌫", "%", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "x", "00", "0", ".", "÷"
     ]
-    tultd = [Button.inline(f"{x}", data=f"calc{x}") for x in m]
+    tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
     lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
-    lst.append([Button.inline("=", data="calc=")])
-    await e.edit("**الحـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
+    lst.append([Button.inline("=", data="calc=", style="primary")])
+    await e.edit("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
 
 CMD_HELP.update({
-    "الحسابة": ".حاسبة" "\n فقط اكتب الامر لعرض حاسبة علميه تحتاج الى تفعيل وضع الانلاين اولا\n\n"
+    "الحسابة": ".حاسبة\n فقط اكتب الامر لعرض حاسبة علميه تحتاج الى تفعيل وضع الانلاين اولا\n\n"
 })

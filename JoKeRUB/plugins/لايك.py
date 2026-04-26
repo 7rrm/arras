@@ -262,6 +262,42 @@ async def fetch_info(event, user_id=None):
     return photo_path, caption
 
 # =========================================================== #
+# دالة تحديث رسالة الكليشات
+# =========================================================== #
+
+async def update_template_message(event, user_id):
+    """تحديث رسالة الكليشات الحالية"""
+    template_keys = list(ID_TEMPLATES.keys())
+    total_pages = len(template_keys)
+    
+    current_page = template_pages.get(user_id, 0)
+    if current_page >= total_pages:
+        current_page = 0
+    current_key = template_keys[current_page]
+    current_template = ID_TEMPLATES[current_key]
+    
+    text = f"**🎨 الكليشة {current_page + 1}/{total_pages}**\n\n"
+    text += f"```\n{current_template['template'][:500]}\n```\n"
+    text += f"• **الاسم:** {current_template['name']}"
+    
+    buttons = []
+    nav_buttons = []
+    if current_page > 0:
+        nav_buttons.append(Button.inline("◀️ رجوع", data="template_prev", style="primary"))
+    if current_page < total_pages - 1:
+        nav_buttons.append(Button.inline("التالي ▶️", data="template_next", style="primary"))
+    
+    if nav_buttons:
+        buttons.append(nav_buttons)
+    
+    buttons.append([
+        Button.inline("💾 حفظ الكليشة", data=f"template_save_{current_key}", style="success"),
+        Button.inline("❌ إغلاق", data="close_panel", style="danger")
+    ])
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
 # الاستعلامات المضمنة
 # =========================================================== #
 
@@ -328,21 +364,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             template_keys = list(ID_TEMPLATES.keys())
             total_pages = len(template_keys)
             
-            current_page = template_pages.get(user_id, 0)
-            if current_page >= total_pages:
-                current_page = 0
-            current_key = template_keys[current_page]
+            # إعادة تعيين الصفحة إلى 0 عند الفتح الجديد
+            template_pages[user_id] = 0
+            current_key = template_keys[0]
             current_template = ID_TEMPLATES[current_key]
             
-            text = f"**🎨 الكليشة {current_page + 1}/{total_pages}**\n\n"
+            text = f"**🎨 الكليشة 1/{total_pages}**\n\n"
             text += f"```\n{current_template['template'][:500]}\n```\n"
             text += f"• **الاسم:** {current_template['name']}"
             
             buttons = []
             nav_buttons = []
-            if current_page > 0:
-                nav_buttons.append(Button.inline("◀️ رجوع", data="template_prev", style="primary"))
-            if current_page < total_pages - 1:
+            if total_pages > 1:
                 nav_buttons.append(Button.inline("التالي ▶️", data="template_next", style="primary"))
             
             if nav_buttons:
@@ -355,7 +388,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             result = builder.article(
                 title="🎨 كليشات الايدي",
-                description=f"الكليشة {current_page + 1}/{total_pages}: {current_template['name']}",
+                description=f"الكليشة 1/{total_pages}: {current_template['name']}",
                 text=text,
                 buttons=buttons,
                 link_preview=False,
@@ -381,8 +414,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             text += f"\n\n• استخدم الأمر `.نمط اللايك` مرة أخرى للتبديل"
             
-            buttons = [[Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")]]
-            buttons.append([Button.inline("❌ إغلاق", data="close_panel", style="danger")])
+            buttons = [
+                [Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")],
+                [Button.inline("❌ إغلاق", data="close_panel", style="danger")]
+            ]
             
             result = builder.article(
                 title="⚙️ إعدادات اللايك",
@@ -461,7 +496,7 @@ async def reset_settings(event):
     await edit_or_reply(event, "✅ تم مسح جميع الإعدادات والتغييرات بنجاح!\n\n• عادت الكليشة إلى الأساسية\n• عاد نمط اللايك إلى القلوب\n• تم مسح جميع المعجبين")
 
 # =========================================================== #
-# أزرار التفاعل (CallbackQuery) - النسخة المصححة
+# أزرار التفاعل (CallbackQuery)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
@@ -523,12 +558,9 @@ async def template_prev(event):
     current_page = template_pages.get(user_id, 0)
     if current_page > 0:
         template_pages[user_id] = current_page - 1
-    
-    # إصلاح: استخدام input_chat
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
-    if response:
-        await response[0].click(event.input_chat)
-    await event.delete()
+        await update_template_message(event, user_id)
+    else:
+        await event.answer("⚠️ هذه هي الكليشة الأولى!", alert=True)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_next")))
 async def template_next(event):
@@ -536,15 +568,11 @@ async def template_next(event):
     current_page = template_pages.get(user_id, 0)
     total_pages = len(ID_TEMPLATES)
     
-    # منع تجاوز الحد الأقصى
     if current_page + 1 < total_pages:
         template_pages[user_id] = current_page + 1
-    
-    # إصلاح: استخدام input_chat
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
-    if response:
-        await response[0].click(event.input_chat)
-    await event.delete()
+        await update_template_message(event, user_id)
+    else:
+        await event.answer("⚠️ هذه هي الكليشة الأخيرة!", alert=True)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_save_(.+)")))
 async def template_save(event):
@@ -566,12 +594,28 @@ async def toggle_like_mode(event):
     addgvar("LIKE_BUTTON_MODE", new_mode)
     
     mode_name = "نمط الحساب" if new_mode == "profile" else "نمط القلوب"
+    my_username, my_name, my_id = await get_my_account_info()
     
-    # تعديل الرسالة بدلاً من حذفها (لأنها رسالة مضمنة)
-    await event.edit(f"✅ تم التبديل إلى **{mode_name}** بنجاح!")
-    await asyncio.sleep(2)
-    # إغلاق القائمة
-    await event.edit("❌ تم إغلاق القائمة!", buttons=None, parse_mode="Markdown")
+    text = f"**⚙️ إعدادات زر اللايك**\n\n"
+    text += f"• النمط الحالي: **{'❤️ نمط القلوب' if new_mode == 'likes' else '👤 نمط الحساب'}**\n\n"
+    text += f"• شكل الزر:\n"
+    
+    if new_mode == "likes":
+        text += f"`ʟɪᴋᴇ ♥️ ⤑ (العدد)`\n"
+        text += f"• زر الإعجاب فقط"
+    else:
+        text += f"`👤 {my_name}`\n"
+        text += f"• رابط حسابك فقط"
+    
+    text += f"\n\n• استخدم الأمر `.نمط اللايك` مرة أخرى للتبديل"
+    
+    buttons = [
+        [Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")],
+        [Button.inline("❌ إغلاق", data="close_panel", style="danger")]
+    ]
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+    await event.answer(f"✅ تم التبديل إلى {mode_name}", alert=True)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_panel")))
 async def close_panel(event):

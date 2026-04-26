@@ -7,11 +7,10 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
-import yt_dlp
 from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
-from youtube_search import YoutubeSearch
+from youtubesearchpython import VideosSearch
 
 from . import l313l
 from ..Config import Config
@@ -41,7 +40,7 @@ def ibuild_keyboard(buttons):
     return keyb
 
 @l313l.tgbot.on(InlineQuery)
-async def inline_handler(event):
+async def inline_handler(event):  # sourcery no-metrics
     builder = event.builder
     result = None
     query = event.text
@@ -52,65 +51,53 @@ async def inline_handler(event):
     query_user_id = event.query.user_id
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         if str_y[0].lower() == "ytdl" and len(str_y) == 2:
-            search_query = str_y[1].strip()
-            link = get_yt_video_id(search_query)
-            
-            if link is not None:
-                try:
-                    caption, buttons = await download_button(link, body=True)
-                    photo = await get_ytthumb(link)
-                    found_ = True
-                except Exception as e:
-                    LOGS.error(f"خطأ في download_button: {e}")
+            link = get_yt_video_id(str_y[1].strip())
+            found_ = True
+            if link is None:
+                search = VideosSearch(str_y[1].strip(), limit=15)
+                resp = (search.result()).get("result")
+                if len(resp) == 0:
                     found_ = False
+                else:
+                    outdata = await result_formatter(resp)
+                    key_ = rand_key()
+                    ytsearch_data.store_(key_, outdata)
+                    buttons = [
+                        [
+                            Button.inline(
+                                f"1 / {len(outdata)}",
+                                data=f"ytdl_next_{key_}_1",
+                                style="primary"
+                            ),
+                        ],
+                        [
+                            Button.inline(
+                                "‹ : فَيديـو : ›",
+                                data=f'ytdl_download_{outdata[1]["video_id"]}_video',
+                                style="danger"
+                            ),
+                            Button.inline(
+                                "‹ : صَــوت : ›",
+                                data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
+                                style="danger"
+                            ),
+                        ],
+                        [
+                            Button.inline(
+                                "📜 القائمـة",
+                                data=f"ytdl_listall_{key_}_1",
+                                style="primary"
+                            )
+                        ],
+                    ]
+                    caption = outdata[1]["message"]
+                    photo = await get_ytthumb(outdata[1]["video_id"])
             else:
-                try:
-                    results_list = YoutubeSearch(search_query, max_results=15).to_dict()
-                    
-                    if len(results_list) == 0:
-                        found_ = False
-                    else:
-                        outdata = await result_formatter(results_list)
-                        key_ = rand_key()
-                        ytsearch_data.store_(key_, outdata)
-                        buttons = [
-                            [
-                                Button.inline(
-                                    f"1 / {len(outdata)}",
-                                    data=f"ytdl_next_{key_}_1",
-                                    style="primary"
-                                ),
-                            ],
-                            [
-                                Button.inline(
-                                    "‹ : فَيديـو : ›",
-                                    data=f'ytdl_download_{outdata[1]["video_id"]}_video',
-                                    style="danger"
-                                ),
-                                Button.inline(
-                                    "‹ : صَــوت : ›",
-                                    data=f'ytdl_download_{outdata[1]["video_id"]}_audio',
-                                    style="danger"
-                                ),
-                            ],
-                            [
-                                Button.inline(
-                                    "📜 القائمـة",
-                                    data=f"ytdl_listall_{key_}_1",
-                                    style="primary"
-                                )
-                            ],
-                        ]
-                        caption = outdata[1]["message"]
-                        photo = await get_ytthumb(outdata[1]["video_id"])
-                        found_ = True
-                except Exception as e:
-                    LOGS.error(f"بحث youtube_search error: {e}")
-                    found_ = False
-            
+                caption, buttons = await download_button(link, body=True)
+                photo = await get_ytthumb(link)
             if found_:
                 markup = event.client.build_reply_markup(buttons)
-                photo_input = types.InputWebDocument(
+                photo = types.InputWebDocument(
                     url=photo, size=0, mime_type="image/jpeg", attributes=[]
                 )
                 text, msg_entities = await event.client._parse_message_text(
@@ -119,10 +106,10 @@ async def inline_handler(event):
                 result = types.InputBotInlineResult(
                     id=str(uuid4()),
                     type="photo",
-                    title=search_query[:50],
+                    title=link,
                     description="⬇️ اضغـط للتحميـل",
-                    thumb=photo_input,
-                    content=photo_input,
+                    thumb=photo,
+                    content=photo,
                     send_message=types.InputBotInlineMessageMediaAuto(
                         reply_markup=markup, message=text, entities=msg_entities
                     ),
@@ -130,7 +117,7 @@ async def inline_handler(event):
             else:
                 result = builder.article(
                     title="Not Found",
-                    text=f"لم يتم العثور على نتائج لـ `{search_query}`",
+                    text=f"No Results found for `{str_y[1]}`",
                     description="INVALID",
                 )
             try:
@@ -140,7 +127,7 @@ async def inline_handler(event):
                     [
                         builder.article(
                             title="Not Found",
-                            text=f"لم يتم العثور على نتائج لـ `{search_query}`",
+                            text=f"No Results found for `{str_y[1]}`",
                             description="INVALID",
                         )
                     ]
@@ -159,24 +146,25 @@ async def inline_handler(event):
                 ZZZ_IMG = random.choice(PIC)
             else:
                 ZZZ_IMG = None
-            query_ = gvarstatus("pmpermit_text")
+            query = gvarstatus("pmpermit_text")
             if ZZZ_IMG and ZZZ_IMG.endswith((".jpg", ".jpeg", ".png")):
                 result = builder.photo(
                     ZZZ_IMG,
-                    text=query_,
+                    # title="Alive zzz",
+                    text=query,
                     buttons=buttons,
                 )
             elif ZZZ_IMG:
                 result = builder.document(
                     ZZZ_IMG,
                     title="Alive zzz",
-                    text=query_,
+                    text=query,
                     buttons=buttons,
                 )
             else:
                 result = builder.article(
                     title="Alive zzz",
-                    text=query_,
+                    text=query,
                     buttons=buttons,
                 )
             await event.answer([result] if result else None)

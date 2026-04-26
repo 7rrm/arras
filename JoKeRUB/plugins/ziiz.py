@@ -77,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event):
+async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
@@ -92,16 +92,6 @@ async def zzz_info(zthon_user, event):
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
-async def send_whisper_inline_click(response, chat_id):
-    """Send inline click in background without blocking"""
-    try:
-        # Short timeout to avoid long wait
-        await asyncio.wait_for(response[0].click(chat_id), timeout=0.5)
-    except asyncio.TimeoutError:
-        pass  # Don't wait for full response
-    except Exception as e:
-        LOGS.debug(f"Inline click error: {e}")
-
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
 async def repozedub(event):
     global bbb
@@ -115,26 +105,16 @@ async def repozedub(event):
         user_id, full_name, username = await zzz_info(zthon_user, event)
     except (AttributeError, TypeError):
         return
-    
-    # Store in database
     delgvar("hmsa_id")
     delgvar("hmsa_name")
     delgvar("hmsa_user")
-    addgvar("hmsa_id", str(user_id))
+    addgvar("hmsa_id", user_id)
     addgvar("hmsa_name", full_name)
     addgvar("hmsa_user", username)
-    
-    # Prepare inline button
     if gvarstatus("hmsa_id"):
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + str(gvarstatus("hmsa_id")) + " \nهلو"), same_peer=True))]
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     else:
-        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + str(user_id) + " \nهلو"), same_peer=True))]
-    
-    # Send inline query
+    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    
-    # Delete original message immediately
+    await response[0].click(event.chat_id)
     await event.delete()
-    
-    # Send click in background (non-blocking)
-    asyncio.create_task(send_whisper_inline_click(response, event.chat_id))

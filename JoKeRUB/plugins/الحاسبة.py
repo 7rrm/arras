@@ -67,15 +67,14 @@ async def calc_handler(e):
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)
-        # ✅ إظهار رسالة "تم الحذف" فوق الأزرار
-        await e.edit(f"**🗑 تم الحذف**\n\n{current_text}", buttons=lst)
+        await e.answer("🗑 تم الحذف", alert=True)  # ✅ تظهر فوق الأزرار
     
     elif x == "⌫":
         if CALC.get(user):
             get = CALC[user]
         if get:
             CALC.update({user: get[:-1]})
-            await e.edit(f"**{get[:-1]}**\n\n{current_text}", buttons=lst)
+            await e.answer(str(get[:-1]), alert=False)
         else:
             await e.answer("⚠️ لا توجد أرقام للحذف", alert=True)
     
@@ -84,13 +83,107 @@ async def calc_handler(e):
             get = CALC[user]
         if get:
             CALC.update({user: get + "/100"})
-            await e.edit(f"**{get + '/100'}**\n\n{current_text}", buttons=lst)
+            await e.answer(str(get + "/100"), alert=False)
         else:
             CALC.update({user: "0/100"})
-            await e.edit(f"**0/100**\n\n{current_text}", buttons=lst)
+            await e.answer("0/100", alert=False)
     
     elif x == "÷":
         if CALC.get(user):
             get = CALC[user]
         if get:
-            CALC.update({user: get + "/"
+            CALC.update({user: get + "/"})
+            await e.answer(str(get + "/"), alert=False)
+        else:
+            await e.answer("⚠️ اكتب رقماً أولاً", alert=True)
+    
+    elif x == "x":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "*"})
+            await e.answer(str(get + "*"), alert=False)
+        else:
+            await e.answer("⚠️ اكتب رقماً أولاً", alert=True)
+    
+    elif x == "+":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "+"})
+            await e.answer(str(get + "+"), alert=False)
+        else:
+            await e.answer("⚠️ اكتب رقماً أولاً", alert=True)
+    
+    elif x == "-":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "-"})
+            await e.answer(str(get + "-"), alert=False)
+        else:
+            await e.answer("⚠️ اكتب رقماً أولاً", alert=True)
+    
+    elif x == ".":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "."})
+            await e.answer(str(get + "."), alert=False)
+        else:
+            CALC.update({user: "0."})
+            await e.answer("0.", alert=False)
+    
+    elif x == "00":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + "00"})
+            await e.answer(str(get + "00"), alert=False)
+        else:
+            CALC.update({user: "00"})
+            await e.answer("00", alert=False)
+    
+    elif x == "=":
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            if get.endswith(("*", ".", "/", "-", "+")):
+                get = get[:-1]
+            try:
+                out = eval(get)
+                if isinstance(out, float) and out.is_integer():
+                    out = int(out)
+                CALC.pop(user)
+                await e.answer(f"📐 النتيجة: {out}", alert=True)
+            except Exception as ex:
+                CALC.pop(user)
+                await e.answer(f"❌ خطأ: {str(ex)}", alert=True)
+        else:
+            await e.answer("⚠️ لا توجد معادلة", alert=True)
+    
+    else:
+        # الأرقام (0-9)
+        if CALC.get(user):
+            get = CALC[user]
+        if get:
+            CALC.update({user: get + x})
+            await e.answer(str(get + x), alert=False)
+        else:
+            CALC.update({user: x})
+            await e.answer(str(x), alert=False)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"recalc")))
+@check_owner
+async def recalc_handler(e):
+    m = [
+        "AC", "C", "⌫", "%", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "x", "00", "0", ".", "÷"
+    ]
+    tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
+    lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
+    lst.append([Button.inline("=", data="calc=", style="primary")])
+    await e.edit("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
+
+CMD_HELP.update({
+    "الحسابة": ".حاسبة\n فقط اكتب الامر لعرض حاسبة علميه تحتاج الى تفعيل وضع الانلاين اولا\n\n"
+})

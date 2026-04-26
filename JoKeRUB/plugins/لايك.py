@@ -39,6 +39,9 @@ Zel_Uid = l313l.uid
 
 ZED_BLACKLIST = [-1001935599871]
 
+# متغير لتخزين الصفحات
+template_pages = {}
+
 # =========================================================== #
 # الحصول على معلومات الحساب تلقائياً
 # =========================================================== #
@@ -262,8 +265,6 @@ async def fetch_info(event, user_id=None):
 # الاستعلامات المضمنة
 # =========================================================== #
 
-template_pages = {}
-
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
     @tgbot.on(events.InlineQuery)
@@ -284,7 +285,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             my_username, my_name, my_id = await get_my_account_info()
             my_link = f"https://t.me/{my_username}" if my_username else f"tg://user?id={my_id}"
             
-            # ✅ زر واحد فقط حسب النمط المختار
+            # زر واحد فقط حسب النمط المختار
             if like_button_mode == "likes":
                 Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
                 buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
@@ -340,9 +341,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             buttons = []
             nav_buttons = []
             if current_page > 0:
-                nav_buttons.append(Button.inline("◀️ رجوع", data=f"template_prev", style="primary"))
+                nav_buttons.append(Button.inline("◀️ رجوع", data="template_prev", style="primary"))
             if current_page < total_pages - 1:
-                nav_buttons.append(Button.inline("التالي ▶️", data=f"template_next", style="primary"))
+                nav_buttons.append(Button.inline("التالي ▶️", data="template_next", style="primary"))
             
             if nav_buttons:
                 buttons.append(nav_buttons)
@@ -460,10 +461,6 @@ async def reset_settings(event):
     await edit_or_reply(event, "✅ تم مسح جميع الإعدادات والتغييرات بنجاح!\n\n• عادت الكليشة إلى الأساسية\n• عاد نمط اللايك إلى القلوب\n• تم مسح جميع المعجبين")
 
 # =========================================================== #
-# أزرار التفاعل (CallbackQuery)
-# =========================================================== #
-
-# =========================================================== #
 # أزرار التفاعل (CallbackQuery) - النسخة المصححة
 # =========================================================== #
 
@@ -527,22 +524,26 @@ async def template_prev(event):
     if current_page > 0:
         template_pages[user_id] = current_page - 1
     
-    # إصلاح: استخدام chat_id مباشرة
+    # إصلاح: استخدام input_chat
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
     if response:
-        await response[0].click(event.chat_id)
+        await response[0].click(event.input_chat)
     await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_next")))
 async def template_next(event):
     user_id = event.query.user_id
     current_page = template_pages.get(user_id, 0)
-    template_pages[user_id] = current_page + 1
+    total_pages = len(ID_TEMPLATES)
     
-    # إصلاح: استخدام chat_id مباشرة
+    # منع تجاوز الحد الأقصى
+    if current_page + 1 < total_pages:
+        template_pages[user_id] = current_page + 1
+    
+    # إصلاح: استخدام input_chat
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
     if response:
-        await response[0].click(event.chat_id)
+        await response[0].click(event.input_chat)
     await event.delete()
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_save_(.+)")))

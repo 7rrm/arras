@@ -12,6 +12,7 @@ from telethon import Button, types
 from telethon.errors import QueryIdInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 from telethon.tl.functions.users import GetUsersRequest
+from telethon.tl.types import InputWebDocument
 
 from . import l313l
 from ..Config import Config
@@ -25,15 +26,15 @@ LOGS = logging.getLogger(__name__)
 tr = Config.COMMAND_HAND_LER
 
 scc = "secret"
-hmm = "همسـة"
+hmm = "همسـة لـ"
 ymm = "يستطيـع"
-fmm = "فتـح الهمسـه 🗳"
+fmm = "• فتـح الهمسـه •"
 dss = "⌔╎هو فقط من يستطيع ࢪؤيتهـا"
-hss = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - **همسـة سـريـه** 📠\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
+hss = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎الهمسـة لـ**"
 nmm = "همسـه سريـه"
 mnn = "ارسـال همسـه سريـه لـ (شخـص/اشخـاص)."
 bmm = "اضغـط للـرد"
-ttt = "ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗪𝗵𝗶𝘀𝗽𝗲𝗿 - همسـة سـريـه\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎أضغـط الـزر بالأسفـل ⚓\n⌔╎لـ أࢪسـال همسـه سـريـه الى"
+ttt = "ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n**⌔╎لـ أࢪسـال همسـه سـريـه الى**"
 ddd = "💌"
 bbb = None
 
@@ -99,13 +100,20 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
+            thumb = InputWebDocument(
+                url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -115,7 +123,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="primary"))]
             else:
                 return
             results = []
@@ -123,7 +131,7 @@ async def inline_handler(event):
                 builder.article(
                     title=f"{nmm}",
                     description=f"{mnn}",
-                    text=f"**{ttt}** {zelzal} **{ddd}**",
+                    text=f"{ttt} {zelzal} **{ddd}**",
                     buttons=bbb,
                     link_preview=False,
                 ),
@@ -165,13 +173,20 @@ async def inline_handler(event):
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
             }  # Code by T.me/zzzzl1l
-            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}")],[Button.switch_inline(bmm, query=f"secret {malathid} \nهلو", same_peer=True)]]
+            buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
+            thumb = InputWebDocument(
+                url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
+                size=0,
+                mime_type="image/jpeg",
+                attributes=[]
+            )
             result = builder.article(
                 title=f"{hmm} {zilzal}",
                 description=f"{dss}",
                 text=f"{hss} {zilzal} \n**{dss}**",
                 buttons=buttons,
                 link_preview=False,
+                thumb=thumb,
             )
             await event.answer([result] if result else None)
             if jsondata:
@@ -181,7 +196,7 @@ async def inline_handler(event):
                 json.dump(new_msg, open(old_msg, "w"))
         elif string == "zelzal":
             if gvarstatus("hmsa_id"):
-                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+                bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True,style="primary"))]
             else:
                 return
             results = []
@@ -197,4 +212,3 @@ async def inline_handler(event):
             await event.answer(results)
     else:
         return
-

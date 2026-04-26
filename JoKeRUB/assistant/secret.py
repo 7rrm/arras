@@ -58,12 +58,9 @@ async def on_plug_in_callback_query_handler(event):
                     jsondata[f"{timestamp}"] = message
                     json.dump(jsondata, open(file_name, "w"))
                     
-                    # إنشاء منشن للمستقبل (الذي ضغط على الزر)
-                    try:
-                        receiver = await l313l.get_entity(event.query.user_id)
-                        receiver_name = f'<a href="tg://user?id={event.query.user_id}">{get_display_name(receiver)}</a>'
-                    except:
-                        receiver_name = "المستخدم"
+                    # استخدام hmsa_name من قاعدة البيانات
+                    hmsa_name = gvarstatus("hmsa_name")
+                    receiver_name = f'<a href="tg://user?id={event.query.user_id}">{hmsa_name}</a>'
                     
                     new_text = f'''\
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji> <b> تم قراءة الهمسـة </b>

@@ -7,30 +7,30 @@ from ..core.decorators import check_owner
 CALC = {}
 plugin_category = "utils"
 
-# تعريف الأزرار بألوان مختلفة
+# دالة تحديد لون الزر حسب النوع
+def get_button_style(btn):
+    if btn in ["AC", "C", "⌫"]:
+        return "danger"  # 🔴 أحمر - أزرار التحكم
+    elif btn in ["+", "-", "x", "÷", "%", "="]:
+        return "success"  # 🟢 أخضر - العمليات الحسابية والنتيجة
+    else:
+        return "primary"  # 🔵 أزرق - الأرقام
+
+# إنشاء الأزرار بألوان
 m = [
     "AC", "C", "⌫", "%", "7", "8", "9", "+", "4", "5", "6", "-", "1", "2", "3", "x", "00", "0", ".", "÷"
 ]
-
-def get_button_style(btn):
-    if btn in ["AC", "C", "⌫"]:
-        return "danger"  # أحمر للأزرار التحكم
-    elif btn in ["+", "-", "x", "÷", "%"]:
-        return "success"  # أخضر للعمليات الحسابية
-    elif btn in ["="]:
-        return "primary"  # أزرق للنتيجة
-    else:
-        return "primary"  # أزرق للأرقام
-
 tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
 lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
-lst.append([Button.inline("=", data="calc=", style="primary")])
+lst.append([Button.inline("=", data="calc=", style="success")])
 
 @l313l.on(admin_cmd(pattern="حاسبة(?:\s|$)([\s\S]*)"))
 async def icalc(e):
+    # التحقق مما إذا كان العميل يعمل كبوت
     if hasattr(e.client, 'bot_token') and e.client.bot_token:
         return await e.reply("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
     
+    # إذا لم يكن بوت، قم بتنفيذ الاستعلام المضمن
     results = await e.client.inline_query(Config.TG_BOT_USERNAME, "calc")
     await results[0].click(e.chat_id, silent=True, hide_via=True)
     await e.delete()
@@ -50,7 +50,6 @@ async def calc_handler(e):
     x = (e.data_match.group(1)).decode()
     user = e.query.user_id
     get = None
-    current_text = "**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**"
     
     if x == "AC":
         if CALC.get(user):
@@ -61,13 +60,13 @@ async def calc_handler(e):
         ]
         tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
         lst_new = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
-        lst_new.append([Button.inline("=", data="calc=", style="primary")])
-        await e.edit(current_text, buttons=lst_new)
+        lst_new.append([Button.inline("=", data="calc=", style="success")])
+        await e.edit("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst_new)
     
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)
-        await e.answer("🗑 تم الحذف", alert=True)  # ✅ تظهر فوق الأزرار
+        await e.answer("🗑 تم الحذف", alert=True)
     
     elif x == "⌫":
         if CALC.get(user):
@@ -181,7 +180,7 @@ async def recalc_handler(e):
     ]
     tultd = [Button.inline(f"{x}", data=f"calc{x}", style=get_button_style(x)) for x in m]
     lst = list(zip(tultd[::4], tultd[1::4], tultd[2::4], tultd[3::4]))
-    lst.append([Button.inline("=", data="calc=", style="primary")])
+    lst.append([Button.inline("=", data="calc=", style="success")])
     await e.edit("**الحَـاسبة العـلمية لسـورس آراس\n @Lx5x5**", buttons=lst)
 
 CMD_HELP.update({

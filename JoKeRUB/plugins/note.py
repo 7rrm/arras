@@ -22,51 +22,40 @@ from . import BOTLOG, BOTLOG_CHATID, l313l, reply_id
 plugin_category = "tools"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# أسماء الصفحات بالعربية (للعرض فقط)
 Pages = {
-    "دفتر ملاحظات": "note",
-    "دفتر مسودة": "rough",
-    "دفتر حلزوني": "spiral",
-    "دفتر أبيض": "white",
-    "مفكرة": "notepad",
-    "صفحة A4": "a4",
+    "Note Book": "note",
+    "Raugh Book": "rough",
+    "Spiral Book": "spiral",
+    "White Book": "white",
+    "Notepad": "notepad",
+    "A4 Page": "a4",
 }
 
-# الألوان بالعربية
-Colors = [
-    "اسود", "بني", "قرمزي", "ازرق داكن", "ازرق مخضر داكن", "اخضر داكن",
-    "ارجواني داكن", "احمر داكن", "ازرق اردوازي داكن", "رمادي اردوازي داكن",
-    "بنفسجي داكن", "نيلي", "ارجواني", "كستنائي", "ازرق متوسط",
-    "ازرق منتصف الليل", "ازرق بحري", "برتقالي محمر", "بنفسجي", "احمر", "تركواز"
-]
-
-# قاموس تحويل الألوان من عربي إلى إنجليزي
-Colors_EN = {
-    "اسود": "black",
-    "بني": "brown",
-    "قرمزي": "crimson",
-    "ازرق داكن": "darkblue",
-    "ازرق مخضر داكن": "darkcyan",
-    "اخضر داكن": "darkgreen",
-    "ارجواني داكن": "darkmagenta",
-    "احمر داكن": "darkred",
-    "ازرق اردوازي داكن": "darkslateblue",
-    "رمادي اردوازي داكن": "darkslategray",
-    "بنفسجي داكن": "darkviolet",
-    "نيلي": "indigo",
-    "ارجواني": "magenta",
-    "كستنائي": "maroon",
-    "ازرق متوسط": "mediumblue",
-    "ازرق منتصف الليل": "midnightblue",
-    "ازرق بحري": "navy",
-    "برتقالي محمر": "orangered",
-    "بنفسجي": "purple",
-    "احمر": "red",
-    "تركواز": "teal",
-}
-
-# الخطوط (تبقى إنجليزية لأنها أسماء ملفات)
 Fonts = ["BrownBag", "Caveat", "HomemadeApple", "JottFLF", "WriteSong"]
+
+Colors = [
+    "black",
+    "brown",
+    "crimson",
+    "darkblue",
+    "darkcyan",
+    "darkgreen",
+    "darkmagenta",
+    "darkred",
+    "darkslateblue",
+    "darkslategray",
+    "darkviolet",
+    "indigo",
+    "magenta",
+    "maroon",
+    "mediumblue",
+    "midnightblue",
+    "navy",
+    "orangered",
+    "purple",
+    "red",
+    "teal",
+]
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -226,7 +215,7 @@ def notebook_values(page, font):  # sourcery skip: low-code-quality
 
 # الأمر الأول: كتابة نص (الأمر الإنجليزي .write والأمر العربي .اكتب)
 @l313l.ar_cmd(
-    pattern="(?:write|اكتب)(?:\s|$)([\s\S]*)",
+    pattern="(write|اكتب)(?:\s|$)([\s\S]*)",
     command=("write", plugin_category),
     info={
         "header": "للكتابة في دفتر الملاحظات",
@@ -244,43 +233,38 @@ async def write_page(event):
     page = gvarstatus("NOTEBOOK_PAGE") or "spiral"
     log = gvarstatus("NOTEBOOK_LOG") or "Off"
     foreground = gvarstatus("NOTEBOOK_PEN_COLOR") or "black"
-    
-    # التعامل مع النص (سواء كان من write أو اكتب)
-    text = event.pattern_match.group(2)
-    rtext = await event.get_reply_message()
-    
-    # إذا كان النص فارغاً والرد على ملف
-    if text == "-f":
-        if not rtext.media:
-            return await edit_delete(event, "**⚠️ يرجى الرد على ملف نصي فقط**")
-        if await media_type(rtext) == "Document":
-            file_name = await rtext.download_media(Config.TEMP_DIR)
-            with open(file_name, "r") as f:
-                text = f.read()
-            if os.path.exists(file_name):
-                os.remove(file_name)
-    
-    # إذا لم يوجد نص، جرب أخذه من الرد
-    if not text and rtext:
-        text = rtext.message
-    
-    # إذا كان لا يزال لا يوجد نص
-    if not text:
-        return await edit_delete(event, "**⚠️ من فضلك، قم بإدخال النص أو الرد على رسالة**")
-    
-    cap = None
+    if cmd == "write" or cmd == "اكتب":
+        text = event.pattern_match.group(2)
+        rtext = await event.get_reply_message()
+        if text == "-f":
+            if not rtext.media:
+                return await edit_delete(event, "**⚠️ يرجى الرد على ملف نصي فقط**")
+            if await media_type(rtext) == "Document":
+                file_name = await rtext.download_media(Config.TEMP_DIR)
+                with open(file_name, "r") as f:
+                    text = f.read()
+                if os.path.exists(file_name):
+                    os.remove(file_name)
+        if not text and rtext:
+            text = rtext.message
+        if not text:
+            return await edit_delete(event, "**⚠️ من فضلك، قم بإدخال النص أو الرد على رسالة**")
+        cap = None
+    if cmd == "notebook":
+        text = (
+            (await l313l(GetFullUserRequest(l313l.uid))).full_user
+        ).about or "هذا مجرد نص تجريبي\n              - بواسطة البوت"
+        cap = f"**📒 إعدادات الدفتر:**\n\n**✍️ الخط:** `{font}`\n**📄 الصفحة:** `{list(Pages.keys())[list(Pages.values()).index(page)]}`\n**🎨 اللون:** `{foreground.title()}`\n**💾 التسجيل:** `{log}`"
     reply_to_id = await reply_id(event)
     text = deEmojify(text)
-    catevent = await edit_or_reply(event, "**✍️ جاري كتابة ملاحظتك...**")
-    
+    catevent = await edit_or_reply(event, "**✍️ جاري الكتابة...**")
     temp_name = "./temp/nbpage.jpg"
     font_name = "./temp/nbfont.ttf"
-    
     if not os.path.isdir("./temp"):
         os.mkdir("./temp")
     if not os.path.exists(temp_name):
         urllib.request.urlretrieve(
-            f"https://github.com/7rrm/ArasUserbot-Resources/raw/master/Resources/Notebook/Images/{page}.jpg",
+            f"https://github.com/TgCatUB/CatUserbot-Resources/raw/master/Resources/Notebook/Images/{page}.jpg",
             temp_name,
         )
     if not os.path.exists(font_name):
@@ -288,9 +272,7 @@ async def write_page(event):
             f"https://github.com/7rrm/ArasUserbot-Resources/blob/master/Resources/Notebook/Fonts/{font}.ttf?raw=true",
             font_name,
         )
-    
     lines, text_wrap, font_size, linespace, position = notebook_values(page, font)
-    
     image, _ = higlighted_text(
         temp_name,
         text,
@@ -305,13 +287,11 @@ async def write_page(event):
         transparency=0,
         album=True,
     )
-    
     await event.client.send_file(
         event.chat_id, image, caption=cap, reply_to=reply_to_id
     )
     await catevent.delete()
-    
-    if log == "On" and BOTLOG_CHATID != event.chat_id:
+    if log == "On" and cmd != "notebook" and BOTLOG_CHATID != event.chat_id:
         await event.client.send_file(
             BOTLOG_CHATID, image, caption=f"#NOTE_BOOK\n\n{cap}"
         )
@@ -321,7 +301,7 @@ async def write_page(event):
 
 # الأمر الثاني: عرض إعدادات الدفتر (الأمر الإنجليزي .notebook والأمر العربي .اعدادات)
 @l313l.ar_cmd(
-    pattern="(?:notebook|اعدادات)$",
+    pattern="notebook|اعدادات$",
     command=("notebook", plugin_category),
     info={
         "header": "لعرض إعدادات الدفتر الحالية",
@@ -335,98 +315,80 @@ async def notebook(event):
     page = gvarstatus("NOTEBOOK_PAGE") or "spiral"
     log = gvarstatus("NOTEBOOK_LOG") or "Off"
     foreground = gvarstatus("NOTEBOOK_PEN_COLOR") or "black"
-    
-    # الحصول على اسم الصفحة بالعربية
-    page_name_ar = "دفتر حلزوني"
-    for ar_name, en_name in Pages.items():
-        if en_name == page:
-            page_name_ar = ar_name
-            break
-    
-    # الحصول على اسم اللون بالعربية
-    color_name_ar = "اسود"
-    for ar_color, en_color in Colors_EN.items():
-        if en_color == foreground:
-            color_name_ar = ar_color
-            break
-    
-    cap = f"**📒 إعدادات الدفتر الحالية:**\n\n**✍️ الخط:** `{font}`\n**📄 الصفحة:** `{page_name_ar}`\n**🎨 لون القلم:** `{color_name_ar}`\n**💾 حفظ السجل:** `{log}`"
-    
+    cap = f"**📒 إعدادات الدفتر:**\n\n**✍️ الخط:** `{font}`\n**📄 الصفحة:** `{list(Pages.keys())[list(Pages.values()).index(page)]}`\n**🎨 اللون:** `{foreground.title()}`\n**💾 التسجيل:** `{log}`"
     await edit_or_reply(event, cap)
 
 
-# الأمر الثالث: تغيير الإعدادات (الأمر الإنجليزي nb والأمر العربي اعداد)
+# الأمر الثالث: تغيير الإعدادات
 @l313l.ar_cmd(
-    pattern="(?:nb|اعداد)(page|font|pen|log)(?:\s|$)([\s\S]*)",
+    pattern="(?:nb)(page|font|pen|log)(?:\s|$)([\s\S]*)",
     command=("nb", plugin_category),
     info={
         "header": "تغيير إعدادات الدفتر",
         "description": "تخصيص خط الدفتر، الصفحة، لون القلم، التسجيل",
         "flags": {
             "page": "تغيير صفحة الدفتر",
-            "font": "تغيير خط الدفتر",
+            "font": "تغيير خط الدفتر", 
             "pen": "تغيير لون القلم",
             "log": "تفعيل/إيقاف حفظ السجل",
         },
         "usage": [
-            "{tr}اعداد page <اسم الصفحة>",
-            "{tr}اعداد font <اسم الخط>",
-            "{tr}اعداد pen <اللون>",
-            "{tr}اعداد log <On/Off>",
+            "{tr}nbpage <اسم الصفحة>",
+            "{tr}nbfont <اسم الخط>",
+            "{tr}nbpen <اللون>",
+            "{tr}nblog <On/Off>",
+        ],
+        "examples": [
+            "{tr}nbpage Spiral Book",
+            "{tr}nbfont Caveat",
+            "{tr}nbpen red",
+            "{tr}nblog On",
         ],
     },
 )
 async def notebook_conf(event):
     """تغيير إعدادات الدفتر"""
     cmd = event.pattern_match.group(1).lower()
-    input_str = event.pattern_match.group(2).strip()
+    input_str = event.pattern_match.group(2)
     reply_to_id = await reply_id(event)
-    
     if cmd == "page":
         cap = "**📄 صفحات الدفتر المتاحة:**\n\n"
         for i, each in enumerate(Pages.keys(), start=1):
             cap += f"**{i}.**  `{each}`\n"
-        
         if input_str and input_str in Pages.keys():
             addgvar("NOTEBOOK_PAGE", Pages[input_str])
-            if os.path.exists("./temp/nbpage.jpg"):
-                os.remove("./temp/nbpage.jpg")
+            if os.path.exists("temp/nbpage.jpg"):
+                os.remove("temp/nbpage.jpg")
             return await edit_delete(
                 event, f"**✅ تم تغيير صفحة الدفتر بنجاح إلى:** `{input_str}`", 20
             )
         temp_page = "Pages"
-        
     elif cmd == "font":
         cap = "**✍️ الخطوط المتاحة:**\n\n"
         for i, each in enumerate(Fonts, start=1):
             cap += f"**{i}.**  `{each}`\n"
-        
         if input_str and input_str in Fonts:
             addgvar("NOTEBOOK_FONT", input_str)
-            if os.path.exists("./temp/nbfont.ttf"):
-                os.remove("./temp/nbfont.ttf")
+            if os.path.exists("temp/nbfont.ttf"):
+                os.remove("temp/nbfont.ttf")
             return await edit_delete(
                 event, f"**✅ تم تغيير خط الدفتر بنجاح إلى:** `{input_str}`", 20
             )
         temp_page = "Fonts"
-        
     elif cmd == "pen":
         cap = "**🎨 الألوان المتاحة:**\n\n"
         for i, each in enumerate(Colors, start=1):
             cap += f"**{i}.**  `{each}`\n"
-        
         if input_str and input_str in Colors:
-            # تحويل اللون من عربي إلى إنجليزي
-            addgvar("NOTEBOOK_PEN_COLOR", Colors_EN[input_str])
-            if os.path.exists("./temp/nbfont.ttf"):
-                os.remove("./temp/nbfont.ttf")
+            addgvar("NOTEBOOK_PEN_COLOR", input_str)
+            if os.path.exists("temp/nbfont.ttf"):
+                os.remove("temp/nbfont.ttf")
             return await edit_delete(
                 event,
                 f"**✅ تم تغيير لون قلم الدفتر بنجاح إلى:** `{input_str}`",
                 20,
             )
         temp_page = "Colors"
-        
     elif cmd == "log":
         if not BOTLOG:
             return await edit_delete(
@@ -442,8 +404,6 @@ async def notebook_conf(event):
                 50,
             )
         return await edit_delete(event, cap)
-    
-    # عرض الصورة مع القائمة
     await event.delete()
     file = f"{temp_page}.jpg"
     urllib.request.urlretrieve(

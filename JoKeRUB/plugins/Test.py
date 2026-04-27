@@ -110,7 +110,7 @@ async def delete_message(event):
         await event.client.delete_messages(event.chat_id, event.message_id)
     except Exception as e:
         await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
-'''
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
@@ -134,6 +134,24 @@ async def delete_message(event):
             await event.answer("❌ لا يمكن حذف هذه الرسالة (خدمية أو قديمة).", alert=True)
         else:
             await event.answer(f"❌ خطأ: {error_msg[:50]}", alert=True)
+
+'''
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
+@check_owner
+async def delete_message(event):
+    """البوت هو من يحذف رسالته (وهو الحل الصحيح هنا)"""
+    try:
+        # إشعار للمستخدم
+        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
+        
+        # البوت (tgbot) هو من يحذف رسالته
+        await event.delete()  # أو await event.client.delete_messages(event.chat_id, event.message_id)
+        
+        # إشعار نجاح (سيختفي بسرعة)
+        await event.answer("✅ تم حذف الرسالة!", alert=True)
+        
+    except Exception as e:
+        await event.answer(f"❌ خطأ: {str(e)[:50]}", alert=True)
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"red_menu")))
 @check_owner
 async def red_menu(event):

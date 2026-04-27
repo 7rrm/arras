@@ -114,27 +114,12 @@ async def delete_message(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
-    """حسابك (l313l) هو من يحذف الرسالة"""
+    """حسابك يحذف رسالته - يعلم بدون صلاحيات"""
     try:
-        # إشعار للمستخدم
-        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
-        
-        # حسابك هو من يحذف الرسالة (وليس البوت)
+        # حذف فوري بدون أي إشعارات
         await l313l.delete_messages(event.chat_id, [event.message_id])
-        
-        # إشعار نجاح
-        await event.answer("✅ تم حذف الرسالة!", alert=True)
-        
-    except Exception as e:
-        error_msg = str(e)
-        
-        if "not enough rights" in error_msg.lower():
-            await event.answer("❌ الحساب ليس مشرفاً أو لا يملك صلاحية الحذف!", alert=True)
-        elif "message can't be deleted" in error_msg.lower():
-            await event.answer("❌ لا يمكن حذف هذه الرسالة (خدمية أو قديمة).", alert=True)
-        else:
-            await event.answer(f"❌ خطأ: {error_msg[:50]}", alert=True)
-
+    except:
+        pass
 '''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner

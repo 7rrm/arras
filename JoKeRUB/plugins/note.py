@@ -87,7 +87,7 @@ def notebook_values(page, font):  # sourcery skip: low-code-quality
             linespace = "-15"
         elif font == "aras":
             text_wrap = 1.0
-            font_size = 45
+            font_size = 80
             linespace = "-35"
     # اضبط القيم حسب تجربتك
     elif page == "spiral":

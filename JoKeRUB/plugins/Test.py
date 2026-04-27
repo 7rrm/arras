@@ -71,10 +71,23 @@ async def test_main(event):
         [Button.inline("🔴 أحمر", data="red_menu", style="danger")],
         [Button.inline("🟢 أخضر", data="green_menu", style="success")],
         [Button.inline("🔵 أزرق", data="blue_menu", style="primary")],
-        [Button.inline("❌ إغلاق", data="close_test", style="danger")]
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
+        [Button.inline("❌ حذف الرسالة", data="close_test", style="danger")]
     ]
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
+# إخفاء الأزرار فقط (دون حذف الرسالة)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"hide_buttons")))
+@check_owner
+async def hide_buttons(event):
+    """إخفاء الأزرار فقط مع الاحتفاظ بالنص"""
+    current_text = event.text or "**🎨 القائمة الرئيسية - اختر لونك المفضل:**"
+    await event.edit(current_text, buttons=None, parse_mode="Markdown")
+    await event.answer("✅ تم إخفاء الأزرار!", alert=True)
 
 # =========================================================== #
 # القائمة الحمراء
@@ -89,7 +102,8 @@ async def red_menu(event):
         [Button.inline("خيار أحمر 1", data="red_option_1", style="danger")],
         [Button.inline("خيار أحمر 2", data="red_option_2", style="danger")],
         [Button.inline("⬅️ رجوع للألوان", data="test_main", style="primary")],
-        [Button.inline("❌ إغلاق", data="close_test", style="danger")]
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
+        [Button.inline("❌ حذف الرسالة", data="close_test", style="danger")]
     ]
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -107,7 +121,8 @@ async def green_menu(event):
         [Button.inline("خيار أخضر 1", data="green_option_1", style="success")],
         [Button.inline("خيار أخضر 2", data="green_option_2", style="success")],
         [Button.inline("⬅️ رجوع للألوان", data="test_main", style="primary")],
-        [Button.inline("❌ إغلاق", data="close_test", style="danger")]
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
+        [Button.inline("❌ حذف الرسالة", data="close_test", style="danger")]
     ]
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -125,7 +140,8 @@ async def blue_menu(event):
         [Button.inline("خيار أزرق 1", data="blue_option_1", style="primary")],
         [Button.inline("خيار أزرق 2", data="blue_option_2", style="primary")],
         [Button.inline("⬅️ رجوع للألوان", data="test_main", style="primary")],
-        [Button.inline("❌ إغلاق", data="close_test", style="danger")]
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
+        [Button.inline("❌ حذف الرسالة", data="close_test", style="danger")]
     ]
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -138,46 +154,76 @@ async def blue_menu(event):
 @check_owner
 async def red_option_1(event):
     text = "**🔴 لقد ضغطت على الخيار الأحمر 1**"
-    buttons = [[Button.inline("⬅️ رجوع", data="red_menu", style="danger")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="red_menu", style="danger")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"red_option_2")))
 @check_owner
 async def red_option_2(event):
     text = "**🔴 لقد ضغطت على الخيار الأحمر 2**"
-    buttons = [[Button.inline("⬅️ رجوع", data="red_menu", style="danger")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="red_menu", style="danger")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"green_option_1")))
 @check_owner
 async def green_option_1(event):
     text = "**🟢 لقد ضغطت على الخيار الأخضر 1**"
-    buttons = [[Button.inline("⬅️ رجوع", data="green_menu", style="success")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="green_menu", style="success")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"green_option_2")))
 @check_owner
 async def green_option_2(event):
     text = "**🟢 لقد ضغطت على الخيار الأخضر 2**"
-    buttons = [[Button.inline("⬅️ رجوع", data="green_menu", style="success")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="green_menu", style="success")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"blue_option_1")))
 @check_owner
 async def blue_option_1(event):
     text = "**🔵 لقد ضغطت على الخيار الأزرق 1**"
-    buttons = [[Button.inline("⬅️ رجوع", data="blue_menu", style="primary")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="blue_menu", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"blue_option_2")))
 @check_owner
 async def blue_option_2(event):
     text = "**🔵 لقد ضغطت على الخيار الأزرق 2**"
-    buttons = [[Button.inline("⬅️ رجوع", data="blue_menu", style="primary")]]
+    buttons = [
+        [Button.inline("⬅️ رجوع", data="blue_menu", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")]
+    ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 # =========================================================== #
-# إغلاق
+# إخفاء الأزرار من أي مكان (دالة عامة)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"hide_buttons")))
+@check_owner
+async def hide_buttons(event):
+    """إخفاء الأزرار فقط مع الاحتفاظ بالنص"""
+    current_text = event.text or "🎨 القائمة"
+    await event.edit(current_text, buttons=None, parse_mode="Markdown")
+    await event.answer("✅ تم إخفاء الأزرار!", alert=True)
+
+# =========================================================== #
+# حذف الرسالة بالكامل
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_test")))

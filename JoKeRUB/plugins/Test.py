@@ -100,7 +100,7 @@ async def hide_buttons(event):
 # =========================================================== #
 # حذف الرسالة بالكامل
 # =========================================================== #
-'''
+''''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
@@ -110,7 +110,7 @@ async def delete_message(event):
         await event.client.delete_messages(event.chat_id, event.message_id)
     except Exception as e:
         await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
-
+'''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
@@ -140,6 +140,7 @@ async def delete_message(event):
 @check_owner
 async def delete_message(event):
     await l313l.delete_messages(event.chat_id, [event.message_id])
+'''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"red_menu")))
 @check_owner
 async def red_menu(event):

@@ -54,14 +54,125 @@ NOTE_COLORS = {
 # دالة حذف المحادثة
 # =========================================================== #
 
-async def delete_conv(event, bot_username, *msgs):
+async def delete_conv(client, bot_username, *msgs):
     """حذف الرسائل المرسلة في المحادثة"""
     try:
-        async for msg in event.client.iter_messages(bot_username, limit=10):
-            if msg.id in msgs or True:
-                await msg.delete()
+        async for msg in client.iter_messages(bot_username, limit=20):
+            await msg.delete()
     except:
         pass
+
+# =========================================================== #
+# دالة تطبيق الإعدادات على البوت
+# =========================================================== #
+
+async def apply_settings(client, font, text_color, note_color):
+    """تطبيق الإعدادات على البوت @e556bot"""
+    try:
+        async with client.conversation(TARGET_BOT, timeout=30) as conv:
+            # انتظار رسالة الترحيب
+            await conv.get_response()
+            
+            # الضغط على زر الإعدادات (افتراضيًا الزر الأول)
+            # قد تحتاج إلى تعديل حسب ترتيب الأزرار في البوت
+            welcome_msg = await conv.get_response()
+            if welcome_msg.buttons:
+                # الضغط على زر الإعدادات
+                await welcome_msg.click(0)
+                await asyncio.sleep(1)
+                
+                # اختيار نوع الخط
+                settings_msg = await conv.get_response()
+                if settings_msg.buttons:
+                    # الضغط على زر "نوع الخط" (افتراضيًا الزر الأول)
+                    await settings_msg.click(0)
+                    await asyncio.sleep(1)
+                    
+                    # اختيار الخط المطلوب
+                    font_msg = await conv.get_response()
+                    if font_msg.buttons:
+                        for btn_row in font_msg.buttons:
+                            for btn in btn_row:
+                                if font in btn.text:
+                                    await btn.click()
+                                    await asyncio.sleep(1)
+                                    break
+                    
+                    # العودة إلى قائمة الإعدادات
+                    back_msg = await conv.get_response()
+                    if back_msg.buttons:
+                        await back_msg.click(0)  # زر رجوع
+                        await asyncio.sleep(1)
+                    
+                    # اختيار لون الخط
+                    settings_msg2 = await conv.get_response()
+                    if settings_msg2.buttons:
+                        # الضغط على زر "لون الخط"
+                        for i, btn_row in enumerate(settings_msg2.buttons):
+                            for btn in btn_row:
+                                if "لون الخط" in btn.text:
+                                    await btn.click()
+                                    await asyncio.sleep(1)
+                                    break
+                            break
+                        
+                        # اختيار اللون المطلوب
+                        color_msg = await conv.get_response()
+                        if color_msg.buttons:
+                            for btn_row in color_msg.buttons:
+                                for btn in btn_row:
+                                    if text_color in btn.text.lower():
+                                        await btn.click()
+                                        await asyncio.sleep(1)
+                                        break
+                        
+                        # العودة إلى قائمة الإعدادات
+                        back_msg2 = await conv.get_response()
+                        if back_msg2.buttons:
+                            await back_msg2.click(0)
+                            await asyncio.sleep(1)
+                    
+                    # اختيار لون الدفتر
+                    settings_msg3 = await conv.get_response()
+                    if settings_msg3.buttons:
+                        for i, btn_row in enumerate(settings_msg3.buttons):
+                            for btn in btn_row:
+                                if "لون الدفتر" in btn.text:
+                                    await btn.click()
+                                    await asyncio.sleep(1)
+                                    break
+                            break
+                        
+                        # اختيار اللون المطلوب
+                        note_color_msg = await conv.get_response()
+                        if note_color_msg.buttons:
+                            for btn_row in note_color_msg.buttons:
+                                for btn in btn_row:
+                                    if note_color in btn.text.lower():
+                                        await btn.click()
+                                        await asyncio.sleep(1)
+                                        break
+                        
+                        # العودة إلى قائمة الإعدادات
+                        back_msg3 = await conv.get_response()
+                        if back_msg3.buttons:
+                            await back_msg3.click(0)
+                            await asyncio.sleep(1)
+                    
+                    # الخروج من الإعدادات
+                    settings_msg4 = await conv.get_response()
+                    if settings_msg4.buttons:
+                        for btn_row in settings_msg4.buttons:
+                            for btn in btn_row:
+                                if "رجوع" in btn.text or "خروج" in btn.text:
+                                    await btn.click()
+                                    await asyncio.sleep(1)
+                                    break
+                            break
+        return True
+    except Exception as e:
+        print(f"خطأ في تطبيق الإعدادات: {e}")
+        return False
 
 # =========================================================== #
 # الاستعلام المضمن (اعدادات الدفتر)
@@ -204,8 +315,9 @@ async def close_menu(event):
     await event.answer("❌ تم إغلاق القائمة", alert=True)
 
 # =========================================================== #
-# أمر .اكتب (باستخدام conversation مثل كود تلكراف)
+# أمر اعدادات الدفتر
 # =========================================================== #
+
 @l313l.ar_cmd(pattern="اعدادات الدفتر$")
 async def repo(event):
     if event.reply_to_msg_id:
@@ -221,6 +333,9 @@ async def repo(event):
     await response[0].click(event.chat_id)
     await event.delete()
 
+# =========================================================== #
+# أمر .اكتب (مع تطبيق الإعدادات)
+# =========================================================== #
 
 @l313l.ar_cmd(pattern="اكتب (.*)")
 async def write_note(event):
@@ -239,6 +354,10 @@ async def write_note(event):
     note_color = user_note_color.get(user_id) or gvarstatus(f"USER_NOTE_COLOR_{user_id}") or "white"
     
     try:
+        # تطبيق الإعدادات على البوت أولاً
+        await apply_settings(event.client, font, text_color, note_color)
+        
+        # ثم إرسال النص
         async with event.client.conversation(TARGET_BOT, timeout=60) as conv:
             try:
                 # إرسال النص إلى البوت
@@ -256,12 +375,12 @@ async def write_note(event):
                     await event.client.send_file(
                         event.chat_id,
                         response.media,
-                        caption=f"**📸 تم إنشاء دفترك!**\n⏰ **الوقت:** `{ms} ثانية`\n\n**📝 النص:** `{text[:50]}...`"
+                        caption=f"**📸 تم إنشاء دفترك!**\n⏰ **الوقت:** `{ms} ثانية`\n\n**📝 النص:** `{text[:50]}...`\n\n**⚙️ الإعدادات:**\n• الخط: `{font}`\n• لون الخط: `{text_color}`\n• لون الدفتر: `{note_color}`"
                     )
                     await jokevent.delete()
                     
                     # حذف المحادثة
-                    await delete_conv(event, TARGET_BOT, purgeflag)
+                    await delete_conv(event.client, TARGET_BOT, purgeflag)
                     return
                 else:
                     await jokevent.edit(f"**❌ لم يتم استلام صورة من البوت**\n📝 رد البوت: `{response.text[:100] if response.text else 'لا يوجد'}`")

@@ -31,7 +31,7 @@ Pages = {
     "A4 Page": "a4",
 }
 
-Fonts = ["BrownBag", "Caveat", "HomemadeApple", "JottFLF", "WriteSong", "خط.محادثة"]
+Fonts = ["BrownBag", "Caveat", "HomemadeApple", "JottFLF", "WriteSong", "aras"]
 
 Colors = [
     "black",
@@ -85,7 +85,7 @@ def notebook_values(page, font):  # sourcery skip: low-code-quality
             text_wrap = 0.6
             font_size = 30
             linespace = "-15"
-        elif font == "خط.محادثة":
+        elif font == "aras":
             text_wrap = 1.0
             font_size = 45
             linespace = "-35"

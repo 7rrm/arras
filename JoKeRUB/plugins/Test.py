@@ -101,16 +101,41 @@ async def hide_buttons(event):
 # حذف الرسالة بالكامل
 # =========================================================== #
 
+# =========================================================== #
+# حذف الرسالة بالكامل (يعمل في الخاص والمجموعات)
+# =========================================================== #
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
-    """حذف الرسالة بالكامل"""
+    """حذف الرسالة بالكامل - يعمل في الخاص والمجموعات والقنوات"""
     try:
-        await event.answer("🗑️ تم حذف الرسالة", alert=True)
+        # إعلام المستخدم بأن الحذف جارٍ
+        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
+        
+        # حذف الرسالة
         await event.client.delete_messages(event.chat_id, event.message_id)
+        
+        # إشعار短暂 (سيختفي تلقائياً)
+        await event.answer("✅ تم حذف الرسالة!", alert=True)
+        
     except Exception as e:
-        await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
-
+        error_msg = str(e)
+        
+        # رسائل خطأ مفهومة
+        if "not enough rights" in error_msg.lower():
+            await event.answer(
+                "❌ البوت ليس مشرفاً أو لا يملك صلاحية الحذف!\n"
+                "الرجاء ترقية البوت إلى مشرف مع تفعيل 'حذف الرسائل'.",
+                alert=True
+            )
+        elif "message can't be deleted" in error_msg.lower():
+            await event.answer(
+                "❌ لا يمكن حذف هذه الرسالة (قديمة جداً).",
+                alert=True
+            )
+        else:
+            await event.answer(f"❌ خطأ: {error_msg[:50]}", alert=True)
 # =========================================================== #
 # القائمة الحمراء
 # =========================================================== #

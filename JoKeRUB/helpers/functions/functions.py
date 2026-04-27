@@ -336,6 +336,8 @@ def text_draw(font_name, font_size, img, text, hight, stroke_width=0, stroke_fil
     )
 
 
+
+# ----------------------------------------------------------------------------------------------------------------------#
 def higlighted_text(
     input_img,
     text,
@@ -368,8 +370,20 @@ def higlighted_text(
         font_name = "JoKeRUB/helpers/styles/impact.ttf"
     font = ImageFont.truetype(font_name, font_size)
     extra_width, extra_height = position
-    # get text size
-    text_width, text_height = font.getsize(text)
+    
+    # ========== دالة مساعدة للحصول على حجم النص ==========
+    def get_text_size(font, text):
+        try:
+            # للإصدارات القديمة من Pillow
+            return font.getsize(text)
+        except AttributeError:
+            # للإصدارات الجديدة (Pillow 10.0.0+)
+            bbox = font.getbbox(text)
+            return (bbox[2] - bbox[0], bbox[3] - bbox[1])
+    # ===================================================
+    
+    # get text size - استخدم الدالة الجديدة هنا
+    text_width, text_height = get_text_size(font, text)
     width = 50 + extra_width
     hight = 30 + extra_height
     # wrap the text & save in a list
@@ -398,10 +412,13 @@ def higlighted_text(
         else:
             operator = "+"
         for i, items in enumerate(list_text):
+            # ========== استخدم الدالة الجديدة هنا أيضاً ==========
             x, y = (
-                font.getsize(list_text[i])[0] + 50,
+                get_text_size(font, list_text[i])[0] + 50,
                 int(text_height * 2 - (text_height / 2)),
             )
+            # ==================================================
+            
             # align masks on the image....left,right & center
             if align == "center":
                 width_align = "((mask_size-x)/2)"
@@ -468,10 +485,6 @@ def higlighted_text(
         if album_limit and (album_limit - 1) == pic_no:
             break
     return output, output_text
-
-
-# ----------------------------------------------------------------------------------------------------------------------#
-
 
 # ----------------------------------------------## Sticker ##-----------------------------------------------------------#
 

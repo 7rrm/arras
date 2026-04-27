@@ -112,29 +112,21 @@ async def delete_message(event):
         await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
 '''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
-@check_owner
 async def delete_message(event):
-    """حذف الرسالة بالكامل - يعمل في الخاص والمجموعات"""
+    """نسخة مبسطة للاختبار"""
     try:
-        # إعلام المستخدم بأن الحذف جارٍ (اختياري)
-        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
+        # اطبع المعرفات للتصحيح
+        print(f"محاولة حذف: chat_id={event.chat_id}, msg_id={event.message_id}")
         
-        # حذف الرسالة - هذه الطريقة تعمل في الخاص والمجموعات
+        # حذف مباشر
         await event.client.delete_messages(event.chat_id, [event.message_id])
         
-        # إعلام بالنجاح (يظهر كمنبثق ثم يختفي)
-        await event.answer("✅ تم حذف الرسالة!", alert=True)
+        # إشعار نجاح
+        await event.answer("✅ تم الحذف!", alert=True)
         
     except Exception as e:
-        error_msg = str(e)
-        
-        # رسائل خطأ مفهومة للمستخدم
-        if "message can't be deleted" in error_msg.lower():
-            await event.answer("❌ لا يمكن حذف هذه الرسالة (قد تكون قديمة أو محذوفة مسبقاً).", alert=True)
-        elif "not enough rights" in error_msg.lower():
-            await event.answer("❌ البوت لا يملك صلاحية حذف الرسائل في هذه المجموعة.", alert=True)
-        else:
-            await event.answer(f"❌ خطأ: {error_msg}", alert=True)
+        print(f"خطأ: {e}")
+        await event.answer(f"❌ خطأ: {e}", alert=True)
 # =========================================================== #
 # القائمة الحمراء
 # =========================================================== #

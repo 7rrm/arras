@@ -320,8 +320,9 @@ async def notebook(event):
 
 
 # الأمر الثالث: تغيير الإعدادات
+# الأمر الثالث: تغيير الإعدادات (الأمر الإنجليزي nb والأمر العربي اعدادات)
 @l313l.ar_cmd(
-    pattern="(?:nb)(page|font|pen|log)(?:\s|$)([\s\S]*)",
+    pattern="(?:nb|اعدادات)(page|font|pen|log)(?:\s|$)([\s\S]*)",
     command=("nb", plugin_category),
     info={
         "header": "تغيير إعدادات الدفتر",
@@ -333,16 +334,16 @@ async def notebook(event):
             "log": "تفعيل/إيقاف حفظ السجل",
         },
         "usage": [
-            "{tr}nbpage <اسم الصفحة>",
-            "{tr}nbfont <اسم الخط>",
-            "{tr}nbpen <اللون>",
-            "{tr}nblog <On/Off>",
+            "{tr}اعدادات page <اسم الصفحة>  أو  {tr}nbpage <اسم الصفحة>",
+            "{tr}اعدادات font <اسم الخط>     أو  {tr}nbfont <اسم الخط>",
+            "{tr}اعدادات pen <اللون>         أو  {tr}nbpen <اللون>",
+            "{tr}اعدادات log <On/Off>        أو  {tr}nblog <On/Off>",
         ],
         "examples": [
-            "{tr}nbpage Spiral Book",
-            "{tr}nbfont Caveat",
-            "{tr}nbpen red",
-            "{tr}nblog On",
+            "{tr}اعدادات page Spiral Book",
+            "{tr}اعدادات font Caveat",
+            "{tr}اعدادات pen red",
+            "{tr}اعدادات log On",
         ],
     },
 )
@@ -351,6 +352,7 @@ async def notebook_conf(event):
     cmd = event.pattern_match.group(1).lower()
     input_str = event.pattern_match.group(2)
     reply_to_id = await reply_id(event)
+    
     if cmd == "page":
         cap = "**📄 صفحات الدفتر المتاحة:**\n\n"
         for i, each in enumerate(Pages.keys(), start=1):
@@ -363,6 +365,7 @@ async def notebook_conf(event):
                 event, f"**✅ تم تغيير صفحة الدفتر بنجاح إلى:** `{input_str}`", 20
             )
         temp_page = "Pages"
+        
     elif cmd == "font":
         cap = "**✍️ الخطوط المتاحة:**\n\n"
         for i, each in enumerate(Fonts, start=1):
@@ -375,6 +378,7 @@ async def notebook_conf(event):
                 event, f"**✅ تم تغيير خط الدفتر بنجاح إلى:** `{input_str}`", 20
             )
         temp_page = "Fonts"
+        
     elif cmd == "pen":
         cap = "**🎨 الألوان المتاحة:**\n\n"
         for i, each in enumerate(Colors, start=1):
@@ -389,6 +393,7 @@ async def notebook_conf(event):
                 20,
             )
         temp_page = "Colors"
+        
     elif cmd == "log":
         if not BOTLOG:
             return await edit_delete(
@@ -404,6 +409,7 @@ async def notebook_conf(event):
                 50,
             )
         return await edit_delete(event, cap)
+    
     await event.delete()
     file = f"{temp_page}.jpg"
     urllib.request.urlretrieve(

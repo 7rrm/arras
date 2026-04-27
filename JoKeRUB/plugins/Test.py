@@ -114,30 +114,26 @@ async def delete_message(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
-    """حذف الرسالة بالكامل - يتجنب الرسائل الخدمية"""
+    """حسابك (l313l) هو من يحذف الرسالة"""
     try:
-        # جلب الرسالة للتأكد من أنها ليست خدمية
-        message = await event.client.get_messages(event.chat_id, ids=event.message_id)
+        # إشعار للمستخدم
+        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
         
-        # التحقق: هل هي رسالة خدمية؟
-        if message.action is not None:
-            await event.answer("❌ لا يمكن حذف الرسائل الخدمية (مثل دخول عضو، تغيير صورة، إلخ)!", alert=True)
-            return
+        # حسابك هو من يحذف الرسالة (وليس البوت)
+        await l313l.delete_messages(event.chat_id, [event.message_id])
         
-        # حذف الرسالة
-        await event.client.delete_messages(event.chat_id, [event.message_id])
+        # إشعار نجاح
         await event.answer("✅ تم حذف الرسالة!", alert=True)
         
     except Exception as e:
         error_msg = str(e)
-        if "message can't be deleted" in error_msg.lower():
-            await event.answer("❌ لا يمكن حذف هذه الرسالة (قد تكون خدمية أو قديمة جداً).", alert=True)
+        
+        if "not enough rights" in error_msg.lower():
+            await event.answer("❌ الحساب ليس مشرفاً أو لا يملك صلاحية الحذف!", alert=True)
+        elif "message can't be deleted" in error_msg.lower():
+            await event.answer("❌ لا يمكن حذف هذه الرسالة (خدمية أو قديمة).", alert=True)
         else:
             await event.answer(f"❌ خطأ: {error_msg[:50]}", alert=True)
-# =========================================================== #
-# القائمة الحمراء
-# =========================================================== #
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"red_menu")))
 @check_owner
 async def red_menu(event):

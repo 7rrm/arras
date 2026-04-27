@@ -16,6 +16,7 @@ from . import l313l
 user_font = {}          # نوع الخط لكل مستخدم
 user_text_color = {}    # لون الخط
 user_note_color = {}    # لون الدفتر
+user_settings_applied = {}  # هل تم تطبيق الإعدادات مسبقاً
 
 # إعدادات البوت الهدف
 TARGET_BOT = "@e556bot"
@@ -28,26 +29,26 @@ FONT_TEXT = "**📝 اختر نوع الخط الذي تريده:**"
 TEXT_COLOR_TEXT = "**🎨 اختر لون الخط:**"
 NOTE_COLOR_TEXT = "**📓 اختر لون الدفتر:**"
 
-# قائمة الخطوط
+# قائمة الخطوط (كما في البوت)
 FONTS = ["Amiri", "Cairo", "Lalezar", "Ghayaty", "Shahab", "Arial"]
 
-# قائمة ألوان الخط
+# قائمة ألوان الخط (كما في البوت)
 TEXT_COLORS = {
-    "اسود": "black",
-    "ازرق": "blue", 
-    "احمر": "red",
-    "اخضر": "green",
-    "ارجواني": "purple"
+    "اسود": "Black",
+    "ازرق": "Blue", 
+    "احمر": "Red",
+    "اخضر": "Green",
+    "ارجواني": "Purple"
 }
 
-# قائمة ألوان الدفتر
+# قائمة ألوان الدفتر (كما في البوت)
 NOTE_COLORS = {
-    "ابيض": "white",
-    "ازرق فاتح": "lightblue",
-    "بيجي": "beige",
-    "اخضر فاتح": "lightgreen",
-    "وردي": "pink",
-    "اصفر فاتح": "lightyellow"
+    "ابيض": "White",
+    "ازرق فاتح": "Light Blue",
+    "بيجي": "Beige",
+    "اخضر فاتح": "Light Green",
+    "وردي": "Pink",
+    "اصفر فاتح": "Light Yellow"
 }
 
 # =========================================================== #
@@ -66,110 +67,157 @@ async def delete_conv(client, bot_username, *msgs):
 # دالة تطبيق الإعدادات على البوت
 # =========================================================== #
 
-async def apply_settings(client, font, text_color, note_color):
+async def apply_settings(client, user_id, font, text_color, note_color):
     """تطبيق الإعدادات على البوت @e556bot"""
     try:
-        async with client.conversation(TARGET_BOT, timeout=30) as conv:
-            # انتظار رسالة الترحيب
-            await conv.get_response()
+        async with client.conversation(TARGET_BOT, timeout=45) as conv:
+            # استقبال رسالة الترحيب
+            welcome = await conv.get_response()
             
-            # الضغط على زر الإعدادات (افتراضيًا الزر الأول)
-            # قد تحتاج إلى تعديل حسب ترتيب الأزرار في البوت
-            welcome_msg = await conv.get_response()
-            if welcome_msg.buttons:
-                # الضغط على زر الإعدادات
-                await welcome_msg.click(0)
-                await asyncio.sleep(1)
+            # انتظار القائمة الرئيسية
+            main_menu = await conv.get_response()
+            
+            if not main_menu.buttons:
+                return False
+            
+            # =========================================================== #
+            # 1. تغيير نوع الخط
+            # =========================================================== #
+            
+            # الضغط على زر "نوع الخط" (الزر الأول)
+            await main_menu.click(0)
+            await asyncio.sleep(1)
+            
+            # استقبال قائمة الخطوط
+            font_list = await conv.get_response()
+            
+            if font_list.buttons:
+                # البحث عن الخط المطلوب
+                for row in font_list.buttons:
+                    for btn in row:
+                        if btn.text == font:
+                            await btn.click()
+                            await asyncio.sleep(1)
+                            break
+                    else:
+                        continue
+                    break
                 
-                # اختيار نوع الخط
-                settings_msg = await conv.get_response()
-                if settings_msg.buttons:
-                    # الضغط على زر "نوع الخط" (افتراضيًا الزر الأول)
-                    await settings_msg.click(0)
-                    await asyncio.sleep(1)
-                    
-                    # اختيار الخط المطلوب
-                    font_msg = await conv.get_response()
-                    if font_msg.buttons:
-                        for btn_row in font_msg.buttons:
-                            for btn in btn_row:
-                                if font in btn.text:
-                                    await btn.click()
-                                    await asyncio.sleep(1)
-                                    break
-                    
-                    # العودة إلى قائمة الإعدادات
-                    back_msg = await conv.get_response()
-                    if back_msg.buttons:
-                        await back_msg.click(0)  # زر رجوع
+                # استقبال تأكيد أو رجوع
+                confirm = await conv.get_response()
+                # الضغط على زر الرجوع إذا وجد
+                if confirm.buttons:
+                    for row in confirm.buttons:
+                        for btn in row:
+                            if "رجوع" in btn.text or "الرسالة" in btn.text:
+                                await btn.click()
+                                await asyncio.sleep(1)
+                                break
+                        break
+            
+            # =========================================================== #
+            # 2. تغيير لون الخط
+            # =========================================================== #
+            
+            # العودة للقائمة الرئيسية (إذا لزم الأمر)
+            try:
+                back_to_menu = await conv.get_response()
+                if back_to_menu.buttons:
+                    # البحث عن زر "لون الخط"
+                    for row in back_to_menu.buttons:
+                        for btn in row:
+                            if btn.text == "لون الخط":
+                                await btn.click()
+                                await asyncio.sleep(1)
+                                break
+                        else:
+                            continue
+                        break
+                    else:
+                        # إذا لم نجد، نضغط على الزر الثاني
+                        await back_to_menu.click(1)
                         await asyncio.sleep(1)
-                    
-                    # اختيار لون الخط
-                    settings_msg2 = await conv.get_response()
-                    if settings_msg2.buttons:
-                        # الضغط على زر "لون الخط"
-                        for i, btn_row in enumerate(settings_msg2.buttons):
-                            for btn in btn_row:
-                                if "لون الخط" in btn.text:
-                                    await btn.click()
-                                    await asyncio.sleep(1)
-                                    break
-                            break
-                        
-                        # اختيار اللون المطلوب
-                        color_msg = await conv.get_response()
-                        if color_msg.buttons:
-                            for btn_row in color_msg.buttons:
-                                for btn in btn_row:
-                                    if text_color in btn.text.lower():
-                                        await btn.click()
-                                        await asyncio.sleep(1)
-                                        break
-                        
-                        # العودة إلى قائمة الإعدادات
-                        back_msg2 = await conv.get_response()
-                        if back_msg2.buttons:
-                            await back_msg2.click(0)
+            except:
+                pass
+            
+            # استقبال قائمة ألوان الخط
+            color_list = await conv.get_response()
+            
+            if color_list.buttons:
+                # البحث عن اللون المطلوب
+                for row in color_list.buttons:
+                    for btn in row:
+                        if btn.text == text_color:
+                            await btn.click()
                             await asyncio.sleep(1)
-                    
-                    # اختيار لون الدفتر
-                    settings_msg3 = await conv.get_response()
-                    if settings_msg3.buttons:
-                        for i, btn_row in enumerate(settings_msg3.buttons):
-                            for btn in btn_row:
-                                if "لون الدفتر" in btn.text:
-                                    await btn.click()
-                                    await asyncio.sleep(1)
-                                    break
                             break
-                        
-                        # اختيار اللون المطلوب
-                        note_color_msg = await conv.get_response()
-                        if note_color_msg.buttons:
-                            for btn_row in note_color_msg.buttons:
-                                for btn in btn_row:
-                                    if note_color in btn.text.lower():
-                                        await btn.click()
-                                        await asyncio.sleep(1)
-                                        break
-                        
-                        # العودة إلى قائمة الإعدادات
-                        back_msg3 = await conv.get_response()
-                        if back_msg3.buttons:
-                            await back_msg3.click(0)
+                    else:
+                        continue
+                    break
+                
+                # استقبال تأكيد
+                confirm2 = await conv.get_response()
+                if confirm2.buttons:
+                    for row in confirm2.buttons:
+                        for btn in row:
+                            if "رجوع" in btn.text or "الرسالة" in btn.text:
+                                await btn.click()
+                                await asyncio.sleep(1)
+                                break
+                        break
+            
+            # =========================================================== #
+            # 3. تغيير لون الدفتر
+            # =========================================================== #
+            
+            # العودة للقائمة الرئيسية
+            try:
+                back_to_menu2 = await conv.get_response()
+                if back_to_menu2.buttons:
+                    # البحث عن زر "لون الدفتر"
+                    for row in back_to_menu2.buttons:
+                        for btn in row:
+                            if btn.text == "لون الدفتر":
+                                await btn.click()
+                                await asyncio.sleep(1)
+                                break
+                        else:
+                            continue
+                        break
+                    else:
+                        await back_to_menu2.click(2)
+                        await asyncio.sleep(1)
+            except:
+                pass
+            
+            # استقبال قائمة ألوان الدفتر
+            note_list = await conv.get_response()
+            
+            if note_list.buttons:
+                # البحث عن اللون المطلوب
+                for row in note_list.buttons:
+                    for btn in row:
+                        if btn.text == note_color:
+                            await btn.click()
                             await asyncio.sleep(1)
-                    
-                    # الخروج من الإعدادات
-                    settings_msg4 = await conv.get_response()
-                    if settings_msg4.buttons:
-                        for btn_row in settings_msg4.buttons:
-                            for btn in btn_row:
-                                if "رجوع" in btn.text or "خروج" in btn.text:
-                                    await btn.click()
-                                    await asyncio.sleep(1)
-                                    break
                             break
-        return True
+                    else:
+                        continue
+                    break
+                
+                # استقبال تأكيد
+                confirm3 = await conv.get_response()
+                if confirm3.buttons:
+                    for row in confirm3.buttons:
+                        for btn in row:
+                            if "رجوع" in btn.text or "الرسالة" in btn.text:
+                                await btn.click()
+                                await asyncio.sleep(1)
+                                break
+                        break
+            
+            return True
+            
     except Exception as e:
         print(f"خطأ في تطبيق الإعدادات: {e}")
         return False
@@ -334,7 +382,7 @@ async def repo(event):
     await event.delete()
 
 # =========================================================== #
-# أمر .اكتب (مع تطبيق الإعدادات)
+# أمر .اكتب
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="اكتب (.*)")
@@ -350,44 +398,39 @@ async def write_note(event):
     
     # جلب الإعدادات المحفوظة
     font = user_font.get(user_id) or gvarstatus(f"USER_FONT_{user_id}") or "Amiri"
-    text_color = user_text_color.get(user_id) or gvarstatus(f"USER_TEXT_COLOR_{user_id}") or "black"
-    note_color = user_note_color.get(user_id) or gvarstatus(f"USER_NOTE_COLOR_{user_id}") or "white"
+    text_color = user_text_color.get(user_id) or gvarstatus(f"USER_TEXT_COLOR_{user_id}") or "Black"
+    note_color = user_note_color.get(user_id) or gvarstatus(f"USER_NOTE_COLOR_{user_id}") or "White"
     
     try:
-        # تطبيق الإعدادات على البوت أولاً
-        await apply_settings(event.client, font, text_color, note_color)
+        # تطبيق الإعدادات على البوت
+        await apply_settings(event.client, user_id, font, text_color, note_color)
         
-        # ثم إرسال النص
+        # إرسال النص إلى البوت
         async with event.client.conversation(TARGET_BOT, timeout=60) as conv:
-            try:
-                # إرسال النص إلى البوت
-                purgeflag = await conv.send_message(text)
+            # إرسال النص
+            purgeflag = await conv.send_message(text)
+            
+            # انتظار الرد (الصورة)
+            response = await conv.get_response()
+            
+            if response.photo or response.document:
+                end = datetime.now()
+                ms = (end - start).seconds
                 
-                # انتظار الرد من البوت
-                response = await conv.get_response()
+                await event.client.send_file(
+                    event.chat_id,
+                    response.media,
+                    caption=f"**📸 تم إنشاء دفترك!**\n⏰ **الوقت:** `{ms} ثانية`\n\n**📝 النص:** `{text[:50]}...`\n\n**⚙️ الإعدادات:**\n• الخط: `{font}`\n• لون الخط: `{text_color}`\n• لون الدفتر: `{note_color}`"
+                )
+                await jokevent.delete()
                 
-                # إذا كان الرد يحتوي على صورة
-                if response.photo or response.document:
-                    end = datetime.now()
-                    ms = (end - start).seconds
-                    
-                    # إعادة توجيه الصورة إلى المستخدم
-                    await event.client.send_file(
-                        event.chat_id,
-                        response.media,
-                        caption=f"**📸 تم إنشاء دفترك!**\n⏰ **الوقت:** `{ms} ثانية`\n\n**📝 النص:** `{text[:50]}...`\n\n**⚙️ الإعدادات:**\n• الخط: `{font}`\n• لون الخط: `{text_color}`\n• لون الدفتر: `{note_color}`"
-                    )
-                    await jokevent.delete()
-                    
-                    # حذف المحادثة
-                    await delete_conv(event.client, TARGET_BOT, purgeflag)
-                    return
-                else:
-                    await jokevent.edit(f"**❌ لم يتم استلام صورة من البوت**\n📝 رد البوت: `{response.text[:100] if response.text else 'لا يوجد'}`")
-                    
-            except asyncio.TimeoutError:
-                await jokevent.edit("**⌔︙انتهى الوقت، البوت لم يرد**")
+                # حذف المحادثة
+                await delete_conv(event.client, TARGET_BOT, purgeflag)
                 return
+            else:
+                await jokevent.edit(f"**❌ لم يتم استلام صورة من البوت**\n📝 رد البوت: `{response.text[:100] if response.text else 'لا يوجد'}`")
                 
+    except asyncio.TimeoutError:
+        await jokevent.edit("**⌔︙انتهى الوقت، البوت لم يرد**")
     except Exception as e:
         await jokevent.edit(f"**⌔︙حدث خطأ:**\n`{str(e)}`")

@@ -1,14 +1,11 @@
 import re
 from telethon import Button, events
 from telethon.events import CallbackQuery
-from telethon.sessions import StringSession
 import json
 import requests
 from ..core import check_owner
 from ..Config import Config
 from . import l313l
-
-# ملاحظة: هذا الكود يفترض أن l313l و tgbot معرفين مسبقاً
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -74,35 +71,45 @@ async def test_main(event):
         [Button.inline("🔴 أحمر", data="red_menu", style="danger")],
         [Button.inline("🟢 أخضر", data="green_menu", style="success")],
         [Button.inline("🔵 أزرق", data="blue_menu", style="primary")],
-        [Button.inline("🗑️ حذف الزر", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 # =========================================================== #
-# حذف الأزرار فقط (مع الاحتفاظ بالنص)
+# إخفاء الأزرار فقط (دون حذف الرسالة)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_buttons")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"hide_buttons")))
 @check_owner
-async def delete_buttons(event):
+async def hide_buttons(event):
     """إخفاء الأزرار فقط مع الاحتفاظ بالنص"""
-    current_text = event.text or "**🎨 القائمة الرئيسية - اختر لونك المفضل:**"
-    await event.edit(current_text, buttons=None, parse_mode="Markdown")
-    await event.answer("✅ تم حذف الأزرار!", alert=True)
+    try:
+        # الحصول على النص الحالي
+        if hasattr(event, 'message') and event.message:
+            current_text = event.message.text
+        else:
+            current_text = "**🎨 القائمة الرئيسية - اختر لونك المفضل:**"
+        
+        await event.edit(current_text, buttons=None, parse_mode="Markdown")
+        await event.answer("✅ تم إخفاء الأزرار!", alert=True)
+    except Exception as e:
+        await event.answer(f"❌ خطأ: {str(e)}", alert=True)
 
 # =========================================================== #
-# حذف الرسالة بالكامل (بنفس طريقة الكود الذي يعمل)
+# حذف الرسالة بالكامل
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
     """حذف الرسالة بالكامل"""
-    await event.answer("🗑️ تم حذف الرسالة", alert=True)
-    # ✅ نفس الطريقة التي تعمل في الكود السابق
-    await event.client.delete_messages(event.chat_id, event.message_id)
+    try:
+        await event.answer("🗑️ تم حذف الرسالة", alert=True)
+        await event.client.delete_messages(event.chat_id, event.message_id)
+    except Exception as e:
+        await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
 
 # =========================================================== #
 # القائمة الحمراء
@@ -117,7 +124,7 @@ async def red_menu(event):
         [Button.inline("خيار أحمر 1", data="red_option_1", style="danger")],
         [Button.inline("خيار أحمر 2", data="red_option_2", style="danger")],
         [Button.inline("⬅️ رجوع", data="test_main", style="primary")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     
@@ -136,7 +143,7 @@ async def green_menu(event):
         [Button.inline("خيار أخضر 1", data="green_option_1", style="success")],
         [Button.inline("خيار أخضر 2", data="green_option_2", style="success")],
         [Button.inline("⬅️ رجوع", data="test_main", style="primary")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     
@@ -155,7 +162,7 @@ async def blue_menu(event):
         [Button.inline("خيار أزرق 1", data="blue_option_1", style="primary")],
         [Button.inline("خيار أزرق 2", data="blue_option_2", style="primary")],
         [Button.inline("⬅️ رجوع", data="test_main", style="primary")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     
@@ -171,7 +178,7 @@ async def red_option_1(event):
     text = "**🔴 لقد ضغطت على الخيار الأحمر 1**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="red_menu", style="danger")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -182,7 +189,7 @@ async def red_option_2(event):
     text = "**🔴 لقد ضغطت على الخيار الأحمر 2**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="red_menu", style="danger")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -193,7 +200,7 @@ async def green_option_1(event):
     text = "**🟢 لقد ضغطت على الخيار الأخضر 1**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="green_menu", style="success")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -204,7 +211,7 @@ async def green_option_2(event):
     text = "**🟢 لقد ضغطت على الخيار الأخضر 2**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="green_menu", style="success")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -215,7 +222,7 @@ async def blue_option_1(event):
     text = "**🔵 لقد ضغطت على الخيار الأزرق 1**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="blue_menu", style="primary")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
@@ -226,7 +233,7 @@ async def blue_option_2(event):
     text = "**🔵 لقد ضغطت على الخيار الأزرق 2**"
     buttons = [
         [Button.inline("⬅️ رجوع", data="blue_menu", style="primary")],
-        [Button.inline("🗑️ حذف الأزرار", data="delete_buttons", style="primary")],
+        [Button.inline("🗑️ إخفاء الأزرار", data="hide_buttons", style="primary")],
         [Button.inline("❌ حذف الرسالة", data="delete_message", style="danger")]
     ]
     await event.edit(text, buttons=buttons, parse_mode="Markdown")

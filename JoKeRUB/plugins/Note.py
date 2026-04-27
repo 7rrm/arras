@@ -73,7 +73,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         builder = event.builder
         query = event.text
         
-        if query.startswith("اعدادات الدفتر") and event.query.user_id == l313l.uid:
+        if query.startswith("الدفتر") and event.query.user_id == l313l.uid:
             buttons = [
                 [Button.inline("📝 نوع الخط", data="font_menu", style="primary")],
                 [Button.inline("🎨 لون الخط", data="text_color_menu", style="primary"),
@@ -206,6 +206,21 @@ async def close_menu(event):
 # =========================================================== #
 # أمر .اكتب (باستخدام conversation مثل كود تلكراف)
 # =========================================================== #
+@l313l.ar_cmd(pattern="اعدادات الدفتر$")
+async def repo(event):
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+
+    try:
+        await event.get_sender()
+        await event.get_chat()
+    except Exception as e:
+        pass
+
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "الدفتر")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
 
 @l313l.ar_cmd(pattern="اكتب (.*)")
 async def write_note(event):

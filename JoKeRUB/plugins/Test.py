@@ -100,42 +100,41 @@ async def hide_buttons(event):
 # =========================================================== #
 # حذف الرسالة بالكامل
 # =========================================================== #
-
-# =========================================================== #
-# حذف الرسالة بالكامل (يعمل في الخاص والمجموعات)
-# =========================================================== #
-
+'''
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
 @check_owner
 async def delete_message(event):
-    """حذف الرسالة بالكامل - يعمل في الخاص والمجموعات والقنوات"""
+    """حذف الرسالة بالكامل"""
     try:
-        # إعلام المستخدم بأن الحذف جارٍ
+        await event.answer("🗑️ تم حذف الرسالة", alert=True)
+        await event.client.delete_messages(event.chat_id, event.message_id)
+    except Exception as e:
+        await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
+'''
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
+@check_owner
+async def delete_message(event):
+    """حذف الرسالة بالكامل - يعمل في الخاص والمجموعات"""
+    try:
+        # إعلام المستخدم بأن الحذف جارٍ (اختياري)
         await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
         
-        # حذف الرسالة
-        await event.client.delete_messages(event.chat_id, event.message_id)
+        # حذف الرسالة - هذه الطريقة تعمل في الخاص والمجموعات
+        await event.client.delete_messages(event.chat_id, [event.message_id])
         
-        # إشعار短暂 (سيختفي تلقائياً)
+        # إعلام بالنجاح (يظهر كمنبثق ثم يختفي)
         await event.answer("✅ تم حذف الرسالة!", alert=True)
         
     except Exception as e:
         error_msg = str(e)
         
-        # رسائل خطأ مفهومة
-        if "not enough rights" in error_msg.lower():
-            await event.answer(
-                "❌ البوت ليس مشرفاً أو لا يملك صلاحية الحذف!\n"
-                "الرجاء ترقية البوت إلى مشرف مع تفعيل 'حذف الرسائل'.",
-                alert=True
-            )
-        elif "message can't be deleted" in error_msg.lower():
-            await event.answer(
-                "❌ لا يمكن حذف هذه الرسالة (قديمة جداً).",
-                alert=True
-            )
+        # رسائل خطأ مفهومة للمستخدم
+        if "message can't be deleted" in error_msg.lower():
+            await event.answer("❌ لا يمكن حذف هذه الرسالة (قد تكون قديمة أو محذوفة مسبقاً).", alert=True)
+        elif "not enough rights" in error_msg.lower():
+            await event.answer("❌ البوت لا يملك صلاحية حذف الرسائل في هذه المجموعة.", alert=True)
         else:
-            await event.answer(f"❌ خطأ: {error_msg[:50]}", alert=True)
+            await event.answer(f"❌ خطأ: {error_msg}", alert=True)
 # =========================================================== #
 # القائمة الحمراء
 # =========================================================== #

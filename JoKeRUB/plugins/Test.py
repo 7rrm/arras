@@ -80,53 +80,37 @@ async def test_main(event):
 # =========================================================== #
 # إخفاء الأزرار فقط (دون حذف الرسالة)
 # =========================================================== #
-# =========================================================== #
-# حذف الرسالة (يعمل في الخاص والمجموعات)
-# =========================================================== #
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
-@check_owner
-async def delete_message(event):
-    """حذف الرسالة - يعمل في الخاص والمجموعات"""
-    try:
-        # ✅ إعلام المستخدم بأن الطلب قيد المعالجة
-        await event.answer("🗑️ جاري حذف الرسالة...", alert=False)
-        
-        # ✅ المحاولة الأولى: الحذف العادي
-        await event.client.delete_messages(event.chat_id, event.message_id)
-        await event.answer("✅ تم حذف الرسالة!", alert=True)
-        
-    except Exception as e:
-        # ✅ إذا فشل الحذف (يحدث غالبًا في الخاص بسبب قيود API)
-        # نقوم بتعديل النص وإخفاء الأزرار كبديل
-        error_text = str(e)
-        
-        if "MESSAGE_DELETE_FORBIDDEN" in error_text or "can't delete" in error_text.lower():
-            # بديل آمن: تعديل الرسالة وإخفاء الأزرار
-            current_text = event.message.text or "تم إغلاق القائمة."
-            await event.edit(current_text, buttons=None, parse_mode="Markdown")
-            await event.answer("✅ تم إخفاء الأزرار (لا يمكن حذف هذه الرسالة)", alert=True)
-        else:
-            await event.answer(f"❌ خطأ: {str(e)[:50]}", alert=True)
-
-
-# =========================================================== #
-# إخفاء الأزرار فقط (يعمل في كل مكان)
-# =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"hide_buttons")))
 @check_owner
 async def hide_buttons(event):
     """إخفاء الأزرار فقط مع الاحتفاظ بالنص"""
     try:
-        # الحصول على النص الحالي بأمان
-        current_text = event.message.text if event.message else "**🎨 القائمة الرئيسية - اختر لونك المفضل:**"
+        # الحصول على النص الحالي
+        if hasattr(event, 'message') and event.message:
+            current_text = event.message.text
+        else:
+            current_text = "**🎨 القائمة الرئيسية - اختر لونك المفضل:**"
         
-        # إزالة الأزرار فقط
         await event.edit(current_text, buttons=None, parse_mode="Markdown")
         await event.answer("✅ تم إخفاء الأزرار!", alert=True)
     except Exception as e:
-        await event.answer(f"❌ خطأ: {str(e)[:50]}", alert=True)
+        await event.answer(f"❌ خطأ: {str(e)}", alert=True)
+
+# =========================================================== #
+# حذف الرسالة بالكامل
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"delete_message")))
+@check_owner
+async def delete_message(event):
+    """حذف الرسالة بالكامل"""
+    try:
+        await event.answer("🗑️ تم حذف الرسالة", alert=True)
+        await event.client.delete_messages(event.chat_id, event.message_id)
+    except Exception as e:
+        await event.answer(f"❌ لا يمكن حذف هذه الرسالة: {str(e)}", alert=True)
+
 # =========================================================== #
 # القائمة الحمراء
 # =========================================================== #

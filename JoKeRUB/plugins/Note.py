@@ -29,18 +29,13 @@ TEXT_COLORS = ["Black", "Blue", "Red", "Green", "Purple"]
 NOTE_COLORS = ["White", "Light Blue", "Beige", "Light Green", "Pink", "Light Yellow"]
 
 # =========================================================== #
-# دالة تطبيق الإعدادات فوراً
+# دالة تطبيق الإعدادات فوراً (باستخدام l313l)
 # =========================================================== #
 
-async def apply_setting_immediately(client, setting_type, value, index):
-    """
-    تطبيق الإعداد فوراً على البوت
-    setting_type: 'font', 'text_color', 'note_color'
-    value: القيمة المختارة
-    index: رقم الزر (0-based)
-    """
+async def apply_setting_immediately(setting_type, value, index):
+    """تطبيق الإعداد فوراً على البوت باستخدام l313l"""
     try:
-        async with client.conversation(TARGET_BOT, timeout=45) as conv:
+        async with l313l.conversation(TARGET_BOT, timeout=45) as conv:
             # إرسال /start
             await conv.send_message("/start")
             await asyncio.sleep(1.5)
@@ -65,8 +60,6 @@ async def apply_setting_immediately(client, setting_type, value, index):
                 
                 if font_list.buttons:
                     # الضغط على الزر حسب الرقم الذي اختاره المستخدم
-                    # الأزرار في قائمة الخطوط كلها في صفوف مختلفة
-                    # نحسب عدد الأزرار في كل صف
                     btn_index = 0
                     for row in font_list.buttons:
                         for btn in row:
@@ -153,7 +146,7 @@ async def apply_setting_immediately(client, setting_type, value, index):
                             break
             
             # حذف جميع رسائل المحادثة
-            await delete_conv(client, TARGET_BOT)
+            await delete_conv(TARGET_BOT)
             
             return True
             
@@ -161,10 +154,10 @@ async def apply_setting_immediately(client, setting_type, value, index):
         print(f"خطأ: {e}")
         return False
 
-async def delete_conv(client, bot_username):
-    """حذف جميع رسائل المحادثة مع البوت"""
+async def delete_conv(bot_username):
+    """حذف جميع رسائل المحادثة مع البوت باستخدام l313l"""
     try:
-        async for msg in client.iter_messages(bot_username, limit=30):
+        async for msg in l313l.iter_messages(bot_username, limit=30):
             await msg.delete()
     except:
         pass
@@ -247,22 +240,20 @@ async def set_font(event):
     user_id = event.query.user_id
     font = FONTS[index]
     
-    # حفظ الإعداد
     user_font[user_id] = font
     addgvar(f"USER_FONT_{user_id}", font)
     
-    # إعلام المستخدم
     await event.edit(f"✅ تم حفظ الخط: **{font}**\n\n⌔︙جـار تطبيق الإعداد على البوت...", parse_mode="Markdown")
     
-    # تطبيق الإعداد فوراً على البوت
-    success = await apply_setting_immediately(event.client, 'font', font, index)
+    # ✅ استخدام l313l بدلاً من event.client
+    success = await apply_setting_immediately('font', font, index)
     
     if success:
-        await event.edit(f"✅ تم حفظ وتطبيق الخط: **{font}**\n\n• سوف يُستخدم عند كتابة `.اكتب`", 
+        await event.edit(f"✅ تم حفظ وتطبيق الخط: **{font}**", 
                          buttons=[[Button.inline("🔙 رجوع", data="back_to_main", style="primary")]],
                          parse_mode="Markdown")
     else:
-        await event.edit(f"✅ تم حفظ الخط: **{font}**\n\n⚠️ حدث خطأ في تطبيق الإعداد على البوت", 
+        await event.edit(f"✅ تم حفظ الخط: **{font}**\n\n⚠️ حدث خطأ في تطبيق الإعداد", 
                          buttons=[[Button.inline("🔙 رجوع", data="back_to_main", style="primary")]],
                          parse_mode="Markdown")
 
@@ -277,7 +268,7 @@ async def set_text_color(event):
     
     await event.edit(f"✅ تم حفظ لون الخط: **{color}**\n\n⌔︙جـار تطبيق الإعداد على البوت...", parse_mode="Markdown")
     
-    success = await apply_setting_immediately(event.client, 'text_color', color, index)
+    success = await apply_setting_immediately('text_color', color, index)
     
     if success:
         await event.edit(f"✅ تم حفظ وتطبيق لون الخط: **{color}**", 
@@ -299,7 +290,7 @@ async def set_note_color(event):
     
     await event.edit(f"✅ تم حفظ لون الدفتر: **{color}**\n\n⌔︙جـار تطبيق الإعداد على البوت...", parse_mode="Markdown")
     
-    success = await apply_setting_immediately(event.client, 'note_color', color, index)
+    success = await apply_setting_immediately('note_color', color, index)
     
     if success:
         await event.edit(f"✅ تم حفظ وتطبيق لون الدفتر: **{color}**", 
@@ -351,7 +342,7 @@ async def write_note(event):
     note_color = user_note_color.get(user_id) or gvarstatus(f"USER_NOTE_COLOR_{user_id}") or "White"
     
     try:
-        async with event.client.conversation(TARGET_BOT, timeout=60) as conv:
+        async with l313l.conversation(TARGET_BOT, timeout=60) as conv:
             await conv.send_message("/start")
             await asyncio.sleep(1.5)
             
@@ -451,7 +442,7 @@ async def write_note(event):
                 await jokevent.delete()
                 
                 # حذف المحادثة
-                async for msg in event.client.iter_messages(TARGET_BOT, limit=20):
+                async for msg in l313l.iter_messages(TARGET_BOT, limit=20):
                     await msg.delete()
             else:
                 await jokevent.edit(f"**❌ لم يتم استلام صورة**")

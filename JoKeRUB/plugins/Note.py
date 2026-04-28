@@ -32,7 +32,7 @@ async def write_note(event):
                 await event.client.send_file(
                     event.chat_id,
                     response.media,
-                    caption=f"**📸 تم إنشاء دفترك!**\n⏰ **الوقت:** `{ms} ثانية`\n\n**📝 النص:**\n`{text[:200]}...`"
+                    caption=f"**- تم إنشاء دفترك!**\n- **الوقت:** `{ms} ثانية`"
                 )
                 await jokevent.delete()
                 
@@ -94,7 +94,7 @@ async def blur_image(event):
                 await event.client.send_file(
                     event.chat_id,
                     response.media,
-                    caption=f"**🖼️ تم تغويش الصورة!**\n📊 **النسبة:** `{percent}%`\n⏰ **الوقت:** `{ms} ثانية`"
+                    caption=f"**- تم تغويش الصورة!**\n- **النسبة:** `{percent}%`\n- **الوقت:** `{ms} ثانية`"
                 )
                 await jokevent.delete()
                 

@@ -56,12 +56,9 @@ TARGET_BLUR_BOT = "@Nj35bot"
 
 @l313l.ar_cmd(pattern="تغويش(?: |$)([\s\S]*)")
 async def blur_image(event):
-    """تغويش الصورة بنسبة معينة"""
-    
     # جلب النسبة
-    percent_text = event.pattern_match.group(1).strip() if event.pattern_match.group(1) else ""
+    percent = event.pattern_match.group(1).strip() if event.pattern_match.group(1) else ""
     
-    # التحقق من الرد على صورة
     if not event.is_reply:
         return await edit_or_reply(event, "❌ **الرجاء الرد على صورة**\nمثال: قم بالرد على صورة وأرسل `.تغويش 50`")
     
@@ -69,31 +66,25 @@ async def blur_image(event):
     if not replied.photo:
         return await edit_or_reply(event, "❌ **الرد يجب أن يكون على صورة**")
     
-    # التحقق من وجود النسبة
-    if not percent_text:
+    if not percent:
         return await edit_or_reply(event, "❌ **الرجاء تحديد نسبة التغويش**\nمثال: `.تغويش 50`")
     
-    # التحقق من أن النسبة رقم صحيح
     try:
-        percent = int(percent_text)
+        percent = int(percent)
         if percent < 1 or percent > 100:
-            return await edit_or_reply(event, "❌ **النسبة يجب أن تكون بين 1 و 100**")
-    except ValueError:
-        return await edit_or_reply(event, "❌ **الرجاء إدخال رقم صحيح**")
+            return await edit_or_reply(event, "❌ **النسبة بين 1 و 100**")
+    except:
+        return await edit_or_reply(event, "❌ **أدخل رقماً صحيحاً**")
     
     jokevent = await edit_or_reply(event, f"⌔︙جـار تغويش الصورة بنسبة {percent}%...")
     start = datetime.now()
     
     try:
         async with l313l.conversation(TARGET_BLUR_BOT, timeout=30) as conv:
-            # إرسال الصورة
             await conv.send_file(replied.media)
             await asyncio.sleep(2)
-            
-            # إرسال النسبة
             await conv.send_message(str(percent))
             
-            # انتظار الرد
             response = await conv.get_response()
             
             if response.photo or response.document:
@@ -107,13 +98,12 @@ async def blur_image(event):
                 )
                 await jokevent.delete()
                 
-                # حذف المحادثة مع البوت
                 async for msg in l313l.iter_messages(TARGET_BLUR_BOT, limit=10):
                     await msg.delete()
             else:
-                await jokevent.edit(f"**❌ فشل في تغويش الصورة**\nرد البوت: `{response.text[:100] if response.text else 'لا يوجد'}`")
+                await jokevent.edit(f"**❌ فشل في تغويش الصورة**")
                 
     except asyncio.TimeoutError:
-        await jokevent.edit("**⌔︙انتهى الوقت، البوت لم يرد**")
+        await jokevent.edit("**⌔︙انتهى الوقت**")
     except Exception as e:
-        await jokevent.edit(f"**⌔︙حدث خطأ:**\n`{str(e)}`")
+        await jokevent.edit(f"**⌔︙خطأ:**\n`{str(e)}`")

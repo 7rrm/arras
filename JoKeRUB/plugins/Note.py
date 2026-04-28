@@ -29,7 +29,7 @@ TEXT_COLORS = ["Black", "Blue", "Red", "Green", "Purple"]
 NOTE_COLORS = ["White", "Light Blue", "Beige", "Light Green", "Pink", "Light Yellow"]
 
 # =========================================================== #
-# دالة تطبيق الإعدادات (نفس طريقة التجميع)
+# دالة تطبيق الإعدادات فوراً (نفس طريقة التجميع)
 # =========================================================== #
 
 async def apply_setting_immediately(setting_type, index):
@@ -39,33 +39,33 @@ async def apply_setting_immediately(setting_type, index):
         await l313l.send_message(TARGET_BOT, '/start')
         await asyncio.sleep(3)
         
-        # 2. جلب آخر رسالة (الرسالة التي تحتوي على الأزرار)
-        msg0 = await l313l.get_messages(TARGET_BOT, limit=1)
-        if not msg0 or not msg0[0].buttons:
+        # 2. جلب آخر رسالة (تحتوي على الأزرار)
+        msg = await l313l.get_messages(TARGET_BOT, limit=1)
+        if not msg or not msg[0].buttons:
             return False
         
-        # 3. الضغط على الزر المناسب
+        # 3. الضغط على الزر المناسب (نوع الخط / لون الخط / لون الدفتر)
         if setting_type == 'font':
-            await msg0[0].click(0)  # زر "نوع الخط"
+            await msg[0].click(0)  # زر "نوع الخط"
         elif setting_type == 'text_color':
-            await msg0[0].click(2)  # زر "لون الخط"
+            await msg[0].click(2)  # زر "لون الخط"
         elif setting_type == 'note_color':
-            await msg0[0].click(1)  # زر "لون الدفتر"
+            await msg[0].click(1)  # زر "لون الدفتر"
         
         await asyncio.sleep(3)
         
-        # 4. جلب آخر رسالة (قائمة الخطوط/الألوان)
-        msg1 = await l313l.get_messages(TARGET_BOT, limit=1)
-        if not msg1 or not msg1[0].buttons:
+        # 4. جلب نفس الرسالة بعد التعديل (الأزرار تغيرت إلى قائمة الخطوط/الألوان)
+        msg2 = await l313l.get_messages(TARGET_BOT, limit=1)
+        if not msg2 or not msg2[0].buttons:
             return False
         
         # 5. الضغط على الزر المطلوب
-        await msg1[0].click(index)
+        await msg2[0].click(index)
         await asyncio.sleep(2)
         
         # 6. حذف المحادثة
-        async for msg in l313l.iter_messages(TARGET_BOT, limit=10):
-            await msg.delete()
+        async for m in l313l.iter_messages(TARGET_BOT, limit=10):
+            await m.delete()
         
         return True
         
@@ -257,51 +257,51 @@ async def write_note(event):
     note_index = NOTE_COLORS.index(note_color) if note_color in NOTE_COLORS else 0
     
     try:
-        # 1. إرسال /start
+        # إرسال /start
         await l313l.send_message(TARGET_BOT, '/start')
         await asyncio.sleep(3)
         
-        # 2. جلب القائمة الرئيسية
-        main_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-        if not main_msg or not main_msg[0].buttons:
+        # القائمة الرئيسية
+        msg = await l313l.get_messages(TARGET_BOT, limit=1)
+        if not msg or not msg[0].buttons:
             return await jokevent.edit("❌ لم يتم استلام القائمة الرئيسية")
         
-        # 3. تغيير نوع الخط
-        await main_msg[0].click(0)
+        # تغيير نوع الخط
+        await msg[0].click(0)
         await asyncio.sleep(3)
         
-        sub_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-        if sub_msg and sub_msg[0].buttons:
-            await sub_msg[0].click(font_index)
+        msg = await l313l.get_messages(TARGET_BOT, limit=1)
+        if msg and msg[0].buttons:
+            await msg[0].click(font_index)
             await asyncio.sleep(2)
         
-        # 4. تغيير لون الخط
-        main_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-        if main_msg and main_msg[0].buttons:
-            await main_msg[0].click(2)
+        # تغيير لون الخط
+        msg = await l313l.get_messages(TARGET_BOT, limit=1)
+        if msg and msg[0].buttons:
+            await msg[0].click(2)
             await asyncio.sleep(3)
             
-            sub_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-            if sub_msg and sub_msg[0].buttons:
-                await sub_msg[0].click(color_index)
+            msg = await l313l.get_messages(TARGET_BOT, limit=1)
+            if msg and msg[0].buttons:
+                await msg[0].click(color_index)
                 await asyncio.sleep(2)
         
-        # 5. تغيير لون الدفتر
-        main_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-        if main_msg and main_msg[0].buttons:
-            await main_msg[0].click(1)
+        # تغيير لون الدفتر
+        msg = await l313l.get_messages(TARGET_BOT, limit=1)
+        if msg and msg[0].buttons:
+            await msg[0].click(1)
             await asyncio.sleep(3)
             
-            sub_msg = await l313l.get_messages(TARGET_BOT, limit=1)
-            if sub_msg and sub_msg[0].buttons:
-                await sub_msg[0].click(note_index)
+            msg = await l313l.get_messages(TARGET_BOT, limit=1)
+            if msg and msg[0].buttons:
+                await msg[0].click(note_index)
                 await asyncio.sleep(2)
         
-        # 6. إرسال النص
+        # إرسال النص
         await l313l.send_message(TARGET_BOT, text)
         await asyncio.sleep(4)
         
-        # 7. جلب الصورة
+        # جلب الصورة
         response = await l313l.get_messages(TARGET_BOT, limit=1)
         
         if response and (response[0].photo or response[0].document):
@@ -316,12 +316,10 @@ async def write_note(event):
             await jokevent.delete()
             
             # حذف المحادثة
-            async for msg in l313l.iter_messages(TARGET_BOT, limit=15):
-                await msg.delete()
+            async for m in l313l.iter_messages(TARGET_BOT, limit=15):
+                await m.delete()
         else:
             await jokevent.edit(f"**❌ لم يتم استلام صورة من البوت**")
                 
-    except asyncio.TimeoutError:
-        await jokevent.edit("**⌔︙انتهى الوقت، البوت لم يرد**")
     except Exception as e:
         await jokevent.edit(f"**⌔︙حدث خطأ:**\n`{str(e)}`")

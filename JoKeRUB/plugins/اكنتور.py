@@ -37,6 +37,29 @@ async def rozdo(e):
         await e.delete()
 
 
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"aki_?(.*)")))
+@check_owner
+async def daj(e):
+    adt = e.pattern_match.group(1).strip().decode("utf-8")
+    dt = adt.split("_")
+    ch = int(dt[0])
+    mid = int(dt[1])
+    await e.edit("** ᥀︙جار التحقق انتظر قليلاً**")
+    try:
+        aki = games[ch][mid]
+        aki.child_mode = True  # تفعيل الوضع الآمن بهذه الطريقة
+        qu = aki.start_game()
+    except KeyError:
+        return await e.answer("تم إنهاء اللعبة", alert=True)
+    except Exception as ex:
+        return await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
+    
+    bts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
+    cts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
+    bts = [bts, cts]
+    await e.edit(f"Q. {qu}", buttons=bts)
+
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
 @check_owner
 async def rooks(e):
@@ -78,32 +101,6 @@ async def rooks(e):
         
     except Exception as ex:
         await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
-@check_owner
-async def rooks(e):
-    mk = e.pattern_match.group(1).decode("utf-8").split("_")
-    ch = int(mk[0])
-    mid = int(mk[1])
-    ans = mk[2]
-    try:
-        gm = games[ch][mid]
-    except KeyError:
-        await e.answer("- انتهى الوقت!")
-        return
-    text = gm.answer(ans)
-    if gm.progression >= 80:
-        gm.win()
-        gs = gm.first_guess
-        text = "It's " + gs["name"] + "\n " + gs["description"]
-        return await e.edit(text, file=gs["absolute_picture_path"])
-    bts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
-    cts = [
-        Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
-
-    bts = [bts, cts]
-    await e.edit(text, buttons=bts)
-
 
 @l313l.tgbot.on(InlineQuery)
 async def rozak(e):

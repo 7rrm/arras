@@ -15,7 +15,7 @@ from telethon.errors.rpcerrorlist import AuthKeyDuplicatedError
 from telethon.sessions.string import _STRUCT_PREFORMAT, CURRENT_VERSION, StringSession
 
 
-LOGS = logging.getLogger("الجوكر 🤡")
+LOGS = logging.getLogger("اراس")
 
 _PYRO_FORM = {351: ">B?256sI?", 356: ">B?256sQ?", 362: ">BI?256sQ?"}
 
@@ -36,7 +36,7 @@ def aljokerPyro(session, logger=LOGS, _exit=True):
         # Telethon Session
         if session.startswith(CURRENT_VERSION):
             if len(session.strip()) != 353:
-                logger.exception("كود التيرمكس خطأ تأكد منه عزيزي")
+                logger.exception("- كود التيرمكس خطأ تأكد منه عزيزي .")
                 sys.exit()
             return StringSession(session)
 
@@ -64,9 +64,9 @@ def aljokerPyro(session, logger=LOGS, _exit=True):
                 ).decode("ascii")
             )
         else:
-            logger.exception(" كود التيرمكس خطأ تأكد منه")
+            logger.exception("- كود تيرمكس خطأ تأكد منه .")
             if _exit:
                 sys.exit()
-    logger.exception("كود التيرمكس غير موجود")
+    logger.exception("- كود التيرمكس غير موجود .")
     if _exit:
         sys.exit()

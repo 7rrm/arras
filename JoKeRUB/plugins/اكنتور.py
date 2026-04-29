@@ -37,27 +37,47 @@ async def rozdo(e):
         await e.delete()
 
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"aki_?(.*)")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
 @check_owner
-async def daj(e):
-    adt = e.pattern_match.group(1).strip().decode("utf-8")
-    dt = adt.split("_")
-    ch = int(dt[0])
-    mid = int(dt[1])
-    await e.edit("** ᥀︙جار التحقق انتظر قليلاً**")
+async def rooks(e):
+    mk = e.pattern_match.group(1).decode("utf-8").split("_")
+    ch = int(mk[0])
+    mid = int(mk[1])
+    ans = mk[2]
     try:
-        aki = games[ch][mid]
-        aki.child_mode = True  # تفعيل الوضع الآمن بهذه الطريقة
-        qu = aki.start_game()
+        gm = games[ch][mid]
     except KeyError:
-        return await e.answer("تم إنهاء اللعبة", alert=True)
-    except Exception as ex:
-        return await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
+        await e.answer("انتهت الجلسة! ابدأ لعبة جديدة", alert=True)
+        return
     
-    bts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
-    cts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
-    bts = [bts, cts]
-    await e.edit(f"Q. {qu}", buttons=bts)
+    try:
+        # تحويل الإجابة إلى اللغة التي تفهمها المكتبة
+        answer_map = {
+            "نعم": "yes",
+            "لا": "no",
+            "لا أعلم": "idk",
+            "من المحتمل": "probably",
+            "على الاغلب لا": "probably_not"
+        }
+        text = gm.answer(answer_map.get(ans, "idk"))
+        
+        if gm.progression >= 80:
+            gm.win()
+            gs = gm.first_guess
+            result = f"🎉 **التخمين:** {gs['name']}\n📝 **الوصف:** {gs['description']}"
+            if gs.get('absolute_picture_path'):
+                await e.edit(result, file=gs['absolute_picture_path'])
+            else:
+                await e.edit(result)
+            return
+        
+        bts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
+        cts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
+        bts = [bts, cts]
+        await e.edit(text, buttons=bts)
+        
+    except Exception as ex:
+        await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
 @check_owner

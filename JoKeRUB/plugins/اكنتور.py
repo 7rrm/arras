@@ -10,7 +10,7 @@ from telethon import Button
 from telethon.errors import BotMethodInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 
-from userbot import l313l
+from JoKeRUB import l313l
 
 from ..core.decorators import check_owner
 

@@ -77,7 +77,6 @@ async def rooks(e):
     bts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
     cts = [
         Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
-        ]
 
     bts = [bts, cts]
     await e.edit(text, buttons=bts)

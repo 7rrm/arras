@@ -2428,11 +2428,11 @@ async def attachments_menu(event):
         [Button.inline("‹ : الميديـا والصيـغ : ›", data="media_convert_commands", style="primary")],
         [Button.inline("‹ : الوقت والتاريخ : ›", data="time_date_commands", style="primary"),
          Button.inline("‹ : التلـكَراف : ›", data="telegraph_commands", style="primary")],
-        [Button.inline("‹ : الملصقـات : ›", data="sticker_commands", style="primary")],
+        [Button.inline("‹ : المـلصقـات : ›", data="sticker_commands", style="primary")],
         [Button.inline("‹ : السبـام : ›", data="spam_commands", style="primary"),
          Button.inline("‹ : التـكرار : ›", data="repeat_commands", style="primary")],
-        [Button.inline("‹ : الكتابة والتغويش : ›", data="write_noise_commands", style="primary")],
-        [Button.inline("‹ : الاغاني والشعر : ›", data="musicsh_commands", style="primary"),
+        [Button.inline("‹ : الكتابـة والتَغويـش : ›", data="write_noise_commands", style="primary")],
+        [Button.inline("‹ : الأغاني والشعَـر : ›", data="musicsh_commands", style="primary"),
          Button.inline("‹ : بصمات الميمز : ›", data="memz_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
     ]
@@ -2740,6 +2740,7 @@ async def tools_menu(event):
         [Button.inline("‹ : التجميع (وعـد) : ›", data="w3d_collect_commands", style="primary"),
          Button.inline("‹ : التجميع (البوتـات) : ›", data="bots_collect_commands", style="primary")],
         [Button.inline("‹ : النَـشر التلقائي للقنـاة : ›", data="auto_publish_commands", style="primary")],
+        [Button.inline("‹ : الحالـة الوهـميـة : ›", data="fake_action_commands", style="primary")],
         [Button.inline("‹ : حـفظ الذاتيـة : ›", data="save_self_commands", style="primary"),
          Button.inline("‹ : الخـطوط : ›", data="fonts_commands", style="primary")],
         [Button.inline("‹ : تصفية الحساب ( المغادرة ) : ›", data="filter_leave_commands", style="primary")],
@@ -3038,6 +3039,41 @@ async def filter_leave_commands(event):
     buttons = [[Button.inline("↩️ رجوع", data="tools_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
+# =========================================================== #
+# أوامر الحالة الوهمية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"fake_action_commands")))
+@check_owner
+async def fake_action_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الحالة الوهمية 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.كتابة</code> <b>⦘</b>
+❐ لوضع حالة كتابة وهمية
+❐ <b>طريقة الاستخدام:</b> <code>.كتابة + عدد الثواني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.صوتية</code> <b>⦘</b>
+❐ لوضع حالة تسجيل صوتي وهمية
+❐ <b>طريقة الاستخدام:</b> <code>.صوتية + عدد الثواني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.صوره</code> <b>⦘</b>
+❐ لوضع حالة تصوير وهمية
+❐ <b>طريقة الاستخدام:</b> <code>.صوره + عدد الثواني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.فيد</code> <b>⦘</b>
+❐ لوضع حالة تصوير فيديو وهمية
+❐ <b>طريقة الاستخدام:</b> <code>.فيد + عدد الثواني</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.لعبة</code> <b>⦘</b>
+❐ لوضع حالة لعب وهمية
+❐ <b>طريقة الاستخدام:</b> <code>.لعبة + عدد الثواني</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="tools_menu", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 # =========================================================== #
 # قائمة الأدوات التالية (صفحة 2)
 # =========================================================== #

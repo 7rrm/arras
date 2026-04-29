@@ -46,15 +46,18 @@ async def daj(e):
     mid = int(dt[1])
     await e.edit("** ᥀︙جار التحقق انتظر قليلاً**")
     try:
-        qu = games[ch][mid].start_game(child_mode=True)
+        aki = games[ch][mid]
+        aki.child_mode = True  # تفعيل الوضع الآمن بهذه الطريقة
+        qu = aki.start_game()
     except KeyError:
         return await e.answer("تم إنهاء اللعبة", alert=True)
+    except Exception as ex:
+        return await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
+    
     bts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
     cts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
-
     bts = [bts, cts]
     await e.edit(f"Q. {qu}", buttons=bts)
-
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
 @check_owner

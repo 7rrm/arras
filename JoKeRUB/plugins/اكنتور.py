@@ -1,27 +1,36 @@
-import os
+# This file is a part of < https://github.com/TeamUltroid/Ultroid/ >
+# Original file can be found at https://github.com/TeamUltroid/Ultroid/blob/main/plugins/akinator.py
+# Ported to cat userbot by t.me/realnub. If you remove these three lines then you are a pure 100% gay, real idiot and you will die in hell for sure.
+
+
 import re
 
-try:
-    import akinator
-except ModuleNotFoundError:
-    os.system("pip3 install akinator.py")
-    import akinator
-
+import akinator
 from telethon import Button
 from telethon.errors import BotMethodInvalidError
 from telethon.events import CallbackQuery, InlineQuery
 
-from . import l313l
+from userbot import l313l
 
-from ..Config import Config
 from ..core.decorators import check_owner
 
+plugin_category = "fun"
+
 games = {}
-aki_photo = "https://graph.org/file/b0ff07069e8637783fdae.jpg"
+aki_photo = "https://telegra.ph/file/b0ff07069e8637783fdae.jpg"
 
 
-@l313l.ar_cmd(pattern="اكينوتر(?:\s|$)([\s\S]*)")
-async def rozdo(e):
+@l313l.ar_cmd(
+    pattern="aki(?:\s|$)([\s\S]*)",
+    command=("aki", plugin_category),
+    info={
+        "header": "Akinator game",
+        "usage": "{tr}aki",
+        "description": "Hmm, a game, try yourself!",
+    },
+)
+async def doit(e):
+    "Akinator game, try yourself."
     sta = akinator.Akinator()
     games.update({e.chat_id: {e.id: sta}})
     try:
@@ -31,7 +40,7 @@ async def rozdo(e):
         await m[0].click(e.chat_id)
     except BotMethodInvalidError:
         return await e.send_file(
-            e.chat_id, aki_photo, caption="** ᥀︙حاول مجدداً مرة اخرى*"
+            e.chat_id, aki_photo, caption="**keep this and try again 😛**"
         )
     if e.out:
         await e.delete()
@@ -39,30 +48,28 @@ async def rozdo(e):
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"aki_?(.*)")))
 @check_owner
-async def daj(e):
-    adt = e.pattern_match.group(1).strip().decode("utf-8")
+async def doai(e):
+    adt = e.pattern_match.group(1).decode("utf-8")
     dt = adt.split("_")
     ch = int(dt[0])
     mid = int(dt[1])
-    await e.edit("** ᥀︙جار التحقق انتظر قليلاً**")
+    await e.edit("`Processing...`")
     try:
-        aki = games[ch][mid]
-        aki.child_mode = True  # تفعيل الوضع الآمن بهذه الطريقة
-        qu = aki.start_game()
+        qu = games[ch][mid].start_game(child_mode=False)
+        # child mode not should be promoted
     except KeyError:
-        return await e.answer("تم إنهاء اللعبة", alert=True)
-    except Exception as ex:
-        return await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
-    
-    bts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
-    cts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
+        return await e.answer("`Game has been Terminated`", alert=True)
+    bts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["Yes", "No", "Idk"]]
+    cts = [Button.inline(o, f"aka_{adt}_{o}") for o in ["Probably", "Probably Not"]]
+
     bts = [bts, cts]
-    await e.edit(f"Q. {qu}", buttons=bts)
+    # ignored Back Button since it makes the Pagination looks Bad
+    await e.edit("Q. " + qu, buttons=bts)
 
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"aka_?(.*)")))
 @check_owner
-async def rooks(e):
+async def okah(e):
     mk = e.pattern_match.group(1).decode("utf-8").split("_")
     ch = int(mk[0])
     mid = int(mk[1])
@@ -70,40 +77,25 @@ async def rooks(e):
     try:
         gm = games[ch][mid]
     except KeyError:
-        await e.answer("انتهت الجلسة! ابدأ لعبة جديدة", alert=True)
+        await e.answer("Timeout !")
         return
-    
-    try:
-        # تحويل الإجابة إلى اللغة التي تفهمها المكتبة
-        answer_map = {
-            "نعم": "yes",
-            "لا": "no",
-            "لا أعلم": "idk",
-            "من المحتمل": "probably",
-            "على الاغلب لا": "probably_not"
-        }
-        text = gm.answer(answer_map.get(ans, "idk"))
-        
-        if gm.progression >= 80:
-            gm.win()
-            gs = gm.first_guess
-            result = f"🎉 **التخمين:** {gs['name']}\n📝 **الوصف:** {gs['description']}"
-            if gs.get('absolute_picture_path'):
-                await e.edit(result, file=gs['absolute_picture_path'])
-            else:
-                await e.edit(result)
-            return
-        
-        bts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["نعم", "لا", "لا أعلم"]]
-        cts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["من المحتمل", "على الاغلب لا"]]
-        bts = [bts, cts]
-        await e.edit(text, buttons=bts)
-        
-    except Exception as ex:
-        await e.answer(f"خطأ: {str(ex)[:50]}", alert=True)
+    text = gm.answer(ans)
+    if gm.progression >= 80:
+        gm.win()
+        gs = gm.first_guess
+        text = "It's " + gs["name"] + "\n " + gs["description"]
+        return await e.edit(text, file=gs["absolute_picture_path"])
+    bts = [Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["Yes", "No", "Idk"]]
+    cts = [
+        Button.inline(o, f"aka_{ch}_{mid}_{o}") for o in ["Probably", "Probably Not"]
+    ]
+
+    bts = [bts, cts]
+    await e.edit(text, buttons=bts)
+
 
 @l313l.tgbot.on(InlineQuery)
-async def rozak(e):
+async def akigame(e):
     query_user_id = e.query.user_id
     query = e.text
     string = query.lower()
@@ -114,7 +106,7 @@ async def rozak(e):
             await e.builder.photo(
                 aki_photo,
                 text=query,
-                buttons=[Button.inline("‹ بدء اللعب ›", data=e.text)],
+                buttons=[Button.inline("Start Game", data=e.text)],
             )
         ]
         await e.answer(ans)

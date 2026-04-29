@@ -1,6 +1,3 @@
-#(c) Copyright JoKeRUB 2020-21
-#جميع الحقوق محفودظة لسورس جـيبثون 
-#By ~  @RR9R7
 import asyncio
 
 from telethon import events
@@ -11,7 +8,6 @@ from JoKeRUB import bot
 from .. import *
 
 OWNER_ID = bot.uid
-# للتاكد من صلاحيات المشرف
 
 async def is_administrator(user_id: int, message):
     admin = False

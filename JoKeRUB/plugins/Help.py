@@ -2431,6 +2431,7 @@ async def attachments_menu(event):
         [Button.inline("‹ : الملصقـات : ›", data="sticker_commands", style="primary")],
         [Button.inline("‹ : السبـام : ›", data="spam_commands", style="primary"),
          Button.inline("‹ : التـكرار : ›", data="repeat_commands", style="primary")],
+        [Button.inline("‹ : الكتابة والتغويش : ›", data="write_noise_commands", style="primary")],
         [Button.inline("‹ : الاغاني والشعر : ›", data="musicsh_commands", style="primary"),
          Button.inline("‹ : بصمات الميمز : ›", data="memz_commands", style="primary")],
         [Button.inline("رجــوع ↩️", data="ZEDHELP", style="danger")]
@@ -2695,6 +2696,30 @@ async def musicsh_commands(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="danger")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# أوامر الكتابة والتغويش
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"write_noise_commands")))
+@check_owner
+async def write_noise_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الكتابة والتغويش 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اكتب</code> <b>⦘</b>
+❐ لإنشاء دفتر بنص معين
+❐ <b>طريقة الاستخدام:</b> <code>.اكتب + النص</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.تغويش</code> <b>⦘</b>
+❐ لتغويش صورة بنسبة محددة
+❐ <b>طريقة الاستخدام:</b> الرد على صورة + <code>.تغويش + النسبة (1-100)</code>
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="attachments_menu", style="primary")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
 
 # =========================================================== #

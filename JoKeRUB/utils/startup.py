@@ -30,7 +30,7 @@ from .tools import create_supergroup
 
 LOGS = logging.getLogger("aljoker")
 logging.getLogger('telethon').setLevel(logging.WARNING)
-##Reda hands here
+
 cmdhr = Config.COMMAND_HAND_LER
 Zed_Vip = (8277718687, 5427469031)
 Zed_Dev = (5427469031, 6349091574)
@@ -401,13 +401,13 @@ async def verifyLoggerGroup():
     if PM_LOGGER_GROUP_ID == -100:
         descript = "✧︙ وظيفه الكروب يحفظ رسائل الخاص اذا ما تريد الامر احذف الكروب نهائي \n  - @Lx5x5"
         photobt = await l313l.upload_file(file="l313l/razan/resources/start/Jepthon2.JPEG")
-        pm_logger_group_id = await aljoker_the_best(l313l, "مجموعة التخزين")
+        pm_logger_group_id = await aljoker_the_best(l313l, "مجَمـوعة التخزيـن")
         if pm_logger_group_id:
             addgvar("PM_LOGGER_GROUP_ID", pm_logger_group_id)
             print("تـم العثور على مجموعة الكروب التخزين بالفعل واضافة الـفارات الـيها.")
         else:
             _, groupid = await create_supergroup(
-                "مجموعة التخزين", l313l, Config.TG_BOT_USERNAME, descript, photobt
+                "مجَمـوعة التخزيـن", l313l, Config.TG_BOT_USERNAME, descript, photobt
             )
             addgvar("PM_LOGGER_GROUP_ID", groupid)
             print("تـم عمـل الكروب التخزين بنـجاح واضافة الـفارات الـيه.")

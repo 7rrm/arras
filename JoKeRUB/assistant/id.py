@@ -1,12 +1,14 @@
 from telethon import events
+from telethon.utils import pack_bot_file_id
 
 @tgbot.on(events.NewMessage(pattern="^الايدي"))
-async def _(e):
-    r = await e.get_reply_message()
-    if r:
-        txt = f"الدردشة: {e.chat_id}\nالمستخدم: {r.sender_id}"
-        if r.media and hasattr(r.media, 'id'):
-            txt += f"\nالميديا: {r.media.id}"
-        await e.reply(txt)
+async def _(event):
+    reply = await event.get_reply_message()
+    if reply:
+        text = f"⌯︙الدردشة: `{event.chat_id}`\n⌯︙المستخدم: `{reply.sender_id}`"
+        if reply.media:
+            text += f"\n⌯︙الميديا: `{pack_bot_file_id(reply.media)}`"
     else:
-        await e.reply(f"الدردشة: {e.chat_id}")
+        text = f"⌯︙الدردشة: `{event.chat_id}`"
+    
+    await event.reply(text)

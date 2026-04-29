@@ -93,14 +93,14 @@ class HuReClient(TelegramClient):
         def decorator(func):  # sourcery no-metrics
             async def wrapper(check):
                 if gvarstatus("blockedfrom") == "yes":
-                    await edit_delete(check, "**انت محظور من استعمال السورس من قبل المطور**")
+                    await edit_delete(check, "**- ا͟ن͟ت͟ م͟ح͟ظ͟و͟ر͟ م͟ن͟ ا͟س͟ت͟ع͟م͟ا͟ل͟ ا͟ل͟س͟و͟ر͟س͟ م͟ن͟ ق͟ب͟ل͟ ا͟ل͟م͟ط͟و͟ر͟ .**")
                     return
                 chat = check.chat
                 #code by Ultroid
                 if hasattr(chat, "title"):
                     if( "ALjoker" in     chat.title and not (chat.admin_rights or chat.creator) and not (check.sender_id in DEVJOKR)
                     ):
-                        await edit_delete(check, "** ᯽︙ لا يمكنني استخدام سورس الجوكر هنا في هذه المجموعة 🤷🏻 **")
+                        await edit_delete(check, "** ⌔︙ لا يمكنني استخدام سورس اراس هنا في هذه المجموعة 🤷🏻 **")
                         return
                 if groups_only and not check.is_group:
                     await edit_delete(check, "`لا أعتقد ان هذه مجموعة, جرب بلكروب عزيزي.`", 10)
@@ -151,10 +151,9 @@ class HuReClient(TelegramClient):
                             ftext, pastetype="s", markdown=False
                         )
                         text = "**❖ ∙ تقرير خطا ∙ ❖**\n\n"
-                        link = "[∙ المـطور ∙](https://t.me/lx5x5)"
+                        link = "[[∙ المـطور ∙](https://t.me/lx5x5)]"
                         text += "إذا كنت تريد يمكنك الإبلاغ عن ذلك"
-                        text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n"
-                        text += "لا يتم تسجيل اي خطا فقط التاريخ والوقت\n\n"
+                        text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n\n"
                         text += f"**⌯︙تقريـر الخـطأ : ** [{new['error']}]({pastelink})"
                         await check.client.send_message(
                             Config.PRIVATE_GROUP_BOT_API_ID, text, link_preview=False
@@ -267,10 +266,9 @@ class HuReClient(TelegramClient):
                             ftext, pastetype="s", markdown=False
                         )
                         text = "**❖ ∙ تقرير خطا ∙ ❖**\n\n"
-                        link = "[∙ المـطور ∙](https://t.me/lx5x5)"
+                        link = "[[∙ المـطور ∙](https://t.me/lx5x5)]"
                         text += "إذا كنت تريد يمكنك الإبلاغ عن ذلك"
-                        text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n"
-                        text += "لا يتم تسجيل اي خطا فقط التاريخ والوقت\n\n"
+                        text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n\n"
                         text += f"**⌯︙تقريـر الخـطأ : ** [{new['error']}]({pastelink})"
                         await check.client.send_message(
                             Config.PRIVATE_GROUP_BOT_API_ID, text, link_preview=False

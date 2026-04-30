@@ -2151,7 +2151,6 @@ async def fix_protection(event):
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
 '''
 
-from groq import Groq
 
 # =========================================================== #
 # تهيئة عميل Groq

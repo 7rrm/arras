@@ -2149,7 +2149,7 @@ async def fix_protection(event):
     except Exception as e:
         logger.error(f"خطأ في التصحيح: {e}")
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
-'''
+
 # =========================================================== #
 # كود Groq الكامل - بدون تعارضات
 # =========================================================== #
@@ -2395,3 +2395,4 @@ async def groq_settings(event):
     text += f"• `.جروك مسح` - مسح سجل المحادثة"
     
     await edit_or_reply(event, text)
+'''

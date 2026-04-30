@@ -2150,3 +2150,251 @@ async def fix_protection(event):
         logger.error(f"خطأ في التصحيح: {e}")
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
 '''
+# =========================================================== #
+# كود Groq الكامل - بدون تعارضات
+# =========================================================== #
+
+import requests
+import json
+
+GROQ_API_KEY = "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"
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+# =========================================================== #
+# جميع النماذج المتاحة (17 نموذج)
+# =========================================================== #
+GROQ_MODELS = {
+    "1": {"name": "openai/gpt-oss-120b", "desc": "GPT-OSS 120B - نموذج متقدم من OpenAI"},
+    "2": {"name": "openai/gpt-oss-20b", "desc": "GPT-OSS 20B - نسخة أسرع وأخف"},
+    "3": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - نموذج قوي من Meta"},
+    "4": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
+    "5": {"name": "mixtral-8x7b-32768", "desc": "Mixtral 8x7B - سياق طويل 32K"},
+    "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B - أحدث نماذج Meta"},
+    "7": {"name": "meta-llama/llama-4-maverick-17b-128e-instruct", "desc": "Llama 4 Maverick 17B - متقدم"},
+    "8": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
+    "9": {"name": "qwen/qwen3-14b", "desc": "Qwen 3 14B - نسخة متوسطة"},
+    "10": {"name": "qwen/qwen3-8b", "desc": "Qwen 3 8B - نسخة سريعة"},
+    "11": {"name": "moonshotai/kimi-k2-instruct-0905", "desc": "Kimi K2 - سياق عملاق 262K رمز"},
+    "12": {"name": "deepseek-r1-distill-llama-70b", "desc": "DeepSeek R1 - استدلال متقدم"},
+    "13": {"name": "mistral-saba-24b", "desc": "Mistral Saba - ممتاز للغة العربية ⭐"},
+    "14": {"name": "allam-2-7b", "desc": "ALLaM 2 7B - نموذج عربي"},
+    "15": {"name": "gemma2-9b-it", "desc": "Gemma 2 9B - من Google"},
+    "16": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب)"},
+    "17": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
+}
+
+# الإعدادات الافتراضية
+DEFAULT_MODEL = "openai/gpt-oss-120b"
+DEFAULT_TEMPERATURE = 1.0
+
+# تخزين إعدادات كل مستخدم
+user_model = {}
+user_temp = {}
+user_conversations = {}
+
+# =========================================================== #
+# دوال مساعدة
+# =========================================================== #
+def get_user_model(user_id):
+    return user_model.get(user_id, DEFAULT_MODEL)
+
+def get_user_temp(user_id):
+    return user_temp.get(user_id, DEFAULT_TEMPERATURE)
+
+def save_user_model(user_id, model):
+    user_model[user_id] = model
+
+def save_user_temp(user_id, temp):
+    user_temp[user_id] = temp
+
+def clear_user_conversation(user_id):
+    if user_id in user_conversations:
+        user_conversations[user_id] = []
+
+# =========================================================== #
+# دالة الرد من Groq مع السياق
+# =========================================================== #
+async def get_groq_response(user_id, question):
+    try:
+        model = get_user_model(user_id)
+        temp = get_user_temp(user_id)
+        
+        # إدارة سجل المحادثة
+        if user_id not in user_conversations:
+            user_conversations[user_id] = []
+        
+        # إضافة سؤال المستخدم
+        user_conversations[user_id].append({
+            "role": "user",
+            "content": question
+        })
+        
+        # الاحتفاظ بآخر 8 رسائل فقط
+        if len(user_conversations[user_id]) > 8:
+            user_conversations[user_id] = user_conversations[user_id][-8:]
+        
+        headers = {
+            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": model,
+            "messages": user_conversations[user_id],
+            "temperature": temp,
+            "max_tokens": 2000,
+            "top_p": 1,
+            "stream": False
+        }
+        
+        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            answer = result["choices"][0]["message"]["content"]
+            
+            # حفظ رد المساعد
+            user_conversations[user_id].append({
+                "role": "assistant",
+                "content": answer
+            })
+            
+            return answer
+        elif response.status_code == 429:
+            return "⚠️ **تم تجاوز حد الطلبات** (1000 طلب/يوم). الرجاء المحاولة لاحقاً."
+        else:
+            return f"⚠️ **خطأ {response.status_code}:** تحقق من المفتاح أو النموذج"
+            
+    except Exception as e:
+        return f"⚠️ **حدث خطأ:** {str(e)[:150]}"
+
+# =========================================================== #
+# الأمر الرئيسي للمحادثة
+# =========================================================== #
+@l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
+async def groq_chat(event):
+    question = event.pattern_match.group(1)
+    zzz = await event.get_reply_message()
+    
+    if not question and not event.reply_to_msg_id:
+        return await edit_or_reply(event, 
+            "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n"
+            "**مثال:** `.جروك من انت`\n\n"
+            "**⎉╎الأوامر المتاحة:**\n"
+            "• `.جروك مسح` - مسح سجل المحادثة\n"
+            "• `.جروك نماذج` - عرض جميع النماذج\n"
+            "• `.جروك نموذج [الرقم]` - تغيير النموذج\n"
+            "• `.جروك حرارة [0-2]` - تغيير درجة الحرارة\n"
+            "• `.اعدادات جروك` - عرض الإعدادات الحالية")
+    
+    # جلب السؤال من الرد
+    if not question and event.reply_to_msg_id and zzz.text:
+        question = zzz.text
+    
+    # =========================================================== #
+    # أوامر التحكم
+    # =========================================================== #
+    
+    # أمر مسح المحادثة
+    if question == "مسح" or question == "حذف":
+        clear_user_conversation(event.sender_id)
+        return await edit_or_reply(event, 
+            "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n"
+            "**⎉╎ارسـل الان (.جروك + سؤالك) لـ البـدء من جديد**")
+    
+    # أمر عرض النماذج
+    if question == "نماذج" or question == "النماذج":
+        models_text = "**🎛️ جميع النماذج المتاحة في Groq:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+        for key, model in GROQ_MODELS.items():
+            models_text += f"**{key}** - {model['desc']}\n"
+        models_text += "\n**⎉╎لتغيير النموذج:** `.جروك نموذج [الرقم]`\nمثال: `.جروك نموذج 6`"
+        return await edit_or_reply(event, models_text)
+    
+    # أمر تغيير النموذج
+    if question.startswith("نموذج"):
+        parts = question.split()
+        if len(parts) > 1 and parts[1] in GROQ_MODELS:
+            model_key = parts[1]
+            save_user_model(event.sender_id, GROQ_MODELS[model_key]["name"])
+            clear_user_conversation(event.sender_id)
+            return await edit_or_reply(event, 
+                f"**✅ تم تغيير النموذج إلى:**\n**{GROQ_MODELS[model_key]['desc']}**\n\n"
+                f"**⎉╎تم مسح سجل المحادثة تلقائياً**")
+        else:
+            return await edit_or_reply(event, 
+                f"**❌ رقم غير صالح.**\n"
+                f"**⎉╎الأرقام المتاحة:** 1 - {len(GROQ_MODELS)}\n"
+                f"**⎉╎لعرض النماذج:** `.جروك نماذج`")
+    
+    # أمر تغيير درجة الحرارة
+    if question.startswith("حرارة"):
+        parts = question.split()
+        if len(parts) > 1:
+            try:
+                temp_value = float(parts[1])
+                if 0 <= temp_value <= 2:
+                    save_user_temp(event.sender_id, temp_value)
+                    return await edit_or_reply(event, 
+                        f"**✅ تم تغيير درجة الحرارة إلى:** `{temp_value}`\n\n"
+                        f"**⎉╎الوصف:**\n" +
+                        ("• ردود ثابتة ومتوقعة" if temp_value <= 0.5 else
+                         "• ردود متوسطة الإبداع" if temp_value <= 1.5 else
+                         "• ردود عشوائية وإبداعية جداً"))
+                else:
+                    return await edit_or_reply(event, "**❌ درجة الحرارة يجب أن تكون بين 0 و 2**")
+            except ValueError:
+                return await edit_or_reply(event, "**❌ أرسل رقماً صحيحاً.**\nمثال: `.جروك حرارة 1.5`")
+    
+    # =========================================================== #
+    # الرد على السؤال
+    # =========================================================== #
+    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ Groq AI ...**")
+    
+    answer = await get_groq_response(event.sender_id, question)
+    
+    model = get_user_model(event.sender_id)
+    temp = get_user_temp(event.sender_id)
+    model_short = model.split("/")[-1]
+    
+    await zed.edit(
+        f"ᯓ **Groq AI** - الذكاء الاصطناعي\n"
+        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+        f"**• السؤال:** {question[:200]}\n\n"
+        f"**• الجواب:** {answer}\n"
+        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+        f"**⎉╎النموذج:** `{model_short}`\n"
+        f"**⎉╎الحرارة:** `{temp}`\n"
+        f"**⎉╎للإعدادات:** `.جروك`\n"
+        f"**⎉╎للمساعدة:** `.جروك`",
+        link_preview=False
+    )
+
+# =========================================================== #
+# أمر عرض الإعدادات الحالية
+# =========================================================== #
+@l313l.ar_cmd(pattern="اعدادات جروك$")
+async def groq_settings(event):
+    user_id = event.sender_id
+    model = get_user_model(user_id)
+    temp = get_user_temp(user_id)
+    
+    # البحث عن اسم النموذج
+    model_desc = "غير معروف"
+    for key, m in GROQ_MODELS.items():
+        if m["name"] == model:
+            model_desc = m["desc"]
+            break
+    
+    conv_count = len(user_conversations.get(user_id, []))
+    
+    text = f"**🤖 إعدادات Groq AI**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+    text += f"**📌 النموذج الحالي:**\n{model_desc}\n\n"
+    text += f"**🌡️ درجة الحرارة:** `{temp}`\n\n"
+    text += f"**💬 رسائل السجل:** {conv_count}\n\n"
+    text += f"**⎉╎الأوامر المتاحة:**\n"
+    text += f"• `.جروك نماذج` - عرض جميع النماذج\n"
+    text += f"• `.جروك نموذج [الرقم]` - تغيير النموذج\n"
+    text += f"• `.جروك حرارة [0-2]` - تغيير الحرارة\n"
+    text += f"• `.جروك مسح` - مسح سجل المحادثة"
+    
+    await edit_or_reply(event, text)

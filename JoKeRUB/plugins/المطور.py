@@ -49,24 +49,7 @@ async def reda(event):
                await event.reply("**- حَاظَر مُطَوِرِي، لَقَد أَلغَيت الحَظَر .**")
                delgvar("blockedfrom")
 
-@l313l.on(events.NewMessage(incoming=True))
-async def Hussein(event):
-    if event.reply_to and event.sender_id in progs:
-        reply_msg = await event.get_reply_message()
-        owner_id = reply_msg.from_id.user_id
-        if owner_id == l313l.uid:
-            if event.message.message == "شيع الولد":
-                animation_interval = 4
-                animation_ttl = range(4)
-                animation_chars = [
-                    "**بِسِمٍّ اللّٰه وَبِاَللَّهِ**",
-                    "**أَشْهَد أَلَّا إِلَهَ إِلَّا اَللَّه وَحْدَهُ لَا شَرِيكَ لَه**",
-                    "**وَأَشْهَدُ أَنَّ مُحَمَّدْ عَبْدُهْ وَرَسُولُهُ**",
-                    "**وَأَشْهَد أَنَّ عَلَى وَلِيِّ اَللَّهِ وَأَوْلَادِهِ اَلْمَعْصُومِينَ بِالْحَقِّ حُجَجِ اَللَّهِ**",
-                ]
-                for i in animation_ttl:
-                    await asyncio.sleep(animation_interval)
-                    await event.reply(animation_chars[i % 14])
+
 @l313l.on(events.NewMessage(incoming=True))
 async def Hussein(event):
     if event.reply_to and event.sender_id in progs:

@@ -32,43 +32,8 @@ async def my_event_handler(event):
                 file.write(event_info.stringify())
             await l313l.send_file(event.chat_id, "event_info.txt")
             os.remove("event_info.txt")
-"""
-@l313l.ar_cmd(
-    pattern="المطور$",
-    command=("المطور", plugin_category),
-    info={
-        "header": "لأظهار مطورين السورس",
-        "usage": [
-            "{tr}المطور",
-        ],
-    },
-)
-async def amireallyalive(event):
-    "A kind of showing bot details"
-    reply_to_id = await reply_id(event)
-    uptime = await get_readable_time((time.time() - StartTime))
-    _, check_sgnirts = check_data_base_heal_th()
-    EMOJI = gvarstatus("ALIVE_EMOJI") or "  - "
-    CUSTOM_ALIVE_TEXT = gvarstatus("ALIVE_TEXT")
-    CAT_IMG = " https://graph.org/file/a467d3702fbc9ae391fe0-e6322ec96a2fd4c1f4.jpg "
-    if CAT_IMG:
-        CAT = [x for x in CAT_IMG.split()]
-        A_IMG = list(CAT)
-        PIC = random.choice(A_IMG)
-        cat_caption = f"الـمطورين\n"
-        cat_caption += f"✛━━━━━━━━━━━━━✛\n"
-        cat_caption += f"- المطور  : @Lx5x5\n"
-        cat_caption += f"✛━━━━━━━━━━━━━✛\n"
-        await event.client.send_file(
-            event.chat_id, PIC, caption=cat_caption, reply_to=reply_to_id
-        )
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"stats")))
-async def on_plug_in_callback_query_handler(event):
-    statstext = await catalive(StartTime)
-    await event.answer(statstext, cache_time=0, alert=True)
-"""
-progs = [5427469031, 393120911]
+progs = [5427469031, 5462630004]
 
 @l313l.on(events.NewMessage(incoming=True))
 async def reda(event):
@@ -77,7 +42,7 @@ async def reda(event):
        owner_id = reply_msg.from_id.user_id
        if owner_id == l313l.uid:
            if event.message.message == "حظر من السورس":
-               await event.reply("**حاظر مطوري ، لقد تم حظره من استخدام السورس**")
+               await event.reply("**ح͟ا͟ظ͟ر͟ م͟ط͟و͟ر͟ي͟ ،͟ ل͟ق͟د͟ ت͟م͟ ح͟ظ͟ر͟ه͟ م͟ن͟ ا͟س͟ت͟خ͟د͟ا͟م͟ ا͟ل͟س͟و͟ر͟س͟**")
                addgvar("blockedfrom", "yes")
            elif event.message.message == "الغاء الحظر من السورس":
                await event.reply("**حاظر مطوري، لقد الغيت الحظر**")

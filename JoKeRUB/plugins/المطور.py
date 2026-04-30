@@ -43,10 +43,10 @@ async def reda(event):
        owner_id = reply_msg.from_id.user_id
        if owner_id == l313l.uid:
            if event.message.message == "حظر من السورس":
-               await event.reply("**- حَاظَر مُطَوِرِي ، لَقَد تَم حَظَرَه مِن اِسَتِخدَام اَلسَورَس .**")
+               await event.reply("**⎊ بـأمـر آلـمـطـور ⎊**\n• تـم حـظـر آلـمـسـتـخـدم مـن آلـسـورس •")
                addgvar("blockedfrom", "yes")
            elif event.message.message == "الغاء الحظر من السورس":
-               await event.reply("**- حَاظَر مُطَوِرِي، لَقَد أَلغَيت الحَظَر .**")
+               await event.reply("**⎊ بـأمـر آلـمـطـور ⎊**\n• تـم إلـغـاء آلـحـظـر عـن آلـمـسـتـخـدم •")
                delgvar("blockedfrom")
 
 
@@ -56,7 +56,7 @@ async def Hussein(event):
         reply_msg = await event.get_reply_message()
         owner_id = reply_msg.from_id.user_id
         if owner_id == l313l.uid:
-            if event.message.message == "انتة شنو":
+            if event.message.message == "انته شنو":
                 url = f"https://t.me/MemeSoundJep/105"
                 await event.reply("اني مطي 🦓")
                 await asyncio.sleep(1) 
@@ -78,11 +78,11 @@ async def Hussein(event):
             if owner_id == l313l.uid:
                 # أمر منصب؟
                 if event.message.message == "منصب؟":
-                    await event.reply("**يب منصب ✓**")
+                    await event.reply("「 يب منصب 」✓")
                 
                 # أمر منو فخر العرب؟
                 elif event.message.message == "منو فخر العرب؟":
-                    await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
+                    await event.reply("**سـيـدنـا وإمـامـنـا عـلـي بـن أبـي طـالـب .**")
                 
                 # أمر دز
                 elif event.message.message.startswith("دز"):

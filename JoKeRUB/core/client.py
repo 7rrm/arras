@@ -151,7 +151,7 @@ class HuReClient(TelegramClient):
                             ftext, pastetype="s", markdown=False
                         )
                         text = "**❖ ∙ تقرير خطا ∙ ❖**\n\n"
-                        link = "[[∙ المـطور ∙](https://t.me/lx5x5)]"
+                        link = "[∙ المـطور ∙](https://t.me/lx5x5)"
                         text += "إذا كنت تريد يمكنك الإبلاغ عن ذلك"
                         text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n\n"
                         text += f"**⌯︙تقريـر الخـطأ : ** [{new['error']}]({pastelink})"
@@ -266,7 +266,7 @@ class HuReClient(TelegramClient):
                             ftext, pastetype="s", markdown=False
                         )
                         text = "**❖ ∙ تقرير خطا ∙ ❖**\n\n"
-                        link = "[[∙ المـطور ∙](https://t.me/lx5x5)]"
+                        link = "[∙ المـطور ∙](https://t.me/lx5x5)"
                         text += "إذا كنت تريد يمكنك الإبلاغ عن ذلك"
                         text += f"- فقط قم بإعادة توجيه هذه الرسالة {link}.\n\n"
                         text += f"**⌯︙تقريـر الخـطأ : ** [{new['error']}]({pastelink})"

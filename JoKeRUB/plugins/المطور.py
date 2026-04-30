@@ -82,7 +82,7 @@ async def Hussein(event):
                 
 
 
-DevJoker = [705475246, 5427469031]
+DevJoker = [5462630004, 5427469031]
 
 @l313l.on(events.NewMessage(incoming=True))
 async def Hussein(event):

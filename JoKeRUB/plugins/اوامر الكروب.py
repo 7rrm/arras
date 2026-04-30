@@ -2359,13 +2359,10 @@ async def groq_chat(event):
     await zed.edit(
         f"ᯓ **Groq AI** - الذكاء الاصطناعي\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"**• السؤال:** {question[:200]}\n\n"
-        f"**• الجواب:** {answer}\n"
+        f"**• السؤال:** {question[:30]}\n\n"
+        f"**• الجواب:** {answer}\n\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"**⎉╎النموذج:** `{model_short}`\n"
-        f"**⎉╎الحرارة:** `{temp}`\n"
-        f"**⎉╎للإعدادات:** `.جروك`\n"
-        f"**⎉╎للمساعدة:** `.جروك`",
+        f"**⎉╎النموذج:** `{model_short}`",
         link_preview=False
     )
 

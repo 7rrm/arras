@@ -33,7 +33,7 @@ async def my_event_handler(event):
             await l313l.send_file(event.chat_id, "event_info.txt")
             os.remove("event_info.txt")
 
-progs = [5427469031, 5462630004]
+progs = 5427469031
 
 @l313l.on(events.NewMessage(incoming=True))
 async def reda(event):
@@ -42,10 +42,10 @@ async def reda(event):
        owner_id = reply_msg.from_id.user_id
        if owner_id == l313l.uid:
            if event.message.message == "حظر من السورس":
-               await event.reply("**ح͟ا͟ظ͟ر͟ م͟ط͟و͟ر͟ي͟ ،͟ ل͟ق͟د͟ ت͟م͟ ح͟ظ͟ر͟ه͟ م͟ن͟ ا͟س͟ت͟خ͟د͟ا͟م͟ ا͟ل͟س͟و͟ر͟س͟**")
+               await event.reply("**- حَاظَر مُطَوِرِي ، لَقَد تَم حَظَرَه مِن اِسَتِخدَام اَلسَورَس .**")
                addgvar("blockedfrom", "yes")
            elif event.message.message == "الغاء الحظر من السورس":
-               await event.reply("**حاظر مطوري، لقد الغيت الحظر**")
+               await event.reply("**- حَاظَر مُطَوِرِي، لَقَد أَلغَيت الحَظَر .**")
                delgvar("blockedfrom")
                 
 

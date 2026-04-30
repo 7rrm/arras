@@ -402,37 +402,6 @@ async def permalink(mention):
     my_mention = f"[{me.first_name}](tg://user?id={me.id})"
     await edit_or_reply(mention, f"**✧︙  انتِ طالق طالق طالق 🙎🏻‍♂️ من  :**{my_mention} .\n**✧︙  لقد تم طلاقها بلثلاث وفسخ زواجكما الان الكل حر طليق ** ")
 
-DevJoker = [705475246, 5427469031]
-
-@l313l.on(events.NewMessage(incoming=True))
-async def Hussein(event):
-    if event.reply_to and event.sender_id in DevJoker:
-        reply_msg = await event.get_reply_message()
-        
-        if reply_msg.from_id:
-            owner_id = reply_msg.from_id.user_id
-            
-            if owner_id == l313l.uid:
-                # أمر منصب؟
-                if event.message.message == "منصب؟":
-                    await event.reply("**يب منصب ✓**")
-                
-                # أمر منو فخر العرب؟
-                elif event.message.message == "منو فخر العرب؟":
-                    await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
-                
-                # أمر دز
-                elif event.message.message.startswith("دز"):
-                    # استخراج النص بعد كلمة "دز"
-                    message_text = event.message.message[2:].strip()
-                    
-                    if message_text:
-                        # الرد على المنصب بالرسالة
-                        await event.reply(message_text)
-                   #     await event.delete()  # حذف رسالة الأمر
-                 #   else:
-                   #     await event.reply("**❌ يجب كتابة رسالة بعد كلمة دز**\nمثال: `دز احبك`")
-
 @l313l.on(admin_cmd(pattern="رفعع(?:\s|$)([\s\S]*)"))
 async def custom_raise(event):
     # قائمة الأوامر المحجوزة (الأوامر القديمة)

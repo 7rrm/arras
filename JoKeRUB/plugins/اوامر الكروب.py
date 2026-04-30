@@ -5,7 +5,6 @@ import aiohttp
 import shutil
 import os
 import requests
-from groq import Groq
 import random
 from datetime import datetime
 import time
@@ -2151,51 +2150,3 @@ async def fix_protection(event):
         logger.error(f"خطأ في التصحيح: {e}")
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
 '''
-
-
-# =========================================================== #
-# كود Groq المبسط - بدون أي تعارض
-# =========================================================== #
-
-import requests
-import json
-
-GROQ_API_KEY = "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"
-GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-
-# لا نستخدم مكتبة groq نهائياً! نستخدم requests فقط
-
-@l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
-async def groq_simple(event):
-    question = event.pattern_match.group(1)
-    
-    if not question:
-        return await edit_or_reply(event, "**✧╎أضف سؤالك بعد الأمر**\nمثال: `.جروك من انت`")
-    
-    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ Groq AI ...**")
-    
-    headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    
-    payload = {
-        "model": "openai/gpt-oss-120b",
-        "messages": [{"role": "user", "content": question}],
-        "temperature": 1.0,
-        "max_tokens": 2000
-    }
-    
-    try:
-        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
-        
-        if response.status_code == 200:
-            result = response.json()
-            answer = result["choices"][0]["message"]["content"]
-            
-            await zed.edit(f"**✧╎سؤالك:** {question}\n\n**✧╎إجابة Groq AI:**\n{answer}")
-        else:
-            await zed.edit(f"**✧╎خطأ {response.status_code}:** تحقق من المفتاح أو النموذج")
-            
-    except Exception as e:
-        await zed.edit(f"**✧╎حدث خطأ:** {str(e)[:100]}")

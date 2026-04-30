@@ -2154,94 +2154,48 @@ async def fix_protection(event):
 
 
 # =========================================================== #
-# تهيئة عميل Groq
+# كود Groq المبسط - بدون أي تعارض
 # =========================================================== #
-GROQ_API_KEY = "gsk_qyoyrtAWan9XPTDvXNhWGdyb3FYgBnhgwc4jUfHIIsuyONP20ye"
-groq_client = Groq(api_key=GROQ_API_KEY)  # فقط هكذا، بدون أي معاملات إضافية
 
-# =========================================================== #
-# قائمة النماذج
-# =========================================================== #
-GROQ_MODELS = {
-    "1": {"name": "openai/gpt-oss-120b", "desc": "GPT-OSS 120B - نموذج متقدم"},
-    "2": {"name": "openai/gpt-oss-20b", "desc": "GPT-OSS 20B - أسرع وأخف"},
-    "3": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - قوي من Meta"},
-    "4": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
-    "5": {"name": "mixtral-8x7b-32768", "desc": "Mixtral 8x7B - سياق طويل"},
-    "6": {"name": "mistral-saba-24b", "desc": "Mistral Saba - ممتاز بالعربية"},
-}
+import requests
+import json
 
-DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
-DEFAULT_GROQ_TEMPERATURE = 1.0
+GROQ_API_KEY = "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"
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# تخزين محادثات المستخدمين
-user_groq_conversations = {}
+# لا نستخدم مكتبة groq نهائياً! نستخدم requests فقط
 
-async def get_groq_response(user_id, question):
-    """الحصول على رد من Groq API"""
-    try:
-        if user_id not in user_groq_conversations:
-            user_groq_conversations[user_id] = []
-        
-        # إضافة سؤال المستخدم
-        user_groq_conversations[user_id].append({
-            "role": "user",
-            "content": question
-        })
-        
-        # الاحتفاظ بآخر 6 رسائل فقط
-        if len(user_groq_conversations[user_id]) > 6:
-            user_groq_conversations[user_id] = user_groq_conversations[user_id][-6:]
-        
-        # استدعاء Groq API
-        completion = groq_client.chat.completions.create(
-            model=DEFAULT_GROQ_MODEL,
-            messages=user_groq_conversations[user_id],
-            temperature=DEFAULT_GROQ_TEMPERATURE,
-            max_tokens=2000,
-            stream=False
-        )
-        
-        answer = completion.choices[0].message.content
-        
-        # حفظ رد المساعد
-        user_groq_conversations[user_id].append({
-            "role": "assistant",
-            "content": answer
-        })
-        
-        return answer
-        
-    except Exception as e:
-        error_msg = str(e)
-        if "rate_limit" in error_msg.lower():
-            return "⚠️ تم تجاوز حد الطلبات (1000 طلب/يوم)"
-        return f"⚠️ خطأ: {error_msg[:100]}"
-
-# =========================================================== #
-# الأمر الرئيسي
-# =========================================================== #
 @l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
-async def groq_chat(event):
+async def groq_simple(event):
     question = event.pattern_match.group(1)
-    zzz = await event.get_reply_message()
     
-    if not question and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**مثال:** `.جروك من هو مكتشف الجاذبية`")
-    
-    if not question and event.reply_to_msg_id and zzz.text:
-        question = zzz.text
+    if not question:
+        return await edit_or_reply(event, "**✧╎أضف سؤالك بعد الأمر**\nمثال: `.جروك من انت`")
     
     zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ Groq AI ...**")
     
-    answer = await get_groq_response(event.sender_id, question)
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json"
+    }
     
-    await zed.edit(
-        f"ᯓ **Groq AI** - الذكاء الاصطناعي\n"
-        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"**• سؤال:** {question[:100]}\n\n"
-        f"**• جواب:** {answer}\n"
-        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"**⎉╎النموذج:** {DEFAULT_GROQ_MODEL}",
-        link_preview=False
-        )
+    payload = {
+        "model": "openai/gpt-oss-120b",
+        "messages": [{"role": "user", "content": question}],
+        "temperature": 1.0,
+        "max_tokens": 2000
+    }
+    
+    try:
+        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            result = response.json()
+            answer = result["choices"][0]["message"]["content"]
+            
+            await zed.edit(f"**✧╎سؤالك:** {question}\n\n**✧╎إجابة Groq AI:**\n{answer}")
+        else:
+            await zed.edit(f"**✧╎خطأ {response.status_code}:** تحقق من المفتاح أو النموذج")
+            
+    except Exception as e:
+        await zed.edit(f"**✧╎حدث خطأ:** {str(e)[:100]}")

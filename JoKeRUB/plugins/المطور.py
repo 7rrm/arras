@@ -34,80 +34,54 @@ async def my_event_handler(event):
             os.remove("event_info.txt")
 
 progs = [5427469031, 5462630004]
-
-@l313l.on(events.NewMessage(incoming=True))
-async def reda(event):
-    if event.reply_to and event.sender_id in progs:
-       reply_msg = await event.get_reply_message()
-       owner_id = reply_msg.from_id.user_id
-       if owner_id == l313l.uid:
-           if event.message.message == "حظر من السورس":
-               await event.reply("**- حَاظَر مُطَوِرِي ، لَقَد تَم حَظَرَه مِن اِسَتِخدَام اَلسَورَس .**")
-               addgvar("blockedfrom", "yes")
-           elif event.message.message == "الغاء الحظر من السورس":
-               await event.reply("**- حَاظَر مُطَوِرِي، لَقَد أَلغَيت الحَظَر .**")
-               delgvar("blockedfrom")
-
-@l313l.on(events.NewMessage(incoming=True))
-async def Hussein(event):
-    if event.reply_to and event.sender_id in progs:
-        reply_msg = await event.get_reply_message()
-        owner_id = reply_msg.from_id.user_id
-        if owner_id == l313l.uid:
-            if event.message.message == "شيع الولد":
-                animation_interval = 4
-                animation_ttl = range(4)
-                animation_chars = [
-                    "**بِسِمٍّ اللّٰه وَبِاَللَّهِ**",
-                    "**أَشْهَد أَلَّا إِلَهَ إِلَّا اَللَّه وَحْدَهُ لَا شَرِيكَ لَه**",
-                    "**وَأَشْهَدُ أَنَّ مُحَمَّدْ عَبْدُهْ وَرَسُولُهُ**",
-                    "**وَأَشْهَد أَنَّ عَلَى وَلِيِّ اَللَّهِ وَأَوْلَادِهِ اَلْمَعْصُومِينَ بِالْحَقِّ حُجَجِ اَللَّهِ**",
-                ]
-                for i in animation_ttl:
-                    await asyncio.sleep(animation_interval)
-                    await event.reply(animation_chars[i % 14])
-@l313l.on(events.NewMessage(incoming=True))
-async def Hussein(event):
-    if event.reply_to and event.sender_id in progs:
-        reply_msg = await event.get_reply_message()
-        owner_id = reply_msg.from_id.user_id
-        if owner_id == l313l.uid:
-            if event.message.message == "انتة شنو":
-                url = f"https://t.me/MemeSoundJep/105"
-                await event.reply("اني مطي 🦓")
-                await asyncio.sleep(1) 
-                await event.reply(file=url)
-                
-                
-
-
 DevJoker = [5462630004, 5427469031]
 
+import asyncio
+from telethon import events
+
 @l313l.on(events.NewMessage(incoming=True))
-async def Hussein(event):
-    if event.reply_to and event.sender_id in DevJoker:
-        reply_msg = await event.get_reply_message()
+async def handle_all_commands(event):
+    # التأكد من أن الرسالة رد على بوتك
+    if not event.reply_to:
+        return
+    
+    reply_msg = await event.get_reply_message()
+    if not reply_msg or reply_msg.from_id.user_id != l313l.uid:
+        return
+    
+    # أوامر المطورين الأساسيين
+    if event.sender_id in progs:
+        msg = event.message.message
         
-        if reply_msg.from_id:
-            owner_id = reply_msg.from_id.user_id
-            
-            if owner_id == l313l.uid:
-                # أمر منصب؟
-                if event.message.message == "منصب؟":
-                    await event.reply("**يب منصب ✓**")
-                
-                # أمر منو فخر العرب؟
-                elif event.message.message == "منو فخر العرب؟":
-                    await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
-                
-                # أمر دز
-                elif event.message.message.startswith("دز"):
-                    # استخراج النص بعد كلمة "دز"
-                    message_text = event.message.message[2:].strip()
-                    
-                    if message_text:
-                        # الرد على المنصب بالرسالة
-                        await event.reply(message_text)
-                   #     await event.delete()  # حذف رسالة الأمر
-                 #   else:
-                   #     await event.reply("**❌ يجب كتابة رسالة بعد كلمة دز**\nمثال: `دز احبك`")
+        if msg == "حظر من السورس":
+            await event.reply("**- حَاظَر مُطَوِرِي ، لَقَد تَم حَظَرَه مِن اِسَتِخدَام اَلسَورَس .**")
+            addgvar("blockedfrom", "yes")
+        
+        elif msg == "الغاء الحظر من السورس":
+            await event.reply("**- حَاظَر مُطَوِرِي، لَقَد أَلغَيت الحَظَر .**")
+            delgvar("blockedfrom")
+        
+        elif msg == "شيع الولد":
+            for text in ["**بِسِمٍّ اللّٰه وَبِاَللَّهِ**", "**أَشْهَد أَلَّا إِلَهَ إِلَّا اَللَّه**", "**وَأَشْهَدُ أَنَّ مُحَمَّدْ عَبْدُهْ**", "**وَأَشْهَد أَنَّ عَلَى وَلِيِّ اَللَّهِ**"]:
+                await event.reply(text)
+                await asyncio.sleep(4)
+        
+        elif msg == "انتة شنو":
+            await event.reply("اني مطي 🦓")
+            await asyncio.sleep(1)
+            await event.reply(file="https://t.me/MemeSoundJep/105")
+    
+    # أوامر DevJoker
+    elif event.sender_id in DevJoker:
+        msg = event.message.message
+        
+        if msg == "منصب؟":
+            await event.reply("**يب منصب ✓**")
+        
+        elif msg == "منو فخر العرب؟":
+            await event.reply("**الأمام علي عليه الصلاة والسلام ❤️**")
+        
+        elif msg.startswith("دز"):
+            text = msg[2:].strip()
+            if text:
+                await event.reply(text)

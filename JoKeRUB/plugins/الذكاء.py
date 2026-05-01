@@ -149,14 +149,13 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
 
 # =========================================================== #
-# قائمة النماذج (مع الوصف كـ نص وأزرار 5 في سطر)
+# قائمة النماذج (مع وصف كل نموذج وأزرار 5 في سطر)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
 @check_owner
 async def groq_models_menu(event):
-    """عرض قائمة النماذج مع الوصف كـ نص وأزرار أسفلها (5 في سطر)"""
-    # عرض النماذج كنص مع وصفها
+    """عرض قائمة النماذج مع الوصف وأسفلها أزرار (5 في سطر)"""
     models_text = "**جميع النماذج المتاحة في Groq:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
     for key, model in GROQ_MODELS.items():
         models_text += f"**{key}** - {model['desc']}\n"
@@ -180,7 +179,8 @@ async def groq_models_menu(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_model_(\\d+)")))
 @check_owner
 async def groq_set_model(event):
-    model_key = event.data_match.group(1)
+    # ✅ تحويل من bytes إلى str
+    model_key = event.data_match.group(1).decode()
     user_id = event.query.user_id
     model_name = GROQ_MODELS[model_key]["name"]
     model_desc = GROQ_MODELS[model_key]["desc"]
@@ -220,7 +220,8 @@ async def groq_temp_menu(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_temp_(.*)")))
 @check_owner
 async def groq_set_temp(event):
-    temp_value = float(event.data_match.group(1))
+    # ✅ تحويل من bytes إلى str
+    temp_value = float(event.data_match.group(1).decode())
     user_id = event.query.user_id
     
     save_user_temp(user_id, temp_value)
@@ -340,4 +341,4 @@ async def groq_chat(event):
         f"**الحرارة:** `{temp}`\n"
         f"**للتعديل:** `.اعدادات جروك`",
         link_preview=False
-                             )
+        )

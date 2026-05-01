@@ -153,10 +153,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                     model_desc = m["desc"]
                     break
             
-            text = f"اعدادات الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-            text += f"النموذج:\n{model_desc}\n\n"
-            text += f"الحرارة: {temp}\n\n"
-            text += f"السجل: {conv_count}\n\n"
+            text = f"ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+            text += f"النمـوذج:\n`{model_desc}`\n\n"
+            text += f"الحـرارة: {temp}\n"
+            text += f"السجـل: {conv_count}\n\n"
             text += f"اختر الإعداد الذي تريد تغييره:"
             
             buttons = [

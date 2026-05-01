@@ -18,23 +18,32 @@ GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 # جميع النماذج المتاحة (17 نموذج)
 # =========================================================== #
 GROQ_MODELS = {
+    # 🤖 OpenAI
     "1": {"name": "openai/gpt-oss-120b", "desc": "GPT-OSS 120B - نموذج متقدم من OpenAI"},
     "2": {"name": "openai/gpt-oss-20b", "desc": "GPT-OSS 20B - نسخة أسرع وأخف"},
-    "3": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - نموذج قوي من Meta"},
-    "4": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
-    "5": {"name": "mixtral-8x7b-32768", "desc": "Mixtral 8x7B - سياق طويل 32K"},
-    "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B - أحدث نماذج Meta"},
-    "7": {"name": "meta-llama/llama-4-maverick-17b-128e-instruct", "desc": "Llama 4 Maverick 17B - متقدم"},
-    "8": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
-    "9": {"name": "qwen/qwen3-14b", "desc": "Qwen 3 14B - نسخة متوسطة"},
-    "10": {"name": "qwen/qwen3-8b", "desc": "Qwen 3 8B - نسخة سريعة"},
-    "11": {"name": "moonshotai/kimi-k2-instruct-0905", "desc": "Kimi K2 - سياق عملاق 262K رمز"},
-    "12": {"name": "deepseek-r1-distill-llama-70b", "desc": "DeepSeek R1 - استدلال متقدم"},
-    "13": {"name": "mistral-saba-24b", "desc": "Mistral Saba - ممتاز للغة العربية"},
-    "14": {"name": "allam-2-7b", "desc": "ALLaM 2 7B - نموذج عربي"},
-    "15": {"name": "gemma2-9b-it", "desc": "Gemma 2 9B - من Google"},
-    "16": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب)"},
-    "17": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
+    "3": {"name": "openai/gpt-oss-safeguard-20b", "desc": "GPT-OSS Safeguard - حماية المحتوى"},
+    
+    # 🦙 Meta
+    "4": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - نموذج قوي من Meta"},
+    "5": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
+    "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B"},
+    "7": {"name": "meta-llama/llama-prompt-guard-2-22m", "desc": "Prompt Guard 22M - كشف الهجمات"},
+    "8": {"name": "meta-llama/llama-prompt-guard-2-86m", "desc": "Prompt Guard 86M - كشف الهجمات"},
+    
+    # 🛠️ Groq Systems
+    "9": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب + كود)"},
+    "10": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
+    
+    # ☁️ Alibaba Cloud
+    "11": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
+    
+    # 🏢 Canopy Labs (نماذج صوتية)
+    "12": {"name": "canopylabs/orpheus-arabic-saudi", "desc": "Orpheus - نص → كلام (عربي سعودي)"},
+    "13": {"name": "canopylabs/orpheus-v1-english", "desc": "Orpheus - نص → كلام (إنجليزي)"},
+    
+    # 🎤 Whisper (تحويل الصوت لنص)
+    "14": {"name": "whisper-large-v3", "desc": "Whisper V3 - صوت → نص"},
+    "15": {"name": "whisper-large-v3-turbo", "desc": "Whisper Turbo - صوت → نص (سريع)"},
 }
 
 # الإعدادات الافتراضية

@@ -378,7 +378,7 @@ async def groq_chat(event):
         f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"<b>السؤال:</b> <code>{question[:50]}</code>\n\n"
-        f"<b>الجواب:</b> {formatted_answer}\n\n"
+        f"<b>الجواب:</b> {formatted_answer}\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"<b>النموذج:</b> <code>{model_short}</code>",
         link_preview=False,

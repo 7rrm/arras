@@ -12,7 +12,8 @@ import traceback
 from telethon import Button, events
 from telethon.errors import FloodWaitError
 from ..core.logger import logging
-from ..core.managers import edit_or_reply, check_owner
+from ..core.managers import edit_or_reply
+from ..core import check_owner
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from . import l313l, Config
 

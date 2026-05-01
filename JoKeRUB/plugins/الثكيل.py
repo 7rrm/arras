@@ -514,9 +514,12 @@ async def break_word_on_trigger(event):
         if match:
             word = match.group(1).strip()
             word = re.sub(r'[\s\n]+', '', word)
+            # إضافة: إزالة النقطة من النهاية إذا وجدت
+            if word.endswith('.'):
+                word = word[:-1]
             if word:
                 letters = ' '.join(list(word))
-                await asyncio.sleep(1)
+                await asyncio.sleep(1.5)
                 await event.reply(letters)
 
 # ============================================

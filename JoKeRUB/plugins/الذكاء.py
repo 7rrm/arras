@@ -98,7 +98,7 @@ async def get_groq_response(user_id, question):
             "stream": False
         }
         
-        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=30)
+        response = requests.post(GROQ_URL, headers=headers, json=payload, timeout=60)
         
         if response.status_code == 200:
             result = response.json()
@@ -259,6 +259,25 @@ async def groq_clear_logs(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_back_to_main")))
 @check_owner
 async def groq_back_to_main(event):
+    user_id = event.query.user_id
+    model = get_user_model(user_id)
+    temp = get_user_temp(user_id)
+    conv_count = len(user_conversations.get(user_id, []))
+    
+    # الحصول على اسم النموذج المختصر
+    model_short = model.split("/")[-1]
+    model_desc = "غير معروف"
+    for key, m in GROQ_MODELS.items():
+        if m["name"] == model:
+            model_desc = m["desc"]
+            break
+    
+    text = f"**اعدادات الذكاء الاصطناعي**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+    text += f"**النموذج:**\n{model_desc}\n\n"
+    text += f"**الحرارة:** `{temp}`\n\n"
+    text += f"**السجل:** `{conv_count}`\n\n"
+    text += f"**اختر الإعداد الذي تريد تغييره:**"
+    
     buttons = [
         [Button.inline("النموذج", data="groq_models_menu", style="primary")],
         [Button.inline("الحرارة", data="groq_temp_menu", style="primary")],
@@ -266,8 +285,7 @@ async def groq_back_to_main(event):
         [Button.inline("إغلاق", data="groq_close", style="danger")]
     ]
     
-    await event.edit("**اعدادات الذكاء الاصطناعي**\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\nاختر الإعداد الذي تريد تغييره:",
-                     buttons=buttons, parse_mode="Markdown")
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 # =========================================================== #
 # إغلاق القائمة
@@ -279,7 +297,7 @@ async def groq_close(event):
     await event.edit("**تم إغلاق القائمة**", buttons=None, parse_mode="Markdown")
 
 # =========================================================== #
-# أمر اعدادات الذكاء (بدلاً من اعدادات جروك)
+# أمر اعدادات الذكاء
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="اعدادات الذكاء$")
@@ -325,12 +343,16 @@ async def groq_chat(event):
     temp = get_user_temp(event.sender_id)
     model_short = model.split("/")[-1]
     
+    # تنسيق الجواب مع blockquote
+    formatted_answer = f"<blockquote>{answer}</blockquote>"
+    
     await zed.edit(
         f"ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - **الذكـاء الأصطناعَـي**\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"**السؤال:** {question[:30]}\n\n"
-        f"~~الجواب:~~ `{answer}`\n"
-        f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+        f"**السؤال:** {question[:50]}\n\n"
+        f"**الجواب:** {formatted_answer}\n\n"
+        f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"**النموذج:** `{model_short}`",
-        link_preview=False
+        link_preview=False,
+        parse_mode="HTML"
     )

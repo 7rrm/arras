@@ -1,59 +1,40 @@
 # =========================================================== #
-# ملف: groq_ai.py
-# كود Groq AI - نظام متكامل بالأزرار عبر Inline Query
+# كود Groq الكامل - مع أزرار تفاعلية
 # =========================================================== #
 
-import asyncio
 import requests
 import json
 import re
-import traceback
-
 from telethon import Button, events
-from telethon.errors import FloodWaitError
-from ..core.logger import logging
-from ..core.managers import edit_or_reply
-from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from . import l313l, Config
+from telethon.events import CallbackQuery
+from ..core import check_owner
+from ..Config import Config
+from . import l313l
 
-LOGS = logging.getLogger(__name__)
-plugin_category = "الذكاء الاصطناعي"
-
-# =========================================================== #
-# إعدادات Groq API
-# =========================================================== #
 GROQ_API_KEY = "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"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # =========================================================== #
-# جميع النماذج المتاحة
+# جميع النماذج المتاحة (17 نموذج)
 # =========================================================== #
 GROQ_MODELS = {
-    "1": {"name": "openai/gpt-oss-120b", "desc": "GPT-OSS 120B - متقدم من OpenAI"},
-    "2": {"name": "openai/gpt-oss-20b", "desc": "GPT-OSS 20B - أسرع وأخف"},
-    "3": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - قوي من Meta"},
+    "1": {"name": "openai/gpt-oss-120b", "desc": "GPT-OSS 120B - نموذج متقدم من OpenAI"},
+    "2": {"name": "openai/gpt-oss-20b", "desc": "GPT-OSS 20B - نسخة أسرع وأخف"},
+    "3": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - نموذج قوي من Meta"},
     "4": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
-    "5": {"name": "mixtral-8x7b-32768", "desc": "Mixtral 8x7B - سياق 32K"},
-    "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B - احدث نموذج"},
+    "5": {"name": "mixtral-8x7b-32768", "desc": "Mixtral 8x7B - سياق طويل 32K"},
+    "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B - أحدث نماذج Meta"},
     "7": {"name": "meta-llama/llama-4-maverick-17b-128e-instruct", "desc": "Llama 4 Maverick 17B - متقدم"},
     "8": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
     "9": {"name": "qwen/qwen3-14b", "desc": "Qwen 3 14B - نسخة متوسطة"},
-    "10": {"name": "qwen/qwen3-8b", "desc": "Qwen 3 8B - سريع"},
-    "11": {"name": "moonshotai/kimi-k2-instruct-0905", "desc": "Kimi K2 - سياق 262K"},
-    "12": {"name": "deepseek-r1-distill-llama-70b", "desc": "DeepSeek R1 - استدلال"},
-    "13": {"name": "mistral-saba-24b", "desc": "Mistral Saba - ممتاز للعربية ⭐"},
+    "10": {"name": "qwen/qwen3-8b", "desc": "Qwen 3 8B - نسخة سريعة"},
+    "11": {"name": "moonshotai/kimi-k2-instruct-0905", "desc": "Kimi K2 - سياق عملاق 262K رمز"},
+    "12": {"name": "deepseek-r1-distill-llama-70b", "desc": "DeepSeek R1 - استدلال متقدم"},
+    "13": {"name": "mistral-saba-24b", "desc": "Mistral Saba - ممتاز للغة العربية ⭐"},
     "14": {"name": "allam-2-7b", "desc": "ALLaM 2 7B - نموذج عربي"},
     "15": {"name": "gemma2-9b-it", "desc": "Gemma 2 9B - من Google"},
-    "16": {"name": "groq/compound", "desc": "Compound - بحث ويب"},
-    "17": {"name": "groq/compound-mini", "desc": "Compound Mini - خفيف"},
-}
-
-# درجات الحرارة
-TEMPERATURE_VALUES = [0.0, 0.3, 0.5, 0.7, 1.0, 1.2, 1.5, 1.7, 2.0]
-TEMPERATURE_NAMES = {
-    0.0: "بارد جداً ❄️", 0.3: "بارد 🧊", 0.5: "معتدل 🌤️",
-    0.7: "دافئ ☀️", 1.0: "طبيعي ⚖️", 1.2: "إبداعي 🎨",
-    1.5: "مبدع جداً ✨", 1.7: "عشوائي 🎲", 2.0: "جنوني 🤪"
+    "16": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب)"},
+    "17": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
 }
 
 # الإعدادات الافتراضية
@@ -61,71 +42,47 @@ DEFAULT_MODEL = "openai/gpt-oss-120b"
 DEFAULT_TEMPERATURE = 1.0
 
 # تخزين إعدادات كل مستخدم
-groq_user_model = {}
-groq_user_temp = {}
-groq_user_conversations = {}
+user_model = {}
+user_temp = {}
+user_conversations = {}
 
 # =========================================================== #
 # دوال مساعدة
 # =========================================================== #
 def get_user_model(user_id):
-    try:
-        return groq_user_model.get(user_id, DEFAULT_MODEL)
-    except Exception:
-        return DEFAULT_MODEL
+    return user_model.get(user_id, DEFAULT_MODEL)
 
 def get_user_temp(user_id):
-    try:
-        return groq_user_temp.get(user_id, DEFAULT_TEMPERATURE)
-    except Exception:
-        return DEFAULT_TEMPERATURE
+    return user_temp.get(user_id, DEFAULT_TEMPERATURE)
 
 def save_user_model(user_id, model):
-    try:
-        groq_user_model[user_id] = model
-    except Exception as e:
-        LOGS.error(f"خطأ في حفظ النموذج: {e}")
+    user_model[user_id] = model
 
 def save_user_temp(user_id, temp):
-    try:
-        groq_user_temp[user_id] = temp
-    except Exception as e:
-        LOGS.error(f"خطأ في حفظ الحرارة: {e}")
+    user_temp[user_id] = temp
 
 def clear_user_conversation(user_id):
-    try:
-        if user_id in groq_user_conversations:
-            groq_user_conversations[user_id] = []
-    except Exception as e:
-        LOGS.error(f"خطأ في مسح السجل: {e}")
-
-def get_model_desc(model_name):
-    try:
-        for key, model in GROQ_MODELS.items():
-            if model.get("name") == model_name:
-                return model.get("desc", model_name)
-        return model_name
-    except Exception:
-        return model_name
+    if user_id in user_conversations:
+        user_conversations[user_id] = []
 
 # =========================================================== #
-# دالة الرد من Groq
+# دالة الرد من Groq مع السياق
 # =========================================================== #
 async def get_groq_response(user_id, question):
     try:
         model = get_user_model(user_id)
         temp = get_user_temp(user_id)
         
-        if user_id not in groq_user_conversations:
-            groq_user_conversations[user_id] = []
+        if user_id not in user_conversations:
+            user_conversations[user_id] = []
         
-        groq_user_conversations[user_id].append({
+        user_conversations[user_id].append({
             "role": "user",
             "content": question
         })
         
-        if len(groq_user_conversations[user_id]) > 8:
-            groq_user_conversations[user_id] = groq_user_conversations[user_id][-8:]
+        if len(user_conversations[user_id]) > 8:
+            user_conversations[user_id] = user_conversations[user_id][-8:]
         
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
@@ -134,7 +91,7 @@ async def get_groq_response(user_id, question):
         
         payload = {
             "model": model,
-            "messages": groq_user_conversations[user_id],
+            "messages": user_conversations[user_id],
             "temperature": temp,
             "max_tokens": 2000,
             "top_p": 1,
@@ -145,321 +102,273 @@ async def get_groq_response(user_id, question):
         
         if response.status_code == 200:
             result = response.json()
+            answer = result["choices"][0]["message"]["content"]
             
-            if result and "choices" in result and len(result["choices"]) > 0:
-                if "message" in result["choices"][0] and "content" in result["choices"][0]["message"]:
-                    answer = result["choices"][0]["message"]["content"]
-                    
-                    groq_user_conversations[user_id].append({
-                        "role": "assistant",
-                        "content": answer
-                    })
-                    
-                    return answer
-                else:
-                    return "⚠️ **تنسيق رد غير متوقع**"
-            else:
-                return "⚠️ **تنسيق رد غير متوقع**"
-                
+            user_conversations[user_id].append({
+                "role": "assistant",
+                "content": answer
+            })
+            
+            return answer
         elif response.status_code == 429:
-            return "⚠️ **تم تجاوز حد الطلبات** (1000 طلب/يوم)"
+            return "⚠️ **تم تجاوز حد الطلبات** (1000 طلب/يوم). الرجاء المحاولة لاحقاً."
         else:
-            return f"⚠️ **خطأ {response.status_code}:** تحقق من المفتاح"
-            
-    except requests.exceptions.Timeout:
-        return "⚠️ **انتهى الوقت** - حاول مرة أخرى"
-    except Exception as e:
-        LOGS.error(f"خطأ: {traceback.format_exc()}")
-        return f"⚠️ **حدث خطأ:** {str(e)[:100]}"
-
-# =========================================================== #
-# الأوامر
-# =========================================================== #
-
-# أمر اعدادات جروك
-@l313l.ar_cmd(pattern="اعدادات جروك$")
-async def groq_settings_cmd(event):
-    """عرض إعدادات Groq AI"""
-    if Config.TG_BOT_USERNAME:
-        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_settings")
-        await response[0].click(event.chat_id)
-        await event.delete()
-    else:
-        await edit_or_reply(event, "**- يرجى تعيين متغير TG_BOT_USERNAME اولا**")
-
-# أمر جروك الرئيسي
-@l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
-async def groq_chat(event):
-    try:
-        question = event.pattern_match.group(1)
-        reply_msg = await event.get_reply_message()
-        
-        # إذا لم يوجد سؤال
-        if not question and not reply_msg:
-            return await edit_or_reply(event, 
-                "**✧╎🤖 Groq AI - الذكاء الاصطناعي**\n"
-                "**⎉╎للرد على سؤال:** `.جروك نص السؤال`\n"
-                "**⎉╎أو الرد على رسالة بـ:** `.جروك`\n"
-                "**⎉╎للإعدادات:** `.اعدادات جروك`\n"
-                "**⎉╎لمسح السجل:** `.جروك مسح`")
-        
-        # أمر مسح السجل
-        if question and question.strip() in ["مسح", "حذف", "clear"]:
-            clear_user_conversation(event.sender_id)
-            return await edit_or_reply(event, "**✧╎🗑️ تم حذف سجل المحادثة بنجاح ✅**")
-        
-        # جلب السؤال من الرد
-        if not question and reply_msg and reply_msg.text:
-            question = reply_msg.text
-        
-        if not question:
-            return await edit_or_reply(event, "**❌ يرجى كتابة سؤال أو الرد على رسالة**")
-        
-        # الرد على السؤال
-        zed = await edit_or_reply(event, "**✧╎🤔 جـارِ التفكير ...**")
-        
-        answer = await get_groq_response(event.sender_id, question)
-        
-        model = get_user_model(event.sender_id)
-        temp = get_user_temp(event.sender_id)
-        model_short = model.split("/")[-1].replace("-", " ").title()
-        
-        await zed.edit(
-            f"**🤖 Groq AI**\n⋆┄─┄─┄─┄─┄─┄─┄┄⋆\n\n"
-            f"**• السؤال:** {question[:200]}\n\n"
-            f"**• الجواب:** {answer}\n"
-            f"⋆┄─┄─┄─┄─┄─┄─┄┄⋆\n"
-            f"**⎉╎النموذج:** `{model_short}`\n"
-            f"**⎉╎الحرارة:** `{temp}`\n"
-            f"**⎉╎للتغيير:** `.اعدادات جروك`",
-            link_preview=False
-        )
+            return f"⚠️ **خطأ {response.status_code}:** تحقق من المفتاح أو النموذج"
             
     except Exception as e:
-        LOGS.error(f"خطأ: {traceback.format_exc()}")
-        await edit_or_reply(event, f"**❌ حدث خطأ:** {str(e)[:100]}")
+        return f"⚠️ **حدث خطأ:** {str(e)[:150]}"
 
 # =========================================================== #
-# نظام Inline Query
+# الاستعلام المضمن (grokk)
 # =========================================================== #
-if Config.TG_BOT_USERNAME is not None and hasattr(l313l, 'tgbot') and l313l.tgbot is not None:
 
-    @l313l.tgbot.on(events.InlineQuery)
-    async def inline_handler_groq(event):
+if Config.TG_BOT_USERNAME is not None and tgbot is not None:
+    @tgbot.on(events.InlineQuery)
+    @check_owner
+    async def inline_grokk_handler(event):
         builder = event.builder
         query = event.text
         
-        # ✅ استعلام grokk_settings - القائمة الرئيسية
-        if query.startswith("grokk_settings") and event.query.user_id == l313l.uid:
-            user_id = event.query.user_id
-            model_desc = get_model_desc(get_user_model(user_id))
-            temp = get_user_temp(user_id)
-            conv_count = len(groq_user_conversations.get(user_id, []))
-            
-            text = f"**🤖 إعدادات Groq AI**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-            text += f"**📌 النموذج:**\n{model_desc}\n\n"
-            text += f"**🌡️ الحرارة:** `{temp}` - {TEMPERATURE_NAMES.get(temp, 'طبيعي ⚖️')}\n\n"
-            text += f"**💬 السجل:** {conv_count} رسالة\n\n"
-            text += f"**⎉╎اختر ما تريد تغييره:**"
-            
+        if query.startswith("grokk") and event.query.user_id == l313l.uid:
             buttons = [
-                [Button.inline("🎛️ النموذج", data="groq_show_models")],
-                [Button.inline("🌡️ الحرارة", data="groq_show_temp")],
-                [Button.inline("🗑️ السجل", data="groq_show_chat")],
-                [Button.inline("❌ إغلاق", data="groq_close")]
+                [Button.inline("🎛️ النموذج", data="groq_models_menu", style="primary")],
+                [Button.inline("🌡️ الحرارة", data="groq_temp_menu", style="primary")],
+                [Button.inline("💬 السجل", data="groq_logs_menu", style="primary")],
+                [Button.inline("❌ إغلاق", data="groq_close", style="danger")]
             ]
             
-            result = builder.article(
-                title="🎛️ إعدادات Groq AI",
-                text=text,
-                buttons=buttons,
-                parse_mode="md"
+            await event.answer(
+                [await builder.article(
+                    title="🤖 إعدادات Groq AI",
+                    description="تخصيص الذكاء الاصطناعي",
+                    text="**⚙️ إعدادات Groq AI**\nاختر الإعداد الذي تريد تغييره:",
+                    buttons=buttons,
+                    link_preview=False,
+                )],
+                cache_time=0
             )
-            await event.answer([result])
-            return
-        
-        # ✅ استعلام grokk_models - قائمة النماذج
-        if query.startswith("grokk_models") and event.query.user_id == l313l.uid:
-            buttons = []
-            
-            buttons.append([Button.inline("1 - GPT-OSS 120B (متقدم)", data="groq_model_1")])
-            buttons.append([Button.inline("2 - GPT-OSS 20B (سريع)", data="groq_model_2")])
-            buttons.append([Button.inline("3 - Llama 3.3 70B (قوي)", data="groq_model_3")])
-            buttons.append([Button.inline("4 - Llama 3.1 8B (سريع جداً)", data="groq_model_4")])
-            buttons.append([Button.inline("5 - Mixtral 8x7B (سياق طويل)", data="groq_model_5")])
-            buttons.append([Button.inline("6 - Llama 4 Scout 17B", data="groq_model_6")])
-            buttons.append([Button.inline("7 - Llama 4 Maverick 17B", data="groq_model_7")])
-            buttons.append([Button.inline("8 - Qwen 3 32B (استدلال)", data="groq_model_8")])
-            buttons.append([Button.inline("9 - Qwen 3 14B (متوسط)", data="groq_model_9")])
-            buttons.append([Button.inline("10 - Qwen 3 8B (سريع)", data="groq_model_10")])
-            buttons.append([Button.inline("11 - Kimi K2 (سياق 262K)", data="groq_model_11")])
-            buttons.append([Button.inline("12 - DeepSeek R1 (استدلال)", data="groq_model_12")])
-            buttons.append([Button.inline("13 - Mistral Saba (عربي ⭐)", data="groq_model_13")])
-            buttons.append([Button.inline("14 - ALLaM 2 7B (عربي)", data="groq_model_14")])
-            buttons.append([Button.inline("15 - Gemma 2 9B (Google)", data="groq_model_15")])
-            buttons.append([Button.inline("16 - Compound (بحث ويب)", data="groq_model_16")])
-            buttons.append([Button.inline("17 - Compound Mini (خفيف)", data="groq_model_17")])
-            buttons.append([Button.inline("🔙 رجوع", data="groq_back_main")])
-            
-            text = f"**🎛️ اختيار النموذج:**\n⋆┄─┄─┄─┄─┄─┄─┄┄⋆\n\n"
-            text += "**⚠️ ملاحظة:** تغيير النموذج سيؤدي إلى مسح سجل المحادثة\n\n"
-            text += f"**⎉╎النموذج الحالي:**\n{get_model_desc(get_user_model(event.query.user_id))}"
-            
-            result = builder.article(
-                title="🎛️ تغيير النموذج",
-                text=text,
-                buttons=buttons,
-                parse_mode="md"
-            )
-            await event.answer([result])
-            return
-        
-        # ✅ استعلام grokk_temp - قائمة الحرارة
-        if query.startswith("grokk_temp") and event.query.user_id == l313l.uid:
-            buttons = []
-            
-            buttons.append([Button.inline("0.0 - بارض جداً ❄️", data="groq_temp_0.0")])
-            buttons.append([Button.inline("0.3 - بارد 🧊", data="groq_temp_0.3")])
-            buttons.append([Button.inline("0.5 - معتدل 🌤️", data="groq_temp_0.5")])
-            buttons.append([Button.inline("0.7 - دافئ ☀️", data="groq_temp_0.7")])
-            buttons.append([Button.inline("1.0 - طبيعي ⚖️", data="groq_temp_1.0")])
-            buttons.append([Button.inline("1.2 - إبداعي 🎨", data="groq_temp_1.2")])
-            buttons.append([Button.inline("1.5 - مبدع جداً ✨", data="groq_temp_1.5")])
-            buttons.append([Button.inline("1.7 - عشوائي 🎲", data="groq_temp_1.7")])
-            buttons.append([Button.inline("2.0 - جنوني 🤪", data="groq_temp_2.0")])
-            buttons.append([Button.inline("🔙 رجوع", data="groq_back_main")])
-            
-            current_temp = get_user_temp(event.query.user_id)
-            
-            text = f"**🌡️ اختيار درجة الحرارة:**\n⋆┄─┄─┄─┄─┄─┄─┄┄⋆\n\n"
-            text += f"**⎉╎الحرارة الحالية:** `{current_temp}`\n"
-            text += f"**⎉╎الوصف:** {TEMPERATURE_NAMES.get(current_temp, 'طبيعي ⚖️')}\n\n"
-            text += "**⎉╎اختر الدرجة المناسبة:**"
-            
-            result = builder.article(
-                title="🌡️ تغيير درجة الحرارة",
-                text=text,
-                buttons=buttons,
-                parse_mode="md"
-            )
-            await event.answer([result])
-            return
-        
-        # ✅ استعلام grokk_chat - قائمة السجل
-        if query.startswith("grokk_chat") and event.query.user_id == l313l.uid:
-            user_id = event.query.user_id
-            conv_count = len(groq_user_conversations.get(user_id, []))
-            
-            buttons = [
-                [Button.inline("🗑️ حذف السجل", data="groq_clear_chat")],
-                [Button.inline("🔙 رجوع", data="groq_back_main")]
-            ]
-            
-            text = f"**🗑️ إدارة السجل:**\n⋆┄─┄─┄─┄─┄─┄─┄┄⋆\n\n"
-            text += f"**⎉╎عدد الرسائل في السجل:** `{conv_count}` رسالة\n\n"
-            
-            if conv_count > 0:
-                text += "**⎉╎سيتم حذف جميع رسائل المحادثة السابقة**\n"
-                text += "**⎉╎لن يتمكن الـ AI من تذكر السياق السابق**"
-            else:
-                text += "**⎉╎السجل فارغ حالياً**"
-            
-            result = builder.article(
-                title="🗑️ إدارة السجل",
-                text=text,
-                buttons=buttons,
-                parse_mode="md"
-            )
-            await event.answer([result])
-            return
 
 # =========================================================== #
-# معالجة الأزرار
+# قائمة النماذج (أزرار)
 # =========================================================== #
-if Config.TG_BOT_USERNAME is not None and hasattr(l313l, 'tgbot') and l313l.tgbot is not None:
 
-    @l313l.tgbot.on(events.CallbackQuery)
-    async def groq_callback(event):
-        try:
-            if not event.data:
-                return
-            
-            data = event.data.decode() if isinstance(event.data, bytes) else event.data
-            
-            # الرجوع للقائمة الرئيسية
-            if data == "groq_back_main":
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_settings")
-                await response[0].click(event.chat_id)
-                await event.answer()
-                return
-            
-            # إغلاق
-            if data == "groq_close":
-                await event.edit("**❌ تم إغلاق الإعدادات**")
-                await event.answer()
-                return
-            
-            # عرض قائمة النماذج
-            if data == "groq_show_models":
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_models")
-                await response[0].click(event.chat_id)
-                await event.answer()
-                return
-            
-            # عرض قائمة الحرارة
-            if data == "groq_show_temp":
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_temp")
-                await response[0].click(event.chat_id)
-                await event.answer()
-                return
-            
-            # عرض قائمة السجل
-            if data == "groq_show_chat":
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_chat")
-                await response[0].click(event.chat_id)
-                await event.answer()
-                return
-            
-            # حذف السجل
-            if data == "groq_clear_chat":
-                clear_user_conversation(event.sender_id)
-                await event.answer("✅ تم حذف سجل المحادثة!", alert=True)
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_settings")
-                await response[0].click(event.chat_id)
-                return
-            
-            # اختيار نموذج
-            if data.startswith("groq_model_"):
-                model_key = data.replace("groq_model_", "")
-                if model_key in GROQ_MODELS:
-                    new_model = GROQ_MODELS[model_key]["name"]
-                    old_model = get_user_model(event.sender_id)
-                    if new_model != old_model:
-                        save_user_model(event.sender_id, new_model)
-                        clear_user_conversation(event.sender_id)
-                        await event.answer(f"✅ تم تغيير النموذج إلى:\n{GROQ_MODELS[model_key]['desc']}", alert=True)
-                    else:
-                        await event.answer("ℹ️ هذا هو النموذج الحالي بالفعل", alert=True)
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_settings")
-                await response[0].click(event.chat_id)
-                return
-            
-            # اختيار درجة حرارة
-            if data.startswith("groq_temp_"):
-                temp_value = float(data.replace("groq_temp_", ""))
-                old_temp = get_user_temp(event.sender_id)
-                if temp_value != old_temp:
-                    save_user_temp(event.sender_id, temp_value)
-                    await event.answer(f"✅ تم تغيير درجة الحرارة إلى: {temp_value}", alert=True)
-                else:
-                    await event.answer("ℹ️ هذه هي درجة الحرارة الحالية", alert=True)
-                response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk_settings")
-                await response[0].click(event.chat_id)
-                return
-                
-        except Exception as e:
-            LOGS.error(f"خطأ: {traceback.format_exc()}")
-            try:
-                await event.answer(f"❌ خطأ: {str(e)[:50]}", alert=True)
-            except:
-                pass
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
+async def groq_models_menu(event):
+    """عرض قائمة النماذج (أزرار 2 في صف)"""
+    buttons = []
+    row = []
+    
+    for key, model in GROQ_MODELS.items():
+        row.append(Button.inline(f"{key}", data=f"groq_set_model_{key}", style="primary"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    
+    if row:
+        buttons.append(row)
+    
+    buttons.append([Button.inline("🔙 رجوع", data="groq_back_to_main", style="danger")])
+    
+    await event.edit("**🎛️ اختر النموذج الذي تريده:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆", 
+                     buttons=buttons, parse_mode="Markdown")
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_model_(\\d+)")))
+async def groq_set_model(event):
+    model_key = int(event.data_match.group(1))
+    user_id = event.query.user_id
+    model_name = GROQ_MODELS[str(model_key)]["name"]
+    model_desc = GROQ_MODELS[str(model_key)]["desc"]
+    
+    save_user_model(user_id, model_name)
+    clear_user_conversation(user_id)
+    
+    await event.edit(f"**✅ تم تغيير النموذج إلى:**\n{model_desc}\n\n**⎉╎تم مسح سجل المحادثة تلقائياً**",
+                     buttons=[[Button.inline("🔙 رجوع", data="groq_models_menu", style="primary")]],
+                     parse_mode="Markdown")
+
+# =========================================================== #
+# قائمة الحرارة (أزرار جاهزة)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_temp_menu")))
+async def groq_temp_menu(event):
+    """عرض خيارات الحرارة"""
+    current_temp = get_user_temp(event.query.user_id)
+    
+    buttons = [
+        [Button.inline(f"{'✅ ' if current_temp == 0 else ''}❄️ 0.0 - ثابت", data="groq_set_temp_0.0", style="primary")],
+        [Button.inline(f"{'✅ ' if current_temp == 0.5 else ''}🌿 0.5 - منخفض", data="groq_set_temp_0.5", style="primary")],
+        [Button.inline(f"{'✅ ' if current_temp == 1.0 else ''}⚖️ 1.0 - متوسط", data="groq_set_temp_1.0", style="primary")],
+        [Button.inline(f"{'✅ ' if current_temp == 1.5 else ''}🔥 1.5 - إبداعي", data="groq_set_temp_1.5", style="primary")],
+        [Button.inline(f"{'✅ ' if current_temp == 2.0 else ''}🎲 2.0 - عشوائي", data="groq_set_temp_2.0", style="primary")],
+        [Button.inline("🔙 رجوع", data="groq_back_to_main", style="danger")]
+    ]
+    
+    await event.edit("**🌡️ اختر درجة الحرارة:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+                     f"**• الحرارة الحالية:** `{current_temp}`\n\n"
+                     "**0.0** = ردود ثابتة ومتوقعة\n"
+                     "**1.0** = ردود متوسطة الإبداع\n"
+                     "**2.0** = ردود عشوائية وإبداعية جداً",
+                     buttons=buttons, parse_mode="Markdown")
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_temp_(.*)")))
+async def groq_set_temp(event):
+    temp_value = float(event.data_match.group(1))
+    user_id = event.query.user_id
+    
+    save_user_temp(user_id, temp_value)
+    
+    desc = ""
+    if temp_value <= 0.5:
+        desc = "ردود ثابتة ومتوقعة"
+    elif temp_value <= 1.5:
+        desc = "ردود متوسطة الإبداع"
+    else:
+        desc = "ردود عشوائية وإبداعية جداً"
+    
+    await event.edit(f"**✅ تم تغيير درجة الحرارة إلى:** `{temp_value}`\n\n**📝 الوصف:** {desc}",
+                     buttons=[[Button.inline("🔙 رجوع", data="groq_temp_menu", style="primary")]],
+                     parse_mode="Markdown")
+
+# =========================================================== #
+# قائمة السجل
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_logs_menu")))
+async def groq_logs_menu(event):
+    user_id = event.query.user_id
+    conv_count = len(user_conversations.get(user_id, []))
+    
+    buttons = [
+        [Button.inline("🗑️ حذف السجل", data="groq_clear_logs", style="danger")],
+        [Button.inline("🔙 رجوع", data="groq_back_to_main", style="primary")]
+    ]
+    
+    await event.edit(f"**💬 إدارة سجل المحادثة**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+                     f"**• عدد الرسائل المحفوظة:** `{conv_count}`\n\n"
+                     f"**⎉╎الضغط على 'حذف السجل' سيمسح جميع رسائلك السابقة**",
+                     buttons=buttons, parse_mode="Markdown")
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_clear_logs")))
+async def groq_clear_logs(event):
+    user_id = event.query.user_id
+    clear_user_conversation(user_id)
+    
+    await event.edit("**✅ تم حذف سجل المحادثة بنجاح!**\n\nيمكنك البدء من جديد",
+                     buttons=[[Button.inline("🔙 رجوع", data="groq_back_to_main", style="primary")]],
+                     parse_mode="Markdown")
+
+# =========================================================== #
+# الرجوع للقائمة الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_back_to_main")))
+async def groq_back_to_main(event):
+    buttons = [
+        [Button.inline("🎛️ النموذج", data="groq_models_menu", style="primary")],
+        [Button.inline("🌡️ الحرارة", data="groq_temp_menu", style="primary")],
+        [Button.inline("💬 السجل", data="groq_logs_menu", style="primary")],
+        [Button.inline("❌ إغلاق", data="groq_close", style="danger")]
+    ]
+    
+    await event.edit("**⚙️ إعدادات Groq AI**\nاختر الإعداد الذي تريد تغييره:",
+                     buttons=buttons, parse_mode="Markdown")
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_close")))
+async def groq_close(event):
+    await event.delete()
+
+# =========================================================== #
+# أمر اعدادات جروك
+# =========================================================== #
+
+@l313l.ar_cmd(pattern="اعدادات جروك$")
+async def groq_settings_cmd(event):
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "grokk")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
+# =========================================================== #
+# أمر عرض الإعدادات الحالية (نصي)
+# =========================================================== #
+
+@l313l.ar_cmd(pattern="اعدادات جروك نص$")
+async def groq_settings_text(event):
+    user_id = event.sender_id
+    model = get_user_model(user_id)
+    temp = get_user_temp(user_id)
+    
+    model_desc = "غير معروف"
+    for key, m in GROQ_MODELS.items():
+        if m["name"] == model:
+            model_desc = m["desc"]
+            break
+    
+    conv_count = len(user_conversations.get(user_id, []))
+    
+    text = f"**🤖 إعدادات Groq AI**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+    text += f"**📌 النموذج الحالي:**\n{model_desc}\n\n"
+    text += f"**🌡️ درجة الحرارة:** `{temp}`\n\n"
+    text += f"**💬 رسائل السجل:** {conv_count}\n\n"
+    text += f"**⎉╎للتعديل استخدم:** `.اعدادات جروك`"
+    
+    await edit_or_reply(event, text)
+
+# =========================================================== #
+# الأمر الرئيسي للمحادثة
+# =========================================================== #
+
+@l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
+async def groq_chat(event):
+    question = event.pattern_match.group(1)
+    zzz = await event.get_reply_message()
+    
+    if not question and not event.reply_to_msg_id:
+        return await edit_or_reply(event, 
+            "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n"
+            "**مثال:** `.جروك من انت`\n\n"
+            "**⎉╎الأوامر المتاحة:**\n"
+            "• `.اعدادات جروك` - لوحة تحكم تفاعلية\n"
+            "• `.اعدادات جروك نص` - عرض الإعدادات نصياً\n"
+            "• `.جروك مسح` - مسح سجل المحادثة\n"
+            "• `.جروك نماذج` - عرض جميع النماذج")
+    
+    # جلب السؤال من الرد
+    if not question and event.reply_to_msg_id and zzz.text:
+        question = zzz.text
+    
+    # أمر مسح المحادثة
+    if question == "مسح" or question == "حذف":
+        clear_user_conversation(event.sender_id)
+        return await edit_or_reply(event, 
+            "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n"
+            "**⎉╎ارسـل الان (.جروك + سؤالك) لـ البـدء من جديد**")
+    
+    # أمر عرض النماذج
+    if question == "نماذج" or question == "النماذج":
+        models_text = "**🎛️ جميع النماذج المتاحة في Groq:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+        for key, model in GROQ_MODELS.items():
+            models_text += f"**{key}** - {model['desc']}\n"
+        models_text += "\n**⎉╎لتغيير النموذج استخدم:** `.اعدادات جروك`"
+        return await edit_or_reply(event, models_text)
+    
+    # الرد على السؤال
+    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ Groq AI ...**")
+    
+    answer = await get_groq_response(event.sender_id, question)
+    
+    model = get_user_model(event.sender_id)
+    temp = get_user_temp(event.sender_id)
+    model_short = model.split("/")[-1]
+    
+    await zed.edit(
+        f"ᯓ **Groq AI** - الذكاء الاصطناعي\n"
+        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+        f"**• السؤال:** {question[:200]}\n\n"
+        f"**• الجواب:** {answer}\n"
+        f"⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+        f"**⎉╎النموذج:** `{model_short}`\n"
+        f"**⎉╎الحرارة:** `{temp}`\n"
+        f"**⎉╎للتعديل:** `.اعدادات جروك`",
+        link_preview=False
+        )

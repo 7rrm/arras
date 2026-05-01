@@ -149,13 +149,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
 
 # =========================================================== #
-# قائمة النماذج (مع وصف كل نموذج وأزرار 5 في سطر)
+# قائمة النماذج (مع الوصف كـ نص وأزرار 5 في سطر)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
 @check_owner
 async def groq_models_menu(event):
-    """عرض قائمة النماذج مع الوصف وأسفلها أزرار (5 في سطر)"""
+    """عرض قائمة النماذج مع الوصف كـ نص وأزرار أسفلها (5 في سطر)"""
+    # عرض النماذج كنص مع وصفها
     models_text = "**جميع النماذج المتاحة في Groq:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
     for key, model in GROQ_MODELS.items():
         models_text += f"**{key}** - {model['desc']}\n"
@@ -187,10 +188,7 @@ async def groq_set_model(event):
     save_user_model(user_id, model_name)
     clear_user_conversation(user_id)
     
-    # رسالة تأكيد منبثقة
     await event.answer(f"✅ تم تغيير النموذج إلى: {model_desc}", alert=True)
-    
-    # العودة إلى القائمة الرئيسية
     await groq_back_to_main(event)
 
 # =========================================================== #
@@ -321,7 +319,7 @@ async def groq_chat(event):
         clear_user_conversation(event.sender_id)
         return await edit_or_reply(event, 
             "**تم حذف سجل الذكاء الاصطناعي .. بنجاح**\n"
-            "**ارسـل الان (.جروк + سؤالك) لـ البـدء من جديد**")
+            "**ارسـل الان (.جروك + سؤالك) لـ البـدء من جديد**")
     
     # الرد على السؤال
     zed = await edit_or_reply(event, "**جـارِ الاتصـال بـ Groq AI ...**")
@@ -342,4 +340,4 @@ async def groq_chat(event):
         f"**الحرارة:** `{temp}`\n"
         f"**للتعديل:** `.اعدادات جروك`",
         link_preview=False
-)
+                             )

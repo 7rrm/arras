@@ -50,7 +50,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [
                     Button.inline("‹ : المَيوزك والتشَغيـل : ›", data="music_menu", style="primary"),
                     Button.inline("‹ : الصَـ.ـيد والتثبيـت : ›", data="hunt_pin_menu", style="primary")
-                ]
+                ],
+                [
+                    Button.inline("‹ : الذكـاء الأصطناعَـي : ›", data="ai_commands", style="danger")]
             ]
             await event.answer(
                 [await event.builder.article(
@@ -190,7 +192,8 @@ async def back_to_main(event):
         [
             Button.inline("‹ : المَيوزك والتشَغيـل : ›", data="music_menu", style="danger"),
             Button.inline("‹ : الصَـ.ـيد والتثبيـت : ›", data="hunt_pin_menu", style="danger")
-        ]
+        ],
+        [Button.inline("‹ : الذكـاء الأصطناعَـي : ›", data="ai_commands", style="primary")]
     ]
     await event.edit(HELP, buttons=buttons, link_preview=False)
 
@@ -3732,4 +3735,34 @@ async def music_commands(event):
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
     
     buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP", style="primary")]]
+    await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)
+
+# =========================================================== #
+# قائمة أوامر الذكاء الاصطناعي
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"ai_commands")))
+@check_owner
+async def ai_commands(event):
+    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الذكاء الاصطناعي 𓆪</b>
+━━━━━━━━━━━━━━━━━━━━
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ار</code> <b>⦘</b>
+❐ للدردشة مع الذكاء الاصطناعي
+❐ <b>طريقة الاستخدام:</b> <code>.ار + سؤالك</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ار مسح</code> <b>⦘</b>
+❐ لمسح سجل المحادثة
+❐ <b>طريقة الاستخدام:</b> <code>.ار مسح</code>
+
+<tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.اعدادات الذكاء</code> <b>⦘</b>
+❐ لوحة تحكم لإعدادات الذكاء
+❐ <b>طريقة الاستخدام:</b> إرسال الأمر فقط
+
+📌 ملاحظة: يمكنك تغيير النموذج ودرجة الحرارة من لوحة الإعدادات
+
+•ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
+⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''
+    
+    buttons = [[Button.inline("↩️ رجوع", data="ZEDHELP", style="danger")]]
     await event.edit(text, buttons=buttons, parse_mode="HTML", link_preview=False)

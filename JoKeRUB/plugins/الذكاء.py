@@ -153,13 +153,13 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
+@check_owner
 async def groq_models_menu(event):
     """عرض قائمة النماذج (أزرار باسم النموذج)"""
     buttons = []
     row = []
     
     for key, model in AVAILABLE_MODELS.items():
-        # استخدام اسم النموذج المختصر كاسم الزر
         short_name = model["name"].split("/")[-1]
         row.append(Button.inline(f"{short_name}", data=f"groq_set_model_{key}", style="primary"))
         if len(row) == 2:
@@ -175,6 +175,7 @@ async def groq_models_menu(event):
                      buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_model_(\\d+)")))
+@check_owner
 async def groq_set_model(event):
     model_key = event.data_match.group(1)
     user_id = event.query.user_id
@@ -193,6 +194,7 @@ async def groq_set_model(event):
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_temp_menu")))
+@check_owner
 async def groq_temp_menu(event):
     """عرض خيارات الحرارة"""
     current_temp = get_user_temp(event.query.user_id)
@@ -214,6 +216,7 @@ async def groq_temp_menu(event):
                      buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_temp_(.*)")))
+@check_owner
 async def groq_set_temp(event):
     temp_value = float(event.data_match.group(1))
     user_id = event.query.user_id
@@ -237,6 +240,7 @@ async def groq_set_temp(event):
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_logs_menu")))
+@check_owner
 async def groq_logs_menu(event):
     user_id = event.query.user_id
     conv_count = len(user_conversations.get(user_id, []))
@@ -252,6 +256,7 @@ async def groq_logs_menu(event):
                      buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_clear_logs")))
+@check_owner
 async def groq_clear_logs(event):
     user_id = event.query.user_id
     clear_user_conversation(user_id)
@@ -265,6 +270,7 @@ async def groq_clear_logs(event):
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_back_to_main")))
+@check_owner
 async def groq_back_to_main(event):
     buttons = [
         [Button.inline("النموذج", data="groq_models_menu", style="primary")],
@@ -277,6 +283,7 @@ async def groq_back_to_main(event):
                      buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_close")))
+@check_owner
 async def groq_close(event):
     await event.delete()
 
@@ -285,7 +292,6 @@ async def groq_close(event):
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="اعدادات جروك$")
-@check_owner
 async def groq_settings_cmd(event):
     user_id = event.sender_id
     model = get_user_model(user_id)
@@ -363,4 +369,4 @@ async def groq_chat(event):
         f"**الحرارة:** `{temp}`\n"
         f"**للتعديل:** `.اعدادات جروك`",
         link_preview=False
-    )
+)

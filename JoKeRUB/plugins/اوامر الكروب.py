@@ -792,30 +792,6 @@ async def ai_img_gen(prompt):
         return False
         
 
-@l313l.ar_cmd(pattern="ار(?: |$)(.*)")
-async def zelzal_gpt(event):
-    global lastResponse
-    if lastResponse is None:
-        lastResponse = []
-    question = event.pattern_match.group(1)
-    zzz = await event.get_reply_message()
-    if not question and not event.reply_to_msg_id:
-        return await edit_or_reply(event, "**✧╎بالـرد ع سـؤال او باضـافة السـؤال للامـر**\n**⌔╎مثـــال :**\n`.ار من هو مكتشف الجاذبية الارضية`")
-    if not question and event.reply_to_msg_id and zzz.text: 
-        question = zzz.text
-    if not event.reply_to_msg_id: 
-        question = event.pattern_match.group(1)
-    if question == "مسح" or question == "حذف":
-        lastResponse.pop(0)
-        return await edit_or_reply(event, "**✧╎تم حذف سجل الذكاء الاصطناعي .. بنجاح ✅**\n**⎉╎ارسـل الان(.ار + سؤالك) لـ البـدء من جديد**")
-    zed = await edit_or_reply(event, "**✧╎جـارِ الاتصـال بـ الذكـاء الاصطناعي**\n**⎉╎الرجـاء الانتظـار .. لحظـات**\n\n**⎉╎ملاحظـه 🏷**\n- هذا النموذج يقوم بحفظ الموضوعات السابقة\n- اذا كان لديك اكثر من سؤال لـ نفس الموضوع\n- وتريد تقديم الاسئله رداً على الاجوبة السابقة\n**- لـ مسح سجل تخزين الموضوعات السابقة**\n**- ارسـل الامـر** ( `.ار مسح` ) **لـ بدء موضوع جديد**")
-    answer = await process_gpt(question)
-    if answer:
-        await zed.edit(f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗚𝗽𝘁 -💡- **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• س/ {question}**\n\n• {answer}", link_preview=False)
-        lastResponse.append(str(answer))
-        if len(lastResponse) > 8:
-            lastResponse.pop(0)
-            
 @l313l.ar_cmd(pattern="ارسم ?(.*)")
 async def search_photo(event):
     prompt = event.pattern_match.group(1)

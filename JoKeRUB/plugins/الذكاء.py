@@ -27,25 +27,14 @@ GROQ_MODELS = {
     "4": {"name": "llama-3.3-70b-versatile", "desc": "Llama 3.3 70B - نموذج قوي من Meta"},
     "5": {"name": "llama-3.1-8b-instant", "desc": "Llama 3.1 8B - سريع جداً"},
     "6": {"name": "meta-llama/llama-4-scout-17b-16e-instruct", "desc": "Llama 4 Scout 17B"},
-    "7": {"name": "meta-llama/llama-prompt-guard-2-22m", "desc": "Prompt Guard 22M - كشف الهجمات"},
-    "8": {"name": "meta-llama/llama-prompt-guard-2-86m", "desc": "Prompt Guard 86M - كشف الهجمات"},
     
     # 🛠️ Groq Systems
-    "9": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب + كود)"},
-    "10": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
+    "7": {"name": "groq/compound", "desc": "Compound - نظام متكامل (بحث ويب + كود)"},
+    "8": {"name": "groq/compound-mini", "desc": "Compound Mini - نسخة أخف"},
     
     # ☁️ Alibaba Cloud
-    "11": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
-    
-    # 🏢 Canopy Labs (نماذج صوتية)
-    "12": {"name": "canopylabs/orpheus-arabic-saudi", "desc": "Orpheus - نص → كلام (عربي سعودي)"},
-    "13": {"name": "canopylabs/orpheus-v1-english", "desc": "Orpheus - نص → كلام (إنجليزي)"},
-    
-    # 🎤 Whisper (تحويل الصوت لنص)
-    "14": {"name": "whisper-large-v3", "desc": "Whisper V3 - صوت → نص"},
-    "15": {"name": "whisper-large-v3-turbo", "desc": "Whisper Turbo - صوت → نص (سريع)"},
+    "9": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
 }
-
 # الإعدادات الافتراضية
 DEFAULT_MODEL = "openai/gpt-oss-120b"
 DEFAULT_TEMPERATURE = 1.0

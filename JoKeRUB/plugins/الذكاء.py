@@ -160,10 +160,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             text += f"اختر الإعداد الذي تريد تغييره:"
             
             buttons = [
-                [Button.inline("النموذج", data="groq_models_menu", style="primary")],
-                [Button.inline("الحرارة", data="groq_temp_menu", style="primary")],
-                [Button.inline("السجل", data="groq_logs_menu", style="primary")],
-                [Button.inline("إغلاق", data="groq_close", style="danger")]
+                [Button.inline("‹ : النـمـوذج : ›", data="groq_models_menu", style="primary")],
+                [Button.inline("‹ : الحَـراره : ›", data="groq_temp_menu", style="primary")],
+                [Button.inline("‹ : الـسـجل : ›", data="groq_logs_menu", style="primary")],
+                [Button.inline("❌ إغلاق", data="groq_close", style="danger")]
             ]
             
             await event.answer(
@@ -263,7 +263,7 @@ async def groq_logs_menu(event):
     conv_count = get_user_chat_count(user_id)
     
     buttons = [
-        [Button.inline("حذف السجل", data="groq_clear_logs", style="danger")],
+        [Button.inline("‹ : حَـذف الـسجـل : ›", data="groq_clear_logs", style="danger")],
         [Button.inline("رجوع", data="groq_back_to_main", style="primary")]
     ]
     
@@ -378,7 +378,7 @@ async def groq_chat(event):
         f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"<b>السؤال:</b> <code>{question[:50]}</code>\n\n"
-        f"<b>الجواب:</b> {formatted_answer}\n"
+        f"<b>الجـواب:</b> {formatted_answer}\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"<b>النموذج:</b> <code>{model_short}</code>",
         link_preview=False,

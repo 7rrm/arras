@@ -258,21 +258,16 @@ async def groq_set_temp(event):
 # قائمة السجل
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_logs_menu")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_temp_(.*)")))
 @check_owner
-async def groq_logs_menu(event):
+async def groq_set_temp(event):
+    temp_value = float(event.data_match.group(1))
     user_id = event.query.user_id
-    conv_count = len(user_conversations.get(user_id, []))
     
-    buttons = [
-        [Button.inline("حذف السجل", data="groq_clear_logs", style="danger")],
-        [Button.inline("رجوع", data="groq_back_to_main", style="primary")]
-    ]
+    save_user_temp(user_id, temp_value)
     
-    await event.edit(f"**إدارة سجل المحادثة**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-                     f"**عدد الرسائل المحفوظة:** `{conv_count}`\n\n"
-                     f"**الضغط على 'حذف السجل' سيمسح جميع رسائلك السابقة**",
-                     buttons=buttons, parse_mode="Markdown")
+    await event.answer(f"✅ تم تغيير درجة الحرارة إلى: {temp_value}", alert=True)
+    await groq_back_to_main(event)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_clear_logs")))
 @check_owner
@@ -280,9 +275,8 @@ async def groq_clear_logs(event):
     user_id = event.query.user_id
     clear_user_conversation(user_id)
     
-    await event.edit("**✅ تم حذف سجل المحادثة بنجاح!**\n\nيمكنك البدء من جديد",
-                     buttons=[[Button.inline("رجوع", data="groq_back_to_main", style="primary")]],
-                     parse_mode="Markdown")
+    await event.answer("✅ تم حذف سجل المحادثة", alert=True)
+    await groq_back_to_main(event)
 
 # =========================================================== #
 # الرجوع للقائمة الرئيسية

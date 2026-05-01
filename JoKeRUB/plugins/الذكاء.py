@@ -372,7 +372,8 @@ async def groq_chat(event):
     model_short = model.split("/")[-1]
     
     # تنسيق الجواب مع blockquote
-    formatted_answer = f"<blockquote>{answer}</blockquote>"
+    # تنسيق الجواب مع blockquote قابل للطي
+    formatted_answer = f"<blockquote expandable>{answer}</blockquote>"
     
     await zed.edit(
         f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"

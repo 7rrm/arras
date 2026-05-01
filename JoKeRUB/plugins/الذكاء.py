@@ -168,89 +168,47 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             )
 
 # =========================================================== #
-# قائمة النماذج (مع الوصف والأزرار)
-# =========================================================== #
-
-# =========================================================== #
-# قائمة النماذج (مع الوصف والأزرار)
+# قائمة النماذج (أزرار)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
 @check_owner
 async def groq_models_menu(event):
-    """عرض قائمة النماذج مع وصفها"""
-    models_text = "**جميع النماذج المتاحة في Groq:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-    for key, model in GROQ_MODELS.items():
-        models_text += f"**{key}** - {model['desc']}\n"
-    models_text += "\n**اختر النموذج الذي تريده:**"
-    
+    """عرض قائمة النماذج (أزرار 2 في صف)"""
     buttons = []
     row = []
-    for key in GROQ_MODELS.keys():
+    
+    for key, model in GROQ_MODELS.items():
         row.append(Button.inline(f"{key}", data=f"groq_set_model_{key}", style="primary"))
-        if len(row) == 5:
+        if len(row) == 2:
             buttons.append(row)
             row = []
+    
     if row:
         buttons.append(row)
     
     buttons.append([Button.inline("رجوع", data="groq_back_to_main", style="danger")])
     
-    await event.edit(models_text, buttons=buttons, parse_mode="Markdown")
+    await event.edit("**اختر النموذج الذي تريده:**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆", 
+                     buttons=buttons, parse_mode="Markdown")
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_set_model_(\\d+)")))
 @check_owner
 async def groq_set_model(event):
-    try:
-        model_key = event.data_match.group(1)
-        user_id = event.query.user_id
-        
-        # التحقق من وجود النموذج
-        if model_key not in GROQ_MODELS:
-            await event.answer("❌ نموذج غير موجود", alert=True)
-            return
-        
-        model_name = GROQ_MODELS[model_key]["name"]
-        model_desc = GROQ_MODELS[model_key]["desc"]
-        
-        # حفظ النموذج للمستخدم
-        save_user_model(user_id, model_name)
-        clear_user_conversation(user_id)
-        
-        # إظهار رسالة تأكيد
-        await event.answer(f"✅ تم تغيير النموذج إلى: {model_desc}", alert=True)
-        
-        # العودة إلى القائمة الرئيسية مع تحديث الإعدادات
-        # الحصول على الإعدادات الحالية
-        model = get_user_model(user_id)
-        temp = get_user_temp(user_id)
-        conv_count = len(user_conversations.get(user_id, []))
-        
-        # الحصول على وصف النموذج
-        model_desc2 = "غير معروف"
-        for key, m in GROQ_MODELS.items():
-            if m["name"] == model:
-                model_desc2 = m["desc"]
-                break
-        
-        text = f"**اعدادات Groq AI**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-        text += f"**النموذج:**\n{model_desc2}\n\n"
-        text += f"**الحرارة:** `{temp}`\n\n"
-        text += f"**السجل:** `{conv_count}`\n\n"
-        text += f"**اختر ما تريد تغييره:**"
-        
-        buttons = [
-            [Button.inline("النموذج", data="groq_models_menu", style="primary")],
-            [Button.inline("الحرارة", data="groq_temp_menu", style="primary")],
-            [Button.inline("السجل", data="groq_logs_menu", style="primary")],
-            [Button.inline("إغلاق", data="groq_close", style="danger")]
-        ]
-        
-        # تعديل الرسالة الحالية
-        await event.edit(text, buttons=buttons, parse_mode="Markdown")
-        
-    except Exception as e:
-        await event.answer(f"❌ حدث خطأ: {str(e)[:50]}", alert=True)
+    # ✅ المفتاح نصي (str) وليس رقمي (int)
+    model_key = event.data_match.group(1)  # لا تحوله إلى int
+    user_id = event.query.user_id
+    model_name = GROQ_MODELS[model_key]["name"]
+    model_desc = GROQ_MODELS[model_key]["desc"]
+    
+    save_user_model(user_id, model_name)
+    clear_user_conversation(user_id)
+    
+    # ✅ عرض رسالة تأكيد منبثقة
+    await event.answer(f"✅ تم تغيير النموذج إلى: {model_desc}", alert=True)
+    
+    # ✅ العودة إلى القائمة الرئيسية
+    await groq_back_to_main(event)
 # =========================================================== #
 # قائمة الحرارة
 # =========================================================== #

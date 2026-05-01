@@ -141,6 +141,24 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("grokk") and event.query.user_id == l313l.uid:
+            user_id = event.query.user_id
+            model = get_user_model(user_id)
+            temp = get_user_temp(user_id)
+            conv_count = get_user_chat_count(user_id)
+            
+            # الحصول على وصف النموذج
+            model_desc = "غير معروف"
+            for key, m in GROQ_MODELS.items():
+                if m["name"] == model:
+                    model_desc = m["desc"]
+                    break
+            
+            text = f"اعدادات الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+            text += f"النموذج:\n{model_desc}\n\n"
+            text += f"الحرارة: {temp}\n\n"
+            text += f"السجل: {conv_count}\n\n"
+            text += f"اختر الإعداد الذي تريد تغييره:"
+            
             buttons = [
                 [Button.inline("النموذج", data="groq_models_menu", style="primary")],
                 [Button.inline("الحرارة", data="groq_temp_menu", style="primary")],
@@ -152,7 +170,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [await builder.article(
                     title="إعدادات الذكاء الاصطناعي",
                     description="تخصيص الذكاء الاصطناعي",
-                    text="**اعدادات الذكاء الاصطناعي**\nاختر الإعداد الذي تريد تغييره:",
+                    text=text,
                     buttons=buttons,
                     link_preview=False,
                 )],

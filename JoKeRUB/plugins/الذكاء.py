@@ -321,7 +321,6 @@ async def groq_settings_cmd(event):
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="جروك(?: |$)(.*)")
-@check_owner
 async def groq_chat(event):
     question = event.pattern_match.group(1)
     zzz = await event.get_reply_message()

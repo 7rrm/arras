@@ -336,9 +336,17 @@ async def groq_settings_cmd(event):
 # الأمر الرئيسي للمحادثة
 # =========================================================== #
 
-# =========================================================== #
-# الأمر الرئيسي للمحادثة (مع تقسيم الرد الطويل)
-# =========================================================== #
+import re
+
+def markdown_to_html(text):
+    """تحويل Markdown إلى HTML"""
+    # **نص** → <b>نص</b>
+    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+    # _نص_ → <i>نص</i>
+    text = re.sub(r'_(.*?)_', r'<i>\1</i>', text)
+    # `نص` → <code>نص</code>  
+    text = re.sub(r'`(.*?)`', r'<code>\1</code>', text)
+    return text
 
 @l313l.ar_cmd(pattern="ار(?: |$)(.*)")
 async def groq_chat(event):
@@ -373,8 +381,11 @@ async def groq_chat(event):
     temp = get_user_temp(event.sender_id)
     model_short = model.split("/")[-1]
     
-    # ✅ تنسيق الجواب
-    formatted_answer = f"<blockquote expandable>{answer}</blockquote>"
+    # ✅ تحويل Markdown إلى HTML
+    answer_html = markdown_to_html(answer)
+    
+    # ✅ تنسيق الجواب مع blockquote
+    formatted_answer = f"<blockquote expandable>{answer_html}</blockquote>"
     
     # ✅ بناء النص الكامل للرسالة
     full_message = (
@@ -391,8 +402,7 @@ async def groq_chat(event):
     
     if len(full_message) > MAX_LENGTH:
         # إذا كان الرد طويلاً، قم بتقسيمه
-        # الطريقة الأولى: إرسال الرد بدون blockquote إذا كان طويلاً جداً
-        simple_answer = answer
+        simple_answer = answer_html
         simple_message = (
             f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
             f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
@@ -408,14 +418,14 @@ async def groq_chat(event):
             
             # تقسيم الرد إلى أجزاء
             chunk_size = 3500
-            for i in range(0, len(answer), chunk_size):
-                chunk = answer[i:i+chunk_size]
+            for i in range(0, len(answer_html), chunk_size):
+                chunk = answer_html[i:i+chunk_size]
                 await event.reply(f"<b>📄 جزء {i//chunk_size + 1}:</b>\n{chunk}", parse_mode="HTML")
             
             # إرسال معلومات النموذج في النهاية
             await event.reply(
                 f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-                f"<b>النموذج:</b> <code>{model_short}</code>\n",
+                f"<b>النموذج:</b> <code>{model_short}</code>",
                 parse_mode="HTML"
             )
         else:

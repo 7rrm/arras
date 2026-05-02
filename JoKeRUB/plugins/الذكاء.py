@@ -391,7 +391,7 @@ async def groq_chat(event):
     full_message = (
         f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"<b>السؤال:</b> <code>{question[:100]}</code>\n\n"
+        f"<blockquote><b>❓السؤال:</b> <code>{question[:50]}</code></blockquote>\n\n"
         f"<b>الجـواب:</b> {formatted_answer}\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
         f"<b>النموذج:</b> <code>{model_short}</code>"
@@ -406,7 +406,7 @@ async def groq_chat(event):
         simple_message = (
             f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
             f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-            f"<b>السؤال:</b> <code>{question[:100]}</code>\n\n"
+            f"<blockquote><b>❓السؤال:</b> <code>{question[:50]}</code></blockquote>\n\n"
             f"<b>الجـواب:</b>\n{simple_answer}\n"
             f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
             f"<b>النموذج:</b> <code>{model_short}</code>"

@@ -776,65 +776,49 @@ async def process_gpt(question):
                 return False
 
 async def ai_img_gen(prompt):
-    #image_url = 'https://img.hazex.workers.dev/?prompt={prompt}&improve=true&format=tall&random=Hj6Fq19j'
-    # تعريف الباراميترات المطلوبة من ال API
-    params = {
-        'prompt': prompt,
-        'improve': 'true',  # true or false the best is true
-        'format': 'square',   # wide or tall or square
-        'random': 'Hj6Fq19j'  # Replace with your random string
-    }
-    url = 'https://img.hazex.workers.dev/'
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        return response.content
-    else:
+    # استخدام API بديل يعمل (Pollinations)
+    # يمكنك تغيير 'any' لنموذج محدد مثل 'flux' أو 'turbo'
+    url = f"https://image.pollinations.ai/prompt/{prompt}"
+    
+    # يمكن إضافة معاملات اختيارية مثل الحجم والنموذج في الرابط نفسه
+    # مثال: https://image.pollinations.ai/prompt/cat?width=1024&height=1024&model=flux
+    
+    try:
+        response = requests.get(url, timeout=30)
+        if response.status_code == 200 and response.content:
+            return response.content
+        else:
+            print(f"Pollinations API Error: {response.status_code}")
+            return False
+    except Exception as e:
+        print(f"Pollinations Request Failed: {e}")
         return False
-        
 
 @l313l.ar_cmd(pattern="ارسم ?(.*)")
-async def search_photo(event):
+async def draw_image(event):
     prompt = event.pattern_match.group(1)
     if not prompt:
-        return await edit_or_reply(event, "**-ارسـل** `.ارسم` **+ نـص لـ البـدء**")
-    wzed_dir = os.path.join(
-        Config.TMP_DOWNLOAD_DIRECTORY,
-        prompt
-    )
-    if not os.path.isdir(wzed_dir):
-        os.makedirs(wzed_dir)
-    zzz = await edit_or_reply(event, "**╮ ❐ جـاري رسـم الصـور بواسطـة الذكـاء الاصطنـاعـي ...𓅫╰**")
-    image_urls = await ai_img_gen(prompt)
+        return await edit_or_reply(event, "**⎉╎ارسـل** `.ارسم` **+ نـص لـ البـدء**")
+    
+    zzz = await edit_or_reply(event, "**⎉╎جـاري رسـم الصـور بواسطـة الذكـاء الاصطنـاعـي ...**")
+    
+    # استدعاء الدالة المعدلة
+    image_data = await ai_img_gen(prompt)
 
-    if image_urls:
-        #  تحميل  الصور  في  قائمة 
-        input_media = []
-        for i in range(6): #  تحميل  حتى  10  صور 
-            try:
-                image_url = await ai_img_gen(prompt)
-                image_save_path = os.path.join(
-                    wzed_dir,
-                    f"{prompt}_{i}.jpg"
-                )
-                with open(image_save_path, "wb") as f:
-                    f.write(image_url)
-                input_media.append(image_save_path)
-            except Exception as e:
-                print(f"حدث خطأ أثناء تحميل الصورة: {e}")
-
-        #  إرسال  جميع  الصور  في  رسالة  واحدة 
-        if input_media:
-            await l313l.send_file(event.chat_id, input_media, caption=f"[ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗣𝗵𝗼𝘁𝗼.𝗔𝗶 -💡-](t.me/lx5x5) **الذكاء الاصطناعي\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆**\n**• تم رسم ⁸ صور 📇**\n**• بواسطة الذكاء الاصطناعي💡**\n• `{prompt}`")
-            await zzz.delete()
-        else:
-            await zzz.edit(f"**- اووبـس .. لم استطـع ايجـاد صـور عـن {prompt} ؟!**\n**- حـاول مجـدداً واكتـب الكلمـه بشكـل صحيح**")
-            return
-        #  حذف  الملفات  المؤقتة 
-        for each_file in input_media:
-            os.remove(each_file)
-        shutil.rmtree(wzed_dir, ignore_errors=True)
+    if image_data:
+        # حفظ الصورة وإرسالها
+        with open("temp_image.jpg", "wb") as f:
+            f.write(image_data)
+        
+        await event.client.send_file(
+            event.chat_id,
+            "temp_image.jpg",
+            caption=f"ᯓ 𝗮𝗥𝗥𝗮𝗦 𝗣𝗵𝗼𝘁𝗼.𝗔𝗶 -💡-\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n**• الطلب:** `{prompt}`"
+        )
+        os.remove("temp_image.jpg")
+        await zzz.delete()
     else:
-        await event.reply(f"لم يتم العثور على صور لـ '{prompt}")
+        await zzz.edit(f"**⎉╎عذرًا، لم أتمكن من رسم `{prompt}`. الرجاء المحاولة بكلمات أخرى.**")
         
 """
 #ها هم تريد تخمط بمحرم ؟ روح شوفلك موكب واضرب زنجيل احسن من ماتخمط

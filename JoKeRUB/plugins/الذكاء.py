@@ -336,6 +336,10 @@ async def groq_settings_cmd(event):
 # الأمر الرئيسي للمحادثة
 # =========================================================== #
 
+# =========================================================== #
+# الأمر الرئيسي للمحادثة (مع تقسيم الرد الطويل)
+# =========================================================== #
+
 @l313l.ar_cmd(pattern="ار(?: |$)(.*)")
 async def groq_chat(event):
     question = event.pattern_match.group(1)
@@ -369,17 +373,52 @@ async def groq_chat(event):
     temp = get_user_temp(event.sender_id)
     model_short = model.split("/")[-1]
     
-    # تنسيق الجواب مع blockquote
-    # تنسيق الجواب مع blockquote قابل للطي
+    # ✅ تنسيق الجواب
     formatted_answer = f"<blockquote expandable>{answer}</blockquote>"
     
-    await zed.edit(
+    # ✅ بناء النص الكامل للرسالة
+    full_message = (
         f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"<b>السؤال:</b> <code>{question[:50]}</code>\n\n"
+        f"<b>السؤال:</b> <code>{question[:100]}</code>\n\n"
         f"<b>الجـواب:</b> {formatted_answer}\n"
         f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
-        f"<b>النموذج:</b> <code>{model_short}</code>",
-        link_preview=False,
-        parse_mode="HTML"
+        f"<b>النموذج:</b> <code>{model_short}</code>"
     )
+    
+    # ✅ التحقق من طول الرسالة (حد تليجرام 4096 حرف)
+    MAX_LENGTH = 4000  # ترك مسافة أمان
+    
+    if len(full_message) > MAX_LENGTH:
+        # إذا كان الرد طويلاً، قم بتقسيمه
+        # الطريقة الأولى: إرسال الرد بدون blockquote إذا كان طويلاً جداً
+        simple_answer = answer
+        simple_message = (
+            f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n"
+            f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+            f"<b>السؤال:</b> <code>{question[:100]}</code>\n\n"
+            f"<b>الجـواب:</b>\n{simple_answer}\n"
+            f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+            f"<b>النموذج:</b> <code>{model_short}</code>"
+        )
+        
+        if len(simple_message) > MAX_LENGTH:
+            # إذا كان لا يزال طويلاً، قسّم الرد إلى رسائل متعددة
+            await zed.edit(f"<b>ᯓ 𝗔𝗥𝗔𝗦 𝗔𝗜 - الذكـاء الأصطناعَـي</b>\n⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n<b>السؤال:</b> <code>{question[:100]}</code>\n\n<b>الجـواب طويل جداً، سيتم تقسيمه:</b>", parse_mode="HTML")
+            
+            # تقسيم الرد إلى أجزاء
+            chunk_size = 3500
+            for i in range(0, len(answer), chunk_size):
+                chunk = answer[i:i+chunk_size]
+                await event.reply(f"<b>📄 جزء {i//chunk_size + 1}:</b>\n{chunk}", parse_mode="HTML")
+            
+            # إرسال معلومات النموذج في النهاية
+            await event.reply(
+                f"⋆┄─┄─┄─┄─┄─┄─┄─┄⋆\n"
+                f"<b>النموذج:</b> <code>{model_short}</code>\n",
+                parse_mode="HTML"
+            )
+        else:
+            await zed.edit(simple_message, parse_mode="HTML", link_preview=False)
+    else:
+        await zed.edit(full_message, parse_mode="HTML", link_preview=False)

@@ -1,10 +1,11 @@
 # =========================================================== #
-# كود Groq الكامل - مع أزرار تفاعلية
+# كود Groq الكامل - مع أزرار تفاعلية + DeepSeek
 # =========================================================== #
 
 import requests
 import json
 import re
+import time
 from telethon import Button, events
 from telethon.events import CallbackQuery
 from ..core import check_owner
@@ -15,7 +16,87 @@ GROQ_API_KEY = "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"
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # =========================================================== #
-# جميع النماذج المتاحة (17 نموذج)
+# إعدادات DeepSeek عبر Firebase
+# =========================================================== #
+
+FIREBASE_KEY = "AIzaSyA27E7jUV8osRY7NzwP2fZwGoTkp5gJhZw"
+DEEPSEEK_URL = "https://ai-multi-search-backend-321697147922.europe-west6.run.app/ask"
+
+FIREBASE_HEADERS = {
+    'User-Agent': "Dalvik/2.1.0 (Linux; U; Android 16; 2311DRK48G Build/BP2A.250605.031.A3)",
+    'Connection': "Keep-Alive",
+    'Accept-Encoding': "gzip",
+    'Content-Type': "application/json",
+    'X-Android-Package': "com.lmtechstudio.aimultisearch",
+    'X-Android-Cert': "5D08264B44E0E53FBCCC70B4F016474CC6C5AB5C",
+    'Accept-Language': "ar-EG, en-US",
+    'X-Client-Version': "Android/Fallback/X23001000/FirebaseCore-Android",
+    'X-Firebase-GMPID': "1:321697147922:android:26e6fb8e30dcc23dfffccb",
+    'X-Firebase-Client': "H4sIAAAAAAAA_6tWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA"
+}
+
+deepseek_token = None
+deepseek_token_expiry = 0
+
+def get_deepseek_token():
+    global deepseek_token, deepseek_token_expiry
+    if deepseek_token and time.time() < deepseek_token_expiry - 60:
+        return deepseek_token
+    
+    r = requests.post(
+        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser",
+        params={'key': FIREBASE_KEY},
+        data=json.dumps({"clientType": "CLIENT_TYPE_ANDROID"}),
+        headers=FIREBASE_HEADERS
+    )
+    data = r.json()
+    deepseek_token = "Bearer " + data["idToken"]
+    deepseek_token_expiry = time.time() + int(data["expiresIn"])
+    return deepseek_token
+
+def make_deepseek_prompt(question):
+    return (
+        "Never reply in Chinese unless explicitly asked.\n"
+        "You MUST answer in the EXACT same language as the user question.\n"
+        "Do NOT change language.\nDo NOT mix languages.\n\n"
+        f"User question:\n{question}"
+    )
+
+async def get_deepseek_response(question):
+    try:
+        current_token = get_deepseek_token()
+        
+        payload = {
+            "provider": "deepseek",
+            "prompt": make_deepseek_prompt(question),
+            "plan": "ULTRA",
+            "app_version": "1.2.8"
+        }
+        
+        headers = {
+            'User-Agent': "okhttp/4.12.0",
+            'Accept-Encoding': "gzip",
+            'authorization': current_token,
+            'x-plan': "ULTRA",
+            'x-app-version': "1.2.8",
+            'x-search-id': "f0a6705c-e33e-4288-a3ef-c91cd6564b59",
+            'x-search-expected': "2",
+            'content-type': "application/json; charset=utf-8"
+        }
+        
+        response = requests.post(DEEPSEEK_URL, data=json.dumps(payload), headers=headers, timeout=60)
+        data = response.json()
+        
+        if data.get("ok"):
+            return data.get("answer", "لا يوجد جواب")
+        else:
+            return f"⚠️ خطأ DeepSeek: {data.get('message', 'خطأ غير معروف')}"
+            
+    except Exception as e:
+        return f"⚠️ خطأ في الاتصال بـ DeepSeek: {str(e)[:100]}"
+
+# =========================================================== #
+# جميع النماذج المتاحة (18 نموذج)
 # =========================================================== #
 GROQ_MODELS = {
     # 🤖 OpenAI
@@ -34,7 +115,11 @@ GROQ_MODELS = {
     
     # ☁️ Alibaba Cloud
     "9": {"name": "qwen/qwen3-32b", "desc": "Qwen 3 32B - استدلال قوي"},
+    
+    # 🤖 DeepSeek (مضاف)
+    "10": {"name": "deepseek/firebase", "desc": "DeepSeek V3 - نموذج قوي مجاني (عبر Firebase)"},
 }
+
 # الإعدادات الافتراضية
 DEFAULT_MODEL = "openai/gpt-oss-120b"
 DEFAULT_TEMPERATURE = 1.0
@@ -72,11 +157,20 @@ def increment_chat_count(user_id):
     user_chat_count[user_id] = user_chat_count.get(user_id, 0) + 1
 
 # =========================================================== #
-# دالة الرد من Groq مع السياق
+# دالة الرد من Groq مع السياق (معدلة لتدعم DeepSeek)
 # =========================================================== #
 async def get_groq_response(user_id, question):
+    # ✅ إذا كان النموذج هو DeepSeek، استخدم API الخاص به
+    model = get_user_model(user_id)
+    
+    if model == "deepseek/firebase":
+        answer = await get_deepseek_response(question)
+        if answer and not answer.startswith("⚠️"):
+            increment_chat_count(user_id)
+        return answer
+    
+    # باقي الكود الأصلي لـ Groq
     try:
-        model = get_user_model(user_id)
         temp = get_user_temp(user_id)
         
         if user_id not in user_conversations:
@@ -335,8 +429,6 @@ async def groq_settings_cmd(event):
 # =========================================================== #
 # الأمر الرئيسي للمحادثة
 # =========================================================== #
-
-import re
 
 def markdown_to_html(text):
     """تحويل Markdown إلى HTML"""

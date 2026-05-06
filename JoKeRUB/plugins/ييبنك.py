@@ -1,67 +1,79 @@
-import random
-import re
-import time
+from telethon import events, Button
+from telethon.events import CallbackQuery
 import asyncio
+import re
 from datetime import datetime
-from telethon.tl.types import MessageMediaPhoto, MessageMediaDocument
-from telethon.errors.rpcerrorlist import (
-    MediaEmptyError,
-    WebpageCurlFailedError,
-    WebpageMediaEmptyError,
-)
-
-from JoKeRUB import l313l
-from telethon import events
-from ..core.managers import edit_or_reply
-from ..helpers.utils import reply_id
+from ..Config import Config
 from ..sql_helper.globals import gvarstatus
-from . import mention
+from JoKeRUB.plugins import mention
+from . import l313l
 
-plugin_category = "utils"
+# =========================================================== #
+# نص بنك
+# =========================================================== #
 
-#كتـابة وتعـديل:  @lMl10l
+BANK_TEXT = """**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
 
-@l313l.ar_cmd(pattern="بنك(?:\s|$)([\s\S]*)")
-
-async def jokerping(event):
-    reply_to_id = await reply_id(event)
-    start = datetime.now()
-    await edit_or_reply(event, "** ᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**")
-    end = datetime.now()
-    ms = (end - start).microseconds / 1000
-    EMOJI = gvarstatus("ALIVE_EMOJI") or "✇ ◅"
-    PING_TEXT = gvarstatus("PING_TEXT") or "**[ 𝗜 𝗝𝘂𝘀𝘁 𝗔𝘀𝗸𝗲𝗱 𝗙𝗼𝗿 𝗦𝗼𝗺𝗲 𝗣𝗲𝗮𝗰𝗲 . ](t.me/lx5x5)**"
-    PING_IMG = gvarstatus("PING_PIC") or Config.P_PIC or "https://files.catbox.moe/z46y7v.jpg"
-    HuRe_caption = gvarstatus("PING_TEMPLATE") or temp
-    caption = HuRe_caption.format(
-        PING_TEXT=PING_TEXT,
-        EMOJI=EMOJI,
-        mention=mention,
-        ping=ms,
-    )
-    if PING_IMG:
-        JEP = [x for x in PING_IMG.split()]
-        PIC = random.choice(JEP)
-        try:
-            await event.client.send_file(
-                event.chat_id, PIC, caption=caption, reply_to=reply_to_id
-            )
-            await event.delete()
-        except (WebpageMediaEmptyError, MediaEmptyError, WebpageCurlFailedError):
-            return await edit_or_reply(
-                event,
-                f"**الميـديا خـطأ **\nغـير الرابـط بأستـخدام الأمـر  \n `.اضف_فار ALIVE_PIC رابط صورتك`\n\n**لا يمـكن الحـصول عـلى صـورة من الـرابـط :-** `{PIC}`",
-            )
-    else:
-        await edit_or_reply(
-            event,
-            caption,
-        )
-
-
-temp = """{PING_TEXT}
 ┏━━━━━━━┓
 ┃ ✦ {ping}
 ┃ ✦ {mention}
 ┗━━━━━━━┛"""
 
+# =========================================================== #
+# الاستعلام المضمن (بنك)
+# =========================================================== #
+
+if Config.TG_BOT_USERNAME is not None and tgbot is not None:
+    @tgbot.on(events.InlineQuery)
+    async def inline_bank_handler(event):
+        builder = event.builder
+        query = event.text
+        
+        if query.startswith("بنك") and event.query.user_id == l313l.uid:
+            # حساب وقت الاستجابة
+            start = datetime.now()
+            await asyncio.sleep(0.1)
+            end = datetime.now()
+            ms = (end - start).microseconds / 1000
+            
+            # جلب معلومات المستخدم الحالي
+            user_id = event.query.user_id
+            user = await l313l.get_entity(user_id)
+            user_name = user.first_name
+            
+            caption = BANK_TEXT.format(ping=ms, mention=mention)
+            
+            # ✅ زر رابط لحساب المستخدم نفسه
+            buttons = [
+                [Button.url(f"👤 {user_name}", f"tg://user?id={user_id}", style="primary")],
+            ]
+            
+            result = builder.article(
+                title="🏦 بنك آراس",
+                description=f"سرعة البنك: {ms}",
+                text=caption,
+                buttons=buttons,
+                link_preview=False,
+                parse_mode="Markdown",
+            )
+            
+            await event.answer([result], cache_time=0)
+
+# =========================================================== #
+# أمر بنك
+# =========================================================== #
+
+@l313l.ar_cmd(pattern="بنك$")
+async def bank_cmd(event):
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+
+    try:
+        await event.get_sender()
+        await event.get_chat()
+    except Exception as e:
+        pass
+
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "بنك")
+    await response[0].click(event.chat_id)
+    await event.delete()

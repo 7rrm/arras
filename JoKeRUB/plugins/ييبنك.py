@@ -5,17 +5,26 @@ import re
 from datetime import datetime
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
-from JoKeRUB.plugins import mention
 from . import l313l
+
+# =========================================================== #
+# تعريف الـ mention
+# =========================================================== #
+
+USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
+
+# mention user
+mention = f"[{Config.ALIVE_NAME}](tg://user?id={USERID})"
+hmention = f"<a href='tg://user?id={USERID}'>{Config.ALIVE_NAME}</a>"
 
 # =========================================================== #
 # نص بنك
 # =========================================================== #
 
-BANK_TEXT = """**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
+BANK_TEXT = f"""**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
 
 ┏━━━━━━━┓
-┃ ✦ {ping}
+┃ ✦ {{ping}}
 ┃ ✦ {mention}
 ┗━━━━━━━┛"""
 
@@ -29,23 +38,18 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         builder = event.builder
         query = event.text
         
-        if query.startswith("بنك") and event.query.user_id == l313l.uid:
+        if query.startswith("بنك"):
             # حساب وقت الاستجابة
             start = datetime.now()
             await asyncio.sleep(0.1)
             end = datetime.now()
             ms = (end - start).microseconds / 1000
             
-            # جلب معلومات المستخدم الحالي
-            user_id = event.query.user_id
-            user = await l313l.get_entity(user_id)
-            user_name = user.first_name
+            caption = BANK_TEXT.format(ping=ms)
             
-            caption = BANK_TEXT.format(ping=ms, mention=mention)
-            
-            # ✅ زر رابط لحساب المستخدم نفسه
+            # ✅ زر باستخدام الـ mention
             buttons = [
-                [Button.url(f"👤 {user_name}", f"tg://user?id={user_id}", style="primary")],
+                [Button.url(f"👤 {Config.ALIVE_NAME}", f"tg://user?id={USERID}", style="primary")],
             ]
             
             result = builder.article(
@@ -75,5 +79,10 @@ async def bank_cmd(event):
         pass
 
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "بنك")
-    await response[0].click(event.chat_id)
+    
+    if response:
+        await response[0].click(event.chat_id)
+    else:
+        await event.edit("❌ لم يتم العثور على استعلام مضمن")
+    
     await event.delete()

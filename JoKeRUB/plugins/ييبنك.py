@@ -19,7 +19,7 @@ BANK_TEXT = f"""**᯽︙ يتـم التـأكـد من البنك انتـظر 
 ┗━━━━━━━┛"""
 
 # =========================================================== #
-# الاستعلام المضمن (بنك)
+# الاستعلام المضمن (بنك) - بنفس نمط السورس والمطور
 # =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -37,7 +37,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             
             caption = BANK_TEXT.format(ping=ms)
             
-            # ✅ نفس أسلوب المطور
+            # ✅ نفس الزر المستخدم في السورس والمطور
             buttons = [
                 [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
             ]

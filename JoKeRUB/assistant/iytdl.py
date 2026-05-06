@@ -108,7 +108,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
         import requests
         
         API_KEY = "60177503-3647-4d6c-be9c-cd0b47a80a6b"
-        api_url = f"https://muntazer.online/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
+        api_url = f"https://muntazer.online/tuob/m4a={API_KEY}=https://youtu.be/{yt_code}"
         
         def fetch_api():
             resp = requests.get(api_url, timeout=60)

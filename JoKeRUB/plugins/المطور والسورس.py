@@ -115,7 +115,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 ┗━━━━━━━━━━━━━━━━┛"""
             
             buttons = [
-                [Button.url(f"👤 {Config.ALIVE_NAME}", f"tg://user?id={USERID}", style="primary")],
+                [Button.url(f"‹ {Config.ALIVE_NAME} ›", f"tg://user?id={USERID}", style="primary")],
             ]
             
             # ✅ صورة البنك

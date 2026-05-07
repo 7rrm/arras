@@ -454,7 +454,7 @@ async def zelzal_gif(event):
                 await event.client.send_message(event.chat_id, response.text, parse_mode="Markdown")
             
             # ✅ حذف المحادثة باستخدام delete_conv
-            await delete_conv(event.client, chat, purgeflag)
+            await delete_conv(event, chat, purgeflag)
             
     except Exception as e:
         await zed.delete()

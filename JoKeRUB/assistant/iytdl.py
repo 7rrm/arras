@@ -67,7 +67,7 @@ async def iytdl_inline(event):
         input_url = (reply.text).strip()
     if not input_url:
         return await edit_delete(event, "**- بالـرد ع رابـط او كتـابة نص مـع الامـر**")
-    zedevent = await edit_or_reply(event, f"**⌔╎جـارِ البحث في اليوتيوب عـن:** `'{input_url}'`")
+    zedevent = await edit_or_reply(event, f"**╮ جـارِ البحث عـن `{input_url}` ... 🎧♥️ ╰")
     flag = True
     cout = 0
     results = None
@@ -97,7 +97,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     """تحميل الصوت"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     
-    await c_q.answer("╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰", alert=False)
+    await c_q.answer("╮ جـارِ التَحمـيـل ... 🔽 ╰", alert=False)
     
     try:
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")

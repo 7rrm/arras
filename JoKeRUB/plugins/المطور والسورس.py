@@ -1,6 +1,7 @@
 from telethon import events, Button
 from telethon.events import CallbackQuery
 import asyncio
+import random
 from datetime import datetime
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
@@ -100,7 +101,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 cache_time=0
             )
         
-        # قسم بنك (جديد) - مع زر باستخدام USERID
+        # ✅ قسم بنك (مع صورة)
         elif query.startswith("بنك") and event.query.user_id == bot.uid:
             # حساب وقت الاستجابة
             start = datetime.now()
@@ -115,21 +116,32 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 ┃ ✦ {mention}
 ┗━━━━━━━┛"""
             
-            # ✅ زر باستخدام USERID و Config.ALIVE_NAME
             buttons = [
                 [Button.url(f"👤 {Config.ALIVE_NAME}", f"tg://user?id={USERID}", style="primary")],
             ]
             
-            await event.answer(
-                [await builder.article(
+            # ✅ صورة البنك
+            BANK_IMG = "https://files.catbox.moe/z46y7v.jpg"
+            
+            try:
+                result = builder.photo(
+                    BANK_IMG,
+                    text=text,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="Markdown",
+                )
+            except Exception:
+                result = builder.article(
                     title="🏦 بنك آراس",
                     description=f"سرعة البنك: {ms}",
                     text=text,
                     buttons=buttons,
                     link_preview=False,
-                )],
-                cache_time=0
-            )
+                    parse_mode="Markdown",
+                )
+            
+            await event.answer([result], cache_time=0)
 
 # =========================================================== #
 # الأوامر

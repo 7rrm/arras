@@ -13,7 +13,6 @@ from . import l313l
 # =========================================================== #
 
 USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
-mention = f"[{Config.ALIVE_NAME}](tg://user?id={USERID})"
 
 # الكليشة مباشرة (بدون استدعاء)
 ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮
@@ -109,11 +108,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             end = datetime.now()
             ms = (end - start).microseconds / 1000
             
-            text = f"""**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
+            text = f"""**ㅤㅤ**
 
 ┏━━━━━━━┓
-┃ ✦ {ms}
-┃ ✦ {mention}
+┃ ✦ P𝑖𝑛𝑔 ➢ ‹ {ms} ›
+┃ ✦ U𝑠𝑒𝑟 N𝑎𝑚𝑒 ➢ ‹ {mention} › .
 ┗━━━━━━━┛"""
             
             buttons = [
@@ -121,7 +120,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             ]
             
             # ✅ صورة البنك
-            BANK_IMG = "https://files.catbox.moe/z46y7v.jpg"
+            BANK_IMG = "https://graph.org/file/f80a6c2a54cf797321e50-835d28e9d7d5658bc5.jpg"
             
             try:
                 result = builder.photo(

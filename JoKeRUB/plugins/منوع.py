@@ -396,10 +396,12 @@ async def main(event):
     else:
         await event.edit("❌ **لا يوجد مستخدمين محظورين لعرضهم.**")
         
+from ..helpers.functions import delete_conv
+
 @l313l.ar_cmd(pattern="(الاسماء|تاريخة)(?: |$)(.*)")
 async def zelzal_gif(event):
-    input_str = event.pattern_match.group(2).strip()  # النص بعد الأمر
-    command = event.pattern_match.group(1)  # اسم الأمر (الاسماء أو تاريخة)
+    input_str = event.pattern_match.group(2).strip()
+    command = event.pattern_match.group(1)
     reply_message = await event.get_reply_message()
     user_id = None
     
@@ -427,29 +429,42 @@ async def zelzal_gif(event):
     zed = await edit_or_reply(event, "**⎉╎جـارِ الكشـف ...**")
     
     chat = "@SangMata_beta_bot"
-    async with event.client.conversation(chat) as conv:
-        try:
-            await conv.send_message("/start")
+    
+    try:
+        async with event.client.conversation(chat, timeout=30) as conv:
+            # إرسال /start
+            purgeflag = await conv.send_message("/start")
             await conv.get_response()
+            
+            # إرسال معرف المستخدم
             await conv.send_message(f"{user_id}")
             response = await conv.get_response()
             
             # معالجة الرد
             if "No data available" in response.text:
-                result = "<b>⎉╎المستخدم ليس لديه أي سجل اسماء بعد ...</b>"
+                result = "**⎉╎المستخدم ليس لديه أي سجل اسماء بعد ...**"
                 await zed.delete()
-                await event.client.send_message(event.chat_id, result, parse_mode="html")
+                await event.client.send_message(event.chat_id, result, parse_mode="Markdown")
             elif "Sorry, you have used up your quota for today" in response.text:
-                result = "<b>⎉╎عذراً .. لقد استنفدت محاولاتك لهذا اليوم.\n⎉╎لديك 5 محاولات فقط كل يوم\n⎉╎يتم تحديث محاولاتك في الساعة 03:00 بتوقيت مكة كل يوم</b>"
+                result = "**⎉╎عذراً .. لقد استنفدت محاولاتك لهذا اليوم.\n⎉╎لديك 5 محاولات فقط كل يوم\n⎉╎يتم تحديث محاولاتك في الساعة 03:00 بتوقيت مكة كل يوم**"
                 await zed.delete()
-                await event.client.send_message(event.chat_id, result, parse_mode="html")
+                await event.client.send_message(event.chat_id, result, parse_mode="Markdown")
             else:
                 await zed.delete()
-                await event.client.send_message(event.chat_id, response.text, parse_mode="html")
+                await event.client.send_message(event.chat_id, response.text, parse_mode="Markdown")
+            
+            # ✅ حذف المحادثة باستخدام delete_conv
+            await delete_conv(event.client, chat, purgeflag)
+            
+    except Exception as e:
+        await zed.delete()
+        await edit_or_reply(event, f"**- حدث خطأ، تأكد من أن البوت @SangMata_beta_bot يعمل**\n`{str(e)}`")
+        
+        # حذف المحادثة حتى في حالة الخطأ
+        try:
+            await delete_conv(event.client, chat)
         except:
-            await zed.delete()
-            await edit_or_reply(event, "**- حدث خطأ، تأكد من أن البوت @SangMata_beta_bot يعمل**")
-
+            pass
 
 @l313l.ar_cmd(pattern="مسح التوجيه")
 async def Reda (event):

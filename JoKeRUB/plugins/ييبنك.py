@@ -8,18 +8,7 @@ from JoKeRUB.plugins import mention
 from . import l313l
 
 # =========================================================== #
-# نص بنك
-# =========================================================== #
-
-BANK_TEXT = f"""**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
-
-┏━━━━━━━┓
-┃ ✦ {{ping}}
-┃ ✦ {mention}
-┗━━━━━━━┛"""
-
-# =========================================================== #
-# الاستعلام المضمن (بنك) - بنفس نمط السورس والمطور
+# الاستعلام المضمن (بنك)
 # =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -35,9 +24,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             end = datetime.now()
             ms = (end - start).microseconds / 1000
             
-            caption = BANK_TEXT.format(ping=ms)
+            text = f"""**᯽︙ يتـم التـأكـد من البنك انتـظر قليلا رجاءا**
+
+┏━━━━━━━┓
+┃ ✦ {ms}
+┃ ✦ {mention}
+┗━━━━━━━┛"""
             
-            # ✅ نفس الزر المستخدم في السورس والمطور
+            # ✅ نفس أسلوب السورس والمطور
             buttons = [
                 [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
             ]
@@ -46,7 +40,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 [await builder.article(
                     title="🏦 بنك آراس",
                     description=f"سرعة البنك: {ms}",
-                    text=caption,
+                    text=text,
                     buttons=buttons,
                     link_preview=False,
                 )],
@@ -69,5 +63,10 @@ async def bank_cmd(event):
         pass
 
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "بنك")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    
+    # ✅ نفس أسلوب السورس والمطور في التحقق
+    if response and len(response) > 0:
+        await response[0].click(event.chat_id)
+        await event.delete()
+    else:
+        await event.edit("❌ حدث خطأ في الاستعلام المضمن")

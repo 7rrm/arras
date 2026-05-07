@@ -97,7 +97,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     """تحميل الصوت"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     
-    await c_q.answer("🔄 جـارِ التحميل...", alert=False)
+    await c_q.answer("╮ جـارِ البحث عـن الإغـنيةة ... 🎧♥️ ╰", alert=False)
     
     try:
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
@@ -126,7 +126,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                 channel_username = parts[-2]
                 message_id = int(parts[-1])
                 
-                await c_q.edit("**📥 جـارِ استلام الملف...**")
+                await c_q.edit("**📥 جـارِ استلام الـملـف...**")
                 
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 

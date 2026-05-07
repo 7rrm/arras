@@ -104,10 +104,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         elif query.startswith("بنك") and event.query.user_id == bot.uid:
             # حساب وقت الاستجابة
             start = datetime.now()
-            await asyncio.sleep(0.1)
+            await l313l.get_me()  # ✅ طلب حقيقي إلى خوادم تليجرام
             end = datetime.now()
             ms = (end - start).microseconds / 1000
-            
             text = f"""**ㅤㅤ**
 ┏━━━━━━━━━━━━━━━━┓
 ┃ ✦ P𝑖𝑛𝑔 ➢ ‹ {ms} ›

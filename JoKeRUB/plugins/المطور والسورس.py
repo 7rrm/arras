@@ -109,11 +109,10 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             ms = (end - start).microseconds / 1000
             
             text = f"""**ㅤㅤ**
-
-┏━━━━━━━┓
+┏━━━━━━━━━━━━━━━━┓
 ┃ ✦ P𝑖𝑛𝑔 ➢ ‹ {ms} ›
 ┃ ✦ U𝑠𝑒𝑟 N𝑎𝑚𝑒 ➢ ‹ {mention} › .
-┗━━━━━━━┛"""
+┗━━━━━━━━━━━━━━━━┛"""
             
             buttons = [
                 [Button.url(f"👤 {Config.ALIVE_NAME}", f"tg://user?id={USERID}", style="primary")],

@@ -7,6 +7,13 @@ from ..sql_helper.globals import gvarstatus
 from JoKeRUB.plugins import mention
 from . import l313l
 
+# =========================================================== #
+# تعريف الـ mention و USERID
+# =========================================================== #
+
+USERID = l313l.uid if Config.OWNER_ID == 0 else Config.OWNER_ID
+mention = f"[{Config.ALIVE_NAME}](tg://user?id={USERID})"
+
 # الكليشة مباشرة (بدون استدعاء)
 ROZ = f"""╭───────• 𝗔𝗥𝗔𝗦 •───────╮
 │ **● ʙᴏᴛ sᴛᴀᴛᴜs: ʀᴜɴɴɪɴɢ ✅**
@@ -42,7 +49,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         builder = event.builder
         query = event.text
         
-        # ✅ قسم السورس
+        # قسم السورس
         if query.startswith("السورس") and event.query.user_id == bot.uid:
             buttons = [
                 [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="danger")],
@@ -59,7 +66,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 cache_time=0
             )
         
-        # ✅ قسم المطور
+        # قسم المطور
         elif query.startswith("المطور") and event.query.user_id == bot.uid:
             buttons = [
                 [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
@@ -76,7 +83,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 cache_time=0
             )
         
-        # ✅ قسم بوتي
+        # قسم بوتي
         elif query.startswith("بوتي") and event.query.user_id == bot.uid:
             buttons = [
                 [Button.url("‹ : أضغط هُنـا : ›", f"https://t.me/{Config.TG_BOT_USERNAME[1:]}", style="primary")],
@@ -93,7 +100,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 cache_time=0
             )
         
-        # ✅ قسم بنك (جديد)
+        # قسم بنك (جديد) - مع زر باستخدام USERID
         elif query.startswith("بنك") and event.query.user_id == bot.uid:
             # حساب وقت الاستجابة
             start = datetime.now()
@@ -108,8 +115,9 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 ┃ ✦ {mention}
 ┗━━━━━━━┛"""
             
+            # ✅ زر باستخدام USERID و Config.ALIVE_NAME
             buttons = [
-                [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
+                [Button.url(f"👤 {Config.ALIVE_NAME}", f"tg://user?id={USERID}", style="primary")],
             ]
             
             await event.answer(
@@ -172,7 +180,6 @@ async def bot_cmd(event):
     await response[0].click(event.chat_id)
     await event.delete()
 
-# ✅ أمر بنك
 @l313l.ar_cmd(pattern="بنك$")
 async def bank_cmd(event):
     if event.reply_to_msg_id:

@@ -325,24 +325,28 @@ async def Ahmed_pin(event):
     try:
         async with borg.conversation(chat) as conv:
             try:
-                # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
                 purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
                 await dra.edit("**- يرجى إلغاء حظر @instagramersbot وحاول مرة أخرى**")
                 return
             
-            # الحصول على الرد الثاني (الوسائط)
-            dragoiq = await conv.get_response()
+            # جلب الرد من البوت
+            s_msg = await conv.get_response()
             
-            await dra.delete()
-            await borg.send_file(
-                event.chat_id,
-                dragoiq,
-                caption=f"<b>⎉╎ BY : @Lx5x5 .</b>",
-                parse_mode="html",
+            # تعديل الرسالة الأصلية
+            await dra.edit(
+                text=(
+                    f"<blockquote>\n"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<a href="emoji/5821446132387023959">🎬</a>\n'
+                    f"</blockquote>"
+                    f"<b>↯︰By: @Lx5x5 .</b>"
+                    f'<a href="emoji/5368338253868968009">🦅</a>\n'
+                ),
+                file=s_msg.media,
+                parse_mode=CustomParseMode("html")
             )
             
-            # حذف المحادثة مع البوت باستخدام الدالة الموجودة
             await delete_conv(event, chat, purgeflag)
                 
     except asyncio.TimeoutError:

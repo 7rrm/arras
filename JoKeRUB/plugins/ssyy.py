@@ -320,7 +320,7 @@ async def Ahmed_pin(event):
         )
     
     dra = await edit_or_reply(event, "**↯︙جـارِ التحميل من بنتـرسـت انتظر قليلا**")
-    chat = "@TIKTOKDOWNLOADROBOT"
+    chat = "@instagramersbot"
     
     try:
         async with borg.conversation(chat) as conv:
@@ -328,7 +328,7 @@ async def Ahmed_pin(event):
                 # إرسال الرابط والحفاظ على الرسالة الأولى لحذفها لاحقاً
                 purgeflag = await conv.send_message(link)
             except YouBlockedUserError:
-                await dra.edit("**- يرجى إلغاء حظر @TIKTOKDOWNLOADROBOT وحاول مرة أخرى**")
+                await dra.edit("**- يرجى إلغاء حظر @instagramersbot وحاول مرة أخرى**")
                 return
             
             # تجاهل الرد الأول (⏳)

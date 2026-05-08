@@ -331,9 +331,6 @@ async def Ahmed_pin(event):
                 await dra.edit("**- يرجى إلغاء حظر @instagramersbot وحاول مرة أخرى**")
                 return
             
-            # تجاهل الرد الأول (⏳)
-            await conv.get_response()
-            
             # الحصول على الرد الثاني (الوسائط)
             dragoiq = await conv.get_response()
             

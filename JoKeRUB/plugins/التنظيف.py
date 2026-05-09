@@ -620,10 +620,10 @@ async def clean_user_messages(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    #data = get_chat_data(user_id)
+    data = get_chat_data(user_id)
     
-    #if not data:
-       # return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.", buttons=None)
+    if not data:
+        return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.", buttons=None)
     
     target_chat_id = data.get("chat_id")
     target_user = data.get("target_user")
@@ -637,7 +637,6 @@ async def clean_user_messages(event):
     msgs = []
     
     try:
-        # ✅ حذف جميع رسائل المستخدم في المجموعة
         async for msg in l313l.iter_messages(target_chat_id, from_user=target_user):
             count += 1
             msgs.append(msg)
@@ -652,7 +651,8 @@ async def clean_user_messages(event):
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
     
-    clear_chat_data(user_id)
+    # ✅ إزالة هذا السطر (معلق)
+    # clear_chat_data(user_id)
 
 # =========================================================== #
 # معالجات التنظيف العادي

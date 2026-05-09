@@ -495,7 +495,7 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
-    "الرسائل": InputMessagesFilterEmpty,
+    "الرسائل": InputMessagesFilterEmpty,  # ✅ إضافة الرسائل
 }
 
 # =========================================================== #
@@ -535,11 +535,11 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# معالجات التنظيف (مع تأكيد)
+# معالجات التنظيف
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)_(-?\\d+)")))
-async def clean_confirm(event):
+async def clean_handler(event):
     match = re.match(r"clean_(.*)_(-?\d+)", event.data.decode())
     if not match:
         return
@@ -548,34 +548,11 @@ async def clean_confirm(event):
     target_chat_id = int(match.group(2))
     user_id = event.query.user_id
     
+    # التأكد من أن المستخدم هو من بدأ الأمر
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    type_name = clean_type if clean_type != "all" else "الكل"
-    
-    buttons = [
-        [Button.inline("✅ موافق", data=f"clean_yes_{clean_type}_{target_chat_id}", style="danger")],
-        [Button.inline("❌ إلغاء", data="clean_no", style="primary")],
-        [Button.inline("🔙 رجوع", data="clean_back", style="primary")]
-    ]
-    
-    await event.edit(f"⚠️ **تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-                     f"🗑️ **النوع:** {type_name}\n\n"
-                     f"هل تريد حذفها؟", buttons=buttons)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_yes_(.*)_(-?\\d+)")))
-async def clean_yes(event):
-    match = re.match(r"clean_yes_(.*)_(-?\d+)", event.data.decode())
-    if not match:
-        return
-    
-    clean_type = match.group(1)
-    target_chat_id = int(match.group(2))
-    user_id = event.query.user_id
-    
-    if user_id != l313l.uid:
-        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
+    # إشعار بدء التنظيف
     await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
     
     count = 0
@@ -591,7 +568,13 @@ async def clean_yes(event):
                     msgs = []
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
-        
+            
+            await event.edit(f"✅ تم حذف {count} رسالة", buttons=None)
+            
+        elif clean_type == "cancel":
+            await event.edit("❌ تم إلغاء التنظيف", buttons=None)
+            return
+            
         elif clean_type in purgetype:
             async for msg in l313l.iter_messages(target_chat_id, filter=purgetype[clean_type]):
                 count += 1
@@ -601,46 +584,14 @@ async def clean_yes(event):
                     msgs = []
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
+            
+            await event.edit(f"✅ تم حذف {count} من رسائل {clean_type}", buttons=None)
         
-        type_name = clean_type if clean_type != "all" else "الكل"
-        await event.edit(f"✅ تم حذف {count} من {type_name}", buttons=None)
-        
+        else:
+            await event.edit("❌ نوع غير معروف", buttons=None)
+            
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_no")))
-async def clean_no(event):
-    user_id = event.query.user_id
-    
-    if user_id != l313l.uid:
-        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
-    await event.edit("❌ تم إلغاء الحذف", buttons=None)
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_back")))
-async def clean_back(event):
-    user_id = event.query.user_id
-    
-    if user_id != l313l.uid:
-        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
-    # العودة إلى القائمة الرئيسية
-    buttons = []
-    row = []
-    for name in purgetype.keys():
-        row.append(Button.inline(name, data=f"clean_{name}_{event.chat_id}", style="primary"))
-        if len(row) == 2:
-            buttons.append(row)
-            row = []
-    if row:
-        buttons.append(row)
-    
-    buttons.append([Button.inline("🗑️ الكل", data=f"clean_all_{event.chat_id}", style="danger")])
-    buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
-    
-    text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
-    
-    await event.edit(text, buttons=buttons)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cancel")))
 async def clean_cancel(event):

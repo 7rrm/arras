@@ -654,7 +654,7 @@ async def clean_cancel(event):
 # أمر تنظيف
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="تنظيف$")
+@l313l.ar_cmd(pattern="التنظيف$")
 async def clean_cmd(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
     if response:

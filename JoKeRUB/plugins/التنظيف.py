@@ -462,6 +462,7 @@ async def _(event):
     await edit_or_reply(event, "**⎉╎تم حذف الدردشة مع المستخدم .. بنجـاح ✓**")
 
 
+
 from telethon import events, Button
 from telethon.events import CallbackQuery
 import asyncio
@@ -619,10 +620,10 @@ async def clean_user_messages(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    data = get_chat_data(user_id)
+    #data = get_chat_data(user_id)
     
-    if not data:
-        return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.", buttons=None)
+    #if not data:
+       # return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.", buttons=None)
     
     target_chat_id = data.get("chat_id")
     target_user = data.get("target_user")
@@ -689,7 +690,7 @@ async def clean_handler(event):
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
 # =========================================================== #
-# تأكيد الحذف (موافق) - النسخة المصححة
+# تأكيد الحذف (موافق)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_yes_(.*)_(-?\\d+)")))
@@ -751,55 +752,10 @@ async def confirm_yes_handler(event):
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
     
-    # ✅ إزالة clear_chat_data من هنا (تسبب الخطأ)
-
-# =========================================================== #
-# معالج مسح رسائل المستخدم (عند الرد) - النسخة المصححة
-# =========================================================== #
-
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_user_messages")))
-async def clean_user_messages(event):
-    user_id = event.query.user_id
-    
-    if user_id != l313l.uid:
-        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
-    data = get_chat_data(user_id)
-    
-    if not data:
-        return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.", buttons=None)
-    
-    target_chat_id = data.get("chat_id")
-    target_user = data.get("target_user")
-    
-    if not target_user:
-        return await event.edit("❌ لم يتم تحديد المستخدم المستهدف", buttons=None)
-    
-    await event.edit(f"🧹 جاري حذف رسائل المستخدم...", buttons=None)
-    
-    count = 0
-    msgs = []
-    
-    try:
-        async for msg in l313l.iter_messages(target_chat_id, from_user=target_user):
-            count += 1
-            msgs.append(msg)
-            if len(msgs) >= 100:
-                await l313l.delete_messages(target_chat_id, msgs)
-                msgs = []
-        if msgs:
-            await l313l.delete_messages(target_chat_id, msgs)
-        
-        await event.edit(f"✅ تم حذف {count} رسالة من هذا المستخدم", buttons=None)
-        
-    except Exception as e:
-        await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
-    
-    # ✅ حذف البيانات بعد الانتهاء من المعالجة (بدون إرسال إضافي)
     clear_chat_data(user_id)
 
 # =========================================================== #
-# إلغاء التأكيد - إضافة clear_chat_data هنا
+# إلغاء التأكيد
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_no")))
@@ -807,11 +763,40 @@ async def confirm_no_handler(event):
     user_id = event.query.user_id
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    clear_chat_data(user_id)
     await event.edit("❌ تم إلغاء عملية التنظيف", buttons=None)
 
 # =========================================================== #
-# إلغاء التنظيف - إضافة clear_chat_data هنا
+# رجوع إلى القائمة الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_menu")))
+async def back_to_menu_handler(event):
+    user_id = event.query.user_id
+    
+    if user_id != l313l.uid:
+        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
+    
+    data = get_chat_data(user_id)
+    
+    buttons = []
+    row = []
+    for name in clean_types:
+        row.append(Button.inline(name, data=f"clean_{name}", style="primary"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    
+    buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
+    buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
+    
+    text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
+# إلغاء التنظيف
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cancel")))

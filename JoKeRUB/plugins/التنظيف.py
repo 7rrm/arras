@@ -461,6 +461,7 @@ async def _(event):
     await l313l.delete_dialog(chat, revoke=True)
     await edit_or_reply(event, "**⎉╎تم حذف الدردشة مع المستخدم .. بنجـاح ✓**")
 
+
 from telethon import events, Button
 from telethon.events import CallbackQuery
 import asyncio
@@ -493,32 +494,32 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
-    "الرسائل": InputMessagesFilterEmpty,  # ✅ إضافة نوع الرسائل
+    "الرسائل": InputMessagesFilterEmpty,
 }
 
 # ملف لتخزين chat_id مؤقتاً
 TEMP_FILE = "temp_chat.json"
 
-def save_chat_id(user_id, chat_id):
-    """حفظ chat_id للمستخدم"""
+def save_chat_id(user_id, chat_id, target_user=None):
+    """حفظ chat_id للمستخدم مع المستخدم المستهدف"""
     data = {}
     if os.path.exists(TEMP_FILE):
         with open(TEMP_FILE, 'r') as f:
             data = json.load(f)
-    data[str(user_id)] = chat_id
+    data[str(user_id)] = {"chat_id": chat_id, "target_user": target_user}
     with open(TEMP_FILE, 'w') as f:
         json.dump(data, f)
 
-def get_chat_id(user_id):
-    """استرجاع chat_id للمستخدم"""
+def get_chat_data(user_id):
+    """استرجاع بيانات المستخدم"""
     if os.path.exists(TEMP_FILE):
         with open(TEMP_FILE, 'r') as f:
             data = json.load(f)
             return data.get(str(user_id))
     return None
 
-def clear_chat_id(user_id):
-    """حذف chat_id للمستخدم"""
+def clear_chat_data(user_id):
+    """حذف بيانات المستخدم"""
     if os.path.exists(TEMP_FILE):
         with open(TEMP_FILE, 'r') as f:
             data = json.load(f)
@@ -528,16 +529,22 @@ def clear_chat_id(user_id):
                 json.dump(data, f)
 
 # =========================================================== #
-# أمر تنظيف (يحفظ chat_id تلقائياً)
+# أمر تنظيف (يدعم الرد)
 # =========================================================== #
 
 @l313l.ar_cmd(pattern="التنظيف$")
 async def clean_cmd(event):
     user_id = event.sender_id
     chat_id = event.chat_id
+    target_user = None
     
-    # حفظ chat_id تلقائياً
-    save_chat_id(user_id, chat_id)
+    # ✅ التحقق من وجود رد
+    if event.is_reply:
+        replied = await event.get_reply_message()
+        target_user = replied.sender_id
+    
+    # حفظ البيانات (مع المستخدم المستهدف إذا وجد)
+    save_chat_id(user_id, chat_id, target_user)
     
     # فتح الاستعلام المضمن
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
@@ -571,7 +578,12 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
             buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
             
-            text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
+            # ✅ عرض رسالة مع توضيح وضع الرد
+            data = get_chat_data(event.query.user_id)
+            if data and data.get("target_user"):
+                text = f"**🧹 تنظيف رسائل مستخدم معين**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nسيتم حذف رسائل المستخدم فقط.\nاختر نوع الوسائط التي تريد حذفها:"
+            else:
+                text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
             
             result = builder.article(
                 title="🧹 تنظيف المجموعة",
@@ -587,18 +599,24 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 # دالة عرض تأكيد الحذف
 # =========================================================== #
 
-async def confirm_delete(event, clean_type, target_chat_id):
+async def confirm_delete(event, clean_type, target_chat_id, target_user):
     """عرض رسالة تأكيد قبل الحذف"""
     buttons = [
-        [Button.inline("✅ موافق", data=f"confirm_yes_{clean_type}_{target_chat_id}", style="danger")],
+        [Button.inline("✅ موافق", data=f"confirm_yes_{clean_type}_{target_chat_id}_{target_user if target_user else '0'}", style="danger")],
         [Button.inline("❌ إلغاء", data="confirm_no", style="primary")],
         [Button.inline("🔙 رجوع", data="back_to_menu", style="primary")]
     ]
     
-    text = f"**⚠️ تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-    text += f"هل أنت متأكد من حذف **{clean_type}** ؟\n\n"
-    text += f"📍 سيتم الحذف من هذه الدردشة فقط.\n"
-    text += f"⚠️ لا يمكن استعادة الرسائل بعد الحذف!"
+    if target_user:
+        text = f"**⚠️ تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+        text += f"هل أنت متأكد من حذف **{clean_type}** من هذا المستخدم؟\n\n"
+        text += f"📍 سيتم الحذف من هذه الدردشة فقط.\n"
+        text += f"⚠️ لا يمكن استعادة الرسائل بعد الحذف!"
+    else:
+        text = f"**⚠️ تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+        text += f"هل أنت متأكد من حذف **{clean_type}** ؟\n\n"
+        text += f"📍 سيتم الحذف من هذه الدردشة فقط.\n"
+        text += f"⚠️ لا يمكن استعادة الرسائل بعد الحذف!"
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
@@ -615,32 +633,36 @@ async def clean_handler(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    # استرجاع chat_id المحفوظ
-    target_chat_id = get_chat_id(user_id)
+    # استرجاع البيانات
+    data = get_chat_data(user_id)
     
-    if not target_chat_id:
+    if not data:
         return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.\nاستخدم الأمر `.تنظيف` مرة أخرى.", buttons=None)
     
+    target_chat_id = data.get("chat_id")
+    target_user = data.get("target_user")
+    
     if clean_type == "cancel":
-        clear_chat_id(user_id)
+        clear_chat_data(user_id)
         await event.edit("❌ تم إلغاء التنظيف", buttons=None)
         return
     
-    # ✅ عرض تأكيد الحذف
-    await confirm_delete(event, clean_type, target_chat_id)
+    # عرض تأكيد الحذف
+    await confirm_delete(event, clean_type, target_chat_id, target_user)
 
 # =========================================================== #
 # تأكيد الحذف (موافق)
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_yes_(.*)_(-?\\d+)")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_yes_(.*)_(-?\\d+)_(\\d+)")))
 async def confirm_yes_handler(event):
-    match = re.match(r"confirm_yes_(.*)_(-?\d+)", event.data.decode())
+    match = re.match(r"confirm_yes_(.*)_(-?\d+)_(\d+)", event.data.decode())
     if not match:
         return
     
     clean_type = match.group(1)
     target_chat_id = int(match.group(2))
+    target_user = int(match.group(3)) if match.group(3) != "0" else None
     user_id = event.query.user_id
     
     if user_id != l313l.uid:
@@ -654,12 +676,20 @@ async def confirm_yes_handler(event):
     
     try:
         if clean_type == "all":
-            async for msg in l313l.iter_messages(target_chat_id):
-                count += 1
-                msgs.append(msg)
-                if len(msgs) >= 100:
-                    await l313l.delete_messages(target_chat_id, msgs)
-                    msgs = []
+            if target_user:
+                async for msg in l313l.iter_messages(target_chat_id, from_user=target_user):
+                    count += 1
+                    msgs.append(msg)
+                    if len(msgs) >= 100:
+                        await l313l.delete_messages(target_chat_id, msgs)
+                        msgs = []
+            else:
+                async for msg in l313l.iter_messages(target_chat_id):
+                    count += 1
+                    msgs.append(msg)
+                    if len(msgs) >= 100:
+                        await l313l.delete_messages(target_chat_id, msgs)
+                        msgs = []
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
             
@@ -667,12 +697,20 @@ async def confirm_yes_handler(event):
             
         elif clean_type in purgetype:
             filter_type = purgetype[clean_type]
-            async for msg in l313l.iter_messages(target_chat_id, filter=filter_type):
-                count += 1
-                msgs.append(msg)
-                if len(msgs) >= 100:
-                    await l313l.delete_messages(target_chat_id, msgs)
-                    msgs = []
+            if target_user:
+                async for msg in l313l.iter_messages(target_chat_id, filter=filter_type, from_user=target_user):
+                    count += 1
+                    msgs.append(msg)
+                    if len(msgs) >= 100:
+                        await l313l.delete_messages(target_chat_id, msgs)
+                        msgs = []
+            else:
+                async for msg in l313l.iter_messages(target_chat_id, filter=filter_type):
+                    count += 1
+                    msgs.append(msg)
+                    if len(msgs) >= 100:
+                        await l313l.delete_messages(target_chat_id, msgs)
+                        msgs = []
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
             
@@ -684,8 +722,8 @@ async def confirm_yes_handler(event):
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
     
-    # حذف chat_id بعد الانتهاء
-    clear_chat_id(user_id)
+    # حذف البيانات بعد الانتهاء
+    clear_chat_data(user_id)
 
 # =========================================================== #
 # إلغاء التأكيد
@@ -725,7 +763,11 @@ async def back_to_menu_handler(event):
     buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
     buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
     
-    text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
+    data = get_chat_data(user_id)
+    if data and data.get("target_user"):
+        text = f"**🧹 تنظيف رسائل مستخدم معين**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nسيتم حذف رسائل المستخدم فقط.\nاختر نوع الوسائط التي تريد حذفها:"
+    else:
+        text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
     
     await event.edit(text, buttons=buttons, parse_mode="Markdown")
 
@@ -740,5 +782,5 @@ async def clean_cancel(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    clear_chat_id(user_id)
+    clear_chat_data(user_id)
     await event.edit("❌ تم إلغاء التنظيف", buttons=None)

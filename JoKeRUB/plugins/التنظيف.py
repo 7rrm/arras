@@ -654,6 +654,10 @@ async def clean_handler(event):
 # تأكيد الحذف (موافق)
 # =========================================================== #
 
+# =========================================================== #
+# تأكيد الحذف (موافق) - النسخة المصححة
+# =========================================================== #
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_yes_(.*)_(-?\\d+)_(\\d+)")))
 async def confirm_yes_handler(event):
     match = re.match(r"confirm_yes_(.*)_(-?\d+)_(\d+)", event.data.decode())
@@ -668,7 +672,6 @@ async def confirm_yes_handler(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    # إشعار بدء التنظيف
     await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
     
     count = 0
@@ -677,6 +680,7 @@ async def confirm_yes_handler(event):
     try:
         if clean_type == "all":
             if target_user:
+                # ✅ بدون filter
                 async for msg in l313l.iter_messages(target_chat_id, from_user=target_user):
                     count += 1
                     msgs.append(msg)
@@ -698,13 +702,33 @@ async def confirm_yes_handler(event):
         elif clean_type in purgetype:
             filter_type = purgetype[clean_type]
             if target_user:
-                async for msg in l313l.iter_messages(target_chat_id, filter=filter_type, from_user=target_user):
+                # ✅ بدون filter عند البحث عن مستخدم معين
+                async for msg in l313l.iter_messages(target_chat_id, from_user=target_user):
+                    # التحقق من نوع الوسائط يدوياً
+                    if clean_type == "الصور" and not msg.photo:
+                        continue
+                    elif clean_type == "فيديو" and not msg.video:
+                        continue
+                    elif clean_type == "البصمات" and not msg.voice:
+                        continue
+                    elif clean_type == "الاغاني" and not msg.audio:
+                        continue
+                    elif clean_type == "المتحركة" and not msg.gif:
+                        continue
+                    elif clean_type == "الملفات" and not msg.document:
+                        continue
+                    elif clean_type == "الروابط" and not msg.text or ("http" not in msg.text and "https" not in msg.text):
+                        continue
+                    elif clean_type == "الرسائل" and not msg.text:
+                        continue
+                    
                     count += 1
                     msgs.append(msg)
                     if len(msgs) >= 100:
                         await l313l.delete_messages(target_chat_id, msgs)
                         msgs = []
             else:
+                # بدون مستخدم محدد، نستخدم الفلتر
                 async for msg in l313l.iter_messages(target_chat_id, filter=filter_type):
                     count += 1
                     msgs.append(msg)
@@ -722,7 +746,6 @@ async def confirm_yes_handler(event):
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
     
-    # حذف البيانات بعد الانتهاء
     clear_chat_data(user_id)
 
 # =========================================================== #

@@ -723,7 +723,17 @@ async def confirm_yes_handler(event):
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
             await event.edit(f"✅ تم حذف {count} من رسائل {clean_type}", buttons=None)
-        
+        elif clean_type == "الملصقات":
+            async for msg in l313l.iter_messages(target_chat_id):
+                if msg.sticker:
+                    count += 1
+                    msgs.append(msg)
+                    if len(msgs) >= 100:
+                        await l313l.delete_messages(target_chat_id, msgs)
+                        msgs = []
+                        if msgs:
+                            await l313l.delete_messages(target_chat_id, msgs)
+                            await event.edit(f"✅ تم حذف {count} من الملصقات", buttons=None)
         else:
             await event.edit("❌ نوع غير معروف", buttons=None)
             

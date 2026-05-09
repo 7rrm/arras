@@ -492,7 +492,7 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
-    "الملصقات": InputMessagesFilterRoundVideo,
+    "الملصقات": InputMessagesFilterEmpty,
     "الرسائل": None,
 }
 

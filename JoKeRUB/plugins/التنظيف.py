@@ -461,7 +461,6 @@ async def _(event):
     await l313l.delete_dialog(chat, revoke=True)
     await edit_or_reply(event, "**⎉╎تم حذف الدردشة مع المستخدم .. بنجـاح ✓**")
 
-
 from telethon import events, Button
 from telethon.events import CallbackQuery
 import asyncio
@@ -495,11 +494,10 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
-    "الرسائل": InputMessagesFilterEmpty,  # ✅ إضافة الرسائل
 }
 
 # =========================================================== #
-# الاستعلام المضمن (تنظيف)
+# الاستعلام المضمن (تنظيف) - مع حفظ chat_id في الزر
 # =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -509,9 +507,14 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("تنظيف") and event.query.user_id == l313l.uid:
+            # 🔥 المفتاح: إرسال chat_id مع الأمر
+            # event.chat_id هنا هو معرف الدردشة الحقيقية (لأنها من InlineQuery)
+            # ولكن عندما يضغط المستخدم على الزر، ستصل مع البيانات
+            
             buttons = []
             row = []
             for name in purgetype.keys():
+                # ✅ حفظ chat_id في الزر نفسه
                 row.append(Button.inline(name, data=f"clean_{name}_{event.chat_id}", style="primary"))
                 if len(row) == 2:
                     buttons.append(row)
@@ -535,7 +538,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# معالجات التنظيف
+# معالجات التنظيف (مع chat_id من الزر)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)_(-?\\d+)")))

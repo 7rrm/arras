@@ -497,9 +497,6 @@ purgetype = {
     "الرسائل": InputMessagesFilterEmpty,
 }
 
-# قاموس لتخزين chat_id و clean_type مؤقتاً
-temp_data = {}
-
 # =========================================================== #
 # الاستعلام المضمن (تنظيف)
 # =========================================================== #
@@ -537,7 +534,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# معالجات التنظيف (مع تأكيد سريع)
+# معالجات التنظيف (مع chat_id محفوظ في الزر)
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)")))
@@ -546,22 +543,16 @@ async def clean_confirm(event):
     user_id = event.query.user_id
     chat_id = event.chat_id
     
-    # التأكد من أن المستخدم هو من بدأ الأمر
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    # حفظ البيانات المؤقتة
-    temp_data[user_id] = {"type": clean_type, "chat_id": chat_id}
-    
-    # اسم النوع بالعربي
-    type_name = clean_type if clean_type != "all" else "الكل"
-    
-    # عرض زر التأكيد (بدون حساب العدد)
     buttons = [
-        [Button.inline("✅ موافق", data="clean_confirm_yes", style="danger")],
+        [Button.inline("✅ موافق", data=f"clean_confirm_yes_{clean_type}_{chat_id}", style="danger")],
         [Button.inline("❌ إلغاء", data="clean_confirm_no", style="primary")],
         [Button.inline("🔙 رجوع", data="clean_back", style="primary")]
     ]
+    
+    type_name = clean_type if clean_type != "all" else "الكل"
     
     await event.edit(f"⚠️ **تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
                      f"🗑️ **النوع:** {type_name}\n\n"
@@ -571,19 +562,18 @@ async def clean_confirm(event):
 # تأكيد الحذف
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_confirm_yes")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_confirm_yes_(.*)_(-?\\d+)")))
 async def clean_confirm_yes(event):
+    match = re.match(r"clean_confirm_yes_(.*)_(-?\d+)", event.data.decode())
+    if not match:
+        return
+    
+    clean_type = match.group(1)
+    chat_id = int(match.group(2))
     user_id = event.query.user_id
     
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
-    data = temp_data.get(user_id)
-    if not data:
-        return await event.edit("❌ انتهت الجلسة، ابدأ من جديد", buttons=None)
-    
-    clean_type = data["type"]
-    chat_id = data["chat_id"]
     
     await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
     
@@ -611,8 +601,6 @@ async def clean_confirm_yes(event):
             if msgs:
                 await l313l.delete_messages(chat_id, msgs)
         
-        temp_data.pop(user_id, None)
-        
         type_name = clean_type if clean_type != "all" else "الكل"
         await event.edit(f"✅ تم حذف {count} من {type_name}", buttons=None)
         
@@ -626,7 +614,6 @@ async def clean_confirm_no(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    temp_data.pop(user_id, None)
     await event.edit("❌ تم إلغاء الحذف", buttons=None)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_back")))
@@ -635,8 +622,6 @@ async def clean_back(event):
     
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
-    
-    temp_data.pop(user_id, None)
     
     # العودة إلى القائمة الرئيسية
     buttons = []
@@ -663,14 +648,13 @@ async def clean_cancel(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    temp_data.pop(user_id, None)
     await event.edit("❌ تم إلغاء التنظيف", buttons=None)
 
 # =========================================================== #
 # أمر تنظيف
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="التنظيف$")
+@l313l.ar_cmd(pattern="تنظيف$")
 async def clean_cmd(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
     if response:

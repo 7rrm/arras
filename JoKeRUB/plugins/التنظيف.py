@@ -468,6 +468,18 @@ import re
 from ..core.managers import edit_or_reply
 from ..Config import Config
 from . import l313l
+from telethon.tl.types import (
+    InputMessagesFilterDocument,
+    InputMessagesFilterEmpty,
+    InputMessagesFilterGeo,
+    InputMessagesFilterGif,
+    InputMessagesFilterMusic,
+    InputMessagesFilterPhotos,
+    InputMessagesFilterRoundVideo,
+    InputMessagesFilterUrl,
+    InputMessagesFilterVideo,
+    InputMessagesFilterVoice,
+)
 
 # =========================================================== #
 # أنواع التنظيف
@@ -480,9 +492,12 @@ purgetype = {
     "الصور": InputMessagesFilterPhotos,
     "الموقع": InputMessagesFilterGeo,
     "الاغاني": InputMessagesFilterMusic,
-    "الفيديو": InputMessagesFilterVideo,
+    "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
 }
+
+# قاموس لتخزين عدد الرسائل المحذوفة لكل مستخدم
+clean_count = {}
 
 # =========================================================== #
 # الاستعلام المضمن (تنظيف)
@@ -505,8 +520,8 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             if row:
                 buttons.append(row)
             
-            buttons.append([Button.inline("الكل", data="clean_all", style="danger")])
-            buttons.append([Button.inline("إلغاء", data="clean_cancel", style="danger")])
+            buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
+            buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
             
             text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
             
@@ -521,7 +536,45 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# معالجات التنظيف (باستخدام l313l)
+# دالة التنظيف العامة
+# =========================================================== #
+
+async def perform_clean(chat_id, clean_filter, clean_name):
+    """تنفيذ عملية التنظيف"""
+    count = 0
+    msgs = []
+    
+    try:
+        if clean_filter == "all":
+            async for msg in l313l.iter_messages(chat_id):
+                count += 1
+                msgs.append(msg)
+                if len(msgs) >= 100:
+                    await l313l.delete_messages(chat_id, msgs)
+                    msgs = []
+            if msgs:
+                await l313l.delete_messages(chat_id, msgs)
+            return count, f"✅ تم حذف {count} رسالة"
+        
+        elif clean_filter in purgetype:
+            async for msg in l313l.iter_messages(chat_id, filter=purgetype[clean_filter]):
+                count += 1
+                msgs.append(msg)
+                if len(msgs) >= 100:
+                    await l313l.delete_messages(chat_id, msgs)
+                    msgs = []
+            if msgs:
+                await l313l.delete_messages(chat_id, msgs)
+            return count, f"✅ تم حذف {count} من رسائل {clean_name}"
+        
+        else:
+            return 0, "❌ نوع غير معروف"
+            
+    except Exception as e:
+        return 0, f"❌ حدث خطأ: {str(e)}"
+
+# =========================================================== #
+# معالجات التنظيف
 # =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)")))
@@ -534,50 +587,37 @@ async def clean_handler(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    await event.answer("🧹 جاري التنظيف...", alert=False)
+    # إشعار بدء التنظيف
+    await event.answer(f"🧹 جاري حذف {clean_type}...", alert=False)
     
-    count = 0
-    msgs = []
+    # تنفيذ التنظيف
+    if clean_type == "cancel":
+        await event.edit("❌ تم إلغاء التنظيف", buttons=None)
+        return
     
-    try:
-        if clean_type == "all":
-            # ✅ استخدام l313l بدلاً من event.client
-            async for msg in l313l.iter_messages(chat_id):
-                count += 1
-                msgs.append(msg)
-                if len(msgs) == 100:
-                    await l313l.delete_messages(chat_id, msgs)
-                    msgs = []
-            if msgs:
-                await l313l.delete_messages(chat_id, msgs)
-            
-            result_text = f"✅ تم حذف {count} رسالة"
-            
-        elif clean_type == "cancel":
-            await event.edit("❌ تم إلغاء التنظيف", buttons=None)
-            return
-            
-        elif clean_type in purgetype:
-            # ✅ استخدام l313l بدلاً من event.client
-            async for msg in l313l.iter_messages(chat_id, filter=purgetype[clean_type]):
-                count += 1
-                msgs.append(msg)
-                if len(msgs) == 100:
-                    await l313l.delete_messages(chat_id, msgs)
-                    msgs = []
-            if msgs:
-                await l313l.delete_messages(chat_id, msgs)
-            
-            result_text = f"✅ تم حذف {count} من رسائل {clean_type}"
-        
-        else:
-            result_text = "❌ نوع غير معروف"
-        
-        # تعديل الرسالة بنتيجة التنظيف
-        await event.edit(result_text, buttons=None)
-        
-    except Exception as e:
-        await event.edit(f"❌ حدث خطأ: {str(e)}", buttons=None)
+    elif clean_type == "all":
+        count, result = await perform_clean(chat_id, "all", "الكل")
+    
+    elif clean_type in purgetype:
+        count, result = await perform_clean(chat_id, clean_type, clean_type)
+    
+    else:
+        result = "❌ نوع غير معروف"
+    
+    # إضافة عدد الرسائل إلى القاموس
+    clean_count[user_id] = count
+    
+    # تعديل الرسالة بنتيجة التنظيف
+    await event.edit(result, buttons=None)
+
+# =========================================================== #
+# زر التنظيف بعد الانتهاء (اختياري)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_done")))
+async def clean_done(event):
+    await event.delete()
+    await event.answer("✅ تم إغلاق قائمة التنظيف", alert=True)
 
 # =========================================================== #
 # أمر تنظيف
@@ -585,6 +625,18 @@ async def clean_handler(event):
 
 @l313l.ar_cmd(pattern="التنظيف$")
 async def clean_cmd(event):
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+
+    try:
+        await event.get_sender()
+        await event.get_chat()
+    except Exception as e:
+        pass
+
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
-    await response[0].click(event.chat_id)
-    await event.delete()
+    if response:
+        await response[0].click(event.chat_id)
+        await event.delete()
+    else:
+        await event.edit("❌ فشل في فتح قائمة التنظيف")

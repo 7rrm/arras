@@ -478,6 +478,7 @@ from telethon.tl.types import (
     InputMessagesFilterUrl,
     InputMessagesFilterVideo,
     InputMessagesFilterVoice,
+    InputMessagesFilterEmpty,
 )
 
 # =========================================================== #
@@ -492,6 +493,7 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
+    "الرسائل": InputMessagesFilterEmpty,  # ✅ إضافة نوع الرسائل
 }
 
 # ملف لتخزين chat_id مؤقتاً
@@ -529,12 +531,12 @@ def clear_chat_id(user_id):
 # أمر تنظيف (يحفظ chat_id تلقائياً)
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="التنظيف$")
+@l313l.ar_cmd(pattern="تنظيف$")
 async def clean_cmd(event):
     user_id = event.sender_id
     chat_id = event.chat_id
     
-    # ✅ حفظ chat_id تلقائياً
+    # حفظ chat_id تلقائياً
     save_chat_id(user_id, chat_id)
     
     # فتح الاستعلام المضمن
@@ -582,6 +584,25 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
+# دالة عرض تأكيد الحذف
+# =========================================================== #
+
+async def confirm_delete(event, clean_type, target_chat_id):
+    """عرض رسالة تأكيد قبل الحذف"""
+    buttons = [
+        [Button.inline("✅ موافق", data=f"confirm_yes_{clean_type}_{target_chat_id}", style="danger")],
+        [Button.inline("❌ إلغاء", data="confirm_no", style="primary")],
+        [Button.inline("🔙 رجوع", data="back_to_menu", style="primary")]
+    ]
+    
+    text = f"**⚠️ تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
+    text += f"هل أنت متأكد من حذف **{clean_type}** ؟\n\n"
+    text += f"📍 سيتم الحذف من هذه الدردشة فقط.\n"
+    text += f"⚠️ لا يمكن استعادة الرسائل بعد الحذف!"
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
 # معالجات التنظيف
 # =========================================================== #
 
@@ -594,11 +615,36 @@ async def clean_handler(event):
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
-    # ✅ استرجاع chat_id المحفوظ
+    # استرجاع chat_id المحفوظ
     target_chat_id = get_chat_id(user_id)
     
     if not target_chat_id:
         return await event.edit("❌ حدث خطأ: لم يتم تحديد الدردشة.\nاستخدم الأمر `.تنظيف` مرة أخرى.", buttons=None)
+    
+    if clean_type == "cancel":
+        clear_chat_id(user_id)
+        await event.edit("❌ تم إلغاء التنظيف", buttons=None)
+        return
+    
+    # ✅ عرض تأكيد الحذف
+    await confirm_delete(event, clean_type, target_chat_id)
+
+# =========================================================== #
+# تأكيد الحذف (موافق)
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_yes_(.*)_(-?\\d+)")))
+async def confirm_yes_handler(event):
+    match = re.match(r"confirm_yes_(.*)_(-?\d+)", event.data.decode())
+    if not match:
+        return
+    
+    clean_type = match.group(1)
+    target_chat_id = int(match.group(2))
+    user_id = event.query.user_id
+    
+    if user_id != l313l.uid:
+        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
     # إشعار بدء التنظيف
     await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
@@ -619,13 +665,9 @@ async def clean_handler(event):
             
             await event.edit(f"✅ تم حذف {count} رسالة", buttons=None)
             
-        elif clean_type == "cancel":
-            await event.edit("❌ تم إلغاء التنظيف", buttons=None)
-            clear_chat_id(user_id)
-            return
-            
         elif clean_type in purgetype:
-            async for msg in l313l.iter_messages(target_chat_id, filter=purgetype[clean_type]):
+            filter_type = purgetype[clean_type]
+            async for msg in l313l.iter_messages(target_chat_id, filter=filter_type):
                 count += 1
                 msgs.append(msg)
                 if len(msgs) >= 100:
@@ -642,8 +684,54 @@ async def clean_handler(event):
     except Exception as e:
         await event.edit(f"❌ حدث خطأ: {str(e)[:100]}", buttons=None)
     
-    # ✅ حذف chat_id بعد الانتهاء
+    # حذف chat_id بعد الانتهاء
     clear_chat_id(user_id)
+
+# =========================================================== #
+# إلغاء التأكيد
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"confirm_no")))
+async def confirm_no_handler(event):
+    user_id = event.query.user_id
+    
+    if user_id != l313l.uid:
+        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
+    
+    await event.edit("❌ تم إلغاء عملية التنظيف", buttons=None)
+
+# =========================================================== #
+# رجوع إلى القائمة الرئيسية
+# =========================================================== #
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"back_to_menu")))
+async def back_to_menu_handler(event):
+    user_id = event.query.user_id
+    
+    if user_id != l313l.uid:
+        return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
+    
+    # إعادة عرض القائمة الرئيسية
+    buttons = []
+    row = []
+    for name in purgetype.keys():
+        row.append(Button.inline(name, data=f"clean_{name}", style="primary"))
+        if len(row) == 2:
+            buttons.append(row)
+            row = []
+    if row:
+        buttons.append(row)
+    
+    buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
+    buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
+    
+    text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
+# إلغاء التنظيف (من القائمة الرئيسية)
+# =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_cancel")))
 async def clean_cancel(event):

@@ -141,8 +141,8 @@ class HuReClient(TelegramClient):
                             "error": str(sys.exc_info()[1]),
                             "date": datetime.datetime.now(),
                         }
-                        ftext += "\n\n--------END JoKeRUB TRACEBACK LOG--------"
-                        command = 'git log --pretty=format:"%an: %s" -5'
+                        ftext += "\n\n--------END ARRAS TRACEBACK LOG--------"
+                        command = 'git log --pretty=format:"%s" -5'
                         ftext += "\n\n\nLast 5 commits:\n"
                         output = (await runcmd(command))[:2]
                         result = output[0] + output[1]

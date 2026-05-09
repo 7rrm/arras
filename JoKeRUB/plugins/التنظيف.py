@@ -577,13 +577,13 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                 buttons = []
                 row = []
                 for name in clean_types:
-                    row.append(Button.inline(name, data=f"cln_{name}", style="primary"))
+                    row.append(Button.inline(name, data=f"cln_{name}", style="success"))
                     if len(row) == 2:
                         buttons.append(row)
                         row = []
                 if row:
                     buttons.append(row)
-                buttons.append([Button.inline("🗑️ الكل", data="cleann_all", style="danger")])
+                buttons.append([Button.inline("🗑️ الكل", data="cleann_all", style="primary")])
                 buttons.append([Button.inline("❌ إلغاء", data="cclean_cancel", style="danger")])
                 text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
             

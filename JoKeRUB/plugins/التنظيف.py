@@ -496,8 +496,11 @@ purgetype = {
     "الروابط": InputMessagesFilterUrl,
 }
 
+# قاموس لتخزين chat_id مؤقتاً
+temp_chat_ids = {}
+
 # =========================================================== #
-# الاستعلام المضمن (تنظيف) - مع حفظ chat_id
+# الاستعلام المضمن (تنظيف)
 # =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
@@ -507,18 +510,20 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
         query = event.text
         
         if query.startswith("تنظيف") and event.query.user_id == l313l.uid:
+            # حفظ chat_id مؤقتاً
+            temp_chat_ids[event.query.user_id] = event.chat_id
+            
             buttons = []
             row = []
             for name in purgetype.keys():
-                # ✅ حفظ chat_id في الزر
-                row.append(Button.inline(name, data=f"clean_{name}_{event.chat_id}", style="primary"))
+                row.append(Button.inline(name, data=f"clean_{name}", style="primary"))
                 if len(row) == 2:
                     buttons.append(row)
                     row = []
             if row:
                 buttons.append(row)
             
-            buttons.append([Button.inline("🗑️ الكل", data=f"clean_all_{event.chat_id}", style="danger")])
+            buttons.append([Button.inline("🗑️ الكل", data="clean_all", style="danger")])
             buttons.append([Button.inline("❌ إلغاء", data="clean_cancel", style="danger")])
             
             text = "**🧹 اختيار نوع التنظيف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\nاختر نوع الوسائط التي تريد حذفها:"
@@ -534,25 +539,26 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
             await event.answer([result], cache_time=0)
 
 # =========================================================== #
-# معالجات التنظيف (مع chat_id محفوظ)
+# معالجات التنظيف
 # =========================================================== #
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)_(-?\\d+)")))
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_(.*)")))
 async def clean_handler(event):
-    match = re.match(r"clean_(.*)_(-?\d+)", event.data.decode())
-    if not match:
-        return
-    
-    clean_type = match.group(1)
-    target_chat_id = int(match.group(2))
+    clean_type = event.data_match.group(1).decode()
     user_id = event.query.user_id
     
     # التأكد من أن المستخدم هو من بدأ الأمر
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
     
+    # الحصول على chat_id من التخزين المؤقت
+    target_chat_id = temp_chat_ids.get(user_id)
+    
+    if not target_chat_id:
+        return await event.edit("❌ حدث خطأ: لا يمكن تحديد الدردشة", buttons=None)
+    
     # إشعار بدء التنظيف
-    await event.edit(f"🧹 جاري حذف {clean_type} في الدردشة المحددة...", buttons=None)
+    await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
     
     count = 0
     msgs = []
@@ -568,7 +574,11 @@ async def clean_handler(event):
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
             
-            await event.edit(f"✅ تم حذف {count} رسالة من الدردشة {target_chat_id}", buttons=None)
+            await event.edit(f"✅ تم حذف {count} رسالة", buttons=None)
+            
+        elif clean_type == "cancel":
+            await event.edit("❌ تم إلغاء التنظيف", buttons=None)
+            return
             
         elif clean_type in purgetype:
             async for msg in l313l.iter_messages(target_chat_id, filter=purgetype[clean_type]):
@@ -580,7 +590,7 @@ async def clean_handler(event):
             if msgs:
                 await l313l.delete_messages(target_chat_id, msgs)
             
-            await event.edit(f"✅ تم حذف {count} من رسائل {clean_type} من الدردشة {target_chat_id}", buttons=None)
+            await event.edit(f"✅ تم حذف {count} من رسائل {clean_type}", buttons=None)
         
         else:
             await event.edit("❌ نوع غير معروف", buttons=None)
@@ -601,7 +611,7 @@ async def clean_cancel(event):
 # أمر تنظيف
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="تنظيف$")
+@l313l.ar_cmd(pattern="التنظيف$")
 async def clean_cmd(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
     if response:

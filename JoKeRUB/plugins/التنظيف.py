@@ -714,7 +714,7 @@ async def confirm_yes_handler(event):
             await event.edit(f"✅ تم حذف {count} من الرسائل النصية", buttons=None)
         
         elif clean_type in purgetypee and purgetypee[clean_type]:
-            async for msg in l313l.iter_messages(target_chat_id, filter=purgetype[clean_type]):
+            async for msg in l313l.iter_messages(target_chat_id, filter=purgetypee[clean_type]):
                 count += 1
                 msgs.append(msg)
                 if len(msgs) >= 100:

@@ -494,10 +494,10 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
-    "الرسائل": InputMessagesFilterEmpty,  # ✅ إضافة الرسائل
+    "الرسائل": InputMessagesFilterEmpty,
 }
 
-# قاموس لتخزين chat_id مؤقتاً
+# قاموس لتخزين chat_id و clean_type مؤقتاً
 temp_data = {}
 
 # =========================================================== #
@@ -546,11 +546,6 @@ async def count_messages(chat_id, clean_type):
     try:
         if clean_type == "all":
             async for _ in l313l.iter_messages(chat_id):
-                count += 1
-                if count > 10000:  # حد أقصى للحساب
-                    break
-        elif clean_type == "الرسائل":
-            async for _ in l313l.iter_messages(chat_id, filter=InputMessagesFilterEmpty):
                 count += 1
                 if count > 10000:
                     break
@@ -621,8 +616,11 @@ async def clean_confirm(event):
     # حساب عدد الرسائل
     count = await count_messages(chat_id, clean_type)
     
+    # اسم النوع بالعربي
+    type_name = clean_type if clean_type != "all" else "الكل"
+    
     if count == 0:
-        return await event.edit(f"❌ لا توجد {clean_type} للحذف", buttons=None)
+        return await event.edit(f"❌ لا توجد {type_name} للحذف", buttons=None)
     
     # عرض زر التأكيد
     buttons = [
@@ -632,7 +630,7 @@ async def clean_confirm(event):
     ]
     
     await event.edit(f"⚠️ **تأكيد الحذف**\n⋆┄─┄─┄─┄─┄─┄─┄─┄─┄⋆\n\n"
-                     f"🗑️ **النوع:** {clean_type}\n"
+                     f"🗑️ **النوع:** {type_name}\n"
                      f"📊 **العدد:** {count} رسالة\n\n"
                      f"هل تريد حذفها؟", buttons=buttons)
 
@@ -654,14 +652,18 @@ async def clean_confirm_yes(event):
     clean_type = data["type"]
     chat_id = data["chat_id"]
     
+    # تحديث الرسالة
     await event.edit(f"🧹 جاري حذف {clean_type}...", buttons=None)
     
+    # تنفيذ الحذف
     count = await perform_clean(chat_id, clean_type)
     
     # حذف البيانات المؤقتة
     temp_data.pop(user_id, None)
     
-    await event.edit(f"✅ تم حذف {count} من رسائل {clean_type}", buttons=None)
+    # إظهار النتيجة
+    type_name = clean_type if clean_type != "all" else "الكل"
+    await event.edit(f"✅ تم حذف {count} من {type_name}", buttons=None)
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_confirm_no")))
 async def clean_confirm_no(event):
@@ -678,7 +680,6 @@ async def clean_confirm_no(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"clean_back")))
 async def clean_back(event):
     user_id = event.query.user_id
-    chat_id = event.chat_id
     
     if user_id != l313l.uid:
         return await event.answer("⚠️ هذا الأمر للمطور فقط!", alert=True)
@@ -720,7 +721,7 @@ async def clean_cancel(event):
 # أمر تنظيف
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="التنظيف$")
+@l313l.ar_cmd(pattern="تنظيف$")
 async def clean_cmd(event):
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "تنظيف")
     if response:

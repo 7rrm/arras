@@ -477,6 +477,7 @@ from telethon.tl.types import (
     InputMessagesFilterUrl,
     InputMessagesFilterVideo,
     InputMessagesFilterVoice,
+    InputMessagesFilterRoundVideo,
 )
 
 # =========================================================== #
@@ -491,10 +492,11 @@ purgetype = {
     "الاغاني": InputMessagesFilterMusic,
     "فيديو": InputMessagesFilterVideo,
     "الروابط": InputMessagesFilterUrl,
+    "الملصقات": InputMessagesFilterRoundVideo,
     "الرسائل": None,
 }
 
-clean_types = ["البصمات", "الملفات", "المتحركة", "الصور", "الاغاني", "فيديو", "الروابط", "الرسائل"]
+clean_types = ["البصمات", "الملفات", "المتحركة", "الصور", "الاغاني", "فيديو", "الروابط", "الملصقات", "الرسائل"]
 
 # =========================================================== #
 # ملف لتخزين البيانات

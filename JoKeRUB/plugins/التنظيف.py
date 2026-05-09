@@ -537,7 +537,7 @@ def clear_chat_data(user_id):
 # أمر تنظيف (يدعم الرد)
 # =========================================================== #
 
-@l313l.ar_cmd(pattern="تنظيف$")
+@l313l.ar_cmd(pattern="التنظيف$")
 async def clean_cmd(event):
     user_id = event.sender_id
     chat_id = event.chat_id

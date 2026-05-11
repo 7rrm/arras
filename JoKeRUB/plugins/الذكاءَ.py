@@ -12,7 +12,8 @@ from ..core import check_owner
 from ..Config import Config
 from . import l313l
 
-GROQ_API_KEY = "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"
+# استخدام المفتاح من متغيرات البيئة
+GROQ_API_KEY = Config.GROQ_API_KEY
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # =========================================================== #

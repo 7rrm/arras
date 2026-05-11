@@ -65,7 +65,7 @@ async def inline_handler(event):
                     found_ = False
             else:
                 try:
-                    results_list = YoutubeSearch(search_query, max_results=15).to_dict()
+                    results_list = YoutubeSearch(search_query, max_results=7).to_dict()
                     
                     if len(results_list) == 0:
                         found_ = False

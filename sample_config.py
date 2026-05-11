@@ -91,7 +91,7 @@ class Config(object):
         or os.environ.get("PM_LOGGR_BOT_API_ID")
         or 0
     )
-
+    GROQ_API_KEY = os.environ.get("GROQ_API_KEY", None)
     # Custom vars for jepthon
     # set this will channel id of your custom plugins
     PLUGIN_CHANNEL = int(os.environ.get("PLUGIN_CHANNEL") or 0)

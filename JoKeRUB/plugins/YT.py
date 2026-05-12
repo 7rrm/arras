@@ -145,39 +145,3 @@ async def inline_handler(event):
                         )
                     ]
                 )
-        elif string == "pmpermit":
-            controlpmch = gvarstatus("pmchannel") or None
-            if controlpmch is not None:
-                zchannel = controlpmch.replace("@", "")
-                buttons = [[Button.url("⌔ قنـاتـي ⌔", f"https://t.me/{zchannel}")]]
-            else:
-                buttons = [[Button.url("𝗭𝗧𝗵𝗼𝗻", "https://t.me/ZThon")]]
-            PM_PIC = gvarstatus("pmpermit_pic")
-            if PM_PIC:
-                CAT = [x for x in PM_PIC.split()]
-                PIC = list(CAT)
-                ZZZ_IMG = random.choice(PIC)
-            else:
-                ZZZ_IMG = None
-            query_ = gvarstatus("pmpermit_text")
-            if ZZZ_IMG and ZZZ_IMG.endswith((".jpg", ".jpeg", ".png")):
-                result = builder.photo(
-                    ZZZ_IMG,
-                    text=query_,
-                    buttons=buttons,
-                )
-            elif ZZZ_IMG:
-                result = builder.document(
-                    ZZZ_IMG,
-                    title="Alive zzz",
-                    text=query_,
-                    buttons=buttons,
-                )
-            else:
-                result = builder.article(
-                    title="Alive zzz",
-                    text=query_,
-                    buttons=buttons,
-                )
-            await event.answer([result] if result else None)
-            

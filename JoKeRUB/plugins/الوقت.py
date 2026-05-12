@@ -119,7 +119,7 @@ async def time_func(tdata):
     else:
         return await edit_or_reply(
             tdata,
-            f"᯽︙ الـساعة الآن {dt.now().strftime(t_form)}\n᯽︙ تـاريـخ اليوم{dt.now().strftime(d_form)}",
+            f"⌔︙ الـساعة الآن : {dt.now().strftime(t_form)}\n ⌔︙ تـاريـخ اليوم : {dt.now().strftime(d_form)}",
         )
     if not timezones:
         return await edit_or_reply(tdata,  "᯽︙ الـبلد غير صالح")
@@ -168,7 +168,7 @@ async def _(event):
     "To show current time"
     reply_msg_id = await reply_id(event)
     current_time = dt.now().strftime(
-        f"⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡\n⚡JoKeRUB⚡\n⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡\n   {os.path.basename(Config.TZ)}\n  Time: %I:%M:%S \n  Date: %d.%m.%y \n⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡⚡"
+        f"╭─────────────────╮\n│aRRaS\n├─────────────────\n│ {os.path.basename(Config.TZ)}\n│ %I:%M:%S\n│ %d.%m.%y\n╰─────────────────╯"
     )
     input_str = event.pattern_match.group(1)
     if input_str:

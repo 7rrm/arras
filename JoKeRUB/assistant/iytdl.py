@@ -139,7 +139,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                     )
                     
                     buttons = [
-                        [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
+                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
                     ]
                     
                     uploaded_media = await c_q.client.send_file(
@@ -217,7 +217,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                     )
                     
                     buttons = [
-                        [Button.url("‹ : المـطـور : ›", "https://t.me/lx5x5", style="primary")],
+                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
                     ]
                     
                     uploaded_media = await c_q.client.send_file(

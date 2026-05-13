@@ -138,15 +138,13 @@ async def handle_edited_messages(event):
                         await event.client.send_message(
                             BOTLOG_CHATID,
                             f"#الـتـعديـل\n\n"
-                            f"<b>🛂┊المسـتخـدم :</b> {_format.mentionuser(sender.first_name , sender.id)}\n"
-                            f"<b>🎟┊الايـدي :** `{sender.id}`\n"
-                            f"<b>📝┊اليـوزر :</b> @{sender.username if sender.username else 'لا يوجد'}\n\n"
-                            f"<b>✏┊قام بـتعديل رسالة :</b>\n"
-                            f"<b>مـن :</b>\n"
-                            f"<blockquote>{original_text}</blockquote>\n\n"
-                            f"<b>الـى :</b>\n"
-                            f"<blockquote>{event.message.text}</blockquote>",
-                            parse_mode="html"
+                            f"**🛂┊المسـتخـدم :** {_format.mentionuser(sender.first_name , sender.id)}\n"
+                            f"**🎟┊الايـدي :** `{sender.id}`\n"
+                            f"**📝┊اليـوزر :** @{sender.username if sender.username else 'لا يوجد'}\n\n"
+                            f"**✏┊قام بـتعديل رسالة مـن :**\n"
+                            f"`{original_text}`\n\n"
+                            f"**إلـى:**\n"
+                            f"`{event.message.text}`"
                         )
                     except Exception as e:
                         LOGS.error(f"Error sending to log group: {e}")
@@ -381,4 +379,3 @@ async def set_grplog(event):
         await event.edit("**- تـم تفعيـل تخـزين تاكـات الكـروبات .. بنجـاح✓**")
     else:
         await event.edit("**- تخزين الكـروبات بالفعـل معطـل ✓**")
-                                                  

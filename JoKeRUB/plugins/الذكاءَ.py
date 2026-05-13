@@ -82,7 +82,7 @@ def make_firebase_prompt(question, provider):
     return (prefix + base) if prefix else base
 
 async def get_firebase_response(question, provider):
-    """الحصول على رد كامل من النماذج عبر Firebase"""
+    """الحصول على رد من النماذج عبر Firebase (DeepSeek أو Claude)"""
     try:
         current_token = get_firebase_token()
         cfg = FIREBASE_CONFIG[provider]
@@ -105,12 +105,12 @@ async def get_firebase_response(question, provider):
             'content-type': "application/json; charset=utf-8"
         }
         
-        # ✅ stream=True عشان تقدر تجمع الأجزاء
+        # ✅ استخدام stream=True
         response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=90, stream=True)
         
         full_answer = ""
         
-        # ✅ حلقة تجميع الأجزاء
+        # ✅ تجميع الأجزاء من التدفق
         for line in response.iter_lines():
             if line:
                 try:
@@ -124,15 +124,11 @@ async def get_firebase_response(question, provider):
                 except:
                     continue
         
-        # لو ما جاب شيء، جرب الطريقة العادية
+        # ✅ لا تحاول قراءة response.json() مرة أخرى!
         if not full_answer:
-            data = response.json()
-            if data.get("ok"):
-                full_answer = data.get("answer", "لا يوجد جواب")
-            else:
-                return f"⚠️ خطأ {provider}: {data.get('message', 'خطأ غير معروف')}"
+            return f"⚠️ خطأ {provider}: لم يتم استلام رد"
         
-        return full_answer if full_answer else "لا يوجد رد"
+        return full_answer
             
     except Exception as e:
         return f"⚠️ خطأ في الاتصال بـ {provider}: {str(e)[:100]}"

@@ -583,7 +583,7 @@ from telethon.tl.functions.messages import UpdatePinnedMessageRequest
 from ..core.managers import edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 from . import l313l
-
+from telethon.tl import types
 
 
 points = {}

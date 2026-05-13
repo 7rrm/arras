@@ -82,7 +82,7 @@ def make_firebase_prompt(question, provider):
     return (prefix + base) if prefix else base
 
 async def get_firebase_response(question, provider):
-    """الحصول على رد من النماذج عبر Firebase (DeepSeek أو Claude)"""
+    """الحصول على رد كامل من النماذج عبر Firebase"""
     try:
         current_token = get_firebase_token()
         cfg = FIREBASE_CONFIG[provider]
@@ -105,13 +105,34 @@ async def get_firebase_response(question, provider):
             'content-type': "application/json; charset=utf-8"
         }
         
-        response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=60)
-        data = response.json()
+        # ✅ stream=True عشان تقدر تجمع الأجزاء
+        response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=90, stream=True)
         
-        if data.get("ok"):
-            return data.get("answer", "لا يوجد جواب")
-        else:
-            return f"⚠️ خطأ {provider}: {data.get('message', 'خطأ غير معروف')}"
+        full_answer = ""
+        
+        # ✅ حلقة تجميع الأجزاء
+        for line in response.iter_lines():
+            if line:
+                try:
+                    line_str = line.decode('utf-8')
+                    if line_str.startswith('data: '):
+                        data = json.loads(line_str[6:])
+                        if 'content' in data:
+                            full_answer += data['content']
+                        elif 'answer' in data:
+                            full_answer += data['answer']
+                except:
+                    continue
+        
+        # لو ما جاب شيء، جرب الطريقة العادية
+        if not full_answer:
+            data = response.json()
+            if data.get("ok"):
+                full_answer = data.get("answer", "لا يوجد جواب")
+            else:
+                return f"⚠️ خطأ {provider}: {data.get('message', 'خطأ غير معروف')}"
+        
+        return full_answer if full_answer else "لا يوجد رد"
             
     except Exception as e:
         return f"⚠️ خطأ في الاتصال بـ {provider}: {str(e)[:100]}"

@@ -1,5 +1,5 @@
 # =========================================================== #
-# كود Groq الكامل - مع أزرار تفاعلية + DeepSeek
+# كود Groq الكامل - مع أزرار تفاعلية + DeepSeek + Claude
 # =========================================================== #
 
 import requests
@@ -17,11 +17,11 @@ GROQ_API_KEY = Config.GROQ_API_KEY
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # =========================================================== #
-# إعدادات DeepSeek عبر Firebase
+# إعدادات Firebase (لـ DeepSeek و Claude)
 # =========================================================== #
 
 FIREBASE_KEY = "AIzaSyA27E7jUV8osRY7NzwP2fZwGoTkp5gJhZw"
-DEEPSEEK_URL = "https://ai-multi-search-backend-321697147922.europe-west6.run.app/ask"
+MULTI_SEARCH_URL = "https://ai-multi-search-backend-321697147922.europe-west6.run.app/ask"
 
 FIREBASE_HEADERS = {
     'User-Agent': "Dalvik/2.1.0 (Linux; U; Android 16; 2311DRK48G Build/BP2A.250605.031.A3)",
@@ -36,13 +36,27 @@ FIREBASE_HEADERS = {
     'X-Firebase-Client': "H4sIAAAAAAAA_6tWykhNLCpJSk0sKVayio7VUSpLLSrOzM9TslIyUqoFAFyivEQfAAAA"
 }
 
-deepseek_token = None
-deepseek_token_expiry = 0
+# تكوينات النماذج عبر Firebase
+FIREBASE_CONFIG = {
+    'deepseek': {
+        "app_version": "1.2.8",
+        "search_id": "f0a6705c-e33e-4288-a3ef-c91cd6564b59",
+        "prompt_prefix": "Never reply in Chinese unless explicitly asked.\n"
+    },
+    'claude': {
+        "app_version": "1.2.8",
+        "search_id": "825a35c5-aac2-49d7-8317-5b7a68ae6cae",
+        "prompt_prefix": ""
+    }
+}
 
-def get_deepseek_token():
-    global deepseek_token, deepseek_token_expiry
-    if deepseek_token and time.time() < deepseek_token_expiry - 60:
-        return deepseek_token
+firebase_token = None
+firebase_token_expiry = 0
+
+def get_firebase_token():
+    global firebase_token, firebase_token_expiry
+    if firebase_token and time.time() < firebase_token_expiry - 60:
+        return firebase_token
     
     r = requests.post(
         "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser",
@@ -51,27 +65,33 @@ def get_deepseek_token():
         headers=FIREBASE_HEADERS
     )
     data = r.json()
-    deepseek_token = "Bearer " + data["idToken"]
-    deepseek_token_expiry = time.time() + int(data["expiresIn"])
-    return deepseek_token
+    firebase_token = "Bearer " + data["idToken"]
+    firebase_token_expiry = time.time() + int(data["expiresIn"])
+    return firebase_token
 
-def make_deepseek_prompt(question):
-    return (
-        "Never reply in Chinese unless explicitly asked.\n"
+def make_firebase_prompt(question, provider):
+    """توليد الـ prompt المناسب لكل نموذج"""
+    prefix = FIREBASE_CONFIG[provider].get("prompt_prefix", "")
+    base = (
         "You MUST answer in the EXACT same language as the user question.\n"
-        "Do NOT change language.\nDo NOT mix languages.\n\n"
+        "Do NOT change language.\nDo NOT mix languages.\nDo NOT translate unless explicitly asked.\n\n"
+        "Formatting rules:\n- No tables.\n- No markdown tables.\n- No ASCII tables.\n"
+        "- Do NOT use pipe characters: |\n- Use clean bullet points or short paragraphs.\n\n"
         f"User question:\n{question}"
     )
+    return (prefix + base) if prefix else base
 
-async def get_deepseek_response(question):
+async def get_firebase_response(question, provider):
+    """الحصول على رد من النماذج عبر Firebase (DeepSeek أو Claude)"""
     try:
-        current_token = get_deepseek_token()
+        current_token = get_firebase_token()
+        cfg = FIREBASE_CONFIG[provider]
         
         payload = {
-            "provider": "deepseek",
-            "prompt": make_deepseek_prompt(question),
+            "provider": provider,
+            "prompt": make_firebase_prompt(question, provider),
             "plan": "ULTRA",
-            "app_version": "1.2.8"
+            "app_version": cfg["app_version"]
         }
         
         headers = {
@@ -79,25 +99,25 @@ async def get_deepseek_response(question):
             'Accept-Encoding': "gzip",
             'authorization': current_token,
             'x-plan': "ULTRA",
-            'x-app-version': "1.2.8",
-            'x-search-id': "f0a6705c-e33e-4288-a3ef-c91cd6564b59",
+            'x-app-version': cfg["app_version"],
+            'x-search-id': cfg["search_id"],
             'x-search-expected': "2",
             'content-type': "application/json; charset=utf-8"
         }
         
-        response = requests.post(DEEPSEEK_URL, data=json.dumps(payload), headers=headers, timeout=60)
+        response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=60)
         data = response.json()
         
         if data.get("ok"):
             return data.get("answer", "لا يوجد جواب")
         else:
-            return f"⚠️ خطأ DeepSeek: {data.get('message', 'خطأ غير معروف')}"
+            return f"⚠️ خطأ {provider}: {data.get('message', 'خطأ غير معروف')}"
             
     except Exception as e:
-        return f"⚠️ خطأ في الاتصال بـ DeepSeek: {str(e)[:100]}"
+        return f"⚠️ خطأ في الاتصال بـ {provider}: {str(e)[:100]}"
 
 # =========================================================== #
-# جميع النماذج المتاحة (18 نموذج)
+# جميع النماذج المتاحة
 # =========================================================== #
 GROQ_MODELS = {
     # 🤖 OpenAI
@@ -119,6 +139,9 @@ GROQ_MODELS = {
     
     # 🤖 DeepSeek (مضاف)
     "10": {"name": "deepseek/firebase", "desc": "DeepSeek V3 - نموذج قوي مجاني (عبر Firebase)"},
+    
+    # 🤖 Claude (مضاف)
+    "11": {"name": "claude/firebase", "desc": "Claude 3 - نموذج متقدم مجاني (عبر Firebase)"},
 }
 
 # الإعدادات الافتراضية
@@ -129,7 +152,7 @@ DEFAULT_TEMPERATURE = 1.0
 user_model = {}
 user_temp = {}
 user_conversations = {}
-user_chat_count = {}  # ✅ عداد المحادثات (عدد المرات التي تحدث فيها المستخدم)
+user_chat_count = {}
 
 # =========================================================== #
 # دوال مساعدة
@@ -152,25 +175,24 @@ def save_user_temp(user_id, temp):
 def clear_user_conversation(user_id):
     if user_id in user_conversations:
         user_conversations[user_id] = []
-    user_chat_count[user_id] = 0  # ✅ إعادة تعيين العداد
+    user_chat_count[user_id] = 0
 
 def increment_chat_count(user_id):
     user_chat_count[user_id] = user_chat_count.get(user_id, 0) + 1
 
 # =========================================================== #
-# دالة الرد من Groq مع السياق (معدلة لتدعم DeepSeek)
+# دالة الرد الرئيسية (تدعم Groq + DeepSeek + Claude)
 # =========================================================== #
-async def get_groq_response(user_id, question):
-    # ✅ إذا كان النموذج هو DeepSeek، استخدم API الخاص به
+async def get_ai_response(user_id, question):
     model = get_user_model(user_id)
     
+    # ✅ إذا كان النموذج من Firebase (DeepSeek أو Claude)
     if model == "deepseek/firebase":
-        answer = await get_deepseek_response(question)
-        if answer and not answer.startswith("⚠️"):
-            increment_chat_count(user_id)
-        return answer
+        return await get_firebase_response(question, "deepseek")
+    elif model == "claude/firebase":
+        return await get_firebase_response(question, "claude")
     
-    # باقي الكود الأصلي لـ Groq
+    # ✅ باقي الكود لـ Groq
     try:
         temp = get_user_temp(user_id)
         
@@ -210,9 +232,7 @@ async def get_groq_response(user_id, question):
                 "content": answer
             })
             
-            # ✅ زيادة عداد المحادثات
             increment_chat_count(user_id)
-            
             return answer
         elif response.status_code == 429:
             return "⚠️ تم تجاوز حد الطلبات (1000 طلب/يوم). الرجاء المحاولة لاحقاً."
@@ -277,7 +297,7 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"groq_models_menu")))
 @check_owner
 async def groq_models_menu(event):
-    models_text = "**جميع النماذج المتاحة في Groq:**\n\n"
+    models_text = "**جميع النماذج المتاحة:**\n\n"
     for key, model in GROQ_MODELS.items():
         models_text += f"{key} - {model['desc']}\n"
     models_text += "\n**اختر النموذج الذي تريده:**"
@@ -468,7 +488,7 @@ async def groq_chat(event):
     # الرد على السؤال
     zed = await edit_or_reply(event, "جـارِ الاتصـال بـ الذكاء الاصطناعي ...")
     
-    answer = await get_groq_response(event.sender_id, question)
+    answer = await get_ai_response(event.sender_id, question)
     
     model = get_user_model(event.sender_id)
     temp = get_user_temp(event.sender_id)

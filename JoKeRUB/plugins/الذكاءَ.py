@@ -105,30 +105,13 @@ async def get_firebase_response(question, provider):
             'content-type': "application/json; charset=utf-8"
         }
         
-        # ✅ استخدام stream=True
-        response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=90, stream=True)
+        response = requests.post(MULTI_SEARCH_URL, data=json.dumps(payload), headers=headers, timeout=60)
+        data = response.json()
         
-        full_answer = ""
-        
-        # ✅ تجميع الأجزاء من التدفق
-        for line in response.iter_lines():
-            if line:
-                try:
-                    line_str = line.decode('utf-8')
-                    if line_str.startswith('data: '):
-                        data = json.loads(line_str[6:])
-                        if 'content' in data:
-                            full_answer += data['content']
-                        elif 'answer' in data:
-                            full_answer += data['answer']
-                except:
-                    continue
-        
-        # ✅ لا تحاول قراءة response.json() مرة أخرى!
-        if not full_answer:
-            return f"⚠️ خطأ {provider}: لم يتم استلام رد"
-        
-        return full_answer
+        if data.get("ok"):
+            return data.get("answer", "لا يوجد جواب")
+        else:
+            return f"⚠️ خطأ {provider}: {data.get('message', 'خطأ غير معروف')}"
             
     except Exception as e:
         return f"⚠️ خطأ في الاتصال بـ {provider}: {str(e)[:100]}"

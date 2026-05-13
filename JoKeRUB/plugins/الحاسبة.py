@@ -66,7 +66,7 @@ async def calc_handler(e):
     elif x == "C":
         if CALC.get(user):
             CALC.pop(user)
-        await e.answer("🗑 تم الحذف", alert=False)  # ✅ نفس طريقة الكود الأصلي
+        await e.answer("🗑 تم الحذف", alert=False)
     
     elif x == "⌫":
         if CALC.get(user):
@@ -121,7 +121,9 @@ async def calc_handler(e):
             CALC.update({user: get + "-"})
             await e.answer(str(get + "-"), alert=False)
         else:
-            await e.answer("⚠️ اكتب رقماً أولاً", alert=True)
+            # السماح ببدء المعادلة بعلامة سالب فقط
+            CALC.update({user: "-"})
+            await e.answer("-", alert=False)
     
     elif x == ".":
         if CALC.get(user):

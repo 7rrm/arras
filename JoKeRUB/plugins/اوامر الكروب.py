@@ -2042,3 +2042,4 @@ async def fix_protection(event):
     except Exception as e:
         logger.error(f"خطأ في التصحيح: {e}")
         await event.edit(f"**✧︙ حدث خطأ في التصحيح: {e}**")
+'''

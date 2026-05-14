@@ -3709,8 +3709,7 @@ async def transfer_commands_usernames(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"music_menu")))
 @check_owner
 async def music_commands(event):
-    text = f'''<b>𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الميوزك 𓆪</b>
-━━━━━━━━━━━━━━━━━━━━
+    text = f'''「────── 𝐀𝐑𝐀𝐀𝐒 𝐌𝐔𝐒𝐈𝐂 ──────」
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تفعيل</code> <b>⦘</b>
 ❐ لتفعيل الميوزك في المجموعة
@@ -3720,27 +3719,27 @@ async def music_commands(event):
 
 ⋆─┄─┄─┄─┄──┄─┄─┄─┄─⋆
 
-⚉ <code>.شغل</code>
-⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع صوتـي
+【 🎵 】<b>التشـغيـل</b>
+  ⌞ <code>.شغل</code> + اسم او رابط او رد
+  ⌞ <code>.شغل فيديو</code> + اسم او رابط او رد
 
-⚉ <code>.شغل فيديو</code>
-⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع فيديـو
+【 ⚡ 】<b>التشغيـل الإجبـاري</b>
+  ⌞ <code>.شغل 1</code>
+  ⌞ <code>.شغل فيديو 1</code>
 
-Ⓜ️ اوامـر تشغيـل اجباريـه مـع تخطـي قائمـة التشغيـل :
+【 🎛️ 】<b>التحـكـم</b>
+  ⌞ <code>.قائمة التشغيل</code>
+  ⌞ <code>.اوكف</code>
+  ⌞ <code>.كمل</code>
+  ⌞ <code>.تخطي</code>
+  ⌞ <code>.انهاء</code>
 
-⚉ <code>.شغل 1</code>
-⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع صوتـي
+【 📞 】<b>المكـالمـات</b>
+  ⌞ <code>.انضمام</code>
+  ⌞ <code>.خروج</code>
+  ⌞ <code>.انضم</code> + رابط
 
-⚉ <code>.شغل فيديو 1</code>
-⪼ الامـر + (كلمـة او رابـط) او بالـرد ع مقطـع فيديـو
-
-⚉ <code>.قائمة التشغيل</code>
-⚉ <code>.توقف</code>
-⚉ <code>.كمل</code>
-⚉ <code>.تخطي</code>
-
-⚉ <code>.انضمام</code>
-⚉ <code>.خروج</code>
+「────── 𝐀𝐑𝐀𝐀𝐒 𝐌𝐔𝐒𝐈𝐂 ──────」
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''

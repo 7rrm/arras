@@ -3709,7 +3709,8 @@ async def transfer_commands_usernames(event):
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"music_menu")))
 @check_owner
 async def music_commands(event):
-    text = f'''「────── 𝐀𝐑𝐀𝐀𝐒 𝐌𝐔𝐒𝐈𝐂 ──────」
+    text = f'''𓆩 𝐒𝐎𝐔𝐑𝐂𝐄 𝐀𝐑𝐀𝐒 - أوامر الميوزك 𓆪
+━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تفعيل</code> <b>⦘</b>
 ❐ لتفعيل الميوزك في المجموعة
@@ -3738,8 +3739,6 @@ async def music_commands(event):
   ⌞ <code>.انضمام</code>
   ⌞ <code>.خروج</code>
   ⌞ <code>.انضم</code> + رابط
-
-「────── 𝐀𝐑𝐀𝐀𝐒 𝐌𝐔𝐒𝐈𝐂 ──────」
 
 •ⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧⵧ•
 ⌔︙🅳🅴🆅 @Lx5x5 .<tg-emoji emoji-id="{EMOJI_OWNER}">🦅</tg-emoji>'''

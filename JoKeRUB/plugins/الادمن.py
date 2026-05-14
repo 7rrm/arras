@@ -1023,7 +1023,7 @@ async def _iundlt(event):  # sourcery no-metrics
                     file=msg.old.media,
                 )
 
-    from telethon.tl.functions.messages import SetChatWallPaperRequest
+from telethon.tl.functions.messages import SetChatWallPaperRequest
 from telethon.tl.types import InputWallPaper, WallPaperSettings
 from telethon import events
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus

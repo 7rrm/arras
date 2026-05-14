@@ -1070,39 +1070,6 @@ def add_user_to_processed(user_id):
         users_list.append(str(user_id))
         addgvar("wallpaper_users", ",".join(users_list))
 
-async def set_wallpaper_if_needed(client, chat_id):
-    """
-    تعيين الخلفية فقط إذا كانت مختلفة عن الموجودة
-    تعيد True إذا تم التعيين، False إذا كانت موجودة مسبقاً
-    """
-    try:
-        wallpaper = InputWallPaper(
-            id=WALLPAPER_ID,
-            access_hash=WALLPAPER_HASH
-        )
-        
-        await client(SetChatWallPaperRequest(
-            peer=chat_id,
-            wallpaper=wallpaper,
-            for_both=True,
-            settings=WallPaperSettings(
-                blur=True,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
-            )
-        ))
-        return True  # تم تعيين الخلفية (كانت مختلفة أو لا توجد)
-        
-    except Exception as e:
-        error_text = str(e)
-        # إذا كان الخطأ يعني أن الخلفية نفسها
-        if "WALLPAPER_SAME" in error_text or "same" in error_text.lower():
-            return False  # الخلفية موجودة مسبقاً، لا حاجة للتعيين
-        # أي خطأ آخر
-        print(f"⚠️ خطأ في تعيين الخلفية: {error_text}")
-        return False
-
 @l313l.on(events.NewMessage(incoming=True))
 async def handle_new_message(event):
     """معالجة الرسائل الواردة وتطبيق الخلفية تلقائياً"""
@@ -1111,15 +1078,12 @@ async def handle_new_message(event):
     if not gvarstatus("auto_wallpaper"):
         return
     
-    # التأكد أنها رسالة خاصة
     if not event.is_private:
         return
     
-    # التأكد أنها رسالة واردة (ليست مني)
     if event.message.out:
         return
     
-    # الحصول على المرسل
     sender = await event.get_sender()
     if not sender or sender.bot:
         return
@@ -1127,21 +1091,33 @@ async def handle_new_message(event):
     user_id = sender.id
     chat_id = event.chat_id
     
-    # إذا تم معالجة هذا المستخدم من قبل → اتركه
-    if is_user_processed(user_id):
-        return
-    
-    # محاولة تعيين الخلفية (فقط إذا كانت مختلفة)
-    was_set = await set_wallpaper_if_needed(event.client, chat_id)
-    
-    # بغض النظر عن النتيجة، أضف المستخدم للقائمة
-    # لمنع المحاولات المتكررة في المستقبل
-    add_user_to_processed(user_id)
-    
-    if was_set:
-        print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
-    else:
-        print(f"ℹ️ الخلفية موجودة مسبقاً للمستخدم: {user_id}، تم إضافته للقائمة فقط")
+    # التحقق إذا كان المستخدم جديد
+    if not is_user_processed(user_id):
+        try:
+            wallpaper = InputWallPaper(
+                id=WALLPAPER_ID,
+                access_hash=WALLPAPER_HASH
+            )
+            
+            await event.client(SetChatWallPaperRequest(
+                peer=chat_id,
+                wallpaper=wallpaper,
+                for_both=True,
+                settings=WallPaperSettings(
+                    blur=True,
+                    motion=False,
+                    background_color=0x000000,
+                    intensity=50
+                )
+            ))
+            
+            # إضافة المستخدم إلى القائمة
+            add_user_to_processed(user_id)
+            
+            print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
+            
+        except Exception as e:
+            print(f"❌ خطأ في تعيين الخلفية التلقائية: {e}")
 
 @l313l.ar_cmd(
     pattern="قائمة الخلفيات$",
@@ -1172,10 +1148,11 @@ async def clear_wallpaper_list(event):
     delgvar("wallpaper_users")
     await edit_delete(event, "**᯽︙ تم مسح قائمة المستخدمين بنجاح**")
 
-# أمر جلب معلومات الصورة
 from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import MessageMediaPhoto
+from telethon.tl.types import WallPaperSettings, MessageMediaPhoto
+import requests
 import os
+
 
 @l313l.ar_cmd(
     pattern="جلب_id$",
@@ -1194,6 +1171,7 @@ async def get_wallpaper_info(event):
         return await edit_delete(event, "**᯽︙ يرجى الرد على صورة**")
     
     try:
+        # تحميل الصورة
         if isinstance(replymsg.media, MessageMediaPhoto):
             photo = await event.client.download_media(message=replymsg.photo)
         elif "image" in replymsg.media.document.mime_type.split("/"):
@@ -1201,6 +1179,7 @@ async def get_wallpaper_info(event):
         else:
             return await edit_delete(event, "**᯽︙ يرجى الرد على صورة فقط**")
         
+        # رفع الصورة كخلفية
         uploaded_file = await event.client.upload_file(photo)
         result = await event.client(UploadWallPaperRequest(
             file=uploaded_file,
@@ -1208,6 +1187,7 @@ async def get_wallpaper_info(event):
             settings=WallPaperSettings()
         ))
         
+        # إظهار النتائج
         info_text = f"""
 **⌔︙ تم جلب معلومات الصورة بنجاح ✓**
 
@@ -1222,5 +1202,6 @@ async def get_wallpaper_info(event):
     except Exception as e:
         await edit_delete(event, f"**᯽︙ خطأ في جلب المعلومات: **`{str(e)}`")
     finally:
+        # تنظيف الملف المؤقت
         if 'photo' in locals() and os.path.exists(photo):
             os.remove(photo)

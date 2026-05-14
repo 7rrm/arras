@@ -1023,8 +1023,8 @@ async def _iundlt(event):  # sourcery no-metrics
                     file=msg.old.media,
                 )
 
-from telethon.tl.functions.messages import SetChatWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings
+from telethon.tl.functions.messages import SetChatWallPaperRequest, GetChatWallPaperRequest
+from telethon.tl.types import InputWallPaper, WallPaperSettings, InputWallPaperNoFile
 from telethon import events
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
@@ -1070,6 +1070,32 @@ def add_user_to_processed(user_id):
         users_list.append(str(user_id))
         addgvar("wallpaper_users", ",".join(users_list))
 
+def remove_user_from_processed(user_id):
+    """إزالة مستخدم من القائمة (اختياري)"""
+    processed_users = gvarstatus("wallpaper_users") or ""
+    users_list = processed_users.split(",")
+    if str(user_id) in users_list:
+        users_list.remove(str(user_id))
+        addgvar("wallpaper_users", ",".join(users_list))
+
+async def is_current_wallpaper_same(client, chat_id, target_id, target_hash):
+    """التحقق مما إذا كانت الخلفية الحالية هي نفس الخلفية المطلوبة"""
+    try:
+        # محاولة جلب الخلفية الحالية للمحادثة
+        current_wallpaper = await client(GetChatWallPaperRequest(peer=chat_id))
+        
+        if current_wallpaper and current_wallpaper.wallpaper:
+            # التحقق من تطابق الـ ID و Access Hash
+            if hasattr(current_wallpaper.wallpaper, 'id'):
+                if current_wallpaper.wallpaper.id == target_id and \
+                   hasattr(current_wallpaper.wallpaper, 'access_hash') and \
+                   current_wallpaper.wallpaper.access_hash == target_hash:
+                    return True
+        return False
+    except Exception:
+        # إذا حدث خطأ (مثلاً لا توجد خلفية) نعتبرها غير متطابقة
+        return False
+
 @l313l.on(events.NewMessage(incoming=True))
 async def handle_new_message(event):
     """معالجة الرسائل الواردة وتطبيق الخلفية تلقائياً"""
@@ -1091,33 +1117,50 @@ async def handle_new_message(event):
     user_id = sender.id
     chat_id = event.chat_id
     
-    # التحقق إذا كان المستخدم جديد
-    if not is_user_processed(user_id):
-        try:
-            wallpaper = InputWallPaper(
-                id=WALLPAPER_ID,
-                access_hash=WALLPAPER_HASH
-            )
-            
-            await event.client(SetChatWallPaperRequest(
-                peer=chat_id,
-                wallpaper=wallpaper,
-                for_both=True,
-                settings=WallPaperSettings(
-                    blur=True,
-                    motion=False,
-                    background_color=0x000000,
-                    intensity=50
-                )
-            ))
-            
-            # إضافة المستخدم إلى القائمة
+    # ✅ تحقق جديد: إذا المستخدم موجود في القائمة (تم تعيين له سابقاً)
+    if is_user_processed(user_id):
+        return  # يتركه ولا يفعل شيئاً
+    
+    try:
+        wallpaper = InputWallPaper(
+            id=WALLPAPER_ID,
+            access_hash=WALLPAPER_HASH
+        )
+        
+        # ✅ التحقق من الخلفية الحالية قبل التعيين
+        is_same = await is_current_wallpaper_same(
+            event.client, 
+            chat_id, 
+            WALLPAPER_ID, 
+            WALLPAPER_HASH
+        )
+        
+        if is_same:
+            # الخلفية موجودة بالفعل، فقط أضف المستخدم للقائمة ولا تكرر التعيين
             add_user_to_processed(user_id)
-            
-            print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
-            
-        except Exception as e:
-            print(f"❌ خطأ في تعيين الخلفية التلقائية: {e}")
+            print(f"ℹ️ الخلفية موجودة بالفعل للمستخدم: {user_id}، تم إضافته للقائمة فقط")
+            return
+        
+        # تعيين الخلفية الجديدة
+        await event.client(SetChatWallPaperRequest(
+            peer=chat_id,
+            wallpaper=wallpaper,
+            for_both=True,
+            settings=WallPaperSettings(
+                blur=True,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
+        
+        # إضافة المستخدم إلى القائمة
+        add_user_to_processed(user_id)
+        
+        print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
+        
+    except Exception as e:
+        print(f"❌ خطأ في تعيين الخلفية التلقائية: {e}")
 
 @l313l.ar_cmd(
     pattern="قائمة الخلفيات$",
@@ -1148,11 +1191,11 @@ async def clear_wallpaper_list(event):
     delgvar("wallpaper_users")
     await edit_delete(event, "**᯽︙ تم مسح قائمة المستخدمين بنجاح**")
 
+# باقي الكود (جلب_id) كما هو دون تغيير...
 from telethon.tl.functions.account import UploadWallPaperRequest
-from telethon.tl.types import WallPaperSettings, MessageMediaPhoto
+from telethon.tl.types import MessageMediaPhoto
 import requests
 import os
-
 
 @l313l.ar_cmd(
     pattern="جلب_id$",
@@ -1171,7 +1214,6 @@ async def get_wallpaper_info(event):
         return await edit_delete(event, "**᯽︙ يرجى الرد على صورة**")
     
     try:
-        # تحميل الصورة
         if isinstance(replymsg.media, MessageMediaPhoto):
             photo = await event.client.download_media(message=replymsg.photo)
         elif "image" in replymsg.media.document.mime_type.split("/"):
@@ -1179,7 +1221,6 @@ async def get_wallpaper_info(event):
         else:
             return await edit_delete(event, "**᯽︙ يرجى الرد على صورة فقط**")
         
-        # رفع الصورة كخلفية
         uploaded_file = await event.client.upload_file(photo)
         result = await event.client(UploadWallPaperRequest(
             file=uploaded_file,
@@ -1187,7 +1228,6 @@ async def get_wallpaper_info(event):
             settings=WallPaperSettings()
         ))
         
-        # إظهار النتائج
         info_text = f"""
 **⌔︙ تم جلب معلومات الصورة بنجاح ✓**
 
@@ -1202,6 +1242,5 @@ async def get_wallpaper_info(event):
     except Exception as e:
         await edit_delete(event, f"**᯽︙ خطأ في جلب المعلومات: **`{str(e)}`")
     finally:
-        # تنظيف الملف المؤقت
         if 'photo' in locals() and os.path.exists(photo):
             os.remove(photo)

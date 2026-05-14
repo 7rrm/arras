@@ -1023,8 +1023,8 @@ async def _iundlt(event):  # sourcery no-metrics
                     file=msg.old.media,
                 )
 
-from telethon.tl.functions.messages import SetChatWallPaperRequest, GetChatWallPaperRequest
-from telethon.tl.types import InputWallPaper, WallPaperSettings, InputWallPaperNoFile
+from telethon.tl.functions.messages import SetChatWallPaperRequest
+from telethon.tl.types import InputWallPaper, WallPaperSettings
 from telethon import events
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
 
@@ -1070,30 +1070,31 @@ def add_user_to_processed(user_id):
         users_list.append(str(user_id))
         addgvar("wallpaper_users", ",".join(users_list))
 
-def remove_user_from_processed(user_id):
-    """إزالة مستخدم من القائمة (اختياري)"""
-    processed_users = gvarstatus("wallpaper_users") or ""
-    users_list = processed_users.split(",")
-    if str(user_id) in users_list:
-        users_list.remove(str(user_id))
-        addgvar("wallpaper_users", ",".join(users_list))
-
-async def is_current_wallpaper_same(client, chat_id, target_id, target_hash):
-    """التحقق مما إذا كانت الخلفية الحالية هي نفس الخلفية المطلوبة"""
+async def set_wallpaper_safely(client, chat_id):
+    """محاولة تعيين الخلفية، وإرجاع True إذا تم التعيين بنجاح"""
     try:
-        # محاولة جلب الخلفية الحالية للمحادثة
-        current_wallpaper = await client(GetChatWallPaperRequest(peer=chat_id))
+        wallpaper = InputWallPaper(
+            id=WALLPAPER_ID,
+            access_hash=WALLPAPER_HASH
+        )
         
-        if current_wallpaper and current_wallpaper.wallpaper:
-            # التحقق من تطابق الـ ID و Access Hash
-            if hasattr(current_wallpaper.wallpaper, 'id'):
-                if current_wallpaper.wallpaper.id == target_id and \
-                   hasattr(current_wallpaper.wallpaper, 'access_hash') and \
-                   current_wallpaper.wallpaper.access_hash == target_hash:
-                    return True
-        return False
-    except Exception:
-        # إذا حدث خطأ (مثلاً لا توجد خلفية) نعتبرها غير متطابقة
+        await client(SetChatWallPaperRequest(
+            peer=chat_id,
+            wallpaper=wallpaper,
+            for_both=True,
+            settings=WallPaperSettings(
+                blur=True,
+                motion=False,
+                background_color=0x000000,
+                intensity=50
+            )
+        ))
+        return True
+    except Exception as e:
+        # إذا كان الخطأ يعني أن الخلفية موجودة بالفعل
+        error_msg = str(e)
+        if "WALLPAPER_INVALID" not in error_msg and "same" not in error_msg.lower():
+            print(f"⚠️ خطأ في تعيين الخلفية: {e}")
         return False
 
 @l313l.on(events.NewMessage(incoming=True))
@@ -1117,50 +1118,26 @@ async def handle_new_message(event):
     user_id = sender.id
     chat_id = event.chat_id
     
-    # ✅ تحقق جديد: إذا المستخدم موجود في القائمة (تم تعيين له سابقاً)
+    # ✅ إذا المستخدم موجود في القائمة (تم تعيين له سابقاً) - يتركه ولا يفعل شيئاً
     if is_user_processed(user_id):
-        return  # يتركه ولا يفعل شيئاً
+        return
     
     try:
-        wallpaper = InputWallPaper(
-            id=WALLPAPER_ID,
-            access_hash=WALLPAPER_HASH
-        )
+        # ✅ محاولة تعيين الخلفية
+        success = await set_wallpaper_safely(event.client, chat_id)
         
-        # ✅ التحقق من الخلفية الحالية قبل التعيين
-        is_same = await is_current_wallpaper_same(
-            event.client, 
-            chat_id, 
-            WALLPAPER_ID, 
-            WALLPAPER_HASH
-        )
-        
-        if is_same:
-            # الخلفية موجودة بالفعل، فقط أضف المستخدم للقائمة ولا تكرر التعيين
+        if success:
+            # تم تعيين الخلفية بنجاح (المستخدم جديد أو ليس لديه خلفية)
             add_user_to_processed(user_id)
-            print(f"ℹ️ الخلفية موجودة بالفعل للمستخدم: {user_id}، تم إضافته للقائمة فقط")
-            return
-        
-        # تعيين الخلفية الجديدة
-        await event.client(SetChatWallPaperRequest(
-            peer=chat_id,
-            wallpaper=wallpaper,
-            for_both=True,
-            settings=WallPaperSettings(
-                blur=True,
-                motion=False,
-                background_color=0x000000,
-                intensity=50
-            )
-        ))
-        
-        # إضافة المستخدم إلى القائمة
-        add_user_to_processed(user_id)
-        
-        print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
+            print(f"✅ تم تعيين الخلفية تلقائياً للمستخدم: {user_id}")
+        else:
+            # فشل التعيين - غالباً لأن الخلفية موجودة بالفعل
+            # نضيف المستخدم للقائمة لمنع المحاولات المستقبلية
+            add_user_to_processed(user_id)
+            print(f"ℹ️ الخلفية موجودة مسبقاً للمستخدم: {user_id}، تم إضافته للقائمة فقط")
         
     except Exception as e:
-        print(f"❌ خطأ في تعيين الخلفية التلقائية: {e}")
+        print(f"❌ خطأ عام: {e}")
 
 @l313l.ar_cmd(
     pattern="قائمة الخلفيات$",

@@ -3713,10 +3713,10 @@ async def music_commands(event):
 ━━━━━━━━━━━━━━━━━━━━
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تفعيل</code> <b>⦘</b>
-❐ لتفعيل الميوزك في المجموعة
+❐ لـ تفعيل وضع الميوزك
 
 <tg-emoji emoji-id="{EMOJI_AWAMER}">☑️</tg-emoji> <b>⦗</b> <code>.ميوزك تعطيل</code> <b>⦘</b>
-❐ لتعطيل الميوزك في المجموعة
+❐ لـ تعطيل وضع الميوزك
 
 ⋆─┄─┄─┄─┄──┄─┄─┄─┄─⋆
 

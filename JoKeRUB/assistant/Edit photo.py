@@ -213,11 +213,11 @@ menu = '''
 
 keyboard = [
     [  
-        Button.inline("‹ : إنشاء صورة جديدة 🎚 : ›", data="create_image"), 
-        Button.inline("‹ :🪞 تعديل صوره : ›", data="edit_image"),
+        Button.inline("‹ : إنشاء صورة جديدة 🎚 : ›", data="create_image", style="primary"), 
+        Button.inline("‹ :🪞 تعديـل صـوره : ›", data="edit_image", style="primary"),
     ],
     [
-        Button.url("المـطور", "https://t.me/Lx5x5")
+        Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/Lx5x5", style="danger")
     ]
 ]
 

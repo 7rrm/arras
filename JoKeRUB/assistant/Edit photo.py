@@ -232,7 +232,6 @@ class UserSession:
     def __init__(self, user_id):
         self.user_id = user_id
         self.state = None
-        self.prompt = None
         self.photo_paths = []  # قائمة بمسارات الصور المرفوعة
 
 def get_user_session(user_id):
@@ -324,7 +323,7 @@ async def create_image_handler(event):
     )
 
 # ========== معالجة الرسائل للإنشاء ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid))
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
 async def handle_prompt_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
@@ -332,6 +331,7 @@ async def handle_prompt_message(event):
     if event.text.startswith('/'):
         return
     
+    # حالة إنشاء صورة جديدة
     if session.state == 'waiting_prompt':
         prompt = event.text
         
@@ -360,72 +360,9 @@ async def handle_prompt_message(event):
             await event.respond("**❌ فشل في إنشاء الصورة، حاول مرة أخرى**", buttons=keyboard)
         
         clear_user_session(user_id)
-
-# ========== زر تعديل صورة ==========
-@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
-async def edit_image_handler(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    session.state = 'waiting_photos'
-    session.photo_paths = []
     
-    await safe_edit(
-        event,
-        "**📤 أرسل الصور التي تريد تعديلها (من 1 إلى 14 صورة)**\n\n"
-        "📌 **طريقة الاستخدام:**\n"
-        "• أرسل الصور واحدة تلو الأخرى\n"
-        "• سيتم إعلامك بعدد الصور المستلمة\n"
-        "• عندما تنتهي من إرسال الصور، أرسل كلمة `done`\n\n"
-        "يمكنك إرسال `/cancel` لإلغاء العملية"
-    )
-
-# ========== معالجة الصور ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.media))
-async def handle_photo_message(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    
-    if session.state == 'waiting_photos':
-        if len(session.photo_paths) >= 14:
-            await event.respond("**⚠️ لقد وصلت للحد الأقصى (14 صورة)!\nأرسل `done` للانتقال إلى الوصف**")
-            return
-        
-        photo_path = await event.download_media(file="temp_images/")
-        session.photo_paths.append(photo_path)
-        
-        remaining = 14 - len(session.photo_paths)
-        await event.respond(f"**✅ تم استلام الصورة رقم {len(session.photo_paths)}**\n"
-                           f"📸 متبقي: {remaining} صورة\n\n"
-                           "أرسل `done` عند الانتهاء من إرسال الصور")
-
-# ========== إنهاء استلام الصور ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.text and x.text.lower() == "done"))
-async def handle_done_photos(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    
-    if session.state == 'waiting_photos':
-        if not session.photo_paths:
-            await event.respond("**❌ لم ترسل أي صورة بعد!\nأرسل الصور أولاً ثم `done`**")
-            return
-        
-        session.state = 'waiting_prompt_edit'
-        await event.respond(f"**✅ تم استلام {len(session.photo_paths)} صورة بنجاح!**\n\n"
-                           "**✍️ الآن أرسل وصف التعديل المطلوب:**\n\n"
-                           "مثال: `حول هذه الصور إلى طراز كرتوني`\n"
-                           "أو: `أضف خلفية شاطئ بحر إلى هذه الصور`\n\n"
-                           "يمكنك إرسال `/cancel` لإلغاء العملية")
-
-# ========== معالجة وصف التعديل ==========
-@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
-async def handle_edit_prompt_message(event):
-    user_id = event.sender_id
-    session = get_user_session(user_id)
-    
-    if event.text.startswith('/') or event.text.lower() == 'done':
-        return
-    
-    if session.state == 'waiting_prompt_edit' and session.photo_paths:
+    # حالة انتظار البرومت لتعديل الصور (بعد استلام الصور)
+    elif session.state == 'waiting_prompt_edit' and session.photo_paths:
         prompt = event.text
         
         if not prompt or len(prompt.strip()) < 3:
@@ -433,8 +370,7 @@ async def handle_edit_prompt_message(event):
             clear_user_session(user_id)
             return
         
-        await event.respond(f"**⏳ جاري معالجة {len(session.photo_paths)} صورة...**\n"
-                           "قد يستغرق هذا بعض الوقت، انتظر قليلاً")
+        await event.respond(f"**⏳ جاري معالجة {len(session.photo_paths)} صورة...**\nقد يستغرق هذا بعض الوقت، انتظر قليلاً")
         
         # إنشاء API
         api = ChatXAPI()
@@ -469,8 +405,7 @@ async def handle_edit_prompt_message(event):
         # دمج روابط الصور
         images_param = ','.join(uploaded_urls)
         
-        await event.respond(f"**✅ تم رفع {len(uploaded_urls)} صورة بنجاح!**\n"
-                           "**🎨 جاري إنشاء الصورة المعدلة...**")
+        await event.respond(f"**✅ تم رفع {len(uploaded_urls)} صورة بنجاح!**\n**🎨 جاري إنشاء الصورة المعدلة...**")
         
         # إنشاء الصورة المعدلة
         image_url = api.generate_image(prompt, images_param)
@@ -479,9 +414,7 @@ async def handle_edit_prompt_message(event):
             filename = download_image(image_url, f"edit_{user_id}")
             if filename:
                 await bot.send_file(event.chat_id, filename, 
-                                  caption=f"**✅ تم تعديل الصور بنجاح!**\n"
-                                         f"📝 **التعديل:** {prompt}\n"
-                                         f"🖼️ **عدد الصور الأصلية:** {len(uploaded_urls)}")
+                                  caption=f"**✅ تم تعديل الصور بنجاح!**\n📝 **التعديل:** {prompt}\n🖼️ **عدد الصور الأصلية:** {len(uploaded_urls)}")
                 os.remove(filename)
             else:
                 await event.respond("**❌ فشل في حفظ الصورة**", buttons=keyboard)
@@ -490,4 +423,43 @@ async def handle_edit_prompt_message(event):
         
         clear_user_session(user_id)
 
-print("✅ تم تحميل بوت ChatX.ai بنجاح!")
+# ========== زر تعديل صورة ==========
+@tgbot.on(events.CallbackQuery(data=re.compile(b"edit_image")))
+async def edit_image_handler(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    session.state = 'waiting_photos'
+    session.photo_paths = []
+    
+    await safe_edit(
+        event,
+        "**📤 أرسل الصور التي تريد تعديلها (من 1 إلى 14 صورة)**\n\n"
+        "📌 **طريقة الاستخدام:**\n"
+        "• أرسل الصور واحدة تلو الأخرى\n"
+        "• سيتم إعلامك بعدد الصور المستلمة\n"
+        "• **عند الانتهاء من إرسال الصور، اكتب وصف التعديل مباشرة**\n\n"
+        "مثال لوصف التعديل: `حول هذه الصور إلى طراز كرتوني`\n\n"
+        "يمكنك إرسال `/cancel` لإلغاء العملية"
+    )
+
+# ========== معالجة الصور (تخزينها فقط) ==========
+@tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and x.media))
+async def handle_photo_message(event):
+    user_id = event.sender_id
+    session = get_user_session(user_id)
+    
+    if session.state == 'waiting_photos':
+        if len(session.photo_paths) >= 14:
+            await event.respond("**⚠️ لقد وصلت للحد الأقصى (14 صورة)!\nالآن أرسل وصف التعديل مباشرة**")
+            session.state = 'waiting_prompt_edit'
+            return
+        
+        photo_path = await event.download_media(file="temp_images/")
+        session.photo_paths.append(photo_path)
+        
+        remaining = 14 - len(session.photo_paths)
+        await event.respond(f"**✅ تم استلام الصورة رقم {len(session.photo_paths)}**\n📸 متبقي: {remaining} صورة\n\n"
+                           f"• أرسل المزيد من الصور (حتى 14)\n"
+                           f"• **أو اكتب وصف التعديل الآن للبدء**")
+
+print("✅ تم تحميل بوت تعديل الصور بنجاح!")

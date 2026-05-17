@@ -35,146 +35,142 @@ os.makedirs("temp_images", exist_ok=True)
 bot = borg = tgbot
 Bot_Username = Config.TG_BOT_USERNAME or "ChatXBot"
 
-# ========== دوال ChatX.ai ==========
-class ChatXAPI:
-    def __init__(self):
-        self.base_url = "https://chatx.ai"
-        self.session = requests.Session()
-        self.token = None
-        self.cookie_str = None
-        self.guest_token = None
+# ========== دوال ChatX.ai (مثل الكود الأصلي تماماً) ==========
+def get_fresh_tokens():
+    """الحصول على توكنات جديدة من الموقع (مرة واحدة عند بدء التشغيل)"""
+    url_main = "https://chatx.ai/ai-image"
+    headers_main = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
+        'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'sec-ch-ua-mobile': "?1",
+        'sec-ch-ua-platform': '"Android"',
+        'upgrade-insecure-requests': "1",
+        'sec-fetch-site': "same-origin",
+        'sec-fetch-mode': "navigate",
+        'sec-fetch-user': "?1",
+        'sec-fetch-dest': "document",
+        'referer': "https://chatx.ai/",
+        'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+    }
+    session = requests.Session()
+    resp_main = session.get(url_main, headers=headers_main, timeout=15)
+    cookies = session.cookies.get_dict()
+    soup = BeautifulSoup(resp_main.text, 'html.parser')
+    meta_csrf = soup.find('meta', attrs={'name': 'csrf-token'})
+    token = meta_csrf.get('content') if meta_csrf else None
+    cookie_str = '; '.join([f"{k}={v}" for k, v in cookies.items()])
+    guest_token = cookies.get('chatx_guest_token', '')
+    return token, cookie_str, guest_token
+
+# الحصول على التوكنات مرة واحدة عند بدء التشغيل (مثل الكود الأصلي)
+TOKEN, COOKIE_STR, GUEST_TOKEN = get_fresh_tokens()
+
+def generate_user_id():
+    """توليد معرف مستخدم عشوائي (مثل الكود الأصلي)"""
+    user_id_base = "406994179"  # ثابت مثل الكود الأصلي
+    new_last_three = str(random.randint(0, 999)).zfill(3)
+    return user_id_base + new_last_three
+
+def upload_image(image_path, token, cookie_str):
+    """رفع صورة إلى السيرفر (مثل الكود الأصلي)"""
+    if not os.path.exists(image_path):
+        print(f"الملف غير موجود: {image_path}")
+        return None
+    
+    file_name = os.path.basename(image_path)
+    url = "https://chatx.ai/uploadImage"
+    payload = {
+        '_token': token,
+        'user_id': '[object HTMLInputElement]',
+        'chats_id': '[object HTMLInputElement]',
+        'current_model': '[object HTMLInputElement]'
+    }
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
+        'Accept': "application/json, text/javascript, */*; q=0.01",
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'x-requested-with': "XMLHttpRequest",
+        'sec-ch-ua-mobile': "?1",
+        'sec-ch-ua-platform': '"Android"',
+        'origin': "https://chatx.ai",
+        'sec-fetch-site': "same-origin",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://chatx.ai/gpt",
+        'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+        'Cookie': cookie_str
+    }
+    
+    try:
+        with open(image_path, 'rb') as f:
+            files = [('images', (file_name, f, 'image/*'))]
+            response = requests.post(url, data=payload, files=files, headers=headers)
         
-    def get_fresh_tokens(self):
-        """الحصول على توكنات جديدة من الموقع"""
-        try:
-            url_main = f"{self.base_url}/ai-image"
-            headers_main = {
-                'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
-                'Accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-                'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
-                'sec-ch-ua-mobile': "?1",
-                'sec-ch-ua-platform': '"Android"',
-                'upgrade-insecure-requests': "1",
-                'referer': "https://chatx.ai/",
-                'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
-            }
-            
-            response = self.session.get(url_main, headers=headers_main, timeout=15)
-            cookies = self.session.cookies.get_dict()
-            soup = BeautifulSoup(response.text, 'html.parser')
-            meta_csrf = soup.find('meta', attrs={'name': 'csrf-token'})
-            
-            if meta_csrf:
-                self.token = meta_csrf.get('content')
-            
-            self.cookie_str = '; '.join([f"{k}={v}" for k, v in cookies.items()])
-            self.guest_token = cookies.get('chatx_guest_token', '')
-            
-            return self.token is not None
-            
-        except Exception as e:
-            print(f"Error getting tokens: {e}")
-            return False
-    
-    def generate_user_id(self):
-        """توليد معرف مستخدم عشوائي"""
-        base_id = self.guest_token[:-3] if len(self.guest_token) >= 3 else "406994179"
-        new_last_three = str(random.randint(0, 999)).zfill(3)
-        return base_id + new_last_three
-    
-    def upload_image(self, image_path):
-        """رفع صورة إلى السيرفر"""
-        if not os.path.exists(image_path):
+        if response.status_code == 200:
+            result = response.json()
+            files_path = result.get('files')
+            if isinstance(files_path, str):
+                return files_path
+            elif isinstance(files_path, list) and files_path:
+                return files_path[0]
+            else:
+                print(f"رد غير متوقع: {result}")
+                return None
+        else:
+            print(f"فشل الرفع: {response.status_code}")
             return None
-        
-        if not self.token:
-            self.get_fresh_tokens()
-        
-        url = f"{self.base_url}/uploadImage"
-        file_name = os.path.basename(image_path)
-        
-        payload = {
-            '_token': self.token,
-            'user_id': '[object HTMLInputElement]',
-            'chats_id': '[object HTMLInputElement]',
-            'current_model': '[object HTMLInputElement]'
-        }
-        
-        headers = {
-            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-            'Accept': "application/json, text/javascript, */*; q=0.01",
-            'x-csrf-token': self.token,
-            'x-requested-with': "XMLHttpRequest",
-            'origin': "https://chatx.ai",
-            'referer': "https://chatx.ai/gpt",
-            'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
-            'Cookie': self.cookie_str
-        }
-        
-        try:
-            with open(image_path, 'rb') as f:
-                files = [('images', (file_name, f, 'image/*'))]
-                response = requests.post(url, data=payload, files=files, headers=headers)
-            
-            if response.status_code == 200:
-                result = response.json()
-                files_path = result.get('files')
-                if isinstance(files_path, str):
-                    return files_path
-                elif isinstance(files_path, list) and files_path:
-                    return files_path[0]
-        except Exception as e:
-            print(f"Error uploading image: {e}")
-        
+    except Exception as e:
+        print(f"Error uploading image: {e}")
         return None
+
+def generate_image(prompt, token, cookie_str, images_param=None):
+    """إنشاء صورة جديدة أو تعديلها (مثل الكود الأصلي)"""
+    user_id = generate_user_id()
     
-    def generate_image(self, prompt, image_urls=None):
-        """إنشاء صورة جديدة أو تعديلها"""
-        if not self.token:
-            self.get_fresh_tokens()
-        
-        user_id = self.generate_user_id()
-        
-        url = f"{self.base_url}/generateImage"
-        
-        payload = {
-            '_token': self.token,
-            'user_id': user_id,
-            'chats_id': "45762416",
-            'prompt': prompt,
-            'current_model': "gpt3",
-            'images': image_urls or "",
-            'mask_image': "",
-            'image_size': "auto",
-            'image_quality': "auto",
-            'image_type': "jpeg",
-            'image_transparency': "auto",
-            'gpt_image_model': "nano_2",
-            'nano_aspect_ratio': "1:1"
-        }
-        
-        headers = {
-            'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-            'Accept': "application/json, text/javascript, */*; q=0.01",
-            'x-csrf-token': self.token,
-            'x-requested-with': "XMLHttpRequest",
-            'origin': "https://chatx.ai",
-            'referer': "https://chatx.ai/gpt",
-            'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
-            'Cookie': self.cookie_str
-        }
-        
-        try:
-            response = requests.post(url, data=payload, headers=headers, timeout=90)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("response") and "image_url" in data:
-                    return data["image_url"]
-        except Exception as e:
-            print(f"Error generating image: {e}")
-        
-        return None
+    url = "https://chatx.ai/generateImage"
+    payload = {
+        '_token': token,
+        'user_id': user_id,
+        'chats_id': "45762416",
+        'prompt': prompt,
+        'current_model': "gpt3",
+        'images': images_param or "",
+        'mask_image': "",
+        'image_size': "auto",
+        'image_quality': "auto",
+        'image_type': "jpeg",
+        'image_transparency': "auto",
+        'gpt_image_model': "nano_2",
+        'nano_aspect_ratio': "1:1"
+    }
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36",
+        'Accept': "application/json, text/javascript, */*; q=0.01",
+        'sec-ch-ua': '"Chromium";v="139", "Not;A=Brand";v="99"',
+        'x-csrf-token': token,
+        'sec-ch-ua-mobile': "?1",
+        'x-requested-with': "XMLHttpRequest",
+        'sec-ch-ua-platform': '"Android"',
+        'origin': "https://chatx.ai",
+        'sec-fetch-site': "same-origin",
+        'sec-fetch-mode': "cors",
+        'sec-fetch-dest': "empty",
+        'referer': "https://chatx.ai/gpt",
+        'accept-language': "ar-SA,ar;q=0.9,en-US;q=0.8,en;q=0.7",
+        'Cookie': cookie_str
+    }
+    
+    try:
+        response = requests.post(url, data=payload, headers=headers, timeout=90)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("response") and "image_url" in data:
+                return data["image_url"]
+    except Exception as e:
+        print(f"Error generating image: {e}")
+    
+    return None
 
 def download_image(image_url, prefix=""):
     """تحميل الصورة"""
@@ -232,7 +228,7 @@ class UserSession:
     def __init__(self, user_id):
         self.user_id = user_id
         self.state = None
-        self.photo_paths = []  # قائمة بمسارات الصور المرفوعة
+        self.photo_paths = []
 
 def get_user_session(user_id):
     if user_id not in user_sessions:
@@ -242,7 +238,6 @@ def get_user_session(user_id):
 def clear_user_session(user_id):
     if user_id in user_sessions:
         session = user_sessions[user_id]
-        # تنظيف الملفات المؤقتة
         for path in session.photo_paths:
             if os.path.exists(path):
                 try:
@@ -314,7 +309,7 @@ async def create_image_handler(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
     session.state = 'waiting_prompt'
-    session.photo_paths = []  # تأكيد تفريغ قائمة الصور
+    session.photo_paths = []
     
     await safe_edit(
         event,
@@ -336,9 +331,8 @@ async def edit_image_handler(event):
         "**📤 أرسل الصور التي تريد تعديلها (من 1 إلى 14 صورة)**\n\n"
         "📌 **طريقة الاستخدام:**\n"
         "• أرسل الصور واحدة تلو الأخرى\n"
-        "• سيتم إعلامك بعدد الصور المستلمة\n"
         "• **عند الانتهاء من إرسال الصور، اكتب وصف التعديل مباشرة**\n\n"
-        "مثال لوصف التعديل: `حول هذه الصور إلى طراز كرتوني`\n\n"
+        "مثال: `حول هذه الصور إلى طراز كرتوني`\n\n"
         "يمكنك إرسال `/cancel` لإلغاء العملية"
     )
 
@@ -362,18 +356,17 @@ async def handle_photo_message(event):
                            f"• أرسل المزيد من الصور (حتى 14)\n"
                            f"• **أو اكتب وصف التعديل الآن للبدء**")
 
-# ========== معالجة النصوص (للإنشاء والتعديل) ==========
+# ========== معالجة النصوص ==========
 @tgbot.on(events.NewMessage(func=lambda x: x.is_private and x.sender_id == bot.uid and not x.media))
 async def handle_text_message(event):
     user_id = event.sender_id
     session = get_user_session(user_id)
-    
     text = event.text.strip()
     
     if text.startswith('/'):
         return
     
-    # ===== حالة إنشاء صورة جديدة =====
+    # إنشاء صورة جديدة
     if session.state == 'waiting_prompt':
         if not text or len(text) < 3:
             await event.respond("**❌ الوصف قصير جداً**", buttons=keyboard)
@@ -382,8 +375,7 @@ async def handle_text_message(event):
         
         await event.respond("**⏳ جاري إنشاء الصورة... انتظر قليلاً**")
         
-        api = ChatXAPI()
-        image_url = api.generate_image(text)
+        image_url = generate_image(text, TOKEN, COOKIE_STR)
         
         if image_url:
             filename = download_image(image_url, f"create_{user_id}")
@@ -398,18 +390,15 @@ async def handle_text_message(event):
         
         clear_user_session(user_id)
     
-    # ===== حالة انتظار الصور (تحويل تلقائي إلى تعديل) =====
+    # تحويل تلقائي من انتظار الصور إلى تعديل
     elif session.state == 'waiting_photos':
-        # إذا كان المستخدم يرسل نصاً بدلاً من صورة، هذا يعني أنه يريد بدء التعديل
         if session.photo_paths:
-            # لدينا صور، ننتقل إلى حالة التعديل
             session.state = 'waiting_prompt_edit'
-            # نعيد استدعاء نفس الدالة للتعامل مع النص كبرومت
             await handle_text_message(event)
         else:
             await event.respond("**❌ لم ترسل أي صورة بعد!\nأرسل الصور أولاً ثم وصف التعديل**")
     
-    # ===== حالة تعديل الصور =====
+    # تعديل الصور
     elif session.state == 'waiting_prompt_edit':
         if not session.photo_paths:
             await event.respond("**❌ لا توجد صور للتعديل!**", buttons=keyboard)
@@ -423,24 +412,16 @@ async def handle_text_message(event):
         
         await event.respond(f"**⏳ جاري معالجة {len(session.photo_paths)} صورة...**\nقد يستغرق هذا بعض الوقت، انتظر قليلاً")
         
-        api = ChatXAPI()
-        
-        if not api.get_fresh_tokens():
-            await event.respond("**❌ فشل في الاتصال بالموقع**", buttons=keyboard)
-            clear_user_session(user_id)
-            return
-        
         # رفع الصور
         uploaded_urls = []
         total = len(session.photo_paths)
         
         for idx, img_path in enumerate(session.photo_paths, 1):
             await event.respond(f"**📤 جاري رفع الصورة {idx} من {total}...**")
-            uploaded = api.upload_image(img_path)
+            uploaded = upload_image(img_path, TOKEN, COOKIE_STR)
             if uploaded:
                 uploaded_urls.append(uploaded)
             
-            # تنظيف الملف المؤقت
             if os.path.exists(img_path):
                 try:
                     os.remove(img_path)
@@ -456,7 +437,7 @@ async def handle_text_message(event):
         
         await event.respond(f"**✅ تم رفع {len(uploaded_urls)} صورة بنجاح!**\n**🎨 جاري إنشاء الصورة المعدلة...**")
         
-        image_url = api.generate_image(text, images_param)
+        image_url = generate_image(text, TOKEN, COOKIE_STR, images_param)
         
         if image_url:
             filename = download_image(image_url, f"edit_{user_id}")

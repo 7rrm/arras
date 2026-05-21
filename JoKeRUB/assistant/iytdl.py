@@ -103,21 +103,22 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     await c_q.edit("**📤 جـارِ إرسال الطلب إلى البوت @W60yBot ...**")
     
     try:
-        # ✅ استخدام الحساب الشخصي l313l لإرسال الطلب
-        await l313l.client.send_message(  # ملاحظة: l313l.client وليس l313l.tgbot
+        # ✅ استخدام الحدث نفسه (c_q.client) وهو يمثل حساب البوت
+        # لكن لإرسال من الحساب الشخصي، نستخدم l313l مباشرة
+        await l313l.send_message(  # l313l نفسه هو الكلينت الشخصي
             "@W60yBot",
             f"يوت {video_url}"
         )
         
         # انتظار الرد من البوت @W60yBot
-        @l313l.client.on(events.NewMessage(from_users="@W60yBot"))
+        @l313l.on(events.NewMessage(from_users="@W60yBot"))
         async def get_audio(event):
             if event.media:
                 await c_q.edit("**📥 جـارِ استلام الأغنية من البوت...**")
-                # إعادة إرسال الأغنية للمستخدم
+                # إعادة إرسال الأغنية للمستخدم عبر البوت
                 await c_q.client.send_file(c_q.chat_id, event.media, caption=f"🎵 **تم التحميل**\n`{video_url}`")
                 await c_q.edit("✅ **تم الإرسال بنجاح!**")
-                return
+                raise events.StopPropagation
         
         # انتظار 30 ثانية
         await asyncio.sleep(30)
@@ -126,7 +127,6 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"خطأ: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))

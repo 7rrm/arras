@@ -105,7 +105,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
         # إنشاء مجموعة مؤقتة (أو استخدم مجموعة موجودة)
         # يجب إضافة البوتين كأعضاء في المجموعة
         GROUP_ID = -1003949736089  # ضع هنا ID المجموعة التي يشارك فيها البوتان
-        
+        BOT_2_USERNAME = "W60yBot"
         # إرسال الأمر في المجموعة مع منشن البوت الآخر
         await l313l.tgbot.send_message(
             GROUP_ID,

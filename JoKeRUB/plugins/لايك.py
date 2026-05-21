@@ -3,219 +3,648 @@ import contextlib
 import re
 import random
 import time
-import psutil
-import html
-import shutil
 import os
-import base64
 import requests
-from requests import get
-import psutil
 from datetime import datetime
-from platform import python_version
 
-from telethon import Button, events, version
+from telethon import Button, events
 from telethon.events import CallbackQuery
-from telethon.tl.functions.messages import ImportChatInviteRequest as Get
 from telethon.tl.types import MessageEntityMentionName
 from telethon.tl.functions.photos import GetUserPhotosRequest
 from telethon.tl.functions.users import GetFullUserRequest, GetUsersRequest
-from telethon.utils import pack_bot_file_id
-from telethon.errors.rpcerrorlist import YouBlockedUserError, ChatSendMediaForbiddenError
 
 from . import StartTime, l313l, mention
-from ..core import check_owner, pool
+from ..core import check_owner
 from ..Config import Config
-from ..utils import Zed_Vip, Zed_Dev
+from ..utils import Zed_Dev
 from ..helpers import reply_id
 from ..helpers.utils import _format
 from ..core.logger import logging
-from ..core.managers import edit_or_reply, edit_delete
+from ..core.managers import edit_or_reply
 from ..sql_helper.globals import addgvar, delgvar, gvarstatus
-from ..helpers.functions import catalive, check_data_base_heal_th, get_readable_time
-from ..sql_helper.echo_sql import addecho, get_all_echos, get_echos, is_echo, remove_all_echos, remove_echo, remove_echos
 from ..sql_helper.like_sql import (
     add_like,
     get_likes,
     remove_all_likes,
     remove_like,
 )
-from . import BOTLOG, BOTLOG_CHATID, spamwatch, mention
+from . import BOTLOG, BOTLOG_CHATID
 
 plugin_category = "العروض"
 LOGS = logging.getLogger(__name__)
-#Code by T.me/zzzzl1l
+
 zed_dev = Zed_Dev
-zel_dev = (5427469031, 1985225531)
 zelzal = (5427469031, 5280339206)
 Zel_Uid = l313l.uid
 
-ZED_BLACKLIST = [
-    -1001935599871,
-    ]
+ZED_BLACKLIST = [-1001935599871]
 
-async def get_user_from_event(event):
-    if event.reply_to_msg_id:
-        previous_message = await event.get_reply_message()
-        user_object = await event.client.get_entity(previous_message.sender_id)
-    else:
-        user = event.pattern_match.group(1)
-        if user.isnumeric():
-            user = int(user)
-        if not user:
-            self_user = await l313l.get_me()
-            user = self_user.id
-        if event.message.entities:
-            probable_user_mention_entity = event.message.entities[0]
-            if isinstance(probable_user_mention_entity, MessageEntityMentionName):
-                user_id = probable_user_mention_entity.user_id
-                user_obj = await event.client.get_entity(user_id)
-                return user_obj
-        if isinstance(user, int) or user.startswith("@"):
-            user_obj = await event.client.get_entity(user)
-            return user_obj
-        try:
-            user_object = await l313l.get_entity(user)
-        except (TypeError, ValueError) as err:
-            await event.edit(str(err))
-            return None
-    return user_object
+# متغير لتخزين الصفحات
+template_pages = {}
 
-# Copyright (C) 2023 T.me/ZThon . All Rights Reserved
-async def fetch_zelzal(user_id): #Write Code By Zelzal T.me/zzzzl1l
+# =========================================================== #
+# الحصول على معلومات الحساب تلقائياً
+# =========================================================== #
+
+async def get_my_account_info():
+    """استخراج معلومات الحساب الحالي تلقائياً"""
+    me = await l313l.get_me()
+    my_username = me.username if me.username else None
+    my_name = me.first_name
+    my_id = me.id
+    return my_username, my_name, my_id
+
+# =========================================================== #
+# كليشات الايدي (ID Templates)
+# =========================================================== #
+# =========================================================== #
+# كليشات الايدي (ID Templates) - زخارف عربية وإنجليزية
+# =========================================================== #
+
+
+    # =========================================================== #
+    # زخارف إنجليزية
+    # =========================================================== #
+    # الكليشة الأساسية (الطويلة)
+DEFAULT_TEMPLATE = (
+    "<b> •⎚• مـعلومـات المسـتخـدم مـن سـورس آراس </b>\n"
+    "ٴ<b>⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆</b>\n"
+    "<b>✦ الاســم    ⤎ </b> <a href='tg://user?id={zidd}'>{znam}</a>\n"
+    "<b>✦ اليـوزر    ⤎  {zusr}</b>\n"
+    "<b>✦ الايـدي    ⤎ </b> <code>{zidd}</code>\n"
+    "<b>✦ الرتبــه    ⤎ {zrtb} </b>\n"
+    "<b>✦ الحساب  ⤎  {zpre}</b>\n"
+    "<b>✦ الاشتراك  ⤎  {zvip}</b>\n"
+    "<b>✦ الصـور    ⤎</b>  {zpic}\n"
+    "<b>✦ الرسائل  ⤎</b>  {zmsg}  💌\n"
+    "<b>✦ التفاعل  ⤎</b>  {ztmg}\n"
+    "<b>✦ الإنشـاء  ⤎</b>  {zsnc}  🗓\n"
+    "<b>✦ البايـو     ⤎  {zbio}</b>\n"
+    "ٴ<b>⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆</b>"
+)
+ID_TEMPLATES = {
+    # زخرفة إنجليزية 1 - Script
+    "eng_script": {
+        "name": "𝓢𝓬𝓻𝓲𝓹𝓽 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>𝓝𝓪𝓶𝓮</b> : {znam}\n"
+            "┃ ✦ <b>𝓤𝓼𝓮𝓻</b> : {zusr}\n"
+            "┃ ✦ <b>𝓘𝓓</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>𝓡𝓪𝓷𝓴</b> : {zrtb}\n"
+            "┃ ✦ <b>𝓐𝓬𝓬𝓸𝓾𝓷𝓽</b> : {zpre}\n"
+            "┃ ✦ <b>𝓥𝓘𝓟</b> : {zvip}\n"
+            "┃ ✦ <b>𝓟𝓲𝓬𝓼</b> : {zpic}\n"
+            "┃ ✦ <b>𝓜𝓼𝓰𝓼</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>𝓘𝓷𝓽𝓮𝓻𝓪𝓬𝓽</b> : {ztmg}\n"
+            "┃ ✦ <b>𝓒𝓻𝓮𝓪𝓽𝓮𝓭</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝓑𝓲𝓸</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 2 - Double Struck
+    "eng_double": {
+        "name": "𝔻𝕠𝕦𝕓𝕝𝕖 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>ℕ𝕒𝕞𝕖</b> : {znam}\n"
+            "┃ ✦ <b>𝕌𝕤𝕖𝕣</b> : {zusr}\n"
+            "┃ ✦ <b>𝕀𝔻</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>ℝ𝕒𝕟𝕜</b> : {zrtb}\n"
+            "┃ ✦ <b>𝔸𝕔𝕔𝕠𝕦𝕟𝕥</b> : {zpre}\n"
+            "┃ ✦ <b>𝕍𝕀ℙ</b> : {zvip}\n"
+            "┃ ✦ <b>ℙ𝕚𝕔𝕤</b> : {zpic}\n"
+            "┃ ✦ <b>𝕄𝕤𝕘𝕤</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>𝕀𝕟𝕥𝕖𝕣𝕒𝕔𝕥</b> : {ztmg}\n"
+            "┃ ✦ <b>ℂ𝕣𝕖𝕒𝕥𝕖𝕕</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝔹𝕚𝕠</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 3 - Small Caps
+    "eng_smallcaps": {
+        "name": "Sᴍᴀʟʟ Cᴀᴘs (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>Nᴀᴍᴇ</b> : {znam}\n"
+            "┃ ✦ <b>Usᴇʀ</b> : {zusr}\n"
+            "┃ ✦ <b>ID</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>Rᴀɴᴋ</b> : {zrtb}\n"
+            "┃ ✦ <b>Aᴄᴄᴏᴜɴᴛ</b> : {zpre}\n"
+            "┃ ✦ <b>VIP</b> : {zvip}\n"
+            "┃ ✦ <b>Pɪᴄs</b> : {zpic}\n"
+            "┃ ✦ <b>Msɢs</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>Iɴᴛᴇʀᴀᴄᴛ</b> : {ztmg}\n"
+            "┃ ✦ <b>Cʀᴇᴀᴛᴇᴅ</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>Bɪᴏ</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 4 - Circled
+    "eng_circled": {
+        "name": "🅒🅘🅡🅒🅛🅔 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>🅝🅐🅜🅔</b> : {znam}\n"
+            "┃ ✦ <b>🅤🅢🅔🅡</b> : {zusr}\n"
+            "┃ ✦ <b>🅘🅓</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>🅡🅐🅝🅚</b> : {zrtb}\n"
+            "┃ ✦ <b>🅐🅒🅒🅞🅤🅝🅣</b> : {zpre}\n"
+            "┃ ✦ <b>🅥🅘🅟</b> : {zvip}\n"
+            "┃ ✦ <b>🅟🅘🅒🅢</b> : {zpic}\n"
+            "┃ ✦ <b>🅜🅢🅖🅢</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>🅘🅝🅣🅔🅡🅐🅒🅣</b> : {ztmg}\n"
+            "┃ ✦ <b>🅒🅡🅔🅐🅣🅔🅓</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>🅑🅘🅞</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 5 - Bold
+    "eng_bold": {
+        "name": "𝐁𝐨𝐥𝐝 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>𝐍𝐚𝐦𝐞</b> : {znam}\n"
+            "┃ ✦ <b>𝐔𝐬𝐞𝐫</b> : {zusr}\n"
+            "┃ ✦ <b>𝐈𝐃</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>𝐑𝐚𝐧𝐤</b> : {zrtb}\n"
+            "┃ ✦ <b>𝐀𝐜𝐜𝐨𝐮𝐧𝐭</b> : {zpre}\n"
+            "┃ ✦ <b>𝐕𝐈𝐏</b> : {zvip}\n"
+            "┃ ✦ <b>𝐏𝐢𝐜𝐬</b> : {zpic}\n"
+            "┃ ✦ <b>𝐌𝐬𝐠𝐬</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>𝐈𝐧𝐭𝐞𝐫𝐚𝐜𝐭</b> : {ztmg}\n"
+            "┃ ✦ <b>𝐂𝐫𝐞𝐚𝐭𝐞𝐝</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝐁𝐢𝐨</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 6 - Italic
+    "eng_italic": {
+        "name": "𝐼𝓉𝒶𝓁𝒾𝒸 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>𝐼𝓃𝒶𝓂𝑒</b> : {znam}\n"
+            "┃ ✦ <b>𝒰𝓈𝑒𝓇</b> : {zusr}\n"
+            "┃ ✦ <b>𝐼𝒟</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>𝑅𝒶𝓃𝓀</b> : {zrtb}\n"
+            "┃ ✦ <b>𝒜𝒸𝒸ℴ𝓊𝓃𝓉</b> : {zpre}\n"
+            "┃ ✦ <b>𝒱ℐ𝒫</b> : {zvip}\n"
+            "┃ ✦ <b>𝒫𝒾𝒸𝓈</b> : {zpic}\n"
+            "┃ ✦ <b>𝑀𝓈ℊ𝓈</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>𝐼𝓃𝓉ℯ𝓇𝒶𝒸𝓉</b> : {ztmg}\n"
+            "┃ ✦ <b>𝒞𝓇ℯ𝒶𝓉ℯ𝒹</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝐵𝒾ℴ</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 7 - Mono
+    "eng_mono": {
+        "name": "𝙼𝚘𝚗𝚘 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>𝙽𝚊𝚖𝚎</b> : {znam}\n"
+            "┃ ✦ <b>𝚄𝚜𝚎𝚛</b> : {zusr}\n"
+            "┃ ✦ <b>𝙸𝙳</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>𝚁𝚊𝚗𝚔</b> : {zrtb}\n"
+            "┃ ✦ <b>𝙰𝚌𝚌𝚘𝚞𝚗𝚝</b> : {zpre}\n"
+            "┃ ✦ <b>𝚅𝙸𝙿</b> : {zvip}\n"
+            "┃ ✦ <b>𝙿𝚒𝚌𝚜</b> : {zpic}\n"
+            "┃ ✦ <b>𝙼𝚜𝚐𝚜</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>𝙸𝚗𝚝𝚎𝚛𝚊𝚌𝚝</b> : {ztmg}\n"
+            "┃ ✦ <b>𝙲𝚛𝚎𝚊𝚝𝚎𝚍</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝙱𝚒𝚘</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 8 - Bubble
+    "eng_bubble": {
+        "name": "Ⓑⓤⓑⓑⓛⓔ (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>Ⓝⓐⓜⓔ</b> : {znam}\n"
+            "┃ ✦ <b>Ⓤⓢⓔⓡ</b> : {zusr}\n"
+            "┃ ✦ <b>ⒾⒹ</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>Ⓡⓐⓝⓚ</b> : {zrtb}\n"
+            "┃ ✦ <b>Ⓐⓒⓒⓞⓤⓝⓣ</b> : {zpre}\n"
+            "┃ ✦ <b>ⓋⒾⓅ</b> : {zvip}\n"
+            "┃ ✦ <b>Ⓟⓘⓒⓢ</b> : {zpic}\n"
+            "┃ ✦ <b>Ⓜⓢⓖⓢ</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>Ⓘⓝⓣⓔⓡⓐⓒⓣ</b> : {ztmg}\n"
+            "┃ ✦ <b>Ⓒⓡⓔⓐⓣⓔⓓ</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>Ⓑⓘⓞ</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة إنجليزية 9 - Fraktur
+    "eng_fraktur": {
+        "name": "𝔉𝔯𝔞𝔨𝔱𝔲𝔯 (EN)",
+        "template": (
+            "╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>𝔑𝔞𝔪𝔢</b> : {znam}\n"
+            "┃ ✦ <b>𝔘𝔰𝔢𝔯</b> : {zusr}\n"
+            "┃ ✦ <b>ℑ𝔇</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>ℜ𝔞𝔫𝔨</b> : {zrtb}\n"
+            "┃ ✦ <b>𝔄𝔠𝔠𝔬𝔲𝔫𝔱</b> : {zpre}\n"
+            "┃ ✦ <b>𝔙ℑ𝔓</b> : {zvip}\n"
+            "┃ ✦ <b>𝔓𝔦𝔠𝔰</b> : {zpic}\n"
+            "┃ ✦ <b>𝔐𝔰𝔤𝔰</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>ℑ𝔫𝔱𝔢𝔯𝔞𝔠𝔱</b> : {ztmg}\n"
+            "┃ ✦ <b>ℭ𝔯𝔢𝔞𝔱𝔢𝔡</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>𝔅𝔦𝔬</b> : {zbio}\n"
+            "╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # =========================================================== #
+    # زخارف عربية
+    # =========================================================== #
+    
+    # زخرفة عربية 1 - أنيق
+    "arb_elegant": {
+        "name": "أنيق (عربي)",
+        "template": (
+            "ٴ╭━━━━━━━━━━━━━━━╮\n"
+            "┃ ✦ <b>الاســم</b> : {znam}\n"
+            "┃ ✦ <b>اليـوزر</b> : {zusr}\n"
+            "┃ ✦ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>الرتبــه</b> : {zrtb}\n"
+            "┃ ✦ <b>الحساب</b> : {zpre}\n"
+            "┃ ✦ <b>الاشتراك</b> : {zvip}\n"
+            "┃ ✦ <b>الصـور</b> : {zpic}\n"
+            "┃ ✦ <b>الرسائل</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>التفاعل</b> : {ztmg}\n"
+            "┃ ✦ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>البايـو</b> : {zbio}\n"
+            "ٴ╰━━━━━━━━━━━━━━━╯"
+        )
+    },
+    
+    # زخرفة عربية 2 - قلوب
+    "arb_heart": {
+        "name": "قلوب (عربي)",
+        "template": (
+            "♥️━━━━━━━━━━━━━━━♥️\n"
+            "♥️ <b>الاســم</b> : {znam}\n"
+            "♥️ <b>اليـوزر</b> : {zusr}\n"
+            "♥️ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "♥️ <b>الرتبــه</b> : {zrtb}\n"
+            "♥️ <b>الحساب</b> : {zpre}\n"
+            "♥️ <b>الاشتراك</b> : {zvip}\n"
+            "♥️ <b>الصـور</b> : {zpic}\n"
+            "♥️ <b>الرسائل</b> : {zmsg} 💌\n"
+            "♥️ <b>التفاعل</b> : {ztmg}\n"
+            "♥️ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "♥️ <b>البايـو</b> : {zbio}\n"
+            "♥️━━━━━━━━━━━━━━━♥️"
+        )
+    },
+    
+    # زخرفة عربية 3 - نجوم
+    "arb_star": {
+        "name": "نجوم (عربي)",
+        "template": (
+            "★━━━━━━━━━━━━━━━━━━★\n"
+            "✧ <b>الاســم</b> : {znam}\n"
+            "✧ <b>اليـوزر</b> : {zusr}\n"
+            "✧ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "✧ <b>الرتبــه</b> : {zrtb}\n"
+            "✧ <b>الحساب</b> : {zpre}\n"
+            "✧ <b>الاشتراك</b> : {zvip}\n"
+            "✧ <b>الصـور</b> : {zpic}\n"
+            "✧ <b>الرسائل</b> : {zmsg} 💌\n"
+            "✧ <b>التفاعل</b> : {ztmg}\n"
+            "✧ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "✧ <b>البايـو</b> : {zbio}\n"
+            "★━━━━━━━━━━━━━━━━━━★"
+        )
+    },
+    
+    # زخرفة عربية 4 - صندوق
+    "arb_box": {
+        "name": "صندوق (عربي)",
+        "template": (
+            "ٴ┌─────────────────┐\n"
+            "│ ✦ <b>الاســم</b> : {znam}\n"
+            "│ ✦ <b>اليـوزر</b> : {zusr}\n"
+            "│ ✦ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "│ ✦ <b>الرتبــه</b> : {zrtb}\n"
+            "│ ✦ <b>الحساب</b> : {zpre}\n"
+            "│ ✦ <b>الاشتراك</b> : {zvip}\n"
+            "│ ✦ <b>الصـور</b> : {zpic}\n"
+            "│ ✦ <b>الرسائل</b> : {zmsg} 💌\n"
+            "│ ✦ <b>التفاعل</b> : {ztmg}\n"
+            "│ ✦ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "│ ✦ <b>البايـو</b> : {zbio}\n"
+            "ٴ└─────────────────┘"
+        )
+    },
+    
+    # زخرفة عربية 5 - سهام
+    "arb_arrow": {
+        "name": "سهام (عربي)",
+        "template": (
+            "➜━━━━━━━━━━━━━━━➜\n"
+            "➜ <b>الاســم</b> : {znam}\n"
+            "➜ <b>اليـوزر</b> : {zusr}\n"
+            "➜ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "➜ <b>الرتبــه</b> : {zrtb}\n"
+            "➜ <b>الحساب</b> : {zpre}\n"
+            "➜ <b>الاشتراك</b> : {zvip}\n"
+            "➜ <b>الصـور</b> : {zpic}\n"
+            "➜ <b>الرسائل</b> : {zmsg} 💌\n"
+            "➜ <b>التفاعل</b> : {ztmg}\n"
+            "➜ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "➜ <b>البايـو</b> : {zbio}\n"
+            "➜━━━━━━━━━━━━━━━➜"
+        )
+    },
+    
+    # زخرفة عربية 6 - تاج
+    "arb_crown": {
+        "name": "تاج (عربي)",
+        "template": (
+            "👑━━━━━━━━━━━━━━━👑\n"
+            "┃ ✦ <b>الاســم</b> : {znam}\n"
+            "┃ ✦ <b>اليـوزر</b> : {zusr}\n"
+            "┃ ✦ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "┃ ✦ <b>الرتبــه</b> : {zrtb}\n"
+            "┃ ✦ <b>الحساب</b> : {zpre}\n"
+            "┃ ✦ <b>الاشتراك</b> : {zvip}\n"
+            "┃ ✦ <b>الصـور</b> : {zpic}\n"
+            "┃ ✦ <b>الرسائل</b> : {zmsg} 💌\n"
+            "┃ ✦ <b>التفاعل</b> : {ztmg}\n"
+            "┃ ✦ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "┃ ✦ <b>البايـو</b> : {zbio}\n"
+            "👑━━━━━━━━━━━━━━━👑"
+        )
+    },
+    
+    # زخرفة عربية 7 - ألماس
+    "arb_diamond": {
+        "name": "ألماس (عربي)",
+        "template": (
+            "💎━━━━━━━━━━━━━━━💎\n"
+            "◇ <b>الاســم</b> : {znam}\n"
+            "◇ <b>اليـوزر</b> : {zusr}\n"
+            "◇ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "◇ <b>الرتبــه</b> : {zrtb}\n"
+            "◇ <b>الحساب</b> : {zpre}\n"
+            "◇ <b>الاشتراك</b> : {zvip}\n"
+            "◇ <b>الصـور</b> : {zpic}\n"
+            "◇ <b>الرسائل</b> : {zmsg} 💌\n"
+            "◇ <b>التفاعل</b> : {ztmg}\n"
+            "◇ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "◇ <b>البايـو</b> : {zbio}\n"
+            "💎━━━━━━━━━━━━━━━💎"
+        )
+    },
+    
+    # زخرفة عربية 8 - زهور
+    "arb_flower": {
+        "name": "زهور (عربي)",
+        "template": (
+            "❀━━━━━━━━━━━━━━━❀\n"
+            "✿ <b>الاســم</b> : {znam}\n"
+            "✿ <b>اليـوزر</b> : {zusr}\n"
+            "✿ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "✿ <b>الرتبــه</b> : {zrtb}\n"
+            "✿ <b>الحساب</b> : {zpre}\n"
+            "✿ <b>الاشتراك</b> : {zvip}\n"
+            "✿ <b>الصـور</b> : {zpic}\n"
+            "✿ <b>الرسائل</b> : {zmsg} 💌\n"
+            "✿ <b>التفاعل</b> : {ztmg}\n"
+            "✿ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "✿ <b>البايـو</b> : {zbio}\n"
+            "❀━━━━━━━━━━━━━━━❀"
+        )
+    },
+    
+    # زخرفة عربية 9 - بسيط
+    "arb_simple": {
+        "name": "بسيط (عربي)",
+        "template": (
+            "👤 <b>الاســم</b> : {znam}\n"
+            "🆔 <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "📝 <b>اليـوزر</b> : {zusr}\n"
+            "⭐ <b>الحساب</b> : {zpre}\n"
+            "💬 <b>الرسائل</b> : {zmsg} 💌\n"
+            "📅 <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "📝 <b>البايـو</b> : {zbio}\n"
+        )
+    },
+    
+    # زخرفة عربية 10 - خطوط
+    "arb_lines": {
+        "name": "خطوط (عربي)",
+        "template": (
+            "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯\n"
+            "⎯ <b>الاســم</b> : {znam}\n"
+            "⎯ <b>اليـوزر</b> : {zusr}\n"
+            "⎯ <b>الايـدي</b> : <code>{zidd}</code>\n"
+            "⎯ <b>الرتبــه</b> : {zrtb}\n"
+            "⎯ <b>الحساب</b> : {zpre}\n"
+            "⎯ <b>الرسائل</b> : {zmsg} 💌\n"
+            "⎯ <b>التفاعل</b> : {ztmg}\n"
+            "⎯ <b>الإنشـاء</b> : {zsnc} 🗓\n"
+            "⎯ <b>البايـو</b> : {zbio}\n"
+            "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"
+        )
+    },
+    
+    # =========================================================== #
+    # كليشات سريعة
+    # =========================================================== #
+    
+    # سريعة 1
+    "quick_one": {
+        "name": "سريع ❶",
+        "template": (
+            "<b>{znam}</b> | <code>{zidd}</code> | {zusr}\n"
+            "{zrtb} | {zpre} | {zmsg} 💌"
+        )
+    },
+    
+    # سريعة 2
+    "quick_two": {
+        "name": "سريع ❷",
+        "template": (
+            "<b>{znam}</b>\n"
+            "<code>{zidd}</code>\n"
+            "{zusr}\n"
+            "{zrtb}"
+        )
+    },
+    
+    # =========================================================== #
+    # الكليشة الافتراضية
+    # =========================================================== #
+    
+    "default": {
+        "name": "الافتراضي",
+        "template": DEFAULT_TEMPLATE
+    }
+}
+
+
+# =========================================================== #
+# دوال مساعدة
+# =========================================================== #
+
+async def fetch_zelzal(user_id):
     headers = {
         'Host': 'restore-access.indream.app',
         'Connection': 'keep-alive',
         'x-api-key': 'e758fb28-79be-4d1c-af6b-066633ded128',
         'Accept': '*/*',
         'Accept-Language': 'ar',
-        'Content-Length': '25',
         'User-Agent': 'Nicegram/101 CFNetwork/1404.0.5 Darwin/22.3.0',
         'Content-Type': 'application/x-www-form-urlencoded',
     }
     data = '{"telegramId":' + str(user_id) + '}'
-    response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
-    zelzal_date = response['data']['date']
-    return zelzal_date
+    try:
+        response = requests.post('https://restore-access.indream.app/regdate', headers=headers, data=data).json()
+        return response['data']['date']
+    except Exception:
+        return "غير معلوم"
 
-async def fetch_info(event):
+async def fetch_info(event, user_id=None):
     """Get details from the User object."""
-    replied_user = await l313l.get_me()
-    #user = self_user.id
+    if user_id is None:
+        replied_user = await l313l.get_me()
+        user_id = replied_user.id
+    else:
+        replied_user = await l313l.get_entity(user_id)
+    
     FullUser = (await l313l(GetFullUserRequest(replied_user.id))).full_user
     replied_user_profile_photos = await l313l(
         GetUserPhotosRequest(user_id=replied_user.id, offset=42, max_id=0, limit=80)
     )
-    replied_user_profile_photos_count = "لا يـوجـد بروفـايـل"
-    dc_id = "Can't get dc id"
-    with contextlib.suppress(AttributeError):
-        replied_user_profile_photos_count = replied_user_profile_photos.count
-        dc_id = replied_user.photo.dc_id
-    user_id = replied_user.id
+    replied_user_profile_photos_count = replied_user_profile_photos.count if replied_user_profile_photos else "لا يوجد"
+    
     zelzal_sinc = await fetch_zelzal(user_id)
     first_name = replied_user.first_name
-    full_name = FullUser.private_forward_name
+    full_name = FullUser.private_forward_name or first_name
     common_chat = FullUser.common_chats_count
-    username = replied_user.username
-    user_bio = FullUser.about
-    is_bot = replied_user.bot
-    restricted = replied_user.restricted
-    verified = replied_user.verified
+    username = f"@{replied_user.username}" if replied_user.username else "لا يوجد"
+    user_bio = FullUser.about or "لا يوجد"
+    
     zilzal = (await l313l.get_entity(user_id)).premium
-    if zilzal == True or user_id in zelzal: #Code by T.me/zzzzl1l
-        zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟"
+    zpre = "ℙℝ𝔼𝕄𝕀𝕌𝕄 🌟" if zilzal or user_id in zelzal else "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
+    
+    photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, str(user_id) + ".jpg")
+    await l313l.download_profile_photo(user_id, photo_path, download_big=True)
+    
+    first_name = first_name.replace("\u2060", "") if first_name else "مستخدم"
+    zzzsinc = zelzal_sinc if zelzal_sinc else "غير معلوم"
+    
+    # حساب عدد الرسائل
+    try:
+        zmsg = await l313l.get_messages(event.chat_id, 0, from_user=user_id)
+        zzz = zmsg.total if zmsg else 0
+    except Exception:
+        zzz = 0
+    
+    if zzz < 100:
+        zelzzz = "غير متفاعل 🗿"
+    elif zzz < 500:
+        zelzzz = "ضعيف 🗿"
+    elif zzz < 700:
+        zelzzz = "شد حيلك 🏇"
+    elif zzz < 1000:
+        zelzzz = "ماشي الحال 🏄🏻‍♂"
+    elif zzz < 2000:
+        zelzzz = "ملك التفاعل 🎖"
+    elif zzz < 3000:
+        zelzzz = "امبراطور التفاعل 🥇"
+    elif zzz < 4000:
+        zelzzz = "غنبله 💣"
     else:
-        zpre = "𝕍𝕀ℝ𝕋𝕌𝔸𝕃 ✨"
-    #zid = int(gvarstatus("ZThon_Vip"))
-    #if user_id in Zed_Dev: #Code by T.me/zzzzl1l
-        #zvip = "𝕍𝕀ℙ 💎"
-    #elif user_id == zid:
-        #zvip = "𝕍𝕀ℙ 💎"
-    #else:
-        #zvip = "ℕ𝕆ℕ𝔼"
-    photo_path = os.path.join(Config.TMP_DOWNLOAD_DIRECTORY, Config.TMP_DOWNLOAD_DIRECTORY + str(user_id) + ".jpg")
-    photo = await l313l.download_profile_photo(
-        user_id,
-        photo_path,
-        download_big=True,
-    )
-    first_name = (
-        first_name.replace("\u2060", "")
-        if first_name
-        else ("هذا المستخدم ليس له اسم أول")
-    )
-    full_name = full_name or first_name
-    username = "@{}".format(username) if username else ("لا يـوجـد")
-    user_bio = "لا يـوجـد" if not user_bio else user_bio
-    zzzsinc = zelzal_sinc if zelzal_sinc else ("غيـر معلـوم")
-    zmsg = await bot.get_messages(event.chat_id, 0, from_user=user_id) #Code by T.me/zzzzl1l
-    zzz = zmsg.total
-    if zzz < 100: #Code by T.me/zzzzl1l
-        zelzzz = "غير متفاعل  🗿"
-    elif zzz > 200 and zzz < 500:
-        zelzzz = "ضعيف  🗿"
-    elif zzz > 500 and zzz < 700:
-        zelzzz = "شد حيلك  🏇"
-    elif zzz > 700 and zzz < 1000:
-        zelzzz = "ماشي الحال  🏄🏻‍♂"
-    elif zzz > 1000 and zzz < 2000:
-        zelzzz = "ملك التفاعل  🎖"
-    elif zzz > 2000 and zzz < 3000:
-        zelzzz = "امبراطور التفاعل  🥇"
-    elif zzz > 3000 and zzz < 4000:
-        zelzzz = "غنبله  💣"
-    else:
-        zelzzz = "نار وشرر  🏆"
-################# Dev ZilZal #################
-    if user_id in zelzal: #Code by T.me/zzzzl1l
+        zelzzz = "نار وشرر 🏆"
+    
+    # تحديد الرتبة
+    if user_id in zelzal:
         rotbat = "مطـور السـورس 𓄂" 
-    elif user_id in zel_dev:
+    elif user_id in zed_dev:
         rotbat = "مـطـور 𐏕" 
     elif user_id == (await l313l.get_me()).id:
         rotbat = "مـالك الحساب 𓀫" 
     else:
         rotbat = "العضـو 𓅫"
-################# Dev ZilZal #################
-    ZED_TEXT = gvarstatus("CUSTOM_ALIVE_TEXT") or "•⎚• مـعلومـات المسـتخـدم مـن سـورس آراس"  #Code by T.me/zzzzl1l
-    ZEDM = gvarstatus("CUSTOM_ALIVE_EMOJI") or "✦ " #Code by T.me/zzzzl1l
-    ZEDF = gvarstatus("CUSTOM_ALIVE_FONT") or "⋆─┄─┄─┄─ ʟx5x5 ─┄─┄─┄─⋆" #Code by T.me/zzzzl1l
-    if gvarstatus("ZID_TEMPLATE") is None:
-        caption = f"<b> {ZED_TEXT} </b>\n"
-        caption += f"ٴ<b>{ZEDF}</b>\n"
-        caption += f"<b>{ZEDM}الاســم    ⤎ </b> "
-        caption += f'<a href="tg://user?id={user_id}">{full_name}</a>'
-        caption += f"\n<b>{ZEDM}اليـوزر    ⤎  {username}</b>"
-        caption += f"\n<b>{ZEDM}الايـدي    ⤎ </b> <code>{user_id}</code>\n"
-        caption += f"<b>{ZEDM}الرتبــه    ⤎ {rotbat} </b>\n" #Code by T.me/zzzzl1l
-        if zilzal == True or user_id in zelzal: #Code by T.me/zzzzl1l
-            caption += f"<b>{ZEDM}الحساب  ⤎  بـريميـوم 🌟</b>\n"
-        #if user_id in Zed_Dev or user_id == zid: #Code by T.me/zzzzl1l
-        caption += f"<b>{ZEDM}الاشتراك  ⤎  𝕍𝕀ℙ 💎</b>\n"
-        caption += f"<b>{ZEDM}الصـور    ⤎</b>  {replied_user_profile_photos_count}\n"
-        caption += f"<b>{ZEDM}الرسائل  ⤎</b>  {zzz}  💌\n" #Code by T.me/zzzzl1l
-        caption += f"<b>{ZEDM}التفاعل  ⤎</b>  {zelzzz}\n" #Code by T.me/zzzzl1l
-        if user_id != (await l313l.get_me()).id: #Code by T.me/zzzzl1l
-            caption += f"<b>{ZEDM}الـمجموعات المشتـركة ⤎  {common_chat}</b>\n"
-        caption += f"<b>{ZEDM}الإنشـاء  ⤎</b>  {zzzsinc}  🗓\n" #Code by T.me/zzzzl1l
-        caption += f"<b>{ZEDM}البايـو     ⤎  {user_bio}</b>\n"
-        caption += f"ٴ<b>{ZEDF}</b>"
+    
+    # الكليشة المختارة (إذا لم تكن مختارة، استخدم الأساسية)
+    selected_template = gvarstatus("SELECTED_ID_TEMPLATE")
+    if selected_template and selected_template in ID_TEMPLATES:
+        template_data = ID_TEMPLATES[selected_template]
+        template = template_data["template"]
     else:
-        zzz_caption = gvarstatus("ZID_TEMPLATE")
-        caption = zzz_caption.format(
-            znam=full_name,
-            zusr=username,
-            zidd=user_id,
-            zrtb=rotbat,
-            zpre=zpre,
-            zvip=zvip,
-            zpic=replied_user_profile_photos_count,
-            zmsg=zzz,
-            ztmg=zelzzz,
-            zcom=common_chat,
-            zsnc=zzzsinc,
-            zbio=user_bio,
-        )
+        template = DEFAULT_TEMPLATE
+    
+    zvip = "𝕍𝕀ℙ 💎" if user_id in Zed_Dev else "ℕ𝕆ℕ𝔼"
+    
+    caption = template.format(
+        znam=full_name,
+        zusr=username,
+        zidd=user_id,
+        zrtb=rotbat,
+        zpre=zpre,
+        zvip=zvip,
+        zpic=replied_user_profile_photos_count,
+        zmsg=zzz,
+        ztmg=zelzzz,
+        zcom=common_chat,
+        zsnc=zzzsinc,
+        zbio=user_bio,
+    )
+    
     return photo_path, caption
+
+# =========================================================== #
+# دالة تحديث رسالة الكليشات
+# =========================================================== #
+
+async def update_template_message(event, user_id):
+    """تحديث رسالة الكليشات الحالية"""
+    template_keys = list(ID_TEMPLATES.keys())
+    total_pages = len(template_keys)
+    
+    current_page = template_pages.get(user_id, 0)
+    if current_page >= total_pages:
+        current_page = 0
+    current_key = template_keys[current_page]
+    current_template = ID_TEMPLATES[current_key]
+    
+    text = f"**🎨 الكليشة {current_page + 1}/{total_pages}**\n\n"
+    text += f"```\n{current_template['template'][:500]}\n```\n"
+    text += f"• **الاسم:** {current_template['name']}"
+    
+    buttons = []
+    nav_buttons = []
+    if current_page > 0:
+        nav_buttons.append(Button.inline("◀️ رجوع", data="template_prev", style="primary"))
+    if current_page < total_pages - 1:
+        nav_buttons.append(Button.inline("التالي ▶️", data="template_next", style="primary"))
+    
+    if nav_buttons:
+        buttons.append(nav_buttons)
+    
+    buttons.append([
+        Button.inline("💾 حفظ الكليشة", data=f"template_save_{current_key}", style="success"),
+        Button.inline("❌ إغلاق", data="close_panel", style="danger")
+    ])
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+
+# =========================================================== #
+# الاستعلامات المضمنة
+# =========================================================== #
 
 if Config.TG_BOT_USERNAME is not None and tgbot is not None:
 
@@ -223,70 +652,39 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
     @check_owner
     async def inline_handler_like(event):
         builder = event.builder
-        result = None
         query = event.text
         await l313l.get_me()
         
+        # ✅ استعلام idid - بطاقة المعلومات
         if query.startswith("idid") and event.query.user_id == l313l.uid:
-            #if gvarstatus("ZThon_Vip") is None or Zel_Uid not in zed_dev:
-                #return
-            if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
-                os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
-            #replied_user = await get_user_from_event(event)
             try:
                 photo_path, caption = await fetch_info(event)
-            except (AttributeError, TypeError):
-                return await edit_or_reply(zed, "**- لـم استطـع العثــور ع الشخــص ؟!**")
-            message_id_to_reply = None
-            if gvarstatus("ZID_TEMPLATE") is None:
-                try:
-                    uploaded_file = await event.client.upload_file(file=photo_path)
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
-                    result = builder.photo(
-                        uploaded_file,
-                        #title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
-                    if not photo_path.startswith("http"):
-                        os.remove(photo_path)
-                    #await zed.delete()
-                except (TypeError, ChatSendMediaForbiddenError, Exception):
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
-                    result = builder.article(
-                        title="l313l",
-                        text=caption,
-                        buttons=buttons,
-                        link_preview=False,
-                        parse_mode="html",
-                    )
+            except Exception as e:
+                return
+            
+            like_button_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+            my_username, my_name, my_id = await get_my_account_info()
+            my_link = f"https://t.me/{my_username}" if my_username else f"tg://user?id={my_id}"
+            
+            # زر واحد فقط حسب النمط المختار
+            if like_button_mode == "likes":
+                Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
+                buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
             else:
-                try:
+                buttons = [[Button.url(f"👤 {my_name}", my_link, style="primary")]]
+            
+            try:
+                if photo_path and os.path.exists(photo_path):
                     uploaded_file = await event.client.upload_file(file=photo_path)
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes")]]
                     result = builder.photo(
                         uploaded_file,
-                        #title="l313l",
                         text=caption,
                         buttons=buttons,
                         link_preview=False,
                         parse_mode="html",
                     )
-                    if not photo_path.startswith("http"):
-                        os.remove(photo_path)
-                    #await zed.delete()
-                except (TypeError, ChatSendMediaForbiddenError, Exception):
-                    Like_id = gvarstatus("Like_Id")
-                    Like_id = Like_id if Like_id else 0
-                    buttons = [[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]]
+                    os.remove(photo_path)
+                else:
                     result = builder.article(
                         title="l313l",
                         text=caption,
@@ -294,133 +692,277 @@ if Config.TG_BOT_USERNAME is not None and tgbot is not None:
                         link_preview=False,
                         parse_mode="html",
                     )
+            except Exception:
+                result = builder.article(
+                    title="l313l",
+                    text=caption,
+                    buttons=buttons,
+                    link_preview=False,
+                    parse_mode="html",
+                )
+            
             await event.answer([result] if result else None)
-        else:
-            return
+        
+        # ✅ استعلام كليشات الايدي
+        elif query.startswith("id_templates") and event.query.user_id == l313l.uid:
+            user_id = event.query.user_id
+            template_keys = list(ID_TEMPLATES.keys())
+            total_pages = len(template_keys)
+            
+            # إعادة تعيين الصفحة إلى 0 عند الفتح الجديد
+            template_pages[user_id] = 0
+            current_key = template_keys[0]
+            current_template = ID_TEMPLATES[current_key]
+            
+            text = f"**🎨 الكليشة 1/{total_pages}**\n\n"
+            text += f"```\n{current_template['template'][:500]}\n```\n"
+            text += f"• **الاسم:** {current_template['name']}"
+            
+            buttons = []
+            nav_buttons = []
+            if total_pages > 1:
+                nav_buttons.append(Button.inline("التالي ▶️", data="template_next", style="primary"))
+            
+            if nav_buttons:
+                buttons.append(nav_buttons)
+            
+            buttons.append([
+                Button.inline("💾 حفظ الكليشة", data=f"template_save_{current_key}", style="success"),
+                Button.inline("❌ إغلاق", data="close_panel", style="danger")
+            ])
+            
+            result = builder.article(
+                title="🎨 كليشات الايدي",
+                description=f"الكليشة 1/{total_pages}: {current_template['name']}",
+                text=text,
+                buttons=buttons,
+                link_preview=False,
+                parse_mode="Markdown",
+            )
+            await event.answer([result], cache_time=0)
+        
+        # ✅ استعلام نمط اللايك
+        elif query.startswith("like_mode") and event.query.user_id == l313l.uid:
+            current_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+            my_username, my_name, my_id = await get_my_account_info()
+            
+            text = f"**⚙️ إعدادات زر اللايك**\n\n"
+            text += f"• النمط الحالي: **{'❤️ نمط القلوب' if current_mode == 'likes' else '👤 نمط الحساب'}**\n\n"
+            text += f"• شكل الزر:\n"
+            
+            if current_mode == "likes":
+                text += f"`ʟɪᴋᴇ ♥️ ⤑ (العدد)`\n"
+                text += f"• زر الإعجاب فقط"
+            else:
+                text += f"`👤 {my_name}`\n"
+                text += f"• رابط حسابك فقط"
+            
+            text += f"\n\n• استخدم الأمر `.نمط اللايك` مرة أخرى للتبديل"
+            
+            buttons = [
+                [Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")],
+                [Button.inline("❌ إغلاق", data="close_panel", style="danger")]
+            ]
+            
+            result = builder.article(
+                title="⚙️ إعدادات اللايك",
+                description=f"النمط الحالي: {'قلوب' if current_mode == 'likes' else 'حساب'}",
+                text=text,
+                buttons=buttons,
+                link_preview=False,
+                parse_mode="Markdown",
+            )
+            await event.answer([result], cache_time=0)
 
-# Copyright (C) 2021 Zed-Thon . All Rights Reserved
+# =========================================================== #
+# أوامر المستخدم
+# =========================================================== #
+
 @l313l.ar_cmd(pattern="لايك(?: |$)(.*)")
 async def who(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
-    input_str = event.pattern_match.group(1)
-    reply = event.reply_to_msg_id
-    if input_str and reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
-    if input_str or reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
+    
     if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر 🚫\n- فـي مجموعـة استفسـارات زدثــون ؟!**")
+        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷**")
+    
     zed = await edit_or_reply(event, "⇆")
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-        return
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
     await response[0].click(event.chat_id)
     await zed.delete()
 
-# Copyright (C) 2021 Zed-Thon . All Rights Reserved
-@l313l.ar_cmd(pattern="like(?: |$)(.*)")
-async def who(event):
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\nتواصل : @Lx5x5**")
-    input_str = event.pattern_match.group(1)
-    reply = event.reply_to_msg_id
-    if input_str and reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
-    if input_str or reply:
-        return await edit_or_reply(event, "**- ارسـل الامـر بـدون رد**")
-    if (event.chat_id in ZED_BLACKLIST) and (Zel_Uid not in zed_dev):
-        return await edit_or_reply(event, "**- عـذراً .. عـزيـزي 🚷\n- لا تستطيـع استخـدام هـذا الامـر .**")
-    zed = await edit_or_reply(event, "⇆")
-    if event.reply_to_msg_id:
-        await event.get_reply_message()
-        return
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "idid")
+@l313l.ar_cmd(pattern="كليشات اللايك$")
+async def id_templates_cmd(event):
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "id_templates")
     await response[0].click(event.chat_id)
-    await zed.delete()
+    await event.delete()
 
-# اوامـر لايك ايدي تبدأ من هنا
+@l313l.ar_cmd(pattern="نمط اللايك$")
+async def like_mode_cmd(event):
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "like_mode")
+    await response[0].click(event.chat_id)
+    await event.delete()
+
 @l313l.ar_cmd(pattern="المعجبين$")
 async def on_like_list(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع **")
-    count = 1
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
+    
     likers = get_likes(l313l.uid)
     if likers:
+        OUT_STR = "𓆩 𝗮𝗥𝗥𝗮𝗦 𝗟𝗶𝗸𝗲 - **قائمـة المعجبيــن** ❤️𓆪\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
         for mogab in likers:
-            OUT_STR = f"𓆩 𝗮𝗥𝗥𝗮𝗦 𝗟𝗶𝗸𝗲 - **قائمـة المعجبيــن** ❤️𓆪\n**⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆**\n**• إجمالي عـدد المعجبيـن {count}**\n"
-            OUT_STR += "\n**• الاسم:** [{}](tg://user?id={})\n**• الايـدي:** `{}`\n**• اليـوزر:** {}".format(mogab.f_name, mogab.lik_id, mogab.lik_id, mogab.f_user)
-            count += 1
-        await edit_or_reply(
-            event,
-            OUT_STR,
-            caption="**⧗╎قائمـة المعجبيــن ❤️**",
-            file_name="likers.text",
-        )
-    else:
-        OUT_STR = "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**"
+            OUT_STR += f"\n• **الاسم:** [{mogab.f_name}](tg://user?id={mogab.lik_id})\n• **الايـدي:** `{mogab.lik_id}`\n• **اليـوزر:** {mogab.f_user}\n"
+        OUT_STR += f"\n• **إجمالي عـدد المعجبيـن {len(likers)}**"
         await edit_or_reply(event, OUT_STR)
+    else:
+        await edit_or_reply(event, "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**")
 
 @l313l.ar_cmd(pattern="مسح المعجبين$")
 async def on_all_liked_delete(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in zed_dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵\n⎉╎للاشتـراك في الاوامـر المدفوعـة\n⎉╎تواصـل مطـور السـورس @BBBlibot - @EiAbot\n⎉╎او التواصـل مـع احـد المشرفيـن @AAAl1l**")
-    liikers = get_likes(l313l.uid)
-    count = 1
-    if liikers:
-        zed = await edit_or_reply(event, "**⪼ جـارِ مسـح المعجبيـن .. انتظـر ⏳**")
-        for mogab in liikers:
-            count += 1
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵**")
+    
+    likers = get_likes(l313l.uid)
+    if likers:
+        zed = await edit_or_reply(event, "⪼ جـارِ مسـح المعجبيـن .. انتظـر ⏳")
         remove_all_likes(l313l.uid)
         delgvar("Like_Id")
-        await zed.edit("**⪼ تم حـذف جميـع المعجبيـن .. بنجـاح ✅**")
+        await zed.edit("⪼ تم حـذف جميـع المعجبيـن .. بنجـاح ✅")
     else:
-        OUT_STR = "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**"
-        await edit_or_reply(event, OUT_STR)
+        await edit_or_reply(event, "**- مسكيـن ع باب الله 🧑🏻‍🦯**\n**- ماعنـدك معجبيـن حالياً ❤️‍🩹**")
+
+@l313l.ar_cmd(pattern="مسح اللايك")
+async def reset_settings(event):
+    delgvar("SELECTED_ID_TEMPLATE")
+    delgvar("LIKE_BUTTON_MODE")
+    delgvar("Like_Id")
+    remove_all_likes(l313l.uid)
+    await edit_or_reply(event, "✅ تم مسح جميع الإعدادات والتغييرات بنجاح!\n\n• عادت الكليشة إلى الأساسية\n• عاد نمط اللايك إلى القلوب\n• تم مسح جميع المعجبين")
+
+# =========================================================== #
+# أزرار التفاعل (CallbackQuery)
+# =========================================================== #
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(rb"likes")))
-async def _(event):
-    # الحصول على معلومات الشخص الذي قام بالضغط على الزر
+async def like_callback(event):
     user_id = event.sender_id
+    
+    if user_id == l313l.uid:
+        return await event.answer("❌ لا يمكنك الإعجاب بنفسك!", alert=True)
+    
     try:
         user = await l313l.get_entity(user_id)
-        user_name = f"{user.first_name}{user.last_name}" if user.last_name else user.first_name
-        user_username = f"@{user.username}" if user.username else "لا يوجد"
-    except ValueError:
-        user = await l313l(GetUsersRequest(user_id))
-        user_name = f"{user.first_name}{user.last_name}" if user.last_name else user.first_name
+        user_name = f"{user.first_name}{' ' + user.last_name if user.last_name else ''}"
         user_username = f"@{user.username}" if user.username else "لا يوجد"
     except Exception:
         user_name = "مستخدم محذوف"
         user_username = "لا يوجد"
-    # إرسال إشعار لمجموعة السجل بمعلومات من قام بعمل لايك ( إعجاب )
+    
     Like_id = int(gvarstatus("Like_Id")) if gvarstatus("Like_Id") else 0
-    if add_like(str(l313l.uid), str(user.id), user_name, user_username) is True:
+    like_button_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+    
+    if add_like(str(l313l.uid), str(user_id), user_name, user_username) is True:
         Like_id += 1
         addgvar("Like_Id", Like_id)
     else:
-        return await event.answer("- انت معجب من قبل بهذا الشخص ❤️", cache_time=0, alert=True)
-        #remove_like(str(zedub.uid), str(user.id))
-        #if add_like(str(zedub.uid), str(user.id), user_name, user_username) is True:
-            #return await
+        return await event.answer("❤️ انت معجب من قبل بهذا الشخص!", cache_time=0, alert=True)
+    
+    # إرسال إشعار للمطور
     try:
         await l313l.send_message(
             BOTLOG_CHATID,
-            "#الايـدي_بـ_لايــك 💝\n\n"
-            f"**- المُستخـدِم :** {_format.mentionuser(user_name ,user.id)} \n"
-            f"**- الايدي** `{user.id}`\n"
-            f"**- اليـوزر :** {user_username} \n"
-            f"**- قام بعمـل لايـك لـ الايـدي الخـاص بـك ♥️**\n"
-            f"**- اصبح عـدد معجبينك هـو :** {Like_id} 🤳\n"
-            f"**- لـ عـرض قائمـة المعجبيـن ارسـل:** ( `.المعجبين` ) 🎴\n"
-            f"**- لـ مسح قائمـة المعجبيـن ارسـل:** ( `.مسح المعجبين` ) 🗑",
+            f"#لايك_جديد 💝\n\n"
+            f"**- المستخدم :** [{user_name}](tg://user?id={user_id})\n"
+            f"**- الايدي :** `{user_id}`\n"
+            f"**- اليوزر :** {user_username}\n"
+            f"**- أصبح عدد المعجبين :** {Like_id}",
         )
-    except Exception as e:
-        await l313l.send_message(BOTLOG_CHATID, f"**- حدث خطأ أثناء إرسال إشعـار لايك ❌**\n**- الخطأ هـو 📑:**\n-{e}")
-    # تحديث زر الإعجاب
-    try:
-        await event.edit(buttons=[[Button.inline(f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}", data="likes", style="primary")]])
-        await event.answer("- تم إضافة إعجابك لـ هذا الشخص ♥️", cache_time=0, alert=True)
     except Exception:
-        await event.answer("- تم إضافة إعجابك لـ هذا الشخص ♥️", cache_time=0, alert=True)
+        pass
+    
+    # تحديث الزر حسب النمط
+    if like_button_mode == "likes":
+        button_text = f"ʟɪᴋᴇ ♥️ ⤑ {Like_id}"
+        button_data = "likes"
+        buttons = [[Button.inline(button_text, data=button_data, style="primary")]]
+    else:
+        my_username, my_name, my_id = await get_my_account_info()
+        my_link = f"https://t.me/{my_username}" if my_username else f"tg://user?id={my_id}"
+        buttons = [[Button.url(f"👤 {my_name}", my_link, style="primary")]]
+    
+    try:
+        await event.edit(buttons=buttons)
+        await event.answer(f"✅ تم إضافة إعجابك لـ {user_name}!", alert=True)
+    except Exception:
+        await event.answer(f"✅ تم إضافة إعجابك لـ {user_name}!", alert=True)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_prev")))
+async def template_prev(event):
+    user_id = event.query.user_id
+    current_page = template_pages.get(user_id, 0)
+    if current_page > 0:
+        template_pages[user_id] = current_page - 1
+        await update_template_message(event, user_id)
+    else:
+        await event.answer("⚠️ هذه هي الكليشة الأولى!", alert=True)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_next")))
+async def template_next(event):
+    user_id = event.query.user_id
+    current_page = template_pages.get(user_id, 0)
+    total_pages = len(ID_TEMPLATES)
+    
+    if current_page + 1 < total_pages:
+        template_pages[user_id] = current_page + 1
+        await update_template_message(event, user_id)
+    else:
+        await event.answer("⚠️ هذه هي الكليشة الأخيرة!", alert=True)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"template_save_(.+)")))
+async def template_save(event):
+    match = re.match(r"template_save_(.+)", event.data.decode())
+    if not match:
+        return
+    
+    template_key = match.group(1)
+    if template_key in ID_TEMPLATES:
+        addgvar("SELECTED_ID_TEMPLATE", template_key)
+        await event.edit(f"✅ تم حفظ كليشة **{ID_TEMPLATES[template_key]['name']}** بنجاح!\n\n• ستظهر في جميع بطاقات الـ .لايك")
+    else:
+        await event.answer("❌ كليشة غير موجودة!", alert=True)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(rb"toggle_like_mode")))
+async def toggle_like_mode(event):
+    current_mode = gvarstatus("LIKE_BUTTON_MODE") or "likes"
+    new_mode = "profile" if current_mode == "likes" else "likes"
+    addgvar("LIKE_BUTTON_MODE", new_mode)
+    
+    mode_name = "نمط الحساب" if new_mode == "profile" else "نمط القلوب"
+    my_username, my_name, my_id = await get_my_account_info()
+    
+    text = f"**⚙️ إعدادات زر اللايك**\n\n"
+    text += f"• النمط الحالي: **{'❤️ نمط القلوب' if new_mode == 'likes' else '👤 نمط الحساب'}**\n\n"
+    text += f"• شكل الزر:\n"
+    
+    if new_mode == "likes":
+        text += f"`ʟɪᴋᴇ ♥️ ⤑ (العدد)`\n"
+        text += f"• زر الإعجاب فقط"
+    else:
+        text += f"`👤 {my_name}`\n"
+        text += f"• رابط حسابك فقط"
+    
+    text += f"\n\n• استخدم الأمر `.نمط اللايك` مرة أخرى للتبديل"
+    
+    buttons = [
+        [Button.inline("🔄 تبديل النمط", data="toggle_like_mode", style="primary")],
+        [Button.inline("❌ إغلاق", data="close_panel", style="danger")]
+    ]
+    
+    await event.edit(text, buttons=buttons, parse_mode="Markdown")
+    await event.answer(f"✅ تم التبديل إلى {mode_name}", alert=True)
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"close_panel")))
+async def close_panel(event):
+    """إغلاق القائمة"""
+    await event.edit("❌ تم إغلاق القائمة!", buttons=None, parse_mode="Markdown")

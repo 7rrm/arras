@@ -95,7 +95,7 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت عن طريق المجموعة (الحساب الشخصي)"""
+    """تحميل الصوت عن طريق المجموعة"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     video_url = f"https://youtu.be/{yt_code}"
     
@@ -104,31 +104,38 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     await c_q.answer("🔄 جـارِ الطلب...", alert=False)
     await c_q.edit("**📤 جـارِ إرسال الطلب إلى المجموعة...**")
     
+    # تعيين متغير للتحكم بالاستلام
+    received = False
+    
     try:
         # ✅ إرسال الطلب من الحساب الشخصي إلى المجموعة
-        await l313l.send_message(
-            GROUP_ID,
-            f"يوت {video_url}"
-        )
+        await l313l.send_message(GROUP_ID, f"يوت {video_url}")
         
-        # انتظار الرد من البوت @W60yBot في نفس المجموعة
-        @l313l.on(events.NewMessage(chats=GROUP_ID))
+        # ✅ استلام الرد من البوت @W60yBot عبر بوتك (وليس الحساب الشخصي)
+        @l313l.tgbot.on(events.NewMessage(chats=GROUP_ID))
         async def get_audio(event):
-            # التأكد أن الرسالة من البوت @W60yBot وفيها ميديا
-            if event.sender_id == (await l313l.get_entity("W60yBot")).id and event.media:
-                await c_q.edit("**📥 جـارِ استلام الأغنية من المجموعة...**")
-                # إعادة إرسال الأغنية للمستخدم عبر بوتك
+            nonlocal received
+            # التأكد أن الرسالة من البوت @W60yBot
+            sender = await event.get_sender()
+            if sender.username == "W60yBot" and event.media and not received:
+                received = True
+                await c_q.edit("**📥 جـارِ استلام الأغنية من البوت...**")
+                # إعادة إرسال الأغنية للمستخدم
                 await c_q.client.send_file(
                     c_q.chat_id, 
                     event.media, 
-                    caption=f"🎵 **تم التحميل عبر المجموعة**\n`{video_url}`"
+                    caption=f"🎵 **تم التحميل**\n`{video_url}`"
                 )
                 await c_q.edit("✅ **تم الإرسال بنجاح!**")
-                raise events.StopPropagation
         
         # انتظار 30 ثانية
-        await asyncio.sleep(30)
-        await c_q.edit("❌ **لم يستجب البوت @W60yBot**\nتأكد من أن البوت في المجموعة")
+        for _ in range(30):
+            if received:
+                break
+            await asyncio.sleep(1)
+        
+        if not received:
+            await c_q.edit("❌ **لم يستجب البوت @W60yBot**\nتأكد من أن البوت في المجموعة ويرسل الأغنية")
         
     except Exception as e:
         LOGS.error(f"خطأ: {e}")

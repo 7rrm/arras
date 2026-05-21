@@ -110,7 +110,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
         # إرسال الأمر في المجموعة مع منشن البوت الآخر
         await l313l.tgbot.send_message(
             GROUP_ID,
-            f"@{BOT_2_USERNAME} يوت {video_url}"  # مثلاً: @W60yBot يوت https://youtu.be/xxx
+            f"يوت {video_url}"  # مثلاً: @W60yBot يوت https://youtu.be/xxx
         )
         
         # انتظار الرد...

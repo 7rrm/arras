@@ -94,78 +94,43 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت"""
+    """تحميل الصوت عن طريق البوت @W60yBot"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
+    video_url = f"https://youtu.be/{yt_code}"
     
-    await c_q.answer("╮ جـارِ التَحمـيـل ... 🔽 ╰", alert=False)
-    
-    try:
-        await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
-    except:
-        pass
+    # إعلام المستخدم
+    await c_q.answer("🔄 جـارِ الطلب من البوت...", alert=False)
+    await c_q.edit("**📤 جـارِ إرسال الطلب إلى البوت @W60yBot ...**")
     
     try:
-        import requests
+        # إرسال الأمر إلى البوت الثاني
+        await l313l.tgbot.send_message("@W60yBot", f"يوت {video_url}")
         
-        API_KEY = "60177503-3647-4d6c-be9c-cd0b47a80a6b"
-        api_url = f"https://muntazer.online/tuob/m4a={API_KEY}=https://youtu.be/{yt_code}"
-        
-        def fetch_api():
-            resp = requests.get(api_url, timeout=60)
-            if resp.status_code == 200:
-                return resp.json()
-            return None
-        
-        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
-        
-        if result and result.get("status") == "ok":
-            link = result.get("link")
-            
-            if link:
-                parts = link.strip('/').split('/')
-                channel_username = parts[-2]
-                message_id = int(parts[-1])
+        # انتظار رد البوت الثاني (الأغنية)
+        @l313l.tgbot.on(events.NewMessage(from_users="@W60yBot"))
+        async def get_audio(event):
+            if event.media:
+                # تم استلام الأغنية من البوت الثاني
+                await c_q.edit("**📥 جـارِ استلام الأغنية من البوت...**")
                 
-                await c_q.edit("**📥 جـارِ استلام الـملـف...**")
+                # إعادة إرسال الأغنية للمستخدم
+                await c_q.client.send_file(
+                    c_q.chat_id,
+                    event.media,
+                    caption=f"🎵 **تم التحميل عبر @W60yBot**\n`{video_url}`"
+                )
                 
-                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
-                
-                if s_msg and s_msg.media:
-                    caption = (
-                        f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<tg-emoji emoji-id="5890831539507302154">🎵</tg-emoji>'
-                        f"</blockquote>"
-                    )
-                    
-                    buttons = [
-                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
-                    ]
-                    
-                    uploaded_media = await c_q.client.send_file(
-                        BOTLOG_CHATID,
-                        s_msg.media,
-                        caption=f"<b>🎵 {yt_code}</b>",
-                        parse_mode="html"
-                    )
-                    
-                    await c_q.edit(
-                        text=caption,
-                        file=uploaded_media.media,
-                        parse_mode="html",
-                        buttons=buttons
-                    )
-                    
-                else:
-                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
-            else:
-                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
-        else:
-            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
-            
+                await c_q.edit("✅ **تم الإرسال بنجاح!**")
+                return
+        
+        # مهلة انتظار 30 ثانية
+        await asyncio.sleep(30)
+        await c_q.edit("❌ **لم يستجب البوت @W60yBot**\nتأكد من أن البوت يعمل")
+        
     except Exception as e:
-        LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+        LOGS.error(f"خطأ: {e}")
+        await c_q.edit(f"❌ **حدث خطأ:** `{str(e)[:100]}`")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))

@@ -12,7 +12,6 @@ from pathlib import Path
 from time import time
 
 import ujson
-from telethon import events
 from telethon import Button, types
 from telethon.errors import BotResponseTimeoutError
 from telethon.events import CallbackQuery
@@ -95,50 +94,77 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت عن طريق المجموعة"""
+    """تحميل الصوت"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
-    video_url = f"https://youtu.be/{yt_code}"
     
-    GROUP_ID = -1003949736089  # ID المجموعة
-    
-    await c_q.answer("🔄 جـارِ الطلب...", alert=False)
-    await c_q.edit("**📤 جـارِ إرسال الطلب إلى المجموعة...**")
-    
-    # تعيين متغير للتحكم بالاستلام
-    received = False
+    await c_q.answer("╮ جـارِ التَحمـيـل ... 🔽 ╰", alert=False)
     
     try:
-        # ✅ إرسال الطلب من الحساب الشخصي إلى المجموعة
-        await l313l.send_message(GROUP_ID, f"يوت {video_url}")
+        await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
+    except:
+        pass
+    
+    try:
+        import requests
         
-        # ✅ استلام الرد من البوت @W60yBot عبر بوتك (وليس الحساب الشخصي)
-        @l313l.tgbot.on(events.NewMessage(chats=GROUP_ID))
-        async def get_audio(event):
-            nonlocal received
-            # التأكد أن الرسالة من البوت @W60yBot
-            sender = await event.get_sender()
-            if sender.username == "W60yBot" and event.media and not received:
-                received = True
-                await c_q.edit("**📥 جـارِ استلام الأغنية من البوت...**")
-                # إعادة إرسال الأغنية للمستخدم
-                await c_q.client.send_file(
-                    c_q.chat_id, 
-                    event.media, 
-                    caption=f"🎵 **تم التحميل**\n`{video_url}`"
-                )
-                await c_q.edit("✅ **تم الإرسال بنجاح!**")
+        API_KEY = "60177503-3647-4d6c-be9c-cd0b47a80a6b"
+        api_url = f"https://muntazer.online/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
         
-        # انتظار 30 ثانية
-        for _ in range(30):
-            if received:
-                break
-            await asyncio.sleep(1)
+        def fetch_api():
+            resp = requests.get(api_url, timeout=60)
+            if resp.status_code == 200:
+                return resp.json()
+            return None
         
-        if not received:
-            await c_q.edit("❌ **لم يستجب البوت @W60yBot**\nتأكد من أن البوت في المجموعة ويرسل الأغنية")
+        result = await asyncio.get_event_loop().run_in_executor(None, fetch_api)
         
+        if result and result.get("status") == "ok":
+            link = result.get("link")
+            
+            if link:
+                parts = link.strip('/').split('/')
+                channel_username = parts[-2]
+                message_id = int(parts[-1])
+                
+                await c_q.edit("**📥 جـارِ استلام الـملـف...**")
+                
+                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
+                
+                if s_msg and s_msg.media:
+                    caption = (
+                        f"<blockquote>"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f'<tg-emoji emoji-id="5890831539507302154">🎵</tg-emoji>'
+                        f"</blockquote>"
+                    )
+                    
+                    buttons = [
+                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
+                    ]
+                    
+                    uploaded_media = await c_q.client.send_file(
+                        BOTLOG_CHATID,
+                        s_msg.media,
+                        caption=f"<b>🎵 {yt_code}</b>",
+                        parse_mode="html"
+                    )
+                    
+                    await c_q.edit(
+                        text=caption,
+                        file=uploaded_media.media,
+                        parse_mode="html",
+                        buttons=buttons
+                    )
+                    
+                else:
+                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
+            else:
+                await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
+        else:
+            await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
+            
     except Exception as e:
-        LOGS.error(f"خطأ: {e}")
+        LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
 
 @l313l.tgbot.on(

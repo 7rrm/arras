@@ -94,42 +94,34 @@ async def iytdl_inline(event):
 )
 @check_owner
 async def ytdl_download_audio(c_q: CallbackQuery):
-    """تحميل الصوت عن طريق البوت @W60yBot"""
+    """تحميل الصوت عن طريق مجموعة وسيط"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     video_url = f"https://youtu.be/{yt_code}"
     
-    # إعلام المستخدم
-    await c_q.answer("🔄 جـارِ الطلب من البوت...", alert=False)
-    await c_q.edit("**📤 جـارِ إرسال الطلب إلى البوت @W60yBot ...**")
+    await c_q.answer("🔄 جـارِ الطلب...", alert=False)
+    await c_q.edit("**📤 جـارِ إرسال الطلب...**")
     
     try:
-        # إرسال الأمر إلى البوت الثاني
-        await l313l.tgbot.send_message("@W60yBot", f"يوت {video_url}")
+        # إنشاء مجموعة مؤقتة (أو استخدم مجموعة موجودة)
+        # يجب إضافة البوتين كأعضاء في المجموعة
+        GROUP_ID = -1003949736089  # ضع هنا ID المجموعة التي يشارك فيها البوتان
         
-        # انتظار رد البوت الثاني (الأغنية)
+        # إرسال الأمر في المجموعة مع منشن البوت الآخر
+        await l313l.tgbot.send_message(
+            GROUP_ID,
+            f"@{BOT_2_USERNAME} يوت {video_url}"  # مثلاً: @W60yBot يوت https://youtu.be/xxx
+        )
+        
+        # انتظار الرد...
         @l313l.tgbot.on(events.NewMessage(from_users="@W60yBot"))
         async def get_audio(event):
-            if event.media:
-                # تم استلام الأغنية من البوت الثاني
-                await c_q.edit("**📥 جـارِ استلام الأغنية من البوت...**")
+            if event.media and event.is_group:
+                await c_q.edit("**📥 جـارِ استلام الأغنية...**")
+                await c_q.client.send_message(c_q.chat_id, event.media)
+                await c_q.edit("✅ **تم الإرسال!**")
                 
-                # إعادة إرسال الأغنية للمستخدم
-                await c_q.client.send_file(
-                    c_q.chat_id,
-                    event.media,
-                    caption=f"🎵 **تم التحميل عبر @W60yBot**\n`{video_url}`"
-                )
-                
-                await c_q.edit("✅ **تم الإرسال بنجاح!**")
-                return
-        
-        # مهلة انتظار 30 ثانية
-        await asyncio.sleep(30)
-        await c_q.edit("❌ **لم يستجب البوت @W60yBot**\nتأكد من أن البوت يعمل")
-        
     except Exception as e:
-        LOGS.error(f"خطأ: {e}")
-        await c_q.edit(f"❌ **حدث خطأ:** `{str(e)[:100]}`")
+        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
 
 
 @l313l.tgbot.on(

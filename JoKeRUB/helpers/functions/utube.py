@@ -244,8 +244,8 @@ async def result_formatter(results: list):
             views_raw = int(statistics.get('viewCount', 0))
             views_short = format_views_api(views_raw)
             
-            description = snippet.get('description', '')
-            desc_snippet = description[:100].replace('\n', ' ') if description else ''
+           #الوصف description = snippet.get('description', '')
+           # desc_snippet = description[:100].replace('\n', ' ') if description else ''
             
             title = snippet.get('title', v.get('title', 'بدون عنوان'))
             publish_time = snippet.get('publishedAt', v.get('publish_time', 'غير معروف'))
@@ -279,7 +279,7 @@ async def result_formatter(results: list):
             except:
                 views_short = views
             
-            desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
+            #desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
             title = v.get('title', 'بدون عنوان')
             publish_time = v.get('publish_time', 'غير معروف')
             channel_name = v.get('channel', 'غير معروف')
@@ -289,10 +289,10 @@ async def result_formatter(results: list):
         # بناء الرسالة
         video_url = f"https://youtube.com/watch?v={video_id}"
         title_link = f'<a href="{video_url}"><b>{title}</b></a>\n'
-        out = title_link + "\n"
+        out = title_link + "\n\n"
         
-        if desc_snippet:
-            out += f"<code>{desc_snippet}</code>\n\n"
+        #if desc_snippet:
+            #out += f"<code>{desc_snippet}</code>\n\n"
         
         out += f'<b>❯ المـده :</b> {duration}\n'
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'

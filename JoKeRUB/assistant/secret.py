@@ -13,6 +13,8 @@ from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus, delgvar
 
+LOGS = logging.getLogger(__name__)
+
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close")))
 async def close_callback(event):
     """إغلاق الرسالة"""

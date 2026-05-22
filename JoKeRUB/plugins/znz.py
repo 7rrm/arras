@@ -215,103 +215,90 @@ async def inline_handler(event):
 
 
 @l313l.tgbot.on(InlineQuery)
-async def inline_handlerr(event):
+async def first_only_inline_handler(event):
     builder = event.builder
-    result = None
     query = event.text
-    string = query.lower()
-    query.split(" ", 2)
-    str_y = query.split(" ", 1)
-    string.split()
     query_user_id = event.query.user_id
-    user_id = gvarstatus("hmsa_id") if gvarstatus("hmsa_id") else None
-    full_name = gvarstatus("hmsa_name") if gvarstatus("hmsa_name") else None
-    username = gvarstatus("hmsa_user") if gvarstatus("hmsa_user") else None
-    zelzal = None
     
-    if not user_id:
+    # فقط التعامل مع الاستعلامات التي تبدأ بـ "first_only"
+    if not query.startswith("first_only"):
         return
     
-    if gvarstatus("hmsa_user"):
-        if username.startswith("@"):
-            zelzal = gvarstatus("hmsa_user")
-        else:
-            zelzal = f"[{full_name}](tg://user?id={user_id})"
+    # فقط المطور أو السودو
+    if query_user_id != Config.OWNER_ID and query_user_id not in Config.SUDO_USERS:
+        return
     
-    # السماح للمطورين
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
-        malathid = Config.OWNER_ID
-    elif user_id != "first_only" and query_user_id == int(user_id):
-        malathid = user_id
-    elif user_id == "first_only":
-        malathid = "first_only"
+    # إزالة "first_only " من بداية الاستعلام بشكل صحيح
+    if query.startswith("first_only "):
+        query = query[10:]  # "first_only " طولها 10 أحرف
     else:
-        malathid = None
+        query = query.replace("first_only", "", 1).strip()
     
-    # معالجة الهمسة لـ "أول شخص يفتحها"
-    if user_id == "first_only" and (query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS or True):
-        inf = re.compile("secret (.*) (.*)")
-        match2 = re.findall(inf, query)
-        if match2:
-            query = query[7:]
-            info_type = [hmm, ymm, fmm]
-            
-            user_list = ["first_only"]
-            zilzal = "أول شخص يفتحها"
-            
-            old_msg = os.path.join("./JoKeRUB", f"first_only_whispers.json")
-            try:
-                jsondata = json.load(open(old_msg))
-            except Exception:
-                jsondata = {}
-            
-            timestamp = int(time.time() * 2)
-            new_msg = {
-                str(timestamp): {
-                    "userid": ["first_only"],
-                    "text": query,
-                    "is_first_only": True,
-                    "sender_id": query_user_id,
-                    "winner": None,
-                    "winner_name": None,
-                    "is_opened": False,
-                    "opened_time": None
-                }
+    # إذا كان الاستعلام فارغاً أو مجرد مسافات
+    if not query or query.isspace():
+        return
+    
+    # معالجة كتابة همسة جديدة
+    if query.startswith("new"):
+        query = query[3:].strip()  # إزالة "new"
+        if not query:
+            return
+        
+        # حفظ الهمسة
+        old_msg = os.path.join("./JoKeRUB", f"first_only_whispers.json")
+        try:
+            jsondata = json.load(open(old_msg))
+        except Exception:
+            jsondata = {}
+        
+        timestamp = int(time.time() * 2)
+        new_msg = {
+            str(timestamp): {
+                "userid": ["first_only"],
+                "text": query,  # هنا النص النظيف بدون first_only
+                "is_first_only": True,
+                "sender_id": query_user_id,
+                "winner": None,
+                "winner_name": None,
+                "is_opened": False,
+                "opened_time": None
             }
-            
-            buttons = [[Button.inline("اضـغـط هنـا", data=f"first_{timestamp}", style="danger")]]
-            thumb = InputWebDocument(
-                url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
-                size=0,
-                mime_type="image/jpeg",
-                attributes=[]
-            )
-            result = builder.article(
-                title=f"🏆 همسة لأول شخص يفتحها",
-                description=f"أول من يضغط سيرى الهمسة",
-                text=f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ اول شخص يفتحها",
-                buttons=buttons,
+        }
+        
+        buttons = [[Button.inline("اضغـط هنـا", data=f"first_{timestamp}", style="danger")]]
+        thumb = InputWebDocument(
+            url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
+            size=0,
+            mime_type="image/jpeg",
+            attributes=[]
+        )
+        result = builder.article(
+            title="همسة لأول شخص يفتحها",
+            description="أول من يضغط سيرى الهمسة",
+            text="ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ اول شخص يفتحها",
+            buttons=buttons,
+            link_preview=False,
+            thumb=thumb,
+        )
+        await event.answer([result] if result else None)
+        
+        if jsondata:
+            jsondata.update(new_msg)
+            json.dump(jsondata, open(old_msg, "w"))
+        else:
+            json.dump(new_msg, open(old_msg, "w"))
+    
+    # معالجة طلب عرض واجهة الهمسة
+    elif query == "zelzal" or query == "":
+        bbb = [(Button.switch_inline("اضغـط هنـا", query="first_only new ", same_peer=True, style="primary"))]
+        results = []
+        results.append(
+            builder.article(
+                title="همسة لأول شخص يفتحها",
+                description="أول من يضغط سيرى الهمسة فقط",
+                text="ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه لأول شخص يفتحها 💌",
+                buttons=bbb,
                 link_preview=False,
-                thumb=thumb,
-            )
-            await event.answer([result] if result else None)
-            
-            if jsondata:
-                jsondata.update(new_msg)
-                json.dump(jsondata, open(old_msg, "w"))
-            else:
-                json.dump(new_msg, open(old_msg, "w"))
-            
-        elif string == "zelzal":
-            bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret first_only \nهلو"), same_peer=True, style="primary"))]
-            results = []
-            results.append(
-                builder.article(
-                    title="🏆 همسة لأول شخص يفتحها",
-                    description="أول من يضغط سيرى الهمسة فقط",
-                    text=f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎لـ أࢪسـال همسـه سـريـه لأول شخص يفتحها 💌",
-                    buttons=bbb,
-                    link_preview=False,
-                ),
-            )
-            await event.answer(results)
+            ),
+        )
+        await event.answer(results)

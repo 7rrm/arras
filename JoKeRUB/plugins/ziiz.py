@@ -183,7 +183,7 @@ async def repob(event):
         addgvar("hmsa_name", "أول شخص يفتحها")
         addgvar("hmsa_user", "@first")
         
-        bbb = [(Button.switch_inline("🏆 اضغط لتكون الأول 🏆", query=("secret first_only \n🏆 أول من يفتح"), same_peer=True))]
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret first_only \n🏆 أول من يفتح"), same_peer=True))]
     
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)

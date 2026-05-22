@@ -303,8 +303,7 @@ async def inline_handlerr(event):
                 json.dump(new_msg, open(old_msg, "w"))
             
         elif string == "zelzal":
-            # التعديل هنا - إزالة first_only من query
-            bbb = [(Button.switch_inline("🏆 اضغط لتكون الأول 🏆", query=("secret \nأكتب همستك هنا"), same_peer=True, style="primary"))]
+            bbb = [(Button.switch_inline("🏆 اضغط لتكون الأول 🏆", query=("secret first_only \nأكتب همستك هنا"), same_peer=True, style="primary"))]
             results = []
             results.append(
                 builder.article(

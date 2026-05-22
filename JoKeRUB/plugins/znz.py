@@ -17,7 +17,7 @@ from telethon.tl.types import InputWebDocument
 from . import l313l
 from ..Config import Config
 from ..helpers import reply_id
-from ..sql_helper.globals import gvarstatus
+from ..sql_helper.globals import gvarstatus, addgvar, delgvar
 from ..core.logger import logging
 from ..helpers.utils import _format
 from . import mention

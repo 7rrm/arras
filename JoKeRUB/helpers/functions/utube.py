@@ -289,7 +289,7 @@ async def result_formatter(results: list):
         # بناء الرسالة
         video_url = f"https://youtube.com/watch?v={video_id}"
         title_link = f'<a href="{video_url}"><b>{title}</b></a>\n'
-        out = title_link + "\n\n"
+        out = title_link + "\n"
         
         #if desc_snippet:
             #out += f"<code>{desc_snippet}</code>\n\n"

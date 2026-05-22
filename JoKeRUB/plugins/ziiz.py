@@ -77,7 +77,7 @@ async def get_user_from_event(event):
             return None
     return user_object
 
-async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
+async def zzz_info(zthon_user, event):
     FullUser = (await event.client(GetFullUserRequest(zthon_user.id))).full_user
     first_name = zthon_user.first_name
     full_name = FullUser.private_forward_name
@@ -92,85 +92,142 @@ async def zzz_info(zthon_user, event): #Write Code By Zelzal T.me/zzzzl1l
     username = "@{}".format(username) if username else "None"
     return user_id, full_name, username
 
+# ========== الأمر اهمس ==========
 @l313l.ar_cmd(pattern="اهمس(?: |$)(.*)")
-async def repob(event):
-    global bbb
+async def whisper_to_all(event):
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-@l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
-async def repoz(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
-
-
-@l313l.ar_cmd(pattern="هم(?: |$)(.*)")
-async def repogdub(event):
-    global bbb
-    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
-        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
-    user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
-    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
-    await response[0].click(event.chat_id)
-    await event.delete()
     
+    user_input = event.pattern_match.group(1).strip()
+    
+    # إذا كان هناك رد أو معرف محدد (الوضع الأصلي)
+    if user_input or event.reply_to_msg_id:
+        zthon_user = await get_user_from_event(event)
+        if not zthon_user:
+            return
+        try:
+            user_id, full_name, username = await zzz_info(zthon_user, event)
+        except (AttributeError, TypeError):
+            return
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", user_id)
+        addgvar("hmsa_name", full_name)
+        addgvar("hmsa_user", username)
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        await response[0].click(event.chat_id)
+        await event.delete()
+        return
+    
+    # الوضع الجديد: بدون رد وبدون معرف (للجميع)
+    delgvar("hmsa_id")
+    delgvar("hmsa_name")
+    delgvar("hmsa_user")
+    delgvar("hmsa_for_all")
+    delgvar("hmsa_taken_by")
+    
+    addgvar("hmsa_for_all", "True")
+    
+    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    
+    await edit_or_reply(
+        event,
+        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
+        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
+        buttons=buttons
+    )
+    await event.delete()
+
+# ========== الأمر همسه ==========
+@l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
+async def whisper_to_all2(event):
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+    
+    user_input = event.pattern_match.group(1).strip()
+    
+    if user_input or event.reply_to_msg_id:
+        zthon_user = await get_user_from_event(event)
+        if not zthon_user:
+            return
+        try:
+            user_id, full_name, username = await zzz_info(zthon_user, event)
+        except (AttributeError, TypeError):
+            return
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", user_id)
+        addgvar("hmsa_name", full_name)
+        addgvar("hmsa_user", username)
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        await response[0].click(event.chat_id)
+        await event.delete()
+        return
+    
+    delgvar("hmsa_id")
+    delgvar("hmsa_name")
+    delgvar("hmsa_user")
+    delgvar("hmsa_for_all")
+    delgvar("hmsa_taken_by")
+    
+    addgvar("hmsa_for_all", "True")
+    
+    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    
+    await edit_or_reply(
+        event,
+        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
+        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
+        buttons=buttons
+    )
+    await event.delete()
+
+# ========== الأمر هم ==========
+@l313l.ar_cmd(pattern="هم(?: |$)(.*)")
+async def whisper_to_all3(event):
+    if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
+        return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+    
+    user_input = event.pattern_match.group(1).strip()
+    
+    if user_input or event.reply_to_msg_id:
+        zthon_user = await get_user_from_event(event)
+        if not zthon_user:
+            return
+        try:
+            user_id, full_name, username = await zzz_info(zthon_user, event)
+        except (AttributeError, TypeError):
+            return
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", user_id)
+        addgvar("hmsa_name", full_name)
+        addgvar("hmsa_user", username)
+        response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
+        await response[0].click(event.chat_id)
+        await event.delete()
+        return
+    
+    delgvar("hmsa_id")
+    delgvar("hmsa_name")
+    delgvar("hmsa_user")
+    delgvar("hmsa_for_all")
+    delgvar("hmsa_taken_by")
+    
+    addgvar("hmsa_for_all", "True")
+    
+    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    
+    await edit_or_reply(
+        event,
+        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
+        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
+        buttons=buttons
+    )
+    await event.delete()

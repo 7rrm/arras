@@ -165,48 +165,153 @@ def get_choice_by_id(choice_id, media_type: str):
     return choice_str, disp_str
 
 
+# أضف هذه الدوال المساعدة في بداية الملف (قبل result_formatter)
+
+import aiohttp
+from datetime import datetime
+
+# مفتاح API - ضع مفتاحك هنا
+YOUTUBE_API_KEY = "AIzaSyDLp3YbxDpGMGHmGS7Kx39GLqHmYJ5b8XE"
+
+async def get_video_details_from_api(video_id: str):
+    """جلب تفاصيل الفيديو من YouTube API"""
+    url = "https://www.googleapis.com/youtube/v3/videos"
+    params = {
+        "part": "snippet,contentDetails,statistics",
+        "id": video_id,
+        "key": YOUTUBE_API_KEY
+    }
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, params=params, timeout=10) as response:
+                data = await response.json()
+                if data.get('items'):
+                    return data['items'][0]
+        except Exception as e:
+            LOGS.error(f"API Error for {video_id}: {e}")
+    return None
+
+def format_duration_api(duration: str) -> str:
+    """تحويل المدة من ISO 8601 إلى نص"""
+    if not duration:
+        return "0:00"
+    
+    match = re.match(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', duration)
+    if not match:
+        return duration
+    
+    hours = int(match.group(1) or 0)
+    minutes = int(match.group(2) or 0)
+    seconds = int(match.group(3) or 0)
+    
+    if hours > 0:
+        return f"{hours}:{minutes:02d}:{seconds:02d}"
+    return f"{minutes}:{seconds:02d}"
+
+def format_views_api(views: int) -> str:
+    """تنسيق عدد المشاهدات"""
+    if views >= 1000000:
+        return f"{views / 1000000:.1f}M"
+    elif views >= 1000:
+        return f"{views / 1000:.1f}K"
+    return str(views)
+
+
+# ============================================
+# هذه هي الدالة المعدلة
+# ============================================
+
 async def result_formatter(results: list):
-    """تهيئة نتائج البحث من youtube_search إلى صيغة الكود الأصلي"""
+    """تهيئة نتائج البحث - معدلة لاستخدام YouTube API بدلاً من youtube_search"""
     output = {}
+    
     for index, v in enumerate(results, start=1):
         video_id = v.get('id')
+        
+        # جلب البيانات من API بدلاً من الاعتماد على youtube_search
+        api_data = await get_video_details_from_api(video_id)
+        
         thumb = await get_ytthumb(video_id)
         
-        duration = v.get('duration', '0:00')
+        if api_data:
+            # استخراج البيانات من API
+            snippet = api_data.get('snippet', {})
+            content_details = api_data.get('contentDetails', {})
+            statistics = api_data.get('statistics', {})
+            
+            # المدة من API
+            duration_raw = content_details.get('duration', 'PT0S')
+            duration = format_duration_api(duration_raw)
+            
+            # المشاهدات من API
+            views_raw = int(statistics.get('viewCount', 0))
+            views_short = format_views_api(views_raw)
+            
+            # الوصف من API
+            description = snippet.get('description', '')
+            desc_snippet = description[:100].replace('\n', ' ') if description else ''
+            
+            # العنوان من API
+            title = snippet.get('title', v.get('title', 'بدون عنوان'))
+            
+            # تاريخ النشر من API
+            publish_time = snippet.get('publishedAt', v.get('publish_time', 'غير معروف'))
+            
+            # اسم القناة من API
+            channel = snippet.get('channelTitle', v.get('channel', 'غير معروف'))
+            
+            # إعجابات (جديدة!)
+            likes = int(statistics.get('likeCount', 0))
+            
+        else:
+            # إذا فشل API، استخدم البيانات القديمة من youtube_search
+            duration = v.get('duration', '0:00')
+            
+            views = v.get('views', '0 views')
+            views_clean = views.replace(' views', '').replace(',', '')
+            try:
+                views_int = int(views_clean)
+                if views_int >= 1000000:
+                    views_short = f"{views_int / 1000000:.1f}M"
+                elif views_int >= 1000:
+                    views_short = f"{views_int / 1000:.1f}K"
+                else:
+                    views_short = str(views_int)
+            except:
+                views_short = views
+            
+            desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
+            title = v.get('title', 'بدون عنوان')
+            publish_time = v.get('publish_time', 'غير معروف')
+            channel = v.get('channel', 'غير معروف')
+            likes = 0
         
-        views = v.get('views', '0 views')
-        views_clean = views.replace(' views', '').replace(',', '')
-        try:
-            views_int = int(views_clean)
-            if views_int >= 1000000:
-                views_short = f"{views_int / 1000000:.1f}M"
-            elif views_int >= 1000:
-                views_short = f"{views_int / 1000:.1f}K"
-            else:
-                views_short = str(views_int)
-        except:
-            views_short = views
-        
-        desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
-        
-        title = f'<a href="https://youtube.com/watch?v={video_id}"><b>{v.get("title")}</b></a>\n'
-        out = title+ "\n"
+        # بناء الرسالة (نفس التنسيق القديم)
+        title_link = f'<a href="https://youtube.com/watch?v={video_id}"><b>{title}</b></a>\n'
+        out = title_link + "\n"
         
         if desc_snippet:
             out += f"<code>{desc_snippet}</code>\n\n"
         
         out += f'<b>❯ المـده :</b> {duration}\n'
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
-        out += f'<b>❯ تاريـخ الرفـع :</b> {v.get("publish_time", "غير معروف")}\n'
         
-        if v.get('channel'):
-            out += f'<b>❯ القنـاة :</b> {v.get("channel")}'
+        # إضافة الإعجابات (جديد!)
+        if likes > 0:
+            out += f'<b>❯ الإعجابات :</b> {format_views_api(likes)}\n'
+        
+        out += f'<b>❯ تاريـخ الرفـع :</b> {publish_time}\n'
+        
+        if channel:
+            out += f'<b>❯ القنـاة :</b> {channel}'
         
         output[index] = dict(
             message=out,
             thumb=thumb,
             video_id=video_id,
-            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {v.get("title")}</a></b><br>',
+            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {title}</a></b><br>',
+            likes=likes,  # إضافة الإعجابات للاستخدام المستقبلي
         )
     
     return output

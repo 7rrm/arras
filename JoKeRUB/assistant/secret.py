@@ -13,13 +13,6 @@ from JoKeRUB import l313l
 from ..Config import Config
 from ..sql_helper.globals import gvarstatus
 
-@l313l.tgbot.on(CallbackQuery(data=re.compile(b"close")))
-async def close_callback(event):
-    try:
-        await event.delete()
-    except:
-        await event.answer("تم الإغلاق", alert=True)
-
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"secret_(.*)")))
 async def on_plug_in_callback_query_handler(event):
     timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
@@ -47,11 +40,16 @@ async def on_plug_in_callback_query_handler(event):
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
                 
+                # عرض الهمسة في رسالة منبثقة للجميع
                 await event.answer(encrypted_tcxt, cache_time=0, alert=True)
                 
+                # فقط المستقبل يمكنه تحديث حالة القراءة
                 if event.query.user_id in idlist and not message.get("read", False):
+                    # الحصول على الوقت الحالي
                     current_time = datetime.now()
+                    # تنسيق الوقت
                     time_str = current_time.strftime("%I:%M")
+                    # إزالة الصفر البادئ إذا كان الساعة أقل من 10
                     if time_str.startswith('0'):
                         time_str = time_str[1:]
                     
@@ -60,6 +58,7 @@ async def on_plug_in_callback_query_handler(event):
                     jsondata[f"{timestamp}"] = message
                     json.dump(jsondata, open(file_name, "w"))
                     
+                    # إنشاء منشن للمستقبل (الذي ضغط على الزر)
                     try:
                         receiver = await l313l.get_entity(event.query.user_id)
                         receiver_name = f'<a href="tg://user?id={event.query.user_id}">{get_display_name(receiver)}</a>'
@@ -71,6 +70,7 @@ async def on_plug_in_callback_query_handler(event):
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>قــرأهـا</b> <tg-emoji emoji-id="5290004119178734919">📨</tg-emoji>{receiver_name}</b> <tg-emoji emoji-id="5287782852287557349">✅</tg-emoji>
 <tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>عَـنـد</b> <code>{time_str}</code> . </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
                     
+                    # زر الرد يرسل همسة للمرسل الأصلي
                     btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True, style="primary")]]
                     
                     try:

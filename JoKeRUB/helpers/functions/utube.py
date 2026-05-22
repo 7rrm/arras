@@ -221,51 +221,49 @@ def format_views_api(views: int) -> str:
 # ============================================
 # هذه هي الدالة المعدلة
 # ============================================
-
 async def result_formatter(results: list):
-    """تهيئة نتائج البحث - معدلة لاستخدام YouTube API بدلاً من youtube_search"""
+    """تهيئة نتائج البحث - مع رابط القناة باستخدام Channel ID"""
     output = {}
     
     for index, v in enumerate(results, start=1):
         video_id = v.get('id')
         
-        # جلب البيانات من API بدلاً من الاعتماد على youtube_search
+        # جلب البيانات من API
         api_data = await get_video_details_from_api(video_id)
         
         thumb = await get_ytthumb(video_id)
         
         if api_data:
-            # استخراج البيانات من API
             snippet = api_data.get('snippet', {})
             content_details = api_data.get('contentDetails', {})
             statistics = api_data.get('statistics', {})
             
-            # المدة من API
             duration_raw = content_details.get('duration', 'PT0S')
             duration = format_duration_api(duration_raw)
             
-            # المشاهدات من API
             views_raw = int(statistics.get('viewCount', 0))
             views_short = format_views_api(views_raw)
             
-            # الوصف من API
             description = snippet.get('description', '')
             desc_snippet = description[:100].replace('\n', ' ') if description else ''
             
-            # العنوان من API
             title = snippet.get('title', v.get('title', 'بدون عنوان'))
-            
-            # تاريخ النشر من API
             publish_time = snippet.get('publishedAt', v.get('publish_time', 'غير معروف'))
             
-            # اسم القناة من API
-            channel = snippet.get('channelTitle', v.get('channel', 'غير معروف'))
+            # جلب معرف القناة واسمها
+            channel_id = snippet.get('channelId', '')
+            channel_name = snippet.get('channelTitle', v.get('channel', 'غير معروف'))
             
-            # إعجابات (جديدة!)
+            # ✅ الطريقة الأولى: استخدام Channel ID لإنشاء رابط القناة
+            if channel_id:
+                channel_url = f"https://www.youtube.com/channel/{channel_id}"
+                channel_link = f'<a href="{channel_url}">{channel_name}</a>'
+            else:
+                channel_link = channel_name
+            
             likes = int(statistics.get('likeCount', 0))
             
         else:
-            # إذا فشل API، استخدم البيانات القديمة من youtube_search
             duration = v.get('duration', '0:00')
             
             views = v.get('views', '0 views')
@@ -284,11 +282,13 @@ async def result_formatter(results: list):
             desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
             title = v.get('title', 'بدون عنوان')
             publish_time = v.get('publish_time', 'غير معروف')
-            channel = v.get('channel', 'غير معروف')
+            channel_name = v.get('channel', 'غير معروف')
+            channel_link = channel_name  # بدون رابط
             likes = 0
         
-        # بناء الرسالة (نفس التنسيق القديم)
-        title_link = f'<a href="https://youtube.com/watch?v={video_id}"><b>{title}</b></a>\n'
+        # بناء الرسالة
+        video_url = f"https://youtube.com/watch?v={video_id}"
+        title_link = f'<a href="{video_url}"><b>{title}</b></a>\n'
         out = title_link + "\n"
         
         if desc_snippet:
@@ -297,24 +297,26 @@ async def result_formatter(results: list):
         out += f'<b>❯ المـده :</b> {duration}\n'
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
         
-        # إضافة الإعجابات (جديد!)
         if likes > 0:
             out += f'<b>❯ الإعجابات :</b> {format_views_api(likes)}\n'
         
         out += f'<b>❯ تاريـخ الرفـع :</b> {publish_time}\n'
         
-        if channel:
-            out += f'<b>❯ القنـاة :</b> {channel}'
+        # ✅ عرض القناة مع الرابط (الطريقة الأولى)
+        out += f'<b>❯ القنـاة :</b> {channel_link}'
         
         output[index] = dict(
             message=out,
             thumb=thumb,
             video_id=video_id,
-            list_view=f'<img src={thumb}><b><a href="https://youtube.com/watch?v={video_id}">{index}. {title}</a></b><br>',
-            likes=likes,  # إضافة الإعجابات للاستخدام المستقبلي
+            list_view=f'<img src={thumb}><b><a href="{video_url}">{index}. {title}</a></b><br>',
+            likes=likes,
+            channel_id=channel_id if api_data else None,
+            channel_name=channel_name
         )
     
     return output
+
 
 
 def yt_search_btns(

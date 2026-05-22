@@ -84,3 +84,74 @@ async def on_plug_in_callback_query_handler(event):
             await event.answer("- عـذراً .. الهمسة ليست موجهة لك !!", cache_time=0, alert=True)
     else:
         await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
+
+
+
+@l313l.tgbot.on(CallbackQuery(data=re.compile(b"first_(.*)")))
+async def on_first_whisper_callback(event):
+    timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
+    current_user_id = event.query.user_id
+    current_user_name = get_display_name(await event.client.get_entity(current_user_id))
+    
+    file_name = f"./JoKeRUB/first_only_whispers.json"
+    
+    if os.path.exists(file_name):
+        jsondata = json.load(open(file_name))
+        try:
+            message = jsondata[f"{timestamp}"]
+            sender_id = message.get("sender_id")
+            
+            is_opened = message.get("is_opened", False)
+            winner = message.get("winner", None)
+            winner_name = message.get("winner_name", None)
+            
+            # إذا تم فتحها بالفعل من قبل شخص آخر
+            if is_opened and winner and winner != current_user_id:
+                await event.answer(
+                    f"❌ عذراً.. هذه الهمسة فتحها {winner_name} قبلك!\n🏆 كان الأسرع هو من رآها.", 
+                    cache_time=0, 
+                    alert=True
+                )
+                return
+            
+            # إذا كان الفائز هو نفس الشخص يحاول مرة أخرى
+            if is_opened and winner == current_user_id:
+                # عرض الهمسة مرة أخرى للفائز
+                encrypted_text = message["text"]
+                await event.answer(encrypted_text, cache_time=0, alert=True)
+                return
+            
+            # إذا لم تفتح بعد - هذا هو الفائز الأول!
+            if not is_opened:
+                encrypted_text = message["text"]
+                
+                from datetime import datetime
+                current_time = datetime.now()
+                time_str = current_time.strftime("%I:%M")
+                if time_str.startswith('0'):
+                    time_str = time_str[1:]
+                
+                message["is_opened"] = True
+                message["winner"] = current_user_id
+                message["winner_name"] = current_user_name
+                message["opened_time"] = time_str
+                jsondata[f"{timestamp}"] = message
+                json.dump(jsondata, open(file_name, "w"))
+                
+                # عرض الهمسة للفائز
+                await event.answer(encrypted_text, cache_time=0, alert=True)
+                
+                # تعديل الرسالة الأصلية
+                new_text = f"""📨  تم قراءة الهمسـة 
+📨 قــرأهـا 📨 {current_user_name} ✅
+📨 عَـنـد {time_str} .  🕖"""
+                
+                try:
+                    await event.edit(new_text, parse_mode='html')
+                except:
+                    pass
+                
+        except KeyError:
+            await event.answer("❌ هذه الهمسة لم تعد موجودة", cache_time=0, alert=True)
+    else:
+        await event.answer("❌ لا توجد همسات", cache_time=0, alert=True)

@@ -141,15 +141,19 @@ async def on_first_whisper_callback(event):
                 # عرض الهمسة للفائز
                 await event.answer(encrypted_text, cache_time=0, alert=True)
                 
-                # تعديل الرسالة الأصلية
-                new_text = f"""📨  تم قراءة الهمسـة 
-📨 قــرأهـا 📨 {current_user_name} ✅
-📨 عَـنـد {time_str} .  🕖"""
+                # تعديل الرسالة الأصلية مع إيموجي مميز وزر الرد
+                new_text = f'''\
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji> <b> تم قراءة الهمسـة </b>
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>قــرأهـا</b> <tg-emoji emoji-id="5290004119178734919">👤</tg-emoji><b>{current_user_name}</b> <tg-emoji emoji-id="5287782852287557349">✅</tg-emoji>
+<tg-emoji emoji-id="5933974679269151927">📨</tg-emoji><b>عَـنـد</b> <code>{time_str}</code> . </b> <tg-emoji emoji-id="5839380464116175529">🕖</tg-emoji>'''
+                
+                # زر الرد يرسل همسة للمرسل الأصلي (الفائز يرد على صاحب الهمسة)
+                btn = [[Button.switch_inline("اضغـط للـرد", query=f"secret {sender_id} \nهلو", same_peer=True, style="primary")]]
                 
                 try:
-                    await event.edit(new_text, parse_mode='html')
-                except:
-                    pass
+                    await event.edit(new_text, buttons=btn, parse_mode='html')
+                except Exception as e:
+                    LOGS.error(f"Error editing message: {e}")
                 
         except KeyError:
             await event.answer("❌ هذه الهمسة لم تعد موجودة", cache_time=0, alert=True)

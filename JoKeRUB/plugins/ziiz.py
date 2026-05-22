@@ -112,6 +112,8 @@ async def whisper_to_all(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
+        delgvar("hmsa_for_all")
+        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)
@@ -129,17 +131,10 @@ async def whisper_to_all(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
-    
-    # استخدام event.reply بدلاً من edit_or_reply
+    # نفس طريقة الهمسة العادية - استخدام inline_query
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal_all")
+    await response[0].click(event.chat_id)
     await event.delete()
-    await event.client.send_message(
-        event.chat_id,
-        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
-        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
-        buttons=buttons
-    )
 
 # ========== الأمر همسه ==========
 @l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
@@ -160,6 +155,8 @@ async def whisper_to_all2(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
+        delgvar("hmsa_for_all")
+        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)
@@ -176,16 +173,9 @@ async def whisper_to_all2(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
-    
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal_all")
+    await response[0].click(event.chat_id)
     await event.delete()
-    await event.client.send_message(
-        event.chat_id,
-        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
-        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
-        buttons=buttons
-    )
 
 # ========== الأمر هم ==========
 @l313l.ar_cmd(pattern="هم(?: |$)(.*)")
@@ -206,6 +196,8 @@ async def whisper_to_all3(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
+        delgvar("hmsa_for_all")
+        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)
@@ -222,13 +214,6 @@ async def whisper_to_all3(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
-    
+    response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal_all")
+    await response[0].click(event.chat_id)
     await event.delete()
-    await event.client.send_message(
-        event.chat_id,
-        f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
-        f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-        f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
-        buttons=buttons
-        )

@@ -129,16 +129,17 @@ async def whisper_to_all(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
     
-    await edit_or_reply(
-        event,
+    # استخدام event.reply بدلاً من edit_or_reply
+    await event.delete()
+    await event.client.send_message(
+        event.chat_id,
         f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
         f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
         f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
         buttons=buttons
     )
-    await event.delete()
 
 # ========== الأمر همسه ==========
 @l313l.ar_cmd(pattern="همسه(?: |$)(.*)")
@@ -175,16 +176,16 @@ async def whisper_to_all2(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
     
-    await edit_or_reply(
-        event,
+    await event.delete()
+    await event.client.send_message(
+        event.chat_id,
         f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
         f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
         f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
         buttons=buttons
     )
-    await event.delete()
 
 # ========== الأمر هم ==========
 @l313l.ar_cmd(pattern="هم(?: |$)(.*)")
@@ -221,13 +222,13 @@ async def whisper_to_all3(event):
     
     addgvar("hmsa_for_all", "True")
     
-    buttons = [(Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True))]
+    buttons = [[Button.switch_inline("اضـغـط هنـا", query="zelzal_all", same_peer=True)]]
     
-    await edit_or_reply(
-        event,
+    await event.delete()
+    await event.client.send_message(
+        event.chat_id,
         f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n"
         f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
         f"**⌔╎لـ أࢪسـال همسـه سـريـه للجميـع**",
         buttons=buttons
-    )
-    await event.delete()
+        )

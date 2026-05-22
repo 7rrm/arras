@@ -279,7 +279,7 @@ async def inline_handlerr(event):
                 }
             }
             
-            buttons = [[Button.inline("🏆 اضغط لتكون الأول 🏆", data=f"first_{timestamp}", style="danger")]]
+            buttons = [[Button.inline("اضـغـط هنـا", data=f"first_{timestamp}", style="danger")]]
             thumb = InputWebDocument(
                 url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
                 size=0,
@@ -289,7 +289,7 @@ async def inline_handlerr(event):
             result = builder.article(
                 title=f"🏆 همسة لأول شخص يفتحها",
                 description=f"أول من يضغط سيرى الهمسة",
-                text=f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ اول شخص يفتحها\n⌔╎هو فقط من يستطيع ࢪؤيتهـا",
+                text=f"ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n⌔╎الهمسـة لـ اول شخص يفتحها",
                 buttons=buttons,
                 link_preview=False,
                 thumb=thumb,
@@ -303,7 +303,7 @@ async def inline_handlerr(event):
                 json.dump(new_msg, open(old_msg, "w"))
             
         elif string == "zelzal":
-            bbb = [(Button.switch_inline("🏆 اضغط لتكون الأول 🏆", query=("secret first_only \nأكتب همستك هنا"), same_peer=True, style="primary"))]
+            bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret first_only \nهلو"), same_peer=True, style="primary"))]
             results = []
             results.append(
                 builder.article(

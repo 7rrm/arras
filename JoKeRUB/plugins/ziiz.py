@@ -179,7 +179,7 @@ async def repob(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
-        addgvar("hmsa_id", "first_onlyy")  # مفتاح خاص
+        addgvar("hmsa_id", "first_only")  # مفتاح خاص
         addgvar("hmsa_name", "أول شخص يفتحها")
         addgvar("hmsa_user", "@first")
         

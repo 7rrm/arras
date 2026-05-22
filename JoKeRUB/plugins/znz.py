@@ -59,7 +59,7 @@ async def inline_handler(event):
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
     
-    # ========== وضع الهمسة للجميع ==========
+    # ========== وضع الهمسة للجميع (أول من يضغط) ==========
     if string == "zelzal_all":
         hmsa_for_all = gvarstatus("hmsa_for_all")
         
@@ -72,13 +72,14 @@ async def inline_handler(event):
             )
             return await event.answer([result] if result else None)
         
-        # أول شخص يضغط - يصبح هو المستلم
-        delgvar("hmsa_for_all")
+        # مسح جميع البيانات القديمة
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
+        delgvar("hmsa_for_all")
         
-        addgvar("hmsa_id", query_user_id)
+        # تعيين المستخدم الحالي (أول شخص ضغط)
+        addgvar("hmsa_id", str(query_user_id))
         
         try:
             user_info = await l313l.get_entity(query_user_id)
@@ -87,15 +88,12 @@ async def inline_handler(event):
             addgvar("hmsa_name", user_full_name)
             addgvar("hmsa_user", user_username)
         except:
-            pass
+            addgvar("hmsa_name", "المستخدم")
+            addgvar("hmsa_user", "None")
         
-        # عرض رسالة "الهمسة لأول شخص يقوم بفتحها"
-        if gvarstatus("hmsa_id"):
-            bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="primary"))]
-        else:
-            return
+        # إظهار الزر للمستخدم
+        bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + str(query_user_id) + " \nهلو"), same_peer=True, style="primary"))]
         
-        # رسالة خاصة لأول شخص يضغط
         results = []
         results.append(
             builder.article(

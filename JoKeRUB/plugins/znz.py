@@ -60,7 +60,7 @@ async def inline_handler(event):
             zelzal = f"[{full_name}](tg://user?id={user_id})"
     
     # ========== وضع الهمسة للجميع (أول من يضغط) ==========
-    if query == "zelzal_all":
+    if string == "zelzal_all":
         hmsa_for_all = gvarstatus("hmsa_for_all")
         
         if not hmsa_for_all:
@@ -75,20 +75,40 @@ async def inline_handler(event):
         # أول شخص يضغط - نسمح له بإرسال الهمسة
         delgvar("hmsa_for_all")
         addgvar("hmsa_taken_by", str(query_user_id))
-        addgvar("hmsa_sender_id", str(query_user_id))
         
-        buttons = [(Button.switch_inline("اضـغـط للهمسـة", query=f"secret {query_user_id} \nهلو", same_peer=True))]
+        # إعداد المتغيرات للمستخدم الذي أخذ الهمسة
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", query_user_id)
         
-        result = builder.article(
-            title="📨 همسة للجميع",
-            description="أول من يضغط يرسل الهمسة",
-            text=f"**ᯓ همسة سريـة 📨**\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
-                 f"**⌔╎الهمسـة لـ أول شخص يفتحها**\n"
-                 f"**⌔╎اضغط الزر بالأسفل لكتابة همستك**",
-            buttons=buttons,
-            link_preview=False
+        # جلب معلومات المستخدم
+        try:
+            user_info = await l313l.get_entity(query_user_id)
+            user_full_name = user_info.first_name
+            user_username = f"@{user_info.username}" if user_info.username else "None"
+            addgvar("hmsa_name", user_full_name)
+            addgvar("hmsa_user", user_username)
+        except:
+            pass
+        
+        # استخدام نفس الـ inline query الأصلي لعرض الزر
+        results = []
+        if gvarstatus("hmsa_id"):
+            bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="primary"))]
+        else:
+            return
+        
+        results.append(
+            builder.article(
+                title=f"{nmm}",
+                description=f"{mnn}",
+                text=f"{ttt} {zelzal} **{ddd}**",
+                buttons=bbb,
+                link_preview=False,
+            ),
         )
-        return await event.answer([result] if result else None)
+        return await event.answer(results)
     
     # ========== الكود الأصلي ==========
     if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:

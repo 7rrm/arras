@@ -250,11 +250,10 @@ async def inline_handlerr(event):
     
     # معالجة الهمسة لـ "أول شخص يفتحها"
     if user_id == "first_only" and (query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS or True):
-        # استخدام regex مختلف لاستخراج النص فقط
-        inf = re.compile("secret first_only (.*)")
+        inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
-            query = match2[0]  # هنا النص فقط بدون first_only
+            query = query[7:]
             info_type = [hmm, ymm, fmm]
             
             user_list = ["first_only"]

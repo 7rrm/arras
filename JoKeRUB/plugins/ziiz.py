@@ -112,8 +112,6 @@ async def whisper_to_all(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
-        delgvar("hmsa_for_all")
-        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)
@@ -131,7 +129,7 @@ async def whisper_to_all(event):
     
     addgvar("hmsa_for_all", "True")
     
-    # نفس طريقة الهمسة العادية - استخدام inline_query
+    # استخدام نفس طريقة الهمسة العادية
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal_all")
     await response[0].click(event.chat_id)
     await event.delete()
@@ -155,8 +153,6 @@ async def whisper_to_all2(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
-        delgvar("hmsa_for_all")
-        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)
@@ -196,8 +192,6 @@ async def whisper_to_all3(event):
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
-        delgvar("hmsa_for_all")
-        delgvar("hmsa_taken_by")
         addgvar("hmsa_id", user_id)
         addgvar("hmsa_name", full_name)
         addgvar("hmsa_user", username)

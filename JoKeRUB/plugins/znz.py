@@ -59,7 +59,7 @@ async def inline_handler(event):
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
     
-    # ========== وضع الهمسة للجميع (أول من يضغط) ==========
+    # ========== وضع الهمسة للجميع ==========
     if string == "zelzal_all":
         hmsa_for_all = gvarstatus("hmsa_for_all")
         
@@ -72,17 +72,14 @@ async def inline_handler(event):
             )
             return await event.answer([result] if result else None)
         
-        # أول شخص يضغط - نسمح له بإرسال الهمسة
+        # أول شخص يضغط - يصبح هو المستلم
         delgvar("hmsa_for_all")
-        addgvar("hmsa_taken_by", str(query_user_id))
-        
-        # إعداد المتغيرات للمستخدم الذي أخذ الهمسة
         delgvar("hmsa_id")
         delgvar("hmsa_name")
         delgvar("hmsa_user")
+        
         addgvar("hmsa_id", query_user_id)
         
-        # جلب معلومات المستخدم
         try:
             user_info = await l313l.get_entity(query_user_id)
             user_full_name = user_info.first_name
@@ -92,18 +89,21 @@ async def inline_handler(event):
         except:
             pass
         
-        # استخدام نفس الـ inline query الأصلي لعرض الزر
-        results = []
+        # عرض رسالة "الهمسة لأول شخص يقوم بفتحها"
         if gvarstatus("hmsa_id"):
             bbb = [(Button.switch_inline("اضغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True, style="primary"))]
         else:
             return
         
+        # رسالة خاصة لأول شخص يضغط
+        results = []
         results.append(
             builder.article(
-                title=f"{nmm}",
-                description=f"{mnn}",
-                text=f"{ttt} {zelzal} **{ddd}**",
+                title=f"📨 همسة للجميع",
+                description=f"أول شخص يفتحها",
+                text=f"**ᯓ 𝖺𝖱𝖺𝖲 𝖶𝗁𝗂𝗌𝗉 - همسـة سـريـه 📨**\n"
+                     f"⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+                     f"**⌔╎الهمسـة لأول شخص يقوم بفتحها**",
                 buttons=bbb,
                 link_preview=False,
             ),

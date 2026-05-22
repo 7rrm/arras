@@ -11,13 +11,10 @@ from telethon.utils import get_display_name
 
 from JoKeRUB import l313l
 from ..Config import Config
-from ..sql_helper.globals import gvarstatus, delgvar
-
-LOGS = logging.getLogger(__name__)
+from ..sql_helper.globals import gvarstatus
 
 @l313l.tgbot.on(CallbackQuery(data=re.compile(b"close")))
 async def close_callback(event):
-    """إغلاق الرسالة"""
     try:
         await event.delete()
     except:
@@ -27,34 +24,15 @@ async def close_callback(event):
 async def on_plug_in_callback_query_handler(event):
     timestamp = int(event.pattern_match.group(1).decode("UTF-8"))
     uzerid = gvarstatus("hmsa_id")
+    ussr = int(uzerid) if uzerid.isdigit() else uzerid
+    myid = Config.OWNER_ID
     
-    # ===== التحقق من نظام الهمسة للجميع =====
-    hmsa_taken_by = gvarstatus("hmsa_taken_by")
+    try:
+        zzz = await l313l.get_entity(ussr)
+    except ValueError:
+        zzz = await l313l(GetUsersRequest(ussr))
     
-    if hmsa_taken_by:
-        # فقط الشخص الذي أخذ الهمسة يمكنه رؤيتها
-        if str(event.query.user_id) != hmsa_taken_by:
-            return await event.answer("❌ هذه الهمسة ليست لك!", cache_time=0, alert=True)
-    
-    if not uzerid:
-        # إذا كانت همسة للجميع وليس لدينا uzerid
-        if hmsa_taken_by:
-            ussr = int(hmsa_taken_by)
-            try:
-                zzz = await l313l.get_entity(ussr)
-            except ValueError:
-                zzz = await l313l(GetUsersRequest(ussr))
-            user_id = int(hmsa_taken_by)
-        else:
-            return await event.answer("- عـذراً .. هذه الرسـالة لم تعد موجـوده .", cache_time=0, alert=True)
-    else:
-        ussr = int(uzerid) if uzerid.isdigit() else uzerid
-        try:
-            zzz = await l313l.get_entity(ussr)
-        except ValueError:
-            zzz = await l313l(GetUsersRequest(ussr))
-        user_id = int(uzerid)
-    
+    user_id = int(uzerid)
     file_name = f"./JoKeRUB/{user_id}.txt"
     
     if os.path.exists(file_name):
@@ -62,17 +40,15 @@ async def on_plug_in_callback_query_handler(event):
         try:
             message = jsondata[f"{timestamp}"]
             userid = message["userid"]
-            sender_id = message.get("sender_id", Config.OWNER_ID)
+            sender_id = message.get("sender_id", myid)
             idlist = userid if isinstance(userid, list) else [userid]
-            ids = idlist + [Config.OWNER_ID, zzz.id, sender_id]
+            ids = idlist + [myid, zzz.id, sender_id]
             
             if event.query.user_id in ids:
                 encrypted_tcxt = message["text"]
                 
-                # عرض الهمسة في رسالة منبثقة
                 await event.answer(encrypted_tcxt, cache_time=0, alert=True)
                 
-                # فقط المستقبل يمكنه تحديث حالة القراءة
                 if event.query.user_id in idlist and not message.get("read", False):
                     current_time = datetime.now()
                     time_str = current_time.strftime("%I:%M")

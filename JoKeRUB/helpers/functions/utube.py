@@ -192,6 +192,16 @@ async def get_video_details_from_api(video_id: str):
             LOGS.error(f"API Error for {video_id}: {e}")
     return None
 
+def format_publish_time(publish_time: str) -> str:
+    """تحويل 2016-05-01T20:00:00Z → 1 مايو 2016"""
+    try:
+        dt = datetime.fromisoformat(publish_time.replace('Z', '+00:00'))
+        months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 
+                  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+        return f"{dt.day} {months[dt.month-1]} {dt.year}"
+    except:
+        return publish_time
+
 def format_duration_api(duration: str) -> str:
     """تحويل المدة من ISO 8601 إلى نص"""
     if not duration:
@@ -244,11 +254,11 @@ async def result_formatter(results: list):
             views_raw = int(statistics.get('viewCount', 0))
             views_short = format_views_api(views_raw)
             
-           #الوصف description = snippet.get('description', '')
-           # desc_snippet = description[:100].replace('\n', ' ') if description else ''
-            
             title = snippet.get('title', v.get('title', 'بدون عنوان'))
-            publish_time = snippet.get('publishedAt', v.get('publish_time', 'غير معروف'))
+            publish_time_raw = snippet.get('publishedAt', v.get('publish_time', 'غير معروف'))
+            
+            # ✅ تنسيق التاريخ بشكل جميل
+            publish_time = format_publish_time(publish_time_raw)
             
             # جلب معرف القناة واسمها
             channel_id = snippet.get('channelId', '')
@@ -279,20 +289,16 @@ async def result_formatter(results: list):
             except:
                 views_short = views
             
-            #desc_snippet = v.get('long_desc', '')[:100].replace('\n', ' ') if v.get('long_desc') else ''
             title = v.get('title', 'بدون عنوان')
             publish_time = v.get('publish_time', 'غير معروف')
             channel_name = v.get('channel', 'غير معروف')
-            channel_link = channel_name  # بدون رابط
+            channel_link = channel_name
             likes = 0
         
         # بناء الرسالة
         video_url = f"https://youtube.com/watch?v={video_id}"
         title_link = f'<a href="{video_url}"><b>{title}</b></a>\n'
         out = title_link + "\n"
-        
-        #if desc_snippet:
-            #out += f"<code>{desc_snippet}</code>\n\n"
         
         out += f'<b>❯ المـده :</b> {duration}\n'
         out += f'<b>❯ المشـاهـدات :</b> {views_short}\n'
@@ -301,8 +307,6 @@ async def result_formatter(results: list):
             out += f'<b>❯ الإعجابات :</b> {format_views_api(likes)}\n'
         
         out += f'<b>❯ تاريـخ الرفـع :</b> {publish_time}\n'
-        
-        # ✅ عرض القناة مع الرابط (الطريقة الأولى)
         out += f'<b>❯ القنـاة :</b> {channel_link}'
         
         output[index] = dict(

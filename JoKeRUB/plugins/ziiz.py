@@ -148,29 +148,43 @@ async def repoz(event):
 
 
 @l313l.ar_cmd(pattern="هم(?: |$)(.*)")
-async def repogdub(event):
+async def repob(event):
     global bbb
     if gvarstatus("ZThon_Vip") is None and Zel_Uid not in Zed_Dev:
         return await edit_or_reply(event, "**⎉╎عـذࢪاً .. ؏ـزيـزي\n⎉╎هـذا الامـر ليـس مجـانـي📵.")
+    
     user = event.pattern_match.group(1)
-    if not user and not event.reply_to_msg_id:
-        return
-    zthon_user = await get_user_from_event(event)
-    try:
-        user_id, full_name, username = await zzz_info(zthon_user, event)
-    except (AttributeError, TypeError):
-        return
-    delgvar("hmsa_id")
-    delgvar("hmsa_name")
-    delgvar("hmsa_user")
-    addgvar("hmsa_id", user_id)
-    addgvar("hmsa_name", full_name)
-    addgvar("hmsa_user", username)
-    if gvarstatus("hmsa_id"):
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+    
+    if user or event.reply_to_msg_id:
+        # همسة خاصة لشخص محدد
+        zthon_user = await get_user_from_event(event)
+        if not zthon_user:
+            return
+        try:
+            user_id, full_name, username = await zzz_info(zthon_user, event)
+        except (AttributeError, TypeError):
+            return
+        
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", user_id)
+        addgvar("hmsa_name", full_name)
+        addgvar("hmsa_user", username)
+        
+        bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        
     else:
-    	bbb = [(Button.switch_inline("اضـغـط هنـا", query=("secret " + gvarstatus("hmsa_id") + " \nهلو"), same_peer=True))]
+        # همسة لأول شخص يفتحها (بدون منشن وبدون رد)
+        delgvar("hmsa_id")
+        delgvar("hmsa_name")
+        delgvar("hmsa_user")
+        addgvar("hmsa_id", "first_only")  # مفتاح خاص
+        addgvar("hmsa_name", "أول شخص يفتحها")
+        addgvar("hmsa_user", "@first")
+        
+        bbb = [(Button.switch_inline("🏆 اضغط لتكون الأول 🏆", query=("secret first_only \n🏆 أول من يفتح"), same_peer=True))]
+    
     response = await l313l.inline_query(Config.TG_BOT_USERNAME, "zelzal")
     await response[0].click(event.chat_id)
     await event.delete()
-    

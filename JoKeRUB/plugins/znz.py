@@ -58,13 +58,47 @@ async def inline_handler(event):
             zelzal = gvarstatus("hmsa_user")
         else:
             zelzal = f"[{full_name}](tg://user?id={user_id})"
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    
+    # ========== وضع الهمسة للجميع (أول من يضغط) ==========
+    if query == "zelzal_all":
+        hmsa_for_all = gvarstatus("hmsa_for_all")
+        
+        if not hmsa_for_all:
+            result = builder.article(
+                title="❌ الهمسة غير متاحة",
+                description="تم أخذ هذه الهمسة بالفعل",
+                text="**⌔╎عذراً .. هذه الهمسة تم أخذها من قبل شخص آخر**",
+                buttons=[[Button.inline("✖️", data="close")]]
+            )
+            return await event.answer([result] if result else None)
+        
+        # أول شخص يضغط - نسمح له بإرسال الهمسة
+        delgvar("hmsa_for_all")
+        addgvar("hmsa_taken_by", str(query_user_id))
+        addgvar("hmsa_sender_id", str(query_user_id))
+        
+        buttons = [(Button.switch_inline("اضـغـط للهمسـة", query=f"secret {query_user_id} \nهلو", same_peer=True))]
+        
+        result = builder.article(
+            title="📨 همسة للجميع",
+            description="أول من يضغط يرسل الهمسة",
+            text=f"**ᯓ همسة سريـة 📨**\n⋆┄─┄─┄─┄┄─┄─┄─┄─┄┄⋆\n"
+                 f"**⌔╎الهمسـة لـ أول شخص يفتحها**\n"
+                 f"**⌔╎اضغط الزر بالأسفل لكتابة همستك**",
+            buttons=buttons,
+            link_preview=False
+        )
+        return await event.answer([result] if result else None)
+    
+    # ========== الكود الأصلي ==========
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         malathid = Config.OWNER_ID
-    elif query_user_id == user_id: #or query_user_id == int(user_id):
+    elif query_user_id == user_id:
         malathid = user_id
     else:
         malathid = None
-    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:  # Code by T.me/zzzzl1l
+    
+    if query_user_id == Config.OWNER_ID or query_user_id in Config.SUDO_USERS:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -99,7 +133,7 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
+            }
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             thumb = InputWebDocument(
                 url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",
@@ -137,7 +171,7 @@ async def inline_handler(event):
                 ),
             )
             await event.answer(results)
-    elif query_user_id == user_id:  # Code by T.me/zzzzl1l
+    elif query_user_id == user_id:
         inf = re.compile("secret (.*) (.*)")
         match2 = re.findall(inf, query)
         if match2:
@@ -172,7 +206,7 @@ async def inline_handler(event):
             timestamp = int(time.time() * 2)
             new_msg = {
                 str(timestamp): {"userid": user_list, "text": query}
-            }  # Code by T.me/zzzzl1l
+            }
             buttons = [[Button.inline(info_type[2], data=f"{scc}_{timestamp}", style="danger")]]
             thumb = InputWebDocument(
                 url="https://graph.org/file/5c149c9217a0eba19983e-2fe63df9e99eed4541.jpg",

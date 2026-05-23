@@ -193,9 +193,10 @@ async def get_video_details_from_api(video_id: str):
     return None
 
 def format_publish_time(publish_time: str) -> str:
-    """تحويل 2016-05-01T20:00:00Z → 1 مايو 2016"""
+    """نسخة أسرع قليلاً"""
     try:
-        dt = datetime.fromisoformat(publish_time.replace('Z', '+00:00'))
+        # استخدام strptime أسرع من fromisoformat في بعض الإصدارات
+        dt = datetime.strptime(publish_time[:19], "%Y-%m-%dT%H:%M:%S")
         months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 
                   'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
         return f"{dt.day} {months[dt.month-1]} {dt.year}"

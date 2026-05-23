@@ -196,7 +196,7 @@ def format_publish_time(publish_time: str) -> str:
     """تحويل 2016-05-01T20:00:00Z → ‹ 2016/5/1 ›"""
     try:
         # طريقة أسرع بدون split
-        return f"‹ {publish_time[:4]}/{int(publish_time[5:7])}/{int(publish_time[8:10])} ›"
+        return f"‹ {publish_time[:4]}-{int(publish_time[5:7])}-{int(publish_time[8:10])} ›"
     except:
         return publish_time
 

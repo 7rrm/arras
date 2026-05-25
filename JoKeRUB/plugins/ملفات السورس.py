@@ -21,7 +21,7 @@ async def reda(event):
         list += f"{i}\n"
     list += "**سورس الجوكر**"
     await edit_or_reply(event, list)
-'''
+    
 @l313l.ar_cmd(
     pattern="الملفات$",
     command=("الملفات", plugin_category),
@@ -37,7 +37,6 @@ async def _(event):
     OUTPUT = f"**[الجوكر](tg://need_update_for_some_feature/) الـمـلفـات:**\n{o}"
     await edit_or_reply(event, OUTPUT)
 
-'''
 @l313l.ar_cmd(
     pattern="فاراتي$",
     command=("فاراتي", plugin_category),

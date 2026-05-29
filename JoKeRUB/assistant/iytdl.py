@@ -167,6 +167,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     except Exception as e:
         await c_q.edit(f"❌ **حدث خطأ:**\n`{str(e)[:100]}`")
 
+
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))
 )
@@ -201,109 +202,92 @@ async def ytdl_download_video(c_q: CallbackQuery):
             link = result.get("link")
             
             if link:
-                parts = link.strip('/').split('/')
-                channel_username = parts[-2]
-                message_id = int(parts[-1])
+                # ✅ نحصل على رابط التحميل المباشر من API
+                video_url = link
                 
-                await c_q.edit("**📥 جـارِ استلام الملف...**")
+                # ✅ إيموجيات الأزرار
+                EMOJI_SOURCE = "5210763312597326700"
+                EMOJI_VIDEO = "5886584791809134461"
                 
-                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
+                caption = (
+                    f"<blockquote>"
+                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                    f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
+                    f"</blockquote>"
+                )
                 
-                if s_msg and s_msg.media:
-                    caption = (
-                        f"<blockquote>"
-                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                        f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
-                        f"</blockquote>"
-                    )
-                    
-                    # إيموجيات الأزرار
-                    EMOJI_SOURCE = "5210763312597326700"
-                    EMOJI_VIDEO = "5886584791809134461"
-                    
-                    # أزرار API للرسالة الأصلية
-                    buttons = [
-                        [
-                            {
-                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
-                                "url": "https://t.me/lx5x5",
-                                "style": "primary",
-                                "icon_custom_emoji_id": EMOJI_SOURCE
-                            }
-                        ]
+                buttons = [
+                    [
+                        {
+                            "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
+                            "url": "https://t.me/lx5x5",
+                            "style": "primary",
+                            "icon_custom_emoji_id": EMOJI_SOURCE
+                        }
                     ]
-                    
-                    # أزرار API لـ BOTLOG_CHATID
-                    log_buttons = [
-                        [
-                            {
-                                "text": "مشاهدة الفيديو",
-                                "url": f"https://youtu.be/{yt_code}",
-                                "style": "primary",
-                                "icon_custom_emoji_id": EMOJI_VIDEO
-                            }
-                        ],
-                        [
-                            {
-                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
-                                "url": "https://t.me/lx5x5",
-                                "style": "primary",
-                                "icon_custom_emoji_id": EMOJI_SOURCE
-                            }
-                        ]
+                ]
+                
+                log_buttons = [
+                    [
+                        {
+                            "text": "مشاهدة الفيديو",
+                            "url": f"https://youtu.be/{yt_code}",
+                            "style": "primary",
+                            "icon_custom_emoji_id": EMOJI_VIDEO
+                        }
+                    ],
+                    [
+                        {
+                            "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
+                            "url": "https://t.me/lx5x5",
+                            "style": "primary",
+                            "icon_custom_emoji_id": EMOJI_SOURCE
+                        }
                     ]
+                ]
+                
+                # ✅ إرسال الفيديو للمستخدم مباشرة من الرابط (بدون تحميل)
+                send_to_user_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
+                
+                data_user = {
+                    'chat_id': c_q.chat_id,
+                    'video': video_url,  # ✅ نرسل الرابط مباشرة
+                    'caption': caption,
+                    'parse_mode': 'HTML',
+                    'reply_markup': json.dumps({"inline_keyboard": buttons})
+                }
+                
+                response_user = requests.post(send_to_user_url, data=data_user, timeout=30)
+                
+                if response_user.status_code == 200:
+                    # حذف رسالة "جارِ التجهيز"
+                    try:
+                        await c_q.delete()
+                    except:
+                        pass
                     
-                    # تحميل الملف
-                    file_bytes = await c_q.client.download_media(s_msg.media, bytes)
+                    # ✅ إرسال نسخة للسجل
+                    log_caption = f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>"
                     
-                    # ✅ أولاً: إرسال الفيديو للمستخدم عبر API (بدلاً من c_q.edit)
-                    send_to_user_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
-                    
-                    files_user = {
-                        'video': (f'{yt_code}.mp4', file_bytes, 'video/mp4')
-                    }
-                    
-                    data_user = {
-                        'chat_id': c_q.chat_id,
-                        'caption': caption,
-                        'parse_mode': 'HTML',
-                        'reply_markup': json.dumps({"inline_keyboard": buttons})
-                    }
-                    
-                    response_user = requests.post(send_to_user_url, files=files_user, data=data_user, timeout=60)
-                    
-                    if response_user.status_code == 200:
-                        # حذف رسالة "جارِ التجهيز"
-                        try:
-                            await c_q.delete()
-                        except:
-                            pass
-                    else:
-                        LOGS.error(f"فشل إرسال الفيديو للمستخدم: {response_user.text}")
-                        await c_q.edit("❌ **فشل الإرسال**")
-                        return
-                    
-                    # ✅ ثانياً: إرسال نسخة إلى BOTLOG_CHATID
                     send_to_log_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
-                    
-                    files_log = {
-                        'video': (f'{yt_code}.mp4', file_bytes, 'video/mp4')
-                    }
                     
                     data_log = {
                         'chat_id': BOTLOG_CHATID,
-                        'caption': f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
+                        'video': video_url,  # ✅ نفس الرابط
+                        'caption': log_caption,
                         'parse_mode': 'HTML',
                         'reply_markup': json.dumps({"inline_keyboard": log_buttons})
                     }
                     
-                    response_log = requests.post(send_to_log_url, files=files_log, data=data_log, timeout=60)
+                    response_log = requests.post(send_to_log_url, data=data_log, timeout=30)
                     
                     if response_log.status_code != 200:
-                        LOGS.error(f"فشل إرسال الفيديو للسجل: {response_log.text}")
+                        LOGS.error(f"فشل إرسال للسجل: {response_log.text}")
                     
                 else:
-                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
+                    LOGS.error(f"فشل إرسال للمستخدم: {response_user.text}")
+                    await c_q.edit("❌ **فشل الإرسال**\nحاول مرة أخرى")
+                    
             else:
                 await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:

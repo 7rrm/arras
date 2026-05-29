@@ -221,18 +221,20 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
                     ]
                     
-                    uploaded_media = await c_q.client.send_file(
+                    # أولاً: تعديل الرسالة الأصلية
+                    await c_q.edit(
+                        text=caption,
+                        file=s_msg.media,
+                        parse_mode="html",
+                        buttons=buttons
+                    )
+                    
+                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID
+                    await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
                         caption=f"<b>🎬 {yt_code}</b>",
                         parse_mode="html"
-                    )
-                    
-                    await c_q.edit(
-                        text=caption,
-                        file=uploaded_media.media,
-                        parse_mode="html",
-                        buttons=buttons
                     )
                     
                 else:

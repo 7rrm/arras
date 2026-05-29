@@ -217,8 +217,39 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         f"</blockquote>"
                     )
                     
+                    # إيموجيات الأزرار
+                    EMOJI_SOURCE = "5210763312597326700"  # ✨
+                    EMOJI_VIDEO = "5886584791809134461"   # 🎬
+                    
                     buttons = [
-                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
+                        [
+                            {
+                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
+                                "url": "https://t.me/lx5x5",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_SOURCE
+                            }
+                        ]
+                    ]
+                    
+                    # أزرار لإرسالها مع نسخة الـ log
+                    log_buttons = [
+                        [
+                            {
+                                "text": "🎬 مشاهدة الفيديو",
+                                "url": f"https://youtu.be/{yt_code}",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_VIDEO
+                            }
+                        ],
+                        [
+                            {
+                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
+                                "url": "https://t.me/lx5x5",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_SOURCE
+                            }
+                        ]
                     ]
                     
                     # أولاً: تعديل الرسالة الأصلية
@@ -229,12 +260,13 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         buttons=buttons
                     )
                     
-                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID
+                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID مع أزرار
                     await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
-                        caption=f"<b>🎬 {yt_code}</b>",
-                        parse_mode="html"
+                        caption=f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
+                        parse_mode="html",
+                        buttons=log_buttons
                     )
                     
                 else:
@@ -247,6 +279,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

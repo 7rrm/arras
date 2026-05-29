@@ -97,7 +97,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     """تحميل الصوت"""
     yt_code = c_q.pattern_match.group(1).decode("UTF-8")
     
-    await c_q.answer("╮ جـارِ التَحمـيـل ... 🔽 ╰", alert=False)
+    await c_q.answer("╮ جـارِ التَحميـل ... 🔽 ╰", alert=False)
     
     try:
         await c_q.edit("**╮ جـارِ التجهيز ... 🎧 ╰**")
@@ -142,18 +142,20 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                         [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
                     ]
                     
-                    uploaded_media = await c_q.client.send_file(
+                    # أولاً: تعديل الرسالة الأصلية
+                    await c_q.edit(
+                        text=caption,
+                        file=s_msg.media,
+                        parse_mode="html",
+                        buttons=buttons
+                    )
+                    
+                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID
+                    await c_q.client.send_file(
                         BOTLOG_CHATID,
                         s_msg.media,
                         caption=f"<b>🎵 {yt_code}</b>",
                         parse_mode="html"
-                    )
-                    
-                    await c_q.edit(
-                        text=caption,
-                        file=uploaded_media.media,
-                        parse_mode="html",
-                        buttons=buttons
                     )
                     
                 else:
@@ -162,10 +164,9 @@ async def ytdl_download_audio(c_q: CallbackQuery):
                 await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:
             await c_q.edit("❌ **فشل التحميل**\nAPI لم يستجب")
-            
     except Exception as e:
-        LOGS.error(f"Download error: {e}")
-        await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+        await c_q.edit(f"❌ **حدث خطأ:**\n`{str(e)[:100]}`")
+
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))

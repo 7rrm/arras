@@ -167,7 +167,6 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     except Exception as e:
         await c_q.edit(f"❌ **حدث خطأ:**\n`{str(e)[:100]}`")
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))
 )
@@ -185,6 +184,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
     
     try:
         import requests
+        import json
         
         API_KEY = "cbf36a0a-9208-4a0e-ba22-e15d59091708"
         api_url = f"https://muntazer.online/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
@@ -218,9 +218,10 @@ async def ytdl_download_video(c_q: CallbackQuery):
                     )
                     
                     # إيموجيات الأزرار
-                    EMOJI_SOURCE = "5210763312597326700"  # ✨
-                    EMOJI_VIDEO = "5886584791809134461"   # 🎬
+                    EMOJI_SOURCE = "5210763312597326700"
+                    EMOJI_VIDEO = "5886584791809134461"
                     
+                    # أزرار API للرسالة الأصلية
                     buttons = [
                         [
                             {
@@ -232,7 +233,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         ]
                     ]
                     
-                    # أزرار لإرسالها مع نسخة الـ log
+                    # أزرار API لـ BOTLOG_CHATID
                     log_buttons = [
                         [
                             {
@@ -252,34 +253,54 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         ]
                     ]
                     
-                    # أولاً: تعديل الرسالة الأصلية (بـ Telethon)
-                    await c_q.edit(
-                        text=caption,
-                        file=s_msg.media,
-                        parse_mode="html",
-                        buttons=buttons
-                    )
-                    
-                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID عبر API
+                    # تحميل الملف
                     file_bytes = await c_q.client.download_media(s_msg.media, bytes)
                     
-                    send_file_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
+                    # ✅ أولاً: إرسال الفيديو للمستخدم عبر API (بدلاً من c_q.edit)
+                    send_to_user_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
                     
-                    files = {
+                    files_user = {
                         'video': (f'{yt_code}.mp4', file_bytes, 'video/mp4')
                     }
                     
-                    data = {
+                    data_user = {
+                        'chat_id': c_q.chat_id,
+                        'caption': caption,
+                        'parse_mode': 'HTML',
+                        'reply_markup': json.dumps({"inline_keyboard": buttons})
+                    }
+                    
+                    response_user = requests.post(send_to_user_url, files=files_user, data=data_user, timeout=60)
+                    
+                    if response_user.status_code == 200:
+                        # حذف رسالة "جارِ التجهيز"
+                        try:
+                            await c_q.delete()
+                        except:
+                            pass
+                    else:
+                        LOGS.error(f"فشل إرسال الفيديو للمستخدم: {response_user.text}")
+                        await c_q.edit("❌ **فشل الإرسال**")
+                        return
+                    
+                    # ✅ ثانياً: إرسال نسخة إلى BOTLOG_CHATID
+                    send_to_log_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
+                    
+                    files_log = {
+                        'video': (f'{yt_code}.mp4', file_bytes, 'video/mp4')
+                    }
+                    
+                    data_log = {
                         'chat_id': BOTLOG_CHATID,
                         'caption': f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
                         'parse_mode': 'HTML',
                         'reply_markup': json.dumps({"inline_keyboard": log_buttons})
                     }
                     
-                    response = requests.post(send_file_url, files=files, data=data, timeout=60)
+                    response_log = requests.post(send_to_log_url, files=files_log, data=data_log, timeout=60)
                     
-                    if response.status_code != 200:
-                        LOGS.error(f"فشل إرسال الفيديو عبر API: {response.text}")
+                    if response_log.status_code != 200:
+                        LOGS.error(f"فشل إرسال الفيديو للسجل: {response_log.text}")
                     
                 else:
                     await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
@@ -291,7 +312,6 @@ async def ytdl_download_video(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

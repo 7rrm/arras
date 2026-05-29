@@ -184,7 +184,6 @@ async def ytdl_download_video(c_q: CallbackQuery):
     
     try:
         import requests
-        import json
         
         API_KEY = "cbf36a0a-9208-4a0e-ba22-e15d59091708"
         api_url = f"https://muntazer.online/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
@@ -207,7 +206,6 @@ async def ytdl_download_video(c_q: CallbackQuery):
                 
                 await c_q.edit("**📥 جـارِ استلام الملف...**")
                 
-                # ✅ نجيب الرسالة (بدون تحميل الملف)
                 s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
                 if s_msg and s_msg.media:
@@ -218,12 +216,11 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         f"</blockquote>"
                     )
                     
-                    # ✅ زر عادي بدون dict (لـ c_q.edit)
                     buttons = [
-                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5")]
+                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5", style="primary")],
                     ]
                     
-                    # ✅ إرسال للمستخدم (Telethon - بدون تأخير)
+                    # أولاً: تعديل الرسالة الأصلية
                     await c_q.edit(
                         text=caption,
                         file=s_msg.media,
@@ -231,48 +228,13 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         buttons=buttons
                     )
                     
-                    # ✅ إرسال نسخة للسجل (API - مع إيموجي داخل الأزرار)
-                    # نحتاج رابط التحميل المباشر للملف
-                    file_path = await c_q.client.download_media(s_msg.media, bytes)
-                    
-                    EMOJI_SOURCE = "5210763312597326700"
-                    EMOJI_VIDEO = "5886584791809134461"
-                    
-                    log_buttons = [
-                        [
-                            {
-                                "text": "مشاهدة الفيديو",
-                                "url": f"https://youtu.be/{yt_code}",
-                                "style": "primary",
-                                "icon_custom_emoji_id": EMOJI_VIDEO
-                            }
-                        ],
-                        [
-                            {
-                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
-                                "url": "https://t.me/lx5x5",
-                                "style": "primary",
-                                "icon_custom_emoji_id": EMOJI_SOURCE
-                            }
-                        ]
-                    ]
-                    
-                    # إرسال عبر API
-                    send_file_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
-                    
-                    files = {
-                        'video': (f'{yt_code}.mp4', file_path, 'video/mp4')
-                    }
-                    
-                    data = {
-                        'chat_id': BOTLOG_CHATID,
-                        'caption': f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
-                        'parse_mode': 'HTML',
-                        'reply_markup': json.dumps({"inline_keyboard": log_buttons})
-                    }
-                    
-                    # نرسل في الخلفية (background) عشان ما يأثر على سرعة الرد للمستخدم
-                    asyncio.create_task(send_log_video(files, data))
+                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID
+                    await c_q.client.send_file(
+                        BOTLOG_CHATID,
+                        s_msg.media,
+                        caption=f"<b>🎬 {yt_code}</b>",
+                        parse_mode="html"
+                    )
                     
                 else:
                     await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
@@ -284,16 +246,6 @@ async def ytdl_download_video(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
-
-# دالة منفصلة للإرسال للسجل (في الخلفية)
-async def send_log_video(files, data):
-    try:
-        import requests
-        response = requests.post(send_file_url, files=files, data=data, timeout=60)
-        if response.status_code != 200:
-            LOGS.error(f"فشل إرسال الفيديو للسجل: {response.text}")
-    except Exception as e:
-        LOGS.error(f"خطأ في إرسال نسخة السجل: {e}")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

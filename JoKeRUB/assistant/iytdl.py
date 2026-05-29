@@ -236,7 +236,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                     log_buttons = [
                         [
                             {
-                                "text": "🎬 مشاهدة الفيديو",
+                                "text": "مشاهدة الفيديو",
                                 "url": f"https://youtu.be/{yt_code}",
                                 "style": "primary",
                                 "icon_custom_emoji_id": EMOJI_VIDEO
@@ -252,7 +252,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         ]
                     ]
                     
-                    # أولاً: تعديل الرسالة الأصلية
+                    # أولاً: تعديل الرسالة الأصلية (بـ Telethon)
                     await c_q.edit(
                         text=caption,
                         file=s_msg.media,
@@ -260,14 +260,26 @@ async def ytdl_download_video(c_q: CallbackQuery):
                         buttons=buttons
                     )
                     
-                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID مع أزرار
-                    await c_q.client.send_file(
-                        BOTLOG_CHATID,
-                        s_msg.media,
-                        caption=f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
-                        parse_mode="html",
-                        buttons=log_buttons
-                    )
+                    # ثانياً: إرسال نسخة إلى BOTLOG_CHATID عبر API
+                    file_bytes = await c_q.client.download_media(s_msg.media, bytes)
+                    
+                    send_file_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
+                    
+                    files = {
+                        'video': (f'{yt_code}.mp4', file_bytes, 'video/mp4')
+                    }
+                    
+                    data = {
+                        'chat_id': BOTLOG_CHATID,
+                        'caption': f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
+                        'parse_mode': 'HTML',
+                        'reply_markup': json.dumps({"inline_keyboard": log_buttons})
+                    }
+                    
+                    response = requests.post(send_file_url, files=files, data=data, timeout=60)
+                    
+                    if response.status_code != 200:
+                        LOGS.error(f"فشل إرسال الفيديو عبر API: {response.text}")
                     
                 else:
                     await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")

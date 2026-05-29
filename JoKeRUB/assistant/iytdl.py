@@ -167,7 +167,6 @@ async def ytdl_download_audio(c_q: CallbackQuery):
     except Exception as e:
         await c_q.edit(f"❌ **حدث خطأ:**\n`{str(e)[:100]}`")
 
-
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_download_(.*)_video$"))
 )
@@ -202,92 +201,81 @@ async def ytdl_download_video(c_q: CallbackQuery):
             link = result.get("link")
             
             if link:
-                # ✅ نحصل على رابط التحميل المباشر من API
-                video_url = link
+                parts = link.strip('/').split('/')
+                channel_username = parts[-2]
+                message_id = int(parts[-1])
                 
-                # ✅ إيموجيات الأزرار
-                EMOJI_SOURCE = "5210763312597326700"
-                EMOJI_VIDEO = "5886584791809134461"
+                await c_q.edit("**📥 جـارِ استلام الملف...**")
                 
-                caption = (
-                    f"<blockquote>"
-                    f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
-                    f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
-                    f"</blockquote>"
-                )
+                # ✅ نجيب الرسالة (بدون تحميل الملف)
+                s_msg = await c_q.client.get_messages(channel_username, ids=message_id)
                 
-                buttons = [
-                    [
-                        {
-                            "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
-                            "url": "https://t.me/lx5x5",
-                            "style": "primary",
-                            "icon_custom_emoji_id": EMOJI_SOURCE
-                        }
+                if s_msg and s_msg.media:
+                    caption = (
+                        f"<blockquote>"
+                        f"<b>D𝑜𝑤𝑛𝑙𝑜𝑎𝑑 D𝑜𝑛𝑒 .</b>"
+                        f'<tg-emoji emoji-id="5886584791809134461">🎬</tg-emoji>'
+                        f"</blockquote>"
+                    )
+                    
+                    # ✅ زر عادي بدون dict (لـ c_q.edit)
+                    buttons = [
+                        [Button.url("‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›", "https://t.me/lx5x5")]
                     ]
-                ]
-                
-                log_buttons = [
-                    [
-                        {
-                            "text": "مشاهدة الفيديو",
-                            "url": f"https://youtu.be/{yt_code}",
-                            "style": "primary",
-                            "icon_custom_emoji_id": EMOJI_VIDEO
-                        }
-                    ],
-                    [
-                        {
-                            "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
-                            "url": "https://t.me/lx5x5",
-                            "style": "primary",
-                            "icon_custom_emoji_id": EMOJI_SOURCE
-                        }
+                    
+                    # ✅ إرسال للمستخدم (Telethon - بدون تأخير)
+                    await c_q.edit(
+                        text=caption,
+                        file=s_msg.media,
+                        parse_mode="html",
+                        buttons=buttons
+                    )
+                    
+                    # ✅ إرسال نسخة للسجل (API - مع إيموجي داخل الأزرار)
+                    # نحتاج رابط التحميل المباشر للملف
+                    file_path = await c_q.client.download_media(s_msg.media, bytes)
+                    
+                    EMOJI_SOURCE = "5210763312597326700"
+                    EMOJI_VIDEO = "5886584791809134461"
+                    
+                    log_buttons = [
+                        [
+                            {
+                                "text": "مشاهدة الفيديو",
+                                "url": f"https://youtu.be/{yt_code}",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_VIDEO
+                            }
+                        ],
+                        [
+                            {
+                                "text": "‹ : 𝗌ᴏᴜʀᴄᴇ ᴀʀʀᴀ𝗌 : ›",
+                                "url": "https://t.me/lx5x5",
+                                "style": "primary",
+                                "icon_custom_emoji_id": EMOJI_SOURCE
+                            }
+                        ]
                     ]
-                ]
-                
-                # ✅ إرسال الفيديو للمستخدم مباشرة من الرابط (بدون تحميل)
-                send_to_user_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
-                
-                data_user = {
-                    'chat_id': c_q.chat_id,
-                    'video': video_url,  # ✅ نرسل الرابط مباشرة
-                    'caption': caption,
-                    'parse_mode': 'HTML',
-                    'reply_markup': json.dumps({"inline_keyboard": buttons})
-                }
-                
-                response_user = requests.post(send_to_user_url, data=data_user, timeout=30)
-                
-                if response_user.status_code == 200:
-                    # حذف رسالة "جارِ التجهيز"
-                    try:
-                        await c_q.delete()
-                    except:
-                        pass
                     
-                    # ✅ إرسال نسخة للسجل
-                    log_caption = f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>"
+                    # إرسال عبر API
+                    send_file_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
                     
-                    send_to_log_url = f"https://api.telegram.org/bot{Config.TG_BOT_TOKEN}/sendVideo"
+                    files = {
+                        'video': (f'{yt_code}.mp4', file_path, 'video/mp4')
+                    }
                     
-                    data_log = {
+                    data = {
                         'chat_id': BOTLOG_CHATID,
-                        'video': video_url,  # ✅ نفس الرابط
-                        'caption': log_caption,
+                        'caption': f"<b>🎬 {yt_code}</b>\n\n<code>https://youtu.be/{yt_code}</code>",
                         'parse_mode': 'HTML',
                         'reply_markup': json.dumps({"inline_keyboard": log_buttons})
                     }
                     
-                    response_log = requests.post(send_to_log_url, data=data_log, timeout=30)
-                    
-                    if response_log.status_code != 200:
-                        LOGS.error(f"فشل إرسال للسجل: {response_log.text}")
+                    # نرسل في الخلفية (background) عشان ما يأثر على سرعة الرد للمستخدم
+                    asyncio.create_task(send_log_video(files, data))
                     
                 else:
-                    LOGS.error(f"فشل إرسال للمستخدم: {response_user.text}")
-                    await c_q.edit("❌ **فشل الإرسال**\nحاول مرة أخرى")
-                    
+                    await c_q.edit("❌ **فشل التحميل**\nلم يتم العثور على الملف")
             else:
                 await c_q.edit("❌ **فشل التحميل**\nلا يوجد رابط")
         else:
@@ -296,6 +284,16 @@ async def ytdl_download_video(c_q: CallbackQuery):
     except Exception as e:
         LOGS.error(f"Download error: {e}")
         await c_q.edit(f"❌ **خطأ:** `{str(e)[:100]}`")
+
+# دالة منفصلة للإرسال للسجل (في الخلفية)
+async def send_log_video(files, data):
+    try:
+        import requests
+        response = requests.post(send_file_url, files=files, data=data, timeout=60)
+        if response.status_code != 200:
+            LOGS.error(f"فشل إرسال الفيديو للسجل: {response.text}")
+    except Exception as e:
+        LOGS.error(f"خطأ في إرسال نسخة السجل: {e}")
 
 @l313l.tgbot.on(
     CallbackQuery(data=re.compile(b"^ytdl_(listall|back|next|detail)_([a-z0-9]+)_(.*)"))

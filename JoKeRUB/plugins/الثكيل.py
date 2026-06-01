@@ -586,6 +586,8 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
+# المطور: aRRas
+import re
 from telethon import events
 from JoKeRUB import l313l
 
@@ -611,12 +613,14 @@ async def enable_fawz(event):
     fawz_enabled = True
     await event.edit(f"✅ تم التفعيل على القناة: {chat_id}")
 
+
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
     global fawz_enabled, fawz_channel_id
     fawz_enabled = False
     fawz_channel_id = None
     await event.edit("✅ تم التعطيل")
+
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
@@ -632,7 +636,6 @@ async def fawz_handler(event):
         return
     
     # استخراج الكلمة بعد "اول"
-    import re
     match = re.search(r'اول\s+(\S+)', text, re.IGNORECASE)
     if not match:
         match = re.search(r'أول\s+(\S+)', text, re.IGNORECASE)
@@ -642,15 +645,15 @@ async def fawz_handler(event):
     word = match.group(1).strip()
     
     # ========================================
-    # كتابة تعليق على المنشور
-    # المفتاح: reply_to = event.id
+    # الطريقة الصحيحة للتعليق على منشور في قناة
+    # باستخدام comment_to وليس reply_to
     # ========================================
     try:
         await event.client.send_message(
             event.chat_id,
             word,
-            reply_to=event.id  # هذا يجعلها تظهر كتعليق
+            comment_to=event.reply_to_msg_id  # هذا هو المفتاح الصحيح!
         )
-        print(f"✅ تم كتابة التعليق: {word}")
+        print(f"✅ تم التعليق بنجاح: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")

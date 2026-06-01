@@ -586,16 +586,13 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
-# المطور: aRRas - أسرع نسخة مع regex مجمع
+# المطور: aRRas - أقصر وأسرع نسخة
 import re
 from telethon import events
 from JoKeRUB import l313l
 
 fawz_enabled = False
 fawz_group_id = None
-
-# تجميع الرجيكس مرة واحدة فقط (أسرع)
-FAST_PATTERN = re.compile(r'[اولأ][ولل]?\s+(\S+)', re.IGNORECASE)
 
 @l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
@@ -611,20 +608,19 @@ async def enable_fawz(event):
         fawz_group_id = event.chat_id
     
     fawz_enabled = True
-    await event.edit(f"✅ تم تفعيل فوز (وضع السرعة) على: `{fawz_group_id}`")
+    await event.edit(f"✅ تم التفعيل على: `{fawz_group_id}`")
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
     global fawz_enabled, fawz_group_id
     fawz_enabled = False
     fawz_group_id = None
-    await event.edit("✅ تم تعطيل فوز")
+    await event.edit("✅ تم التعطيل")
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
     global fawz_enabled, fawz_group_id
     
-    # شروط سريعة جداً
     if not fawz_enabled or event.chat_id != fawz_group_id or event.out or not event.forward:
         return
     
@@ -632,13 +628,21 @@ async def fawz_handler(event):
     if not text:
         return
     
-    # استخدام الرجيكس المجمع (أسرع من البحث العادي)
-    match = FAST_PATTERN.search(text)
-    if not match:
+    # أسرع طريقة: split والبحث المباشر
+    if 'اول ' in text:
+        parts = text.split('اول ', 1)
+    elif 'أول ' in text:
+        parts = text.split('أول ', 1)
+    else:
         return
     
-    word = match.group(1).strip()
-    # إزالة علامات الترقيم بسرعة
+    if len(parts) < 2:
+        return
+    
+    # استخراج أول كلمة
+    word = parts[1].split()[0] if parts[1].split() else ''
+    
+    # إزالة علامات الترقيم
     if word and word[-1] in '.,!?;:':
         word = word[:-1]
     

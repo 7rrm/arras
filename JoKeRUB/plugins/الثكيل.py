@@ -592,51 +592,46 @@ from telethon import events
 from JoKeRUB import l313l
 
 fawz_enabled = False
-fawz_chat_id = None  # ستكون هذه مجموعة المناقشة
+fawz_group_id = None
 
 @l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
-    global fawz_enabled, fawz_chat_id
-    
+    global fawz_enabled, fawz_group_id
     chat_input = event.pattern_match.group(1)
     
-    # نستخدم معرف مجموعة المناقشة مباشرة
     if chat_input:
         try:
-            chat_id = int(chat_input)
-        except ValueError:
-            return await event.edit("✧︙ رقم المجموعة غير صحيح!")
+            fawz_group_id = int(chat_input)
+        except:
+            return await event.edit("✧︙ المعرف غير صحيح!")
     else:
-        chat_id = event.chat_id
+        fawz_group_id = event.chat_id
     
-    fawz_chat_id = chat_id
     fawz_enabled = True
-    
-    await event.edit(f"✅ **تم التفعيل على مجموعة المناقشة:** `{chat_id}`\n⚠️ تأكد أن هذه المجموعة مرتبطة بالقناة!")
-
+    await event.edit(f"✅ تم تفعيل فوز على معرف: `{fawz_group_id}`")
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
-    global fawz_enabled, fawz_chat_id
+    global fawz_enabled, fawz_group_id
     fawz_enabled = False
-    fawz_chat_id = None
-    await event.edit("✅ تم التعطيل")
-
+    fawz_group_id = None
+    await event.edit("✅ تم تعطيل فوز")
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
-    global fawz_enabled, fawz_chat_id
+    global fawz_enabled, fawz_group_id
     
     if not fawz_enabled:
         return
-    if event.chat_id != fawz_chat_id:
+    if event.chat_id != fawz_group_id:
+        return
+    if event.out:
         return
     
     text = event.raw_text.strip()
     if not text:
         return
     
-    # استخراج الكلمة بعد "اول"
     match = re.search(r'اول\s+(\S+)', text, re.IGNORECASE)
     if not match:
         match = re.search(r'أول\s+(\S+)', text, re.IGNORECASE)
@@ -645,9 +640,8 @@ async def fawz_handler(event):
     
     word = match.group(1).strip()
     
-    # الرد في مجموعة المناقشة (سيظهر كتعليق في القناة تلقائياً)
     try:
         await event.reply(word)
-        print(f"✅ تم الرد: {word}")
+        print(f"✅ رد: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")

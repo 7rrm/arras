@@ -586,7 +586,7 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
-# المطور: aRRas - أقصر وأسرع نسخة
+# المطور: aRRas - أسرع نسخة على الإطلاق
 import re
 from telethon import events
 from JoKeRUB import l313l
@@ -608,19 +608,20 @@ async def enable_fawz(event):
         fawz_group_id = event.chat_id
     
     fawz_enabled = True
-    await event.edit(f"✅ تم التفعيل على: `{fawz_group_id}`")
+    await event.edit(f"✅ تم تفعيل فوز (وضع السرعة القصوى) على: `{fawz_group_id}`")
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
     global fawz_enabled, fawz_group_id
     fawz_enabled = False
     fawz_group_id = None
-    await event.edit("✅ تم التعطيل")
+    await event.edit("✅ تم تعطيل فوز")
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
     global fawz_enabled, fawz_group_id
     
+    # أسرع شروط ممكنة
     if not fawz_enabled or event.chat_id != fawz_group_id or event.out or not event.forward:
         return
     
@@ -628,23 +629,29 @@ async def fawz_handler(event):
     if not text:
         return
     
-    # أسرع طريقة: split والبحث المباشر
-    if 'اول ' in text:
-        parts = text.split('اول ', 1)
-    elif 'أول ' in text:
-        parts = text.split('أول ', 1)
-    else:
+    # البحث المباشر بدون أي دوال إضافية
+    # استخدام find() هو الأسرع على الإطلاق
+    pos = text.find('اول ')
+    if pos == -1:
+        pos = text.find('أول ')
+        if pos == -1:
+            return
+    
+    # استخراج الكلمة حرفاً حرفاً
+    start = pos + 4
+    if start >= len(text):
         return
     
-    if len(parts) < 2:
+    # بناء الكلمة بأسرع طريقة
+    word = ''
+    for i in range(start, len(text)):
+        c = text[i]
+        if c == ' ' or c in '\n.,!?;:' or c == '\u200f' or c == '\u200e':  # علامات الترقيم والمسافات
+            break
+        word += c
+    
+    if not word:
         return
     
-    # استخراج أول كلمة
-    word = parts[1].split()[0] if parts[1].split() else ''
-    
-    # إزالة علامات الترقيم
-    if word and word[-1] in '.,!?;:':
-        word = word[:-1]
-    
-    if word:
-        await event.reply(word)
+    # الرد المباشر بدون تأخير
+    await event.reply(word)

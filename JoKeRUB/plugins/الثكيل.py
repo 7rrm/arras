@@ -585,7 +585,186 @@ async def auto_reply_meanings(event):
         replied_msg = await event.get_reply_message()
         if replied_msg.sender_id != l313l.uid:
             return
+
+
+# المطور: aRRas
+import re
+from telethon import events
+from JoKeRUB import l313l
+
+# ============================================
+# ميزة فوز - استخراج الكلمة بعد "أول" أو "اول"
+# ============================================
+
+# متغيرات التفعيل
+fawz_enabled = False
+fawz_channel_id = None  # سيتم تعيينه عند التفعيل
+
+@l313l.ar_cmd(
+    pattern="تفعيل فوز(?:\s+(-?\d+))?$",
+    command=("تفعيل فوز", "utils"),
+    info={
+        "header": "لتفعيل ميزة استخراج الكلمة بعد 'أول' من منشورات القناة والرد بها",
+        "usage": [
+            "{tr}تفعيل فوز - لتفعيل الميزة في القناة الحالية",
+            "{tr}تفعيل فوز <ايدي القناة> - لتفعيل الميزة في قناة محددة",
+            "{tr}تعطيل فوز - لتعطيل الميزة"
+        ],
+    },
+)
+async def enable_fawz(event):
+    global fawz_enabled, fawz_channel_id
     
+    chat_input = event.pattern_match.group(1)
+    
+    # تحديد معرف القناة
+    if chat_input:
+        try:
+            chat_id = int(chat_input)
+            # إذا كان الرقم موجباً، حوله لصيغة القنوات السالبة -100
+            if chat_id > 0:
+                chat_id = int(f"-100{chat_id}")
+        except ValueError:
+            return await event.edit("**✧︙ رقم القناة غير صحيح!**")
+    else:
+        # إذا لم يحدد، استخدم المحادثة الحالية
+        chat_id = event.chat_id
+    
+    # التحقق من أن المستهدف هي قناة (وليس مجموعة أو محادثة خاصة)
+    try:
+        entity = await event.client.get_entity(chat_id)
+        if not getattr(entity, 'broadcast', False):
+            return await event.edit("**✧︙ الميزة تعمل فقط على القنوات!**")
+    except Exception as e:
+        return await event.edit(f"**✧︙ لا يمكن الوصول للقناة: {str(e)}**")
+    
+    fawz_channel_id = chat_id
+    fawz_enabled = True
+    
+    await event.edit(f"✅ **تم تفعيل ميزة فوز بنجاح!**\n📢 **القناة:** {entity.title or chat_id}\n📝 **سأبحث عن كلمة 'أول' ثم أرد بالكلمة التي تليها**")
+
+
+@l313l.ar_cmd(
+    pattern="تعطيل فوز$",
+    command=("تعطيل فوز", "utils"),
+    info={
+        "header": "لتعطيل ميزة فوز",
+        "usage": ["{tr}تعطيل فوز"],
+    },
+)
+async def disable_fawz(event):
+    global fawz_enabled, fawz_channel_id
+    fawz_enabled = False
+    fawz_channel_id = None
+    await event.edit("✅ **تم تعطيل ميزة فوز بنجاح!**")
+
+
+@l313l.on(events.NewMessage(incoming=True))
+async def fawz_handler(event):
+    """
+    معالج الرسائل الواردة:
+    - يتحقق إذا كانت القناة هي المفعلة
+    - يستخرج الكلمة بعد 'أول' أو 'اول'
+    - يرد على المنشور بالكلمة المستخرجة
+    """
+    global fawz_enabled, fawz_channel_id
+    
+    # التحقق من التفعيل
+    if not fawz_enabled:
+        return
+    
+    # التحقق من أن الرسالة من القناة المفعلة
+    if event.chat_id != fawz_channel_id:
+        return
+    
+    # استخراج النص
+    message_text = event.raw_text.strip()
+    if not message_text:
+        return
+    
+    # أنماط البحث عن "اول" أو "أول" وما بعدها
+    # النمط: يبحث عن "اول" أو "أول" ثم يأخذ الكلمة/الرقم الذي يليها
+    # \s*: مسافات اختيارية
+    # (\S+): المجموعة المطلوبة - أي كلمة أو رقم غير مسافة
+    patterns = [
+        r'اول\s+(\S+)',      # اول تم
+        r'أول\s+(\S+)',      # أول تم
+        r'اول\s*[:：]\s*(\S+)',  # اول : تم
+        r'أول\s*[:：]\s*(\S+)',  # أول : تم
+    ]
+    
+    extracted_word = None
+    
+    for pattern in patterns:
+        match = re.search(pattern, message_text, re.IGNORECASE)
+        if match:
+            extracted_word = match.group(1).strip()
+            break
+    
+    # إذا لم يتم العثور على كلمة، نخرج
+    if not extracted_word:
+        return
+    
+    # تنظيف الكلمة المستخرجة: إزالة علامات الترقيم من البداية والنهاية
+    extracted_word = re.sub(r'^[^\w\d\u0600-\u06FF]+|[^\w\d\u0600-\u06FF]+$', '', extracted_word)
+    
+    if not extracted_word:
+        return
+    
+    # إرسال الرد على المنشور
+    try:
+        # استخدام reply ليرد على المنشور مباشرة
+        await event.reply(extracted_word)
+        # أو يمكنك استخدام event.respond(extracted_word) إذا أردت تعليقاً عادياً
+    except Exception as e:
+        # يمكنك إضافة طباعة للخطأ للتصحيح
+        print(f"خطأ في الرد على منشور فوز: {e}")
+
+
+# ============================================
+# نسخة بديلة: أمر باسم ".فوز" لاستخراج الكلمة يدوياً
+# ============================================
+
+@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.فوز(?: (.+))?'))
+async def fawz_manual(event):
+    """
+    أمر يدوي: .فوز + النص
+    يقوم باستخراج الكلمة بعد "اول" أو "أول" ويرد بها
+    """
+    text_to_process = event.pattern_match.group(1)
+    
+    # إذا كان الأمر مع رد على رسالة
+    if not text_to_process and event.is_reply:
+        replied_msg = await event.get_reply_message()
+        text_to_process = replied_msg.raw_text
+    
+    if not text_to_process:
+        return await event.edit("**✧︙ استخدم الأمر مع نص أو قم بالرد على رسالة.**\nمثال: `.فوز اول تم`")
+    
+    # استخراج الكلمة
+    patterns = [
+        r'اول\s+(\S+)',
+        r'أول\s+(\S+)',
+        r'اول\s*[:：]\s*(\S+)',
+        r'أول\s*[:：]\s*(\S+)',
+    ]
+    
+    extracted_word = None
+    for pattern in patterns:
+        match = re.search(pattern, text_to_process, re.IGNORECASE)
+        if match:
+            extracted_word = match.group(1).strip()
+            break
+    
+    if not extracted_word:
+        return await event.edit("**✧︙ لم يتم العثور على كلمة بعد 'اول' أو 'أول' في النص!**")
+    
+    # تنظيف الكلمة
+    extracted_word = re.sub(r'^[^\w\d\u0600-\u06FF]+|[^\w\d\u0600-\u06FF]+$', '', extracted_word)
+    
+    await event.edit(f"**✓ الكلمة المستخرجة:** `{extracted_word}`")
+    # أو يمكنك إرسالها كرد
+    await event.reply(extracted_word)
     if meanings_trigger_text in event.raw_text:
         for smiley, meaning in smiley_meanings.items():
             if smiley in event.raw_text:

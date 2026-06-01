@@ -589,18 +589,13 @@ async def auto_reply_meanings(event):
 # المطور: aRRas
 import re
 from telethon import events
+from telethon.tl.functions.messages import SendMessageRequest
 from JoKeRUB import l313l
-
-# ============================================
-# ميزة فوز - للتعليقات في القنوات
-# ============================================
 
 fawz_enabled = False
 fawz_channel_id = None
 
-@l313l.ar_cmd(
-    pattern="تفعيل فوز(?:\s+(-?\d+))?$",
-)
+@l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
     global fawz_enabled, fawz_channel_id
     
@@ -612,125 +607,71 @@ async def enable_fawz(event):
             if chat_id > 0:
                 chat_id = int(f"-100{chat_id}")
         except ValueError:
-            return await event.edit("**✧︙ رقم القناة غير صحيح!**")
+            return await event.edit("✧︙ رقم القناة غير صحيح!")
     else:
         chat_id = event.chat_id
-    
-    try:
-        entity = await event.client.get_entity(chat_id)
-        if not getattr(entity, 'broadcast', False):
-            return await event.edit("**✧︙ الميزة تعمل فقط على القنوات!**")
-    except Exception as e:
-        return await event.edit(f"**✧︙ لا يمكن الوصول للقناة: {str(e)}**")
     
     fawz_channel_id = chat_id
     fawz_enabled = True
     
-    await event.edit(f"✅ **تم تفعيل ميزة فوز للتعليقات!**\n📢 **القناة:** {entity.title or chat_id}")
+    await event.edit(f"✅ تم التفعيل على القناة: {chat_id}")
 
 
-@l313l.ar_cmd(
-    pattern="تعطيل فوز$",
-)
+@l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
     global fawz_enabled, fawz_channel_id
     fawz_enabled = False
     fawz_channel_id = None
-    await event.edit("✅ **تم تعطيل ميزة فوز!**")
+    await event.edit("✅ تم التعطيل")
 
 
 @l313l.on(events.NewMessage(incoming=True))
-async def fawz_comment_handler(event):
-    """
-    معالج التعليقات في القناة:
-    - يتحقق من أن الرسالة هي تعليق (وليست منشوراً أصلياً)
-    - يستخرج الكلمة بعد 'اول' أو 'أول'
-    - يرد على التعليق نفسه بالكلمة المستخرجة
-    """
+async def fawz_handler(event):
     global fawz_enabled, fawz_channel_id
     
     if not fawz_enabled:
         return
     
-    # التأكد أن الرسالة في القناة المفعلة
+    # التأكد من القناة الصحيحة
     if event.chat_id != fawz_channel_id:
         return
     
-    # مهم جداً: التحقق من أن الرسالة هي تعليق (وليست منشور أصلي)
-    # في القنوات، الرسائل العادية (المنشورات) يكون لها `reply_to_msg_id == None`
-    # بينما التعليقات يكون لها `reply_to_msg_id` يشير إلى المنشور الأصلي
-    if event.reply_to_msg_id is None:
-        return  # هذا منشور أصلي، نتجاهله
-    
-    # استخراج النص
-    message_text = event.raw_text.strip()
-    if not message_text:
+    # النص المرسل
+    text = event.raw_text.strip()
+    if not text:
         return
     
-    # أنماط البحث
-    patterns = [
-        r'اول\s+(\S+)',
-        r'أول\s+(\S+)',
-        r'اول\s*[:：]\s*(\S+)',
-        r'أول\s*[:：]\s*(\S+)',
-    ]
-    
-    extracted_word = None
-    for pattern in patterns:
-        match = re.search(pattern, message_text, re.IGNORECASE)
-        if match:
-            extracted_word = match.group(1).strip()
-            break
-    
-    if not extracted_word:
+    # استخراج الكلمة بعد "اول"
+    match = re.search(r'[اولأ][ولل]?\s+(\S+)', text, re.IGNORECASE)
+    if not match:
         return
     
-    # تنظيف الكلمة
-    extracted_word = re.sub(r'^[^\w\d\u0600-\u06FF]+|[^\w\d\u0600-\u06FF]+$', '', extracted_word)
+    word = match.group(1).strip()
     
-    if not extracted_word:
-        return
+    # ========================================
+    # الطريقة الصحيحة للرد على تعليق في قناة
+    # ========================================
     
-    # إرسال الرد على نفس المنشور (وليس على التعليق نفسه)
-    # نستخدم `event.reply()` للرد على نفس الرسالة (التعليق) أو على المنشور الأصلي
+    # يجب أن نرسل إلى القناة نفسها، مع تحديد reply_to = معرف الرسالة التي نرد عليها
+    # هذا هو المفتاح: reply_to = event.id
+    
     try:
-        # الرد على نفس التعليق
-        await event.reply(extracted_word)
+        await event.client.send_message(
+            entity=event.chat_id,
+            message=word,
+            reply_to=event.id  # هذا يجعلها تظهر كتعليق
+        )
+        print(f"✅ تم الرد على التعليق: {word}")
     except Exception as e:
-        print(f"خطأ: {e}")
-
-
-# ============================================
-# أمر يدوي للاختبار
-# ============================================
-
-@l313l.on(events.NewMessage(outgoing=True, pattern=r'^\.فوز(?: (.+))?'))
-async def fawz_manual(event):
-    text_to_process = event.pattern_match.group(1)
-    
-    if not text_to_process and event.is_reply:
-        replied_msg = await event.get_reply_message()
-        text_to_process = replied_msg.raw_text
-    
-    if not text_to_process:
-        return await event.edit("**✧︙ استخدم الأمر مع نص أو قم بالرد على رسالة.**")
-    
-    patterns = [
-        r'اول\s+(\S+)',
-        r'أول\s+(\S+)',
-    ]
-    
-    extracted_word = None
-    for pattern in patterns:
-        match = re.search(pattern, text_to_process, re.IGNORECASE)
-        if match:
-            extracted_word = match.group(1).strip()
-            break
-    
-    if not extracted_word:
-        return await event.edit("**✧︙ لم يتم العثور على كلمة بعد 'اول' أو 'أول'!**")
-    
-    extracted_word = re.sub(r'^[^\w\d\u0600-\u06FF]+|[^\w\d\u0600-\u06FF]+$', '', extracted_word)
-    
-    await event.edit(f"✓ `{extracted_word}`")
-    await event.reply(extracted_word)
+        print(f"❌ خطأ: {e}")
+        
+        # محاولة بديلة باستخدام الطريقة المباشرة
+        try:
+            await event.client(SendMessageRequest(
+                peer=event.chat_id,
+                message=word,
+                reply_to_msg_id=event.id
+            ))
+            print(f"✅ تم باستخدام SendMessageRequest")
+        except Exception as e2:
+            print(f"❌ فشل مرة أخرى: {e2}")

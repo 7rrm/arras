@@ -629,20 +629,32 @@ async def fawz_handler(event):
         return
     
     # ========================================
-    # الشرط الجديد: يرد فقط إذا كانت الرسالة من قناة
+    # المفتاح: نتحقق أن الرسالة مصدرها القناة وليست من شخص في المجموعة
     # ========================================
-    # في Telethon، القناة تتميز بـ event.is_channel == True
-    # والمجموعة العادية تكون event.is_group == True
-    # الخاص يكون event.is_private == True
+    # عندما يكتب شخص تعليقاً في القناة، تظهر الرسالة في المجموعة
+    # وهذه الرسالة لها خاصية `event.via_bot_id` أو `event.post`
+    # لكن الأسهل: نتحقق من وجود `event.reply_to_msg_id` 
+    # وأن الرسالة تحتوي على تنسيق خاص بالقنوات
     
-    if not event.is_channel:
-        return  # يهمل إذا لم تكن الرسالة من قناة
+    # الطريقة الصحيحة: نتحقق من أن الرسالة تم إعادة توجيهها من القناة
+    # أو أن فيها `sender` ليس عضواً عادياً في المجموعة
     
-    # أيضاً نتأكد أن هذه الرسالة هي تعليق (وليست منشور أصلي في القناة)
-    # التعليقات في القناة يكون لها reply_to_msg_id (تشير إلى المنشور الأصلي)
-    # المنشورات الأصلية يكون reply_to_msg_id == None
-    if event.reply_to_msg_id is None:
-        return  # يهمل المنشورات الأصلية، نتعامل فقط مع التعليقات
+    # في مجموعة المناقشة، الرسائل القادمة من القناة يكون فيها 
+    # `event.forward` يحتوي على معلومات القناة الأصلية
+    if not event.forward:
+        return  # يهمل الرسائل التي تكتب مباشرة في المجموعة
+    
+    # نتأكد أن الرسالة مرسلة من قناة (وليس من مستخدم عادي)
+    if not event.forward.chat_id:
+        return
+    
+    # نحاول جلب معلومات القناة الأصلية
+    try:
+        original_chat = await event.client.get_entity(event.forward.chat_id)
+        if not getattr(original_chat, 'broadcast', False):
+            return  # ليست قناة
+    except:
+        return
     
     text = event.raw_text.strip()
     if not text:
@@ -658,6 +670,6 @@ async def fawz_handler(event):
     
     try:
         await event.reply(word)
-        print(f"✅ رد في القناة: {word}")
+        print(f"✅ رد على رسالة من القناة: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")

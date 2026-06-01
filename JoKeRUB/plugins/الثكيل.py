@@ -586,10 +586,7 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
-# المطور: aRRas
-import re
 from telethon import events
-from telethon.tl.functions.messages import SendMessageRequest
 from JoKeRUB import l313l
 
 fawz_enabled = False
@@ -598,7 +595,6 @@ fawz_channel_id = None
 @l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
     global fawz_enabled, fawz_channel_id
-    
     chat_input = event.pattern_match.group(1)
     
     if chat_input:
@@ -613,9 +609,7 @@ async def enable_fawz(event):
     
     fawz_channel_id = chat_id
     fawz_enabled = True
-    
     await event.edit(f"✅ تم التفعيل على القناة: {chat_id}")
-
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
@@ -624,54 +618,39 @@ async def disable_fawz(event):
     fawz_channel_id = None
     await event.edit("✅ تم التعطيل")
 
-
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
     global fawz_enabled, fawz_channel_id
     
     if not fawz_enabled:
         return
-    
-    # التأكد من القناة الصحيحة
     if event.chat_id != fawz_channel_id:
         return
     
-    # النص المرسل
     text = event.raw_text.strip()
     if not text:
         return
     
     # استخراج الكلمة بعد "اول"
-    match = re.search(r'[اولأ][ولل]?\s+(\S+)', text, re.IGNORECASE)
+    import re
+    match = re.search(r'اول\s+(\S+)', text, re.IGNORECASE)
+    if not match:
+        match = re.search(r'أول\s+(\S+)', text, re.IGNORECASE)
     if not match:
         return
     
     word = match.group(1).strip()
     
     # ========================================
-    # الطريقة الصحيحة للرد على تعليق في قناة
+    # كتابة تعليق على المنشور
+    # المفتاح: reply_to = event.id
     # ========================================
-    
-    # يجب أن نرسل إلى القناة نفسها، مع تحديد reply_to = معرف الرسالة التي نرد عليها
-    # هذا هو المفتاح: reply_to = event.id
-    
     try:
         await event.client.send_message(
-            entity=event.chat_id,
-            message=word,
+            event.chat_id,
+            word,
             reply_to=event.id  # هذا يجعلها تظهر كتعليق
         )
-        print(f"✅ تم الرد على التعليق: {word}")
+        print(f"✅ تم كتابة التعليق: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")
-        
-        # محاولة بديلة باستخدام الطريقة المباشرة
-        try:
-            await event.client(SendMessageRequest(
-                peer=event.chat_id,
-                message=word,
-                reply_to_msg_id=event.id
-            ))
-            print(f"✅ تم باستخدام SendMessageRequest")
-        except Exception as e2:
-            print(f"❌ فشل مرة أخرى: {e2}")

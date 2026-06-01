@@ -586,7 +586,7 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
-# المطور: aRRas - أسرع نسخة على الإطلاق
+# المطور: aRRas - نسخة الأسطورة 🔥
 import re
 from telethon import events
 from JoKeRUB import l313l
@@ -608,50 +608,45 @@ async def enable_fawz(event):
         fawz_group_id = event.chat_id
     
     fawz_enabled = True
-    await event.edit(f"✅ تم تفعيل فوز (وضع السرعة القصوى) على: `{fawz_group_id}`")
+    await event.edit(f"✅ تم التفعيل (وضع الأسطورة) على: `{fawz_group_id}`")
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
     global fawz_enabled, fawz_group_id
     fawz_enabled = False
     fawz_group_id = None
-    await event.edit("✅ تم تعطيل فوز")
+    await event.edit("✅ تم التعطيل")
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
     global fawz_enabled, fawz_group_id
     
-    # أسرع شروط ممكنة
-    if not fawz_enabled or event.chat_id != fawz_group_id or event.out or not event.forward:
+    # دمج جميع الشروط في سطر واحد (أسرع تنفيذ)
+    if not (fawz_enabled and event.chat_id == fawz_group_id and not event.out and event.forward):
         return
     
     text = event.raw_text
     if not text:
         return
     
-    # البحث المباشر بدون أي دوال إضافية
-    # استخدام find() هو الأسرع على الإطلاق
+    # استخدام or في سطر واحد مع find
     pos = text.find('اول ')
     if pos == -1:
         pos = text.find('أول ')
         if pos == -1:
             return
     
-    # استخراج الكلمة حرفاً حرفاً
+    # استخراج الكلمة بضربة واحدة
     start = pos + 4
-    if start >= len(text):
+    end = text.find(' ', start)
+    word = text[start:end if end != -1 else len(text)]
+    
+    # تنظيف وتصفية بسرعة
+    if not word or len(word) == 0:
         return
     
-    # بناء الكلمة بأسرع طريقة
-    word = ''
-    for i in range(start, len(text)):
-        c = text[i]
-        if c == ' ' or c in '\n.,!?;:' or c == '\u200f' or c == '\u200e':  # علامات الترقيم والمسافات
-            break
-        word += c
+    if word[-1] in '.,!?;:':
+        word = word[:-1]
     
-    if not word:
-        return
-    
-    # الرد المباشر بدون تأخير
-    await event.reply(word)
+    if word:
+        await event.reply(word)

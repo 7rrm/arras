@@ -593,42 +593,70 @@ from JoKeRUB import l313l
 
 fawz_enabled = False
 fawz_channel_id = None
+fawz_group_id = None  # معرف مجموعة المناقشة
 
-@l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
+@l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
-    global fawz_enabled, fawz_channel_id
-    chat_input = event.pattern_match.group(1)
+    global fawz_enabled, fawz_channel_id, fawz_group_id
     
-    if chat_input:
+    parts = event.pattern_match.group(1)
+    group_input = event.pattern_match.group(2)
+    
+    # تحديد القناة
+    if parts:
         try:
-            chat_id = int(chat_input)
-            if chat_id > 0:
-                chat_id = int(f"-100{chat_id}")
+            channel_id = int(parts)
+            if channel_id > 0:
+                channel_id = int(f"-100{channel_id}")
         except ValueError:
             return await event.edit("✧︙ رقم القناة غير صحيح!")
     else:
-        chat_id = event.chat_id
+        channel_id = event.chat_id
     
-    fawz_channel_id = chat_id
+    # تحديد مجموعة المناقشة
+    if group_input:
+        try:
+            group_id = int(group_input)
+            if group_id > 0:
+                group_id = int(f"-100{group_id}")
+        except ValueError:
+            return await event.edit("✧︙ رقم المجموعة غير صحيح!")
+    else:
+        # محاولة جلب مجموعة المناقشة تلقائياً
+        try:
+            full_channel = await event.client.get_entity(channel_id)
+            if hasattr(full_channel, 'linked_chat_id') and full_channel.linked_chat_id:
+                group_id = full_channel.linked_chat_id
+            else:
+                return await event.edit("✧︙ هذه القناة غير متصلة بمجموعة مناقشة! أضف معرف المجموعة يدوياً: `.تفعيل فوز -100xxx -100yyy`")
+        except:
+            return await event.edit("✧︙ يرجى إدخال معرف مجموعة المناقشة يدوياً!")
+    
+    fawz_channel_id = channel_id
+    fawz_group_id = group_id
     fawz_enabled = True
-    await event.edit(f"✅ تم التفعيل على القناة: {chat_id}")
+    
+    await event.edit(f"✅ **تم التفعيل بنجاح!**\n📢 القناة: `{channel_id}`\n💬 مجموعة المناقشة: `{group_id}`")
 
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
-    global fawz_enabled, fawz_channel_id
+    global fawz_enabled, fawz_channel_id, fawz_group_id
     fawz_enabled = False
     fawz_channel_id = None
+    fawz_group_id = None
     await event.edit("✅ تم التعطيل")
 
 
 @l313l.on(events.NewMessage(incoming=True))
 async def fawz_handler(event):
-    global fawz_enabled, fawz_channel_id
+    global fawz_enabled, fawz_channel_id, fawz_group_id
     
     if not fawz_enabled:
         return
-    if event.chat_id != fawz_channel_id:
+    
+    # نراقب مجموعة المناقشة، وليس القناة
+    if event.chat_id != fawz_group_id:
         return
     
     text = event.raw_text.strip()
@@ -644,16 +672,9 @@ async def fawz_handler(event):
     
     word = match.group(1).strip()
     
-    # ========================================
-    # الطريقة الصحيحة للتعليق على منشور في قناة
-    # باستخدام comment_to وليس reply_to
-    # ========================================
+    # إرسال الرد إلى مجموعة المناقشة (ستظهر كتعليق على منشور القناة)
     try:
-        await event.client.send_message(
-            event.chat_id,
-            word,
-            comment_to=event.reply_to_msg_id  # هذا هو المفتاح الصحيح!
-        )
-        print(f"✅ تم التعليق بنجاح: {word}")
+        await event.reply(word)  # هذا سيرد في المجموعة ويظهر كتعليق على القناة
+        print(f"✅ تم الرد في مجموعة المناقشة: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")

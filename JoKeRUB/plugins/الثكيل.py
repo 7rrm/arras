@@ -586,13 +586,16 @@ async def auto_reply_meanings(event):
         if replied_msg.sender_id != l313l.uid:
             return
 
-# المطور: aRRas
+# المطور: aRRas - أسرع نسخة مع regex مجمع
 import re
 from telethon import events
 from JoKeRUB import l313l
 
 fawz_enabled = False
 fawz_group_id = None
+
+# تجميع الرجيكس مرة واحدة فقط (أسرع)
+FAST_PATTERN = re.compile(r'[اولأ][ولل]?\s+(\S+)', re.IGNORECASE)
 
 @l313l.ar_cmd(pattern="تفعيل فوز(?:\s+(-?\d+))?$")
 async def enable_fawz(event):
@@ -608,7 +611,7 @@ async def enable_fawz(event):
         fawz_group_id = event.chat_id
     
     fawz_enabled = True
-    await event.edit(f"✅ تم تفعيل فوز على معرف: `{fawz_group_id}`")
+    await event.edit(f"✅ تم تفعيل فوز (وضع السرعة) على: `{fawz_group_id}`")
 
 @l313l.ar_cmd(pattern="تعطيل فوز$")
 async def disable_fawz(event):
@@ -621,55 +624,23 @@ async def disable_fawz(event):
 async def fawz_handler(event):
     global fawz_enabled, fawz_group_id
     
-    if not fawz_enabled:
-        return
-    if event.chat_id != fawz_group_id:
-        return
-    if event.out:
+    # شروط سريعة جداً
+    if not fawz_enabled or event.chat_id != fawz_group_id or event.out or not event.forward:
         return
     
-    # ========================================
-    # المفتاح: نتحقق أن الرسالة مصدرها القناة وليست من شخص في المجموعة
-    # ========================================
-    # عندما يكتب شخص تعليقاً في القناة، تظهر الرسالة في المجموعة
-    # وهذه الرسالة لها خاصية `event.via_bot_id` أو `event.post`
-    # لكن الأسهل: نتحقق من وجود `event.reply_to_msg_id` 
-    # وأن الرسالة تحتوي على تنسيق خاص بالقنوات
-    
-    # الطريقة الصحيحة: نتحقق من أن الرسالة تم إعادة توجيهها من القناة
-    # أو أن فيها `sender` ليس عضواً عادياً في المجموعة
-    
-    # في مجموعة المناقشة، الرسائل القادمة من القناة يكون فيها 
-    # `event.forward` يحتوي على معلومات القناة الأصلية
-    if not event.forward:
-        return  # يهمل الرسائل التي تكتب مباشرة في المجموعة
-    
-    # نتأكد أن الرسالة مرسلة من قناة (وليس من مستخدم عادي)
-    if not event.forward.chat_id:
-        return
-    
-    # نحاول جلب معلومات القناة الأصلية
-    try:
-        original_chat = await event.client.get_entity(event.forward.chat_id)
-        if not getattr(original_chat, 'broadcast', False):
-            return  # ليست قناة
-    except:
-        return
-    
-    text = event.raw_text.strip()
+    text = event.raw_text
     if not text:
         return
     
-    match = re.search(r'اول\s+(\S+)', text, re.IGNORECASE)
-    if not match:
-        match = re.search(r'أول\s+(\S+)', text, re.IGNORECASE)
+    # استخدام الرجيكس المجمع (أسرع من البحث العادي)
+    match = FAST_PATTERN.search(text)
     if not match:
         return
     
     word = match.group(1).strip()
+    # إزالة علامات الترقيم بسرعة
+    if word and word[-1] in '.,!?;:':
+        word = word[:-1]
     
-    try:
+    if word:
         await event.reply(word)
-        print(f"✅ رد على رسالة من القناة: {word}")
-    except Exception as e:
-        print(f"❌ خطأ: {e}")

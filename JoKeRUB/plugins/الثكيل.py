@@ -628,6 +628,22 @@ async def fawz_handler(event):
     if event.out:
         return
     
+    # ========================================
+    # الشرط الجديد: يرد فقط إذا كانت الرسالة من قناة
+    # ========================================
+    # في Telethon، القناة تتميز بـ event.is_channel == True
+    # والمجموعة العادية تكون event.is_group == True
+    # الخاص يكون event.is_private == True
+    
+    if not event.is_channel:
+        return  # يهمل إذا لم تكن الرسالة من قناة
+    
+    # أيضاً نتأكد أن هذه الرسالة هي تعليق (وليست منشور أصلي في القناة)
+    # التعليقات في القناة يكون لها reply_to_msg_id (تشير إلى المنشور الأصلي)
+    # المنشورات الأصلية يكون reply_to_msg_id == None
+    if event.reply_to_msg_id is None:
+        return  # يهمل المنشورات الأصلية، نتعامل فقط مع التعليقات
+    
     text = event.raw_text.strip()
     if not text:
         return
@@ -642,6 +658,6 @@ async def fawz_handler(event):
     
     try:
         await event.reply(word)
-        print(f"✅ رد: {word}")
+        print(f"✅ رد في القناة: {word}")
     except Exception as e:
         print(f"❌ خطأ: {e}")

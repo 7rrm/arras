@@ -27,8 +27,8 @@ from ...Config import Config
 from ...sql_helper.globals import gvarstatus
 from ..resources.states import states
 
-imdb = IMDb()
-
+#imdb = IMDb()
+imdb = None
 mov_titles = [
     "long imdb title",
     "long imdb canonical title",

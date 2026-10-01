@@ -108,7 +108,7 @@ async def ytdl_download_audio(c_q: CallbackQuery):
         import requests
         
         API_KEY = "fba9ef6a-1da3-4cb9-8e80-b27341ca4bc0"
-        api_url = f"https:// muntazer.site/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
+        api_url = f"https://muntazer.site/yt/m4a={API_KEY}=https://youtu.be/{yt_code}"
         
         def fetch_api():
             resp = requests.get(api_url, timeout=60)
@@ -186,7 +186,7 @@ async def ytdl_download_video(c_q: CallbackQuery):
         import requests
         
         API_KEY = "fba9ef6a-1da3-4cb9-8e80-b27341ca4bc0"
-        api_url = f"https:// muntazer.site/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
+        api_url = f"https://muntazer.site/yt/mp4={API_KEY}=https://youtu.be/{yt_code}"
         
         def fetch_api():
             resp = requests.get(api_url, timeout=60)
